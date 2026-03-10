@@ -56,8 +56,10 @@ def parse_args(argv=None):
                    help=f"Restraint force constant for added backbone atoms in kcal/mol/A^2 (default: {DEFAULT_WEAK_K})")
     p.add_argument("--max-iter", type=int, default=DEFAULT_MAX_ITER,
                    help=f"Max minimization iterations per phase (default: {DEFAULT_MAX_ITER})")
+    p.add_argument("--rebuild-h", action="store_true",
+                   help="Strip and re-add hydrogens via OpenMM (default: keep existing)")
     p.add_argument("--keep-hydrogens", action="store_true",
-                   help="Use existing hydrogens from input (do not re-add)")
+                   help="(deprecated, now default) Use existing hydrogens from input")
     p.add_argument("--no-solvent", action="store_true",
                    help="Minimize in vacuum (no solvent box)")
     p.add_argument("--platform", choices=["CPU", "CUDA", "OpenCL", "Reference"],
@@ -257,9 +259,11 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
 
     modeller = Modeller(stripped_top, stripped_pos)
 
-    if args.keep_hydrogens:
+    # Default: keep existing hydrogens. --rebuild-h strips and re-adds via OpenMM.
+    keep_h = not args.rebuild_h
+    if keep_h:
         if not _has_hydrogens(modeller.topology):
-            print("Warning: --keep-hydrogens but no hydrogens found, adding them anyway")
+            print("No hydrogens found, adding them...")
             modeller.addHydrogens(forcefield, pH=args.ph)
         else:
             print("Keeping existing hydrogens from input")

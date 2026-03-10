@@ -258,7 +258,7 @@ dvbfixer pull input.pdb --bond A:22:SG:A:96:SG --radius 8.0 -o output.pdb
 
 ### dvbfixer minimize — Energy Minimization with OpenMM
 
-Energy-minimizes a PDB structure with OpenMM using selective restraints. Reads a `.dat` file (from `dvbfixer model` + `dvbfixer prepare`) to apply different restraint strengths to original vs newly added atoms. Before adding hydrogens, automatically strips existing H and runs PDBFixer to fix missing heavy atoms (e.g. mutated residues) and terminal atoms (OXT for truncated chains). Detects AMBER protonation names (HIE/GLH/CYX etc.) from the raw PDB and passes them as `variants` to `addHydrogens`, ensuring correct protonation hydrogens are added (e.g. HE2 for GLH).
+Energy-minimizes a PDB structure with OpenMM using selective restraints. Reads a `.dat` file (from `dvbfixer model` + `dvbfixer prepare`) to apply different restraint strengths to original vs newly added atoms. By default, keeps existing hydrogens from input (adds via OpenMM only if none found). With `--rebuild-h`, strips existing H, runs PDBFixer to fix missing heavy atoms (e.g. mutated residues) and terminal atoms (OXT for truncated chains), then re-adds correct H via OpenMM. Detects AMBER protonation names (HIE/GLH/CYX etc.) from the raw PDB and passes them as `variants` to `addHydrogens`, ensuring correct protonation hydrogens are added (e.g. HE2 for GLH).
 
 #### Three-Tier Restraint System
 
@@ -298,7 +298,7 @@ dvbfixer minimize input.pdb
 | `--restraint-k` | 100.0 | Strong restraint constant (kcal/mol/A^2) |
 | `--weak-k` | 5.0 | Weak restraint constant for new backbone (kcal/mol/A^2) |
 | `--max-iter` | 1000 | Max minimization iterations per phase |
-| `--keep-hydrogens` | off | Use existing hydrogens from input (do not re-add) |
+| `--rebuild-h` | off | Strip and re-add hydrogens via OpenMM (default: keep existing) |
 | `--no-solvent` | off | Minimize in vacuum |
 | `--platform` | auto | OpenMM platform (CPU, CUDA, OpenCL, Reference) |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
@@ -537,7 +537,7 @@ dvbfixer puppet input.pdb -o backbone.pdb
 
 ### dvbfixer zbs — Full Pipeline
 
-Runs the complete preparation workflow in one command: **renumber → model → prepare → minimize → protonate → minimize**. Intermediate files are cleaned up by default — use `--keep-interim` to preserve them. Two minimize passes ensure correct protonation: the first minimizes with standard names to get good heavy-atom positions, then protonate assigns AMBER protonation names (HIE/GLH/CYX etc.) based on PROPKA pKa predictions, then the second minimize detects AMBER names and re-adds hydrogens matching the correct protonation state (e.g. HE2 for GLH). The final output has AMBER protonation names — use `dvbfixer rename` if you need canonical PDB names. The `.dat` file flows from model (gap atoms) through prepare (merged with PDBFixer additions) to minimize (selective restraints). Water is removed by default. Each step can be skipped individually.
+Runs the complete preparation workflow in one command: **renumber → model → prepare → minimize → protonate → minimize**. Intermediate files are cleaned up by default — use `--keep-interim` to preserve them. Two minimize passes ensure correct protonation: the first keeps existing hydrogens (default) to get good heavy-atom positions, then protonate assigns AMBER protonation names (HIE/GLH/CYX etc.) based on PROPKA pKa predictions, then the second minimize uses `--rebuild-h` to strip and re-add hydrogens matching the correct protonation state (e.g. HE2 for GLH). The final output has AMBER protonation names — use `dvbfixer rename` if you need canonical PDB names. The `.dat` file flows from model (gap atoms) through prepare (merged with PDBFixer additions) to minimize (selective restraints). Water is removed by default. Each step can be skipped individually.
 
 #### Usage
 
@@ -576,7 +576,7 @@ dvbfixer zbs input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
 | `--mutate` | none | Mutate a residue during prepare: CHAIN:RESNUM:NEW_AA (repeatable) |
 | `--skip-minimize` | off | Skip minimize step |
 | `--no-solvent` | off | Minimize in vacuum |
-| `--keep-hydrogens` | off | Use existing hydrogens during minimization |
+| `--rebuild-h` | off | Strip and re-add hydrogens via OpenMM during minimization (default: keep existing) |
 | `--restraint-k` | 100.0 | Restraint force constant |
 | `--max-iter` | 1000 | Max minimization iterations per phase |
 | `--platform` | auto | OpenMM platform |
@@ -690,7 +690,7 @@ dvbfixer top input.pdb --acpype
 
 - **Chain ID mismatch in .dat workflow**: The `.dat` file stores chain IDs from PDBFixer. If the prepared PDB is saved through a tool that reassigns chain IDs (PyMOL, VMD), the `.dat` entries won't match the new chain letters. Workaround: ensure chain IDs remain consistent between prepare and minimize steps, or manually edit the `.dat` file.
 
-- **Hydrogen handling in minimize**: Hydrogens are stripped and re-added by OpenMM. Use `--keep-hydrogens` to preserve existing ones. When AMBER protonation names (GLH, HIE, CYX, etc.) are detected in the input PDB, they are passed as `variants` to `addHydrogens` to ensure correct protonation hydrogens.
+- **Hydrogen handling in minimize**: By default, existing hydrogens are kept. Use `--rebuild-h` to strip and re-add via OpenMM (needed when protonation state changes). When AMBER protonation names (GLH, HIE, CYX, etc.) are detected in the input PDB, they are passed as `variants` to `addHydrogens` to ensure correct protonation hydrogens.
 
 - **OpenMM normalizes AMBER names**: `PDBFile` reader converts GLH→GLU, HIE→HIS, CYX→CYS. The minimize tool reads raw PDB text first to capture original names. `PDBFile.writeFile` also writes standard names, so a final protonate text-based rename is needed to restore AMBER names.
 

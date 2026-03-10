@@ -55,8 +55,8 @@ def parse_args(argv=None):
                    help="Skip the minimize step")
     p.add_argument("--no-solvent", action="store_true",
                    help="Minimize in vacuum (no solvent box)")
-    p.add_argument("--keep-hydrogens", action="store_true",
-                   help="Use existing hydrogens during minimization")
+    p.add_argument("--rebuild-h", action="store_true",
+                   help="Strip and re-add hydrogens via OpenMM during minimization (default: keep existing)")
     p.add_argument("--restraint-k", type=float, default=100.0,
                    help="Restraint force constant for original atoms (default: 100)")
     p.add_argument("--max-iter", type=int, default=1000,
@@ -171,8 +171,8 @@ def main(argv=None):
                          "--max-iter", str(args.max_iter)]
         if args.no_solvent:
             minimize_argv.append("--no-solvent")
-        if args.keep_hydrogens:
-            minimize_argv.append("--keep-hydrogens")
+        if args.rebuild_h:
+            minimize_argv.append("--rebuild-h")
         if args.platform:
             minimize_argv.extend(["--platform", args.platform])
         if args.verbose:
@@ -207,7 +207,8 @@ def main(argv=None):
                          "--ph", str(args.ph),
                          "--ff"] + args.ff + [
                          "--restraint-k", str(args.restraint_k),
-                         "--max-iter", str(args.max_iter)]
+                         "--max-iter", str(args.max_iter),
+                         "--rebuild-h"]  # must rebuild H with correct AMBER protonation
         if args.no_solvent:
             minimize_argv.append("--no-solvent")
         if args.platform:
