@@ -12,6 +12,9 @@ COMMANDS = {
     "minimize": "Energy-minimize with OpenMM using selective restraints",
     "protonate": "Set protonation states using PROPKA3 pKa predictions",
     "rename": "Rename non-canonical residues (AMBER/CHARMM) to standard names",
+    "top": "Generate GROMACS .itp/.top topology files from PDB",
+    "transplant": "Transplant molecules from donor PDB to acceptor PDB",
+    "puppet": "Strip PDB to backbone-only polyglycine model",
     "zbs": "Full pipeline: renumber -> model -> prepare -> minimize -> protonate",
 }
 
@@ -49,12 +52,18 @@ def main():
         from dvbfixer.pull import main as cmd_main
     elif command == "rename":
         from dvbfixer.rename import main as cmd_main
+    elif command == "top":
+        from dvbfixer.top import main as cmd_main
     elif command == "prepare":
         from dvbfixer.prepare import main as cmd_main
     elif command == "minimize":
         from dvbfixer.minimize import main as cmd_main
     elif command == "protonate":
         from dvbfixer.protonate import main as cmd_main
+    elif command == "transplant":
+        from dvbfixer.transplant import main as cmd_main
+    elif command == "puppet":
+        from dvbfixer.puppet import main as cmd_main
     elif command == "zbs":
         from dvbfixer.zbs import main as cmd_main
     else:

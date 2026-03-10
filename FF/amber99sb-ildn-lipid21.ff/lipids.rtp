@@ -1,0 +1,1414 @@
+[ bondedtypes ]
+; Column 1 : default bondtype
+; Column 2 : default angletype
+; Column 3 : default proper dihedraltype
+; Column 4 : default improper dihedraltype
+; Column 5 : This controls the generation of dihedrals from the bonding.
+;            All possible dihedrals are generated automatically. A value of
+;            1 here means that all these are retained. A value of
+;            0 here requires generated dihedrals be removed if
+;              * there are any dihedrals on the same central atoms
+;                specified in the residue topology, or
+;              * there are other identical generated dihedrals
+;                sharing the same central atoms, or
+;              * there are other generated dihedrals sharing the
+;                same central bond that have fewer hydrogen atoms
+; Column 6 : number of neighbors to exclude from non-bonded interactions
+; Column 7 : 1 = generate 1,4 interactions between pairs of hydrogen atoms
+;            0 = do not generate such
+; Column 8 : 1 = remove proper dihedrals if found centered on the same
+;                bond as an improper dihedral
+;            0 = do not generate such
+; bonds  angles  dihedrals  impropers all_dihedrals nrexcl HH14 RemoveDih
+     1       1          9          4        1         3      1     0
+
+; Lipid21 Sterols
+
+[CHL] ; Cholesterol
+ [atoms]
+    C1    cA          -0.24774     1
+   H11    hA           0.04877     2
+   H12    hA           0.04877     3
+    C2    cA           -0.0615     4
+   H21    hA           0.04813     5
+   H22    hA           0.04813     6
+    C3    cA           0.40036     7
+   H31    hE          -0.00851     8
+    C4    cA          -0.23713     9
+   H41    hA           0.10062    10
+   H42    hA           0.10062    11
+    C5    cB          -0.25751    12
+    C6    cB          -0.24373    13
+   H61    hB           0.14861    14
+    C7    cA          -0.07545    15
+   H71    hA            0.0513    16
+   H72    hA            0.0513    17
+    C8    cA           0.01784    18
+   H81    hA           0.02812    19
+    C9    cA          -0.02984    20
+   H91    hA          -0.00336    21
+   C10    cA           0.54647    22
+   C11    cA          -0.12771    23
+  H111    hA           0.04026    24
+  H112    hA           0.04026    25
+   C12    cA          -0.15805    26
+  H121    hA           0.00769    27
+  H122    hA           0.00769    28
+   C13    cA           0.58369    29
+   C14    cA           0.01375    30
+  H141    hA           0.00447    31
+   C15    cA          -0.18505    32
+  H151    hA           0.04123    33
+  H152    hA           0.04123    34
+   C16    cA          -0.08292    35
+  H161    hA           0.02764    36
+  H162    hA           0.02764    37
+   C17    cA          -0.05177    38
+  H171    hA          -0.03044    39
+   C18    cA            -0.536    40
+  H181    hA           0.10362    41
+  H182    hA           0.10362    42
+  H183    hA           0.10362    43
+   C19    cA          -0.35222    44
+  H191    hA           0.07247    45
+  H192    hA           0.07247    46
+  H193    hA           0.07247    47
+   C20    cD           0.17875    48
+  H201    hL          -0.01602    49
+   C21    cD          -0.42797    50
+  H211    hL           0.09922    51
+  H212    hL           0.09922    52
+  H213    hL           0.09922    53
+   C22    cD          -0.05026    54
+  H221    hL           0.00945    55
+  H222    hL           0.00945    56
+   C23    cD           0.07866    57
+  H231    hL          -0.00796    58
+  H232    hL          -0.00796    59
+   C24    cD          -0.28213    60
+  H241    hL           0.06297    61
+  H242    hL           0.06297    62
+   C25    cD            0.4506    63
+  H251    hL          -0.04913    64
+   C26    cD           -0.4493    65
+  H261    hL           0.09987    66
+  H262    hL           0.09987    67
+  H263    hL           0.09987    68
+   C27    cD           -0.4493    69
+  H271    hL           0.09987    70
+  H272    hL           0.09987    71
+  H273    hL           0.09987    72
+    O1    oH          -0.76658    73
+   HO1    hO           0.44297    74
+ [bonds]
+    C1   H11
+    C1   H12
+    C1    C2
+    C1   C10
+    C2   H21
+    C2   H22
+    C2    C3
+    C3   H31
+    C3    C4
+    C3    O1
+    C4   H41
+    C4   H42
+    C4    C5
+    C5    C6
+    C5   C10
+    C6   H61
+    C6    C7
+    C7   H71
+    C7   H72
+    C7    C8
+    C8   H81
+    C8    C9
+    C8   C14
+    C9   H91
+    C9   C10
+    C9   C11
+   C10   C19
+   C11  H111
+   C11  H112
+   C11   C12
+   C12  H121
+   C12  H122
+   C12   C13
+   C13   C14
+   C13   C17
+   C13   C18
+   C14  H141
+   C14   C15
+   C15  H151
+   C15  H152
+   C15   C16
+   C16  H161
+   C16  H162
+   C16   C17
+   C17  H171
+   C17   C20
+   C18  H181
+   C18  H182
+   C18  H183
+   C19  H191
+   C19  H192
+   C19  H193
+   C20  H201
+   C20   C21
+   C20   C22
+   C21  H211
+   C21  H212
+   C21  H213
+   C22  H221
+   C22  H222
+   C22   C23
+   C23  H231
+   C23  H232
+   C23   C24
+   C24  H241
+   C24  H242
+   C24   C25
+   C25  H251
+   C25   C26
+   C25   C27
+   C26  H261
+   C26  H262
+   C26  H263
+   C27  H271
+   C27  H272
+   C27  H273
+    O1   HO1
+
+; Lipid21 head groups
+
+[PC] ; Phosphatidylcholine
+ [atoms]
+   C11    cC            0.9104     1
+   O12    oC          -0.67157     2
+   O11    oS          -0.57549     3
+    C1    cA           0.19694     4
+    HR    hE           0.07047     5
+    HS    hE           0.07047     6
+    C2    cA           0.28124     7
+    HX    hE           0.06325     8
+    C3    cA           0.01746     9
+    HA    hE           0.09559    10
+    HB    hE           0.09559    11
+   O31    oT          -0.50948    12
+   P31    pA           1.33972    13
+   O32    oT          -0.50818    14
+   C31    cA            0.1668    15
+   H1A    hE           0.07853    16
+   H1B    hE           0.07853    17
+   C32    cA          -0.17082    18
+   H2A    hX           0.13642    19
+   H2B    hX           0.13642    20
+   N31    nA           0.24526    21
+   C33    cA          -0.33897    22
+   H3A    hX           0.17223    23
+   H3B    hX           0.17223    24
+   H3C    hX           0.17223    25
+   C34    cA          -0.33897    26
+   H4A    hX           0.17223    27
+   H4B    hX           0.17223    28
+   H4C    hX           0.17223    29
+   C35    cA          -0.33897    30
+   H5A    hX           0.17223    31
+   H5B    hX           0.17223    32
+   H5C    hX           0.17223    33
+   O33    oP          -0.87581    34
+   O34    oP          -0.87581    35
+   O21    oS          -0.55295    36
+   C21    cC           0.89761    37
+   O22    oC          -0.67375    38
+ [bonds]
+   C11   O12
+   C11   O11
+   O11    C1
+    C1    HR
+    C1    HS
+    C1    C2
+    C2    HX
+    C2    C3
+    C2   O21
+    C3    HA
+    C3    HB
+    C3   O31
+   O31   P31
+   P31   O32
+   P31   O33
+   P31   O34
+   O32   C31
+   C31   H1A
+   C31   H1B
+   C31   C32
+   C32   H2A
+   C32   H2B
+   C32   N31
+   N31   C33
+   N31   C34
+   N31   C35
+   C33   H3A
+   C33   H3B
+   C33   H3C
+   C34   H4A
+   C34   H4B
+   C34   H4C
+   C35   H5A
+   C35   H5B
+   C35   H5C
+   O21   C21
+   C21   O22
+   C11  -C12
+   C21  +C12
+
+[PE] ; Phosphatidylethanolamine
+ [atoms]
+   C11    cC           0.88836     1
+   O12    oC           -0.6508     2
+   O11    oS          -0.59383     3
+    C1    cA           0.27378     4
+    HR    hE           0.04457     5
+    HS    hE           0.04457     6
+    C2    cA             0.339     7
+    HX    hE           0.03284     8
+    C3    cA           0.04097     9
+    HA    hE           0.09099    10
+    HB    hE           0.09099    11
+   O31    oT          -0.54662    12
+   P31    pA           1.37366    13
+   O32    oT          -0.51454    14
+   C31    cA           0.07516    15
+   H1A    hE           0.09152    16
+   H1B    hE           0.09152    17
+   C32    cA           0.07732    18
+   H2A    hX           0.09163    19
+   H2B    hX           0.09163    20
+   N31    nA          -0.36813    21
+  HN1A    hN           0.34855    22
+  HN1B    hN           0.34855    23
+  HN1C    hN           0.34855    24
+   O33    oP          -0.87745    25
+   O34    oP          -0.87745    26
+   O21    oS          -0.57548    27
+   C21    cC           0.86934    28
+   O22    oC           -0.6492    29
+ [bonds]
+   C11   O12
+   C11   O11
+   O11    C1
+    C1    HR
+    C1    HS
+    C1    C2
+    C2    HX
+    C2    C3
+    C2   O21
+    C3    HA
+    C3    HB
+    C3   O31
+   O31   P31
+   P31   O32
+   P31   O33
+   P31   O34
+   O32   C31
+   C31   H1A
+   C31   H1B
+   C31   C32
+   C32   H2A
+   C32   H2B
+   C32   N31
+   N31  HN1A
+   N31  HN1B
+   N31  HN1C
+   O21   C21
+   C21   O22
+   C11  -C12
+   C21  +C12
+
+[PGR] ; Phosphatidylglyceroli R-
+ [atoms]
+   C11    cC           0.87701     1
+   O12    oC          -0.64926     2
+   O11    oS          -0.58517     3
+    C1    cA           0.29512     4
+    HR    hE            0.0338     5
+    HS    hE            0.0338     6
+    C2    cA           0.35381     7
+    HX    hE           0.03749     8
+    C3    cA           0.04371     9
+    HA    hE           0.09104    10
+    HB    hE           0.09104    11
+   O31    oT           -0.5461    12
+   P31    pA           1.38046    13
+   O32    oT          -0.53431    14
+   C31    cA          -0.05671    15
+   H1A    hE           0.09335    16
+   H1B    hE           0.09335    17
+   C32    cA           0.33682    18
+   H2A    hE           0.03004    19
+   O35    oH          -0.72619    20
+  HO5A    hO           0.43952    21
+   C33    cA            0.1936    22
+   H3A    hE           0.03472    23
+   H3B    hE           0.03472    24
+   O33    oP          -0.87344    25
+   O34    oP          -0.87344    26
+   O21    oS          -0.59913    27
+   C21    cC           0.88367    28
+   O22    oC          -0.65576    29
+   O36    oH          -0.70087    30
+  HO6A    hO           0.42333    31
+ [bonds]
+   C11   O12
+   C11   O11
+   O11    C1
+    C1    HR
+    C1    HS
+    C1    C2
+    C2    HX
+    C2    C3
+    C2   O21
+    C3    HA
+    C3    HB
+    C3   O31
+   O31   P31
+   P31   O32
+   P31   O33
+   P31   O34
+   O32   C31
+   C31   H1A
+   C31   H1B
+   C31   C32
+   C32   H2A
+   C32   O35
+   C32   C33
+   O35  HO5A
+   C33   H3A
+   C33   H3B
+   C33   O36
+   O21   C21
+   C21   O22
+   O36  HO6A
+   C11  -C12
+   C21  +C12
+
+[PGS] ; Phosphatidylglyceroli S-
+ [atoms]
+   C11    cC           0.87701     1
+   O12    oC          -0.64926     2
+   O11    oS          -0.58517     3
+    C1    cA           0.29512     4
+    HR    hE            0.0338     5
+    HS    hE            0.0338     6
+    C2    cA           0.35381     7
+    HX    hE           0.03749     8
+    C3    cA           0.04371     9
+    HA    hE           0.09104    10
+    HB    hE           0.09104    11
+   O31    oT           -0.5461    12
+   P31    pA           1.38046    13
+   O32    oT          -0.53431    14
+   C31    cA          -0.05671    15
+   H1A    hE           0.09335    16
+   H1B    hE           0.09335    17
+   C32    cA           0.33682    18
+   H2A    hE           0.03004    19
+   O35    oH          -0.72619    20
+  HO5A    hO           0.43952    21
+   C33    cA            0.1936    22
+   H3A    hE           0.03472    23
+   H3B    hE           0.03472    24
+   O33    oP          -0.87344    25
+   O34    oP          -0.87344    26
+   O21    oS          -0.59913    27
+   C21    cC           0.88367    28
+   O22    oC          -0.65576    29
+   O36    oH          -0.70087    30
+  HO6A    hO           0.42333    31
+ [bonds]
+   C11   O12
+   C11   O11
+   O11    C1
+    C1    HR
+    C1    HS
+    C1    C2
+    C2    HX
+    C2    C3
+    C2   O21
+    C3    HA
+    C3    HB
+    C3   O31
+   O31   P31
+   P31   O32
+   P31   O33
+   P31   O34
+   O32   C31
+   C31   H1A
+   C31   H1B
+   C31   C32
+   C32   H2A
+   C32   O35
+   C32   C33
+   O35  HO5A
+   C33   H3A
+   C33   H3B
+   C33   O36
+   O21   C21
+   C21   O22
+   O36  HO6A
+   C11  -C12
+   C21  +C12
+
+[PH-] ; Phosphaditic acid
+ [atoms]
+   C11    cC           0.88821     1
+   O12    oC          -0.67114     2
+   O11    oS          -0.54782     3
+    C1    cA            0.1853     4
+    HR    hE           0.06768     5
+    HS    hE           0.06768     6
+    C2    cA           0.28355     7
+    HX    hE           0.06386     8
+    C3    cA           0.08153     9
+    HA    hE            0.0831    10
+    HB    hE            0.0831    11
+   O31    oT           -0.5942    12
+   P31    pA           1.45666    13
+   O32    oH           -0.7062    14
+  HO2A    hO           0.41563    15
+   O33    oP          -0.91416    16
+   O34    oP          -0.91416    17
+   O21    oS          -0.55449    18
+   C21    cC            0.8975    19
+   O22    oC          -0.67162    20
+ [bonds]
+   C11   O12
+   C11   O11
+   O11    C1
+    C1    HR
+    C1    HS
+    C1    C2
+    C2    HX
+    C2    C3
+    C2   O21
+    C3    HA
+    C3    HB
+    C3   O31
+   O31   P31
+   P31   O32
+   P31   O33
+   P31   O34
+   O32  HO2A
+   O21   C21
+   C21   O22
+   C11  -C12
+   C21  +C12
+
+[PS] ; Phosphatidylserine
+ [atoms]
+   C11    cC           0.88755     1
+   O12    oC          -0.66333     2
+   O11    oS          -0.57907     3
+    C1    cA           0.27117     4
+    HR    hE           0.03745     5
+    HS    hE           0.03745     6
+    C2    cA           0.44065     7
+    HX    hE           0.00247     8
+    C3    cA           0.01237     9
+    HA    hE           0.09735    10
+    HB    hE           0.09735    11
+   O31    oT          -0.55699    12
+   P31    pA           1.38021    13
+   O32    oT          -0.52013    14
+   C31    cA           0.06037    15
+   H1A    hE           0.09348    16
+   H1B    hE           0.09348    17
+   C32    cA           0.03945    18
+   H2A    hX           0.09055    19
+   N31    nA          -0.41433    20
+  HN1A    hN           0.35387    21
+  HN1B    hN           0.35387    22
+  HN1C    hN           0.35387    23
+   C33    cC           0.80987    24
+   O33    oP          -0.87792    25
+   O34    oP          -0.87792    26
+   O21    oS          -0.63438    27
+   C21    cC            0.8919    28
+   O22    oC          -0.65029    29
+   O35    oO          -0.81518    30
+   O36    oO          -0.81518    31
+ [bonds]
+   C11   O12
+   C11   O11
+   O11    C1
+    C1    HR
+    C1    HS
+    C1    C2
+    C2    HX
+    C2    C3
+    C2   O21
+    C3    HA
+    C3    HB
+    C3   O31
+   O31   P31
+   P31   O32
+   P31   O33
+   P31   O34
+   O32   C31
+   C31   H1A
+   C31   H1B
+   C31   C32
+   C32   H2A
+   C32   N31
+   C32   C33
+   N31  HN1A
+   N31  HN1B
+   N31  HN1C
+   C33   O35
+   C33   O36
+   O21   C21
+   C21   O22
+   C11  -C12
+   C21  +C12
+
+[SPM] ; Sphingomyelin
+ [atoms]
+    C2    cA           0.01274     1
+    HX    hE           0.08746     2
+    C3    cA           0.17663     3
+    HA    hE           0.05162     4
+    HB    hE           0.05162     5
+   O31    oT          -0.53336     6
+   P31    pA           1.32476     7
+   O32    oT          -0.45931     8
+   C31    cA           0.28245     9
+   H1A    hE           0.04989    10
+   H1B    hE           0.04989    11
+   C32    cA          -0.49367    12
+   H2A    hX           0.23384    13
+   H2B    hX           0.23384    14
+   N31    nA           0.24527    15
+   C33    cA          -0.38661    16
+   H3A    hX           0.19157    17
+   H3B    hX           0.19157    18
+   H3C    hX           0.19157    19
+   C34    cA          -0.38661    20
+   H4A    hX           0.19157    21
+   H4B    hX           0.19157    22
+   H4C    hX           0.19157    23
+   C35    cA          -0.38661    24
+   H5A    hX           0.19157    25
+   H5B    hX           0.19157    26
+   H5C    hX           0.19157    27
+   O33    oP          -0.88479    28
+   O34    oP          -0.88479    29
+   N11    nN          -0.38841    30
+   H11    hN           0.27359    31
+   C11    cC           0.61723    32
+   O12    oC           -0.6453    33
+    C1    cA           0.32309    34
+    HR    hE           0.06921    35
+   O22    oH          -0.72303    36
+   H22    hO           0.43496    37
+ [bonds]
+    C2   N11
+    C2    C3
+    C2    HX
+    C2    C1
+    C3   O31
+    C3    HB
+    C3    HA
+   O31   P31
+   P31   O32
+   P31   O33
+   P31   O34
+   O32   C31
+   C31   C32
+   C31   H1B
+   C31   H1A
+   C32   N31
+   C32   H2A
+   C32   H2B
+   N31   C34
+   N31   C35
+   N31   C33
+   C33   H3A
+   C33   H3B
+   C33   H3C
+   C34   H4C
+   C34   H4B
+   C34   H4A
+   C35   H5C
+   C35   H5A
+   C35   H5B
+   N11   C11
+   N11   H11
+   C11   O12
+    C1    HR
+    C1   O22
+   O22   H22
+   C11  -C12
+    C1  +C12
+
+; Lipid21 acyl chains 
+
+[AR] ; Arachidonoyl (20:4)
+ [atoms]
+  C116    cD            0.0391     1
+  H16R    hL           0.02885     2
+  H16S    hL           0.02885     3
+  C115    cB          -0.24415     4
+  H15R    hB           0.13279     5
+  C114    cB          -0.22477     6
+  H14R    hB           0.12962     7
+  C113    cD            0.0582     8
+  H13R    hL           0.06135     9
+  H13S    hL           0.06135    10
+  C112    cB          -0.22016    11
+  H12R    hB           0.13199    12
+  C111    cB           -0.2287    13
+  H11R    hB           0.13134    14
+  C110    cD           0.09541    15
+  H10R    hL           0.05114    16
+  H10S    hL           0.05114    17
+   C19    cB          -0.22869    18
+   H9R    hB           0.13217    19
+   C18    cB          -0.22853    20
+   H8R    hB           0.13473    21
+   C17    cD           0.05578    22
+   H7R    hL           0.06277    23
+   H7S    hL           0.06277    24
+   C16    cB          -0.20679    25
+   H6R    hB           0.12986    26
+   C15    cB          -0.26789    27
+   H5R    hB           0.14358    28
+   C14    cD           0.03138    29
+   H4R    hL           0.03871    30
+   H4S    hL           0.03871    31
+   C13    cD           0.02563    32
+   H3R    hL           0.02512    33
+   H3S    hL           0.02512    34
+   C12    cD          -0.12394    35
+   H2R    hL           0.02454    36
+   H2S    hL           0.02454    37
+  C117    cD           -0.0284    38
+  H17R    hL           0.01958    39
+  H17S    hL           0.01958    40
+  C118    cD          -0.01977    41
+  H18R    hL           0.01422    42
+  H18S    hL           0.01422    43
+  C119    cD           0.02496    44
+  H19R    hL           0.00543    45
+  H19S    hL           0.00543    46
+  C120    cD           -0.1093    47
+  H20R    hL           0.02372    48
+  H20S    hL           0.02372    49
+  H20T    hL           0.02372    50
+ [bonds]
+  C116  H16R
+  C116  H16S
+  C116  C115
+  C116  C117
+  C115  H15R
+  C115  C114
+  C114  H14R
+  C114  C113
+  C113  H13R
+  C113  H13S
+  C113  C112
+  C112  H12R
+  C112  C111
+  C111  H11R
+  C111  C110
+  C110  H10R
+  C110  H10S
+  C110   C19
+   C19   H9R
+   C19   C18
+   C18   H8R
+   C18   C17
+   C17   H7R
+   C17   H7S
+   C17   C16
+   C16   H6R
+   C16   C15
+   C15   H5R
+   C15   C14
+   C14   H4R
+   C14   H4S
+   C14   C13
+   C13   H3R
+   C13   H3S
+   C13   C12
+   C12   H2R
+   C12   H2S
+  C117  H17R
+  C117  H17S
+  C117  C118
+  C118  H18R
+  C118  H18S
+  C118  C119
+  C119  H19R
+  C119  H19S
+  C119  C120
+  C120  H20R
+  C120  H20S
+  C120  H20T
+
+[DHA] ; Docosahexaenoyl (22:6)
+ [atoms]
+  C116    cB           -0.2339     1
+  H16R    hB           0.13381     2
+  C115    cD           0.06921     3
+  H15R    hL           0.05834     4
+  H15S    hL           0.05834     5
+  C114    cB          -0.24042     6
+  H14R    hB           0.13834     7
+  C113    cB          -0.21867     8
+  H13R    hB           0.13157     9
+  C112    cD           0.08525    10
+  H12R    hL           0.05342    11
+  H12S    hL           0.05342    12
+  C111    cB          -0.24121    13
+  H11R    hB           0.13631    14
+  C110    cB          -0.22143    15
+  H10R    hB           0.13363    16
+   C19    cD           0.08904    17
+   H9R    hL           0.05425    18
+   H9S    hL           0.05425    19
+   C18    cB          -0.22625    20
+   H8R    hB           0.12815    21
+   C17    cB           -0.2209    22
+   H7R    hB           0.13986    23
+   C16    cD           0.06034    24
+   H6R    hL           0.06352    25
+   H6S    hL           0.06352    26
+   C15    cB          -0.21485    27
+   H5R    hB            0.1325    28
+   C14    cB          -0.28706    29
+   H4R    hB           0.15404    30
+   C13    cD             0.121    31
+   H3R    hL            0.0261    32
+   H3S    hL            0.0261    33
+   C12    cD          -0.14294    34
+   H2R    hL           0.03754    35
+   H2S    hL           0.03754    36
+  C117    cB           -0.2165    37
+  H17R    hB           0.13212    38
+  C118    cD           0.09272    39
+  H18R    hL           0.05323    40
+  H18S    hL           0.05323    41
+  C119    cB          -0.24683    42
+  H19R    hB           0.13632    43
+  C120    cB          -0.24022    44
+  H20R    hB           0.13305    45
+  C121    cD           0.12202    46
+  H21R    hL           0.01004    47
+  H21S    hL           0.01004    48
+  C122    cD          -0.10891    49
+  H22R    hL           0.02597    50
+  H22S    hL           0.02597    51
+  H22T    hL           0.02597    52
+ [bonds]
+  C116  H16R
+  C116  C115
+  C116  C117
+  C115  H15R
+  C115  H15S
+  C115  C114
+  C114  H14R
+  C114  C113
+  C113  H13R
+  C113  C112
+  C112  H12R
+  C112  H12S
+  C112  C111
+  C111  H11R
+  C111  C110
+  C110  H10R
+  C110   C19
+   C19   H9R
+   C19   H9S
+   C19   C18
+   C18   H8R
+   C18   C17
+   C17   H7R
+   C17   C16
+   C16   H6R
+   C16   H6S
+   C16   C15
+   C15   H5R
+   C15   C14
+   C14   H4R
+   C14   C13
+   C13   H3R
+   C13   H3S
+   C13   C12
+   C12   H2R
+   C12   H2S
+  C117  H17R
+  C117  C118
+  C118  H18R
+  C118  H18S
+  C118  C119
+  C119  H19R
+  C119  C120
+  C120  H20R
+  C120  C121
+  C121  H21R
+  C121  H21S
+  C121  C122
+  C122  H22R
+  C122  H22S
+  C122  H22T
+
+[LAL] ; Lauroyl (12:0)
+ [atoms]
+  H12T    hL           0.02581     1
+  C112    cD          -0.11853     2
+  H12R    hL           0.02581     3
+  H12S    hL           0.02581     4
+  C111    cD           0.02332     5
+  H11R    hL           0.00828     6
+  H11S    hL           0.00828     7
+  C110    cD          -0.01957     8
+  H10R    hL           0.01516     9
+  H10S    hL           0.01516    10
+   C19    cD          -0.02198    11
+   H9R    hL           0.00587    12
+   H9S    hL           0.00587    13
+   C18    cD          -0.02088    14
+   H8R    hL           0.01039    15
+   H8S    hL           0.01039    16
+   C17    cD          -0.01928    17
+   H7R    hL           0.01121    18
+   H7S    hL           0.01121    19
+   C16    cD          -0.01963    20
+   H6R    hL           0.01024    21
+   H6S    hL           0.01024    22
+   C15    cD          -0.01573    23
+   H5R    hL           0.00955    24
+   H5S    hL           0.00955    25
+   C14    cD          -0.02408    26
+   H4R    hL           0.02058    27
+   H4S    hL           0.02058    28
+   C13    cD           0.00151    29
+   H3R    hL           0.01911    30
+   H3S    hL           0.01911    31
+   C12    cD          -0.17216    32
+   H2R    hL           0.05442    33
+   H2S    hL           0.05442    34
+ [bonds]
+  H12T  C112
+  C112  H12R
+  C112  H12S
+  C112  C111
+  C111  C110
+  C111  H11S
+  C111  H11R
+  C110   C19
+  C110  H10S
+  C110  H10R
+   C19   C18
+   C19   H9S
+   C19   H9R
+   C18   C17
+   C18   H8S
+   C18   H8R
+   C17   C16
+   C17   H7S
+   C17   H7R
+   C16   C15
+   C16   H6S
+   C16   H6R
+   C15   C14
+   C15   H5S
+   C15   H5R
+   C14   C13
+   C14   H4S
+   C14   H4R
+   C13   C12
+   C13   H3R
+   C13   H3S
+   C12   H2S
+   C12   H2R
+
+[MY] ; Myristoyl (14:0)
+ [atoms]
+  H14T    hL           0.02551     1
+  C114    cD          -0.11171     2
+  H14R    hL           0.02551     3
+  H14S    hL           0.02551     4
+  C113    cD           0.01746     5
+  H13R    hL           0.00753     6
+  H13S    hL           0.00753     7
+  C112    cD          -0.02809     8
+  H12R    hL           0.01721     9
+  H12S    hL           0.01721    10
+  C111    cD          -0.03179    11
+  H11R    hL           0.01268    12
+  H11S    hL           0.01268    13
+  C110    cD          -0.02102    14
+  H10R    hL           0.01004    15
+  H10S    hL           0.01004    16
+   C19    cD          -0.01465    17
+   H9R    hL           0.01017    18
+   H9S    hL           0.01017    19
+   C18    cD          -0.02645    20
+   H8R    hL           0.01124    21
+   H8S    hL           0.01124    22
+   C17    cD          -0.00439    23
+   H7R    hL           0.00683    24
+   H7S    hL           0.00683    25
+   C16    cD          -0.02781    26
+   H6R    hL           0.01151    27
+   H6S    hL           0.01151    28
+   C15    cD          -0.01652    29
+   H5R    hL           0.01057    30
+   H5S    hL           0.01057    31
+   C14    cD          -0.02695    32
+   H4R    hL           0.02043    33
+   H4S    hL           0.02043    34
+   C13    cD          -0.00244    35
+   H3R    hL           0.01886    36
+   H3S    hL           0.01886    37
+   C12    cD           -0.1642    38
+   H2R    hL           0.05394    39
+   H2S    hL           0.05394    40
+ [bonds]
+  H14T  C114
+  C114  C113
+  C114  H14R
+  C114  H14S
+  C113  C112
+  C113  H13R
+  C113  H13S
+  C112  C111
+  C112  H12S
+  C112  H12R
+  C111  C110
+  C111  H11R
+  C111  H11S
+  C110   C19
+  C110  H10S
+  C110  H10R
+   C19   C18
+   C19   H9R
+   C19   H9S
+   C18   C17
+   C18   H8S
+   C18   H8R
+   C17   C16
+   C17   H7R
+   C17   H7S
+   C16   C15
+   C16   H6R
+   C16   H6S
+   C15   C14
+   C15   H5R
+   C15   H5S
+   C14   C13
+   C14   H4S
+   C14   H4R
+   C13   C12
+   C13   H3S
+   C13   H3R
+   C12   H2S
+   C12   H2R
+
+[OL] ; Oleoyl (18:1 n-9)
+ [atoms]
+   C12    cD          -0.14342     1
+   H2R    hL           0.04286     2
+   H2S    hL           0.04286     3
+   C13    cD           0.00162     4
+   H3R    hL           0.01953     5
+   H3S    hL           0.01953     6
+   C14    cD          -0.02296     7
+   H4R    hL           0.01813     8
+   H4S    hL           0.01813     9
+   C15    cD          -0.01669    10
+   H5R    hL           0.00869    11
+   H5S    hL           0.00869    12
+   C16    cD          -0.02379    13
+   H6R    hL           0.00927    14
+   H6S    hL           0.00927    15
+   C17    cD           -0.0175    16
+   H7R    hL            0.0196    17
+   H7S    hL            0.0196    18
+   C18    cD           0.03177    19
+   H8R    hL           0.03268    20
+   H8S    hL           0.03268    21
+   C19    cB          -0.24423    22
+   H9R    hB           0.13151    23
+  C110    cB          -0.23928    24
+  H10R    hB           0.12688    25
+  C111    cD           0.02906    26
+  H11R    hL           0.03353    27
+  H11S    hL           0.03353    28
+  C112    cD          -0.02635    29
+  H12R    hL           0.01972    30
+  H12S    hL           0.01972    31
+  C113    cD          -0.01826    32
+  H13R    hL            0.0138    33
+  H13S    hL            0.0138    34
+  C114    cD          -0.02485    35
+  H14R    hL           0.00857    36
+  H14S    hL           0.00857    37
+  C115    cD          -0.02325    38
+  H15R    hL            0.0104    39
+  H15S    hL            0.0104    40
+  C116    cD          -0.01249    41
+  H16R    hL           0.01366    42
+  H16S    hL           0.01366    43
+  C117    cD           0.00868    44
+  H17R    hL           0.01003    45
+  H17S    hL           0.01003    46
+  C118    cD          -0.11729    47
+  H18R    hL           0.02663    48
+  H18S    hL           0.02663    49
+  H18T    hL           0.02663    50
+ [bonds]
+   C12   H2R
+   C12   H2S
+   C12   C13
+   C13   H3R
+   C13   H3S
+   C13   C14
+   C14   H4R
+   C14   H4S
+   C14   C15
+   C15   H5R
+   C15   H5S
+   C15   C16
+   C16   H6R
+   C16   H6S
+   C16   C17
+   C17   H7R
+   C17   H7S
+   C17   C18
+   C18   H8R
+   C18   H8S
+   C18   C19
+   C19   H9R
+   C19  C110
+  C110  H10R
+  C110  C111
+  C111  H11R
+  C111  H11S
+  C111  C112
+  C112  H12R
+  C112  H12S
+  C112  C113
+  C113  H13R
+  C113  H13S
+  C113  C114
+  C114  H14R
+  C114  H14S
+  C114  C115
+  C115  H15R
+  C115  H15S
+  C115  C116
+  C116  H16R
+  C116  H16S
+  C116  C117
+  C117  H17R
+  C117  H17S
+  C117  C118
+  C118  H18R
+  C118  H18S
+  C118  H18T
+
+[PA] ; Palmitoyl (16:0)
+ [atoms]
+  C116    cD          -0.12545     1
+  H16R    hL           0.02905     2
+  H16S    hL           0.02905     3
+  H16T    hL           0.02905     4
+  C115    cD           0.01397     5
+  H15R    hL           0.00929     6
+  H15S    hL           0.00929     7
+  C114    cD          -0.02009     8
+  H14R    hL           0.01593     9
+  H14S    hL           0.01593    10
+  C113    cD           -0.0331    11
+  H13R    hL           0.01462    12
+  H13S    hL           0.01462    13
+  C112    cD          -0.02763    14
+  H12R    hL           0.01137    15
+  H12S    hL           0.01137    16
+  C111    cD          -0.02521    17
+  H11R    hL           0.01433    18
+  H11S    hL           0.01433    19
+  C110    cD          -0.02883    20
+  H10R    hL           0.01469    21
+  H10S    hL           0.01469    22
+   C19    cD          -0.03047    23
+   H9R    hL            0.0139    24
+   H9S    hL            0.0139    25
+   C18    cD          -0.01579    26
+   H8R    hL           0.00907    27
+   H8S    hL           0.00907    28
+   C17    cD          -0.01963    29
+   H7R    hL           0.01104    30
+   H7S    hL           0.01104    31
+   C16    cD          -0.02443    32
+   H6R    hL           0.01333    33
+   H6S    hL           0.01333    34
+   C15    cD          -0.02939    35
+   H5R    hL           0.01676    36
+   H5S    hL           0.01676    37
+   C14    cD           -0.0301    38
+   H4R    hL           0.02088    39
+   H4S    hL           0.02088    40
+   C13    cD          -0.00488    41
+   H3R    hL           0.01901    42
+   H3S    hL           0.01901    43
+   C12    cD          -0.14926    44
+   H2R    hL           0.04734    45
+   H2S    hL           0.04734    46
+ [bonds]
+  C116  H16R
+  C116  H16S
+  C116  H16T
+  C116  C115
+  C115  H15R
+  C115  H15S
+  C115  C114
+  C114  H14R
+  C114  H14S
+  C114  C113
+  C113  H13R
+  C113  H13S
+  C113  C112
+  C112  H12R
+  C112  H12S
+  C112  C111
+  C111  H11R
+  C111  H11S
+  C111  C110
+  C110  H10R
+  C110  H10S
+  C110   C19
+   C19   H9R
+   C19   H9S
+   C19   C18
+   C18   H8R
+   C18   H8S
+   C18   C17
+   C17   H7R
+   C17   H7S
+   C17   C16
+   C16   H6R
+   C16   H6S
+   C16   C15
+   C15   H5R
+   C15   H5S
+   C15   C14
+   C14   H4R
+   C14   H4S
+   C14   C13
+   C13   H3R
+   C13   H3S
+   C13   C12
+   C12   H2R
+   C12   H2S
+
+[SA] ; Sphingosine (16:1)
+ [atoms]
+  C116    cD              -0.2     1
+  H16R    hL           0.04947     2
+  H16S    hL           0.04947     3
+  H16T    hL           0.04947     4
+  C115    cD          -0.04678     5
+  H15R    hL           0.02648     6
+  H15S    hL           0.02648     7
+  C114    cD           0.04465     8
+  H14R    hL           0.01097     9
+  H14S    hL           0.01097    10
+  C113    cD          -0.11922    11
+  H13R    hL           0.04033    12
+  H13S    hL           0.04033    13
+  C112    cD           0.00105    14
+  H12R    hL           0.01693    15
+  H12S    hL           0.01693    16
+  C111    cD          -0.07942    17
+  H11R    hL            0.0235    18
+  H11S    hL            0.0235    19
+  C110    cD          -0.06637    20
+  H10R    hL           0.02172    21
+  H10S    hL           0.02172    22
+   C19    cD           0.05335    23
+   H9R    hL            0.0202    24
+   H9S    hL            0.0202    25
+   C18    cD          -0.18789    26
+   H8R    hL           0.04691    27
+   H8S    hL           0.04691    28
+   C17    cD           0.04929    29
+   H7R    hL           0.00605    30
+   H7S    hL           0.00605    31
+   C16    cD            -0.013    32
+   H6R    hL           0.00322    33
+   H6S    hL           0.00322    34
+   C15    cD           0.09317    35
+   H5R    hL          -0.01169    36
+   H5S    hL          -0.01169    37
+   C14    cD          -0.25814    38
+   H4R    hL           0.07684    39
+   H4S    hL           0.07684    40
+   C13    cB           0.02829    41
+   H3R    hB           0.11628    42
+   C12    cB          -0.34189    43
+   H2R    hB           0.14555    44
+ [bonds]
+  C116  C115
+  C116  H16S
+  C116  H16R
+  C116  H16T
+  C115  C114
+  C115  H15S
+  C115  H15R
+  C114  C113
+  C114  H14R
+  C114  H14S
+  C113  C112
+  C113  H13S
+  C113  H13R
+  C112  C111
+  C112  H12S
+  C112  H12R
+  C111  C110
+  C111  H11S
+  C111  H11R
+  C110   C19
+  C110  H10R
+  C110  H10S
+   C19   C18
+   C19   H9R
+   C19   H9S
+   C18   C17
+   C18   H8S
+   C18   H8R
+   C17   C16
+   C17   H7S
+   C17   H7R
+   C16   C15
+   C16   H6R
+   C16   H6S
+   C15   C14
+   C15   H5S
+   C15   H5R
+   C14   C13
+   C14   H4R
+   C14   H4S
+   C13   C12
+   C13   H3R
+   C12   H2R
+
+
+[ST] ; Stearoyl (18:0)
+ [atoms]
+  C118    cD          -0.12007     1
+  H18R    hL           0.02794     2
+  H18S    hL           0.02794     3
+  H18T    hL           0.02794     4
+  C117    cD           0.02066     5
+  H17R    hL           0.00848     6
+  H17S    hL           0.00848     7
+  C116    cD          -0.02765     8
+  H16R    hL           0.01563     9
+  H16S    hL           0.01563    10
+  C115    cD          -0.03244    11
+  H15R    hL           0.01025    12
+  H15S    hL           0.01025    13
+  C114    cD          -0.01349    14
+  H14R    hL           0.01007    15
+  H14S    hL           0.01007    16
+  C113    cD          -0.01159    17
+  H13R    hL           0.00602    18
+  H13S    hL           0.00602    19
+  C112    cD          -0.01915    20
+  H12R    hL            0.0082    21
+  H12S    hL            0.0082    22
+  C111    cD          -0.01709    23
+  H11R    hL           0.01021    24
+  H11S    hL           0.01021    25
+  C110    cD          -0.02642    26
+  H10R    hL           0.01082    27
+  H10S    hL           0.01082    28
+   C19    cD            -0.018    29
+   H9R    hL           0.00959    30
+   H9S    hL           0.00959    31
+   C18    cD          -0.01462    32
+   H8R    hL           0.00733    33
+   H8S    hL           0.00733    34
+   C17    cD          -0.01947    35
+   H7R    hL           0.00929    36
+   H7S    hL           0.00929    37
+   C16    cD          -0.03763    38
+   H6R    hL           0.01774    39
+   H6S    hL           0.01774    40
+   C15    cD          -0.01344    41
+   H5R    hL           0.00819    42
+   H5S    hL           0.00819    43
+   C14    cD          -0.05979    44
+   H4R    hL           0.02424    45
+   H4S    hL           0.02424    46
+   C13    cD          -0.00013    47
+   H3R    hL           0.01389    48
+   H3S    hL           0.01389    49
+   C12    cD          -0.11702    50
+   H2R    hL           0.05181    51
+   H2S    hL           0.05181    52
+ [bonds]
+  C118  C117
+  C118  H18T
+  C118  H18S
+  C118  H18R
+  C117  C116
+  C117  H17S
+  C117  H17R
+  C116  C115
+  C116  H16R
+  C116  H16S
+  C115  C114
+  C115  H15S
+  C115  H15R
+  C114  C113
+  C114  H14R
+  C114  H14S
+  C113  C112
+  C113  H13S
+  C113  H13R
+  C112  C111
+  C112  H12R
+  C112  H12S
+  C111  C110
+  C111  H11S
+  C111  H11R
+  C110   C19
+  C110  H10R
+  C110  H10S
+   C19   C18
+   C19   H9S
+   C19   H9R
+   C18   C17
+   C18   H8R
+   C18   H8S
+   C17   C16
+   C17   H7S
+   C17   H7R
+   C16   C15
+   C16   H6R
+   C16   H6S
+   C15   C14
+   C15   H5S
+   C15   H5R
+   C14   C13
+   C14   H4R
+   C14   H4S
+   C13   C12
+   C13   H3S
+   C13   H3R
+   C12   H2R
+   C12   H2S

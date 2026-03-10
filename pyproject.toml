@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dvbfixer"
 version = "0.1.0"
-description = "PDB structure preparation tools: chain splitting, renumbering, loop modeling, fixing, minimization, protonation"
+description = "PDB structure preparation tools: chain splitting, renumbering, loop modeling, fixing, minimization, protonation, topology generation, molecule transplanting"
 requires-python = ">=3.11"
 dependencies = [
     "numpy",
@@ -15,6 +15,8 @@ dependencies = [
     "pdbfixer>=1.9",
     "propka>=3.5",
     "openmmforcefields",
+    "parmed",
+    "acpype",
 ]
 
 [project.scripts]

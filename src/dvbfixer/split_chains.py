@@ -21,6 +21,9 @@ DEFAULT_DISTANCE_CUTOFF = 2.5
 DEFAULT_GAP_CUTOFF = 15.0
 
 WATER_RESNAMES = {'HOH', 'WAT', 'TIP3', 'TIP', 'SOL', 'T3P', 'T4P', 'T5P'}
+ION_RESNAMES = {'NA', 'CL', 'K', 'MG', 'CA', 'ZN', 'FE', 'MN', 'CU',
+                'NA+', 'CL-', 'K+', 'MG2+', 'CA2+', 'ZN2+'}
+SOLVENT_IONS = WATER_RESNAMES | ION_RESNAMES
 
 STANDARD_RESIDUES = {
     "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE",
@@ -203,12 +206,18 @@ def main(argv=None):
     with open(input_path) as f:
         lines = f.readlines()
 
+    # Separate water/ions from other atoms BEFORE chain break detection
+    # so they don't cause false breaks between protein chains
     atom_lines = []
     atom_orig_indices = []
+    solvent_lines = []
     for i, line in enumerate(lines):
         if is_atom_line(line):
-            atom_lines.append(line)
-            atom_orig_indices.append(i)
+            if get_resname(line) in SOLVENT_IONS:
+                solvent_lines.append(line)
+            else:
+                atom_lines.append(line)
+                atom_orig_indices.append(i)
 
     if not atom_lines:
         print("No ATOM/HETATM records found.", file=sys.stderr)
@@ -265,6 +274,8 @@ def main(argv=None):
     serial = 1
 
     for line in lines:
+        if is_atom_line(line) and get_resname(line) in SOLVENT_IONS:
+            continue  # solvent/ions already separated
         if is_atom_line(line) and ai < len(atom_lines):
             ci = int(chain_for_atom[ai])
             chain_id = CHAIN_IDS[ci]
@@ -291,15 +302,17 @@ def main(argv=None):
         else:
             output_lines.append(line)
 
-    if not args.keep_water:
-        filtered = []
-        for line in output_lines:
-            if is_atom_line(line) and get_resname(line) in WATER_RESNAMES:
-                continue
-            if line.startswith("TER") and len(line) > 20 and line[17:20].strip() in WATER_RESNAMES:
-                continue
-            filtered.append(line)
-        output_lines = filtered
+    # Re-append solvent/ions if requested
+    if args.keep_water and solvent_lines:
+        # Insert before END
+        end_idx = len(output_lines)
+        for i, line in enumerate(output_lines):
+            if line.startswith("END"):
+                end_idx = i
+                break
+        for sl in solvent_lines:
+            output_lines.insert(end_idx, sl)
+            end_idx += 1
 
     with open(output_path, 'w') as f:
         f.writelines(output_lines)

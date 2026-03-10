@@ -13,6 +13,8 @@ dependencies:
   - rdkit
   - biopython
   - modeller
+  - parmed
   - pip
   - pip:
     - propka >=3.5
+    - acpype

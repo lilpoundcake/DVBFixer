@@ -29,6 +29,8 @@ PROTEIN_RESIDUES = {
     'LEU', 'LYS', 'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP', 'TYR', 'VAL',
     'HID', 'HIE', 'HIP', 'HSD', 'HSE', 'HSP', 'CYX', 'CYM', 'ASH', 'GLH',
     'LYN', 'MSE', 'ACE', 'NME', 'NHE',
+    # GLYCAM protein residues
+    'NLN', 'OLS', 'OLT',
 }
 SOLVENT_IONS = {
     'HOH', 'WAT', 'TIP3', 'SOL', 'NA', 'CL', 'K', 'MG', 'CA', 'ZN',

@@ -1,6 +1,6 @@
 # dvbfixer
 
-A suite of Python CLI tools for preparing PDB (Protein Data Bank) structural biology files. Handles common issues with PDB files from MD simulations and the PDB database: missing chain IDs, antibody insertion codes, missing loops/residues, loop rebuilding with Modeller, energy minimization with selective restraints, and protonation state assignment.
+A suite of Python CLI tools for preparing PDB (Protein Data Bank) structural biology files. Handles common issues with PDB files from MD simulations and the PDB database: missing chain IDs, antibody insertion codes, missing loops/residues, loop rebuilding with Modeller, energy minimization with selective restraints, protonation state assignment, GROMACS topology generation, and GLYCAM glycoprotein transplanting.
 
 ## Installation
 
@@ -30,7 +30,7 @@ micromamba run -n dvbfixer dvbfixer <command> [options]
 
 ### dvbfixer split — Empirical Chain Splitting
 
-Splits chains in PDB files that lack chain IDs (e.g. GROMACS MD output). Assigns unique chain IDs (A-Z, a-z, 0-9), inserts TER records, and renumbers residues per chain.
+Splits chains in PDB files that lack chain IDs (e.g. GROMACS MD output). Assigns unique chain IDs (A-Z, a-z, 0-9), inserts TER records, and renumbers residues per chain. Water and ions are removed before chain detection to prevent false breaks, then optionally re-appended.
 
 Chain breaks are detected by three criteria, applied in priority order:
 
@@ -66,7 +66,7 @@ dvbfixer split input.pdb --no-renumber
 | `-g`, `--gap-cutoff` | 15.0 | Nearest-atom gap cutoff for non-protein residues (angstroms) |
 | `--no-distance` | off | Disable all distance-based detection |
 | `--no-renumber` | off | Keep original residue numbers |
-| `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |
+| `--keep-water` | off | Keep water and ions in output (removed by default) |
 | `-v`, `--verbose` | off | Print detected chain info |
 
 ---
@@ -226,6 +226,36 @@ You can edit the `added_atoms` list to change which atoms receive weak/no restra
 
 ---
 
+### dvbfixer pull — Bond Pulling
+
+Pulls atoms together to form bonds (disulfide bridges, glycosidic bonds) using OpenMM partial minimization. Atoms within a configurable radius of bond endpoints move freely; the rest are frozen via mass=0. Auto-removes conflicting hydrogens (CYS HG for disulfides, ASN HD22 for glycosidic bonds). Validates bond geometry before and after pulling.
+
+#### Usage
+
+```bash
+# Form a disulfide bond between CYS residues
+dvbfixer pull input.pdb --bond A:22:SG:A:96:SG -v
+
+# Multiple bonds
+dvbfixer pull input.pdb --bond A:22:SG:A:96:SG --bond A:300:ND2:A:1301:C1 -v
+
+# Custom radius and output
+dvbfixer pull input.pdb --bond A:22:SG:A:96:SG --radius 8.0 -o output.pdb
+```
+
+#### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--bond` | (required) | Bond specification: CHAIN1:RES1:ATOM1:CHAIN2:RES2:ATOM2 (repeatable) |
+| `-o`, `--output` | `<input>_pull.pdb` | Output file path |
+| `--radius` | 6.0 | Radius around bond endpoints for free atoms (angstroms) |
+| `--target` | auto | Target bond distance (angstroms, auto-detected from element pair) |
+| `--rename` | off | Rename non-canonical residues before processing |
+| `-v`, `--verbose` | off | Print detailed progress |
+
+---
+
 ### dvbfixer minimize — Energy Minimization with OpenMM
 
 Energy-minimizes a PDB structure with OpenMM using selective restraints. Reads a `.dat` file (from `dvbfixer model` + `dvbfixer prepare`) to apply different restraint strengths to original vs newly added atoms. Before adding hydrogens, automatically strips existing H and runs PDBFixer to fix missing heavy atoms (e.g. mutated residues) and terminal atoms (OXT for truncated chains). Detects AMBER protonation names (HIE/GLH/CYX etc.) from the raw PDB and passes them as `variants` to `addHydrogens`, ensuring correct protonation hydrogens are added (e.g. HE2 for GLH).
@@ -367,9 +397,147 @@ Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pul
 
 ---
 
+### dvbfixer top — GROMACS Topology Generation
+
+Generates GROMACS `.itp`/`.top` topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). Handles proteins and carbohydrates (CHARMM glycan topology with glycosidic bond detection).
+
+#### Usage
+
+```bash
+# Basic usage with AMBER (default) — writes topol.top, Chain_*.itp, posre_*.itp, conf.pdb
+dvbfixer top input.pdb
+
+# CHARMM36 force field
+dvbfixer top input.pdb --ff charmm
+
+# Explicit disulfide bonds and HIS protonation
+dvbfixer top input.pdb --ss A:22:A:96 --his A:64:HID
+
+# ACPYPE mode: full AMBER14+GLYCAM parametrization via OpenMM
+# Handles mixed 1-4 scaling for glycoproteins via [ pairs_nb ]
+dvbfixer top input.pdb --acpype
+
+# Custom output
+dvbfixer top input.pdb -o my_topology.top --pdb my_conf.pdb
+```
+
+#### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-o`, `--output` | `topol.top` | Output .top file |
+| `--ff` | `amber` | Force field: `amber` or `charmm` |
+| `--ff-dir` | (bundled) | Custom force field directory |
+| `--water` | `tip3p` | Water model: tip3p, spc, spce, tip4p |
+| `--ignh` | off | Ignore hydrogens in input PDB |
+| `--ss` | auto | Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable) |
+| `--his` | auto | HIS protonation: CHAIN:NUM:STATE (HIE/HID/HIP, repeatable) |
+| `--merge` | off | Merge all chains into single moleculetype |
+| `--pdb` | `conf.pdb` | Output PDB with topology-matched atom names |
+| `--acpype` | off | Use ACPYPE pipeline (AMBER14+GLYCAM -> ParmEd -> GROMACS) with per-pair 1-4 scaling |
+| `-v`, `--verbose` | off | Print detailed progress |
+
+#### RTP-based mode (default)
+
+Parses force field RTP files to build topology from bond graph: resolves inter-residue bonds (`-C`, `+N`), enumerates angles/dihedrals/pairs algorithmically, copies impropers and CMAP from templates, applies terminal patches. Produces per-chain `.itp` files with `#include` in the master `.top`.
+
+#### ACPYPE mode (`--acpype`)
+
+Uses OpenMM to parametrize with AMBER14 + GLYCAM_06j-1, converts via ParmEd to AMBER prmtop/inpcrd, then ACPYPE generates GROMACS `.top`/`.gro` with `[ pairs_nb ]` directive for per-pair 1-4 parameters. This solves the mixed 1-4 scaling problem (AMBER fudgeLJ=0.5 vs GLYCAM fudgeLJ=1.0) that GROMACS cannot express globally. Best for glycoprotein systems. Ignores `--ff`/`--water`/`--merge` flags.
+
+---
+
+### dvbfixer transplant — Molecule Transplanting
+
+Transplants molecules from a graft PDB into an acceptor PDB. Designed for the GLYCAM glycoprotein workflow: extract glycosylation site residues from your protein, submit to GLYCAM-Web, then transplant the GLYCAM output (renamed protein residues + glycan trees) back into the full structure.
+
+#### Usage
+
+```bash
+# Graft workflow: replace donor residues in acceptor with GLYCAM output
+dvbfixer transplant acceptor.pdb --donor donor.pdb --graft glycam_output.pdb
+
+# With Kabsch superposition (if structures are not pre-aligned)
+dvbfixer transplant acceptor.pdb --donor donor.pdb --graft glycam_output.pdb --superpose
+
+# With OpenMM relaxation (AMBER+GLYCAM, 4-stage minimization)
+dvbfixer transplant acceptor.pdb --donor donor.pdb --graft glycam_output.pdb --relax
+
+# Export GROMACS topology via ACPYPE
+dvbfixer transplant acceptor.pdb --donor donor.pdb --graft glycam_output.pdb --gromacs gmx_output/
+
+# Simple transplant: copy selected residues from donor to acceptor
+dvbfixer transplant acceptor.pdb --donor donor.pdb --select A:NAG
+```
+
+#### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--donor` | (required) | Donor PDB: original residues from acceptor (identifies replacement sites) |
+| `--graft` | none | Graft PDB: modified donor + added molecules (e.g. GLYCAM output) |
+| `--select` | none | Selection for simple transplant: chain IDs, residue names, or ranges |
+| `--align` | none | Chain mapping for superposition: DONOR:ACCEPTOR (e.g. H:H, repeatable) |
+| `--superpose` | off | Enable Kabsch superposition (auto-detect chain mapping) |
+| `--relax` | off | Run OpenMM minimization with AMBER+GLYCAM after transplant |
+| `--relax-stages` | `1000:5000,...` | Relaxation stages: k1:iter1,k2:iter2,... (k in kJ/mol/nm2) |
+| `--gromacs` | none | Export GROMACS topology via ACPYPE to specified directory |
+| `-o`, `--output` | `<acceptor>_transplant.pdb` | Output PDB |
+| `-v`, `--verbose` | off | Print detailed progress |
+
+#### Graft Workflow
+
+1. **`--donor`**: Original protein residues extracted from acceptor (e.g. ASN307, SER308). Used to identify which acceptor residues to replace and provides CA atoms for alignment.
+2. **`--graft`**: GLYCAM output with renamed residues (NLN/OLS/OLT) + glycan trees (4YB/VMB/UYB etc.). Preserves GLYCAM atom and residue names.
+3. Optional `--superpose`: Kabsch alignment of donor to acceptor, same transform applied to graft.
+4. Donor residues removed from acceptor, graft protein residues inserted at correct positions, glycans appended.
+5. CONECT records remapped via atom identity (chain, resseq, atomname).
+
+#### Relaxation (`--relax`)
+
+4-stage energy minimization with AMBER14 + GLYCAM_06j-1:
+- Protein heavy atoms restrained; glycans move freely
+- Stages: k=1000 -> 100 -> 10 -> 0 kJ/mol/nm2
+- Preprocessing: CYS->CYX for disulfides, bond addition for GLYCAM residues, hydrogen re-addition
+
+#### GROMACS Export (`--gromacs DIR`)
+
+Same ACPYPE pipeline as `dvbfixer top --acpype`: OpenMM parametrization -> ParmEd -> ACPYPE with `[ pairs_nb ]` for mixed 1-4 scaling. Outputs `.top`, `.gro`, and `posre_*.itp` to the specified directory.
+
+---
+
+### dvbfixer puppet — Backbone-Only Polyglycine Model
+
+Strips a PDB to a minimal backbone scaffold: removes all non-ATOM lines, removes all sidechain and hydrogen atoms (keeps only N, CA, C, O, OXT), and renames every residue to GLY. Useful for creating "puppet" models for backbone-level alignment, modeling templates, or visualization.
+
+#### Usage
+
+```bash
+# Basic usage — writes input_puppet.pdb
+dvbfixer puppet input.pdb
+
+# Keep specific residues intact (all atoms, original name)
+dvbfixer puppet input.pdb --keep A:307
+
+# Keep a range and a list
+dvbfixer puppet input.pdb --keep H:286-296 --keep K:307,309
+
+# Custom output
+dvbfixer puppet input.pdb -o backbone.pdb
+```
+
+#### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-o`, `--output` | `<input>_puppet.pdb` | Output file path |
+| `--keep` | none | Keep residue(s) intact: CHAIN:NUM, CHAIN:START-END, or CHAIN:NUM1,NUM2,START-END (repeatable) |
+
+---
+
 ### dvbfixer zbs — Full Pipeline
 
-Runs the complete preparation workflow in one command: **renumber → model → prepare → minimize → protonate → minimize → protonate**. Intermediate files are cleaned up by default — use `--keep-interim` to preserve them. Two minimize passes ensure correct protonation: the first minimizes with standard names to get good heavy-atom positions, protonate renames residues to AMBER names based on PROPKA pKa predictions, the second minimize detects AMBER names and re-adds hydrogens matching the correct protonation (e.g. HE2 for GLH), and the final protonate re-applies AMBER names (OpenMM reverts them on write). The `.dat` file flows from model (gap atoms) through prepare (merged with PDBFixer additions) to minimize (selective restraints). Water is removed by default. Each step can be skipped individually.
+Runs the complete preparation workflow in one command: **renumber → model → prepare → minimize → protonate → minimize**. Intermediate files are cleaned up by default — use `--keep-interim` to preserve them. Two minimize passes ensure correct protonation: the first minimizes with standard names to get good heavy-atom positions, then protonate assigns AMBER protonation names (HIE/GLH/CYX etc.) based on PROPKA pKa predictions, then the second minimize detects AMBER names and re-adds hydrogens matching the correct protonation state (e.g. HE2 for GLH). The final output has AMBER protonation names — use `dvbfixer rename` if you need canonical PDB names. The `.dat` file flows from model (gap atoms) through prepare (merged with PDBFixer additions) to minimize (selective restraints). Water is removed by default. Each step can be skipped individually.
 
 #### Usage
 
@@ -482,6 +650,42 @@ dvbfixer minimize 1HZH_renum_model_prepared_minimized_prot.pdb -v
 dvbfixer protonate 1HZH_renum_model_prepared_minimized_prot_minimized.pdb --no-hydrogens -v
 ```
 
+### Glycoprotein preparation with GLYCAM
+
+```bash
+# 1. Prepare protein structure
+dvbfixer zbs antibody.pdb -v
+# -> antibody_zbs.pdb
+
+# 2. Extract glycosylation sites into donor.pdb (manually or with PyMOL)
+# 3. Submit donor.pdb to GLYCAM-Web -> get glycam_output.pdb
+
+# 4. Transplant GLYCAM output back into full structure
+dvbfixer transplant antibody_zbs.pdb --donor donor.pdb --graft glycam_output.pdb -v
+# -> antibody_zbs_transplant.pdb
+
+# 5. Relax with AMBER+GLYCAM force fields
+dvbfixer transplant antibody_zbs.pdb --donor donor.pdb --graft glycam_output.pdb --relax -v
+# -> antibody_zbs_transplant.pdb + antibody_zbs_transplant_relaxed.pdb
+
+# 6. Generate GROMACS topology (handles mixed AMBER/GLYCAM 1-4 scaling)
+dvbfixer top antibody_zbs_transplant.pdb --acpype
+# -> .top, .gro, posre_*.itp
+```
+
+### GROMACS topology generation
+
+```bash
+# RTP-based (protein-only, fast)
+dvbfixer top input.pdb --ff amber
+dvbfixer top input.pdb --ff charmm
+
+# ACPYPE-based (proteins + GLYCAM glycans, handles mixed 1-4 scaling)
+dvbfixer top input.pdb --acpype
+```
+
+---
+
 ## Known Issues
 
 - **Chain ID mismatch in .dat workflow**: The `.dat` file stores chain IDs from PDBFixer. If the prepared PDB is saved through a tool that reassigns chain IDs (PyMOL, VMD), the `.dat` entries won't match the new chain letters. Workaround: ensure chain IDs remain consistent between prepare and minimize steps, or manually edit the `.dat` file.
@@ -492,7 +696,9 @@ dvbfixer protonate 1HZH_renum_model_prepared_minimized_prot_minimized.pdb --no-h
 
 - **Pull valence checking**: The `pull` tool validates bonds before and after pulling. Pre-pull: checks valence (bond count vs element max), warns about unusual element pairs. Post-pull: checks convergence (distance vs target), bond length range, and steric clashes within the pulling residues. All checks are warnings only — they do not prevent the operation.
 
-- **Glycoprotein minimization**: Non-protein residues (glycans, ligands) are automatically stripped before minimization and restored with original coordinates afterward. Full glycan minimization with force field is not currently supported.
+- **Glycoprotein minimization in `minimize`**: Non-protein residues (glycans, ligands) are automatically stripped before minimization and restored with original coordinates afterward. For full glycoprotein minimization with GLYCAM force field, use `transplant --relax` instead.
+
+- **Mixed 1-4 scaling (AMBER+GLYCAM)**: AMBER uses fudgeLJ=0.5/fudgeQQ=0.8333, GLYCAM uses 1.0/1.0. GROMACS only supports one global value. The `--acpype` flag on `top` and `--gromacs` on `transplant` solve this via ACPYPE's `[ pairs_nb ]` directive with per-pair LJ/Coulomb parameters.
 
 - **Modeller terminal alignment**: `align2d` can misplace terminal gaps (e.g. matching last template residue to last target residue). This is auto-corrected by `_fix_terminal_alignment` which forces gaps to the actual N/C termini.
 
