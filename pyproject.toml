@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dvbfixer"
+version = "0.1.0"
+description = "PDB structure preparation tools: chain splitting, renumbering, loop modeling, fixing, minimization, protonation"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "biopython",
+    "openmm>=8.1",
+    "pdbfixer>=1.9",
+    "propka>=3.5",
+    "openmmforcefields",
+]
+
+[project.scripts]
+dvbfixer = "dvbfixer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
