@@ -80,7 +80,7 @@ Runs PROPKA3 for pKa prediction, renames residues to AMBER protonation names (HI
 Text-based rename of non-canonical residue names to standard PDB names. Converts AMBER protonation (HIE/HID/HIP→HIS, ASH→ASP, GLH→GLU, CYX/CYM→CYS, LYN→LYS), CHARMM (HSD/HSE/HSP→HIS), and MSE→MET. Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pull` tools. Uses `CANONICAL_MAP` dict in `rename.py`.
 
 ### dvbfixer top
-Generates GROMACS `.itp`/`.top` topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python (no `pdb2gmx`). Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled in `FF/` directory).
+Generates self-contained GROMACS `.top` topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python (no `pdb2gmx`). Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled in `FF/` directory). The output `.top` file contains all FF parameters inlined (`[ defaults ]`, `[ atomtypes ]`, `[ bondtypes ]`, bonded params, water moleculetype, ion moleculetypes) — no external FF directory needed in the GROMACS working directory.
 
 **Topology generation algorithm:**
 1. Resolve PDB residue names to RTP names via `CANONICAL_MAP` + R2B mapping
@@ -95,7 +95,9 @@ Generates GROMACS `.itp`/`.top` topology files directly from PDB by parsing forc
 
 **Inter-chain SS bonds:** Written to separate `interchain_ss.itp` with `[ intermolecular_interactions ]`. Must be appended to `.top` after `gmx solvate`/`genion` (cannot appear before `[ molecules ]`).
 
-**Output:** Per-chain `.itp` files, position restraint files, master `topol.top`, and `conf.pdb` with FF atom names. Also `--pdb` flag for explicit PDB output path.
+**Output:** Self-contained `topol.top` (all FF params + chain moleculetypes + water + ions inlined), `posre_*.itp` position restraint files (separate, used with `#ifdef POSRES`), and `conf.pdb` with FF atom names. No separate chain `.itp` files — everything is in the `.top`. FF directory is only used at build time for RTP parsing, not needed at runtime.
+
+**Key writers:** `_write_moleculetype(f, chain_top, bonded_types)` writes a chain moleculetype section to an open file handle. `write_top()` inlines FF content via `_read_ff_content()` (strips preprocessor directives), `_parse_defaults()` (extracts `[ defaults ]`), and `_write_water_topology()` (extracts rigid settles version from water .itp).
 
 **Key data structures:** `ChainTopology` dataclass holds atoms, bonds, pairs, angles, dihedrals, impropers, cmap per chain. `TopologyBuilder` class loads FF data, builds chains, writes output. `rtp_parser.py` provides `parse_rtp()`, `parse_r2b()`, `parse_arn()`, `parse_tdb()`, `parse_atomtypes()`.
 
@@ -146,7 +148,10 @@ Full pipeline: renumber → model → prepare → minimize → protonate → min
 ## GROMACS Topology Notes
 
 - `top.py` parses RTP files directly — no dependency on `pdb2gmx` or GROMACS installation.
-- FF files bundled in `FF/amber99sb-ildn-lipid21.ff/` and `FF/charmm36_ljpme-jul2022.ff/`.
+- FF files bundled in `FF/amber99sb-ildn-lipid21.ff/` and `FF/charmm36_ljpme-jul2022.ff/`. Used at build time for RTP parsing; output `.top` is self-contained.
+- Output `.top` inlines all FF parameters: `[ defaults ]` from `forcefield.itp`, `[ atomtypes ]` from `ffnonbonded.itp`, bonded params from `ffbonded.itp`, `[ cmaptypes ]`/`[ nonbond_params ]` for CHARMM, water moleculetype (rigid settles), ion moleculetypes. Chain moleculetypes also inlined. Only `posre_*.itp` remain as separate `#include` (inside `#ifdef POSRES`).
+- `_read_ff_content(path)` strips all preprocessor directives (#include, #define, #ifdef, etc.) for clean inlining.
+- `_write_water_topology(f, path)` extracts only the rigid (settles) version from water .itp files that have `#ifndef FLEXIBLE` / `#else` blocks.
 - RTP `[ bondedtypes ]` header defines function types for bonds/angles/dihedrals/impropers.
 - Bond entries with `-C` mean previous residue's C atom, `+N` means next residue's N atom.
 - AMBER has explicit NXXX/CXXX terminal entries in RTP; CHARMM uses TDB patch files.

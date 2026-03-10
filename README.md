@@ -399,12 +399,12 @@ Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pul
 
 ### dvbfixer top — GROMACS Topology Generation
 
-Generates GROMACS `.itp`/`.top` topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). Handles proteins and carbohydrates (CHARMM glycan topology with glycosidic bond detection).
+Generates self-contained GROMACS `.top` topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). All force field parameters, water model, and ion definitions are inlined directly into the `.top` file — no external FF directory needed in the GROMACS working directory. Handles proteins and carbohydrates (CHARMM glycan topology with glycosidic bond detection).
 
 #### Usage
 
 ```bash
-# Basic usage with AMBER (default) — writes topol.top, Chain_*.itp, posre_*.itp, conf.pdb
+# Basic usage with AMBER (default) — writes topol.top, posre_*.itp, conf.pdb
 dvbfixer top input.pdb
 
 # CHARMM36 force field
@@ -439,7 +439,7 @@ dvbfixer top input.pdb -o my_topology.top --pdb my_conf.pdb
 
 #### RTP-based mode (default)
 
-Parses force field RTP files to build topology from bond graph: resolves inter-residue bonds (`-C`, `+N`), enumerates angles/dihedrals/pairs algorithmically, copies impropers and CMAP from templates, applies terminal patches. Produces per-chain `.itp` files with `#include` in the master `.top`.
+Parses force field RTP files to build topology from bond graph: resolves inter-residue bonds (`-C`, `+N`), enumerates angles/dihedrals/pairs algorithmically, copies impropers and CMAP from templates, applies terminal patches. Produces a self-contained `.top` file with all FF parameters (atomtypes, bonded parameters, water, ions) and chain moleculetypes inlined. Only position restraint files (`posre_*.itp`) remain as separate includes (used with `#ifdef POSRES`).
 
 #### ACPYPE mode (`--acpype`)
 
@@ -676,7 +676,7 @@ dvbfixer top antibody_zbs_transplant.pdb --acpype
 ### GROMACS topology generation
 
 ```bash
-# RTP-based (protein-only, fast)
+# RTP-based (protein-only, fast, self-contained .top — no FF dir needed)
 dvbfixer top input.pdb --ff amber
 dvbfixer top input.pdb --ff charmm
 
