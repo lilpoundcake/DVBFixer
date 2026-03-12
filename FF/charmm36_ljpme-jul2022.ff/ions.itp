@@ -86,7 +86,7 @@ BUF        1
 
 [ atoms ]
 ; id    at type     res nr  res name   at name  cg nr  charge    mass
-  1     BUF         1      BUF        BUF      1       0.000     0.00000
+  1     BUF         1      BUF        BUF      1       0.000    12.00000
 
 #ifdef POSRES_BUF
 [ position_restraints ]

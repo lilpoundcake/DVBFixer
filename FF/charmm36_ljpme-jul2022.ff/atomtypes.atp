@@ -699,3 +699,6 @@ MWT4EW      0.00000 ; Virtual site of TIP4P/Ew water model
   MCH3      0.00000 ; Vsite (Rigid CH3 group)
  MCH3S      0.00000 ; Vsite
     MW      0.00000 ; Vsite
+
+
+   BUF     30.00000 ; Buffer Ion

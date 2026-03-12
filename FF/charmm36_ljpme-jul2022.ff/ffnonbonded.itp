@@ -53,7 +53,6 @@
 
 ; from file toppar_c36_jul22/metals/CHARMM_METAL/top_all22_prot_metals.inp
 ; type atnum         mass   charge ptype           sigma  epsilon
-   BUF     0     0.000000    0.000     A  0.000000000000  0.0000000  ; buffer particle (dummy, no interactions)
     HB     1     1.008000    0.000     A  0.235197261589  0.0920480  ; backbone H
     HE     2     4.002600    0.000     A  0.263706020570  0.0889937  ; helium
    CAP     6    12.011000    0.000     A  0.355005321205  0.2928800  ; aromatic C for pyrimidines (see toppar_all22_prot_pyridines.str)
@@ -710,6 +709,7 @@ CLG06B     6    12.011000    0.000     A  0.355005321205  0.2928800  ; CLG2R6B
 #endif
     OX     8    15.999400    0.000     A  0.302905564168  0.5020800  ; hydroxide oxygen
    SOD    11    22.989770    0.000     A  0.251367073323  0.1962296  ; Sodium Ion
+   BUF    11    12.000000    0.000     A -0.250000000000  4.0000000  ; Buffer Particle
     MG    12    24.305000    0.000     A  0.211142996199  0.0627600  ; Magnesium Ion
    CLA    17    35.450000    0.000     A  0.404468018036  0.6276000  ; Chloride Ion
    POT    19    39.098300    0.000     A  0.314264522824  0.3640080  ; Potassium Ion
@@ -51262,3 +51262,8 @@ OG3R60   OLG1     1  0.271724109033  0.458334236120
   OLG1   YB3P     1  0.240115022513  0.580476284001
   OLG1     ZN     1  0.221833780817  0.724690057887
     OS    SOD     1  0.278851298778  0.313883680000
+
+[ nonbond_params ]
+; i  j  func V(sigma)                 W(epsilon)
+BUF  HT  1   0.14500   0.40000
+BUF  OT  1   0.28253   1.59548
