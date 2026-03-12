@@ -459,7 +459,7 @@ Uses OpenMM to parametrize with AMBER14 + GLYCAM_06j-1, converts via ParmEd to A
 
 ### dvbfixer transplant — Molecule Transplanting
 
-Transplants molecules from a graft PDB into an acceptor PDB. Designed for the GLYCAM glycoprotein workflow: extract glycosylation site residues from your protein, submit to GLYCAM-Web, then transplant the GLYCAM output (renamed protein residues + glycan trees) back into the full structure.
+Transplants molecules from a graft PDB into an acceptor PDB. Designed for the GLYCAM glycoprotein workflow: extract glycosylation site residues from your protein, submit to GLYCAM-Web, then transplant the GLYCAM output (renamed protein residues + glycan trees) back into the full structure. Also works with CHARMM-GUI output — use simple transplant mode (`--donor` + `--select`) to copy glycan chains or other molecules from CHARMM-GUI PDB into your structure.
 
 #### Usage
 
@@ -478,6 +478,9 @@ dvbfixer transplant acceptor.pdb --donor donor.pdb --graft glycam_output.pdb --g
 
 # Simple transplant: copy selected residues from donor to acceptor
 dvbfixer transplant acceptor.pdb --donor donor.pdb --select A:NAG
+
+# CHARMM-GUI: transplant glycan chains from CHARMM-GUI output
+dvbfixer transplant protein.pdb --donor charmm_gui.pdb --select G,H --superpose
 ```
 
 #### Options

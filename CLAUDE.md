@@ -121,7 +121,7 @@ FF directory is only used at build time for RTP parsing, not needed at runtime.
 **`--acpype` mode:** Alternative to RTP-based topology. Uses `acpype_export.py` shared module: OpenMM (AMBER14+GLYCAM) → ParmEd → ACPYPE → GROMACS `.top`/`.gro` with `[ pairs_nb ]` for mixed 1-4 scaling. Ignores `--ff`/`--water`/`--ignh`/`--merge` flags. Respects `--ss` for explicit disulfide bonds.
 
 ### dvbfixer transplant
-Transplants molecules from a graft PDB into an acceptor PDB, with optional AMBER+GLYCAM energy minimization. Designed for the GLYCAM glycoprotein workflow: extract glycosylation site residues → submit to GLYCAM-Web → transplant back with glycans attached.
+Transplants molecules from a graft PDB into an acceptor PDB, with optional AMBER+GLYCAM energy minimization. Designed for the GLYCAM glycoprotein workflow: extract glycosylation site residues → submit to GLYCAM-Web → transplant back with glycans attached. Also works with CHARMM-GUI output via simple transplant mode (`--donor` + `--select`) to copy glycan chains or other molecules.
 
 **Graft workflow** (`--donor` + `--graft`):
 1. `--donor`: original protein residues extracted from acceptor (e.g. ASN307/SER308/THR309). Identifies which residues to replace and provides CA atoms for alignment.

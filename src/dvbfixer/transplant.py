@@ -6,7 +6,10 @@ Workflow for glycoprotein preparation with GLYCAM:
 3. Transplant: align donor to acceptor, apply transform to graft,
    replace donor residues in acceptor with graft content
 
-Also works as a simple molecule transplant tool (--donor only, no --graft).
+Also works with CHARMM-GUI output: use simple transplant mode (--donor + --select)
+to copy glycan chains or other molecules from CHARMM-GUI PDB into your structure.
+
+Also works as a general molecule transplant tool (--donor only, no --graft).
 """
 
 import argparse
@@ -563,6 +566,7 @@ def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="dvbfixer transplant",
         description="Transplant molecules from graft PDB into acceptor PDB. "
+                    "Supports GLYCAM-Web and CHARMM-GUI output. "
                     "Aligns via Kabsch superposition on donor CA atoms.",
     )
     p.add_argument("acceptor", help="Acceptor PDB file (receives molecules)")
