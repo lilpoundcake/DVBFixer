@@ -402,7 +402,7 @@ Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pul
 
 ### dvbfixer top — GROMACS Topology Generation
 
-Generates self-contained GROMACS `.top` topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). All force field parameters, water model, and ion definitions are inlined directly into the `.top` file — no external FF directory needed in the GROMACS working directory. Handles proteins and carbohydrates (CHARMM glycan topology with glycosidic bond detection).
+Generates GROMACS topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). Output is a modular set of `.itp` files: `ffparams.itp` (all FF parameters), `{chain}.itp` (each chain moleculetype), `water.itp`, `ions.itp`, `posre_*.itp` (position restraints), and a compact `topol.top` with only `#include` directives — no external FF directory needed. Handles proteins, carbohydrates (CHARMM glycan topology with glycosidic bond detection), lipids, nucleic acids, and all other CHARMM molecule types (~2400+ residues). Automatically splits chains with overlapping residue numbers (e.g. duplicate glycan trees from `transplant`).
 
 #### Usage
 
@@ -415,6 +415,12 @@ dvbfixer top input.pdb --ff charmm
 
 # Explicit disulfide bonds and HIS protonation
 dvbfixer top input.pdb --ss A:22:A:96 --his A:64:HID
+
+# Protonate all ASP/GLU/HIS (CHARMM: ASPP/GLUP/HSP)
+dvbfixer top input.pdb --ff charmm --protonate all
+
+# Protonate specific residues
+dvbfixer top input.pdb --ff charmm --protonate A:66,A:46:GLUP
 
 # ACPYPE mode: full AMBER14+GLYCAM parametrization via OpenMM
 # Handles mixed 1-4 scaling for glycoproteins via [ pairs_nb ]
@@ -435,6 +441,7 @@ dvbfixer top input.pdb -o my_topology.top --pdb my_conf.pdb
 | `--ignh` | off | Ignore hydrogens in input PDB |
 | `--ss` | auto | Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable) |
 | `--his` | auto | HIS protonation: CHAIN:NUM:STATE (HIE/HID/HIP, repeatable) |
+| `--protonate` | off | Protonate residues: `all` for every ASP/GLU/HIS, or `CHAIN:NUM[:STATE],...` for specific residues |
 | `--merge` | off | Merge all chains into single moleculetype |
 | `--pdb` | `conf.pdb` | Output PDB with topology-matched atom names |
 | `--acpype` | off | Use ACPYPE pipeline (AMBER14+GLYCAM -> ParmEd -> GROMACS) with per-pair 1-4 scaling |
@@ -442,7 +449,7 @@ dvbfixer top input.pdb -o my_topology.top --pdb my_conf.pdb
 
 #### RTP-based mode (default)
 
-Parses force field RTP files to build topology from bond graph: resolves inter-residue bonds (`-C`, `+N`), enumerates angles/dihedrals/pairs algorithmically, copies impropers and CMAP from templates, applies terminal patches. Produces a self-contained `.top` file with all FF parameters (atomtypes, bonded parameters, water, ions) and chain moleculetypes inlined. Only position restraint files (`posre_*.itp`) remain as separate includes (used with `#ifdef POSRES`).
+Parses force field RTP files to build topology from bond graph: resolves inter-residue bonds (`-C`, `+N`), enumerates angles/dihedrals/pairs algorithmically, copies impropers and CMAP from templates, applies terminal patches. For CHARMM36, loads all molecule-type RTP files (aminoacids, carb, lipid, na, cgenff, ethers, metals, silicates, solvent — ~2400+ residue types). Non-protein chains are built without terminal patches. Glycan trees are detected from C1-O distances and built with proper glycosidic bond handling (HO removal, charge redistribution, atom type changes). Output is modular: `ffparams.itp` (all FF parameters including atomtypes, bonded params, water model params), chain `.itp` files, `water.itp`, `ions.itp`, `posre_*.itp` (position restraints, `#ifdef POSRES`), and `interchain_ss.itp` (if needed). `topol.top` contains only `#include` directives, `[ system ]`, and `[ molecules ]`.
 
 #### ACPYPE mode (`--acpype`)
 
@@ -494,7 +501,8 @@ dvbfixer transplant acceptor.pdb --donor donor.pdb --select A:NAG
 2. **`--graft`**: GLYCAM output with renamed residues (NLN/OLS/OLT) + glycan trees (4YB/VMB/UYB etc.). Preserves GLYCAM atom and residue names.
 3. Optional `--superpose`: Kabsch alignment of donor to acceptor, same transform applied to graft.
 4. Donor residues removed from acceptor, graft protein residues inserted at correct positions, glycans appended.
-5. CONECT records remapped via atom identity (chain, resseq, atomname).
+5. Non-protein residues with resseq backward jumps are split into separate chains (prevents duplicate residue numbers when multiple glycan trees share a graft chain).
+6. CONECT records remapped via atom identity (chain, resseq, atomname).
 
 #### Relaxation (`--relax`)
 
@@ -679,9 +687,9 @@ dvbfixer top antibody_zbs_transplant.pdb --acpype
 ### GROMACS topology generation
 
 ```bash
-# RTP-based (protein-only, fast, self-contained .top — no FF dir needed)
-dvbfixer top input.pdb --ff amber
-dvbfixer top input.pdb --ff charmm
+# RTP-based (fast, modular .itp output — no FF dir needed)
+dvbfixer top input.pdb --ff amber       # proteins
+dvbfixer top input.pdb --ff charmm      # proteins + glycans + lipids + NA + more
 
 # ACPYPE-based (proteins + GLYCAM glycans, handles mixed 1-4 scaling)
 dvbfixer top input.pdb --acpype

@@ -371,6 +371,10 @@ def _renumber_graft(graft_atoms, residue_map, donor_residues):
     non-protein residues (glycans) get new numbers after the last
     acceptor residue in their chain.
 
+    Detects resseq backward jumps in non-protein residues to split
+    duplicate glycan trees into separate chains (e.g. two glycan trees
+    from two different donor sites that share the same graft chain ID).
+
     Also removes graft backbone atoms that overlap with acceptor
     (N-terminal N,H and C-terminal C,O of the replaced fragment).
     """
@@ -379,21 +383,53 @@ def _renumber_graft(graft_atoms, residue_map, donor_residues):
     for ch, resseq, icode in donor_residues:
         max_resseq[ch] = max(max_resseq.get(ch, 0), resseq)
 
-    # Assign new numbers to non-protein residues
-    glycan_remap = {}
-    glycan_counter = {}
+    # Collect non-protein residue keys in order, per chain
+    nonprot_keys_by_chain = {}  # chain -> [keys in order]
+    seen_keys = set()
     for a in graft_atoms:
         key = (a['chain'], a['resseq'], a['icode'])
-        if key in residue_map:
-            continue  # protein residue, handled
-        if a['resname'] in PROTEIN_RESIDUES:
+        if key in residue_map or a['resname'] in PROTEIN_RESIDUES:
             continue
-        if key not in glycan_remap:
+        if key not in seen_keys:
+            seen_keys.add(key)
             ch = a['chain']
-            if ch not in glycan_counter:
-                glycan_counter[ch] = max_resseq.get(ch, 0) + 1000
-            glycan_counter[ch] += 1
-            glycan_remap[key] = (ch, glycan_counter[ch], ' ')
+            if ch not in nonprot_keys_by_chain:
+                nonprot_keys_by_chain[ch] = []
+            nonprot_keys_by_chain[ch].append(key)
+
+    # Detect resseq backward jumps within each chain's non-protein residues
+    # and assign separate target chains for each segment
+    used_chains = set(ch for ch, _, _ in donor_residues)
+    all_ids = list('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
+
+    glycan_remap = {}
+    for ch, keys in nonprot_keys_by_chain.items():
+        # Split on resseq backward jumps
+        segments = [[keys[0]]]
+        for i in range(1, len(keys)):
+            if keys[i][1] < keys[i-1][1]:
+                segments.append([])
+            segments[-1].append(keys[i])
+
+        for seg_idx, seg_keys in enumerate(segments):
+            # First segment keeps the original target chain
+            if seg_idx == 0:
+                target_ch = ch
+            else:
+                # Assign a new unique chain ID
+                target_ch = None
+                for cid in all_ids:
+                    if cid not in used_chains:
+                        target_ch = cid
+                        break
+                if target_ch is None:
+                    target_ch = ch  # fallback
+            used_chains.add(target_ch)
+
+            counter = max_resseq.get(target_ch, 0) + 1000
+            for key in seg_keys:
+                counter += 1
+                glycan_remap[key] = (target_ch, counter, ' ')
 
     # Apply renumbering
     for a in graft_atoms:

@@ -103,6 +103,10 @@ PDB_TO_CARB = {
     'A2G': 'AGALNA',   # N-acetylgalactosamine (alpha)
     'BGC': 'BGLC',     # beta-glucose
     'XYS': 'BXYL',     # beta-xylose
+    'AFU': 'AFUC',     # alpha-L-fucose (alternate PDB code)
+    'AMA': 'AMAN',     # alpha-mannose (alternate PDB code)
+    'BGA': 'BGAL',     # beta-galactose (alternate PDB code)
+    'BGL': 'BGLCNA',   # beta-N-acetylglucosamine (alternate PDB code)
 }
 
 
@@ -296,35 +300,73 @@ class ChainTopology:
 # PDB reader
 # ---------------------------------------------------------------------------
 def read_pdb_chains(path):
-    """Read PDB file and extract chains with residues and atoms."""
-    chains = {}
+    """Read PDB file and extract chains with residues and atoms.
+
+    Detects resseq backward jumps within a chain (e.g. two glycan trees
+    with same chain ID and overlapping residue numbers) and splits them
+    into separate sub-chains with generated chain IDs.
+    """
+    # First pass: collect lines per original chain ID, preserving order
+    chain_lines = defaultdict(list)
     with open(path) as f:
         for line in f:
             if not (line.startswith('ATOM') or line.startswith('HETATM')):
                 continue
             chain_id = line[21]
-            resname = line[17:20].strip()
+            chain_lines[chain_id].append(line)
+
+    # Second pass: split chains on resseq backward jumps
+    chains = []
+    used_ids = set(chain_lines.keys())
+    # Pool of available chain IDs for sub-chains
+    all_ids = list('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
+
+    for orig_id, lines in chain_lines.items():
+        # Detect breaks (resseq goes backwards)
+        segments = [[]]  # list of line groups
+        prev_resseq = -999999
+        for line in lines:
             resseq = int(line[22:26])
-            icode = line[26].strip()
-            atom_name = line[12:16].strip()
-            x = float(line[30:38])
-            y = float(line[38:46])
-            z = float(line[46:54])
+            if resseq < prev_resseq:
+                segments.append([])
+            segments[-1].append(line)
+            prev_resseq = resseq
 
-            if chain_id not in chains:
-                chains[chain_id] = PDBChain(chain_id=chain_id)
+        for seg_idx, seg_lines in enumerate(segments):
+            if seg_idx == 0:
+                cid = orig_id
+            else:
+                # Assign a new chain ID
+                cid = None
+                for candidate in all_ids:
+                    if candidate not in used_ids:
+                        cid = candidate
+                        break
+                if cid is None:
+                    cid = f'{orig_id}{seg_idx}'
+                used_ids.add(cid)
 
-            chain = chains[chain_id]
-            # Find or create residue
-            key = (resseq, icode)
-            if not chain.residues or (chain.residues[-1].resseq, chain.residues[-1].icode) != key:
-                chain.residues.append(PDBResidue(
-                    chain_id=chain_id, resname=resname,
-                    resseq=resseq, icode=icode,
-                ))
-            chain.residues[-1].atoms.append((atom_name, x, y, z))
+            chain = PDBChain(chain_id=cid)
+            for line in seg_lines:
+                resname = line[17:20].strip()
+                resseq = int(line[22:26])
+                icode = line[26].strip()
+                atom_name = line[12:16].strip()
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
 
-    return list(chains.values())
+                key = (resseq, icode)
+                if not chain.residues or (chain.residues[-1].resseq, chain.residues[-1].icode) != key:
+                    chain.residues.append(PDBResidue(
+                        chain_id=cid, resname=resname,
+                        resseq=resseq, icode=icode,
+                    ))
+                chain.residues[-1].atoms.append((atom_name, x, y, z))
+
+            chains.append(chain)
+
+    return chains
 
 
 def read_ssbonds(path):
@@ -376,8 +418,8 @@ def read_ssbonds(path):
     return ssbonds
 
 
-def detect_glycan_links(path):
-    """Auto-detect glycosidic bonds from C1-O distances in PDB.
+def detect_glycan_links(chains):
+    """Auto-detect glycosidic bonds from C1-O distances using parsed chain data.
 
     Detects:
     - Sugar-sugar links: C1 of one sugar within 2.0 A of Ox of another
@@ -385,47 +427,25 @@ def detect_glycan_links(path):
 
     Returns list of GlycanLink tuples.
     """
-    # Read all relevant atoms
-    atoms = {}  # serial -> (chain, resname, resseq, aname, x, y, z)
-    residue_atoms = defaultdict(list)  # (chain, resseq) -> [(aname, x, y, z)]
-    with open(path) as f:
-        for line in f:
-            if not (line.startswith('ATOM') or line.startswith('HETATM')):
-                continue
-            serial = int(line[6:11])
-            aname = line[12:16].strip()
-            resname = line[17:20].strip()
-            chain = line[21]
-            resseq = int(line[22:26])
-            x, y, z = float(line[30:38]), float(line[38:46]), float(line[46:54])
-            atoms[serial] = (chain, resname, resseq, aname, x, y, z)
-            residue_atoms[(chain, resseq)].append((aname, x, y, z))
-
     sugar_names = set(PDB_TO_CARB.keys())
-    links = []  # [(donor_chain, donor_resseq, donor_atom, acc_chain, acc_resseq, acc_atom)]
+    links = []
 
-    # Collect C1 atoms from sugars and ND2 from ASN
+    # Collect C1 atoms from sugars and ND2/O* from sugars+ASN
     c1_atoms = []
-    target_atoms = []  # O atoms from sugars + ND2 from ASN
+    target_atoms = []
 
-    for (ch, resseq), atom_list in residue_atoms.items():
-        resname = None
-        for aname, x, y, z in atom_list:
-            if resname is None:
-                # Get resname from first atom
-                for s, info in atoms.items():
-                    if info[0] == ch and info[2] == resseq:
-                        resname = info[1]
-                        break
+    for chain in chains:
+        ch = chain.chain_id
+        for res in chain.residues:
+            for aname, x, y, z in res.atoms:
+                if res.resname in sugar_names and aname == 'C1':
+                    c1_atoms.append((ch, res.resname, res.resseq, x, y, z))
 
-            if resname in sugar_names and aname == 'C1':
-                c1_atoms.append((ch, resname, resseq, x, y, z))
+                if res.resname in sugar_names and aname.startswith('O') and aname != 'O5':
+                    target_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
 
-            if resname in sugar_names and aname.startswith('O') and aname != 'O5':
-                target_atoms.append((ch, resname, resseq, aname, x, y, z))
-
-            if resname == 'ASN' and aname == 'ND2':
-                target_atoms.append((ch, resname, resseq, aname, x, y, z))
+                if res.resname == 'ASN' and aname == 'ND2':
+                    target_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
 
     # Find C1-target pairs within 2.0 A
     for ch1, rn1, rs1, x1, y1, z1 in c1_atoms:
@@ -542,7 +562,24 @@ class TopologyBuilder:
         else:
             self.carb_bonded_types = None
 
+        # Load all other molecule-type RTP files (CHARMM has lipids, NA, etc.)
+        for rtp_name in ['lipid.rtp', 'na.rtp', 'cgenff.rtp', 'ethers.rtp',
+                         'metals.rtp', 'silicates.rtp', 'solvent.rtp']:
+            rtp_path = self.ff_dir / rtp_name
+            if rtp_path.exists():
+                _, extra_res = parse_rtp(rtp_path)
+                self.residues.update(extra_res)
+
         self.r2b = parse_r2b(self.ff_dir / 'aminoacids.r2b')
+
+        # Load all R2B files
+        for r2b_name in ['carb.r2b', 'lipid.r2b', 'na.r2b', 'cgenff.r2b',
+                         'ethers.r2b', 'metals.r2b', 'silicates.r2b', 'solvent.r2b']:
+            r2b_path = self.ff_dir / r2b_name
+            if r2b_path.exists():
+                extra_r2b = parse_r2b(r2b_path)
+                self.r2b.update(extra_r2b)
+
         self.arn = parse_arn(self.ff_dir / 'aminoacids.arn')
         self.atom_masses = parse_atomtypes(self.ff_dir / 'atomtypes.atp')
 
@@ -574,6 +611,8 @@ class TopologyBuilder:
             # Try as-is (some residues use their PDB name directly)
             if pdb_resname in self.r2b:
                 gmx_name = pdb_resname
+            elif pdb_resname in self.residues:
+                return pdb_resname  # Direct RTP match, no terminal variant needed
             else:
                 return None
 
@@ -700,6 +739,36 @@ class TopologyBuilder:
 
             # Build PDB atom coordinate lookup
             pdb_coords = {a[0]: (a[1], a[2], a[3]) for a in res.atoms}
+
+            # Add missing protonation H atoms with estimated coordinates.
+            # Only for ASP/GLU/HIS protonation variants (ASPP HD2, GLUP HE2,
+            # HSP/HSD/HSE HD1/HE2).
+            _PROT_RTP_NAMES = {'ASPP', 'GLUP', 'HSP', 'HSD', 'HSE',
+                               'ASH', 'GLH', 'HIP', 'HID', 'HIE',
+                               'ASPH', 'GLUH', 'HISH', 'HISD', 'HISE'}
+            if rtp_name.upper() in _PROT_RTP_NAMES:
+                rtp_bond_graph = {}
+                for b1, b2 in rtp_res.bonds:
+                    if b1.startswith(('-', '+')) or b2.startswith(('-', '+')):
+                        continue
+                    rtp_bond_graph.setdefault(b1, set()).add(b2)
+                    rtp_bond_graph.setdefault(b2, set()).add(b1)
+
+                for atom_name, _, _, _ in rtp_res.atoms:
+                    if rtp_to_pdb.get(atom_name) is not None:
+                        continue
+                    if not atom_name.startswith('H'):
+                        continue
+                    for neighbor in rtp_bond_graph.get(atom_name, []):
+                        nb_pdb = rtp_to_pdb.get(neighbor)
+                        if nb_pdb and nb_pdb in pdb_coords:
+                            hx, hy, hz = pdb_coords[nb_pdb]
+                            pdb_coords[atom_name] = (hx + 1.0, hy, hz)
+                            rtp_to_pdb[atom_name] = atom_name
+                            if self.verbose:
+                                print(f"    Adding {rtp_name}:{atom_name} near "
+                                      f"{nb_pdb} ({res.chain_id}:{res.resseq})")
+                            break
 
             for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
                 pdb_name = rtp_to_pdb.get(atom_name)
@@ -1161,12 +1230,14 @@ class TopologyBuilder:
                 adj_type = type_change.get(atom_name, atom_type)
 
                 pdb_name = rtp_to_pdb.get(atom_name, atom_name)
-                # For carbs, if atom not in PDB, skip (H atoms may be missing)
-                if pdb_name not in pdb_coords and atom_name.startswith('H'):
-                    if self.verbose:
-                        print(f"    Skipping {rtp_name}:{atom_name} "
-                              f"(not in PDB {ch}:{rs})")
-                    continue
+                # For carbs, skip atoms not in PDB: H atoms (may be missing)
+                # and linked O atoms (O1 at glycosidic bond sites)
+                if pdb_name not in pdb_coords:
+                    if atom_name.startswith('H') or atom_name in linked_os:
+                        if self.verbose:
+                            print(f"    Skipping {rtp_name}:{atom_name} "
+                                  f"(not in PDB {ch}:{rs})")
+                        continue
 
                 global_idx += 1
                 mass = self.atom_masses.get(adj_type, 0.0)
@@ -1218,19 +1289,8 @@ class TopologyBuilder:
             adj[i].add(j)
             adj[j].add(i)
 
-        # Generate angles, tagging inter-residue ones with ftype=1 (no U-B)
-        raw_angles = self._generate_angles(adj)
-        # Build atom->resnr map for inter-residue detection
-        atom_resnr = {a.index: a.resnr for a in chain_top.atoms}
-        tagged_angles = []
-        for angle in raw_angles:
-            i, j, k = angle[0], angle[1], angle[2]
-            ri, rj, rk = atom_resnr.get(i), atom_resnr.get(j), atom_resnr.get(k)
-            if ri == rj == rk:
-                tagged_angles.append((i, j, k))  # intra-residue: default type
-            else:
-                tagged_angles.append((i, j, k, 1))  # inter-residue: type 1 (harmonic)
-        chain_top.angles = tagged_angles
+        # Generate angles — all use default ftype from [ bondedtypes ]
+        chain_top.angles = list(self._generate_angles(adj))
 
         # For carbs, generate all dihedrals from connectivity
         generated = set()
@@ -1378,10 +1438,19 @@ def write_pdb(chain_tops, path):
                 # Determine element from atom name
                 elem = name[0] if name[0].isalpha() else name[1]
 
+                # Use orig_resname (PDB name, includes protonation renames)
+                # atom.resname is the RTP name (e.g. BGLCNA for glycans)
+                resname = atom.orig_resname
+                # PDB cols: 17=altLoc, 18-20=resName, 21=space, 22=chainID
+                # 4-char resnames (ASPP, GLUP): cols 18-21, no space before chainID
+                if len(resname) <= 3:
+                    res_chain = f" {resname:>3s} {atom.chain_id}"  # " ASP A"
+                else:
+                    res_chain = f" {resname:<4s}{atom.chain_id}"   # " ASPP A" (no gap)
+
                 f.write(
                     f"ATOM  {serial:5d} {name_field}"
-                    f" {atom.orig_resname:>3s} "
-                    f"{atom.chain_id}"
+                    f"{res_chain}"
                     f"{atom.orig_resseq:4d}"
                     f"    "
                     f"{atom.x:8.3f}{atom.y:8.3f}{atom.z:8.3f}"
@@ -1393,10 +1462,14 @@ def write_pdb(chain_tops, path):
             if ct.atoms:
                 last = ct.atoms[-1]
                 serial += 1
+                resname = last.orig_resname
+                if len(resname) <= 3:
+                    res_chain = f" {resname:>3s} {last.chain_id}"
+                else:
+                    res_chain = f" {resname:<4s}{last.chain_id}"
                 f.write(
                     f"TER   {serial:5d}      "
-                    f"{last.orig_resname:>3s} "
-                    f"{last.chain_id}"
+                    f"{res_chain}"
                     f"{last.orig_resseq:4d}\n"
                 )
         f.write("END\n")
@@ -1451,12 +1524,108 @@ def _parse_defaults(ff_dir):
     return ''.join(defaults_lines)
 
 
+def _dedup_atomtypes(content):
+    """Remove duplicate atomtype entries, keeping the last definition.
+
+    CHARMM ffnonbonded.itp has duplicate entries (e.g. HT, OT) from
+    #ifdef HEAVY_H blocks — one with heavy mass, one with real mass.
+    After stripping preprocessor directives, both remain. We keep the
+    last definition for each atomtype name.
+    """
+    lines = content.split('\n')
+    in_atomtypes = False
+    atomtype_lines = []   # (line_idx, atomtype_name, line)
+    other_lines = []      # (line_idx, line)
+
+    for idx, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith('[ atomtypes ]'):
+            in_atomtypes = True
+            other_lines.append((idx, line))
+            continue
+        if in_atomtypes and stripped.startswith('['):
+            in_atomtypes = False
+            other_lines.append((idx, line))
+            continue
+        if in_atomtypes and stripped and not stripped.startswith(';'):
+            parts = stripped.split()
+            if parts:
+                atomtype_lines.append((idx, parts[0], line))
+            continue
+        other_lines.append((idx, line))
+
+    # Keep only last occurrence of each atomtype
+    seen = {}
+    for idx, name, line in atomtype_lines:
+        seen[name] = (idx, line)
+
+    # Reconstruct
+    all_entries = other_lines + [(idx, line) for idx, line in seen.values()]
+    all_entries.sort(key=lambda x: x[0])
+    return '\n'.join(line for _, line in all_entries)
+
+
+# Extra bonded parameters for CHARMM glycosidic linkage sites.
+# When OC311->OC3C61 at linkages, some atom type combos (CC321-OC3C61,
+# CC3161-OC3C61-CC3162, etc.) are not in the standard FF distribution.
+# Parameters by analogy with existing CC321D/CC321C/CC311D variants.
+_GLYCAN_LINKAGE_PARAMS = """\
+; ======================================================================
+; Extra parameters for glycosidic linkage sites (by analogy)
+; ======================================================================
+
+; --- Extra bondtypes ---
+[ bondtypes ]
+; i       j     func    b0          kb
+  CC321   OC3C61     1   0.14150000    301248.00 ; from CC321D OC3C61
+
+; --- Extra angletypes ---
+[ angletypes ]
+; i       j       k     func    theta0      ktheta      rub         kub
+  HCA2    CC321   OC3C61     5   109.500000   376.560000   0.00000000         0.00 ; from HCA2 CC321D OC3C61
+  CC3163  CC321   OC3C61     5   111.500000   376.560000   0.00000000         0.00 ; from OC3C61 CC321D CC311C
+  CC3161  OC3C61  CC3162     5   109.700000   794.960000   0.00000000         0.00 ; from CC3163 OC3C61 CC3162
+  CC3162  CC3161  OC3C61     5   106.000000   376.560000   0.00000000         0.00 ; from CC3161 CC3162 OC3C61
+  CC321   OC3C61  CC3162     5   109.700000   794.960000   0.00000000         0.00 ; from CC321D OC3C61 CC321C
+  OC3C61  CC3162  OC3C61     5   112.000000   753.120000   0.00000000         0.00 ; from OC301 CC3162 OC3C61
+
+; --- Extra dihedraltypes ---
+[ dihedraltypes ]
+; i       j       k       l     func    phi0        kphi        mult
+; C-C-O-C glycosidic torsions (from CC3161 CC3162 OC3C61 CC3163)
+  CC3161  CC3163  CC321   OC3C61     9     0.000000     0.836800     3 ; from par27 X CT1 CT2 X
+  CC3161  OC3C61  CC3162  HCA1       9     0.000000     0.836800     3 ; from HCA1 CC3161 CC3162 OC3C61
+  CC3161  OC3C61  CC3162  OC3C61     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
+  CC3162  CC3161  CC3161  OC3C61     9   180.000000     1.297040     3 ; from CC3161 CC3161 CC3162 OC3C61
+  CC3162  CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
+  CC3163  CC321   OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC321 CC3163 OC3C61 CC3162
+  CC321   CC3163  CC3161  OC3C61     9     0.000000     0.836800     3 ; from par27 X CT1 CT2 X
+  CC321   OC3C61  CC3162  CC3161     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3162
+  CC321   OC3C61  CC3162  HCA1       9     0.000000     0.836800     3 ; from HCA1 CC3161 CC3162 OC3C61
+  CC321   OC3C61  CC3162  OC3C61     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
+  HCA1    CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from HCA1 CC3161 CC3162 OC3C61
+  HCA1    CC3162  CC3161  OC3C61     9     0.000000     0.836800     3 ; from HCA1 CC3161 CC3162 OC3C61
+  HCA1    CC3163  CC321   OC3C61     9     0.000000     0.836800     3 ; from HCA2 CC321 CC3163 OC3C61
+  HCA2    CC321   OC3C61  CC3162     9     0.000000     0.836800     3 ; from par27 X CT2 OC30A X
+  OC3C61  CC3161  CC3161  CC3163     9   180.000000     1.297040     3 ; from CC3161 CC3161 CC3162 OC3C61
+  OC3C61  CC3162  CC3161  OC3C61     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
+  OC3C61  CC3162  OC3C61  CC3163     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
+  OC3C61  CC3163  CC321   OC3C61     9     0.000000     0.836800     3 ; from par27 X CT2 CT1 X
+; Additional C-C-O-C and C-O-C-C linkage torsions
+  CC3161  CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
+  CC3161  OC3C61  CC3162  CC3161     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3162
+  CC3163  CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3162
+
+"""
+
+
 def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
               water_model='tip3p', system_name='Protein',
               has_interchain_ss=False):
-    """Write a self-contained .top file with all FF parameters inlined."""
+    """Write topology: FF params in ffparams.itp, rest in topol.top."""
     ff_dir = Path(ff_dir)
     ff_name = ff_dir.name
+    out_dir = Path(path).parent
 
     water_files = {
         'tip3p': 'tip3p.itp',
@@ -1465,36 +1634,28 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
         'tip4p': 'tip4p.itp',
     }
 
-    with open(path, 'w') as f:
-        f.write("; Generated by dvbfixer top\n")
-        f.write(f"; Force field: {ff_name}\n")
-        f.write(f"; Water model: {water_model}\n")
-        # Read forcefield.doc for description if available
-        doc_path = ff_dir / 'forcefield.doc'
-        if doc_path.exists():
-            with open(doc_path) as doc:
-                for doc_line in doc:
-                    doc_line = doc_line.strip()
-                    if doc_line and not all(c == '*' for c in doc_line):
-                        f.write(f"; {doc_line}\n")
-                        break  # just the first non-empty descriptive line
-        f.write("; Self-contained topology — no external FF directory needed\n\n")
+    # --- Write ffparams.itp with all FF parameters ---
+    ffparams_path = out_dir / 'ffparams.itp'
+    with open(ffparams_path, 'w') as f:
+        f.write("; Force field parameters — generated by dvbfixer top\n")
+        f.write(f"; Force field: {ff_name}\n\n")
 
-        # 1. [ defaults ]
+        # [ defaults ]
         f.write(_parse_defaults(ff_dir))
         f.write("\n")
 
-        # 2. [ atomtypes ] from ffnonbonded.itp
-        f.write("; Force field parameters (from ffnonbonded.itp)\n")
-        f.write(_read_ff_content(ff_dir / 'ffnonbonded.itp'))
+        # [ atomtypes ] from ffnonbonded.itp (deduplicated)
+        f.write("; Non-bonded parameters (from ffnonbonded.itp)\n")
+        nb_content = _read_ff_content(ff_dir / 'ffnonbonded.itp')
+        f.write(_dedup_atomtypes(nb_content))
         f.write("\n")
 
-        # 3. [ bondtypes ], [ angletypes ], [ dihedraltypes ] from ffbonded.itp
+        # [ bondtypes ], [ angletypes ], [ dihedraltypes ] from ffbonded.itp
         f.write("; Bonded parameters (from ffbonded.itp)\n")
         f.write(_read_ff_content(ff_dir / 'ffbonded.itp'))
         f.write("\n")
 
-        # 4. CHARMM extras: cmap.itp, nbfix.itp
+        # CHARMM extras: cmap.itp, nbfix.itp
         if ff_type == 'charmm':
             cmap_path = ff_dir / 'cmap.itp'
             if cmap_path.exists():
@@ -1508,42 +1669,79 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
                 f.write(_read_ff_content(nbfix_path))
                 f.write("\n")
 
-        # 5. Chain moleculetypes (inlined)
+            # Extra parameters for glycosidic linkage sites.
+            # At linkage sites OC311->OC3C61, creating atom type combos
+            # not in the standard FF. Parameters by analogy with existing
+            # glycosidic linkage params (CC321D/CC311D/CC321C variants).
+            f.write(_GLYCAN_LINKAGE_PARAMS)
+
+    # --- Write topol.top ---
+    with open(path, 'w') as f:
+        f.write("; Generated by dvbfixer top\n")
+        f.write(f"; Force field: {ff_name}\n")
+        f.write(f"; Water model: {water_model}\n")
+        doc_path = ff_dir / 'forcefield.doc'
+        if doc_path.exists():
+            with open(doc_path) as doc:
+                for doc_line in doc:
+                    doc_line = doc_line.strip()
+                    if doc_line and not all(c == '*' for c in doc_line):
+                        f.write(f"; {doc_line}\n")
+                        break
+        f.write("\n")
+
+        # Include FF parameters
+        f.write('#include "ffparams.itp"\n\n')
+
+        # Chain moleculetypes (separate .itp files)
         for ct, bt in zip(chain_tops, bonded_types_list):
-            f.write(f"; Moleculetype: {ct.name}\n")
-            _write_moleculetype(f, ct, bt)
+            chain_itp = out_dir / f"{ct.name}.itp"
+            with open(chain_itp, 'w') as cf:
+                cf.write(f"; Moleculetype: {ct.name}\n")
+                cf.write(f"; Generated by dvbfixer top\n\n")
+                _write_moleculetype(cf, ct, bt)
+            f.write(f'#include "{ct.name}.itp"\n')
+        f.write("\n")
 
-        # 6. Water moleculetype
+        # Water moleculetype (separate .itp)
         water_itp = water_files.get(water_model, 'tip3p.itp')
-        water_path = ff_dir / water_itp
-        if water_path.exists():
-            f.write("; Water topology\n")
-            # Read water file, keep only the rigid (settles) version
-            _write_water_topology(f, water_path)
-            f.write("\n")
+        water_src = ff_dir / water_itp
+        if water_src.exists():
+            water_out = out_dir / 'water.itp'
+            with open(water_out, 'w') as wf:
+                wf.write("; Water topology\n")
+                wf.write("; Generated by dvbfixer top\n\n")
+                _write_water_topology(wf, water_src)
+            f.write('#include "water.itp"\n')
 
-        # 7. Ion moleculetypes
+        # Ion moleculetypes (separate .itp)
         ions_path = ff_dir / 'ions.itp'
         if ions_path.exists():
-            f.write("; Ion topology\n")
-            f.write(_read_ff_content(ions_path))
-            f.write("\n")
+            ions_out = out_dir / 'ions.itp'
+            with open(ions_out, 'w') as ionf:
+                ionf.write("; Ion topology\n")
+                ionf.write("; Generated by dvbfixer top\n\n")
+                ionf.write(_read_ff_content(ions_path))
+            f.write('#include "ions.itp"\n')
+        f.write("\n")
 
-        # 8. [ system ]
+        # [ system ]
         f.write("[ system ]\n")
         f.write(f"; Name\n")
         f.write(f"{system_name}\n\n")
 
-        # 9. [ molecules ]
+        # [ molecules ]
         f.write("[ molecules ]\n")
         f.write("; Compound        #mols\n")
         for ct in chain_tops:
             f.write(f"{ct.name:<18s}1\n")
-        f.write("\n")
 
+        # Inter-chain SS bonds (must come after [ molecules ])
         if has_interchain_ss:
-            f.write("; After gmx solvate/genion, append:\n")
-            f.write("; #include \"interchain_ss.itp\"\n")
+            f.write('\n; WARNING: The interchain_ss.itp include MUST remain at the end of this file,\n')
+            f.write('; after [ molecules ] and after any SOL/ion entries added by gmx solvate/genion.\n')
+            f.write('; If you add solvent, move this line below the SOL and ion molecule entries.\n')
+            f.write('#include "interchain_ss.itp"\n')
 
 
 def _write_water_topology(f, water_path):
@@ -1606,6 +1804,11 @@ def parse_args(argv=None):
                         help='Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable)')
     parser.add_argument('--his', action='append', default=[],
                         help='HIS protonation: CHAIN:NUM:STATE (HIE/HID/HIP, repeatable)')
+    parser.add_argument('--protonate', default=None,
+                        help='Protonate residues. "all" protonates every ASP->ASPP, '
+                             'GLU->GLUP, HIS->HSP. Comma-separated list protonates '
+                             'specific residues: CHAIN:NUM[:STATE],... '
+                             '(e.g. --protonate all, --protonate H:66,K:50:GLUP).')
     parser.add_argument('--merge', action='store_true',
                         help='Merge all chains into single moleculetype')
     parser.add_argument('--pdb', help='Output PDB file with topology-matched atom names')
@@ -1674,23 +1877,36 @@ def main(argv=None):
 
     print(f"Found {len(chains)} chain(s): {', '.join(c.chain_id for c in chains)}")
 
-    # Filter non-protein chains
+    # Build topology builder first (need its residue dict for chain filtering)
+    builder = TopologyBuilder(ff_dir, args.ff, args.verbose)
+
+    # Classify chains into protein vs non-protein
     protein_chains = []
+    other_chains = []
+    sugar_names = set(PDB_TO_CARB.keys())
     for chain in chains:
         has_protein = any(
             r.resname in STANDARD_AA or r.resname in PDB_TO_GMX
             for r in chain.residues
         )
         if has_protein:
-            # Keep only protein residues for now
+            # Keep only protein residues in protein chains
             chain.residues = [
                 r for r in chain.residues
                 if r.resname in STANDARD_AA or r.resname in PDB_TO_GMX
             ]
             protein_chains.append(chain)
+        else:
+            # Check if chain has any FF-recognized residues
+            has_known = any(
+                r.resname in builder.residues or r.resname in sugar_names
+                for r in chain.residues
+            )
+            if has_known:
+                other_chains.append(chain)
 
-    if not protein_chains:
-        print("Error: No protein chains found", file=sys.stderr)
+    if not protein_chains and not other_chains:
+        print("Error: No recognized chains found", file=sys.stderr)
         sys.exit(1)
 
     # Detect SS bonds
@@ -1713,18 +1929,62 @@ def main(argv=None):
         for ch1, res1, ch2, res2 in ss_bonds:
             print(f"  {ch1}:{res1} - {ch2}:{res2}")
 
-    # Apply HIS overrides
+    # Apply protonation overrides (--protonate and --his)
+    # --protonate without args: all ASP->ASPP, GLU->GLUP, HIS->HSP
+    # --protonate with args: specific CHAIN:NUM[:STATE] overrides
+    # Default protonated forms per FF
+    if args.ff == 'charmm':
+        _PROT_DEFAULTS = {'ASP': 'ASPP', 'GLU': 'GLUP', 'HIS': 'HSP',
+                          'HIE': 'HSP', 'HID': 'HSP', 'HSE': 'HSP', 'HSD': 'HSP'}
+    else:
+        _PROT_DEFAULTS = {'ASP': 'ASH', 'GLU': 'GLH', 'HIS': 'HIP',
+                          'HIE': 'HIP', 'HID': 'HIP', 'HSE': 'HIP', 'HSD': 'HIP'}
+
+    protonate_all = args.protonate == 'all'
+    prot_overrides = {}
+    if args.protonate and args.protonate != 'all':
+        # Validate: must contain ':' (CHAIN:NUM format), not a filename
+        if ':' not in args.protonate:
+            print(f"ERROR: Invalid --protonate value '{args.protonate}'. "
+                  f"Use --protonate (all) or --protonate CHAIN:NUM[:STATE],... "
+                  f"Note: place --protonate after the input file.",
+                  file=sys.stderr)
+            sys.exit(1)
+        for spec in args.protonate.split(','):
+            parts = spec.split(':')
+            if len(parts) == 3:
+                prot_overrides[(parts[0], int(parts[1]))] = parts[2]
+            elif len(parts) == 2:
+                # CHAIN:NUM without STATE — use default protonated form
+                prot_overrides[(parts[0], int(parts[1]))] = None  # resolve later
+
     his_overrides = {}
     for his_spec in args.his:
         parts = his_spec.split(':')
         if len(parts) == 3:
             his_overrides[(parts[0], int(parts[1]))] = parts[2]
 
-    # Apply HIS overrides or auto-detect from PDB atoms
+    # Apply overrides or auto-detect from PDB atoms
     for chain in protein_chains:
         for res in chain.residues:
             key = (res.chain_id, res.resseq)
-            if key in his_overrides:
+            if key in prot_overrides:
+                state = prot_overrides[key]
+                if state is None:
+                    state = _PROT_DEFAULTS.get(res.resname)
+                if state:
+                    old_name = res.resname
+                    res.resname = state
+                    if args.verbose:
+                        print(f"  {old_name} {res.chain_id}:{res.resseq} -> "
+                              f"{res.resname} (--protonate)")
+            elif protonate_all and res.resname in _PROT_DEFAULTS:
+                old_name = res.resname
+                res.resname = _PROT_DEFAULTS[old_name]
+                if args.verbose:
+                    print(f"  {old_name} {res.chain_id}:{res.resseq} -> "
+                          f"{res.resname} (--protonate all)")
+            elif key in his_overrides:
                 res.resname = his_overrides[key]
             elif res.resname == 'HIS':
                 # Auto-detect protonation from H atoms present
@@ -1748,8 +2008,7 @@ def main(argv=None):
                 res.atoms = [(n, x, y, z) for n, x, y, z in res.atoms
                              if not n.startswith('H') and n not in ('1H', '2H', '3H')]
 
-    # Build topologies
-    builder = TopologyBuilder(ff_dir, args.ff, args.verbose)
+    # Build topologies (builder already created above for chain filtering)
     chain_tops = []
 
     for chain in protein_chains:
@@ -1769,13 +2028,41 @@ def main(argv=None):
             print(f"WARNING: Failed to build topology for chain {chain.chain_id}",
                   file=sys.stderr)
 
+    # Build non-protein chains (no terminal patches, no SS bonds)
+    # Skip chains that are entirely sugars — they're handled by glycan detection
+    for chain in other_chains:
+        all_sugar = all(
+            r.resname in sugar_names or r.resname in PDB_TO_CARB.values()
+            for r in chain.residues
+        )
+        if all_sugar:
+            if args.verbose:
+                print(f"\nSkipping chain {chain.chain_id} (all sugar residues, "
+                      f"handled by glycan detection)")
+            continue
+
+        if args.verbose:
+            print(f"\nBuilding topology for non-protein chain {chain.chain_id} "
+                  f"({len(chain.residues)} residues)")
+
+        ct = builder.build_chain(chain)
+        if ct is not None:
+            # Rename from default Protein_ to Other_
+            ct.name = ct.name.replace('Protein_', 'Other_')
+            chain_tops.append(ct)
+            print(f"Chain {chain.chain_id}: {len(ct.atoms)} atoms, "
+                  f"{len(ct.bonds)} bonds (non-protein)")
+        else:
+            print(f"WARNING: Failed to build topology for chain {chain.chain_id}",
+                  file=sys.stderr)
+
     if not chain_tops:
         print("Error: No topologies built", file=sys.stderr)
         sys.exit(1)
 
     # Detect and build glycan chains
     glycan_tops = []
-    glycan_links = detect_glycan_links(input_path)
+    glycan_links = detect_glycan_links(chains)
     if glycan_links:
         trees = build_glycan_trees(glycan_links, chains)
         protein_sugar_links = []  # for intermolecular interactions
@@ -1846,14 +2133,19 @@ def main(argv=None):
         _write_interchain_ss(interchain_ss, chain_tops, protein_chains, ss_path,
                              args.ff)
         print(f"Wrote {ss_path} ({len(interchain_ss)} inter-chain SS bond(s))")
-        print(f"  NOTE: After gmx solvate/genion, append to topol.top:")
-        print(f"    echo '#include \"interchain_ss.itp\"' >> topol.top")
+        print("WARNING: interchain_ss.itp must stay at the end of topol.top, after [ molecules ].")
+        print("         After gmx solvate/genion, move the #include line below SOL/ion entries.")
 
     # Write self-contained TOP file (all FF parameters inlined)
     system_name = input_path.stem
     write_top(chain_tops, top_path, ff_dir, args.ff, bonded_types_list,
               args.water, system_name,
               has_interchain_ss=bool(interchain_ss))
+    print(f"Wrote {out_dir / 'ffparams.itp'}")
+    for ct in chain_tops:
+        print(f"Wrote {out_dir / ct.name}.itp")
+    print(f"Wrote {out_dir / 'water.itp'}")
+    print(f"Wrote {out_dir / 'ions.itp'}")
     print(f"Wrote {top_path}")
 
     # Write output PDB with topology-matched atom names

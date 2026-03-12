@@ -80,7 +80,7 @@ Runs PROPKA3 for pKa prediction, renames residues to AMBER protonation names (HI
 Text-based rename of non-canonical residue names to standard PDB names. Converts AMBER protonation (HIE/HID/HIP→HIS, ASH→ASP, GLH→GLU, CYX/CYM→CYS, LYN→LYS), CHARMM (HSD/HSE/HSP→HIS), and MSE→MET. Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pull` tools. Uses `CANONICAL_MAP` dict in `rename.py`.
 
 ### dvbfixer top
-Generates self-contained GROMACS `.top` topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python (no `pdb2gmx`). Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled in `FF/` directory). The output `.top` file contains all FF parameters inlined (`[ defaults ]`, `[ atomtypes ]`, `[ bondtypes ]`, bonded params, water moleculetype, ion moleculetypes) — no external FF directory needed in the GROMACS working directory.
+Generates GROMACS topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python (no `pdb2gmx`). Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled in `FF/` directory). Output is a modular set of `.itp` files with a compact `topol.top` containing only `#include` directives, `[ system ]`, and `[ molecules ]` — no external FF directory needed in the GROMACS working directory.
 
 **Topology generation algorithm:**
 1. Resolve PDB residue names to RTP names via `CANONICAL_MAP` + R2B mapping
@@ -91,13 +91,28 @@ Generates self-contained GROMACS `.top` topology files directly from PDB by pars
 6. Copy impropers and CMAP (CHARMM) from RTP
 7. Apply terminal patches (CHARMM: NH3+/COO- from TDB files; AMBER: separate NXXX/CXXX RTP entries)
 
-**Glycan support (CHARMM):** Parses `carb.rtp`, maps PDB sugar names (NAG, BMA, MAN, GAL, FUC, SIA) to CHARMM RTP names via `PDB_TO_CARB`. Detects glycosidic bonds from C1-O distances < 2.0 A. Builds glycan trees via BFS. Handles charge redistribution (HO removal → charge to O) and atom type changes (OC311→OC3C61 at linkage sites). Inter-residue glycan angles use ftype=1 (harmonic, no Urey-Bradley).
+**All CHARMM molecule types:** Loads all available RTP files at startup: `aminoacids.rtp`, `carb.rtp`, `lipid.rtp`, `na.rtp`, `cgenff.rtp`, `ethers.rtp`, `metals.rtp`, `silicates.rtp`, `solvent.rtp` (~2400+ residue types). Also loads corresponding `.r2b` files. Chain filter keeps any chain with residues in `STANDARD_AA`, `PDB_TO_GMX`, `builder.residues`, or `PDB_TO_CARB`. Non-protein chains are built without terminal patches or SS bond detection.
 
-**Inter-chain SS bonds:** Written to separate `interchain_ss.itp` with `[ intermolecular_interactions ]`. Must be appended to `.top` after `gmx solvate`/`genion` (cannot appear before `[ molecules ]`).
+**Glycan support (CHARMM):** Parses `carb.rtp`, maps PDB sugar names (NAG, BMA, MAN, GAL, FUC, SIA, BGL, AFU, AMA, BGA) to CHARMM RTP names via `PDB_TO_CARB`. Detects glycosidic bonds from C1-O distances < 2.0 A using parsed chain data (not raw PDB). Builds glycan trees via BFS. Handles charge redistribution (HO removal → charge to O) and atom type changes (OC311→OC3C61 at linkage sites). Skips linked O1 atoms not present in PDB (glycosidic bond sites). Inter-residue glycan angles use default ftype (5 for CHARMM, with Urey-Bradley) to match GROMACS parameter lookup. `_GLYCAN_LINKAGE_PARAMS` provides extra bond/angle/dihedral parameters for glycosidic linkage sites where OC311→OC3C61 creates atom type combos not in the standard CHARMM36 distribution (parameters by analogy with CC321D/CC321C variants).
 
-**Output:** Self-contained `topol.top` (all FF params + chain moleculetypes + water + ions inlined), `posre_*.itp` position restraint files (separate, used with `#ifdef POSRES`), and `conf.pdb` with FF atom names. No separate chain `.itp` files — everything is in the `.top`. FF directory is only used at build time for RTP parsing, not needed at runtime.
+**Chain splitting in `read_pdb_chains()`:** Detects resseq backward jumps within a chain (e.g. two glycan trees with same chain ID and overlapping residue numbers from `transplant`) and splits into separate sub-chains with generated chain IDs. Sugar-only chains are skipped in the main chain-building loop (handled by glycan detection).
 
-**Key writers:** `_write_moleculetype(f, chain_top, bonded_types)` writes a chain moleculetype section to an open file handle. `write_top()` inlines FF content via `_read_ff_content()` (strips preprocessor directives), `_parse_defaults()` (extracts `[ defaults ]`), and `_write_water_topology()` (extracts rigid settles version from water .itp).
+**Protonation (`--protonate`):** `--protonate all` protonates ALL ASP→ASPP, GLU→GLUP, HIS→HSP (CHARMM) or ASP→ASH, GLU→GLH, HIS→HIP (AMBER). `--protonate CHAIN:NUM[:STATE],...` protonates specific residues (STATE defaults to protonated form based on FF). Missing protonation H atoms (e.g. HD2 for ASPP, HE2 for GLUP, HD1 for HSP) are automatically added with estimated coordinates (placed 1.0 A from bonded heavy atom). H-atom placement is restricted to ASP/GLU/HIS protonation variants only (ASPP, GLUP, HSP, ASH, GLH, HIP, etc.) — no longer adds H to other residues like glycosylated ASN. Coordinates are approximate — should be refined by energy minimization.
+
+**Inter-chain SS bonds:** Written to `interchain_ss.itp` with `[ intermolecular_interactions ]`. Auto-included in `topol.top` after `[ molecules ]` (GROMACS requires this directive after the molecules section). Warning: after `gmx solvate`/`genion`, the `#include` must be moved below SOL/ion entries to remain at the end.
+
+**Output:** Modular set of files:
+- `topol.top` — compact file with only `#include` directives, `[ system ]`, and `[ molecules ]`
+- `ffparams.itp` — all FF parameters (`[ defaults ]`, `[ atomtypes ]`, `[ bondtypes ]`, `[ angletypes ]`, `[ dihedraltypes ]`, CMAP, NBFIX, glycan linkage params)
+- `{chain_name}.itp` — each chain moleculetype in its own file (e.g. `Protein_chain_H.itp`, `Glycan_A_1001.itp`)
+- `water.itp` — water moleculetype (rigid settles)
+- `ions.itp` — ion moleculetypes
+- `posre_*.itp` — position restraint files (used with `#ifdef POSRES`)
+- `interchain_ss.itp` — inter-chain SS bonds with `[ intermolecular_interactions ]` (must stay at end of `topol.top`, after SOL/ions)
+- `conf.pdb` — output PDB with FF atom names
+FF directory is only used at build time for RTP parsing, not needed at runtime.
+
+**Key writers:** `_write_moleculetype(f, chain_top, bonded_types)` writes a chain moleculetype section to a file. `write_top()` generates the modular output via `_read_ff_content()` (strips preprocessor directives), `_parse_defaults()` (extracts `[ defaults ]`), `_write_water_topology()` (extracts rigid settles version from water .itp), and `_dedup_atomtypes()` (removes duplicate water/ion atom type entries from #ifdef blocks, e.g. HT, OT with heavy/real mass variants).
 
 **Key data structures:** `ChainTopology` dataclass holds atoms, bonds, pairs, angles, dihedrals, impropers, cmap per chain. `TopologyBuilder` class loads FF data, builds chains, writes output. `rtp_parser.py` provides `parse_rtp()`, `parse_r2b()`, `parse_arn()`, `parse_tdb()`, `parse_atomtypes()`.
 
@@ -114,6 +129,7 @@ Transplants molecules from a graft PDB into an acceptor PDB, with optional AMBER
 3. Kabsch superposition aligns donor→acceptor; same transform applied to graft
 4. Donor residues removed from acceptor, graft protein residues inserted at correct positions, glycans appended
 5. CONECT records remapped via (chain, resseq, atomname) identity matching (not serial numbers, which collide between sources)
+6. `_renumber_graft()` detects resseq backward jumps in non-protein residues and assigns different chain IDs per segment (prevents duplicate residue numbers when multiple glycan trees share a graft chain)
 
 **Simple transplant** (`--donor` + `--select`, no `--graft`): copies selected chains/residues from donor to acceptor with alignment. Auto-remaps chain IDs on collision.
 
@@ -148,15 +164,18 @@ Full pipeline: renumber → model → prepare → minimize → protonate → min
 ## GROMACS Topology Notes
 
 - `top.py` parses RTP files directly — no dependency on `pdb2gmx` or GROMACS installation.
-- FF files bundled in `FF/amber99sb-ildn-lipid21.ff/` and `FF/charmm36_ljpme-jul2022.ff/`. Used at build time for RTP parsing; output `.top` is self-contained.
-- Output `.top` inlines all FF parameters: `[ defaults ]` from `forcefield.itp`, `[ atomtypes ]` from `ffnonbonded.itp`, bonded params from `ffbonded.itp`, `[ cmaptypes ]`/`[ nonbond_params ]` for CHARMM, water moleculetype (rigid settles), ion moleculetypes. Chain moleculetypes also inlined. Only `posre_*.itp` remain as separate `#include` (inside `#ifdef POSRES`).
+- FF files bundled in `FF/amber99sb-ildn-lipid21.ff/` and `FF/charmm36_ljpme-jul2022.ff/`. Used at build time for RTP parsing; output is modular `.itp` files — no external FF directory needed at runtime.
+- Output is modular: `topol.top` has only `#include` directives + `[ system ]` + `[ molecules ]`. FF params in `ffparams.itp`, each chain in `{name}.itp`, water in `water.itp`, ions in `ions.itp`, position restraints in `posre_*.itp`, inter-chain SS in `interchain_ss.itp`.
+- `_dedup_atomtypes()` removes duplicate atom type entries (e.g. HT, OT with heavy/real mass variants from #ifdef blocks).
+- `_GLYCAN_LINKAGE_PARAMS` adds extra bond/angle/dihedral parameters for glycosidic linkage sites where OC311→OC3C61 creates atom type combos not in the standard CHARMM36 distribution (by analogy with CC321D/CC321C variants).
 - `_read_ff_content(path)` strips all preprocessor directives (#include, #define, #ifdef, etc.) for clean inlining.
 - `_write_water_topology(f, path)` extracts only the rigid (settles) version from water .itp files that have `#ifndef FLEXIBLE` / `#else` blocks.
 - RTP `[ bondedtypes ]` header defines function types for bonds/angles/dihedrals/impropers.
 - Bond entries with `-C` mean previous residue's C atom, `+N` means next residue's N atom.
 - AMBER has explicit NXXX/CXXX terminal entries in RTP; CHARMM uses TDB patch files.
-- CHARMM carb.rtp has 363 sugar residues, all with full hydroxyl groups. No inter-residue bonds. Glycosidic linkages handled by removing HO + charge redistribution + atom type change.
-- `[ intermolecular_interactions ]` must come after `[ molecules ]` in `.top` file. `gmx solvate` appends to end of file, so interchain SS must be appended after solvation.
+- CHARMM FF has ~2400+ residues across 9 RTP files: aminoacids (protein), carb (363 sugars), lipid (401), na (79 nucleic acids), cgenff (924 small molecules), ethers (25), metals (8), silicates (6), solvent/ions (77). All loaded at startup.
+- Glycosidic linkages handled by removing HO + charge redistribution + atom type change. Linked O1 atoms not in PDB are skipped.
+- `interchain_ss.itp` with `[ intermolecular_interactions ]` is auto-included in `topol.top` after `[ molecules ]` (GROMACS requires this directive after the molecules section).
 - PDB atom name format: columns 13-16 = atom name (4 chars), column 17 = altLoc (space), columns 18-20 = residue name. 4-char atom names (HE21) start at column 13; shorter names start at column 14 with leading space.
 
 ## GLYCAM Integration Notes
@@ -177,5 +196,5 @@ Full pipeline: renumber → model → prepare → minimize → protonate → min
 - Antibody structures use Kabat/Chothia numbering: insertion codes at CDR loops (52A, 82A-C, 100A-J). These are NOT chain breaks.
 - GROMACS PDB output often has blank chain IDs and continuous numbering across chains.
 - `PDBFile.writeFile(..., keepIds=True)` is required to preserve chain IDs when writing through OpenMM.
-- Glycan residues (BGL, BMA, NAG, etc.) have C and N atoms but NOT peptide bonds — C->N distance detection must be restricted to `STANDARD_RESIDUES`.
+- Glycan residues (BGL, BMA, NAG, etc.) have C and N atoms but NOT peptide bonds — `split_chains.py` detects breaks by backbone C/N atom presence (not residue name filtering).
 - CONECT serial remapping between PDB sources (acceptor vs graft) must use atom identity (chain, resseq, atomname) not serial numbers, since serials from different sources collide.
