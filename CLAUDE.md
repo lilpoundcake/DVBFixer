@@ -99,7 +99,7 @@ Generates GROMACS topology files directly from PDB by parsing force field RTP/AR
 
 **Protonation (`--protonate`):** `--protonate all` protonates ALL ASP→ASPP, GLU→GLUP, HIS→HSP (CHARMM) or ASP→ASH, GLU→GLH, HIS→HIP (AMBER). `--protonate CHAIN:NUM[:STATE],...` protonates specific residues (STATE defaults to protonated form based on FF). Missing protonation H atoms (e.g. HD2 for ASPP, HE2 for GLUP, HD1 for HSP) are automatically added with estimated coordinates (placed 1.0 A from bonded heavy atom). H-atom placement is restricted to ASP/GLU/HIS protonation variants only (ASPP, GLUP, HSP, ASH, GLH, HIP, etc.) — no longer adds H to other residues like glycosylated ASN. Coordinates are approximate — should be refined by energy minimization.
 
-**Inter-chain SS bonds:** Written to `interchain_ss.itp` with `[ intermolecular_interactions ]`. Auto-included in `topol.top` after `[ molecules ]` (GROMACS requires this directive after the molecules section). Warning: after `gmx solvate`/`genion`, the `#include` must be moved below SOL/ion entries to remain at the end.
+**Inter-chain bonds:** Written to `interchain_ss.itp` with `[ intermolecular_interactions ]`. Includes both inter-chain SS bonds (SG-SG, r0=0.204 nm) and protein-glycan bonds (ASN ND2 - NAG C1, r0=0.143 nm from CHARMM CC3162-NC2D1). Auto-included in `topol.top` after `[ molecules ]` (GROMACS requires this directive after the molecules section). Warning: after `gmx solvate`/`genion`, the `#include` must be moved below SOL/ion entries to remain at the end.
 
 **Output:** Modular set of files:
 - `topol.top` — compact file with only `#include` directives, `[ system ]`, and `[ molecules ]`
@@ -108,7 +108,7 @@ Generates GROMACS topology files directly from PDB by parsing force field RTP/AR
 - `water.itp` — water moleculetype (rigid settles)
 - `ions.itp` — ion moleculetypes
 - `posre_*.itp` — position restraint files (used with `#ifdef POSRES`)
-- `interchain_ss.itp` — inter-chain SS bonds with `[ intermolecular_interactions ]` (must stay at end of `topol.top`, after SOL/ions)
+- `interchain_ss.itp` — inter-chain SS bonds + protein-glycan bonds with `[ intermolecular_interactions ]` (must stay at end of `topol.top`, after SOL/ions)
 - `conf.pdb` — output PDB with FF atom names (includes ions/BUF particles from input)
 FF directory is only used at build time for RTP parsing, not needed at runtime.
 
@@ -175,7 +175,7 @@ Full pipeline: renumber → model → prepare → minimize → protonate → min
 - AMBER has explicit NXXX/CXXX terminal entries in RTP; CHARMM uses TDB patch files.
 - CHARMM FF has ~2400+ residues across 9 RTP files: aminoacids (protein), carb (363 sugars), lipid (401), na (79 nucleic acids), cgenff (924 small molecules), ethers (25), metals (8), silicates (6), solvent/ions (77). All loaded at startup.
 - Glycosidic linkages handled by removing HO + charge redistribution + atom type change. Linked O1 atoms not in PDB are skipped.
-- `interchain_ss.itp` with `[ intermolecular_interactions ]` is auto-included in `topol.top` after `[ molecules ]` (GROMACS requires this directive after the molecules section).
+- `interchain_ss.itp` with `[ intermolecular_interactions ]` is auto-included in `topol.top` after `[ molecules ]` (GROMACS requires this directive after the molecules section). Contains both inter-chain SS bonds and protein-glycan bonds (ASN ND2 - NAG C1, r0=0.143 nm).
 - Ions and buffer particles (BUF) are auto-detected in PDB by matching residue names against moleculetypes in `ions.itp`. Counted and added to `[ molecules ]` section. Not built as chain topologies — their moleculetypes are defined in `ions.itp`. BUF atomtype (dummy, no LJ) added to `ffnonbonded.itp`.
 - PDB atom name format: columns 13-16 = atom name (4 chars), column 17 = altLoc (space), columns 18-20 = residue name. 4-char atom names (HE21) start at column 13; shorter names start at column 14 with leading space.
 
