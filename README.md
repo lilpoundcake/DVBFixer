@@ -30,12 +30,12 @@ micromamba run -n dvbfixer dvbfixer <command> [options]
 
 ### dvbfixer split — Empirical Chain Splitting
 
-Splits chains in PDB files that lack chain IDs (e.g. GROMACS MD output). Assigns unique chain IDs (A-Z, a-z, 0-9), inserts TER records, and renumbers residues per chain. Water and ions are removed before chain detection to prevent false breaks, then optionally re-appended.
+Splits chains in PDB or GRO files that lack chain IDs (e.g. GROMACS MD output). Assigns unique chain IDs (A-Z, a-z, 0-9), inserts TER records, and renumbers residues per chain. GRO files are converted to PDB via MDAnalysis, preserving all residue names including protonation variants (GLUP, ASPP, etc.). Water, ions, and buffer particles (BUF/BUFF) are removed before chain detection to prevent false breaks, then optionally re-appended.
 
 Chain breaks are detected by three criteria, applied in priority order:
 
 1. **Residue number backward jump** — residue sequence number decreases (insertion codes like 82->82A are handled correctly and NOT treated as breaks)
-2. **C->N peptide bond distance** — distance exceeds 2.5 A (only for standard amino acid residues; glycan residues with C/N atoms are excluded)
+2. **C->N peptide bond distance** — distance exceeds 2.5 A (any residue with backbone C/N atoms)
 3. **Nearest-atom gap** — minimum distance between any atoms of consecutive residues exceeds 15 A (fallback for sugars, ligands, ions that lack peptide bonds)
 
 #### Usage
@@ -43,6 +43,9 @@ Chain breaks are detected by three criteria, applied in priority order:
 ```bash
 # Basic usage — writes input_split.pdb
 dvbfixer split input.pdb
+
+# GRO file input (output is always PDB)
+dvbfixer split simulation.gro -v
 
 # Verbose output showing detected chains
 dvbfixer split input.pdb -v

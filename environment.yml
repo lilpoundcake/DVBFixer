@@ -12,6 +12,7 @@ dependencies:
   - openff-toolkit
   - rdkit
   - biopython
+  - mdanalysis
   - modeller
   - parmed
   - pip

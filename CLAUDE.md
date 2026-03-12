@@ -42,17 +42,17 @@ After installation, `dvbfixer` is available as a CLI command:
 micromamba run -n dvbfixer dvbfixer <command> [args]
 ```
 
-Key packages: numpy, OpenMM 8.4, PDBFixer 1.12, scipy, PROPKA 3.5, Modeller 10.8, BioPython.
+Key packages: numpy, OpenMM 8.4, PDBFixer 1.12, scipy, PROPKA 3.5, Modeller 10.8, BioPython, MDAnalysis.
 
 **Modeller requires a license key** from https://salilab.org/modeller/registration.html (free for academics). Set in `<env>/lib/modeller-10.8/modlib/modeller/config.py`.
 
 ## Subcommands
 
 ### dvbfixer split
-Splits chains in PDB files lacking chain IDs (e.g. GROMACS output). Water and ions are stripped before chain detection to prevent false breaks (`--keep-water` re-appends them). Three detection criteria:
+Splits chains in PDB or GRO files lacking chain IDs (e.g. GROMACS output). GRO files are converted to PDB via MDAnalysis (preserves all residue names including protonation variants like GLUP, ASPP). Water, ions, and buffer particles (BUF/BUFF) are stripped before chain detection to prevent false breaks (`--keep-water` re-appends them). Three detection criteria:
 1. Residue number backward jump (insertion codes handled — equal resSeq with different iCode is NOT a break)
-2. C->N peptide bond distance > 2.5 A (protein residues only, from `STANDARD_RESIDUES` set)
-3. Nearest-atom gap > 15 A (fallback for non-protein: sugars, ligands)
+2. C->N peptide bond distance > 2.5 A (any residue with backbone C/N atoms — no name-based filtering)
+3. Nearest-atom gap > 15 A (fallback for residues lacking C/N backbone atoms: sugars, ligands)
 
 ### dvbfixer renumber
 Renumbers residues by aligning ATOM records to SEQRES via subsequence matching. Removes insertion codes (e.g. Kabat 100A-J -> sequential). Updates **all** PDB sections: ATOM, HETATM, TER, HELIX, SHEET, SSBOND, LINK, CISPEP, HET, DBREF, SEQADV, CONECT, REMARK 465/500/610. Each section has specific column positions — see the `update_*` functions and `remap_resid()` helper.

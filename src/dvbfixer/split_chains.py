@@ -1,4 +1,4 @@
-"""Split PDB chains empirically using C-N distance, residue numbering, and nearest-atom gaps."""
+"""Split PDB/GRO chains empirically using C-N distance, residue numbering, and nearest-atom gaps."""
 
 import argparse
 import sys
@@ -22,7 +22,7 @@ DEFAULT_GAP_CUTOFF = 15.0
 
 WATER_RESNAMES = {'HOH', 'WAT', 'TIP3', 'TIP', 'SOL', 'T3P', 'T4P', 'T5P'}
 ION_RESNAMES = {'NA', 'CL', 'K', 'MG', 'CA', 'ZN', 'FE', 'MN', 'CU',
-                'NA+', 'CL-', 'K+', 'MG2+', 'CA2+', 'ZN2+'}
+                'NA+', 'CL-', 'K+', 'MG2+', 'CA2+', 'ZN2+', 'BUF', 'BUFF'}
 SOLVENT_IONS = WATER_RESNAMES | ION_RESNAMES
 
 STANDARD_RESIDUES = {
@@ -35,14 +35,36 @@ STANDARD_RESIDUES = {
 }
 
 
+def parse_gro(path):
+    """Convert a GROMACS .gro file to PDB lines via MDAnalysis.
+
+    Preserves all residue names exactly as-is (GLUP, ASPP, etc.).
+    """
+    import tempfile
+    import warnings
+    import MDAnalysis as mda
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        u = mda.Universe(str(path))
+        with tempfile.NamedTemporaryFile(suffix='.pdb', delete=False) as tmp:
+            tmp_path = tmp.name
+        u.atoms.write(tmp_path)
+
+    with open(tmp_path) as f:
+        lines = f.readlines()
+    Path(tmp_path).unlink()
+    return lines
+
+
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="dvbfixer split",
-        description="Empirically split chains in a PDB file. Detects chain breaks by "
+        description="Empirically split chains in a PDB or GRO file. Detects chain breaks by "
         "residue number resets and/or C-N inter-residue distance, assigns unique "
         "chain IDs, and inserts TER records."
     )
-    p.add_argument("input", help="Input PDB file")
+    p.add_argument("input", help="Input PDB or GRO file")
     p.add_argument("-o", "--output", help="Output PDB file (default: <input>_split.pdb)")
     p.add_argument(
         "-d", "--distance-cutoff", type=float, default=DEFAULT_DISTANCE_CUTOFF,
@@ -95,7 +117,11 @@ def get_atom_name(line):
 
 
 def get_resname(line):
-    return line[17:20].strip()
+    # Cols 17-19 standard; col 20 may hold 4th char (e.g. GLUP, ASPP from GRO)
+    name = line[17:20].strip()
+    if len(line) > 20 and line[20] not in (' ', '\n'):
+        name = line[17:21].strip()
+    return name
 
 
 def set_chain_id(line, chain_id):
@@ -174,10 +200,8 @@ def find_chain_breaks(atom_lines, distance_cutoff, gap_cutoff, use_distance):
         if not use_distance:
             continue
 
-        both_protein = rn_prev in STANDARD_RESIDUES and rn_cur in STANDARD_RESIDUES
-
-        # Criterion 2: C->N peptide bond distance (protein residues only)
-        if both_protein and c_prev is not None and n_cur is not None:
+        # Criterion 2: C->N peptide bond distance (any residues with backbone C/N)
+        if c_prev is not None and n_cur is not None:
             if np.linalg.norm(c_prev - n_cur) > distance_cutoff:
                 breaks.add(first_idx_cur)
             continue
@@ -199,12 +223,20 @@ def main(argv=None):
         print(f"File not found: {input_path}", file=sys.stderr)
         sys.exit(1)
 
-    output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_split")
+    is_gro = input_path.suffix.lower() == '.gro'
+    if args.output:
+        output_path = Path(args.output)
+    else:
+        # Always output PDB (GRO has no chain IDs)
+        output_path = input_path.with_stem(input_path.stem + "_split").with_suffix(".pdb")
     use_distance = not args.no_distance
     renumber = not args.no_renumber
 
-    with open(input_path) as f:
-        lines = f.readlines()
+    if is_gro:
+        lines = parse_gro(input_path)
+    else:
+        with open(input_path) as f:
+            lines = f.readlines()
 
     # Separate water/ions from other atoms BEFORE chain break detection
     # so they don't cause false breaks between protein chains
@@ -313,6 +345,10 @@ def main(argv=None):
         for sl in solvent_lines:
             output_lines.insert(end_idx, sl)
             end_idx += 1
+
+    # Ensure END record for GRO input (PDB files already have one)
+    if is_gro and (not output_lines or not output_lines[-1].startswith("END")):
+        output_lines.append("END\n")
 
     with open(output_path, 'w') as f:
         f.writelines(output_lines)
