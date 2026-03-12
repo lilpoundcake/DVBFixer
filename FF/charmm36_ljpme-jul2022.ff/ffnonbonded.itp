@@ -53,6 +53,7 @@
 
 ; from file toppar_c36_jul22/metals/CHARMM_METAL/top_all22_prot_metals.inp
 ; type atnum         mass   charge ptype           sigma  epsilon
+   BUF     0     0.000000    0.000     A  0.000000000000  0.0000000  ; buffer particle (dummy, no interactions)
     HB     1     1.008000    0.000     A  0.235197261589  0.0920480  ; backbone H
     HE     2     4.002600    0.000     A  0.263706020570  0.0889937  ; helium
    CAP     6    12.011000    0.000     A  0.355005321205  0.2928800  ; aromatic C for pyrimidines (see toppar_all22_prot_pyridines.str)

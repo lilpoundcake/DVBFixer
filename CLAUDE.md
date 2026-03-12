@@ -109,7 +109,7 @@ Generates GROMACS topology files directly from PDB by parsing force field RTP/AR
 - `ions.itp` — ion moleculetypes
 - `posre_*.itp` — position restraint files (used with `#ifdef POSRES`)
 - `interchain_ss.itp` — inter-chain SS bonds with `[ intermolecular_interactions ]` (must stay at end of `topol.top`, after SOL/ions)
-- `conf.pdb` — output PDB with FF atom names
+- `conf.pdb` — output PDB with FF atom names (includes ions/BUF particles from input)
 FF directory is only used at build time for RTP parsing, not needed at runtime.
 
 **Key writers:** `_write_moleculetype(f, chain_top, bonded_types)` writes a chain moleculetype section to a file. `write_top()` generates the modular output via `_read_ff_content()` (strips preprocessor directives), `_parse_defaults()` (extracts `[ defaults ]`), `_write_water_topology()` (extracts rigid settles version from water .itp), and `_dedup_atomtypes()` (removes duplicate water/ion atom type entries from #ifdef blocks, e.g. HT, OT with heavy/real mass variants).
@@ -176,6 +176,7 @@ Full pipeline: renumber → model → prepare → minimize → protonate → min
 - CHARMM FF has ~2400+ residues across 9 RTP files: aminoacids (protein), carb (363 sugars), lipid (401), na (79 nucleic acids), cgenff (924 small molecules), ethers (25), metals (8), silicates (6), solvent/ions (77). All loaded at startup.
 - Glycosidic linkages handled by removing HO + charge redistribution + atom type change. Linked O1 atoms not in PDB are skipped.
 - `interchain_ss.itp` with `[ intermolecular_interactions ]` is auto-included in `topol.top` after `[ molecules ]` (GROMACS requires this directive after the molecules section).
+- Ions and buffer particles (BUF) are auto-detected in PDB by matching residue names against moleculetypes in `ions.itp`. Counted and added to `[ molecules ]` section. Not built as chain topologies — their moleculetypes are defined in `ions.itp`. BUF atomtype (dummy, no LJ) added to `ffnonbonded.itp`.
 - PDB atom name format: columns 13-16 = atom name (4 chars), column 17 = altLoc (space), columns 18-20 = residue name. 4-char atom names (HE21) start at column 13; shorter names start at column 14 with leading space.
 
 ## GLYCAM Integration Notes
