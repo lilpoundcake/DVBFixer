@@ -874,13 +874,16 @@ class TopologyBuilder:
                 return gmx_name
         return rtp_atom_name
 
-    def build_chain(self, chain, ss_residues=None):
+    def build_chain(self, chain, ss_residues=None, ss_pairs=None):
         """Build topology for a single chain.
 
         ss_residues: set of resseq involved in SS bonds in this chain.
+        ss_pairs: list of (resseq1, resseq2) intra-chain SS bond pairs.
         """
         if ss_residues is None:
             ss_residues = set()
+        if ss_pairs is None:
+            ss_pairs = []
 
         n_res = len(chain.residues)
         if n_res == 0:
@@ -1002,6 +1005,25 @@ class TopologyBuilder:
                     chain_top.bonds.append(bond)
 
         # Deduplicate bonds
+        chain_top.bonds = sorted(set(chain_top.bonds))
+
+        # Step 3b: Add intra-chain SS bonds (SG-SG)
+        # RTP CYS2 has CB-SG but not the inter-residue SG-SG bond
+        resseq_to_resi = {res.resseq: i for i, res in enumerate(chain.residues)}
+        for res1_seq, res2_seq in ss_pairs:
+            resi1 = resseq_to_resi.get(res1_seq)
+            resi2 = resseq_to_resi.get(res2_seq)
+            if resi1 is None or resi2 is None:
+                continue
+            sg1 = atom_index_map.get((resi1, 'SG'))
+            sg2 = atom_index_map.get((resi2, 'SG'))
+            if sg1 is not None and sg2 is not None:
+                bond = (min(sg1, sg2), max(sg1, sg2))
+                chain_top.bonds.append(bond)
+                if self.verbose:
+                    print(f"  Added intra-chain SS bond: "
+                          f"CYS2 {chain.chain_id}:{res1_seq}:SG - "
+                          f"CYS2 {chain.chain_id}:{res2_seq}:SG")
         chain_top.bonds = sorted(set(chain_top.bonds))
 
         # Step 4: Apply terminal patches (CHARMM)
@@ -2141,11 +2163,14 @@ def main(argv=None):
         if len(parts) == 4:
             ss_bonds.append((parts[0], int(parts[1]), parts[2], int(parts[3])))
 
-    # Build per-chain SS residue sets
+    # Build per-chain SS residue sets and intra-chain SS pairs
     chain_ss = defaultdict(set)
+    intrachain_ss = defaultdict(list)  # chain_id -> [(resseq1, resseq2)]
     for ch1, res1, ch2, res2 in ss_bonds:
         chain_ss[ch1].add(res1)
         chain_ss[ch2].add(res2)
+        if ch1 == ch2:
+            intrachain_ss[ch1].append((res1, res2))
 
     if ss_bonds and args.verbose:
         print(f"Disulfide bonds: {len(ss_bonds)}")
@@ -2244,7 +2269,8 @@ def main(argv=None):
             print(f"\nBuilding topology for chain {chain.chain_id} "
                   f"({len(chain.residues)} residues)")
 
-        ct = builder.build_chain(chain, chain_ss.get(chain.chain_id, set()))
+        ct = builder.build_chain(chain, chain_ss.get(chain.chain_id, set()),
+                                 intrachain_ss.get(chain.chain_id, []))
         if ct is not None:
             chain_tops.append(ct)
             n_bonds = len(ct.bonds)
