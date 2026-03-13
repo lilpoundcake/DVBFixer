@@ -419,6 +419,159 @@ def _count_molecules(pdb_path, mol_names):
     return list(counts.items())
 
 
+def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False):
+    """Add missing protonation H atoms using OpenMM Modeller with variants.
+
+    Same approach as protonate.py: load PDB → strip H → strip non-protein →
+    build variants list → PDBFixer fix missing atoms → Modeller.addHydrogens
+    with CHARMM FF and variants → extract only needed protonation H coords.
+
+    OpenMM variant names (ASH, GLH, HIP, HID, HIE) work with both
+    charmm36.xml and amber14-all.xml force fields.
+    """
+    import tempfile
+    import os
+
+    # Map protonated names to OpenMM variant names
+    _PROT_TO_VARIANT = {
+        'ASPP': 'ASH', 'ASH': 'ASH', 'ASPH': 'ASH',
+        'GLUP': 'GLH', 'GLH': 'GLH', 'GLUH': 'GLH',
+        'HSP': 'HIP', 'HIP': 'HIP', 'HISH': 'HIP',
+        'HSD': 'HID', 'HID': 'HID', 'HISD': 'HID',
+        'HSE': 'HIE', 'HIE': 'HIE', 'HISE': 'HIE',
+    }
+    # Which H atoms we want for each protonated form
+    _PROT_H_ATOMS = {
+        'ASPP': {'HD2'}, 'ASH': {'HD2'}, 'ASPH': {'HD2'},
+        'GLUP': {'HE2'}, 'GLH': {'HE2'}, 'GLUH': {'HE2'},
+        'HSP': {'HD1', 'HE2'}, 'HIP': {'HD1', 'HE2'}, 'HISH': {'HD1', 'HE2'},
+        'HSD': {'HD1'}, 'HID': {'HD1'}, 'HISD': {'HD1'},
+        'HSE': {'HE2'}, 'HIE': {'HE2'}, 'HISE': {'HE2'},
+    }
+
+    # Collect residues that need protonation H
+    need_h = {}  # (chain_id, resseq) -> (chain_ref, res_ref, prot_name, missing_h)
+    for chain in protein_chains:
+        for res in chain.residues:
+            prot_name = res.resname.upper()
+            if prot_name in _PROT_H_ATOMS:
+                existing = {a[0] for a in res.atoms}
+                missing = _PROT_H_ATOMS[prot_name] - existing
+                if missing:
+                    need_h[(chain.chain_id, res.resseq)] = (
+                        chain, res, prot_name, missing)
+
+    if not need_h:
+        return
+
+    if verbose:
+        for (cid, rseq), (ch, res, pn, mh) in need_h.items():
+            print(f"  Need H for {pn} {cid}:{rseq}: "
+                  f"{', '.join(sorted(mh))}")
+
+    from openmm.app import ForceField, Modeller, PDBFile
+    from openmm import unit
+    from pdbfixer import PDBFixer
+    from dvbfixer.protonate import _strip_hydrogens
+    from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
+
+    # Build variant lookup: (chain_id, resseq) -> OpenMM variant name
+    variant_lookup = {}
+    for (cid, rseq), (ch, res, pn, mh) in need_h.items():
+        variant = _PROT_TO_VARIANT.get(pn)
+        if variant:
+            variant_lookup[(cid, rseq)] = variant
+
+    # Load PDB with OpenMM (same approach as protonate.py)
+    pdb = PDBFile(str(pdb_path))
+
+    # Strip existing hydrogens
+    topology, positions = _strip_hydrogens(pdb.topology, pdb.positions)
+
+    # Strip non-protein residues (glycans, ligands, etc.)
+    known = PROTEIN_RESIDUES | SOLVENT_IONS
+    to_delete = [res for res in topology.residues() if res.name not in known]
+    if to_delete:
+        modeller = Modeller(topology, positions)
+        modeller.delete(to_delete)
+        topology, positions = modeller.topology, modeller.positions
+
+    # Build variants list
+    def _build_variants(topo):
+        vlist = []
+        for res in topo.residues():
+            cid = res.chain.id
+            try:
+                rseq = int(res.id)
+            except ValueError:
+                vlist.append(None)
+                continue
+            key = (cid, rseq)
+            if key in variant_lookup:
+                vlist.append(variant_lookup[key])
+            else:
+                vlist.append(None)
+        return vlist
+
+    variants = _build_variants(topology)
+
+    # Use PDBFixer to fix any missing heavy atoms
+    tmp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+                mode='w', suffix='.pdb', delete=False) as f:
+            PDBFile.writeFile(topology, positions, f, keepIds=True)
+            tmp_path = f.name
+
+        fixer = PDBFixer(filename=tmp_path)
+        fixer.findMissingResidues()
+        fixer.missingResidues = {}  # Only fix atoms, not residues
+        fixer.findMissingAtoms()
+        fixer.addMissingAtoms()
+
+        modeller = Modeller(fixer.topology, fixer.positions)
+
+        # Rebuild variants for potentially reordered topology
+        variants = _build_variants(modeller.topology)
+
+        # Add H with proper geometry — use CHARMM or AMBER FF
+        if ff_type == 'charmm':
+            ff = ForceField('charmm36.xml', 'charmm36/water.xml')
+        else:
+            ff = ForceField('amber14-all.xml', 'amber14/tip3pfb.xml')
+        modeller.addHydrogens(ff, variants=variants)
+
+        # Extract only the specific protonation H atoms we need
+        added = 0
+        for atom in modeller.topology.atoms():
+            res = atom.residue
+            cid = res.chain.id
+            try:
+                rseq = int(res.id)
+            except ValueError:
+                continue
+            key = (cid, rseq)
+            if key not in need_h:
+                continue
+            chain_ref, res_ref, prot_name, missing_h = need_h[key]
+            if atom.name in missing_h:
+                pos = modeller.positions[atom.index]
+                xyz = pos.value_in_unit(unit.angstrom)
+                res_ref.atoms.append((atom.name, xyz[0], xyz[1], xyz[2]))
+                added += 1
+                if verbose:
+                    print(f"    Placed {atom.name} at {res_ref.resname} "
+                          f"{cid}:{rseq} "
+                          f"({xyz[0]:.3f}, {xyz[1]:.3f}, {xyz[2]:.3f})")
+
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+    if verbose:
+        print(f"  Added {added} protonation H atom(s) via OpenMM Modeller")
+
+
 def _extract_molecule_lines(pdb_path, mol_names):
     """Extract ATOM/HETATM lines for ion/buffer molecules from PDB."""
     lines = []
@@ -804,35 +957,9 @@ class TopologyBuilder:
             # Build PDB atom coordinate lookup
             pdb_coords = {a[0]: (a[1], a[2], a[3]) for a in res.atoms}
 
-            # Add missing protonation H atoms with estimated coordinates.
-            # Only for ASP/GLU/HIS protonation variants (ASPP HD2, GLUP HE2,
-            # HSP/HSD/HSE HD1/HE2).
-            _PROT_RTP_NAMES = {'ASPP', 'GLUP', 'HSP', 'HSD', 'HSE',
-                               'ASH', 'GLH', 'HIP', 'HID', 'HIE',
-                               'ASPH', 'GLUH', 'HISH', 'HISD', 'HISE'}
-            if rtp_name.upper() in _PROT_RTP_NAMES:
-                rtp_bond_graph = {}
-                for b1, b2 in rtp_res.bonds:
-                    if b1.startswith(('-', '+')) or b2.startswith(('-', '+')):
-                        continue
-                    rtp_bond_graph.setdefault(b1, set()).add(b2)
-                    rtp_bond_graph.setdefault(b2, set()).add(b1)
-
-                for atom_name, _, _, _ in rtp_res.atoms:
-                    if rtp_to_pdb.get(atom_name) is not None:
-                        continue
-                    if not atom_name.startswith('H'):
-                        continue
-                    for neighbor in rtp_bond_graph.get(atom_name, []):
-                        nb_pdb = rtp_to_pdb.get(neighbor)
-                        if nb_pdb and nb_pdb in pdb_coords:
-                            hx, hy, hz = pdb_coords[nb_pdb]
-                            pdb_coords[atom_name] = (hx + 1.0, hy, hz)
-                            rtp_to_pdb[atom_name] = atom_name
-                            if self.verbose:
-                                print(f"    Adding {rtp_name}:{atom_name} near "
-                                      f"{nb_pdb} ({res.chain_id}:{res.resseq})")
-                            break
+            # Protonation H atoms (HD2/HE2/HD1) are added to res.atoms
+            # by _add_protonation_hydrogens() before build_chain is called.
+            # They should already be in pdb_coords via the res.atoms loop above.
 
             for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
                 pdb_name = rtp_to_pdb.get(atom_name)
@@ -2096,6 +2223,11 @@ def main(argv=None):
                 if args.verbose and res.resname != 'HIE':
                     print(f"  HIS {res.chain_id}:{res.resseq} -> {res.resname} "
                           f"(auto-detected from H atoms)")
+
+    # Add missing protonation H atoms with proper geometry via PDBFixer
+    if args.protonate or args.his:
+        _add_protonation_hydrogens(protein_chains, args.input, args.ff,
+                                   verbose=args.verbose)
 
     # Ignore hydrogens if requested
     if args.ignh:

@@ -441,7 +441,7 @@ dvbfixer top input.pdb -o my_topology.top --pdb my_conf.pdb
 | `--ignh` | off | Ignore hydrogens in input PDB |
 | `--ss` | auto | Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable) |
 | `--his` | auto | HIS protonation: CHAIN:NUM:STATE (HIE/HID/HIP, repeatable) |
-| `--protonate` | off | Protonate residues: `all` for every ASP/GLU/HIS, or `CHAIN:NUM[:STATE],...` for specific residues |
+| `--protonate` | off | Protonate residues: `all` for every ASP/GLU/HIS, or `CHAIN:NUM[:STATE],...` for specific. H placed via OpenMM Modeller with CHARMM/AMBER FF |
 | `--merge` | off | Merge all chains into single moleculetype |
 | `--pdb` | `conf.pdb` | Output PDB with topology-matched atom names |
 | `--acpype` | off | Use ACPYPE pipeline (AMBER14+GLYCAM -> ParmEd -> GROMACS) with per-pair 1-4 scaling |
