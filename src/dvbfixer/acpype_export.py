@@ -277,6 +277,50 @@ _ION_ATOMTYPES = """\
 """
 
 
+def _insert_posres_include(top_path, stem):
+    """Insert #ifdef POSRES / #include posre / #endif into the .top file.
+
+    The include goes at the end of the main (first) moleculetype section,
+    just before the solvent/ion moleculetypes or [ system ].
+    """
+    with open(top_path) as f:
+        lines = f.readlines()
+
+    posres_block = (
+        f'\n; Include position restraint file\n'
+        f'#ifdef POSRES\n'
+        f'#include "posre_{stem}.itp"\n'
+        f'#endif\n\n'
+    )
+
+    # Find the end of the first moleculetype: look for second [ moleculetype ]
+    # or [ system ] — whichever comes first
+    mt_count = 0
+    insert_at = None
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped == '[ moleculetype ]':
+            mt_count += 1
+            if mt_count == 2:
+                # Insert before the line preceding 2nd moleculetype
+                # (skip back over blank/comment lines to insert cleanly)
+                insert_at = i
+                while insert_at > 0 and lines[insert_at - 1].strip() in ('', ';'):
+                    insert_at -= 1
+                break
+        elif stripped == '[ system ]':
+            insert_at = i
+            while insert_at > 0 and lines[insert_at - 1].strip() == '':
+                insert_at -= 1
+            break
+
+    if insert_at is not None:
+        lines.insert(insert_at, posres_block)
+
+    with open(top_path, 'w') as f:
+        f.writelines(lines)
+
+
 def _append_solvent_ions(top_path):
     """Append water (TIP3P) and ion moleculetypes to ACPYPE .top file.
 
@@ -406,7 +450,7 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
 
     copied = []
     for src, dst_name in [
-        (gmx_top, f'{stem}.top'),
+        (gmx_top, 'topol.top'),
         (gmx_gro, f'{stem}.gro'),
         (posre, f'posre_{stem}.itp'),
     ]:
@@ -416,8 +460,10 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
             copied.append(dst_name)
 
     # Append water and ion moleculetypes before [ system ] so gmx solvate/genion work
-    top_path = output_dir / f'{stem}.top'
+    # Insert position restraint include in the main moleculetype
+    top_path = output_dir / 'topol.top'
     if top_path.exists():
+        _insert_posres_include(top_path, stem)
         _append_solvent_ions(top_path)
 
     # Cleanup temp files

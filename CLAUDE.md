@@ -118,7 +118,7 @@ FF directory is only used at build time for RTP parsing, not needed at runtime.
 
 **Atom name matching (`_match_atom_names`):** Multi-pass algorithm: (0) exact match, (0a) ARN reverse mapping (e.g. HN→H for CHARMM), (1) strip trailing digits, (2) common H renames, (3) numbered variants, (4) singleton numbered atoms (HG1→HG). Validates all RTP heavy atoms are present; warns on extra/missing atoms.
 
-**`--acpype` mode:** Alternative to RTP-based topology. Uses `acpype_export.py` shared module: OpenMM (AMBER14+GLYCAM) → ParmEd → ACPYPE → GROMACS `.top`/`.gro` with `[ pairs_nb ]` for mixed 1-4 scaling. Ignores `--ff`/`--water`/`--ignh`/`--merge` flags. Respects `--ss` for explicit disulfide bonds.
+**`--acpype` mode:** Alternative to RTP-based topology. Uses `acpype_export.py` shared module: OpenMM (AMBER14+GLYCAM) → ParmEd → ACPYPE → GROMACS `topol.top`/`.gro` with `[ pairs_nb ]` for mixed 1-4 scaling. Output includes `#ifdef POSRES` / `#include "posre_{stem}.itp"` / `#endif` in the moleculetype section, and water/ion moleculetypes appended before `[ system ]`. Ignores `--ff`/`--water`/`--ignh`/`--merge` flags. Respects `--ss` for explicit disulfide bonds.
 
 ### dvbfixer transplant
 Transplants molecules from a graft PDB into an acceptor PDB, with optional AMBER+GLYCAM energy minimization. Designed for the GLYCAM glycoprotein workflow: extract glycosylation site residues → submit to GLYCAM-Web → transplant back with glycans attached. Also works with CHARMM-GUI output via simple transplant mode (`--donor` + `--select`) to copy glycan chains or other molecules.
@@ -147,7 +147,7 @@ Transplants molecules from a graft PDB into an acceptor PDB, with optional AMBER
 1. OpenMM parametrizes with AMBER14 + GLYCAM_06j-1 → System (no constraints, so ParmEd gets all bond types)
 2. ParmEd `load_topology()` → Structure → saves AMBER prmtop/inpcrd
 3. ACPYPE converts to GROMACS `.top`/`.gro` with per-pair 1-4 parameters via `[ pairs_nb ]` directive (solves mixed AMBER fudgeLJ=0.5 / GLYCAM fudgeLJ=1.0 scaling)
-4. Output: `{stem}.top`, `{stem}.gro`, `posre_{stem}.itp` in target directory
+4. Output: `topol.top`, `{stem}.gro`, `posre_{stem}.itp` in target directory. `topol.top` includes `#ifdef POSRES` / `#include "posre_{stem}.itp"` / `#endif` and water/ion moleculetypes.
 
 ### dvbfixer puppet
 Strips PDB to backbone-only polyglycine model. Removes all non-ATOM lines, keeps only backbone atoms (N, CA, C, O, OXT), renames all residues to GLY. `--keep CHAIN:NUM` preserves specific residues intact (all atoms, original name) — accepts single, range (`A:100-110`), list (`A:100,105`), or mixed, repeatable. No dependencies beyond stdlib.

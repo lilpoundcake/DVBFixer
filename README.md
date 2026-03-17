@@ -453,7 +453,7 @@ Parses force field RTP files to build topology from bond graph: resolves inter-r
 
 #### ACPYPE mode (`--acpype`)
 
-Uses OpenMM to parametrize with AMBER14 + GLYCAM_06j-1, converts via ParmEd to AMBER prmtop/inpcrd, then ACPYPE generates GROMACS `.top`/`.gro` with `[ pairs_nb ]` directive for per-pair 1-4 parameters. This solves the mixed 1-4 scaling problem (AMBER fudgeLJ=0.5 vs GLYCAM fudgeLJ=1.0) that GROMACS cannot express globally. Best for glycoprotein systems. Ignores `--ff`/`--water`/`--merge` flags.
+Uses OpenMM to parametrize with AMBER14 + GLYCAM_06j-1, converts via ParmEd to AMBER prmtop/inpcrd, then ACPYPE generates GROMACS `topol.top`/`.gro` with `[ pairs_nb ]` directive for per-pair 1-4 parameters. This solves the mixed 1-4 scaling problem (AMBER fudgeLJ=0.5 vs GLYCAM fudgeLJ=1.0) that GROMACS cannot express globally. Output includes position restraints (`#ifdef POSRES` / `#include "posre_{stem}.itp"` / `#endif`) and water/ion moleculetypes ready for `gmx solvate`/`genion`. Best for glycoprotein systems. Ignores `--ff`/`--water`/`--merge` flags.
 
 ---
 
@@ -516,7 +516,7 @@ dvbfixer transplant protein.pdb --donor charmm_gui.pdb --select G,H --superpose
 
 #### GROMACS Export (`--gromacs DIR`)
 
-Same ACPYPE pipeline as `dvbfixer top --acpype`: OpenMM parametrization -> ParmEd -> ACPYPE with `[ pairs_nb ]` for mixed 1-4 scaling. Outputs `.top`, `.gro`, and `posre_*.itp` to the specified directory.
+Same ACPYPE pipeline as `dvbfixer top --acpype`: OpenMM parametrization -> ParmEd -> ACPYPE with `[ pairs_nb ]` for mixed 1-4 scaling. Outputs `topol.top`, `.gro`, and `posre_*.itp` to the specified directory. The `.top` includes position restraints and water/ion moleculetypes.
 
 ---
 
@@ -684,7 +684,7 @@ dvbfixer transplant antibody_zbs.pdb --donor donor.pdb --graft glycam_output.pdb
 
 # 6. Generate GROMACS topology (handles mixed AMBER/GLYCAM 1-4 scaling)
 dvbfixer top antibody_zbs_transplant.pdb --acpype
-# -> .top, .gro, posre_*.itp
+# -> topol.top, .gro, posre_*.itp
 ```
 
 ### GROMACS topology generation
