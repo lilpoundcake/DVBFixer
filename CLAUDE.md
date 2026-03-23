@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-dvbfixer is a Python package providing CLI tools for preparing PDB (Protein Data Bank) structural biology files. Installed as a single `dvbfixer` command with subcommands: `split`, `renumber`, `model`, `pull`, `prepare`, `minimize`, `protonate`, `rename`, `top`, `transplant`, `puppet`, `zbs`.
+dvbfixer is a Python package providing CLI tools for preparing PDB (Protein Data Bank) structural biology files. Installed as a single `dvbfixer` command with subcommands: `split`, `renumber`, `model`, `pull`, `prepare`, `minimize`, `protonate`, `rename`, `top`, `transplant`, `puppet`, `glycam`, `zbs`.
 
 ## Package Structure
 
@@ -23,6 +23,7 @@ src/dvbfixer/
   rtp_parser.py   — GROMACS force field file parsers (RTP/ARN/R2B/TDB/ATP)
   transplant.py   — transplant molecules between PDB structures
   puppet.py       — strip PDB to backbone-only polyglycine
+  glycam.py       — convert PDB glycan nomenclature to GLYCAM FF naming
   zbs.py          — full pipeline (renumber->model->prepare->minimize->protonate->minimize)
   acpype_export.py — ACPYPE-based GROMACS topology export (AMBER+GLYCAM)
   ffutils.py      — shared force field utilities (residue sets, OpenFF setup)
@@ -148,6 +149,9 @@ Transplants molecules from a graft PDB into an acceptor PDB, with optional AMBER
 2. ParmEd `load_topology()` → Structure → saves AMBER prmtop/inpcrd
 3. ACPYPE converts to GROMACS `.top`/`.gro` with per-pair 1-4 parameters via `[ pairs_nb ]` directive (solves mixed AMBER fudgeLJ=0.5 / GLYCAM fudgeLJ=1.0 scaling)
 4. Output: `topol.top`, `{stem}.gro`, `posre_{stem}.itp` in target directory. `topol.top` includes `#ifdef POSRES` / `#include "posre_{stem}.itp"` / `#endif` and water/ion moleculetypes.
+
+### dvbfixer glycam
+Converts PDB glycan nomenclature to GLYCAM force field naming. GLYCAM uses 3-character residue codes: `[linkage][sugar][anomer]`. Linkage detected from CONECT records (or C1-O distance < 2.0 Å fallback). Single linkage: `0`=terminal, `2`-`9`=position. Multi-linkage: `V`=O3+O6, `W`=O3+O4, `U`=O4+O6, etc. Sugar codes: `G`=Glc, `L`=Gal, `M`=Man, `Y`=GlcNAc, `V`=GalNAc, `f`=Fuc (lowercase=L-sugar), `S`=Neu5Ac. Anomer: `A`=alpha, `B`=beta. Handles sialic acid (anomeric C2 not C1), N-acetyl atom renames (C7→C2N, O7→O2N, C8→CME), ROH cap at reducing end, and protein-linked glycans (ASN→NLN, SER→OLS, THR→OLT). Text-based, no OpenMM dependency. H addition handled downstream by `transplant --relax`.
 
 ### dvbfixer puppet
 Strips PDB to backbone-only polyglycine model. Removes all non-ATOM lines, keeps only backbone atoms (N, CA, C, O, OXT), renames all residues to GLY. `--keep CHAIN:NUM` preserves specific residues intact (all atoms, original name) — accepts single, range (`A:100-110`), list (`A:100,105`), or mixed, repeatable. No dependencies beyond stdlib.

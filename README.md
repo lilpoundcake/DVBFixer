@@ -520,6 +520,55 @@ Same ACPYPE pipeline as `dvbfixer top --acpype`: OpenMM parametrization -> ParmE
 
 ---
 
+### dvbfixer glycam — Convert to GLYCAM Nomenclature
+
+Converts PDB glycan structures from standard PDB sugar names (BGC, GAL, NAG, etc.) to GLYCAM force field 3-character codes encoding `[linkage][sugar][anomer]`. Detects glycosidic bonds from CONECT records (or distance-based fallback), determines linkage patterns, renames residues and atoms, and optionally adds ROH cap at the reducing end. Also detects protein-linked glycans and renames ASN→NLN, SER→OLS, THR→OLT. Text-based — no OpenMM dependency.
+
+#### Usage
+
+```bash
+# Basic usage — writes input_glycam.pdb
+dvbfixer glycam glycan.pdb -v
+
+# Without ROH cap at reducing end
+dvbfixer glycam glycan.pdb --no-roh
+
+# Custom output
+dvbfixer glycam glycan.pdb -o glycam_output.pdb -v
+```
+
+#### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-o`, `--output` | `<input>_glycam.pdb` | Output file path |
+| `--no-roh` | off | Do not add ROH cap at the reducing end |
+| `-v`, `--verbose` | off | Print conversion details |
+
+#### GLYCAM Naming Convention
+
+Each sugar residue gets a 3-character name: `[linkage][sugar][anomer]`
+
+**Linkage code** (1st character): `0`=terminal, `2`-`9`=single position, `V`=O3+O6, `W`=O3+O4, `U`=O4+O6, `Z`=O2+O3, `X`=O2+O6, `Y`=O2+O4 (multi-linkage for branching sugars).
+
+**Sugar code** (2nd character): `G`=glucose, `L`=galactose, `M`=mannose, `Y`=GlcNAc, `V`=GalNAc, `f`=fucose (lowercase=L-sugar), `S`=Neu5Ac, `X`=xylose, `R`=ribose, etc.
+
+**Anomer code** (3rd character): `A`=alpha, `B`=beta.
+
+#### Example
+
+```
+BGC(res1, child at O4)     -> 4GB
+GAL(res2, children at O3+O4) -> WLB
+SIA(res6, terminal)        -> 0SA
+NGA(res3, child at O3)     -> 3VB
+GAL(res4, child at O2)     -> 2LB
+FUC(res5, terminal)        -> 0fA
++ ROH cap at reducing end
+```
+
+---
+
 ### dvbfixer puppet — Backbone-Only Polyglycine Model
 
 Strips a PDB to a minimal backbone scaffold: removes all non-ATOM lines, removes all sidechain and hydrogen atoms (keeps only N, CA, C, O, OXT), and renames every residue to GLY. Useful for creating "puppet" models for backbone-level alignment, modeling templates, or visualization.
