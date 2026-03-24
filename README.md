@@ -402,7 +402,7 @@ Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pul
 
 ### dvbfixer top — GROMACS Topology Generation
 
-Generates GROMACS topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). Output is a modular set of `.itp` files: `ffparams.itp` (all FF parameters), `{chain}.itp` (each chain moleculetype), `water.itp`, `ions.itp`, `posre_*.itp` (position restraints), `interchain_ss.itp` (inter-chain SS bonds + protein-glycan bonds), and a compact `topol.top` with only `#include` directives — no external FF directory needed. Handles proteins, carbohydrates (CHARMM glycan topology with glycosidic bond detection and protein-glycan bonds), lipids, nucleic acids, and all other CHARMM molecule types (~2400+ residues). Ions and buffer particles (BUF) in the input PDB are auto-detected and added to `[ molecules ]`. Automatically splits chains with overlapping residue numbers (e.g. duplicate glycan trees from `transplant`).
+Generates GROMACS topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). Output is a modular set of `.itp` files: `ffparams.itp` (all FF parameters), `{chain}.itp` (each chain moleculetype), `water.itp`, `ions.itp`, `posre_*.itp` (position restraints), `interchain_ss.itp` (inter-chain SS bonds + protein-glycan bonds), and a compact `topol.top` with only `#include` directives — no external FF directory needed. Handles proteins, carbohydrates (CHARMM glycan topology with glycosidic bond detection and protein-glycan bonds), glycolipids (ceramide + sugar tree as single moleculetype from CHARMM-GUI output), lipids, nucleic acids, and all other CHARMM molecule types (~2400+ residues). Ions and buffer particles (BUF) in the input PDB are auto-detected and added to `[ molecules ]`. Automatically splits chains with overlapping residue numbers (e.g. duplicate glycan trees from `transplant`).
 
 #### Usage
 
@@ -421,6 +421,9 @@ dvbfixer top input.pdb --ff charmm --protonate all
 
 # Protonate specific residues
 dvbfixer top input.pdb --ff charmm --protonate A:66,A:46:GLUP
+
+# Glycolipid from CHARMM-GUI (ceramide + sugar tree as one moleculetype)
+dvbfixer top glycolipid_charmm.pdb --ff charmm -o glycolipid_top/
 
 # ACPYPE mode: full AMBER14+GLYCAM parametrization via OpenMM
 # Handles mixed 1-4 scaling for glycoproteins via [ pairs_nb ]
@@ -454,6 +457,29 @@ Parses force field RTP files to build topology from bond graph: resolves inter-r
 #### ACPYPE mode (`--acpype`)
 
 Uses OpenMM to parametrize with AMBER14 + GLYCAM_06j-1, converts via ParmEd to AMBER prmtop/inpcrd, then ACPYPE generates GROMACS `topol.top`/`.gro` with `[ pairs_nb ]` directive for per-pair 1-4 parameters. This solves the mixed 1-4 scaling problem (AMBER fudgeLJ=0.5 vs GLYCAM fudgeLJ=1.0) that GROMACS cannot express globally. Output includes position restraints (`#ifdef POSRES` / `#include "posre_{stem}.itp"` / `#endif`) and water/ion moleculetypes ready for `gmx solvate`/`genion`. Best for glycoprotein systems. Ignores `--ff`/`--water`/`--merge` flags.
+
+#### Glycolipid support (CHARMM36)
+
+Automatically detects glycolipids — ceramide residues (CER1, CER160, CER180, etc.) covalently bonded to a sugar tree — and builds them as a single GROMACS moleculetype. Designed for CHARMM-GUI PDB output which uses 4-character residue names (CER1, BGLC, BGAL, ANE5, AFUC, etc.).
+
+**How it works:**
+- Detects sugar O atom within 2.0 A of ceramide C1S (CHARMM-GUI removes ceramide O1/HO1 at the bond site)
+- Builds ceramide from `lipid.rtp` + sugar tree from `carb.rtp` into one moleculetype
+- Handles linkage charge redistribution: ceramide O1+HO1 charge goes to C1S, sugar HO1 charge goes to O1
+- Sugar O1 at ceramide junction gets type OC301 (linear ether); sugar-sugar junctions get OC3C61 (cyclic ether)
+- Sialic acid (Neu5Ac/ANE5AC) handled correctly: links via C2, O2 removed at linkage
+- Auto-detects BGAL with N-acetyl atoms (N, HN, CT) and remaps to BGALNA
+
+**Supported ceramides:** CER160 (d18:1/16:0), CER180, CER181, CER2, CER200, CER220, CER240, CER241, CER3E.
+
+**Example** (Fucosyl-GM1 ganglioside from CHARMM-GUI):
+```bash
+dvbfixer top FucGM1_Charmm.pdb --ff charmm -o gmx_top/ -v
+# Output: Glycolipid_ _1.itp (251 atoms, 256 bonds, charge -1.0)
+# Residues: CER160 + BGLC + BGAL + BGALNA + AFUC + ANE5AC
+```
+
+**Note:** Glycolipid support is CHARMM36 only. AMBER/GLYCAM+Lipid21 cannot be combined for glycolipids (incompatible atom type namespaces, no cross-FF parameters).
 
 ---
 
@@ -742,6 +768,9 @@ dvbfixer top antibody_zbs_transplant.pdb --acpype
 # RTP-based (fast, modular .itp output — no FF dir needed)
 dvbfixer top input.pdb --ff amber       # proteins
 dvbfixer top input.pdb --ff charmm      # proteins + glycans + lipids + NA + more
+
+# Glycolipid from CHARMM-GUI (auto-detected, CHARMM36 only)
+dvbfixer top glycolipid_charmm.pdb --ff charmm -o gmx_top/
 
 # ACPYPE-based (proteins + GLYCAM glycans, handles mixed 1-4 scaling)
 dvbfixer top input.pdb --acpype

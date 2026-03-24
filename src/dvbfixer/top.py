@@ -107,6 +107,30 @@ PDB_TO_CARB = {
     'AMA': 'AMAN',     # alpha-mannose (alternate PDB code)
     'BGA': 'BGAL',     # beta-galactose (alternate PDB code)
     'BGL': 'BGLCNA',   # beta-N-acetylglucosamine (alternate PDB code)
+    # CHARMM-GUI native names (already CHARMM RTP names, pass through)
+    'BGLC': 'BGLC',
+    'BGAL': 'BGAL',
+    'AFUC': 'AFUC',
+    'AMAN': 'AMAN',
+    'BMAN': 'BMAN',
+    'BGLCNA': 'BGLCNA',
+    'BGALNA': 'BGALNA',
+    'AGALNA': 'AGALNA',
+    'ANE5AC': 'ANE5AC',
+    'ANE5': 'ANE5AC',  # CHARMM-GUI short name for sialic acid
+}
+
+# PDB lipid names -> CHARMM lipid.rtp names (ceramides)
+PDB_TO_LIPID = {
+    'CER1': 'CER160',   # CHARMM-GUI: CER1 = d18:1/16:0
+    'CER2': 'CER2',     # generic ceramide
+    'CER3': 'CER3E',    # ceramide variant
+}
+
+# CHARMM lipid.rtp ceramide residue names
+CERAMIDE_RTP = {
+    'CER160', 'CER180', 'CER181', 'CER2', 'CER200',
+    'CER220', 'CER240', 'CER241', 'CER3E',
 }
 
 
@@ -307,12 +331,26 @@ def read_pdb_chains(path):
     into separate sub-chains with generated chain IDs.
     """
     # First pass: collect lines per original chain ID, preserving order
+    # Handle 4-char resnames (CHARMM-GUI style): if col 21 is not a space
+    # and col 17-20 is not blank, the resname extends to col 21 and chain ID
+    # is effectively blank.
     chain_lines = defaultdict(list)
     with open(path) as f:
         for line in f:
             if not (line.startswith('ATOM') or line.startswith('HETATM')):
                 continue
+            # Detect 4-char resnames: col 17-20 is the resname field,
+            # col 21 is normally chain ID. If col 20 is not space and col 21
+            # is not space either, it's likely a 4-char resname with no chain.
+            resname_3 = line[17:20].strip()
             chain_id = line[21]
+            if resname_3 and chain_id != ' ' and not chain_id.isalpha():
+                # Could be 4-char resname (e.g. CER1, BGAL, ANE5)
+                # Check: is line[17:21] a known 4-char resname?
+                resname_4 = line[17:21].strip()
+                if (resname_4 in PDB_TO_LIPID or resname_4 in PDB_TO_CARB
+                        or resname_4 in CERAMIDE_RTP):
+                    chain_id = ' '
             chain_lines[chain_id].append(line)
 
     # Second pass: split chains on resseq backward jumps
@@ -349,6 +387,12 @@ def read_pdb_chains(path):
             chain = PDBChain(chain_id=cid)
             for line in seg_lines:
                 resname = line[17:20].strip()
+                # Check for 4-char resname (CHARMM-GUI style)
+                resname_4 = line[17:21].strip()
+                if (len(resname_4) == 4 and
+                    (resname_4 in PDB_TO_LIPID or resname_4 in PDB_TO_CARB
+                     or resname_4 in CERAMIDE_RTP)):
+                    resname = resname_4
                 resseq = int(line[22:26])
                 icode = line[26].strip()
                 atom_name = line[12:16].strip()
@@ -635,44 +679,107 @@ def read_ssbonds(path):
     return ssbonds
 
 
+def _is_ceramide(resname):
+    """Check if a residue name is a ceramide (PDB or RTP name)."""
+    return resname in PDB_TO_LIPID or resname in CERAMIDE_RTP
+
+
+def _resolve_sugar_rtp(resname, atoms, residues_dict):
+    """Resolve a sugar PDB/CHARMM name to its correct RTP entry.
+
+    Handles special cases like BGAL with N-acetyl atoms -> BGALNA.
+    """
+    # First try direct RTP match (CHARMM-GUI native names)
+    if resname in residues_dict:
+        rtp_name = resname
+    else:
+        rtp_name = PDB_TO_CARB.get(resname)
+
+    if rtp_name is None:
+        return None
+
+    # Auto-detect: BGAL/AGAL with N-acetyl atoms -> BGALNA/AGALNA
+    if rtp_name in ('BGAL', 'AGAL'):
+        pdb_atom_names = {a[0] for a in atoms} if isinstance(atoms, list) else atoms
+        has_nacetyl = bool(pdb_atom_names & {'N', 'HN', 'CT'})
+        if has_nacetyl:
+            alt = 'BGALNA' if rtp_name == 'BGAL' else 'AGALNA'
+            if alt in residues_dict:
+                rtp_name = alt
+
+    if rtp_name not in residues_dict:
+        return None
+
+    return rtp_name
+
+
 def detect_glycan_links(chains):
     """Auto-detect glycosidic bonds from C1-O distances using parsed chain data.
 
     Detects:
     - Sugar-sugar links: C1 of one sugar within 2.0 A of Ox of another
     - Protein-sugar links: C1 of NAG within 2.0 A of ASN ND2
+    - Sugar-ceramide links: C1 of sugar within 2.0 A of ceramide O1
 
     Returns list of GlycanLink tuples.
     """
     sugar_names = set(PDB_TO_CARB.keys())
     links = []
 
+    # Also detect sugars already named with CHARMM RTP names
+    charmm_sugar_names = set(PDB_TO_CARB.values())
+
     # Collect C1 atoms from sugars and ND2/O* from sugars+ASN
     c1_atoms = []
     target_atoms = []
+    # Ceramide C1S atoms (for sugar O1-ceramide C1S detection)
+    cer_c1s_atoms = []
+    # Sugar O atoms (for reverse check against ceramide)
+    sugar_o_atoms = []
 
     for chain in chains:
         ch = chain.chain_id
         for res in chain.residues:
+            is_sugar = res.resname in sugar_names or res.resname in charmm_sugar_names
+            # Sialic acid variants: anomeric carbon is C2 (not C1)
+            is_sialic = res.resname in ('SIA', 'ANE5', 'ANE5AC', 'BNE5AC')
             for aname, x, y, z in res.atoms:
-                if res.resname in sugar_names and aname == 'C1':
-                    c1_atoms.append((ch, res.resname, res.resseq, x, y, z))
+                if is_sugar and aname == 'C1' and not is_sialic:
+                    c1_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
+                # Sialic acid links via C2
+                if is_sugar and is_sialic and aname == 'C2':
+                    c1_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
 
-                if res.resname in sugar_names and aname.startswith('O') and aname != 'O5':
+                if is_sugar and aname.startswith('O') and aname != 'O5':
                     target_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
+                    sugar_o_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
 
                 if res.resname == 'ASN' and aname == 'ND2':
                     target_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
 
-    # Find C1-target pairs within 2.0 A
-    for ch1, rn1, rs1, x1, y1, z1 in c1_atoms:
+                # Collect ceramide C1S for sugar-ceramide bond detection
+                if _is_ceramide(res.resname) and aname == 'C1S':
+                    cer_c1s_atoms.append((ch, res.resname, res.resseq, x, y, z))
+
+    # Find C1/C2-target pairs within 2.0 A (sugar-sugar and protein-sugar)
+    for ch1, rn1, rs1, aname1, x1, y1, z1 in c1_atoms:
         for ch2, rn2, rs2, aname2, x2, y2, z2 in target_atoms:
             if ch1 == ch2 and rs1 == rs2:
                 continue
             d = math.sqrt((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
             if d < 2.0:
-                # Link: acceptor (has C1) bonds to donor (has Ox/ND2)
-                links.append((ch2, rs2, aname2, ch1, rs1, 'C1'))
+                # Link: acceptor (has C1/C2) bonds to donor (has Ox/ND2)
+                links.append((ch2, rs2, aname2, ch1, rs1, aname1))
+
+    # Find sugar O - ceramide C1S bonds within 2.0 A
+    # In glycolipids, sugar O1 bridges to ceramide C1S (ceramide's own O1/HO1
+    # are already removed in CHARMM-GUI output)
+    for ch1, rn1, rs1, aname1, x1, y1, z1 in sugar_o_atoms:
+        for ch2, rn2, rs2, x2, y2, z2 in cer_c1s_atoms:
+            d = math.sqrt((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
+            if d < 2.0:
+                # Link: ceramide (donor, has C1S) <- sugar (has Ox)
+                links.append((ch2, rs2, 'C1S', ch1, rs1, aname1))
 
     return links
 
@@ -682,26 +789,40 @@ def build_glycan_trees(glycan_links, chains):
 
     Returns list of glycan trees, each a list of (chain_id, resseq, resname)
     in topological order (root first).
+    Also detects ceramide-sugar links for glycolipids.
     """
     # Build adjacency: sugar -> list of child sugars
     sugar_residues = set()
+    charmm_sugar_names = set(PDB_TO_CARB.values())
     for chain in chains:
         for res in chain.residues:
-            if res.resname in PDB_TO_CARB:
+            if res.resname in PDB_TO_CARB or res.resname in charmm_sugar_names:
                 sugar_residues.add((chain.chain_id, res.resseq))
+
+    # Identify ceramide residues
+    ceramide_residues = set()
+    for chain in chains:
+        for res in chain.residues:
+            if _is_ceramide(res.resname):
+                ceramide_residues.add((chain.chain_id, res.resseq))
 
     # Find root sugars (connected to protein ASN, not to another sugar)
     children = defaultdict(list)  # parent -> [child]
     parent_of = {}  # child -> parent
     protein_links = []  # [(protein_chain, protein_resseq, protein_atom, sugar_chain, sugar_resseq)]
+    ceramide_links = []  # [(cer_chain, cer_resseq, cer_atom, sugar_chain, sugar_resseq, sugar_atom)]
 
     for don_ch, don_rs, don_atom, acc_ch, acc_rs, acc_atom in glycan_links:
         acc_key = (acc_ch, acc_rs)
         don_key = (don_ch, don_rs)
         if don_key in sugar_residues and acc_key in sugar_residues:
             # sugar-sugar link: donor is parent, acceptor is child
-            children[don_key].append((acc_key, don_atom))
+            children[don_key].append((acc_key, don_atom, acc_atom))
             parent_of[acc_key] = (don_key, don_atom)
+        elif don_key in ceramide_residues and acc_key in sugar_residues:
+            # ceramide-sugar link — do NOT add to parent_of so the sugar
+            # becomes a root of its glycan tree (ceramide handled separately)
+            ceramide_links.append((don_ch, don_rs, don_atom, acc_ch, acc_rs, acc_atom))
         elif acc_key in sugar_residues:
             # protein-sugar link
             protein_links.append((don_ch, don_rs, don_atom, acc_ch, acc_rs))
@@ -726,16 +847,25 @@ def build_glycan_trees(glycan_links, chains):
                 continue
             visited.add(node)
             tree.append(node)
-            for child, donor_atom in children.get(node, []):
+            for child, donor_atom, child_atom in children.get(node, []):
                 # Record which O on parent is linked
                 if node not in link_atoms:
                     link_atoms[node] = set()
                 link_atoms[node].add(donor_atom)
-                # Child's C1-O1 is linked (remove HO1)
-                if child not in link_atoms:
-                    link_atoms[child] = set()
-                link_atoms[child].add('O1')
+                # Child's anomeric O is linked: O1 for C1 linkage, O2 for C2 linkage
+                if child_atom in ('C1', 'C2'):
+                    linked_o = 'O1' if child_atom == 'C1' else 'O2'
+                    if child not in link_atoms:
+                        link_atoms[child] = set()
+                    link_atoms[child].add(linked_o)
                 queue.append(child)
+
+        # Mark root's O1 as linked if bonded to ceramide
+        for cl in ceramide_links:
+            if (cl[3], cl[4]) == root:
+                if root not in link_atoms:
+                    link_atoms[root] = set()
+                link_atoms[root].add('O1')
 
         # Also mark root's O1 as linked (bonds to protein or is reducing end)
         for pl in protein_links:
@@ -744,7 +874,12 @@ def build_glycan_trees(glycan_links, chains):
                     link_atoms[root] = set()
                 link_atoms[root].add('O1')
 
-        trees.append((tree, link_atoms, protein_links))
+        # Filter ceramide_links relevant to this tree
+        tree_set = set(tree)
+        tree_cer_links = [cl for cl in ceramide_links
+                          if (cl[3], cl[4]) in tree_set]
+
+        trees.append((tree, link_atoms, protein_links, tree_cer_links))
 
     return trees
 
@@ -926,7 +1061,7 @@ class TopologyBuilder:
 
         # Step 2: Build atom list from RTP entries, matched to PDB
         chain_top = ChainTopology(
-            name=f"Protein_chain_{chain.chain_id}",
+            name=f"Protein_chain_{chain.chain_id.strip() or 'X'}",
             nrexcl=self.bonded_types.nrexcl,
         )
 
@@ -1366,7 +1501,7 @@ class TopologyBuilder:
         bt = self.carb_bonded_types or self.bonded_types
         first_ch, first_rs = tree[0]
         first_res = res_lookup.get((first_ch, first_rs))
-        chain_name = f"Glycan_{first_ch}_{first_rs}"
+        chain_name = f"Glycan_{first_ch.strip() or 'X'}_{first_rs}"
 
         chain_top = ChainTopology(
             name=chain_name,
@@ -1382,9 +1517,9 @@ class TopologyBuilder:
                 print(f"WARNING: Sugar {ch}:{rs} not found in PDB", file=sys.stderr)
                 continue
 
-            # Map PDB name -> CHARMM name
-            rtp_name = PDB_TO_CARB.get(res.resname)
-            if rtp_name is None or rtp_name not in self.residues:
+            # Map PDB name -> CHARMM name (with auto-detect for BGALNA etc.)
+            rtp_name = _resolve_sugar_rtp(res.resname, res.atoms, self.residues)
+            if rtp_name is None:
                 print(f"WARNING: No CHARMM RTP for {res.resname} ({ch}:{rs})",
                       file=sys.stderr)
                 continue
@@ -1429,9 +1564,17 @@ class TopologyBuilder:
             # When glycosidic bond forms, O type changes from hydroxyl to ether
             type_change = {}  # o_name -> new_type
             for ho_name, o_name in remove_ho.items():
-                charge_adjust[o_name] = charge_adjust.get(o_name, 0.0) + rtp_charges[ho_name]
-                # OC311 (hydroxyl) -> OC3C61 (ether) for linked O
-                type_change[o_name] = 'OC3C61'
+                pdb_o_name = rtp_to_pdb.get(o_name, o_name)
+                if pdb_o_name not in pdb_coords and o_name in linked_os:
+                    # O not in PDB (removed by CHARMM-GUI at linkage):
+                    # redistribute O + HO combined charge to anomeric carbon
+                    c_name = 'C2' if rtp_name in ('ANE5AC', 'BNE5AC') else 'C1'
+                    charge_adjust[c_name] = charge_adjust.get(c_name, 0.0) + \
+                        rtp_charges.get(o_name, 0.0) + rtp_charges[ho_name]
+                else:
+                    charge_adjust[o_name] = charge_adjust.get(o_name, 0.0) + rtp_charges[ho_name]
+                    # OC311 (hydroxyl) -> OC3C61 (ether) for linked O
+                    type_change[o_name] = 'OC3C61'
 
             for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
                 # Skip HO atoms at linked positions
@@ -1527,14 +1670,309 @@ class TopologyBuilder:
             res = res_lookup.get((ch, rs))
             if res is None:
                 continue
-            rtp_name = PDB_TO_CARB.get(res.resname)
-            if rtp_name is None or rtp_name not in self.residues:
+            rtp_name = _resolve_sugar_rtp(res.resname, res.atoms, self.residues)
+            if rtp_name is None:
                 continue
             rtp_res = self.residues[rtp_name]
             for imp in rtp_res.impropers:
                 indices = []
                 for ref in imp:
                     idx = atom_index_map.get((tree_idx, ref))
+                    if idx is not None:
+                        indices.append(idx)
+                if len(indices) == 4:
+                    chain_top.impropers.append(tuple(indices))
+
+        # Renumber
+        self._renumber_atoms(chain_top)
+
+        return chain_top
+
+    def build_glycolipid_chain(self, ceramide_res, tree, link_atoms,
+                               all_chains, glycan_links, ceramide_link):
+        """Build topology for a glycolipid (ceramide + sugar tree as one moleculetype).
+
+        ceramide_res: PDBResidue for the ceramide
+        tree: list of (chain_id, resseq) for sugars in topological order
+        link_atoms: dict (chain_id, resseq) -> set of linked O atoms
+        all_chains: list of PDBChain objects
+        glycan_links: list of sugar-sugar links
+        ceramide_link: (cer_chain, cer_resseq, cer_atom, sugar_chain, sugar_resseq, sugar_atom)
+        """
+        # Build residue lookup
+        res_lookup = {}
+        for chain in all_chains:
+            for res in chain.residues:
+                res_lookup[(chain.chain_id, res.resseq)] = res
+
+        bt = self.carb_bonded_types or self.bonded_types
+        cer_ch = ceramide_link[0]
+        cer_rs = ceramide_link[1]
+        chain_name = f"Glycolipid_{cer_ch.strip() or 'X'}_{cer_rs}"
+
+        chain_top = ChainTopology(
+            name=chain_name,
+            nrexcl=bt.nrexcl,
+        )
+
+        atom_index_map = {}  # (resnr, rtp_atom_name) -> global atom index
+        global_idx = 0
+
+        # --- Step 1: Build ceramide residue ---
+        cer_rtp_name = PDB_TO_LIPID.get(ceramide_res.resname, ceramide_res.resname)
+        if cer_rtp_name not in self.residues:
+            print(f"WARNING: No RTP entry for ceramide {ceramide_res.resname} "
+                  f"(tried {cer_rtp_name})", file=sys.stderr)
+            return None
+
+        rtp_res = self.residues[cer_rtp_name]
+        pdb_atom_names = {a[0] for a in ceramide_res.atoms}
+        pdb_coords = {a[0]: (a[1], a[2], a[3]) for a in ceramide_res.atoms}
+        rtp_charges = {a[0]: a[2] for a in rtp_res.atoms}
+
+        # At linkage: remove ceramide HO1 and O1 (not in PDB — CHARMM-GUI
+        # already removed them). Redistribute their combined charge to C1S.
+        cer_remove_ho = {}
+        cer_charge_adjust = {}
+        cer_type_change = {}
+        if 'HO1' in rtp_charges:
+            cer_remove_ho['HO1'] = 'O1'
+            # O1 not in PDB: redistribute O1+HO1 combined charge to C1S
+            if 'O1' not in pdb_atom_names:
+                o1_charge = rtp_charges.get('O1', 0.0)
+                ho1_charge = rtp_charges['HO1']
+                cer_charge_adjust['C1S'] = o1_charge + ho1_charge
+            else:
+                # O1 is in PDB: standard redistribution
+                cer_charge_adjust['O1'] = rtp_charges['HO1']
+                cer_type_change['O1'] = 'OC301'
+
+        resnr = 1  # ceramide is residue 1
+        for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
+            if atom_name in cer_remove_ho:
+                continue
+
+            adj_charge = charge + cer_charge_adjust.get(atom_name, 0.0)
+            adj_type = cer_type_change.get(atom_name, atom_type)
+
+            # Skip atoms not in PDB (H atoms, and O1 if already removed)
+            if atom_name not in pdb_coords:
+                if atom_name.startswith('H') or atom_name in ('O1', 'HO1'):
+                    if self.verbose:
+                        print(f"    Skipping {cer_rtp_name}:{atom_name} (not in PDB)")
+                    continue
+
+            global_idx += 1
+            mass = self.atom_masses.get(adj_type, 0.0)
+            x, y, z = pdb_coords.get(atom_name, (0.0, 0.0, 0.0))
+            chain_top.atoms.append(AtomEntry(
+                index=global_idx,
+                atom_type=adj_type,
+                resnr=resnr,
+                resname=cer_rtp_name,
+                atomname=atom_name,
+                cgnr=cgnr,
+                charge=adj_charge,
+                mass=mass,
+                x=x, y=y, z=z,
+                chain_id=cer_ch,
+                orig_resseq=cer_rs,
+                orig_resname=ceramide_res.resname,
+            ))
+            atom_index_map[(0, atom_name)] = global_idx
+
+        # Intra-residue bonds for ceramide
+        for a1, a2 in rtp_res.bonds:
+            if a1 in cer_remove_ho or a2 in cer_remove_ho:
+                continue
+            idx1 = atom_index_map.get((0, a1))
+            idx2 = atom_index_map.get((0, a2))
+            if idx1 is not None and idx2 is not None:
+                chain_top.bonds.append((min(idx1, idx2), max(idx1, idx2)))
+
+        # Ceramide impropers
+        for imp in rtp_res.impropers:
+            indices = []
+            for ref in imp:
+                idx = atom_index_map.get((0, ref))
+                if idx is not None:
+                    indices.append(idx)
+            if len(indices) == 4:
+                chain_top.impropers.append(tuple(indices))
+
+        # --- Step 2: Build sugar tree (reusing glycan chain logic) ---
+        for tree_idx, (ch, rs) in enumerate(tree):
+            res = res_lookup.get((ch, rs))
+            if res is None:
+                print(f"WARNING: Sugar {ch}:{rs} not found in PDB", file=sys.stderr)
+                continue
+
+            # Map PDB name -> CHARMM name (with auto-detect for BGALNA etc.)
+            rtp_name = _resolve_sugar_rtp(res.resname, res.atoms, self.residues)
+            if rtp_name is None:
+                print(f"WARNING: No CHARMM RTP for {res.resname} ({ch}:{rs})",
+                      file=sys.stderr)
+                continue
+
+            rtp_res = self.residues[rtp_name]
+            pdb_atom_names_set = {a[0] for a in res.atoms}
+            rtp_atom_names = [a[0] for a in rtp_res.atoms]
+
+            # Determine linked O atoms
+            linked_os = link_atoms.get((ch, rs), set())
+            remove_ho = {}
+            rtp_charges = {a[0]: a[2] for a in rtp_res.atoms}
+            for o_name in linked_os:
+                ho_name = 'HO' + o_name[1:]
+                if ho_name in rtp_charges:
+                    remove_ho[ho_name] = o_name
+
+            # Build RTP->PDB atom name mapping
+            carb_rtp_to_pdb = {}
+            pdb_resname = res.resname
+            if pdb_resname in CARB_ATOM_MAP:
+                for pdb_aname, charmm_aname in CARB_ATOM_MAP[pdb_resname].items():
+                    carb_rtp_to_pdb[charmm_aname] = pdb_aname
+
+            for rtp_aname in rtp_atom_names:
+                if rtp_aname in carb_rtp_to_pdb:
+                    continue
+                for (resn, ff_name), gmx_name in self.arn_reverse.items():
+                    if resn == '*' and ff_name == rtp_aname:
+                        carb_rtp_to_pdb[rtp_aname] = gmx_name
+                        break
+
+            rtp_to_pdb = _match_atom_names(rtp_atom_names, pdb_atom_names_set,
+                                           carb_rtp_to_pdb)
+            pdb_coords = {a[0]: (a[1], a[2], a[3]) for a in res.atoms}
+
+            charge_adjust = {}
+            type_change = {}
+            # Determine which O atom links to ceramide (if any)
+            cer_linked_o = ceramide_link[5] if (ch, rs) == (ceramide_link[3], ceramide_link[4]) else None
+            for ho_name, o_name in remove_ho.items():
+                pdb_o_name = rtp_to_pdb.get(o_name, o_name)
+                if pdb_o_name not in pdb_coords and o_name in linked_os:
+                    # O not in PDB (removed at linkage): redistribute to anomeric C
+                    c_name = 'C2' if rtp_name in ('ANE5AC', 'BNE5AC') else 'C1'
+                    charge_adjust[c_name] = charge_adjust.get(c_name, 0.0) + \
+                        rtp_charges.get(o_name, 0.0) + rtp_charges[ho_name]
+                else:
+                    charge_adjust[o_name] = charge_adjust.get(o_name, 0.0) + rtp_charges[ho_name]
+                    # Ceramide-linked O becomes OC301 (linear ether),
+                    # sugar-sugar linked O becomes OC3C61 (cyclic ether)
+                    if o_name == cer_linked_o:
+                        type_change[o_name] = 'OC301'
+                    else:
+                        type_change[o_name] = 'OC3C61'
+
+            resnr_sugar = tree_idx + 2  # ceramide is resnr 1
+            for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
+                if atom_name in remove_ho:
+                    continue
+
+                adj_charge = charge + charge_adjust.get(atom_name, 0.0)
+                adj_type = type_change.get(atom_name, atom_type)
+
+                pdb_name = rtp_to_pdb.get(atom_name, atom_name)
+                if pdb_name not in pdb_coords:
+                    if atom_name.startswith('H') or atom_name in linked_os:
+                        if self.verbose:
+                            print(f"    Skipping {rtp_name}:{atom_name} "
+                                  f"(not in PDB {ch}:{rs})")
+                        continue
+
+                global_idx += 1
+                mass = self.atom_masses.get(adj_type, 0.0)
+                x, y, z = pdb_coords.get(pdb_name, (0.0, 0.0, 0.0))
+                chain_top.atoms.append(AtomEntry(
+                    index=global_idx,
+                    atom_type=adj_type,
+                    resnr=resnr_sugar,
+                    resname=rtp_name,
+                    atomname=pdb_name if pdb_name in pdb_coords else atom_name,
+                    cgnr=cgnr,
+                    charge=adj_charge,
+                    mass=mass,
+                    x=x, y=y, z=z,
+                    chain_id=ch,
+                    orig_resseq=rs,
+                    orig_resname=res.resname,
+                ))
+                atom_index_map[(tree_idx + 1, atom_name)] = global_idx
+
+            # Intra-residue bonds
+            for a1, a2 in rtp_res.bonds:
+                if a1 in remove_ho or a2 in remove_ho:
+                    continue
+                idx1 = atom_index_map.get((tree_idx + 1, a1))
+                idx2 = atom_index_map.get((tree_idx + 1, a2))
+                if idx1 is not None and idx2 is not None:
+                    chain_top.bonds.append((min(idx1, idx2), max(idx1, idx2)))
+
+        # --- Step 3: Add inter-residue bonds ---
+        # Ceramide C1S — sugar O1 bond (sugar O1 bridges ceramide C1S to sugar C1)
+        cer_atom = ceramide_link[2]  # e.g. 'C1S'
+        sugar_atom = ceramide_link[5]  # e.g. 'O1'
+        cer_idx = atom_index_map.get((0, cer_atom))
+        root_sugar_idx = atom_index_map.get((1, sugar_atom))
+        if cer_idx is not None and root_sugar_idx is not None:
+            chain_top.bonds.append((min(cer_idx, root_sugar_idx),
+                                    max(cer_idx, root_sugar_idx)))
+
+        # Sugar-sugar glycosidic bonds
+        tree_pos = {(ch, rs): i + 1 for i, (ch, rs) in enumerate(tree)}
+        for don_ch, don_rs, don_atom, acc_ch, acc_rs, acc_atom in glycan_links:
+            don_key = (don_ch, don_rs)
+            acc_key = (acc_ch, acc_rs)
+            if don_key in tree_pos and acc_key in tree_pos:
+                don_tidx = tree_pos[don_key]
+                acc_tidx = tree_pos[acc_key]
+                idx1 = atom_index_map.get((don_tidx, don_atom))
+                idx2 = atom_index_map.get((acc_tidx, acc_atom))
+                if idx1 is not None and idx2 is not None:
+                    chain_top.bonds.append((min(idx1, idx2), max(idx1, idx2)))
+
+        # Deduplicate bonds
+        chain_top.bonds = sorted(set(chain_top.bonds))
+
+        # --- Step 4: Build bond graph and enumerate angles/dihedrals/pairs ---
+        adj = defaultdict(set)
+        for i, j in chain_top.bonds:
+            adj[i].add(j)
+            adj[j].add(i)
+
+        chain_top.angles = list(self._generate_angles(adj))
+
+        generated = set()
+        for j in sorted(adj.keys()):
+            for k in sorted(adj[j]):
+                if k <= j:
+                    continue
+                for i in sorted(adj[j]):
+                    if i == k:
+                        continue
+                    for l in sorted(adj[k]):
+                        if l == j:
+                            continue
+                        generated.add((i, j, k, l))
+        chain_top.dihedrals = sorted(generated)
+
+        chain_top.pairs = self._generate_pairs(chain_top.dihedrals)
+
+        # Sugar impropers
+        for tree_idx, (ch, rs) in enumerate(tree):
+            res = res_lookup.get((ch, rs))
+            if res is None:
+                continue
+            rtp_name = _resolve_sugar_rtp(res.resname, res.atoms, self.residues)
+            if rtp_name is None:
+                continue
+            rtp_res = self.residues[rtp_name]
+            for imp in rtp_res.impropers:
+                indices = []
+                for ref in imp:
+                    idx = atom_index_map.get((tree_idx + 1, ref))
                     if idx is not None:
                         indices.append(idx)
                 if len(indices) == 4:
@@ -1855,6 +2293,35 @@ _GLYCAN_LINKAGE_PARAMS = """\
   CC3161  OC3C61  CC3162  CC3161     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3162
   CC3163  CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3162
 
+; ======================================================================
+; Extra parameters for ceramide-sugar (glycolipid) linkage sites
+; Ceramide O1: OHL→OC301 (linear ether) at sugar-ceramide junction
+; ======================================================================
+
+; --- Extra bondtypes (ceramide-sugar) ---
+[ bondtypes ]
+; i       j     func    b0          kb
+  CTO2   OC301      1   0.14150000    301248.00 ; from ffbonded.itp ceramide
+
+; --- Extra angletypes (ceramide-sugar) ---
+[ angletypes ]
+; i       j       k     func    theta0      ktheta      rub         kub
+  HAL2    CTO2   OC301      5   108.890000   384.09   0.00000000         0.00 ; from HAL2 CTO2 OHL → OC301
+  CTL1    CTO2   OC301      5   110.100000   633.46   0.00000000         0.00 ; from CTL1 CTO2 OHL → OC301
+  CC3162  OC301  CTO2       5   109.700000   794.96   0.00000000         0.00 ; from CC3162 OC3C61 CC321; sugar C1-O-ceramide C1S
+  OC3C61  CC3162 OC301      5   112.000000   753.12   0.00000000         0.00 ; from OC3C61 CC3162 OC301 (ring O - anomeric C - ether O)
+  HCA1    CC3162 OC301      5   108.000000   384.09   0.00000000         0.00 ; from HCA1 CC3162 OC3C61
+
+; --- Extra dihedraltypes (ceramide-sugar) ---
+[ dihedraltypes ]
+; i       j       k       l     func    phi0        kphi        mult
+; Ceramide-sugar torsions around CTO2-OC301-CC3162 linkage
+  HAL2    CTO2   OC301  CC3162     9     0.000000     0.836800     3 ; from par27 X CT2 OC30A X
+  CTL1    CTO2   OC301  CC3162     9     0.000000     0.836800     3 ; from par27 X CT1 OC30A X
+  CTO2    OC301  CC3162 OC3C61     9     0.000000     0.836800     3 ; from CC321 OC3C61 CC3162 OC3C61
+  CTO2    OC301  CC3162 CC3161     9     0.000000     0.836800     3 ; from CC321 OC3C61 CC3162 CC3161
+  CTO2    OC301  CC3162 HCA1       9     0.000000     0.836800     3 ; from CC321 OC3C61 CC3162 HCA1
+
 """
 
 
@@ -2145,6 +2612,7 @@ def main(argv=None):
             # Check if chain has any FF-recognized residues
             has_known = any(
                 r.resname in builder.residues or r.resname in sugar_names
+                or _is_ceramide(r.resname)
                 for r in chain.residues
             )
             if has_known:
@@ -2282,17 +2750,34 @@ def main(argv=None):
             print(f"WARNING: Failed to build topology for chain {chain.chain_id}",
                   file=sys.stderr)
 
+    # Detect glycan/glycolipid links early to know which residues are handled
+    glycan_links = detect_glycan_links(chains)
+    glycolipid_ceramide_resseqs = set()  # (chain_id, resseq) of ceramides in glycolipids
+    glycolipid_sugar_resseqs = set()     # sugars in glycolipid trees
+
+    if glycan_links:
+        trees = build_glycan_trees(glycan_links, chains)
+        for tree, link_atoms, prot_links, cer_links in trees:
+            if cer_links:
+                for cl in cer_links:
+                    glycolipid_ceramide_resseqs.add((cl[0], cl[1]))
+                for ch, rs in tree:
+                    glycolipid_sugar_resseqs.add((ch, rs))
+
+    charmm_sugar_names = set(PDB_TO_CARB.values())
+
     # Build non-protein chains (no terminal patches, no SS bonds)
-    # Skip chains that are entirely sugars — they're handled by glycan detection
+    # Skip chains that are entirely sugars or glycolipids — handled later
     for chain in other_chains:
-        all_sugar = all(
-            r.resname in sugar_names or r.resname in PDB_TO_CARB.values()
+        all_sugar_or_lipid = all(
+            r.resname in sugar_names or r.resname in charmm_sugar_names
+            or (chain.chain_id, r.resseq) in glycolipid_ceramide_resseqs
             for r in chain.residues
         )
-        if all_sugar:
+        if all_sugar_or_lipid:
             if args.verbose:
-                print(f"\nSkipping chain {chain.chain_id} (all sugar residues, "
-                      f"handled by glycan detection)")
+                print(f"\nSkipping chain {chain.chain_id} (sugar/glycolipid residues, "
+                      f"handled by glycan/glycolipid detection)")
             continue
 
         if args.verbose:
@@ -2310,17 +2795,21 @@ def main(argv=None):
             print(f"WARNING: Failed to build topology for chain {chain.chain_id}",
                   file=sys.stderr)
 
-    if not chain_tops:
+    if not chain_tops and not glycan_links:
         print("Error: No topologies built", file=sys.stderr)
         sys.exit(1)
 
-    # Detect and build glycan chains
+    # Detect and build glycan/glycolipid chains
     glycan_tops = []
     protein_sugar_links = []  # for intermolecular interactions
-    glycan_links = detect_glycan_links(chains)
     if glycan_links:
-        trees = build_glycan_trees(glycan_links, chains)
-        for tree, link_atoms, prot_links in trees:
+        # Build residue lookup for glycolipid ceramide
+        res_lookup = {}
+        for chain in chains:
+            for res in chain.residues:
+                res_lookup[(chain.chain_id, res.resseq)] = res
+
+        for tree, link_atoms, prot_links, cer_links in trees:
             if not tree:
                 continue
             # Filter glycan_links relevant to this tree
@@ -2335,11 +2824,29 @@ def main(argv=None):
                 if (gl[0], gl[1]) in tree_set and (gl[3], gl[4]) in tree_set
             ]
 
-            ct = builder.build_glycan_chain(tree, link_atoms, chains, sugar_sugar_links)
-            if ct is not None:
-                glycan_tops.append(ct)
-                print(f"Glycan {ct.name}: {len(ct.atoms)} atoms, "
-                      f"{len(ct.bonds)} bonds")
+            if cer_links:
+                # Glycolipid: build ceramide + sugar tree as one moleculetype
+                cl = cer_links[0]  # use first ceramide link
+                cer_res = res_lookup.get((cl[0], cl[1]))
+                if cer_res is not None:
+                    ct = builder.build_glycolipid_chain(
+                        cer_res, tree, link_atoms, chains,
+                        sugar_sugar_links, cl)
+                    if ct is not None:
+                        glycan_tops.append(ct)
+                        print(f"Glycolipid {ct.name}: {len(ct.atoms)} atoms, "
+                              f"{len(ct.bonds)} bonds")
+                    else:
+                        print(f"WARNING: Failed to build glycolipid topology",
+                              file=sys.stderr)
+            else:
+                # Pure glycan tree
+                ct = builder.build_glycan_chain(tree, link_atoms, chains,
+                                                sugar_sugar_links)
+                if ct is not None:
+                    glycan_tops.append(ct)
+                    print(f"Glycan {ct.name}: {len(ct.atoms)} atoms, "
+                          f"{len(ct.bonds)} bonds")
 
             # Collect protein-sugar links relevant to this tree
             for pl in prot_links:
@@ -2347,6 +2854,10 @@ def main(argv=None):
                     protein_sugar_links.append(pl)
 
     chain_tops.extend(glycan_tops)
+
+    if not chain_tops:
+        print("Error: No topologies built", file=sys.stderr)
+        sys.exit(1)
 
     # Merge chains if requested
     if args.merge and len(chain_tops) > 1:
@@ -2372,7 +2883,8 @@ def main(argv=None):
     bonded_types_list = []
     for ct in chain_tops:
         bt = (builder.carb_bonded_types
-              if ct.name.startswith('Glycan_') and builder.carb_bonded_types
+              if (ct.name.startswith('Glycan_') or ct.name.startswith('Glycolipid_'))
+              and builder.carb_bonded_types
               else builder.bonded_types)
         bonded_types_list.append(bt)
 
