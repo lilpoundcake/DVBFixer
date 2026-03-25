@@ -2294,33 +2294,29 @@ _GLYCAN_LINKAGE_PARAMS = """\
   CC3163  CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3162
 
 ; ======================================================================
-; Extra parameters for ceramide-sugar (glycolipid) linkage sites
-; Ceramide O1: OHL→OC301 (linear ether) at sugar-ceramide junction
+; Extra parameters for sialic acid (C2) glycosidic linkage sites
+; ANE5AC C2 (type CC3062) links to parent sugar O (type OC3C61)
 ; ======================================================================
 
-; --- Extra bondtypes (ceramide-sugar) ---
-[ bondtypes ]
-; i       j     func    b0          kb
-  CTO2   OC301      1   0.14150000    301248.00 ; from ffbonded.itp ceramide
-
-; --- Extra angletypes (ceramide-sugar) ---
+; --- Extra angletypes (sialic acid linkage) ---
 [ angletypes ]
 ; i       j       k     func    theta0      ktheta      rub         kub
-  HAL2    CTO2   OC301      5   108.890000   384.09   0.00000000         0.00 ; from HAL2 CTO2 OHL → OC301
-  CTL1    CTO2   OC301      5   110.100000   633.46   0.00000000         0.00 ; from CTL1 CTO2 OHL → OC301
-  CC3162  OC301  CTO2       5   109.700000   794.96   0.00000000         0.00 ; from CC3162 OC3C61 CC321; sugar C1-O-ceramide C1S
-  OC3C61  CC3162 OC301      5   112.000000   753.12   0.00000000         0.00 ; from OC3C61 CC3162 OC301 (ring O - anomeric C - ether O)
-  HCA1    CC3162 OC301      5   108.000000   384.09   0.00000000         0.00 ; from HCA1 CC3162 OC3C61
+  CC3161  OC3C61  CC3062     5   109.700000   794.960000   0.00000000         0.00 ; from CC3163 OC3C61 CC3062 (sugar C-O-sialic C2)
+  OC3C61  CC3062  OC3C61     5   112.000000   753.120000   0.00000000         0.00 ; from OC301 CC3062 OC3C61 (ring O - C2 - linked O)
 
-; --- Extra dihedraltypes (ceramide-sugar) ---
+; --- Extra dihedraltypes (sialic acid linkage) ---
 [ dihedraltypes ]
 ; i       j       k       l     func    phi0        kphi        mult
-; Ceramide-sugar torsions around CTO2-OC301-CC3162 linkage
-  HAL2    CTO2   OC301  CC3162     9     0.000000     0.836800     3 ; from par27 X CT2 OC30A X
-  CTL1    CTO2   OC301  CC3162     9     0.000000     0.836800     3 ; from par27 X CT1 OC30A X
-  CTO2    OC301  CC3162 OC3C61     9     0.000000     0.836800     3 ; from CC321 OC3C61 CC3162 OC3C61
-  CTO2    OC301  CC3162 CC3161     9     0.000000     0.836800     3 ; from CC321 OC3C61 CC3162 CC3161
-  CTO2    OC301  CC3162 HCA1       9     0.000000     0.836800     3 ; from CC321 OC3C61 CC3162 HCA1
+; Torsions around CC3161-OC3C61-CC3062 sialic acid linkage
+  CC3161  CC3161  OC3C61  CC3062     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3062
+  CC3161  OC3C61  CC3062  CC2O2      9     0.000000     0.836800     3 ; from CC3163 OC3C61 CC3062 CC2O2
+  CC3161  OC3C61  CC3062  OC3C61     9     0.000000     0.836800     3 ; from CC3163 OC3C61 CC3062 OC3C61
+  CC3161  OC3C61  CC3062  CC3261     9     0.000000     0.836800     3 ; from CC3163 OC3C61 CC3062 CC3261
+  HCA1    CC3161  OC3C61  CC3062     9     0.000000     1.188256     3 ; from HCA1 CC3163 OC3C61 CC3062
+  OC3C61  CC3161  CC3161  OC3C61     9     0.000000     0.836800     3 ; from OC3C61 CC3162 CC3161 OC3C61
+  OC3C61  CC3062  OC3C61  CC3163     9     0.000000     0.836800     3 ; from OC3C61 CC3162 OC3C61 CC3163
+  OC3C61  CC3161  OC3C61  CC3062     9     0.000000     0.836800     3 ; from OC3C61 CC3161 OC3C61 CC3162
+  NC2D1   CC3161  CC3161  OC3C61     9     0.000000     0.836800     3 ; from OC3C61 CC3261 CC3161 NC2D1
 
 """
 
