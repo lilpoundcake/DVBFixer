@@ -16,6 +16,7 @@ COMMANDS = {
     "transplant": "Transplant molecules from donor PDB to acceptor PDB",
     "puppet": "Strip PDB to backbone-only polyglycine model",
     "glycam": "Convert glycan PDB to GLYCAM force field nomenclature",
+    "cluster": "Cluster glycan conformations from MD trajectory",
     "zbs": "Full pipeline: renumber -> model -> prepare -> minimize -> protonate",
 }
 
@@ -67,6 +68,8 @@ def main():
         from dvbfixer.puppet import main as cmd_main
     elif command == "glycam":
         from dvbfixer.glycam import main as cmd_main
+    elif command == "cluster":
+        from dvbfixer.cluster import main as cmd_main
     elif command == "zbs":
         from dvbfixer.zbs import main as cmd_main
     else:
