@@ -18,6 +18,7 @@ dependencies = [
     "openmmforcefields",
     "parmed",
     "acpype",
+    "plotly",
 ]
 
 [project.scripts]

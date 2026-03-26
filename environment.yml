@@ -15,6 +15,7 @@ dependencies:
   - mdanalysis
   - modeller
   - parmed
+  - plotly
   - pip
   - pip:
     - propka >=3.5
