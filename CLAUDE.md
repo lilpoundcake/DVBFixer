@@ -82,7 +82,7 @@ Runs PROPKA3 for pKa prediction, renames residues to AMBER protonation names (HI
 Text-based rename of non-canonical residue names to standard PDB names. Converts AMBER protonation (HIE/HID/HIP→HIS, ASH→ASP, GLH→GLU, CYX/CYM→CYS, LYN→LYS), CHARMM (HSD/HSE/HSP→HIS), and MSE→MET. Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pull` tools. Uses `CANONICAL_MAP` dict in `rename.py`.
 
 ### dvbfixer top
-Generates GROMACS topology files directly from PDB by parsing force field RTP/ARN/R2B/TDB files in Python (no `pdb2gmx`). Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled in `FF/` directory). Output is a modular set of `.itp` files with a compact `topol.top` containing only `#include` directives, `[ system ]`, and `[ molecules ]` — no external FF directory needed in the GROMACS working directory.
+Generates GROMACS topology files directly from PDB or GRO files by parsing force field RTP/ARN/R2B/TDB files in Python (no `pdb2gmx`). GRO files are auto-converted to PDB via MDAnalysis. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled in `FF/` directory). Output is a modular set of `.itp` files with a compact `topol.top` containing only `#include` directives, `[ system ]`, and `[ molecules ]` — no external FF directory needed in the GROMACS working directory. Water (SOL/HOH/WAT/TIP3) and ions are auto-detected and counted for `[ molecules ]`. Small CGenFF molecules (ACET, ACEH, etc.) are auto-detected via distance-based chain splitting and built as independent moleculetypes.
 
 **Topology generation algorithm:**
 1. Resolve PDB residue names to RTP names via `CANONICAL_MAP` + R2B mapping
@@ -188,6 +188,11 @@ Full pipeline: renumber → model → prepare → minimize → protonate → min
 - Glycolipids (ceramide + sugar tree) built as single moleculetype by `build_glycolipid_chain()`. Ceramide from `lipid.rtp`, sugars from `carb.rtp`. Ceramide-sugar bond: C1S—O1 (sugar O1 bridges). Ceramide O1+HO1 charge → C1S. Sugar O1 type: OC301 (not OC3C61). CTO2-OC301 params already in ffbonded.itp (multi-term dihedrals — must not be redefined). CHARMM-GUI 4-char resnames (CER1, BGLC, etc.) detected via `read_pdb_chains()` extended column parsing.
 - `interchain_ss.itp` with `[ intermolecular_interactions ]` is auto-included in `topol.top` after `[ molecules ]` (GROMACS requires this directive after the molecules section). Contains both inter-chain SS bonds and protein-glycan bonds (ASN ND2 - NAG C1, r0=0.143 nm).
 - Ions and buffer particles (BUF) are auto-detected in PDB by matching residue names against moleculetypes in `ions.itp`. Counted and added to `[ molecules ]` section. Not built as chain topologies — their moleculetypes are defined in `ions.itp`. BUF atomtype (dummy, no LJ) added to `ffnonbonded.itp`.
+- Water molecules (SOL/HOH/WAT/TIP3) counted by atom count / 3 (not resseq dedup) to handle PDB resseq overflow in large systems (>10k residues wrap at 9999).
+- Small CGenFF molecules (ACET, ACEH, ACEM, etc.) detected by distance-based chain splitting (`_split_chain_by_distance`, gap > 4 Å). Single-residue chains of known RTP types are counted and built as separate moleculetypes. Terminal patches are NOT applied to non-protein residues.
+- GRO file support: auto-detected by `.gro` extension, converted to temp PDB via MDAnalysis (`_gro_to_pdb`). Original input path preserved for output directory and system name.
+- 4-char resnames from GROMACS output (ACET, ACEH, TIP3) handled via `_KNOWN_4CHAR_RESNAMES` set in `read_pdb_chains()`.
+- PDB serial numbers wrap at 100000 (`serial % 100000`) for large systems. Resseq in extra molecule lines renumbered sequentially.
 - PDB atom name format: columns 13-16 = atom name (4 chars), column 17 = altLoc (space), columns 18-20 = residue name. 4-char atom names (HE21) start at column 13; shorter names start at column 14 with leading space.
 
 ## GLYCAM Integration Notes

@@ -133,6 +133,15 @@ CERAMIDE_RTP = {
     'CER220', 'CER240', 'CER241', 'CER3E',
 }
 
+# 4-char resnames from CGenFF/solvent that GROMACS writes into PDB cols 17-20
+# (standard PDB uses 3-char in cols 18-20, but GROMACS left-justifies from col 17)
+_KNOWN_4CHAR_RESNAMES = {
+    'ACET', 'ACEH', 'ACEM',  # acetate/acetic acid/acetamide (CGenFF)
+    'TIP3', 'SPC', 'SPCE',   # water models
+}
+
+# Water residue names (for counting SOL molecules in PDB)
+_WATER_RESNAMES = {'SOL', 'HOH', 'WAT', 'TIP3', 'SPC', 'SPCE', 'TIP4', 'TIP5'}
 
 # Known atom name differences between AMBER RTP and PDB/IUPAC naming.
 # Key = RTP name, value = PDB name.
@@ -387,11 +396,12 @@ def read_pdb_chains(path):
             chain = PDBChain(chain_id=cid)
             for line in seg_lines:
                 resname = line[17:20].strip()
-                # Check for 4-char resname (CHARMM-GUI style)
+                # Check for 4-char resname (CHARMM-GUI style or GROMACS output)
                 resname_4 = line[17:21].strip()
                 if (len(resname_4) == 4 and
                     (resname_4 in PDB_TO_LIPID or resname_4 in PDB_TO_CARB
-                     or resname_4 in CERAMIDE_RTP)):
+                     or resname_4 in CERAMIDE_RTP
+                     or resname_4 in _KNOWN_4CHAR_RESNAMES)):
                     resname = resname_4
                 resseq = int(line[22:26])
                 icode = line[26].strip()
@@ -461,6 +471,82 @@ def _count_molecules(pdb_path, mol_names):
                 seen_residues.add(key)
                 counts[name] = counts.get(name, 0) + 1
     return list(counts.items())
+
+
+def _gro_to_pdb(gro_path):
+    """Convert a GROMACS .gro file to a temporary PDB via MDAnalysis."""
+    import tempfile
+    import warnings
+    import MDAnalysis as mda
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        u = mda.Universe(str(gro_path))
+        tmp = tempfile.NamedTemporaryFile(suffix='.pdb', delete=False)
+        tmp.close()
+        u.atoms.write(tmp.name)
+    return Path(tmp.name)
+
+
+def _split_chain_by_distance(chain, gap_cutoff=4.0):
+    """Split a chain into sub-chains where consecutive residues are > gap_cutoff apart.
+
+    Uses nearest-atom distance between consecutive residues (same approach as
+    split_chains.py criterion 3). Molecules that are physically separate
+    (e.g. ACET, ACEH in buffer) get split into individual chains.
+    """
+    import numpy as np
+
+    if len(chain.residues) <= 1:
+        return [chain]
+
+    # Build coordinate arrays per residue
+    res_coords = []
+    for r in chain.residues:
+        coords = np.array([(x, y, z) for _, x, y, z in r.atoms])
+        res_coords.append(coords)
+
+    # Find breaks: where nearest-atom distance > gap_cutoff
+    breaks = [0]
+    for i in range(1, len(chain.residues)):
+        prev = res_coords[i - 1]
+        cur = res_coords[i]
+        # Nearest-atom distance
+        diff = prev[:, None, :] - cur[None, :, :]
+        min_dist = np.sqrt((diff ** 2).sum(axis=2)).min()
+        if min_dist > gap_cutoff:
+            breaks.append(i)
+
+    if len(breaks) == 1:
+        return [chain]  # no splits needed
+
+    # Split into sub-chains
+    result = []
+    for bi in range(len(breaks)):
+        start = breaks[bi]
+        end = breaks[bi + 1] if bi + 1 < len(breaks) else len(chain.residues)
+        sub = PDBChain(chain_id=chain.chain_id)
+        sub.residues = chain.residues[start:end]
+        result.append(sub)
+
+    return result
+
+
+def _count_water(pdb_path):
+    """Count water molecules (SOL/HOH/WAT/TIP3) in PDB.
+
+    Uses atom count / 3 (atoms per water) to handle resseq overflow
+    in large systems where PDB wraps at 9999.
+    """
+    water_atoms = 0
+    with open(pdb_path) as f:
+        for line in f:
+            if not (line.startswith('ATOM') or line.startswith('HETATM')):
+                continue
+            resname = line[17:20].strip()
+            resname4 = line[17:21].strip()
+            if resname in _WATER_RESNAMES or resname4 in _WATER_RESNAMES:
+                water_atoms += 1
+    return water_atoms // 3
 
 
 def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False):
@@ -1233,11 +1319,13 @@ class TopologyBuilder:
         chain_top.cmap = [remap_tuple(c) for c in chain_top.cmap]
 
     def _apply_terminal_patches(self, chain, chain_top, rtp_names, atom_index_map):
-        """Apply CHARMM terminal patches (TDB)."""
+        """Apply CHARMM terminal patches (TDB). Only for protein chains."""
         n_res = len(chain.residues)
 
-        # Determine N-terminal patch
+        # Only apply patches to protein residues (not CGenFF small molecules)
         first_res = chain.residues[0].resname
+        if first_res not in STANDARD_AA and first_res not in PDB_TO_GMX:
+            return
         if first_res == 'GLY':
             n_patch_name = 'GLY-NH3+'
         elif first_res == 'PRO':
@@ -2104,7 +2192,7 @@ def write_pdb(chain_tops, path, extra_pdb_lines=None):
                     res_chain = f" {resname:<4s}{atom.chain_id}"   # " ASPP A" (no gap)
 
                 f.write(
-                    f"ATOM  {serial:5d} {name_field}"
+                    f"ATOM  {serial % 100000:5d} {name_field}"
                     f"{res_chain}"
                     f"{atom.orig_resseq:4d}"
                     f"    "
@@ -2123,16 +2211,25 @@ def write_pdb(chain_tops, path, extra_pdb_lines=None):
                 else:
                     res_chain = f" {resname:<4s}{last.chain_id}"
                 f.write(
-                    f"TER   {serial:5d}      "
+                    f"TER   {serial % 100000:5d}      "
                     f"{res_chain}"
                     f"{last.orig_resseq:4d}\n"
                 )
-        # Append ion/BUF particles with renumbered serials
+        # Append extra molecules (ions/water/small molecules) with renumbered serials
         if extra_pdb_lines:
+            resseq = 0
+            prev_resid = None
             for line in extra_pdb_lines:
                 serial += 1
-                # Rewrite serial number (cols 7-11)
-                f.write(f"{line[:6]}{serial:5d}{line[11:]}")
+                # Track residue changes for resseq renumbering
+                orig_resid = line[17:26]  # resname + chain + resseq
+                if orig_resid != prev_resid:
+                    resseq += 1
+                    prev_resid = orig_resid
+                # Rewrite serial (cols 7-11), clear chain ID (col 22),
+                # and renumber resseq (cols 23-26)
+                f.write(f"{line[:6]}{serial % 100000:5d}{line[11:21]} "
+                        f"{resseq % 10000:4d}{line[26:]}")
         f.write("END\n")
 
 
@@ -2323,10 +2420,12 @@ _GLYCAN_LINKAGE_PARAMS = """\
 
 def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
               water_model='tip3p', system_name='Protein',
-              has_interchain_ss=False, extra_molecules=None):
+              has_interchain_ss=False, extra_molecules=None,
+              small_mol_itps=None):
     """Write topology: FF params in ffparams.itp, rest in topol.top.
 
-    extra_molecules: list of (name, count) for ions/BUF/etc found in PDB.
+    extra_molecules: list of (name, count) for ions/BUF/small molecules/water.
+    small_mol_itps: list of small molecule .itp filenames to include.
     """
     ff_dir = Path(ff_dir)
     ff_name = ff_dir.name
@@ -2406,6 +2505,12 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
                 cf.write(f"; Generated by dvbfixer top\n\n")
                 _write_moleculetype(cf, ct, bt)
             f.write(f'#include "{ct.name}.itp"\n')
+
+        # Small molecule .itp includes (ACET, ACEH, etc.)
+        if small_mol_itps:
+            for mol_name in small_mol_itps:
+                f.write(f'#include "{mol_name}.itp"\n')
+
         f.write("\n")
 
         # Water moleculetype (separate .itp)
@@ -2536,6 +2641,14 @@ def main(argv=None):
         print(f"Error: {input_path} not found", file=sys.stderr)
         sys.exit(1)
 
+    # Convert GRO to temp PDB if needed
+    tmp_pdb = None
+    orig_input_path = input_path  # preserve for output path defaults
+    if input_path.suffix.lower() == '.gro':
+        print(f"Converting GRO to PDB via MDAnalysis...")
+        tmp_pdb = _gro_to_pdb(input_path)
+        input_path = tmp_pdb
+
     # ACPYPE mode: OpenMM + ParmEd + ACPYPE pipeline
     if args.acpype:
         from dvbfixer.acpype_export import export_gromacs
@@ -2583,15 +2696,42 @@ def main(argv=None):
         print("Error: No chains found in PDB", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Found {len(chains)} chain(s): {', '.join(c.chain_id for c in chains)}")
-
     # Build topology builder first (need its residue dict for chain filtering)
     builder = TopologyBuilder(ff_dir, args.ff, args.verbose)
 
-    # Classify chains into protein vs non-protein
+    # Strip water and ion residues (handled separately via counting)
+    ion_names_for_filter = set()
+    ions_path_check = ff_dir / 'ions.itp'
+    if ions_path_check.exists():
+        ion_names_for_filter = _parse_ion_names(ions_path_check)
+    skip_resnames = _WATER_RESNAMES | ion_names_for_filter
+
+    for chain in chains:
+        chain.residues = [r for r in chain.residues
+                          if r.resname not in skip_resnames]
+
+    # Remove empty chains (were all water/ions)
+    chains = [c for c in chains if c.residues]
+
+    # Split chains by nearest-atom distance (detect separate molecules in
+    # GROMACS PDB output where multiple molecules share a chain ID)
+    split_chains_list = []
+    for chain in chains:
+        split_chains_list.extend(_split_chain_by_distance(chain, gap_cutoff=4.0))
+    chains = split_chains_list
+
+    if chains:
+        resnames = set()
+        for c in chains:
+            for r in c.residues:
+                resnames.add(r.resname)
+        print(f"Found {len(chains)} chain(s), residue types: {', '.join(sorted(resnames))}")
+
     protein_chains = []
     other_chains = []
+    small_mol_counts = {}  # resname -> count (for single-residue small molecules)
     sugar_names = set(PDB_TO_CARB.keys())
+    charmm_sugar_names_filter = set(PDB_TO_CARB.values())
     for chain in chains:
         has_protein = any(
             r.resname in STANDARD_AA or r.resname in PDB_TO_GMX
@@ -2604,6 +2744,10 @@ def main(argv=None):
                 if r.resname in STANDARD_AA or r.resname in PDB_TO_GMX
             ]
             protein_chains.append(chain)
+        elif len(chain.residues) == 1 and chain.residues[0].resname in builder.residues:
+            # Single-residue molecule (detected by distance split) — count it
+            rn = chain.residues[0].resname
+            small_mol_counts[rn] = small_mol_counts.get(rn, 0) + 1
         else:
             # Check if chain has any FF-recognized residues
             has_known = any(
@@ -2614,7 +2758,7 @@ def main(argv=None):
             if has_known:
                 other_chains.append(chain)
 
-    if not protein_chains and not other_chains:
+    if not protein_chains and not other_chains and not small_mol_counts:
         print("Error: No recognized chains found", file=sys.stderr)
         sys.exit(1)
 
@@ -2791,7 +2935,7 @@ def main(argv=None):
             print(f"WARNING: Failed to build topology for chain {chain.chain_id}",
                   file=sys.stderr)
 
-    if not chain_tops and not glycan_links:
+    if not chain_tops and not glycan_links and not small_mol_counts:
         print("Error: No topologies built", file=sys.stderr)
         sys.exit(1)
 
@@ -2851,7 +2995,35 @@ def main(argv=None):
 
     chain_tops.extend(glycan_tops)
 
-    if not chain_tops:
+    # Build small molecule topologies (single-residue CGenFF molecules)
+    small_mol_tops = []  # list of (ChainTopology, count)
+    if small_mol_counts:
+        for resname, count in small_mol_counts.items():
+            # Build a single-residue chain for this molecule type
+            dummy_chain = PDBChain(chain_id='X')
+            # Find a representative residue from the original parsed chains
+            rep_res = None
+            for ch in read_pdb_chains(input_path):
+                for r in ch.residues:
+                    if r.resname == resname:
+                        rep_res = r
+                        break
+                if rep_res is not None:
+                    break
+            if rep_res is None:
+                print(f"WARNING: Cannot find {resname} residue for topology",
+                      file=sys.stderr)
+                continue
+            rep_res.resseq = 1  # reset to 1 (GRO may have global numbering)
+            dummy_chain.residues = [rep_res]
+            ct = builder.build_chain(dummy_chain)
+            if ct is not None:
+                ct.name = resname
+                small_mol_tops.append((ct, count))
+                print(f"Small molecule {resname}: {len(ct.atoms)} atoms, "
+                      f"{count} copies")
+
+    if not chain_tops and not small_mol_tops:
         print("Error: No topologies built", file=sys.stderr)
         sys.exit(1)
 
@@ -2865,7 +3037,7 @@ def main(argv=None):
     if args.output:
         top_path = Path(args.output)
     else:
-        top_path = input_path.parent / 'topol.top'
+        top_path = orig_input_path.parent / 'topol.top'
 
     out_dir = top_path.parent
 
@@ -2890,6 +3062,18 @@ def main(argv=None):
         write_posre(ct, posre_path)
         print(f"Wrote {posre_path}")
 
+    # Write small molecule .itp files
+    for ct, count in small_mol_tops:
+        itp_path = out_dir / f"{ct.name}.itp"
+        bt = builder.bonded_types
+        if builder.carb_bonded_types:
+            bt = builder.carb_bonded_types
+        with open(itp_path, 'w') as f:
+            f.write(f"; Moleculetype: {ct.name}\n")
+            f.write(f"; Generated by dvbfixer top\n\n")
+            _write_moleculetype(f, ct, bt)
+        print(f"Wrote {itp_path}")
+
     # Write inter-chain bond file if needed (SS bonds + protein-glycan bonds)
     has_interchain_bonds = interchain_ss or protein_sugar_links
     if has_interchain_bonds:
@@ -2907,22 +3091,34 @@ def main(argv=None):
         print("WARNING: interchain_ss.itp must stay at the end of topol.top, after [ molecules ].")
         print("         After gmx solvate/genion, move the #include line below SOL/ion entries.")
 
-    # Detect ions/BUF particles in PDB
+    # Detect ions/BUF, small molecules, and water in PDB (preserving PDB order)
     ions_path = ff_dir / 'ions.itp'
-    extra_molecules = []
+    ion_names = set()
     if ions_path.exists():
         ion_names = _parse_ion_names(ions_path)
-        extra_molecules = _count_molecules(input_path, ion_names)
-        if extra_molecules:
-            for mol_name, mol_count in extra_molecules:
-                print(f"Found {mol_count} {mol_name} molecule(s) in PDB")
+    small_mol_names_set = {ct.name for ct, _ in small_mol_tops}
+    # Count all extra molecules preserving PDB order
+    countable_names = ion_names | small_mol_names_set | _WATER_RESNAMES
+    extra_molecules = _count_molecules(input_path, countable_names)
+    # Fix water count: _count_molecules uses (chain, resseq) dedup which breaks
+    # for large systems where PDB wraps resseq at 9999. Use atom count / 3 instead.
+    water_count = _count_water(input_path)
+    extra_molecules = [
+        ('SOL', water_count) if name in _WATER_RESNAMES else (name, count)
+        for name, count in extra_molecules
+    ]
+    if extra_molecules:
+        for mol_name, mol_count in extra_molecules:
+            print(f"Found {mol_count} {mol_name} molecule(s) in PDB")
 
     # Write TOP file with modular .itp includes
-    system_name = input_path.stem
+    small_mol_names = [ct.name for ct, _ in small_mol_tops]
+    system_name = orig_input_path.stem
     write_top(chain_tops, top_path, ff_dir, args.ff, bonded_types_list,
               args.water, system_name,
               has_interchain_ss=has_interchain_bonds,
-              extra_molecules=extra_molecules)
+              extra_molecules=extra_molecules,
+              small_mol_itps=small_mol_names)
     print(f"Wrote {out_dir / 'ffparams.itp'}")
     for ct in chain_tops:
         print(f"Wrote {out_dir / ct.name}.itp")
@@ -2935,12 +3131,17 @@ def main(argv=None):
         pdb_path = Path(args.pdb)
     else:
         pdb_path = out_dir / 'conf.pdb'
-    # Collect ion/BUF PDB lines for output
+    # Collect ion/BUF/water PDB lines for output
     extra_pdb_lines = []
     if extra_molecules:
-        extra_pdb_lines = _extract_molecule_lines(input_path, ion_names)
+        extra_mol_names = ion_names | _WATER_RESNAMES | {ct.name for ct, _ in small_mol_tops}
+        extra_pdb_lines = _extract_molecule_lines(input_path, extra_mol_names)
     write_pdb(chain_tops, pdb_path, extra_pdb_lines=extra_pdb_lines)
     print(f"Wrote {pdb_path}")
+
+    # Clean up temp PDB from GRO conversion
+    if tmp_pdb is not None:
+        tmp_pdb.unlink(missing_ok=True)
 
 
 def _write_interchain_ss(ss_bonds, chain_tops, protein_chains, path, ff_type,
