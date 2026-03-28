@@ -3062,6 +3062,12 @@ def main(argv=None):
         write_posre(ct, posre_path)
         print(f"Wrote {posre_path}")
 
+    # Position restraints for small molecules too
+    for ct, count in small_mol_tops:
+        posre_path = out_dir / f"posre_{ct.name}.itp"
+        write_posre(ct, posre_path)
+        print(f"Wrote {posre_path}")
+
     # Write small molecule .itp files
     for ct, count in small_mol_tops:
         itp_path = out_dir / f"{ct.name}.itp"
