@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-dvbfixer is a Python package providing CLI tools for preparing PDB (Protein Data Bank) structural biology files. Installed as a single `dvbfixer` command with subcommands: `split`, `renumber`, `model`, `pull`, `prepare`, `minimize`, `protonate`, `rename`, `top`, `transplant`, `puppet`, `glycam`, `cluster`, `zbs`.
+dvbfixer is a Python package providing CLI tools for preparing PDB (Protein Data Bank) structural biology files. Installed as a single `dvbfixer` command with subcommands: `split`, `renumber`, `model`, `pull`, `prepare`, `minimize`, `protonate`, `rename`, `top`, `transplant`, `puppet`, `glycam`, `cluster`, `parametrize`, `zbs`.
 
 ## Package Structure
 
@@ -25,6 +25,7 @@ src/dvbfixer/
   puppet.py       — strip PDB to backbone-only polyglycine
   glycam.py       — convert PDB glycan nomenclature to GLYCAM FF naming
   cluster.py      — glycan conformational clustering from MD trajectories
+  parametrize.py  — GAFF2 small molecule parametrization (antechamber+tleap+ParmEd)
   zbs.py          — full pipeline (renumber->model->prepare->minimize->protonate->minimize)
   acpype_export.py — ACPYPE-based GROMACS topology export (AMBER+GLYCAM)
   ffutils.py      — shared force field utilities (residue sets, OpenFF setup)
@@ -155,6 +156,9 @@ Transplants molecules from a graft PDB into an acceptor PDB, with optional AMBER
 
 ### dvbfixer glycam
 Converts PDB glycan nomenclature to GLYCAM force field naming. GLYCAM uses 3-character residue codes: `[linkage][sugar][anomer]`. Linkage detected from CONECT records (or C1-O distance < 2.0 Å fallback). Single linkage: `0`=terminal, `2`-`9`=position. Multi-linkage: `V`=O3+O6, `W`=O3+O4, `U`=O4+O6, etc. Sugar codes: `G`=Glc, `L`=Gal, `M`=Man, `Y`=GlcNAc, `V`=GalNAc, `f`=Fuc (lowercase=L-sugar), `S`=Neu5Ac. Anomer: `A`=alpha, `B`=beta. Handles sialic acid (anomeric C2 not C1), N-acetyl atom renames (C7→C2N, O7→O2N, C8→CME), ROH cap at reducing end, and protein-linked glycans (ASN→NLN, SER→OLS, THR→OLT). Text-based, no OpenMM dependency. H addition handled downstream by `transplant --relax`.
+
+### dvbfixer parametrize
+Parametrizes small molecules with GAFF2 force field and AM1-BCC or RESP charges for GROMACS MD. Wraps the AmberTools pipeline: `antechamber` (atom types + charges) → `parmchk2` (missing parameter check) → `tleap` (AMBER topology) → ParmEd (AMBER→GROMACS conversion). Output: standalone `.itp` file (with `[ defaults ]`, `[ atomtypes ]`, `[ moleculetype ]` sections), `.gro` coordinates, and `posre_*.itp` position restraints. For RESP charges, user provides a Gaussian HF/6-31G* `.log` file (or uses `--gen-gaussian` to create the Gaussian input). AM1-BCC is the default (fast, no QM needed, ~95% of RESP accuracy). Supports PDB, MOL2, and SDF input formats.
 
 ### dvbfixer cluster
 Clusters glycan conformations from MD trajectories using glycosidic torsion angle RMSD (GFDB method). Auto-detects glycosidic linkages from topology, extracts phi/psi/omega torsion angles (crystallographic convention: phi=O5-C1-Ox-C'x, psi=C1-Ox-C'x-C'(x-1), omega for 1→6 linkages), builds circular-RMSD distance matrix, runs GROMOS-style clustering. Handles both CHARMM36 and GLYCAM force field naming. Sialic acid uses C2 anomeric carbon and O6 ring oxygen. Two modes: `--mode global` (cluster all torsions simultaneously) and `--mode per-linkage` (cluster each linkage independently, combine into compound states — default, better at capturing per-linkage conformational variation). Representative structures are medoids (real frames closest to circular mean), aligned by Kabsch superposition on root sugar (auto-detected) or protein attachment point. Output: torsion CSV, cluster assignments CSV, JSON/text summary, representative PDBs (multi-MODEL or separate), interactive plotly HTML plots (Ramachandran + free energy surface, time series, population bar chart). Dependencies: MDAnalysis, numpy, plotly (for plots).
