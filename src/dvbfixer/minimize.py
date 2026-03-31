@@ -259,6 +259,24 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
 
     modeller = Modeller(stripped_top, stripped_pos)
 
+    # Rename all HIS to explicit variants before any OpenMM operation.
+    # OpenMM's template matching and auto-detection crash on ambiguous HIS.
+    for res in modeller.topology.residues():
+        if res.name == 'HIS':
+            atom_names = {a.name for a in res.atoms()}
+            if 'HD1' in atom_names and 'HE2' in atom_names:
+                res.name = 'HIP'
+            elif 'HD1' in atom_names:
+                res.name = 'HID'
+            elif 'HE2' in atom_names:
+                res.name = 'HIE'
+            elif 'ND1' in atom_names and 'NE2' not in atom_names:
+                res.name = 'HID'
+            elif 'NE2' in atom_names and 'ND1' not in atom_names:
+                res.name = 'HIE'
+            else:
+                res.name = 'HIE'  # default
+
     # Default: keep existing hydrogens. --rebuild-h strips and re-adds via OpenMM.
     keep_h = not args.rebuild_h
     if keep_h:
@@ -266,7 +284,38 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             print("No hydrogens found, adding them...")
             modeller.addHydrogens(forcefield, pH=args.ph)
         else:
-            print("Keeping existing hydrogens from input")
+            # Check for residues missing H (e.g. mutated HIS with no H added yet).
+            # OpenMM's addHydrogens can't add H to residues that have none —
+            # it needs a valid template match first. Use PDBFixer instead,
+            # which handles missing atoms properly via addMissingAtoms.
+            has_incomplete = False
+            for res in modeller.topology.residues():
+                res_has_h = any(a.element.symbol == 'H' for a in res.atoms())
+                if not res_has_h and res.name not in ('HOH', 'WAT', 'NA', 'CL',
+                                                       'K', 'MG', 'CA', 'ZN'):
+                    has_incomplete = True
+                    break
+            if has_incomplete:
+                print("Found residues missing H, using PDBFixer to add them...")
+                import tempfile as _tf
+                from pdbfixer import PDBFixer as _PDBFixer
+                with _tf.NamedTemporaryFile(mode='w', suffix='.pdb',
+                                            delete=False) as _tmp:
+                    PDBFile.writeFile(modeller.topology, modeller.positions,
+                                     _tmp, keepIds=True)
+                    _tmp_path = _tmp.name
+                try:
+                    with open(_tmp_path) as _f:
+                        _fixer = _PDBFixer(pdbfile=_f)
+                finally:
+                    Path(_tmp_path).unlink()
+                _fixer.findMissingResidues()
+                _fixer.findMissingAtoms()
+                _fixer.addMissingAtoms()
+                _fixer.addMissingHydrogens(args.ph)
+                modeller = Modeller(_fixer.topology, _fixer.positions)
+            else:
+                print("Keeping existing hydrogens from input")
     else:
         # Strip H, fix any missing heavy atoms via PDBFixer, then re-add correct H.
         # addHydrogens adds correct H for every residue, so stripping is safe.
