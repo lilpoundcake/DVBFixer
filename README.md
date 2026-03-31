@@ -261,7 +261,7 @@ dvbfixer pull input.pdb --bond A:22:SG:A:96:SG --radius 8.0 -o output.pdb
 
 ### dvbfixer minimize — Energy Minimization with OpenMM
 
-Energy-minimizes a PDB structure with OpenMM using selective restraints. Reads a `.dat` file (from `dvbfixer model` + `dvbfixer prepare`) to apply different restraint strengths to original vs newly added atoms. By default, keeps existing hydrogens from input (adds via OpenMM only if none found). With `--rebuild-h`, strips existing H, runs PDBFixer to fix missing heavy atoms (e.g. mutated residues) and terminal atoms (OXT for truncated chains), then re-adds correct H via OpenMM. Detects AMBER protonation names (HIE/GLH/CYX etc.) from the raw PDB and passes them as `variants` to `addHydrogens`, ensuring correct protonation hydrogens are added (e.g. HE2 for GLH).
+Energy-minimizes a PDB structure with OpenMM using selective restraints. Reads a `.dat` file (from `dvbfixer model` + `dvbfixer prepare`) to apply different restraint strengths to original vs newly added atoms. All HIS residues are automatically renamed to explicit variants (HIE/HID/HIP) before any OpenMM operation. By default, keeps existing hydrogens from input; if any residues are missing H (e.g. from mutation), uses PDBFixer to add them. With `--rebuild-h`, strips existing H, runs PDBFixer to fix missing heavy atoms (e.g. mutated residues) and terminal atoms (OXT for truncated chains), then re-adds correct H via OpenMM. Detects AMBER protonation names (HIE/GLH/CYX etc.) from the raw PDB and passes them as `variants` to `addHydrogens`, ensuring correct protonation hydrogens are added (e.g. HE2 for GLH).
 
 #### Three-Tier Restraint System
 
