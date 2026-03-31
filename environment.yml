@@ -20,3 +20,4 @@ dependencies:
   - pip:
     - propka >=3.5
     - acpype
+    - anarci
