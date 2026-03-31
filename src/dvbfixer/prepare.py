@@ -303,6 +303,37 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose, mutations
         fixer.removeHeterogens(keepWater=keep_water)
     fixer.replaceNonstandardResidues()
     fixer.addMissingAtoms()
+
+    # Rename all HIS to explicit variants before addMissingHydrogens.
+    # OpenMM's auto-detection (checking ND1/NE2 atoms) is unreliable and
+    # crashes on incomplete, duplicated, or mutated HIS residues.
+    # Always set an explicit variant to bypass auto-detection entirely.
+    for res in fixer.topology.residues():
+        if res.name == 'HIS':
+            atom_names = {a.name for a in res.atoms()}
+            has_hd1 = 'HD1' in atom_names
+            has_he2 = 'HE2' in atom_names
+            has_nd1 = 'ND1' in atom_names
+            has_ne2 = 'NE2' in atom_names
+
+            if has_hd1 and has_he2:
+                new_name = 'HIP'
+            elif has_hd1:
+                new_name = 'HID'
+            elif has_he2:
+                new_name = 'HIE'
+            elif has_nd1 and not has_ne2:
+                new_name = 'HID'
+            elif has_ne2 and not has_nd1:
+                new_name = 'HIE'
+            else:
+                # Default: HIE (epsilon-protonated, most common at pH 7)
+                new_name = 'HIE'
+
+            res.name = new_name
+            if verbose:
+                print(f"  HIS {res.chain.id}:{res.id} → {new_name}")
+
     fixer.addMissingHydrogens(ph)
 
     # Remove extra hydrogens from glycosylated residues
