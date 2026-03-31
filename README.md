@@ -173,7 +173,7 @@ dvbfixer model input.pdb --keep-workdir -v
 
 ### dvbfixer prepare — Structure Fixing with PDBFixer
 
-Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. Writes a `.dat` file recording which atoms were added, for use by `dvbfixer minimize`. Automatically merges upstream `.dat` (from `dvbfixer model`) if present, so rebuilt gap atoms are tracked through the pipeline. Supports point mutations via `--mutate`.
+Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. All HIS residues are automatically assigned explicit protonation variants (HIE default, or HID/HIP based on existing H atoms) before hydrogen addition — this prevents OpenMM crashes on incomplete or mutated histidines. Writes a `.dat` file recording which atoms were added, for use by `dvbfixer minimize`. Automatically merges upstream `.dat` (from `dvbfixer model`) if present, so rebuilt gap atoms are tracked through the pipeline. Supports point mutations via `--mutate`.
 
 #### Usage
 
