@@ -18,6 +18,7 @@ COMMANDS = {
     "glycam": "Convert glycan PDB to GLYCAM force field nomenclature",
     "cluster": "Cluster glycan conformations from MD trajectory",
     "parametrize": "Parametrize small molecules with GAFF2 + AM1-BCC/RESP",
+    "homology": "Multi-template homology modeling with Modeller",
     "zbs": "Full pipeline: renumber -> model -> prepare -> minimize -> protonate",
 }
 
@@ -73,6 +74,8 @@ def main():
         from dvbfixer.cluster import main as cmd_main
     elif command == "parametrize":
         from dvbfixer.parametrize import main as cmd_main
+    elif command == "homology":
+        from dvbfixer.homology import main as cmd_main
     elif command == "zbs":
         from dvbfixer.zbs import main as cmd_main
     else:
