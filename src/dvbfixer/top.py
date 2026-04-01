@@ -354,11 +354,11 @@ def read_pdb_chains(path):
             resname_3 = line[17:20].strip()
             chain_id = line[21]
             if resname_3 and chain_id != ' ' and not chain_id.isalpha():
-                # Could be 4-char resname (e.g. CER1, BGAL, ANE5)
-                # Check: is line[17:21] a known 4-char resname?
+                # Could be 4-char resname (e.g. CER1, BGAL, ANE5, AGLC)
                 resname_4 = line[17:21].strip()
                 if (resname_4 in PDB_TO_LIPID or resname_4 in PDB_TO_CARB
-                        or resname_4 in CERAMIDE_RTP):
+                        or resname_4 in CERAMIDE_RTP
+                        or (len(resname_4) == 4 and resname_3 not in STANDARD_AA)):
                     chain_id = ' '
             chain_lines[chain_id].append(line)
 
@@ -396,13 +396,16 @@ def read_pdb_chains(path):
             chain = PDBChain(chain_id=cid)
             for line in seg_lines:
                 resname = line[17:20].strip()
-                # Check for 4-char resname (CHARMM-GUI style or GROMACS output)
+                # Check for 4-char resname (CHARMM-GUI style or GROMACS output).
+                # Use 4-char if it's in known sets, OR if the 3-char truncation
+                # isn't a standard amino acid (catches all CHARMM carb/lipid names).
                 resname_4 = line[17:21].strip()
-                if (len(resname_4) == 4 and
-                    (resname_4 in PDB_TO_LIPID or resname_4 in PDB_TO_CARB
-                     or resname_4 in CERAMIDE_RTP
-                     or resname_4 in _KNOWN_4CHAR_RESNAMES)):
-                    resname = resname_4
+                if len(resname_4) == 4:
+                    if (resname_4 in PDB_TO_LIPID or resname_4 in PDB_TO_CARB
+                            or resname_4 in CERAMIDE_RTP
+                            or resname_4 in _KNOWN_4CHAR_RESNAMES
+                            or resname not in STANDARD_AA):
+                        resname = resname_4
                 resseq = int(line[22:26])
                 icode = line[26].strip()
                 atom_name = line[12:16].strip()
