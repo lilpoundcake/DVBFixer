@@ -190,14 +190,30 @@ def remove_extra_glycan_hydrogens(fixer, glycosylated_atoms, verbose=False):
 # PDBFixer
 # ---------------------------------------------------------------------------
 
+# Map AMBER/CHARMM protonation variant names to standard PDB names
+# (PDBFixer only accepts standard 3-letter codes for mutations)
+_VARIANT_TO_STANDARD = {
+    'HID': 'HIS', 'HIE': 'HIS', 'HIP': 'HIS',
+    'HSD': 'HIS', 'HSE': 'HIS', 'HSP': 'HIS',
+    'ASH': 'ASP', 'ASPP': 'ASP',
+    'GLH': 'GLU', 'GLUP': 'GLU',
+    'CYX': 'CYS', 'CYM': 'CYS',
+    'LYN': 'LYS',
+}
+
+
 def parse_mutations(mutate_args):
     """Parse --mutate arguments into PDBFixer mutation format.
 
-    Input format: ['A:39:ALA', 'B:100:GLY']
-    Returns: dict mapping chain_id -> list of (resnum, new_aa) tuples
+    Input format: ['A:39:ALA', 'B:100:GLY', 'A:83:HIP']
+    Handles AMBER protonation variants (HIP, ASH, GLH, etc.).
+    Returns: (mutations_by_chain, variant_overrides)
+      mutations_by_chain: dict chain_id -> [(resnum, standard_aa)]
+      variant_overrides: dict (chain_id, resnum) -> variant_name
     """
     from collections import defaultdict
     mutations_by_chain = defaultdict(list)
+    variant_overrides = {}  # (chain, resnum) -> user-requested variant name
     for spec in mutate_args:
         parts = spec.split(':')
         if len(parts) != 3:
@@ -205,8 +221,15 @@ def parse_mutations(mutate_args):
                   file=sys.stderr)
             sys.exit(1)
         chain, resnum, new_aa = parts
-        mutations_by_chain[chain].append((resnum, new_aa.upper()))
-    return mutations_by_chain
+        new_aa = new_aa.upper()
+
+        # If it's a protonation variant, record it and use standard name for PDBFixer
+        standard_aa = _VARIANT_TO_STANDARD.get(new_aa, new_aa)
+        if new_aa != standard_aa:
+            variant_overrides[(chain, resnum)] = new_aa
+
+        mutations_by_chain[chain].append((resnum, standard_aa))
+    return mutations_by_chain, variant_overrides
 
 
 def apply_mutations(fixer, mutations_by_chain, verbose=False):
@@ -241,11 +264,22 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose, mutations
         fixer = PDBFixer(pdbfile=f)
 
     # Apply mutations if requested
+    variant_overrides = {}  # (chain, resnum) -> variant name (HIP, ASH, etc.)
     if mutations:
-        mutations_by_chain = parse_mutations(mutations)
+        mutations_by_chain, variant_overrides = parse_mutations(mutations)
         if mutations_by_chain:
             print(f"Applying {sum(len(v) for v in mutations_by_chain.values())} mutation(s)...")
             apply_mutations(fixer, mutations_by_chain, verbose)
+            if variant_overrides and verbose:
+                for (ch, rn), var in variant_overrides.items():
+                    print(f"  Protonation override: {ch}:{rn} → {var}")
+
+    # Capture AMBER/CHARMM protonation variant names from input PDB before
+    # PDBFixer normalizes them. These are re-applied after replaceNonstandardResidues.
+    for res in fixer.topology.residues():
+        key = (res.chain.id, res.id)
+        if key not in variant_overrides and res.name in _VARIANT_TO_STANDARD:
+            variant_overrides[key] = res.name
 
     # Strip hydrogens and reload so findMissingAtoms gets clean template matching.
     # Wrong H (e.g. from mutations or external tools) confuse PDBFixer.
@@ -304,35 +338,30 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose, mutations
     fixer.replaceNonstandardResidues()
     fixer.addMissingAtoms()
 
-    # Rename all HIS to explicit variants before addMissingHydrogens.
-    # OpenMM's auto-detection (checking ND1/NE2 atoms) is unreliable and
-    # crashes on incomplete, duplicated, or mutated HIS residues.
-    # Always set an explicit variant to bypass auto-detection entirely.
+    # Restore protonation variant names that PDBFixer's replaceNonstandardResidues
+    # reverted to standard names (HIP→HIS, ASH→ASP, GLH→GLU, CYX→CYS, etc.).
+    # Also rename any remaining HIS to explicit variants (HIE default) to prevent
+    # OpenMM's unreliable auto-detection from crashing.
     for res in fixer.topology.residues():
-        if res.name == 'HIS':
-            atom_names = {a.name for a in res.atoms()}
-            has_hd1 = 'HD1' in atom_names
-            has_he2 = 'HE2' in atom_names
-            has_nd1 = 'ND1' in atom_names
-            has_ne2 = 'NE2' in atom_names
-
-            if has_hd1 and has_he2:
-                new_name = 'HIP'
-            elif has_hd1:
-                new_name = 'HID'
-            elif has_he2:
-                new_name = 'HIE'
-            elif has_nd1 and not has_ne2:
-                new_name = 'HID'
-            elif has_ne2 and not has_nd1:
-                new_name = 'HIE'
-            else:
-                # Default: HIE (epsilon-protonated, most common at pH 7)
-                new_name = 'HIE'
-
-            res.name = new_name
+        key = (res.chain.id, res.id)
+        if key in variant_overrides:
+            old = res.name
+            res.name = variant_overrides[key]
             if verbose:
-                print(f"  HIS {res.chain.id}:{res.id} → {new_name}")
+                print(f"  {old} {res.chain.id}:{res.id} → {res.name} (variant override)")
+        elif res.name == 'HIS':
+            # No explicit override — detect from H atoms or default to HIE
+            atom_names = {a.name for a in res.atoms()}
+            if 'HD1' in atom_names and 'HE2' in atom_names:
+                res.name = 'HIP'
+            elif 'HD1' in atom_names:
+                res.name = 'HID'
+            elif 'HE2' in atom_names:
+                res.name = 'HIE'
+            else:
+                res.name = 'HIE'  # default
+            if verbose:
+                print(f"  HIS {res.chain.id}:{res.id} → {res.name}")
 
     fixer.addMissingHydrogens(ph)
 

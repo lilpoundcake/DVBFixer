@@ -213,6 +213,172 @@ def run_antibody_analysis(target_chains, verbose=False):
 
 
 # ---------------------------------------------------------------------------
+# Per-chain alignment
+# ---------------------------------------------------------------------------
+
+def _extract_chain_pdb(pdb_path, chain_id, output_path):
+    """Extract a single chain from a PDB file."""
+    with open(pdb_path) as f:
+        lines = f.readlines()
+    with open(output_path, 'w') as f:
+        for line in lines:
+            if line.startswith(('ATOM  ', 'HETATM', 'TER   ')):
+                if line[21] == chain_id:
+                    f.write(line)
+            elif line.startswith(('HEADER', 'CRYST1', 'REMARK', 'END')):
+                f.write(line)
+
+
+def _build_per_chain_alignment(env, target_chains, template_names,
+                               chain_mapping, workdir, use_salign=False,
+                               verbose=False):
+    """Build multi-chain alignment by aligning each target chain to its best
+    template chain independently, then combining into a single PIR file.
+
+    The key insight: Modeller's PIR format for multi-template requires each
+    template entry to have the SAME number of chain breaks (/) as the target.
+    For templates that don't cover a target chain, that chain position gets
+    all-gap characters. The structureX header must specify FIRST:LAST residue
+    and chain so Modeller reads the correct atoms from the PDB.
+
+    Returns path to the combined alignment PIR file.
+    """
+    from modeller import Alignment, Model
+
+    # Step 1: Get template chain sequences as Modeller sees them
+    # (important: Modeller may read atoms differently than our parser)
+    tpl_modeller_seqs = {}  # tpl_name -> {chain_id: sequence}
+    for tpl_name in template_names:
+        mdl = Model(env, file=f'{tpl_name}.pdb')
+        aln_tmp = Alignment(env)
+        aln_tmp.append_model(mdl, align_codes=tpl_name,
+                             atom_files=f'{tpl_name}.pdb')
+        tmp_pir = os.path.join(workdir, f'_tpl_{tpl_name}.pir')
+        aln_tmp.write(file=tmp_pir, alignment_format='PIR')
+        full_seq = parse_pir_sequence(tmp_pir, tpl_name)
+        # Split by chain breaks
+        chain_seqs = full_seq.split('/')
+        # Get chain IDs from PDB
+        chain_ids = []
+        seen = set()
+        with open(os.path.join(workdir, f'{tpl_name}.pdb')) as pf:
+            for line in pf:
+                if line.startswith(('ATOM  ', 'HETATM')):
+                    ch = line[21]
+                    if ch not in seen:
+                        seen.add(ch)
+                        chain_ids.append(ch)
+        tpl_modeller_seqs[tpl_name] = {}
+        for i, ch_id in enumerate(chain_ids):
+            if i < len(chain_seqs):
+                tpl_modeller_seqs[tpl_name][ch_id] = chain_seqs[i]
+
+    # Step 2: Pairwise alignment for each target chain
+    per_chain = {}
+    for tgt_chain_id, tgt_seq in target_chains:
+        tpl_name, tpl_chain_id, _ = chain_mapping[tgt_chain_id]
+
+        # Get template chain sequence as Modeller sees it
+        tpl_chain_seq = tpl_modeller_seqs[tpl_name].get(tpl_chain_id, '')
+        if not tpl_chain_seq:
+            print(f"WARNING: template {tpl_name} chain {tpl_chain_id} not found",
+                  file=sys.stderr)
+            # Use target as-is (all modeled)
+            per_chain[tgt_chain_id] = {
+                'tpl_name': tpl_name,
+                'tpl_chain': tpl_chain_id,
+                'tpl_aligned': '-' * len(tgt_seq),
+                'tgt_aligned': tgt_seq,
+            }
+            continue
+
+        # Extract single chain from template PDB
+        chain_pdb = os.path.join(workdir, f'_chain_{tpl_name}_{tpl_chain_id}.pdb')
+        _extract_chain_pdb(
+            os.path.join(workdir, f'{tpl_name}.pdb'),
+            tpl_chain_id, chain_pdb)
+
+        chain_code = f'{tpl_name}_{tpl_chain_id}'
+
+        # Write single-chain target PIR
+        chain_target_pir = os.path.join(workdir, f'_target_{tgt_chain_id}.pir')
+        with open(chain_target_pir, 'w') as cf:
+            cf.write(f">P1;target_{tgt_chain_id}\n")
+            cf.write(f"sequence:target_{tgt_chain_id}::::::::\n")
+            seq_with_star = tgt_seq if tgt_seq.endswith('*') else tgt_seq + '*'
+            for i in range(0, len(seq_with_star), 75):
+                cf.write(seq_with_star[i:i+75] + '\n')
+
+        # Align single chain pair
+        aln = Alignment(env)
+        mdl = Model(env, file=chain_pdb)
+        aln.append_model(mdl, align_codes=chain_code, atom_files=chain_pdb)
+        aln.append(file=chain_target_pir, align_codes=f'target_{tgt_chain_id}')
+
+        if use_salign:
+            aln.salign(auto_overhang=True, gap_penalties_1d=(-450, -50),
+                       alignment_type='tree', output='')
+        else:
+            aln.align2d(max_gap_length=50)
+
+        pair_aln_path = os.path.join(workdir, f'_aln_{tgt_chain_id}.pir')
+        aln.write(file=pair_aln_path, alignment_format='PIR')
+
+        tpl_aln_seq = parse_pir_sequence(pair_aln_path, chain_code)
+        tgt_aln_seq = parse_pir_sequence(pair_aln_path, f'target_{tgt_chain_id}')
+
+        per_chain[tgt_chain_id] = {
+            'tpl_name': tpl_name,
+            'tpl_chain': tpl_chain_id,
+            'tpl_aligned': tpl_aln_seq,
+            'tgt_aligned': tgt_aln_seq,
+        }
+
+        if verbose:
+            print(f"  Aligned chain {tgt_chain_id} → {tpl_name}:{tpl_chain_id} "
+                  f"({len(tpl_aln_seq)} aligned positions)")
+
+    # Step 3: Build combined multi-chain PIR
+    # Each template entry must have the same number of '/' as the target.
+    # Use Modeller's structureX header with FIRST and LAST residue/chain
+    # so Modeller reads the correct PDB atoms.
+    aln_path = os.path.join(workdir, 'alignment.pir')
+
+    with open(aln_path, 'w') as f:
+        for tpl_name in template_names:
+            chain_seqs = []
+            for tgt_chain_id, _ in target_chains:
+                info = per_chain[tgt_chain_id]
+                if info['tpl_name'] == tpl_name:
+                    chain_seqs.append(info['tpl_aligned'])
+                else:
+                    gap_len = len(per_chain[tgt_chain_id]['tgt_aligned'])
+                    chain_seqs.append('-' * gap_len)
+
+            combined_seq = '/'.join(chain_seqs)
+
+            # structureX header: FIRST and LAST specify the range Modeller
+            # should read from the PDB. Use empty fields to let Modeller
+            # auto-detect from the PDB file.
+            f.write(f">P1;{tpl_name}\n")
+            f.write(f"structureX:{tpl_name}.pdb:FIRST:@:LAST:@::::\n")
+            for i in range(0, len(combined_seq), 75):
+                f.write(combined_seq[i:i+75] + '\n')
+            f.write('*\n\n')
+
+        # Target entry
+        chain_seqs = [per_chain[ch]['tgt_aligned'] for ch, _ in target_chains]
+        combined_target = '/'.join(chain_seqs)
+        f.write(">P1;target\n")
+        f.write("sequence:target::::::::\n")
+        for i in range(0, len(combined_target), 75):
+            f.write(combined_target[i:i+75] + '\n')
+        f.write('*\n')
+
+    return aln_path
+
+
+# ---------------------------------------------------------------------------
 # Modeller multi-template modeling
 # ---------------------------------------------------------------------------
 
@@ -244,41 +410,6 @@ def run_homology_modeller(target_chains, template_paths, chain_mapping,
             shutil.copy2(tpl_path, dst)
         template_names.append(tpl_name)
 
-    # Build target sequence in PIR format (multi-chain with '/')
-    target_seq = '/'.join(seq for _, seq in target_chains) + '*'
-    target_pir = os.path.join(workdir, 'target.pir')
-    write_target_pir(target_seq, target_pir)
-
-    if args.alignment:
-        # User-provided alignment
-        aln_path = str(Path(args.alignment).resolve())
-        shutil.copy2(aln_path, os.path.join(workdir, 'alignment.pir'))
-        aln_path = os.path.join(workdir, 'alignment.pir')
-    else:
-        # Auto-align: build alignment from templates + target
-        aln = Alignment(env)
-        for tpl_name in template_names:
-            mdl = Model(env, file=f'{tpl_name}.pdb')
-            aln.append_model(mdl, align_codes=tpl_name,
-                             atom_files=f'{tpl_name}.pdb')
-
-        aln.append(file=target_pir, align_codes='target')
-
-        if args.salign:
-            aln.salign(auto_overhang=True, gap_penalties_1d=(-450, -50),
-                       alignment_type='tree', output='ALIGNMENT')
-        else:
-            aln.align2d(max_gap_length=50)
-
-        aln_path = os.path.join(workdir, 'alignment.pir')
-        aln.write(file=aln_path, alignment_format='PIR')
-
-    if args.verbose:
-        print(f"Alignment written to {aln_path}")
-        with open(aln_path) as f:
-            print(f.read()[:500])
-
-    # Select model class
     md_levels = {
         "none": None,
         "fast": am.refine.fast,
@@ -287,43 +418,138 @@ def run_homology_modeller(target_chains, template_paths, chain_mapping,
         "slow_large": am.refine.slow_large,
     }
 
-    if args.no_loop_refine:
-        ModelClass = automodel
-    else:
-        ModelClass = LoopModel
+    if args.alignment:
+        # User-provided alignment — single Modeller run
+        aln_path = str(Path(args.alignment).resolve())
+        shutil.copy2(aln_path, os.path.join(workdir, 'alignment.pir'))
+        aln_path = os.path.join(workdir, 'alignment.pir')
 
-    a = ModelClass(env,
-                   alnfile=aln_path,
-                   knowns=tuple(template_names),
-                   sequence='target')
-    a.starting_model = 1
-    a.ending_model = args.num_models
+        ModelClass = automodel if args.no_loop_refine else LoopModel
+        a = ModelClass(env, alnfile=aln_path,
+                       knowns=tuple(template_names), sequence='target')
+        a.starting_model = 1
+        a.ending_model = args.num_models
+        if not args.no_loop_refine:
+            a.loop.starting_model = 1
+            a.loop.ending_model = args.num_models
+            a.loop.md_level = md_levels[args.md_level]
+        a.make()
 
-    if not args.no_loop_refine:
-        a.loop.starting_model = 1
-        a.loop.ending_model = args.num_models
-        a.loop.md_level = md_levels[args.md_level]
+        models = (_get_best_models(a, args.no_loop_refine))
+        best = min(models, key=lambda x: x['molpdf'])
+        print(f"Best model: {best['name']} (molpdf={best['molpdf']:.1f})")
+        return os.path.join(workdir, best['name']), aln_path
 
-    a.make()
+    # Per-chain modeling: model each target chain independently with its
+    # best template, then assemble into a full multi-chain PDB.
+    # This is necessary because templates have different chain structures
+    # (e.g. Fab=2 chains vs IgG=4 chains) and Modeller requires matching
+    # chain break counts between alignment entries.
+    chain_models = {}  # tgt_chain_id -> model PDB path
 
-    # Select best model
-    if not args.no_loop_refine:
-        models = [x for x in a.loop.outputs if x['failure'] is None]
+    for tgt_chain_id, tgt_seq in target_chains:
+        tpl_name, tpl_chain_id, _ = chain_mapping[tgt_chain_id]
+        print(f"\n  Modeling chain {tgt_chain_id} "
+              f"(template {tpl_name}:{tpl_chain_id})...")
+
+        # Extract single chain from template
+        chain_pdb = os.path.join(workdir, f'_chain_{tpl_name}_{tpl_chain_id}.pdb')
+        _extract_chain_pdb(
+            os.path.join(workdir, f'{tpl_name}.pdb'),
+            tpl_chain_id, chain_pdb)
+
+        chain_code = f'{tpl_name}_{tpl_chain_id}'
+
+        # Write target PIR for this chain
+        chain_target_pir = os.path.join(workdir, f'_target_{tgt_chain_id}.pir')
+        with open(chain_target_pir, 'w') as cf:
+            cf.write(f">P1;target_{tgt_chain_id}\n")
+            cf.write(f"sequence:target_{tgt_chain_id}::::::::\n")
+            seq_star = tgt_seq + '*' if not tgt_seq.endswith('*') else tgt_seq
+            for i in range(0, len(seq_star), 75):
+                cf.write(seq_star[i:i+75] + '\n')
+
+        # Align
+        aln = Alignment(env)
+        mdl = Model(env, file=chain_pdb)
+        aln.append_model(mdl, align_codes=chain_code, atom_files=chain_pdb)
+        aln.append(file=chain_target_pir, align_codes=f'target_{tgt_chain_id}')
+
+        if args.salign:
+            aln.salign(auto_overhang=True, gap_penalties_1d=(-450, -50),
+                       alignment_type='tree', output='')
+        else:
+            aln.align2d(max_gap_length=50)
+
+        chain_aln_path = os.path.join(workdir, f'_aln_{tgt_chain_id}.pir')
+        aln.write(file=chain_aln_path, alignment_format='PIR')
+
+        if args.verbose:
+            with open(chain_aln_path) as af:
+                print(af.read()[:300])
+
+        # Model this chain
+        ModelClass = automodel if args.no_loop_refine else LoopModel
+        a = ModelClass(env, alnfile=chain_aln_path,
+                       knowns=chain_code,
+                       sequence=f'target_{tgt_chain_id}')
+        a.starting_model = 1
+        a.ending_model = args.num_models
+        if not args.no_loop_refine:
+            a.loop.starting_model = 1
+            a.loop.ending_model = args.num_models
+            a.loop.md_level = md_levels[args.md_level]
+        a.make()
+
+        models = _get_best_models(a, args.no_loop_refine)
+        best = min(models, key=lambda x: x['molpdf'])
+        print(f"    Best: {best['name']} (molpdf={best['molpdf']:.1f})")
+        chain_models[tgt_chain_id] = os.path.join(workdir, best['name'])
+
+    # Assemble per-chain models into a single multi-chain PDB
+    assembled_path = os.path.join(workdir, 'assembled.pdb')
+    _assemble_chains(chain_models, target_chains, assembled_path)
+    print(f"\nAssembled {len(chain_models)} chains into {assembled_path}")
+
+    return assembled_path, None
+
+
+def _get_best_models(automodel_obj, no_loop_refine):
+    """Extract successful models from automodel output."""
+    if not no_loop_refine:
+        models = [x for x in automodel_obj.loop.outputs if x['failure'] is None]
         if not models:
-            models = [x for x in a.outputs if x['failure'] is None]
+            models = [x for x in automodel_obj.outputs if x['failure'] is None]
             if models:
                 print("WARNING: loop refinement failed, using initial model")
     else:
-        models = [x for x in a.outputs if x['failure'] is None]
-
+        models = [x for x in automodel_obj.outputs if x['failure'] is None]
     if not models:
         print("ERROR: all models failed", file=sys.stderr)
         sys.exit(1)
+    return models
 
-    best = min(models, key=lambda x: x['molpdf'])
-    print(f"Best model: {best['name']} (molpdf={best['molpdf']:.1f})")
 
-    return os.path.join(workdir, best['name']), aln_path
+def _assemble_chains(chain_models, target_chains, output_path):
+    """Assemble per-chain model PDBs into a single multi-chain PDB."""
+    serial = 0
+    with open(output_path, 'w') as f:
+        f.write("REMARK    Assembled by dvbfixer homology\n")
+        for tgt_chain_id, _ in target_chains:
+            model_path = chain_models[tgt_chain_id]
+            with open(model_path) as mf:
+                for line in mf:
+                    if line.startswith(('ATOM  ', 'HETATM')):
+                        serial += 1
+                        # Set chain ID and renumber serial
+                        line = (f"{line[:6]}{serial % 100000:5d}"
+                                f"{line[11:21]}{tgt_chain_id}"
+                                f"{line[22:]}")
+                        f.write(line)
+            # TER between chains
+            serial += 1
+            f.write(f"TER   {serial % 100000:5d}\n")
+        f.write("END\n")
 
 
 # ---------------------------------------------------------------------------
@@ -463,9 +689,26 @@ def main(argv=None):
         best_model_path, aln_path = run_homology_modeller(
             target_chains, template_paths, chain_mapping, args, workdir)
 
-        # 6. Post-process: restore chain IDs
-        print("Restoring chain IDs...")
-        result_lines = restore_chain_ids(best_model_path, target_chains)
+        # 6. Post-process
+        # Modeller outputs correct chain IDs from the PIR alignment,
+        # so restore_chain_ids is only needed if they don't match.
+        with open(best_model_path) as f:
+            result_lines = f.readlines()
+
+        # Check if chain IDs need fixing
+        expected_chains = [ch for ch, _ in target_chains]
+        actual_chains = []
+        seen = set()
+        for line in result_lines:
+            if line.startswith(('ATOM  ', 'HETATM')):
+                ch = line[21]
+                if ch not in seen:
+                    seen.add(ch)
+                    actual_chains.append(ch)
+
+        if actual_chains != expected_chains:
+            print("Restoring chain IDs...")
+            result_lines = restore_chain_ids(best_model_path, target_chains)
 
         # Remove water if present
         result_lines = remove_water_lines(result_lines)
