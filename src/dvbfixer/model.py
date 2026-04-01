@@ -1209,7 +1209,6 @@ def main(argv=None):
                 dat['variant_overrides'] = {
                     f"{ch}:{rs}": var for (ch, rs), var in _input_variants.items()
                 }
-            import json
             dat_path = output_path.with_suffix('.dat')
             with open(dat_path, 'w') as f:
                 json.dump(dat, f, indent=2)
