@@ -338,32 +338,39 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose, mutations
     fixer.replaceNonstandardResidues()
     fixer.addMissingAtoms()
 
-    # Restore protonation variant names that PDBFixer's replaceNonstandardResidues
-    # reverted to standard names (HIP→HIS, ASH→ASP, GLH→GLU, CYX→CYS, etc.).
-    # Also rename any remaining HIS to explicit variants (HIE default) to prevent
-    # OpenMM's unreliable auto-detection from crashing.
+    # Build explicit variants list for addHydrogens.
+    # PDBFixer's addMissingHydrogens ignores our topology renames — it uses
+    # its own _describeVariant which only understands standard names.
+    # We call Modeller.addHydrogens directly with our variants list.
+    #
+    # OpenMM variant names: 'HIE', 'HID', 'HIP' for HIS; 'ASH' for ASP;
+    # 'GLH' for GLU; 'CYX' for CYS (disulfide). None = auto-detect by pH.
+    _OPENMM_VARIANTS = {'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYX', 'LYN'}
+    variants = []
     for res in fixer.topology.residues():
         key = (res.chain.id, res.id)
-        if key in variant_overrides:
-            old = res.name
-            res.name = variant_overrides[key]
+        if key in variant_overrides and variant_overrides[key] in _OPENMM_VARIANTS:
+            variants.append(variant_overrides[key])
             if verbose:
-                print(f"  {old} {res.chain.id}:{res.id} → {res.name} (variant override)")
+                print(f"  {res.name} {res.chain.id}:{res.id} → variant {variant_overrides[key]}")
         elif res.name == 'HIS':
-            # No explicit override — detect from H atoms or default to HIE
+            # Detect from existing H atoms (if any survived stripping)
             atom_names = {a.name for a in res.atoms()}
             if 'HD1' in atom_names and 'HE2' in atom_names:
-                res.name = 'HIP'
+                variants.append('HIP')
             elif 'HD1' in atom_names:
-                res.name = 'HID'
+                variants.append('HID')
             elif 'HE2' in atom_names:
-                res.name = 'HIE'
+                variants.append('HIE')
             else:
-                res.name = 'HIE'  # default
-            if verbose:
-                print(f"  HIS {res.chain.id}:{res.id} → {res.name}")
+                variants.append(None)  # let OpenMM auto-detect by pH
+        else:
+            variants.append(None)
 
-    fixer.addMissingHydrogens(ph)
+    modeller = Modeller(fixer.topology, fixer.positions)
+    modeller.addHydrogens(pH=ph, variants=variants)
+    fixer.topology = modeller.topology
+    fixer.positions = modeller.positions
 
     # Remove extra hydrogens from glycosylated residues
     if glycosylated_atoms:
@@ -420,16 +427,32 @@ def main(argv=None):
         mutations=args.mutate
     )
 
-    # Restore user's variant names before writing output.
-    # OpenMM/PDBFixer may have normalized them (HIE→HIS, ASH→ASP, etc.)
-    # but the user wants their original protonation states preserved.
-    for res in fixer.topology.residues():
-        key = (res.chain.id, res.id)
-        if key in variant_overrides:
-            res.name = variant_overrides[key]
-
+    # Write PDB with standard names first (OpenMM writes HETATM for non-standard)
     with open(output_path, 'w') as f:
         PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)
+
+    # Text-based post-processing: restore user's variant names in output PDB.
+    # This avoids OpenMM writing HETATM for non-standard names like HIE/ASH.
+    if variant_overrides:
+        # Build lookup: (chain, resseq_str) -> variant_name
+        var_lookup = {}
+        for (ch, rn), var_name in variant_overrides.items():
+            var_lookup[(ch, rn)] = var_name
+
+        with open(output_path) as f:
+            pdb_lines = f.readlines()
+
+        with open(output_path, 'w') as f:
+            for line in pdb_lines:
+                if line.startswith(('ATOM  ', 'HETATM', 'TER   ')):
+                    chain = line[21]
+                    resseq = line[22:26].strip()
+                    var = var_lookup.get((chain, resseq))
+                    if var:
+                        # Replace resname (cols 17-20) and ensure ATOM not HETATM
+                        line = f"ATOM  {line[6:17]}{var:>3s}{line[20:]}"
+                f.write(line)
+
     print(f"Saved prepared structure: {output_path}")
 
     dat = build_dat(fixer, new_atom_indices)
