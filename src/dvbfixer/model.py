@@ -630,6 +630,11 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
                 last_num += 1
                 full_resids[i] = (last_num, ' ')
 
+        # Deduplicate: ensure no consecutive residues have the same number
+        for i in range(1, len(full_resids)):
+            if full_resids[i][0] <= full_resids[i-1][0]:
+                full_resids[i] = (full_resids[i-1][0] + 1, ' ')
+
         # Modeller numbers all chains continuously: 1..N_total
         offset = sum(len(per_chain_masks[j]) for j in range(ci))
         for pos_in_chain in range(len(mask)):
