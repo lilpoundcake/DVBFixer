@@ -117,7 +117,9 @@ PDB_TO_CARB = {
     'BGALNA': 'BGALNA',
     'AGALNA': 'AGALNA',
     'ANE5AC': 'ANE5AC',
-    'ANE5': 'ANE5AC',  # CHARMM-GUI short name for sialic acid
+    'ANE5': 'ANE5AC',
+    # Non-standard PDB names (from transplant/GLYCAM workflows)
+    'AGL': 'AGAL',     # alpha-galactose (_resolve_sugar_rtp auto-detects AGALNA if N-acetyl)  # CHARMM-GUI short name for sialic acid
 }
 
 # PDB lipid names -> CHARMM lipid.rtp names (ceramides)
