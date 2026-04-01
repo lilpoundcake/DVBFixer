@@ -16,8 +16,9 @@ dependencies:
   - modeller
   - parmed
   - plotly
+  - hmmer
+  - anarci
   - pip
   - pip:
     - propka >=3.5
     - acpype
-    - anarci

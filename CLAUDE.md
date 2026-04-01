@@ -46,7 +46,7 @@ After installation, `dvbfixer` is available as a CLI command:
 micromamba run -n dvbfixer dvbfixer <command> [args]
 ```
 
-Key packages: numpy, OpenMM 8.4, PDBFixer 1.12, scipy, PROPKA 3.5, Modeller 10.8, BioPython, MDAnalysis, plotly, ANARCI.
+Key packages: numpy, OpenMM 8.4, PDBFixer 1.12, scipy, PROPKA 3.5, Modeller 10.8, BioPython, MDAnalysis, plotly, ANARCI, HMMER.
 
 **Modeller requires a license key** from https://salilab.org/modeller/registration.html (free for academics). Set in `<env>/lib/modeller-10.8/modlib/modeller/config.py`.
 
