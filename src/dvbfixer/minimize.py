@@ -512,6 +512,17 @@ def main(argv=None):
     if dat_path.exists():
         added_keys = load_dat(dat_path)
         new_atom_indices = resolve_new_atom_indices(topology, added_keys, args.verbose)
+
+        # Also load variant overrides from .dat (saved by prepare)
+        import json
+        with open(dat_path) as _df:
+            _dat = json.load(_df)
+        for key_str, var_name in _dat.get('variant_overrides', {}).items():
+            ch, rn = key_str.split(':', 1)
+            if (ch, rn) not in amber_renames:
+                amber_renames[(ch, rn)] = var_name
+        if amber_renames:
+            print(f"  Total protonation variants (PDB + .dat): {len(amber_renames)}")
     else:
         print("No .dat file — all atoms get uniform strong restraints")
         new_atom_indices = set()

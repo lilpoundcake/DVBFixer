@@ -386,7 +386,7 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose, mutations
         print(f"Added {len(new_atom_indices)} atoms ({n_new_heavy} heavy), "
               f"across {len(added_residue_ids)} residues")
 
-    return fixer, new_atom_indices
+    return fixer, new_atom_indices, variant_overrides
 
 
 # ---------------------------------------------------------------------------
@@ -415,16 +415,38 @@ def main(argv=None):
             _tmp.unlink()
 
     print(f"=== PDBFixer: {input_path} ===")
-    fixer, new_atom_indices = run_pdbfixer(
+    fixer, new_atom_indices, variant_overrides = run_pdbfixer(
         input_path, args.ph, args.keep_water, args.keep_heterogens, args.verbose,
         mutations=args.mutate
     )
+
+    # Rename AMBER protonation variants back to standard PDB names for output.
+    # OpenMM's PDBFile.writeFile sometimes preserves variant names (HIE, ASH, etc.)
+    # which break downstream tools like Modeller that only know standard names.
+    # The variant info is preserved in the .dat file for minimize to use.
+    _VARIANT_TO_PDB = {
+        'HIE': 'HIS', 'HID': 'HIS', 'HIP': 'HIS',
+        'HSE': 'HIS', 'HSD': 'HIS', 'HSP': 'HIS',
+        'ASH': 'ASP', 'ASPP': 'ASP',
+        'GLH': 'GLU', 'GLUP': 'GLU',
+        'CYX': 'CYS', 'CYM': 'CYS',
+        'LYN': 'LYS',
+    }
+    for res in fixer.topology.residues():
+        if res.name in _VARIANT_TO_PDB:
+            res.name = _VARIANT_TO_PDB[res.name]
 
     with open(output_path, 'w') as f:
         PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)
     print(f"Saved prepared structure: {output_path}")
 
     dat = build_dat(fixer, new_atom_indices)
+
+    # Save variant overrides in .dat so minimize can restore them
+    if variant_overrides:
+        dat['variant_overrides'] = {
+            f"{ch}:{rn}": var for (ch, rn), var in variant_overrides.items()
+        }
 
     # Merge with upstream .dat (e.g. from model step) if it exists
     upstream_dat = input_path.with_suffix('.dat')
