@@ -420,21 +420,13 @@ def main(argv=None):
         mutations=args.mutate
     )
 
-    # Rename AMBER protonation variants back to standard PDB names for output.
-    # OpenMM's PDBFile.writeFile sometimes preserves variant names (HIE, ASH, etc.)
-    # which break downstream tools like Modeller that only know standard names.
-    # The variant info is preserved in the .dat file for minimize to use.
-    _VARIANT_TO_PDB = {
-        'HIE': 'HIS', 'HID': 'HIS', 'HIP': 'HIS',
-        'HSE': 'HIS', 'HSD': 'HIS', 'HSP': 'HIS',
-        'ASH': 'ASP', 'ASPP': 'ASP',
-        'GLH': 'GLU', 'GLUP': 'GLU',
-        'CYX': 'CYS', 'CYM': 'CYS',
-        'LYN': 'LYS',
-    }
+    # Restore user's variant names before writing output.
+    # OpenMM/PDBFixer may have normalized them (HIE→HIS, ASH→ASP, etc.)
+    # but the user wants their original protonation states preserved.
     for res in fixer.topology.residues():
-        if res.name in _VARIANT_TO_PDB:
-            res.name = _VARIANT_TO_PDB[res.name]
+        key = (res.chain.id, res.id)
+        if key in variant_overrides:
+            res.name = variant_overrides[key]
 
     with open(output_path, 'w') as f:
         PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)

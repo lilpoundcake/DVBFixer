@@ -592,8 +592,18 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
             gap_end = i
             gap_len = gap_end - gap_start
 
-            left = full_resids[gap_start - 1][0] if gap_start > 0 else 0
-            right = full_resids[gap_end][0] if gap_end < len(mask) else None
+            # Find nearest non-None positions flanking the gap
+            left = 0
+            for j in range(gap_start - 1, -1, -1):
+                if full_resids[j] is not None:
+                    left = full_resids[j][0]
+                    break
+            right = None
+            if gap_end < len(mask):
+                for j in range(gap_end, len(mask)):
+                    if full_resids[j] is not None:
+                        right = full_resids[j][0]
+                        break
 
             if right is not None:
                 # Internal gap or gap before a matched terminal: fit between left and right
@@ -610,6 +620,15 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
                 # C-terminal gap (nothing to the right): number from left
                 for k in range(gap_len):
                     full_resids[gap_start + k] = (left + k + 1, ' ')
+
+        # Fill any remaining None entries (safety fallback)
+        last_num = 0
+        for i in range(len(full_resids)):
+            if full_resids[i] is not None:
+                last_num = full_resids[i][0]
+            else:
+                last_num += 1
+                full_resids[i] = (last_num, ' ')
 
         # Modeller numbers all chains continuously: 1..N_total
         offset = sum(len(per_chain_masks[j]) for j in range(ci))
@@ -691,7 +710,7 @@ def renumber_model_output(result_lines, resnum_mapping):
             chain = line[21]
             resseq = int(line[22:26].strip())
             key = (chain, resseq)
-            if key in resnum_mapping:
+            if key in resnum_mapping and resnum_mapping[key] is not None:
                 new_resseq, new_icode = resnum_mapping[key]
                 line = _set_resid(line, new_resseq, new_icode)
             output.append(line)
@@ -701,7 +720,7 @@ def renumber_model_output(result_lines, resnum_mapping):
                 seq_str = line[22:26].strip()
                 if seq_str and seq_str.isdigit():
                     key = (chain, int(seq_str))
-                    if key in resnum_mapping:
+                    if key in resnum_mapping and resnum_mapping[key] is not None:
                         new_resseq, new_icode = resnum_mapping[key]
                         line = _set_resid(line, new_resseq, new_icode)
             output.append(line)
@@ -1124,16 +1143,78 @@ def main(argv=None):
     try:
         os.chdir(workdir)
 
-        # Write FULL PDB (all chains) for Modeller
+        # Write FULL PDB (all chains) for Modeller.
+        # Rename non-standard protonation variants to standard names so Modeller
+        # can read them (Modeller only knows HIS, not HIE/HID/HIP/ASH/GLH etc.)
+        # Save the original names to restore in the output.
+        _VARIANT_TO_STD = {
+            'HIE': 'HIS', 'HID': 'HIS', 'HIP': 'HIS',
+            'HSE': 'HIS', 'HSD': 'HIS', 'HSP': 'HIS',
+            'ASH': 'ASP', 'ASPP': 'ASP',
+            'GLH': 'GLU', 'GLUP': 'GLU',
+            'CYX': 'CYS', 'CYM': 'CYS',
+            'LYN': 'LYS',
+        }
+        # Capture: (chain, resseq) -> original variant name
+        _input_variants = {}
+        for line in lines:
+            if line.startswith(('ATOM  ', 'HETATM')):
+                resname = line[17:20].strip()
+                if resname in _VARIANT_TO_STD:
+                    ch = line[21]
+                    rs = line[22:26].strip()
+                    _input_variants[(ch, rs)] = resname
+
         input_pdb = workdir + '/' + input_path.name
         with open(input_pdb, 'w') as f:
-            f.writelines(lines)
+            for line in lines:
+                if line.startswith(('ATOM  ', 'HETATM')):
+                    resname = line[17:20].strip()
+                    std = _VARIANT_TO_STD.get(resname)
+                    if std:
+                        line = line[:17] + f"{std:>3s}" + line[20:]
+                f.write(line)
 
         # Run Modeller — target is built inside using Modeller's own template
         # reading, so non-protein '.' counts are guaranteed to match
         best_model, aln_path = run_modeller(
             Path(input_pdb), protein_chains, protein_seq_map, all_chains, args
         )
+
+        # If no gaps were found, run_modeller returns the input path unchanged.
+        # Just copy input to output with variant restoration and skip post-processing.
+        if best_model == str(Path(input_pdb)):
+            result_lines = lines[:]
+            # Restore variant names
+            if _input_variants:
+                restored = []
+                for line in result_lines:
+                    if line.startswith(('ATOM  ', 'HETATM')):
+                        ch = line[21]
+                        rs = line[22:26].strip()
+                        orig = _input_variants.get((ch, rs))
+                        if orig:
+                            line = line[:17] + f"{orig:>3s}" + line[20:]
+                    restored.append(line)
+                result_lines = restored
+            if not args.keep_water:
+                result_lines = remove_water_lines(result_lines)
+            with open(output_path, 'w') as f:
+                f.writelines(result_lines)
+            print(f"Wrote {output_path}")
+            # Write empty .dat (no gaps filled)
+            dat = {"description": "No gaps — input copied unchanged",
+                   "total_added": 0, "residue_summary": {}, "added_atoms": []}
+            if _input_variants:
+                dat['variant_overrides'] = {
+                    f"{ch}:{rs}": var for (ch, rs), var in _input_variants.items()
+                }
+            import json
+            dat_path = output_path.with_suffix('.dat')
+            with open(dat_path, 'w') as f:
+                json.dump(dat, f, indent=2)
+            print(f"Wrote {dat_path}")
+            return
 
         # Restore original chain IDs (Modeller reassigns A,B,C,... to all chains)
         result_lines = restore_chain_ids_and_read(best_model, all_chains)
@@ -1163,6 +1244,19 @@ def main(argv=None):
 
         if not args.keep_water:
             result_lines = remove_water_lines(result_lines)
+
+        # Restore original protonation variant names (HIE, ASH, etc.)
+        if _input_variants:
+            restored = []
+            for line in result_lines:
+                if line.startswith(('ATOM  ', 'HETATM')):
+                    ch = line[21]
+                    rs = line[22:26].strip()
+                    orig = _input_variants.get((ch, rs))
+                    if orig:
+                        line = line[:17] + f"{orig:>3s}" + line[20:]
+                restored.append(line)
+            result_lines = restored
 
         # Final pass: split any remaining concatenated TER+ATOM/HETATM lines
         # that may have survived post-processing, and ensure all lines end with \n
