@@ -674,6 +674,47 @@ Crystallographic convention (IUPAC):
 
 ---
 
+### dvbfixer homology — Multi-Template Homology Modeling
+
+Multi-template homology modeling with Modeller. Takes a target FASTA (multi-chain) and one or more template PDB files. Auto-aligns target to templates via pairwise `align2d` per chain (or `--salign` for structure-based). Each target chain is modeled independently against its best template chain, then assembled into a multi-chain PDB. Point mutations are handled naturally by the differing target sequence. Antibody mode (`--antibody`): uses ANARCI for Kabat/IMGT numbering, CDR detection, and auto-mapping of Fv/constant domains to different templates.
+
+#### Usage
+
+```bash
+# Basic multi-template
+dvbfixer homology target.fasta --template fab.pdb --template fullsize.pdb -v
+
+# With pipeline (prepare + minimize)
+dvbfixer homology target.fasta --template fab.pdb --template fullsize.pdb --minimize -v
+
+# Antibody mode
+dvbfixer homology target.fasta --template fab.pdb --template igg.pdb --antibody -v
+```
+
+---
+
+### dvbfixer parametrize — GAFF2 Small Molecule Parametrization
+
+Parametrizes small molecules with GAFF2 force field and AM1-BCC or RESP charges for GROMACS MD. Wraps the AmberTools pipeline: antechamber → parmchk2 → tleap → ParmEd. Output: standalone `.itp` + `.gro` + `posre.itp`.
+
+#### Usage
+
+```bash
+# AM1-BCC (default, fast)
+dvbfixer parametrize molecule.pdb -n MOL -v
+
+# Acetate with charge -1
+dvbfixer parametrize acetate.pdb -n ACET --net-charge -1
+
+# RESP (requires Gaussian log)
+dvbfixer parametrize molecule.pdb -n MOL -c resp --gaussian-log molecule.log
+
+# Generate Gaussian input for RESP
+dvbfixer parametrize molecule.pdb -n MOL -c resp --gen-gaussian
+```
+
+---
+
 ### dvbfixer puppet — Backbone-Only Polyglycine Model
 
 Strips a PDB to a minimal backbone scaffold: removes all non-ATOM lines, removes all sidechain and hydrogen atoms (keeps only N, CA, C, O, OXT), and renames every residue to GLY. Useful for creating "puppet" models for backbone-level alignment, modeling templates, or visualization.
@@ -861,6 +902,24 @@ dvbfixer top input.pdb --acpype
 # Cluster glycan conformations from MD trajectory
 dvbfixer cluster topol.tpr md.xtc --plot -v
 # -> md_representatives.pdb, md_summary.json, interactive HTML plots
+```
+
+### Homology modeling (antibody engineering)
+
+```bash
+# Combine Fv from Fab template + constant domains from IgG template
+dvbfixer homology target.fasta --template fab.pdb --template igg.pdb --antibody -v
+
+# With full pipeline
+dvbfixer homology target.fasta --template fab.pdb --template igg.pdb --minimize -v
+```
+
+### Small molecule parametrization
+
+```bash
+# Parametrize a buffer component for GROMACS
+dvbfixer parametrize acetate.pdb -n ACET --net-charge -1
+# -> ACET.itp, ACET.gro, posre_ACET.itp
 ```
 
 ---
