@@ -1669,6 +1669,25 @@ class TopologyBuilder:
                     # OC311 (hydroxyl) -> OC3C61 (ether) for linked O
                     type_change[o_name] = 'OC3C61'
 
+            # Defensive: if O1/O2 is not in PDB but wasn't detected as linked,
+            # still redistribute its charge to anomeric C. Also skip its HO if
+            # the HO is also not in PDB (both removed at glycosidic bond site).
+            for o_name in ('O1', 'O2'):
+                if o_name in linked_os:
+                    continue  # already handled above
+                pdb_o = rtp_to_pdb.get(o_name, o_name)
+                if pdb_o not in pdb_coords and o_name in rtp_charges:
+                    c_name = 'C2' if rtp_name in ('ANE5AC', 'BNE5AC') else 'C1'
+                    charge_adjust[c_name] = charge_adjust.get(c_name, 0.0) + \
+                        rtp_charges[o_name]
+                    # Also handle corresponding HO if it's also not in PDB
+                    ho_name = 'HO' + o_name[1:]
+                    if ho_name in rtp_charges:
+                        ho_pdb = rtp_to_pdb.get(ho_name, ho_name)
+                        if ho_pdb not in pdb_coords:
+                            charge_adjust[c_name] += rtp_charges[ho_name]
+                            remove_ho[ho_name] = o_name
+
             for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
                 # Skip HO atoms at linked positions
                 if atom_name in remove_ho:
@@ -1960,6 +1979,22 @@ class TopologyBuilder:
                         type_change[o_name] = 'OC301'
                     else:
                         type_change[o_name] = 'OC3C61'
+
+            # Defensive: redistribute charge of O1/O2 not in PDB even if not in linked_os
+            for o_name in ('O1', 'O2'):
+                if o_name in linked_os:
+                    continue
+                pdb_o = rtp_to_pdb.get(o_name, o_name)
+                if pdb_o not in pdb_coords and o_name in rtp_charges:
+                    c_name = 'C2' if rtp_name in ('ANE5AC', 'BNE5AC') else 'C1'
+                    charge_adjust[c_name] = charge_adjust.get(c_name, 0.0) + \
+                        rtp_charges[o_name]
+                    ho_name = 'HO' + o_name[1:]
+                    if ho_name in rtp_charges:
+                        ho_pdb = rtp_to_pdb.get(ho_name, ho_name)
+                        if ho_pdb not in pdb_coords:
+                            charge_adjust[c_name] += rtp_charges[ho_name]
+                            remove_ho[ho_name] = o_name
 
             resnr_sugar = tree_idx + 2  # ceramide is resnr 1
             for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
