@@ -845,20 +845,29 @@ def detect_glycan_links(chains):
                     target_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
                     sugar_o_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
 
-                if res.resname == 'ASN' and aname == 'ND2':
+                # Protein residues that can be glycosylated
+                if res.resname in ('ASN', 'NLN') and aname == 'ND2':
+                    target_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
+                elif res.resname in ('SER', 'OLS') and aname == 'OG':
+                    target_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
+                elif res.resname in ('THR', 'OLT') and aname == 'OG1':
                     target_atoms.append((ch, res.resname, res.resseq, aname, x, y, z))
 
                 # Collect ceramide C1S for sugar-ceramide bond detection
                 if _is_ceramide(res.resname) and aname == 'C1S':
                     cer_c1s_atoms.append((ch, res.resname, res.resseq, x, y, z))
 
-    # Find C1/C2-target pairs within 2.0 A (sugar-sugar and protein-sugar)
+    # Find C1/C2-target pairs (sugar-sugar and protein-sugar)
+    # Use 2.0 A for sugar-sugar (covalent ~1.4 A) and 2.5 A for protein-sugar
+    # (C1-ND2/OG bonds can stretch after minimization without proper restraints)
+    _PROTEIN_ATOMS = {'ND2', 'OG', 'OG1'}
     for ch1, rn1, rs1, aname1, x1, y1, z1 in c1_atoms:
         for ch2, rn2, rs2, aname2, x2, y2, z2 in target_atoms:
             if ch1 == ch2 and rs1 == rs2:
                 continue
             d = math.sqrt((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
-            if d < 2.0:
+            cutoff = 2.5 if aname2 in _PROTEIN_ATOMS else 2.0
+            if d < cutoff:
                 # Link: acceptor (has C1/C2) bonds to donor (has Ox/ND2)
                 links.append((ch2, rs2, aname2, ch1, rs1, aname1))
 
