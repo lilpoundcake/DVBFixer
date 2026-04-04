@@ -1679,10 +1679,12 @@ class TopologyBuilder:
                 adj_type = type_change.get(atom_name, atom_type)
 
                 pdb_name = rtp_to_pdb.get(atom_name, atom_name)
-                # For carbs, skip atoms not in PDB: H atoms (may be missing)
-                # and linked O atoms (O1 at glycosidic bond sites)
+                # For carbs, skip atoms not in PDB: H atoms, linked O atoms,
+                # and any O1/O2 not present (glycosidic bond sites where
+                # CHARMM-GUI removes the bridging O)
                 if pdb_name not in pdb_coords:
-                    if atom_name.startswith('H') or atom_name in linked_os:
+                    if (atom_name.startswith('H') or atom_name in linked_os
+                            or atom_name in ('O1', 'O2')):
                         if self.verbose:
                             print(f"    Skipping {rtp_name}:{atom_name} "
                                   f"(not in PDB {ch}:{rs})")
@@ -1969,7 +1971,8 @@ class TopologyBuilder:
 
                 pdb_name = rtp_to_pdb.get(atom_name, atom_name)
                 if pdb_name not in pdb_coords:
-                    if atom_name.startswith('H') or atom_name in linked_os:
+                    if (atom_name.startswith('H') or atom_name in linked_os
+                            or atom_name in ('O1', 'O2')):
                         if self.verbose:
                             print(f"    Skipping {rtp_name}:{atom_name} "
                                   f"(not in PDB {ch}:{rs})")
