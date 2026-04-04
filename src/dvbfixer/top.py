@@ -1294,14 +1294,37 @@ class TopologyBuilder:
             # by _add_protonation_hydrogens() before build_chain is called.
             # They should already be in pdb_coords via the res.atoms loop above.
 
+            # Pre-scan: find skipped atoms and redistribute their charge
+            # to bonded neighbors. Handles glycosylated ASN (HD21 or HD22
+            # removed when ND2 bonds to sugar) and other missing atoms.
+            rtp_bonds_local = {}
+            for a1, a2 in rtp_res.bonds:
+                if not a1.startswith(('+', '-')) and not a2.startswith(('+', '-')):
+                    rtp_bonds_local.setdefault(a1, []).append(a2)
+                    rtp_bonds_local.setdefault(a2, []).append(a1)
+            skip_charge = {}
             for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
                 pdb_name = rtp_to_pdb.get(atom_name)
                 if pdb_name is None:
-                    # Atom is in RTP but not in PDB — skip it
+                    for bonded in rtp_bonds_local.get(atom_name, []):
+                        if rtp_to_pdb.get(bonded) is not None:
+                            skip_charge[bonded] = \
+                                skip_charge.get(bonded, 0.0) + charge
+                            break
                     if self.verbose:
+                        dest = [b for b in rtp_bonds_local.get(atom_name, [])
+                                if rtp_to_pdb.get(b) is not None]
                         print(f"    Skipping {rtp_name}:{atom_name} "
-                              f"(not in PDB {res.chain_id}:{res.resseq})")
+                              f"(not in PDB {res.chain_id}:{res.resseq},"
+                              f" charge {charge:+.4f} → "
+                              f"{dest[0] if dest else 'LOST'})")
+
+            for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
+                pdb_name = rtp_to_pdb.get(atom_name)
+                if pdb_name is None:
                     continue
+
+                charge = charge + skip_charge.get(atom_name, 0.0)
 
                 global_idx += 1
                 mass = self.atom_masses.get(atom_type, 0.0)
