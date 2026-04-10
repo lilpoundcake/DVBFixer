@@ -468,7 +468,7 @@ def _relax_structure(path, output_path, stages, verbose=False):
     import tempfile
     temp_dir = path.parent
     temp_pdb = temp_dir / '_relax_temp.pdb'
-    prepare_for_openmm(path, temp_pdb)
+    _, _ = prepare_for_openmm(path, temp_pdb)
 
     pdb = PDBFile(str(temp_pdb))
     topology = pdb.topology

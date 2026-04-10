@@ -93,6 +93,17 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None):
         if residue_order[i-1][0] == residue_order[i][0] == residue_order[i+1][0]:
             midchain.add(residue_order[i])
 
+    # AMBER protonation variants → standard names (OpenMM needs standard names
+    # in topology, variants passed separately to addHydrogens)
+    _AMBER_TO_STD = {
+        'ASH': 'ASP', 'GLH': 'GLU',
+        'HIE': 'HIS', 'HID': 'HIS', 'HIP': 'HIS',
+        'LYN': 'LYS',
+    }
+    # OpenMM variant names for addHydrogens
+    _OPENMM_VARIANTS = {'ASH', 'GLH', 'HIE', 'HID', 'HIP', 'CYX', 'LYN'}
+
+    amber_variants = {}  # (chain, resseq) -> variant name
     nln_fix = 0
     terminal_fix = 0
     with open(temp_path, 'w') as f:
@@ -107,6 +118,12 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None):
                     if atomname == 'HG':
                         continue
                     line = line[:17] + 'CYX' + line[20:]
+
+                # Capture and rename AMBER protonation variants to standard
+                if resname in _AMBER_TO_STD:
+                    amber_variants[(chain, resseq)] = resname
+                    std = _AMBER_TO_STD[resname]
+                    line = line[:17] + f'{std:>3s}' + line[20:]
 
                 # GLYCAM protein residues: strip all H (will be re-added)
                 if resname in ('NLN', 'OLS', 'OLT') and atomname[0] == 'H':
@@ -124,12 +141,14 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None):
 
     if ss_residues:
         print(f"  Renamed {len(ss_residues)} CYS -> CYX (disulfide)")
+    if amber_variants:
+        print(f"  Renamed {len(amber_variants)} AMBER protonation variants to standard")
     if nln_fix:
         print(f"  Stripped {nln_fix} H from GLYCAM protein residues (will re-add)")
     if terminal_fix:
         print(f"  Removed {terminal_fix} spurious terminal atoms (OXT/H2/H3) from mid-chain")
 
-    return temp_path
+    return temp_path, amber_variants
 
 
 def add_glycam_bonds(topology, forcefield, verbose=False):
@@ -398,7 +417,7 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
 
     # Prepare PDB for OpenMM (CYX, GLYCAM bonds, H)
     temp_pdb = pdb_path.parent / '_gmx_temp.pdb'
-    prepare_for_openmm(pdb_path, temp_pdb, extra_ss=extra_ss)
+    _, amber_variants = prepare_for_openmm(pdb_path, temp_pdb, extra_ss=extra_ss)
 
     pdb = PDBFile(str(temp_pdb))
     topology = pdb.topology
@@ -407,9 +426,22 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
     forcefield = ForceField('amber14-all.xml', 'amber14/GLYCAM_06j-1.xml')
     add_glycam_bonds(topology, forcefield, verbose)
 
+    # Build variants list from captured AMBER protonation names
+    _OPENMM_VARIANTS = {'ASH', 'GLH', 'HIE', 'HID', 'HIP', 'CYX', 'LYN'}
+    variants = None
+    if amber_variants:
+        variants = []
+        for res in topology.residues():
+            key = (res.chain.id, int(res.id))
+            var = amber_variants.get(key)
+            if var and var in _OPENMM_VARIANTS:
+                variants.append(var)
+            else:
+                variants.append(None)
+
     Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')
     modeller = Modeller(topology, positions)
-    modeller.addHydrogens(forcefield)
+    modeller.addHydrogens(forcefield, variants=variants)
     topology = modeller.topology
     positions = modeller.positions
     print(f"  Parametrized: {sum(1 for _ in topology.atoms())} atoms")
