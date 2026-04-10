@@ -61,7 +61,22 @@ def detect_ss_bonds(pdb_path):
     return ss_residues
 
 
-def prepare_for_openmm(pdb_path, temp_path, extra_ss=None):
+# GLYCAM sugar residue detection
+_GLYCAM_LINKAGE = set('0123456789VWUZXYTSRQPvwuzxytsr')
+_GLYCAM_ANOMER = {'A', 'B'}
+_PDB_SUGARS = {'NAG', 'NDG', 'BGL', 'BMA', 'MAN', 'GAL', 'BGC', 'GLC',
+               'FUC', 'FUL', 'AFU', 'SIA', 'NGA', 'A2G', 'AMA', 'BGA'}
+
+
+def _is_glycam_sugar(resname):
+    if resname in _PDB_SUGARS:
+        return True
+    if len(resname) == 3 and resname[0] in _GLYCAM_LINKAGE and resname[2] in _GLYCAM_ANOMER:
+        return True
+    return False
+
+
+def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True):
     """Preprocess PDB for OpenMM:
     - CYS->CYX for disulfide bonds (from CONECT + extra_ss), strip HG
     - Strip H from GLYCAM protein residues (NLN/OLS/OLT), re-added by addHydrogens
@@ -106,38 +121,121 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None):
     amber_variants = {}  # (chain, resseq) -> variant name
     nln_fix = 0
     terminal_fix = 0
-    with open(temp_path, 'w') as f:
-        for line in lines:
-            if line.startswith(('ATOM  ', 'HETATM')):
-                chain = line[21]
-                resseq = int(line[22:26])
-                resname = line[17:20].strip()
-                atomname = line[12:16].strip()
+    # Collect lines, separating protein from glycan for reordering
+    protein_out = []
+    glycan_out = []
+    for line in lines:
+        if line.startswith(('ATOM  ', 'HETATM')):
+            chain = line[21]
+            resseq = int(line[22:26])
+            resname = line[17:20].strip()
+            atomname = line[12:16].strip()
 
-                if resname == 'CYS' and (chain, resseq) in ss_residues:
-                    if atomname == 'HG':
-                        continue
-                    line = line[:17] + 'CYX' + line[20:]
-
-                # Capture and rename AMBER protonation variants to standard
-                if resname in _AMBER_TO_STD:
-                    amber_variants[(chain, resseq)] = resname
-                    std = _AMBER_TO_STD[resname]
-                    line = line[:17] + f'{std:>3s}' + line[20:]
-
-                # GLYCAM protein residues: strip all H (will be re-added)
-                if resname in ('NLN', 'OLS', 'OLT') and atomname[0] == 'H':
-                    nln_fix += 1
+            if resname == 'CYS' and (chain, resseq) in ss_residues:
+                amber_variants[(chain, resseq)] = 'CYX'
+                if atomname == 'HG':
                     continue
+                line = line[:17] + 'CYX' + line[20:]
 
-                # Remove terminal atoms from mid-chain residues
-                if (chain, resseq) in midchain and atomname in ('OXT', 'H2', 'H3'):
-                    terminal_fix += 1
-                    continue
+            # Capture and rename AMBER protonation variants to standard.
+            # Capture AMBER protonation variant names (for later use).
+            # Do NOT rename — AMBER14 has templates for ASH/GLH/HIE etc.
+            # Renaming would mismatch the H atoms.
+            if resname in _AMBER_TO_STD:
+                amber_variants[(chain, resseq)] = resname
 
-                f.write(line)
+            # GLYCAM protein residues: strip all H (will be re-added by addHydrogens)
+            if strip_glycam_h and resname in ('NLN', 'OLS', 'OLT') and atomname[0] == 'H':
+                nln_fix += 1
+                continue
+
+            # Remove terminal atoms from mid-chain residues
+            if (chain, resseq) in midchain and atomname in ('OXT', 'H2', 'H3'):
+                terminal_fix += 1
+                continue
+
+            # Rename PDB-standard glycan atom names to GLYCAM convention
+            _GLYCAM_ATOM_RENAME = {
+                'N': 'N2', 'HN': 'H2N', 'C': 'C2N', 'O': 'O2N',
+                'CT': 'CME', 'HT1': 'H1M', 'HT2': 'H2M', 'HT3': 'H3M',
+                'HO1': 'H1O', 'HO2': 'H2O', 'HO3': 'H3O', 'HO4': 'H4O',
+                'HO6': 'H6O', 'HO7': 'H7O', 'HO8': 'H8O', 'HO9': 'H9O',
+            }
+
+            # Sort into protein vs glycan (glycan goes after all protein)
+            if _is_glycam_sugar(resname):
+                # Rename atom if needed
+                new_aname = _GLYCAM_ATOM_RENAME.get(atomname)
+                if new_aname:
+                    if len(new_aname) < 4:
+                        name_field = f' {new_aname:<3s}'
+                    else:
+                        name_field = f'{new_aname:<4s}'
+                    line = line[:12] + name_field + line[16:]
+                glycan_out.append(line)
             else:
-                f.write(line)
+                protein_out.append(line)
+        elif line.startswith('CONECT'):
+            # Keep CONECT — needed for glycam intra-residue bonds and ND2→C1
+            glycan_out.append(line)
+        elif line.startswith('TER'):
+            # Skip TER records from glycan chains — they break protein continuity
+            if len(line) > 20:
+                ter_rn = line[17:20].strip()
+                if _is_glycam_sugar(ter_rn):
+                    continue
+            protein_out.append(line)
+        else:
+            protein_out.append(line)
+
+    # Add missing HD21 to NLN residues (GLYCAM glycosylated ASN needs HD21 on ND2)
+    import numpy as np
+    nln_atoms = {}  # (chain, resseq) -> {atomname: (coords, serial)}
+    for line in protein_out:
+        if line.startswith(('ATOM', 'HETATM')):
+            rn = line[17:20].strip()
+            if rn == 'NLN':
+                an = line[12:16].strip()
+                ch = line[21]
+                rs = int(line[22:26])
+                key = (ch, rs)
+                if key not in nln_atoms:
+                    nln_atoms[key] = {}
+                try:
+                    x, y, z = float(line[30:38]), float(line[38:46]), float(line[46:54])
+                    nln_atoms[key][an] = (np.array([x, y, z]), int(line[6:11]))
+                except ValueError:
+                    pass
+
+    hd21_lines = {}
+    for key, atoms in nln_atoms.items():
+        if 'HD21' not in atoms and 'ND2' in atoms and 'CG' in atoms:
+            nd2, nd2_ser = atoms['ND2']
+            cg, _ = atoms['CG']
+            vec = nd2 - cg
+            norm = np.linalg.norm(vec)
+            if norm > 0.1:
+                hd21_pos = nd2 + (vec / norm) * 1.01
+                ch, rs = key
+                hd21_lines[key] = (
+                    f"ATOM  {(nd2_ser+1) % 100000:5d} HD21 NLN {ch}{rs:4d}    "
+                    f"{hd21_pos[0]:8.3f}{hd21_pos[1]:8.3f}{hd21_pos[2]:8.3f}"
+                    f"  1.00  0.00           H  \n")
+
+    # Write protein chains first (contiguous), then glycan chains.
+    with open(temp_path, 'w') as f:
+        for line in protein_out:
+            f.write(line)
+            # Insert HD21 after ND2 line
+            if line.startswith(('ATOM', 'HETATM')):
+                rn = line[17:20].strip()
+                an = line[12:16].strip()
+                ch = line[21]
+                rs = int(line[22:26]) if len(line) > 25 else 0
+                if rn == 'NLN' and an == 'ND2' and (ch, rs) in hd21_lines:
+                    f.write(hd21_lines[(ch, rs)])
+        for line in glycan_out:
+            f.write(line)
 
     if ss_residues:
         print(f"  Renamed {len(ss_residues)} CYS -> CYX (disulfide)")
@@ -417,37 +515,137 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
 
     # Prepare PDB for OpenMM (CYX, GLYCAM bonds, H)
     temp_pdb = pdb_path.parent / '_gmx_temp.pdb'
-    _, amber_variants = prepare_for_openmm(pdb_path, temp_pdb, extra_ss=extra_ss)
+    _, amber_variants = prepare_for_openmm(pdb_path, temp_pdb, extra_ss=extra_ss,
+                                           strip_glycam_h=False)
 
     pdb = PDBFile(str(temp_pdb))
     topology = pdb.topology
     positions = pdb.positions
 
+    # Restore AMBER variant names that PDBFile normalized (ASH→ASP, GLH→GLU, etc.)
+    # For N/C-terminal protonation variants: no NASH/NGLH templates in AMBER14,
+    # so strip the protonation H (HD2 for ASH, HE2 for GLH) and use standard name.
+    n_terminal_res = set()
+    c_terminal_res = set()
+    for chain in topology.chains():
+        res_list = list(chain.residues())
+        if res_list:
+            n_terminal_res.add(res_list[0])
+            c_terminal_res.add(res_list[-1])
+
+    terminal_h_to_delete = []
+    for res in topology.residues():
+        key = (res.chain.id, int(res.id))
+        orig = amber_variants.get(key)
+        if orig:
+            if res in n_terminal_res or res in c_terminal_res:
+                # Terminal: strip protonation H, keep standard name
+                h_name = {'ASH': 'HD2', 'GLH': 'HE2'}.get(orig)
+                if h_name:
+                    for atom in res.atoms():
+                        if atom.name == h_name:
+                            terminal_h_to_delete.append(atom)
+                    if verbose:
+                        print(f"  Terminal {orig} {res.chain.id}:{res.id} → "
+                              f"standard {res.name} (stripped {h_name})")
+            else:
+                # Internal: restore AMBER variant name
+                res.name = orig
+
+    if terminal_h_to_delete:
+        modeller_tmp = Modeller(topology, positions)
+        modeller_tmp.delete(terminal_h_to_delete)
+        topology = modeller_tmp.topology
+        positions = modeller_tmp.positions
+
+    # Fix missing peptide bonds (C→N distance > 1.9 Å from GLYCAM transplant)
+    existing_bonds = set()
+    for bond in topology.bonds():
+        existing_bonds.add((bond[0].index, bond[1].index))
+        existing_bonds.add((bond[1].index, bond[0].index))
+    for chain in topology.chains():
+        res_list = list(chain.residues())
+        for i in range(len(res_list) - 1):
+            c_atom = n_atom = None
+            for a in res_list[i].atoms():
+                if a.name == 'C': c_atom = a
+            for a in res_list[i+1].atoms():
+                if a.name == 'N': n_atom = a
+            if c_atom and n_atom and (c_atom.index, n_atom.index) not in existing_bonds:
+                topology.addBond(c_atom, n_atom)
+                if verbose:
+                    print(f"  Added peptide bond: {res_list[i].name}{res_list[i].id}:C → "
+                          f"{res_list[i+1].name}{res_list[i+1].id}:N")
+
     forcefield = ForceField('amber14-all.xml', 'amber14/GLYCAM_06j-1.xml')
     add_glycam_bonds(topology, forcefield, verbose)
 
-    # Build variants list from captured AMBER protonation names
+    # Build variants list from captured AMBER protonation names.
+    # Skip variants for N/C-terminal residues (no NASH/CGLH in AMBER14).
     _OPENMM_VARIANTS = {'ASH', 'GLH', 'HIE', 'HID', 'HIP', 'CYX', 'LYN'}
+    n_terminal = set()
+    c_terminal = set()
+    for chain in topology.chains():
+        res_list = list(chain.residues())
+        if res_list:
+            n_terminal.add((chain.id, int(res_list[0].id)))
+            c_terminal.add((chain.id, int(res_list[-1].id)))
+
     variants = None
     if amber_variants:
         variants = []
         for res in topology.residues():
             key = (res.chain.id, int(res.id))
             var = amber_variants.get(key)
-            if var and var in _OPENMM_VARIANTS:
+            if (key in n_terminal or key in c_terminal) and var in _OPENMM_VARIANTS:
+                variants.append(None)  # no terminal variant templates
+            elif var and var in _OPENMM_VARIANTS:
                 variants.append(var)
             else:
                 variants.append(None)
 
+    # Always call addHydrogens — adds missing H without disturbing existing ones.
+    # glycam-hydrogens.xml provides H definitions for GLYCAM sugar residues.
     Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')
     modeller = Modeller(topology, positions)
+    n_before = sum(1 for _ in topology.atoms())
     modeller.addHydrogens(forcefield, variants=variants)
     topology = modeller.topology
+    positions = modeller.positions
+    n_after = sum(1 for _ in topology.atoms())
+    print(f"  After addHydrogens: {n_after} atoms ({n_after - n_before} added)")
     positions = modeller.positions
     print(f"  Parametrized: {sum(1 for _ in topology.atoms())} atoms")
 
     # Create system WITHOUT constraints (ParmEd needs all bond types)
-    system = forcefield.createSystem(topology, nonbondedMethod=NoCutoff)
+    # Restore AMBER variant names and build residueTemplates for createSystem.
+    n_term_keys = set()
+    c_term_keys = set()
+    for chain in topology.chains():
+        rl = list(chain.residues())
+        if rl:
+            n_term_keys.add((chain.id, int(rl[0].id)))
+            c_term_keys.add((chain.id, int(rl[-1].id)))
+
+    res_templates = {}
+    for res in topology.residues():
+        key = (res.chain.id, int(res.id))
+        orig = amber_variants.get(key)
+        if orig and orig in forcefield._templates:
+            if key in n_term_keys or key in c_term_keys:
+                continue  # keep standard name for terminals
+            res.name = orig
+            res_templates[res] = orig
+        # Force template for GLYCAM sugars (ignoreExternalBonds can cause mismatches)
+        elif res.name in forcefield._templates and _is_glycam_sugar(res.name):
+            res_templates[res] = res.name
+
+    # ignoreExternalBonds=True: N-linked glycan UYB has C1→ND2 (N atom)
+    # but GLYCAM template expects C1→O (glycosidic O). The bond element
+    # mismatch is correct chemistry — just not what the template expects.
+    system = forcefield.createSystem(topology, nonbondedMethod=NoCutoff,
+                                     ignoreExternalBonds=True,
+                                     residueTemplates=res_templates)
 
     # ParmEd: OpenMM -> AMBER prmtop/inpcrd
     structure = parmed.openmm.load_topology(topology, system, positions)

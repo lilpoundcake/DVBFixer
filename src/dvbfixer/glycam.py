@@ -60,14 +60,29 @@ MULTI_LINKAGE = {
 }
 
 # PDB atom name -> GLYCAM atom name (per PDB residue type)
+# Universal hydroxyl H rename: PDB HOx → GLYCAM HxO (applies to ALL sugars)
+_HYDROXYL_H_RENAME = {
+    'HO1': 'H1O', 'HO2': 'H2O', 'HO3': 'H3O', 'HO4': 'H4O',
+    'HO6': 'H6O', 'HO7': 'H7O', 'HO8': 'H8O', 'HO9': 'H9O',
+}
+
+# N-acetyl group rename: PDB standard → GLYCAM
+_NACETYL_RENAME_PDB = {
+    'C7': 'C2N', 'O7': 'O2N', 'C8': 'CME',           # PDB standard (NAG/NGA)
+}
+# N-acetyl rename for CHARMM-GUI style names
+_NACETYL_RENAME_CHARMM = {
+    'N': 'N2', 'HN': 'H2N',                            # amide N + H
+    'C': 'C2N', 'O': 'O2N',                            # carbonyl C + O
+    'CT': 'CME', 'HT1': 'H1M', 'HT2': 'H2M', 'HT3': 'H3M',  # methyl
+}
+
+# N-acetyl sugar PDB names (these get both PDB and CHARMM N-acetyl renames)
+_NACETYL_SUGARS = {'NAG', 'NDG', 'BGL', 'NGA', 'A2G'}
+
+# Per-residue specific renames (overrides)
 GLYCAM_ATOM_MAP = {
-    # N-acetyl group renames
-    'NAG': {'C7': 'C2N', 'O7': 'O2N', 'C8': 'CME'},
-    'NGA': {'C7': 'C2N', 'O7': 'O2N', 'C8': 'CME'},
-    'NDG': {'C7': 'C2N', 'O7': 'O2N', 'C8': 'CME'},
-    'A2G': {'C7': 'C2N', 'O7': 'O2N', 'C8': 'CME'},
-    'BGL': {'C7': 'C2N', 'O7': 'O2N', 'C8': 'CME'},
-    # Sialic acid renames
+    # Sialic acid renames (different from standard sugars)
     'SIA': {'C10': 'C5N', 'C11': 'CME', 'O10': 'O5N'},
 }
 
@@ -299,9 +314,30 @@ def _determine_linkage_code(positions):
 
 
 def _rename_atom(pdb_resname, atom_name):
-    """Rename a PDB atom name to GLYCAM atom name."""
-    atom_map = GLYCAM_ATOM_MAP.get(pdb_resname, {})
-    return atom_map.get(atom_name, atom_name)
+    """Rename a PDB atom name to GLYCAM atom name.
+
+    Applies in order:
+    1. Residue-specific overrides (GLYCAM_ATOM_MAP)
+    2. N-acetyl renames (PDB standard + CHARMM-GUI style) for NAG/NGA/BGL/NDG/A2G
+    3. Universal hydroxyl H rename (HOx → HxO) for all sugars
+    """
+    # 1. Residue-specific
+    specific = GLYCAM_ATOM_MAP.get(pdb_resname, {})
+    if atom_name in specific:
+        return specific[atom_name]
+
+    # 2. N-acetyl renames
+    if pdb_resname in _NACETYL_SUGARS:
+        if atom_name in _NACETYL_RENAME_PDB:
+            return _NACETYL_RENAME_PDB[atom_name]
+        if atom_name in _NACETYL_RENAME_CHARMM:
+            return _NACETYL_RENAME_CHARMM[atom_name]
+
+    # 3. Universal hydroxyl H rename
+    if atom_name in _HYDROXYL_H_RENAME:
+        return _HYDROXYL_H_RENAME[atom_name]
+
+    return atom_name
 
 
 def _format_atom_line(atom, new_resname, new_serial, new_resseq=None):

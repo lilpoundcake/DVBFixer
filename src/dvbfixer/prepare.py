@@ -281,11 +281,18 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose, mutations
         if key not in variant_overrides and res.name in _VARIANT_TO_STANDARD:
             variant_overrides[key] = res.name
 
-    # Strip hydrogens and reload so findMissingAtoms gets clean template matching.
-    # Wrong H (e.g. from mutations or external tools) confuse PDBFixer.
-    # Hydrogens are re-added at the end by addMissingHydrogens anyway.
+    # Strip hydrogens from PROTEIN residues only and reload so findMissingAtoms
+    # gets clean template matching. Keep H on non-protein residues (glycans,
+    # ligands) — PDBFixer/addMissingHydrogens can't regenerate them.
+    _PROTEIN_AA = {
+        'ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS', 'ILE',
+        'LEU', 'LYS', 'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP', 'TYR', 'VAL',
+        'HID', 'HIE', 'HIP', 'HSD', 'HSE', 'HSP', 'CYX', 'CYM', 'ASH', 'GLH',
+        'LYN', 'MSE', 'ACE', 'NME', 'NHE',
+    }
     modeller = Modeller(fixer.topology, fixer.positions)
-    h_atoms = [a for a in modeller.topology.atoms() if a.element.symbol == 'H']
+    h_atoms = [a for a in modeller.topology.atoms()
+               if a.element.symbol == 'H' and a.residue.name in _PROTEIN_AA]
     if h_atoms:
         modeller.delete(h_atoms)
         if verbose:
