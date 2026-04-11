@@ -657,8 +657,11 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
     print(f"  Saved AMBER files: {prmtop.name}, {inpcrd.name}")
 
     # ACPYPE: AMBER -> GROMACS (handles mixed 1-4 scaling via [ pairs_nb ])
+    # ACPYPE creates .amb2gmx dir in CWD, so chdir to pdb_path.parent
     old_cwd = Path.cwd()
     try:
+        import os
+        os.chdir(pdb_path.parent)
         mol = MolTopol(
             acFileXyz=str(inpcrd),
             acFileTop=str(prmtop),
@@ -667,7 +670,6 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
         )
         mol.writeGromacsTopolFiles()
     finally:
-        import os
         os.chdir(old_cwd)
 
     # Move ACPYPE output to target directory
