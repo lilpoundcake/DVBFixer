@@ -554,7 +554,7 @@ Same ACPYPE pipeline as `dvbfixer top --acpype`: OpenMM parametrization -> ParmE
 
 ### dvbfixer glycam — Convert to GLYCAM Nomenclature
 
-Converts PDB glycan structures from standard PDB sugar names (BGC, GAL, NAG, etc.) to GLYCAM force field 3-character codes encoding `[linkage][sugar][anomer]`. Detects glycosidic bonds from CONECT records (or distance-based fallback), determines linkage patterns, renames residues and atoms, and optionally adds ROH cap at the reducing end. Also detects protein-linked glycans and renames ASN→NLN, SER→OLS, THR→OLT. Text-based — no OpenMM dependency.
+Converts PDB glycan structures from standard PDB sugar names (BGC, GAL, NAG, etc.) to GLYCAM force field 3-character codes encoding `[linkage][sugar][anomer]`. Detects glycosidic bonds from CONECT records (or distance-based fallback), determines linkage patterns, renames residues and atoms to GLYCAM convention (hydroxyl H: HO3→H3O; N-acetyl: C7→C2N, O7→O2N, C8→CME, N2→N2, HN→H2N; methyl: HT1→H1M etc.), and optionally adds ROH cap at the reducing end. Also detects protein-linked glycans and renames ASN→NLN, SER→OLS, THR→OLT. Writes ATOM records for protein residues and HETATM for sugars. Text-based — no OpenMM dependency. Handles input from PDB, CHARMM-GUI, or `dvbfixer prepare`.
 
 #### Usage
 
@@ -860,6 +860,20 @@ dvbfixer protonate 1HZH_renum_model_prepared_minimized_prot_minimized.pdb --no-h
 ```
 
 ### Glycoprotein preparation with GLYCAM
+
+#### Option A: Direct glycam → acpype pipeline (for structures with glycans already placed)
+
+```bash
+# 1. Convert PDB glycan names + atom names to GLYCAM convention
+dvbfixer glycam glycoprotein.pdb -o glycam.pdb -v
+# -> glycam.pdb (residues: UYB, 4YB, VMB, 0fA, NLN etc.; atoms: C2N, N2, H3O etc.)
+
+# 2. Generate GROMACS topology (AMBER14 + GLYCAM, handles mixed 1-4 scaling)
+dvbfixer top glycam.pdb --acpype -v
+# -> topol.top, glycam.gro, posre_glycam.itp
+```
+
+#### Option B: GLYCAM-Web workflow (for adding glycans from scratch)
 
 ```bash
 # 1. Prepare protein structure
