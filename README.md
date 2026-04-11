@@ -940,6 +940,8 @@ dvbfixer parametrize acetate.pdb -n ACET --net-charge -1
 
 ## Known Issues
 
+- **N-terminal ASH/GLH in ACPYPE mode**: AMBER14 has no N/C-terminal protonated ASP/GLU templates (NASH/NGLH — never parameterized via RESP in any AMBER version). When `--acpype` encounters ASH or GLH at chain termini, it strips the protonation hydrogen (HD2/HE2) and uses the standard deprotonated template (NASP/NGLU). A `UserWarning` is emitted. Internal (non-terminal) ASH/GLH residues are preserved correctly.
+
 - **Chain ID mismatch in .dat workflow**: The `.dat` file stores chain IDs from PDBFixer. If the prepared PDB is saved through a tool that reassigns chain IDs (PyMOL, VMD), the `.dat` entries won't match the new chain letters. Workaround: ensure chain IDs remain consistent between prepare and minimize steps, or manually edit the `.dat` file.
 
 - **Hydrogen handling in minimize**: By default, existing hydrogens are kept. Use `--rebuild-h` to strip and re-add via OpenMM (needed when protonation state changes). When AMBER protonation names (GLH, HIE, CYX, etc.) are detected in the input PDB, they are passed as `variants` to `addHydrogens` to ensure correct protonation hydrogens.
