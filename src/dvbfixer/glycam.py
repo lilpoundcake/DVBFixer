@@ -356,8 +356,17 @@ def _format_atom_line(atom, new_resname, new_serial, new_resseq=None):
 
     element = atom.get('element', name[0])
 
+    # Standard amino acids → ATOM, everything else → HETATM
+    _STD_AA = {
+        'ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS', 'ILE',
+        'LEU', 'LYS', 'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP', 'TYR', 'VAL',
+        'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYX', 'CYM', 'LYN',  # AMBER variants
+        'NLN', 'OLS', 'OLT',  # GLYCAM protein residues
+    }
+    record = 'ATOM  ' if new_resname in _STD_AA else 'HETATM'
+
     return (
-        f"HETATM{new_serial:5d} {name_field} "
+        f"{record}{new_serial:5d} {name_field} "
         f"{new_resname:>3s} {atom['chain']}{resseq:4d}{icode}"
         f"   {atom['x']:8.3f}{atom['y']:8.3f}{atom['z']:8.3f}"
         f"                      {element:>2s}  \n"
