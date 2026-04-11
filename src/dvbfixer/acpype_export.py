@@ -545,9 +545,12 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
                     for atom in res.atoms():
                         if atom.name == h_name:
                             terminal_h_to_delete.append(atom)
-                    if verbose:
-                        print(f"  Terminal {orig} {res.chain.id}:{res.id} → "
-                              f"standard {res.name} (stripped {h_name})")
+                    import warnings
+                    warnings.warn(
+                        f"Terminal {orig} {res.chain.id}:{res.id} → {res.name}: "
+                        f"AMBER14 has no N/C-terminal protonated template "
+                        f"(NASH/NGLH). Using standard {res.name} (stripped {h_name})."
+                    )
             else:
                 # Internal: restore AMBER variant name
                 res.name = orig
