@@ -48,6 +48,10 @@ PDB_TO_GMX = {
     'LSN': 'LYSN',
     # Non-canonical → canonical
     'MSE': 'MET',
+    # GLYCAM glycosylated protein residues (no NLN/OLS/OLT in AMBER99SB-ILDN
+    # or CHARMM36 RTP — map to standard parent; protein-glycan bond detection
+    # adds the cross-residue bond to interchain_ss.itp)
+    'NLN': 'ASN', 'OLS': 'SER', 'OLT': 'THR',
 }
 
 # Standard amino acids that can appear in PDB
@@ -623,8 +627,13 @@ def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False)
     # Strip existing hydrogens
     topology, positions = _strip_hydrogens(pdb.topology, pdb.positions)
 
-    # Strip non-protein residues (glycans, ligands, etc.)
-    known = PROTEIN_RESIDUES | SOLVENT_IONS
+    # Strip non-protein residues (glycans, ligands, etc.) AND GLYCAM
+    # glycosylated residues (NLN/OLS/OLT) — they don't need protonation H,
+    # and their templates live in GLYCAM_06j-1.xml not amber14-all.xml.
+    # Their coords are preserved in protein_chains, so this stripping is
+    # only for OpenMM's hydrogen-addition pass.
+    _GLYCAM_PROT = {'NLN', 'OLS', 'OLT'}
+    known = (PROTEIN_RESIDUES | SOLVENT_IONS) - _GLYCAM_PROT
     to_delete = [res for res in topology.residues() if res.name not in known]
     if to_delete:
         modeller = Modeller(topology, positions)
