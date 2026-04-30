@@ -514,9 +514,12 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
     print("\nExporting GROMACS topology via ACPYPE...")
 
     # Prepare PDB for OpenMM (CYX, GLYCAM bonds, H)
+    # strip_glycam_h=True: NLN/OLS/OLT often have CHARMM-style atom names
+    # (HN instead of H) that don't match GLYCAM templates. Strip and let
+    # addHydrogens regenerate with correct names.
     temp_pdb = pdb_path.parent / '_gmx_temp.pdb'
     _, amber_variants = prepare_for_openmm(pdb_path, temp_pdb, extra_ss=extra_ss,
-                                           strip_glycam_h=False)
+                                           strip_glycam_h=True)
 
     pdb = PDBFile(str(temp_pdb))
     topology = pdb.topology
