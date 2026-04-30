@@ -631,9 +631,22 @@ def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False)
         modeller.delete(to_delete)
         topology, positions = modeller.topology, modeller.positions
 
-    # Build variants list
+    # Build variants list. At N/C-terminals, drop ASH/GLH variants if using
+    # AMBER FF since AMBER14 has no NASH/NGLH/CASH/CGLH templates (no RESP
+    # charges were ever computed for terminal protonated ASP/GLU). HID/HIE/HIP
+    # have terminal templates (NHIE/CHIE etc.) so they work fine.
+    _AMBER_NO_TERMINAL = {'ASH', 'GLH'}
+    _VARIANT_TO_STD = {'ASH': 'ASP', 'GLH': 'GLU'}
+
     def _build_variants(topo):
+        terminals = set()
+        for chain in topo.chains():
+            res_list = list(chain.residues())
+            if res_list:
+                terminals.add(res_list[0].index)
+                terminals.add(res_list[-1].index)
         vlist = []
+        skipped_terminals = []
         for res in topo.residues():
             cid = res.chain.id
             try:
@@ -642,10 +655,32 @@ def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False)
                 vlist.append(None)
                 continue
             key = (cid, rseq)
-            if key in variant_lookup:
-                vlist.append(variant_lookup[key])
-            else:
+            var = variant_lookup.get(key)
+            if (var in _AMBER_NO_TERMINAL and ff_type != 'charmm'
+                    and res.index in terminals):
                 vlist.append(None)
+                skipped_terminals.append((var, cid, rseq))
+                # Drop from need_h so HD2/HE2 isn't expected later
+                need_h.pop(key, None)
+                # Revert protein_chains rename (ASH→ASP, GLH→GLU) so the
+                # output topology uses the standard terminal RTP entry
+                std = _VARIANT_TO_STD[var]
+                for pc in protein_chains:
+                    if pc.chain_id == cid:
+                        for r in pc.residues:
+                            if r.resseq == rseq:
+                                r.resname = std
+            else:
+                vlist.append(var)
+        if skipped_terminals:
+            import warnings
+            for var, cid, rseq in skipped_terminals:
+                std = _VARIANT_TO_STD[var]
+                warnings.warn(
+                    f"Terminal {var} {cid}:{rseq} → {std}: AMBER14 has no "
+                    f"terminal protonated template (NASH/NGLH/CASH/CGLH). "
+                    f"Using standard {std} (no HD2/HE2 added)."
+                )
         return vlist
 
     variants = _build_variants(topology)
