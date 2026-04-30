@@ -1,6 +1,7 @@
 name: dvbfixer
 channels:
   - conda-forge
+  - bioconda
   - salilab
 dependencies:
   - python >=3.11
