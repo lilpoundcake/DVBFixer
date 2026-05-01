@@ -76,18 +76,23 @@ def _is_glycam_sugar(resname):
     return False
 
 
-def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True):
+def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True,
+                       prot_overrides=None):
     """Preprocess PDB for OpenMM:
     - CYS->CYX for disulfide bonds (from CONECT + extra_ss), strip HG
     - Strip H from GLYCAM protein residues (NLN/OLS/OLT), re-added by addHydrogens
     - Remove terminal atoms (OXT, H2, H3) from mid-chain residues
+    - Apply protonation overrides: rename residues to ASH/GLH/HIE/HID/HIP/CYX/LYN
 
     extra_ss: optional set of (chain, resseq) to force CYX renaming on,
               in addition to CONECT-detected ones.
+    prot_overrides: optional dict {(chain, resseq): variant_name} to rename
+                    residues to AMBER protonation names before OpenMM loads them.
     """
     ss_residues = detect_ss_bonds(pdb_path)
     if extra_ss:
         ss_residues |= extra_ss
+    prot_overrides = prot_overrides or {}
 
     with open(pdb_path) as f:
         lines = f.readlines()
@@ -131,18 +136,37 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True):
             resname = line[17:20].strip()
             atomname = line[12:16].strip()
 
-            if resname == 'CYS' and (chain, resseq) in ss_residues:
+            # Apply --protonate override: rename to AMBER variant
+            override = prot_overrides.get((chain, resseq))
+            if override and override in _OPENMM_VARIANTS:
+                amber_variants[(chain, resseq)] = override
+                # Strip wrong-protonation H (e.g. HE2 when overriding to HID,
+                # HD1 when overriding to HIE, HD2 when overriding HIS→HIP).
+                # addHydrogens will add the correct H.
+                _STRIP_FOR_VARIANT = {
+                    'ASH': set(), 'GLH': set(),
+                    'HIE': {'HD1'}, 'HID': {'HE2'}, 'HIP': set(),
+                    'CYX': {'HG'}, 'LYN': {'HZ3'},
+                }
+                if atomname in _STRIP_FOR_VARIANT.get(override, set()):
+                    continue
+                # Keep standard residue name in topology (HIS/ASP/GLU/CYS/LYS);
+                # the AMBER variant name is restored later via amber_variants.
+                std = _AMBER_TO_STD.get(resname, resname)
+                line = line[:17] + f"{std:>3s}" + line[20:]
+                # Skip the auto-capture below so override isn't overwritten.
+
+            elif resname == 'CYS' and (chain, resseq) in ss_residues:
                 amber_variants[(chain, resseq)] = 'CYX'
                 if atomname == 'HG':
                     continue
                 line = line[:17] + 'CYX' + line[20:]
 
-            # Capture and rename AMBER protonation variants to standard.
-            # Capture AMBER protonation variant names (for later use).
-            # Do NOT rename — AMBER14 has templates for ASH/GLH/HIE etc.
-            # Renaming would mismatch the H atoms.
-            if resname in _AMBER_TO_STD:
+            elif resname in _AMBER_TO_STD:
+                # Capture AMBER protonation variant from input PDB (no override).
+                # Rename to standard so PDBFile loads cleanly; restore via amber_variants.
                 amber_variants[(chain, resseq)] = resname
+                line = line[:17] + f"{_AMBER_TO_STD[resname]:>3s}" + line[20:]
 
             # GLYCAM protein residues: strip all H (will be re-added by addHydrogens)
             if strip_glycam_h and resname in ('NLN', 'OLS', 'OLT') and atomname[0] == 'H':
@@ -489,7 +513,8 @@ def _append_solvent_ions(top_path):
         f.write(content)
 
 
-def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=False):
+def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
+                   prot_overrides=None, verbose=False):
     """Export GROMACS topology files using ACPYPE.
 
     Pipeline: PDB -> OpenMM (AMBER+GLYCAM parametrize) -> ParmEd (prmtop/inpcrd)
@@ -500,6 +525,8 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
         output_dir: Directory for output files
         basename: Stem for output filenames (default: pdb_path.stem)
         extra_ss: Optional set of (chain, resseq) to force CYX renaming
+        prot_overrides: Optional dict {(chain, resseq): variant} for protonation
+                        renames (ASH/GLH/HIE/HID/HIP/CYX/LYN)
         verbose: Print detailed output
     """
     from openmm.app import ForceField, Modeller, PDBFile, NoCutoff
@@ -519,7 +546,8 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
     # addHydrogens regenerate with correct names.
     temp_pdb = pdb_path.parent / '_gmx_temp.pdb'
     _, amber_variants = prepare_for_openmm(pdb_path, temp_pdb, extra_ss=extra_ss,
-                                           strip_glycam_h=True)
+                                           strip_glycam_h=True,
+                                           prot_overrides=prot_overrides)
 
     pdb = PDBFile(str(temp_pdb))
     topology = pdb.topology
@@ -554,9 +582,12 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
                         f"AMBER14 has no N/C-terminal protonated template "
                         f"(NASH/NGLH). Using standard {res.name} (stripped {h_name})."
                     )
-            else:
-                # Internal: restore AMBER variant name
-                res.name = orig
+            # NOTE: Do NOT rename to AMBER variant here — addHydrogens uses
+            # hydrogens.xml which only has standard residue names (HIS, ASP,
+            # GLU, CYS, LYS) with variant attributes. Renaming to HIE/HID/etc.
+            # makes addHydrogens unable to find H definitions. Variant info is
+            # passed via the variants list. Renaming happens later for
+            # createSystem (line ~637).
 
     if terminal_h_to_delete:
         modeller_tmp = Modeller(topology, positions)
@@ -597,14 +628,17 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
             n_terminal.add((chain.id, int(res_list[0].id)))
             c_terminal.add((chain.id, int(res_list[-1].id)))
 
+    # Variants without terminal templates in AMBER14 (must drop at termini)
+    _NO_TERMINAL_VARIANT = {'ASH', 'GLH'}
+
     variants = None
     if amber_variants:
         variants = []
         for res in topology.residues():
             key = (res.chain.id, int(res.id))
             var = amber_variants.get(key)
-            if (key in n_terminal or key in c_terminal) and var in _OPENMM_VARIANTS:
-                variants.append(None)  # no terminal variant templates
+            if (key in n_terminal or key in c_terminal) and var in _NO_TERMINAL_VARIANT:
+                variants.append(None)  # no NASH/NGLH/CASH/CGLH templates
             elif var and var in _OPENMM_VARIANTS:
                 variants.append(var)
             else:
@@ -637,11 +671,23 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None, verbose=F
     for res in topology.residues():
         key = (res.chain.id, int(res.id))
         orig = amber_variants.get(key)
-        if orig and orig in forcefield._templates:
-            if key in n_term_keys or key in c_term_keys:
-                continue  # keep standard name for terminals
-            res.name = orig
-            res_templates[res] = orig
+        if orig:
+            is_terminal = key in n_term_keys or key in c_term_keys
+            # ASH/GLH have no terminal templates — keep standard name
+            if is_terminal and orig in _NO_TERMINAL_VARIANT:
+                continue
+            # CYX/HIE/HID/HIP/LYN: AMBER14 has terminal versions (NCYX, CCYX,
+            # NHIE, CHIE, etc.). Use them at terminals.
+            if is_terminal:
+                term_prefix = 'N' if key in n_term_keys else 'C'
+                term_name = term_prefix + orig
+                if term_name in forcefield._templates:
+                    res.name = orig
+                    res_templates[res] = term_name
+                    continue
+            if orig in forcefield._templates:
+                res.name = orig
+                res_templates[res] = orig
         # Force template for GLYCAM sugars (ignoreExternalBonds can cause mismatches)
         elif res.name in forcefield._templates and _is_glycam_sugar(res.name):
             res_templates[res] = res.name

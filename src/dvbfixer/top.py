@@ -2881,6 +2881,35 @@ def main(argv=None):
                 extra_ss.add((parts[0], int(parts[1])))
                 extra_ss.add((parts[2], int(parts[3])))
 
+        # Parse --protonate flags into prot_overrides dict
+        # AMBER variant names that addHydrogens understands
+        _AMBER_VARIANTS = {'ASH', 'GLH', 'HIE', 'HID', 'HIP', 'CYX', 'LYN'}
+        # Map common alternative names to AMBER form
+        _NAME_TO_AMBER = {
+            'ASPP': 'ASH', 'ASPH': 'ASH', 'GLUP': 'GLH', 'GLUH': 'GLH',
+            'HSP': 'HIP', 'HSE': 'HIE', 'HSD': 'HID',
+        }
+        prot_overrides = {}
+        if args.protonate and args.protonate != 'all':
+            if ':' not in args.protonate:
+                print(f"ERROR: Invalid --protonate value '{args.protonate}'.",
+                      file=sys.stderr)
+                sys.exit(1)
+            for spec in args.protonate.split(','):
+                parts = spec.split(':')
+                if len(parts) == 3:
+                    state = parts[2].upper()
+                    state = _NAME_TO_AMBER.get(state, state)
+                    if state in _AMBER_VARIANTS:
+                        prot_overrides[(parts[0], int(parts[1]))] = state
+        for his_spec in args.his:
+            parts = his_spec.split(':')
+            if len(parts) == 3:
+                state = parts[2].upper()
+                state = _NAME_TO_AMBER.get(state, state)
+                if state in _AMBER_VARIANTS:
+                    prot_overrides[(parts[0], int(parts[1]))] = state
+
         if args.output:
             out_dir = Path(args.output).parent or Path('.')
             basename = Path(args.output).stem
@@ -2889,7 +2918,9 @@ def main(argv=None):
             basename = input_path.stem
 
         export_gromacs(input_path, out_dir, basename=basename,
-                       extra_ss=extra_ss or None, verbose=args.verbose)
+                       extra_ss=extra_ss or None,
+                       prot_overrides=prot_overrides or None,
+                       verbose=args.verbose)
         return
 
     # Determine FF directory
