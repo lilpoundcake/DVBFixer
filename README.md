@@ -2,6 +2,8 @@
 
 A suite of Python CLI tools for preparing PDB (Protein Data Bank) structural biology files. Handles common issues with PDB files from MD simulations and the PDB database: missing chain IDs, antibody insertion codes, missing loops/residues, loop rebuilding with Modeller, multi-template homology modeling, energy minimization with selective restraints, protonation state assignment, GROMACS topology generation, GLYCAM glycoprotein transplanting, small molecule parametrization (GAFF2), and glycan conformational clustering from MD trajectories.
 
+> **See also**: [`BEST_PRACTICES.md`](BEST_PRACTICES.md) for end-to-end recipes (glycoprotein prep, custom protonation, GROMACS topology export) and [`ARCHITECTURE.md`](ARCHITECTURE.md) for module structure and design decisions.
+
 ## Installation
 
 Create the environment and install:
@@ -173,7 +175,7 @@ dvbfixer model input.pdb --keep-workdir -v
 
 ### dvbfixer prepare — Structure Fixing with PDBFixer
 
-Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. User-specified protonation variants (HIE/HID/HIP/ASH/GLH/CYX from input PDB or `--mutate`) are passed as explicit OpenMM variants for correct hydrogen placement, then preserved in the output PDB via text-based post-processing. Standard HIS residues use pH-based auto-detection. Writes a `.dat` file recording which atoms were added (including variant overrides for downstream minimize). Automatically merges upstream `.dat` (from `dvbfixer model`) if present. Supports point mutations via `--mutate` including protonation variants (e.g. `--mutate A:83:HIP`).
+Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. **Heterogens (sugars, ligands) are kept and protonated by default** — H is added to them via AMBER14 + GLYCAM_06j-1 + SMIRNOFF (BioLuminate-style), so a crystal structure with bare glycans/ligands becomes fully protonated in one call. Pass `--strip-heterogens` for the legacy protein-only behavior, or `--no-heterogen-h` to keep heterogens but skip the H addition. User-specified protonation variants (HIE/HID/HIP/ASH/GLH/CYX from input PDB or `--mutate`) are passed as explicit OpenMM variants for correct hydrogen placement. Writes a `.dat` file recording which atoms were added (including variant overrides for downstream minimize).
 
 #### Usage
 
@@ -199,7 +201,9 @@ dvbfixer prepare input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
 | `--dat` | `<output>.dat` | Restraint data file path |
 | `--ph` | 7.0 | pH for hydrogen addition |
 | `--keep-water` | off | Keep crystallographic waters |
-| `--keep-heterogens` | off | Keep all heterogens (ligands, ions) |
+| `--keep-heterogens` | **on (default)** | Keep all heterogens (sugars, ligands, ions) and add H to them via AMBER14+GLYCAM+SMIRNOFF |
+| `--strip-heterogens` | off | Remove all heterogens (legacy protein-only behavior) |
+| `--no-heterogen-h` | off | Skip H addition for heterogens (keep them, just don't protonate) |
 | `--mutate` | none | Mutate a residue: CHAIN:RESNUM:NEW_AA (can be used multiple times) |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
 | `-v`, `--verbose` | off | Print detailed progress |
@@ -261,7 +265,11 @@ dvbfixer pull input.pdb --bond A:22:SG:A:96:SG --radius 8.0 -o output.pdb
 
 ### dvbfixer minimize — Energy Minimization with OpenMM
 
-Energy-minimizes a PDB structure with OpenMM using selective restraints. Reads a `.dat` file (from `dvbfixer model` + `dvbfixer prepare`) to apply different restraint strengths to original vs newly added atoms. All HIS residues are automatically renamed to explicit variants (HIE/HID/HIP) before any OpenMM operation. By default, keeps existing hydrogens from input; if any residues are missing H (e.g. from mutation), uses PDBFixer to add them. With `--rebuild-h`, strips existing H, runs PDBFixer to fix missing heavy atoms (e.g. mutated residues) and terminal atoms (OXT for truncated chains), then re-adds correct H via OpenMM. Detects AMBER protonation names (HIE/GLH/CYX etc.) from the raw PDB and passes them as `variants` to `addHydrogens`, ensuring correct protonation hydrogens are added (e.g. HE2 for GLH).
+Energy-minimizes a PDB structure with OpenMM using selective restraints. **By default minimizes the whole system** (protein + sugars + ligands) — when heterogens are present, swaps the FF to AMBER14 + GLYCAM_06j-1 with SMIRNOFF for unknown residues, calls `add_glycam_bonds` to populate intra-residue bonds for GLYCAM templates, and uses `ignoreExternalBonds=True` for N-linked glycan junctions. Pass `--strip-heterogens` for the legacy strip-and-splice flow (protein-only minimization with HETATM coords restored verbatim). Reads a `.dat` file (from `dvbfixer model` + `dvbfixer prepare`) to apply different restraint strengths to original vs newly added atoms; heterogens not in `.dat` get no restraint and relax freely. All HIS residues are automatically renamed to explicit variants (HIE/HID/HIP). By default keeps existing hydrogens from input; with `--rebuild-h`, strips and re-adds via OpenMM. Detects AMBER protonation names (HIE/GLH/CYX etc.) from the raw PDB and passes them as `variants` to `addHydrogens`.
+
+For BioLuminate-style refinement of arbitrary ligands/sugars **without per-ligand parametrization**, pass `--xtb-refine` (xtb GFN-FF universal force field) or `--obminimize-refine` (OpenBabel MMFF94/UFF/GAFF) — both auto-type any organic molecule from connectivity rules. Combine with `--refine-heterogens-only` to keep the AMBER-quality protein frozen and refine only the glycan/ligand geometry. Anchor residues (e.g. ASN of an N-linked glycan) are included as frozen atoms so protein-glycan bond geometry is preserved.
+
+> **Note**: `--obminimize-refine` gives sharper glycosidic bond geometry (e.g. ASN-NAG ~1.48 Å). `--xtb-refine` is slower and the v6.7.1 build in conda-forge has a known `$fix` bug that can stretch the linkage to ~1.66 Å. Prefer obminimize until xtb 6.8+ ships.
 
 #### Three-Tier Restraint System
 
@@ -287,6 +295,13 @@ dvbfixer minimize input.pdb --no-solvent
 
 # Without .dat — all atoms get strong restraints
 dvbfixer minimize input.pdb
+
+# BioLuminate-style: AMBER protein + xtb GFN-FF refinement for any heterogen
+# (no per-ligand parametrization, works for arbitrary sugars/ligands)
+dvbfixer minimize glycoprotein.pdb --xtb-refine --refine-heterogens-only
+
+# Faster alternative using OpenBabel UFF (seconds vs minutes for xtb)
+dvbfixer minimize glycoprotein.pdb --obminimize-refine --refine-heterogens-only
 ```
 
 #### Options
@@ -302,7 +317,15 @@ dvbfixer minimize input.pdb
 | `--weak-k` | 5.0 | Weak restraint constant for new backbone (kcal/mol/A^2) |
 | `--max-iter` | 1000 | Max minimization iterations per phase |
 | `--rebuild-h` | off | Strip and re-add hydrogens via OpenMM (default: keep existing) |
+| `--keep-heterogens` | **on (default)** | Minimize heterogens with protein. Uses AMBER14+GLYCAM+SMIRNOFF when heterogens present |
+| `--strip-heterogens` | off | Legacy: strip heterogens before parametrization, splice coords back |
 | `--no-solvent` | off | Minimize in vacuum |
+| `--xtb-refine` | off | Post-pass: refine geometry with xtb GFN-FF universal force field (auto-parametrizes any organic molecule, no templates needed) |
+| `--xtb-cycles` | 200 | Max xtb optimization cycles |
+| `--obminimize-refine` | off | Post-pass: refine geometry with OpenBabel obminimize (faster than xtb, UFF / MMFF94 / GAFF) |
+| `--obminimize-ff` | UFF | OpenBabel force field. UFF is default — handles N-glycosidic linkages correctly. MMFF94s mistypes anomeric C as sp2 (gives ~120° instead of ~109° angles around the C1-N bond) |
+| `--obminimize-steps` | 500 | OpenBabel minimization steps |
+| `--refine-heterogens-only` | off | With `--xtb-refine`/`--obminimize-refine`: refine only heterogen residues (protein frozen). BioLuminate-style ligand-only minimization |
 | `--platform` | auto | OpenMM platform (CPU, CUDA, OpenCL, Reference) |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
 | `-v`, `--verbose` | off | Print detailed progress |

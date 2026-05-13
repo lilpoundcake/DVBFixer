@@ -19,6 +19,8 @@ dependencies:
   - plotly
   - hmmer
   - anarci
+  - xtb              # GFN-FF/GFN-xTB universal FF for --xtb-refine
+  - openbabel        # obminimize CLI for --obminimize-refine
   - pip
   - pip:
     - propka >=3.5

@@ -52,6 +52,12 @@ def create_forcefield_with_openff(ff_xmls, topology, small_mol_ff='openff-2.2.0'
                                   extra_molecules=None, verbose=False):
     """Create OpenMM ForceField with automatic OpenFF parametrization for unknown residues.
 
+    When PDB-named sugars (NAG, FUC, GAL, MAN, etc.) are present in the
+    topology and GLYCAM_06j-1.xml was loaded, this function deletes GLYCAM's
+    sugar/nucleic acid templates (keeping only NLN/OLS/OLT/ROH/etc.) so
+    SMIRNOFF can handle the sugars cleanly. Without this, the 1400+ GLYCAM
+    templates fuzzy-match PDB sugars to wrong templates (NAG → UVA, etc.).
+
     Args:
         ff_xmls: List of force field XML files (e.g., ['amber19/protein.ff19SB.xml', ...])
         topology: OpenMM Topology to scan for unknown residues
@@ -63,6 +69,24 @@ def create_forcefield_with_openff(ff_xmls, topology, small_mol_ff='openff-2.2.0'
         ForceField object with SMIRNOFFTemplateGenerator registered for unknown residues
     """
     ff = ForceField(*ff_xmls)
+
+    # If GLYCAM xml was loaded AND PDB-named sugars are in topology, suppress
+    # GLYCAM sugar/NA templates (keep glycoprotein/cap templates).
+    pdb_sugars = {r.name for r in topology.residues()
+                  if r.name in KNOWN_GLYCAN_SMILES}
+    glycam_loaded = any('GLYCAM' in str(x) for x in ff_xmls)
+    if glycam_loaded and pdb_sugars:
+        amber_only_xmls = [x for x in ff_xmls if 'GLYCAM' not in str(x)]
+        if amber_only_xmls:
+            amber_only = ForceField(*amber_only_xmls)
+            glycam_extra = set(ff._templates) - set(amber_only._templates)
+            _KEEP = {'NLN', 'OLS', 'OLT', 'ROH', 'OME', 'TBT', 'CMET'}
+            removed = [n for n in glycam_extra if n not in _KEEP]
+            for n in removed:
+                del ff._templates[n]
+            if verbose and removed:
+                print(f"Suppressed {len(removed)} GLYCAM sugar/NA templates "
+                      f"(PDB sugars detected → SMIRNOFF will handle them)")
 
     unknown = _find_unknown_residue_names(topology)
     if not unknown and not extra_molecules:
@@ -94,5 +118,20 @@ def create_forcefield_with_openff(ff_xmls, topology, small_mol_ff='openff-2.2.0'
         ff.registerTemplateGenerator(smirnoff.generator)
         if verbose:
             print(f"OpenFF parametrization registered for: {', '.join(sorted(matched))}")
+
+        # Pre-generate templates for each PDB sugar residue in topology so they
+        # get registered by exact name. Without this, OpenMM's fuzzy template
+        # matcher tries to fit nucleotide templates (CN, A, etc.) to sugars
+        # before falling back to the SMIRNOFF generator.
+        seen_resnames = set()
+        for res in topology.residues():
+            if res.name not in matched or res.name in seen_resnames:
+                continue
+            seen_resnames.add(res.name)
+            try:
+                smirnoff.generator(ff, res)
+            except Exception as e:
+                if verbose:
+                    print(f"  Pre-register SMIRNOFF template {res.name}: {e}")
 
     return ff
