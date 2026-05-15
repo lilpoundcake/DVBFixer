@@ -1027,6 +1027,123 @@ def apply_mutations(fixer, mutations_by_chain, verbose=False):
             fixer.applyMutations(pdbfixer_muts, chain_id)
 
 
+def _preprocess_glycoprotein_input(input_path, verbose=False):
+    """Pre-process PDB input to fix two issues that break OpenMM topology
+    parsing of glycoproteins:
+
+    1. **NLN/OLS/OLT (and AMBER protonation variants) written as HETATM**:
+       Some upstream tools tag GLYCAM glycoprotein residues as HETATM. OpenMM
+       then treats them as ligand-style heterogens rather than mid-chain
+       protein residues, which prevents peptide bond inference to the
+       neighbouring amino acids and produces "TYR missing externally bonded
+       C atom" template errors. Rewrite these HETATM lines to ATOM.
+
+    2. **Stray TER records between two protein residues in the same chain**:
+       A TER record forces OpenMM to start a new chain, breaking the polymer.
+       If a TER appears between two amino-acid residues with the same chain
+       ID (e.g. before an NLN that's mid-sequence), it's almost certainly
+       spurious — remove it.
+
+    Returns a path to a corrected temp file (or the original path if no
+    changes were made).
+    """
+    import tempfile as _tf
+    from dvbfixer.ffutils import FORCE_ATOM_RESIDUES
+
+    with open(input_path) as f:
+        lines = f.readlines()
+
+    # First pass: collect ATOM/HETATM resnames per (chain, resseq, icode)
+    # — needed to decide whether a TER record is between two protein residues.
+    res_at_pos = {}  # (chain, resseq, icode) -> resname
+    for line in lines:
+        if line.startswith(('ATOM', 'HETATM')) and len(line) >= 27:
+            ch = line[21]
+            try:
+                rs = int(line[22:26])
+            except ValueError:
+                continue
+            ic = line[26] if len(line) > 26 else ' '
+            rn = line[17:20].strip()
+            res_at_pos.setdefault((ch, rs, ic), rn)
+
+    n_hetatm_fix = 0
+    n_ter_drop = 0
+    out_lines = []
+    last_res_key = None  # (chain, resseq, icode) of the most recent ATOM/HETATM
+    pending_ter = None   # buffer for a TER we may or may not emit
+
+    def _flush_pending(flush_list):
+        nonlocal pending_ter
+        if pending_ter is not None:
+            flush_list.append(pending_ter)
+            pending_ter = None
+
+    for line in lines:
+        if line.startswith(('ATOM', 'HETATM')) and len(line) >= 27:
+            ch = line[21]
+            try:
+                rs = int(line[22:26])
+                ic = line[26] if len(line) > 26 else ' '
+            except ValueError:
+                _flush_pending(out_lines)
+                out_lines.append(line)
+                continue
+            rn = line[17:20].strip()
+
+            # (1) HETATM → ATOM for protein/GLYCAM glycoprotein residues
+            if line.startswith('HETATM') and rn in FORCE_ATOM_RESIDUES:
+                line = 'ATOM  ' + line[6:]
+                n_hetatm_fix += 1
+
+            # (2) Decide whether to emit a pending TER. Drop it iff the
+            # previous residue and the current residue are BOTH protein
+            # residues on the SAME chain — the TER is spurious.
+            if pending_ter is not None:
+                prev_rn = res_at_pos.get(last_res_key) if last_res_key else None
+                same_chain = last_res_key and last_res_key[0] == ch
+                both_protein = (
+                    prev_rn in FORCE_ATOM_RESIDUES
+                    and rn in FORCE_ATOM_RESIDUES
+                )
+                if same_chain and both_protein:
+                    # Drop the spurious TER
+                    n_ter_drop += 1
+                    pending_ter = None
+                else:
+                    out_lines.append(pending_ter)
+                    pending_ter = None
+
+            out_lines.append(line)
+            last_res_key = (ch, rs, ic)
+
+        elif line.startswith('TER'):
+            # Buffer — we decide on the next ATOM/HETATM line.
+            _flush_pending(out_lines)
+            pending_ter = line
+
+        else:
+            _flush_pending(out_lines)
+            out_lines.append(line)
+
+    _flush_pending(out_lines)
+
+    if n_hetatm_fix == 0 and n_ter_drop == 0:
+        return input_path
+
+    tmp_path = _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False).name
+    with open(tmp_path, 'w') as f:
+        f.writelines(out_lines)
+    if verbose:
+        if n_hetatm_fix:
+            print(f"Rewrote {n_hetatm_fix} HETATM → ATOM lines for "
+                  f"protein/GLYCAM glycoprotein residues")
+        if n_ter_drop:
+            print(f"Dropped {n_ter_drop} spurious TER record(s) between "
+                  f"same-chain protein residues")
+    return tmp_path
+
+
 def _canonicalize_conect_records(input_path, verbose=False):
     """Rewrite CONECT records with fixed-width (5-char) atom serials.
 
@@ -1066,10 +1183,20 @@ def _canonicalize_conect_records(input_path, verbose=False):
 def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                  mutations=None, heterogen_h=True):
     """Run PDBFixer to add missing atoms/residues. Returns (fixer, new_atom_indices)."""
+    # Glycoprotein-input fixes: rewrite HETATM→ATOM for protein/GLYCAM
+    # glycoprotein residues (NLN/OLS/OLT) and drop spurious TER records
+    # between same-chain protein residues. Both confuse OpenMM's topology
+    # parser into breaking the peptide chain.
+    preprocessed_path = _preprocess_glycoprotein_input(input_path, verbose)
+    preprocess_was_rewritten = preprocessed_path != input_path
     # Canonicalize CONECT formatting — malformed records cause OpenMM bond
     # inference bugs (spurious bonds across distant atoms).
-    canon_path = _canonicalize_conect_records(input_path, verbose)
-    canon_was_rewritten = canon_path != input_path
+    canon_path = _canonicalize_conect_records(preprocessed_path, verbose)
+    canon_was_rewritten = canon_path != preprocessed_path
+    # If the canonicalize step produced a NEW temp file, the preprocessed
+    # temp file is no longer referenced and can be cleaned up now.
+    if preprocess_was_rewritten and canon_was_rewritten:
+        Path(preprocessed_path).unlink(missing_ok=True)
 
     # Detect glycosylated atoms before PDBFixer modifies anything
     glycosylated_atoms = find_glycosylated_atoms(canon_path)
@@ -1079,8 +1206,13 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     with open(canon_path) as f:
         fixer = PDBFixer(pdbfile=f)
 
-    if canon_was_rewritten:
+    # Cleanup: delete any temp PDB we wrote. canon_path may be the same
+    # file as preprocessed_path (if canonicalize was a no-op), so only
+    # one unlink covers both cases.
+    if canon_path != input_path:
         Path(canon_path).unlink(missing_ok=True)
+    if preprocess_was_rewritten and preprocessed_path != canon_path:
+        Path(preprocessed_path).unlink(missing_ok=True)
 
     # Apply mutations if requested
     variant_overrides = {}  # (chain, resnum) -> variant name (HIP, ASH, etc.)
