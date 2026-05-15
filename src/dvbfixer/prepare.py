@@ -35,12 +35,10 @@ def parse_args(argv=None):
                    help=f"pH for adding hydrogens (default: {DEFAULT_PH})")
     p.add_argument("--keep-water", action="store_true",
                    help="Keep crystallographic waters")
-    p.add_argument("--keep-heterogens", dest="keep_heterogens",
-                   action="store_true", default=True,
-                   help="Keep all heterogens (ligands, sugars, ions). Default: ON.")
     p.add_argument("--strip-heterogens", dest="keep_heterogens",
-                   action="store_false",
-                   help="Remove all heterogens (legacy behavior).")
+                   action="store_false", default=True,
+                   help="Remove heterogens (sugars, ligands, ions) before processing "
+                        "(protein-only mode). Default: keep heterogens.")
     p.add_argument("--no-heterogen-h", dest="heterogen_h",
                    action="store_false", default=True,
                    help="Skip hydrogen addition for heterogens (sugars/ligands).")
@@ -759,21 +757,76 @@ def add_heterogen_h_via_openbabel(topology, positions, verbose=False):
 
     known = PROTEIN_RESIDUES | SOLVENT_IONS
 
-    # Find heterogen residues without H
+    # Find heterogen residues that need H. A residue needs H if:
+    # (a) it has no H at all, or
+    # (b) its H count is < heavy_count - external_bonds (insufficient — e.g.
+    #     a NAG with only methyl H but no ring/hydroxyl/amide H).
+    # We strip existing H from (b) residues before OpenBabel regenerates them,
+    # so the placement is consistent (not a mix of stale + new positions).
     res_by_index = {r.index: r for r in topology.residues()}
-    needs_h = set()
-    for r in res_by_index.values():
-        if r.name in known:
-            continue
-        has_h = any(a.element.symbol == 'H' for a in r.atoms())
-        if not has_h:
-            needs_h.add(r.index)
-    if not needs_h:
-        return topology, positions
 
     # Find distance-perceived inter-residue bonds (sugar-sugar) so they get
     # added to the output topology and counted as external bonds for H-filtering.
     _, _, extra_inter_bonds = _build_glycan_trees(topology, positions, known)
+
+    # Tentative external bond count (topology + distance-perceived), used for
+    # the "insufficient H" heuristic. Per-residue external bonds in the strip
+    # block ignore intra-residue bonds.
+    tentative_ext = {}
+    for a1, a2 in topology.bonds():
+        if a1.residue.index != a2.residue.index:
+            tentative_ext[a1.index] = tentative_ext.get(a1.index, 0) + 1
+            tentative_ext[a2.index] = tentative_ext.get(a2.index, 0) + 1
+    for a1, a2 in extra_inter_bonds:
+        tentative_ext[a1.index] = tentative_ext.get(a1.index, 0) + 1
+        tentative_ext[a2.index] = tentative_ext.get(a2.index, 0) + 1
+
+    needs_h = set()
+    h_to_strip = []
+    for r in res_by_index.values():
+        if r.name in known:
+            continue
+        heavy = [a for a in r.atoms() if a.element.symbol != 'H']
+        h_atoms = [a for a in r.atoms() if a.element.symbol == 'H']
+        # Crude expected H count: sum (default_valence - existing_bonds) over
+        # heavy atoms. With incomplete bond info this overcounts but is fine
+        # for an "insufficient H" trigger.
+        n_ext = sum(tentative_ext.get(a.index, 0) for a in heavy)
+        # Empirical minimum: each heavy atom (excluding O/N involved in
+        # external bonds) typically carries ≥1 H. So expect ≥ len(heavy) - n_ext.
+        min_expected = max(0, len(heavy) - n_ext)
+        if len(h_atoms) == 0:
+            needs_h.add(r.index)
+        elif len(h_atoms) < min_expected:
+            # Strip stale H so OpenBabel regenerates a consistent set.
+            needs_h.add(r.index)
+            h_to_strip.extend(h_atoms)
+
+    if not needs_h:
+        return topology, positions
+
+    # Strip stale H from partially-H'd residues before regeneration.
+    if h_to_strip:
+        from openmm.app import Modeller as _Modeller
+        m = _Modeller(topology, positions)
+        m.delete(h_to_strip)
+        topology = m.topology
+        positions = m.positions
+        # Rebuild res_by_index after deletion (atom indices shift)
+        res_by_index = {r.index: r for r in topology.residues()}
+        # Re-run glycan tree detection on new topology
+        _, _, extra_inter_bonds = _build_glycan_trees(topology, positions, known)
+        # Re-identify needs_h by (chain, id) since indices shifted
+        needs_h_keys = set()
+        for r in topology.residues():
+            if r.name in known:
+                continue
+            if not any(a.element.symbol == 'H' for a in r.atoms()):
+                needs_h_keys.add((r.chain.id, r.id))
+        needs_h = {r.index for r in res_by_index.values()
+                   if (r.chain.id, r.id) in needs_h_keys}
+        if verbose:
+            print(f"  Stripped {len(h_to_strip)} stale heterogen H atoms before regeneration")
 
     # Count external bonds per atom (inter-residue bonds from topology + distance).
     # Used to suppress extra H at linkage positions in per-residue OpenBabel.
@@ -1085,6 +1138,17 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     fixer.findMissingAtoms()
     fixer.findNonstandardResidues()
 
+    # Filter out GLYCAM glycoprotein residues BEFORE printing/replacing —
+    # NLN/OLS/OLT look "non-standard" to PDBFixer but they're deliberate
+    # (they carry the glycan attachment via sidechain N/O). Showing "NLN
+    # -> LEU" misleads users; doing the replacement would destroy the
+    # glycosylation site. Strip them up-front.
+    _GLYCAM_PROTEIN = {'NLN', 'OLS', 'OLT'}
+    fixer.nonstandardResidues = [
+        (res, std) for (res, std) in fixer.nonstandardResidues
+        if res.name not in _GLYCAM_PROTEIN
+    ]
+
     if verbose:
         if fixer.missingResidues:
             print("Missing residues:")
@@ -1111,14 +1175,6 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     if not keep_heterogens:
         fixer.removeHeterogens(keepWater=keep_water)
 
-    # Don't let PDBFixer replace GLYCAM glycosylated residues (NLN/OLS/OLT)
-    # with their standard parents (LEU/SER/THR). They look "non-standard" but
-    # are deliberate — they carry the glycan attachment.
-    _GLYCAM_PROTEIN = {'NLN', 'OLS', 'OLT'}
-    fixer.nonstandardResidues = [
-        (res, std) for (res, std) in fixer.nonstandardResidues
-        if res.name not in _GLYCAM_PROTEIN
-    ]
     fixer.replaceNonstandardResidues()
     fixer.addMissingAtoms()
 
@@ -1169,6 +1225,18 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                 modeller.topology, verbose=verbose,
             )
             Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')
+            # OpenMM's PDBFile does not infer intra-residue bonds for GLYCAM
+            # residues (NLN/OLS/OLT + sugars) — without these bonds and the
+            # peptide bonds to NLN's neighbors, addHydrogens fails template
+            # matching on the residue ADJACENT to NLN (e.g. "TYR is missing
+            # 1 externally bonded C atom").
+            try:
+                from dvbfixer.acpype_export import add_glycam_bonds
+                add_glycam_bonds(modeller.topology, ff, verbose,
+                                  positions=modeller.positions)
+            except Exception as _e:
+                if verbose:
+                    print(f"  add_glycam_bonds skipped: {_e}")
             modeller.addHydrogens(ff, pH=ph, variants=variants)
         except (ValueError, KeyError, Exception) as e:
             if verbose:
@@ -1283,26 +1351,62 @@ def main(argv=None):
     # to any heterogens that still need them, with proper 3D geometry.
     # RDKit honors all bonds (protein-glycan, sugar-sugar, intra-sugar) so it
     # won't add spurious H at linkage positions.
-    if args.heterogen_h:
-        new_top, new_pos = add_heterogen_h_via_rdkit(
-            fixer.topology, fixer.positions, output_path, args.verbose,
-        )
-        if new_top is not fixer.topology:
-            old_atom_keys = {
-                (a.residue.chain.id, a.residue.id, a.residue.insertionCode, a.name)
-                for a in fixer.topology.atoms()
-            }
-            fixer.topology = new_top
-            fixer.positions = new_pos
-            with open(output_path, 'w') as f:
-                PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)
-            _restore_variants(output_path)
-            _write_heterogen_conects(output_path, fixer.topology)
-            for atom in fixer.topology.atoms():
-                key = (atom.residue.chain.id, atom.residue.id,
-                       atom.residue.insertionCode, atom.name)
-                if key not in old_atom_keys:
-                    new_atom_indices.add(atom.index)
+    # Skip the RDKit/OpenBabel polish passes when every heterogen is already
+    # GLYCAM-named (UYB/4YB/VMB/NLN/...) — the AMBER14+GLYCAM addHydrogens
+    # step inside run_pdbfixer already placed all H atoms correctly using
+    # the GLYCAM templates + glycam-hydrogens.xml definitions. Running the
+    # polish on top would strip and re-add H via valence rules, breaking
+    # GLYCAM atom names (C2N/O2N/CME/etc.) that OpenBabel doesn't recognize.
+    from dvbfixer.ffutils import (is_glycam_residue, PROTEIN_RESIDUES as _PR,
+                                   SOLVENT_IONS as _SI)
+    _known = _PR | _SI
+    needs_polish = any(
+        not is_glycam_residue(r.name) and r.name not in _known
+        for r in fixer.topology.residues()
+    )
+    if args.heterogen_h and not needs_polish and args.verbose:
+        print("All heterogens are GLYCAM-named — skipping RDKit/OpenBabel polish")
+
+    if args.heterogen_h and needs_polish:
+        # Two-pass heterogen H addition:
+        #   1. RDKit AddHs(addCoords=True) — full-graph, fast for fully-perceived
+        #      sugars. Often miscounts H on ring carbons when proximityBonding
+        #      adds spurious cross-residue bonds (over-coordinated → no H).
+        #   2. OpenBabel per-residue fallback — strips stale H from residues
+        #      that came out under-protonated, regenerates from valence rules.
+        for h_pass in (add_heterogen_h_via_rdkit, add_heterogen_h_via_openbabel):
+            if h_pass is add_heterogen_h_via_rdkit:
+                new_top, new_pos = h_pass(
+                    fixer.topology, fixer.positions, output_path, args.verbose,
+                )
+            else:
+                new_top, new_pos = h_pass(
+                    fixer.topology, fixer.positions, args.verbose,
+                )
+            if new_top is not fixer.topology:
+                old_atom_keys = {
+                    (a.residue.chain.id, a.residue.id, a.residue.insertionCode, a.name)
+                    for a in fixer.topology.atoms()
+                }
+                fixer.topology = new_top
+                fixer.positions = new_pos
+                with open(output_path, 'w') as f:
+                    PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)
+                _restore_variants(output_path)
+                _write_heterogen_conects(output_path, fixer.topology)
+                for atom in fixer.topology.atoms():
+                    key = (atom.residue.chain.id, atom.residue.id,
+                           atom.residue.insertionCode, atom.name)
+                    if key not in old_atom_keys:
+                        new_atom_indices.add(atom.index)
+
+    # Rewrite HETATM→ATOM for AMBER protonation variants and GLYCAM
+    # glycoprotein residues (NLN/OLS/OLT). PDBFile.writeFile defaults these
+    # to HETATM. _restore_variants already covers user-mutated variants;
+    # this catches any residue that slipped through (e.g. NLN coming in
+    # from the input file).
+    from dvbfixer.ffutils import fix_atom_hetatm_records as _fix_records
+    _fix_records(output_path)
 
     print(f"Saved prepared structure: {output_path}")
 

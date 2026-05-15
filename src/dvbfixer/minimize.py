@@ -58,12 +58,10 @@ def parse_args(argv=None):
                    help=f"Max minimization iterations per phase (default: {DEFAULT_MAX_ITER})")
     p.add_argument("--rebuild-h", action="store_true",
                    help="Strip and re-add hydrogens via OpenMM (default: keep existing)")
-    p.add_argument("--keep-heterogens", dest="keep_heterogens",
-                   action="store_true", default=True,
-                   help="Minimize heterogens (sugars, ligands) along with protein. Default: ON.")
     p.add_argument("--strip-heterogens", dest="keep_heterogens",
-                   action="store_false",
-                   help="Strip heterogens before minimization, restore coords after (legacy).")
+                   action="store_false", default=True,
+                   help="Strip heterogens before minimization, restore coords after "
+                        "(protein-only mode). Default: minimize the whole system.")
     p.add_argument("--no-solvent", action="store_true",
                    help="Minimize in vacuum (no solvent box)")
     p.add_argument("--xtb-refine", action="store_true",
@@ -441,20 +439,19 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     if has_heterogens:
         try:
             from dvbfixer.acpype_export import add_glycam_bonds
-            add_glycam_bonds(modeller.topology, forcefield, args.verbose)
+            add_glycam_bonds(modeller.topology, forcefield, args.verbose,
+                              positions=modeller.positions)
         except Exception as e:
             if args.verbose:
                 print(f"  add_glycam_bonds skipped: {e}")
-
-    if not args.no_solvent:
-        print("Adding solvent...")
-        modeller.addSolvent(forcefield, model='tip3p',
-                            padding=args.padding * nanometer)
 
     # Build residueTemplates for protein variants only (CYX, HIE/HID/HIP, LYN).
     # Avoids GLYCAM FF template ambiguity (e.g. CYS without HG matches both
     # CYM and CYX). Sugars are left to auto-match — forcing them is too risky
     # since PDB sugar names like BGL may exist in GLYCAM with different atoms.
+    # Built before pre-solvent check so the check uses the same disambiguation
+    # as the real createSystem (otherwise pre-check fails on CYX/CYM and
+    # triggers an unnecessary fallback to legacy strip-and-splice).
     res_templates = {}
     if has_heterogens:
         n_term_keys = set()
@@ -479,6 +476,37 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                     continue
             if res.name in forcefield._templates:
                 res_templates[res] = res.name
+
+    # If heterogens are present, pre-validate they can be parametrized
+    # before addSolvent (which internally calls createSystem and would
+    # propagate an uncaught NAG-template error). On failure, fall through
+    # to the legacy strip-and-splice path before any solvent is placed.
+    if has_heterogens and not args.no_solvent:
+        try:
+            from openmm.app import NoCutoff
+            forcefield.createSystem(modeller.topology, nonbondedMethod=NoCutoff,
+                                    ignoreExternalBonds=True,
+                                    residueTemplates=res_templates)
+        except Exception as e:
+            print(f"\nWARNING: pre-solvent parametrization failed:\n  {e}\n"
+                  f"  → falling back to --strip-heterogens flow.\n")
+            import argparse as _ap
+            legacy_args = _ap.Namespace(**vars(args))
+            legacy_args.keep_heterogens = False
+            legacy_args.rebuild_h = True
+            out_top, out_pos = minimize(topology, positions, new_atom_indices,
+                                         legacy_args, amber_renames=amber_renames)
+            # Rigid-tracking inside the inner minimize already aligned the
+            # glycan tree to the post-min anchor and snapped the linkage atom
+            # to its ideal trigonal-planar position. Calling
+            # _restore_glycosylated_h here would overwrite the post-min amide
+            # with stale prep coords and break that alignment.
+            return out_top, out_pos
+
+    if not args.no_solvent:
+        print("Adding solvent...")
+        modeller.addSolvent(forcefield, model='tip3p',
+                            padding=args.padding * nanometer)
 
     print("Creating system...")
     from openmm.app import NoCutoff
@@ -591,6 +619,16 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         if args.verbose:
             print(f"Restored: {n_updated} protein atoms updated, "
                   f"{n_atoms - n_updated} HETATM atoms kept original")
+
+        # Rigid-body transform each glycan tree to follow its protein anchor.
+        # Without this, the protein ASN/SER/THR moves during minimization but
+        # the glycan stays at prep coordinates → ND2-C1 bond stretches and
+        # clashes appear between glycan and moved protein. We compute the
+        # Kabsch transform from prep→post-min anchor residue coords and apply
+        # it to every atom in the bonded glycan tree.
+        result = _rigid_track_glycan_trees(
+            topology, positions, result, min_pos_map, verbose=args.verbose,
+        )
 
         return topology, result * nm_unit
 
@@ -792,6 +830,307 @@ def _run_xtb(topology, positions, xtb_bin, cycles, verbose, frozen_indices=None)
         _sh.rmtree(workdir, ignore_errors=True)
 
 
+def _rigid_track_glycan_trees(in_top, in_pos, result_array, min_pos_map,
+                               verbose=False):
+    """Rigid-body transform each glycan tree to follow its protein anchor.
+
+    The legacy strip-and-splice path minimizes protein-only, then restores
+    HETATM coords verbatim. But the protein anchor (ASN/SER/THR side chain)
+    moves during minimization, leaving the glycan in the wrong place — the
+    ND2-C1 bond stretches and the glycan can clash with the moved protein.
+
+    Fix: for each protein-heterogen bond, compute the Kabsch (rotation +
+    translation) transform from prep anchor heavy atoms → post-min anchor
+    heavy atoms, then apply it to every atom in the BFS-connected glycan
+    tree. Result: glycan keeps its relative orientation to the anchor amide;
+    bond length and stereochemistry are preserved.
+
+    in_top/in_pos: original (prep) topology + positions.
+    result_array: numpy (n_atoms, 3) — protein already overwritten with
+                  minimized positions, HETATM still at prep positions.
+    min_pos_map: dict (chain, resid, atomname) → minimized position (nm).
+    """
+    import numpy as np
+    from openmm.unit import nanometer as nm_unit
+    from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
+
+    known = PROTEIN_RESIDUES | SOLVENT_IONS
+    atoms = list(in_top.atoms())
+
+    # Find glycosylated protein residues + which heterogen atom they connect to.
+    het_atom_set = {a.index for a in atoms if a.residue.name not in known}
+    anchor_to_het_atoms = {}  # (chain, rid) → set of bonded heterogen atom indices
+    for b in in_top.bonds():
+        ai, bi = b[0].index, b[1].index
+        if ai in het_atom_set and bi not in het_atom_set:
+            r = b[1].residue
+            anchor_to_het_atoms.setdefault((r.chain.id, r.id), set()).add(ai)
+        elif bi in het_atom_set and ai not in het_atom_set:
+            r = b[0].residue
+            anchor_to_het_atoms.setdefault((r.chain.id, r.id), set()).add(bi)
+
+    if not anchor_to_het_atoms:
+        return result_array
+
+    # Build heterogen adjacency for BFS through the glycan tree.
+    het_adj = {idx: set() for idx in het_atom_set}
+    for b in in_top.bonds():
+        ai, bi = b[0].index, b[1].index
+        if ai in het_atom_set and bi in het_atom_set:
+            het_adj[ai].add(bi)
+            het_adj[bi].add(ai)
+
+    # Geometry recipe per (residue, anchor_atom). For each recipe, we
+    # compute the IDEAL linkage atom (e.g. NAG C1) position from the post-min
+    # protein side-chain geometry — bypassing the AMBER-placed HD21/HD22 which
+    # may have been put on the wrong side.
+    #
+    # N-linked (ASN/NLN ND2): trans amide. C1 lies in the amide plane (defined
+    # by CG, OD1, ND2), at 120° from the CG-ND2 axis, on the OPPOSITE side of
+    # the plane from OD1. This is the canonical E,Z amide configuration.
+    #
+    # O-linked (SER/THR): sp3 tetrahedral. C1 substitutes for the hydroxyl H,
+    # at the position the H currently occupies (anti-periplanar to CB).
+    _IDEAL_GEOMETRY = {
+        ('ASN', 'ND2'): {'bond_nm': 0.145, 'type': 'amide_trans',
+                          'axis': 'CG', 'plane_neighbor': 'OD1', 'angle_deg': 120.0},
+        ('NLN', 'ND2'): {'bond_nm': 0.145, 'type': 'amide_trans',
+                          'axis': 'CG', 'plane_neighbor': 'OD1', 'angle_deg': 120.0},
+        ('SER', 'OG'):  {'bond_nm': 0.143, 'type': 'replace_H', 'h_atom': 'HG'},
+        ('OLS', 'OG'):  {'bond_nm': 0.143, 'type': 'replace_H', 'h_atom': 'HG'},
+        ('THR', 'OG1'): {'bond_nm': 0.143, 'type': 'replace_H', 'h_atom': 'HG1'},
+        ('OLT', 'OG1'): {'bond_nm': 0.143, 'type': 'replace_H', 'h_atom': 'HG1'},
+    }
+
+    def _ideal_linkage_pos(anchor_atom_name, anchor_res_name, anchor_ch, anchor_rid):
+        """Compute the IDEAL linkage atom position from the post-min anchor
+        side-chain geometry. Returns ideal_pos (numpy, nm) or None on missing
+        reference atoms.
+        """
+        geom = _IDEAL_GEOMETRY.get((anchor_res_name, anchor_atom_name))
+        if geom is None:
+            return None
+        akey = (anchor_ch, anchor_rid, anchor_atom_name)
+        if akey not in min_pos_map:
+            return None
+        a_pos = np.array(min_pos_map[akey])
+
+        if geom['type'] == 'replace_H':
+            hkey = (anchor_ch, anchor_rid, geom['h_atom'])
+            if hkey not in min_pos_map:
+                return None
+            h_pos = np.array(min_pos_map[hkey])
+            v = h_pos - a_pos
+            n = np.linalg.norm(v)
+            if n < 1e-6:
+                return None
+            return a_pos + geom['bond_nm'] * (v / n)
+
+        if geom['type'] == 'amide_trans':
+            ax_key = (anchor_ch, anchor_rid, geom['axis'])
+            pn_key = (anchor_ch, anchor_rid, geom['plane_neighbor'])
+            if ax_key not in min_pos_map or pn_key not in min_pos_map:
+                return None
+            ax_pos = np.array(min_pos_map[ax_key])         # e.g. CG
+            pn_pos = np.array(min_pos_map[pn_key])         # e.g. OD1
+            # u_axis = unit vector from anchor (ND2) toward axis atom (CG)
+            u_axis = ax_pos - a_pos
+            n = np.linalg.norm(u_axis)
+            if n < 1e-6:
+                return None
+            u_axis = u_axis / n
+            # OD1 relative to anchor (ND2)
+            v_pn = pn_pos - a_pos
+            # In-plane perpendicular: component of OD1-ND2 perpendicular to
+            # CG-ND2 axis. This points TOWARD OD1 in the amide plane.
+            v_perp = v_pn - np.dot(v_pn, u_axis) * u_axis
+            n_perp = np.linalg.norm(v_perp)
+            if n_perp < 1e-6:
+                return None
+            u_perp_toward_pn = v_perp / n_perp
+            # Trans-amide C1 direction:
+            #   angle between u_axis and u_C1 = 120° (CG-ND2-C1)
+            #   u_C1 in amide plane, on OPPOSITE side from OD1 across CG-ND2.
+            # In-plane decomposition:
+            #   u_C1 = cos(angle) * (-u_axis_from_anchor_to_axis) (so angle from u_axis = 120°)
+            # equivalently: u_C1 = cos(180° - angle) * u_axis + sin(angle) * (-u_perp_toward_pn)
+            # but simpler:
+            theta = np.radians(geom['angle_deg'])
+            # u_C1 is at angle theta from u_axis (measured at ND2), in the amide
+            # plane, on the side AWAY from OD1.
+            #   u_C1 = cos(theta) * u_axis + sin(theta) * (-u_perp_toward_pn)
+            u_c1 = np.cos(theta) * u_axis + np.sin(theta) * (-u_perp_toward_pn)
+            return a_pos + geom['bond_nm'] * u_c1
+
+        return None
+
+    n_trees = 0
+    n_atoms_moved = 0
+    for (anchor_ch, anchor_rid), root_het_atoms in anchor_to_het_atoms.items():
+        # Anchor residue in the input topology
+        anchor_res = None
+        for r in in_top.residues():
+            if r.chain.id == anchor_ch and r.id == anchor_rid:
+                anchor_res = r
+                break
+        if anchor_res is None:
+            continue
+
+        # Collect heavy atoms of the anchor side chain + linkage neighbor for
+        # the Kabsch fit. We exclude H atoms (their positions are dominated by
+        # AMBER addHydrogens, not by minimization itself).
+        prep_pts = []
+        post_pts = []
+        for a in anchor_res.atoms():
+            if a.element.symbol == 'H':
+                continue
+            key = (a.residue.chain.id, a.residue.id, a.name)
+            if key not in min_pos_map:
+                continue
+            pp = in_pos[a.index].value_in_unit(nm_unit)
+            mp = min_pos_map[key]
+            prep_pts.append([float(pp[0]), float(pp[1]), float(pp[2])])
+            post_pts.append([float(mp[0]), float(mp[1]), float(mp[2])])
+
+        if len(prep_pts) < 3:
+            continue
+
+        # Inject the IDEAL linkage atom position as an extra Kabsch reference.
+        # Without this, the bad prep-side glycosidic geometry (e.g. CG-ND2-C1
+        # ≈ 167° instead of 122° after Modeller loop modeling) is faithfully
+        # reproduced at the post-min anchor — the Kabsch is dominated by the
+        # anchor-side coordinates and preserves the relative orientation.
+        # Injecting the ideal C1 (from post-min amide trigonal-planar geometry)
+        # pulls the fit toward correct stereochemistry.
+        anchor_atoms_by_name = {a.name: a for a in anchor_res.atoms()}
+        # Use the first bonded heterogen atom as the linkage atom (e.g. NAG C1)
+        link_het_idx = next(iter(root_het_atoms))
+        link_het_atom = atoms[link_het_idx]
+        # Find the protein anchor atom name (e.g. ND2 for ASN)
+        anchor_link_atom_name = None
+        for b in in_top.bonds():
+            ai, bi = b[0].index, b[1].index
+            if ai == link_het_idx and bi in {a.index for a in anchor_res.atoms()}:
+                anchor_link_atom_name = atoms[bi].name
+                break
+            if bi == link_het_idx and ai in {a.index for a in anchor_res.atoms()}:
+                anchor_link_atom_name = atoms[ai].name
+                break
+        # Resolve the anchor residue name. The legacy path renames NLN→ASN
+        # in topology BEFORE AMBER addHydrogens, so anchor_res.name may now
+        # be 'ASN' even though the prep input had 'NLN'. Both keys point to
+        # the same trigonal-planar geometry recipe (CG+HD21), so either name
+        # works — we just need a registered entry.
+        post_anchor_name = anchor_res.name
+        ideal_pos = None
+        if anchor_link_atom_name:
+            for try_name in (anchor_res.name,
+                             {'ASN': 'NLN', 'SER': 'OLS', 'THR': 'OLT',
+                              'NLN': 'ASN', 'OLS': 'SER', 'OLT': 'THR'}.get(anchor_res.name)):
+                if try_name is None:
+                    continue
+                if (try_name, anchor_link_atom_name) in _IDEAL_GEOMETRY:
+                    post_anchor_name = try_name
+                    break
+            ideal_pos = _ideal_linkage_pos(anchor_link_atom_name,
+                                            post_anchor_name,
+                                            anchor_ch, anchor_rid)
+        if ideal_pos is not None:
+            prep_link = in_pos[link_het_idx].value_in_unit(nm_unit)
+            prep_pts.append([float(prep_link[0]), float(prep_link[1]),
+                              float(prep_link[2])])
+            post_pts.append(ideal_pos.tolist())
+
+        prep_arr = np.array(prep_pts)
+        post_arr = np.array(post_pts)
+        # Kabsch
+        prep_c = prep_arr.mean(axis=0)
+        post_c = post_arr.mean(axis=0)
+        P = prep_arr - prep_c
+        Q = post_arr - post_c
+        H = P.T @ Q
+        U, S, Vt = np.linalg.svd(H)
+        d = np.sign(np.linalg.det(Vt.T @ U.T))
+        D = np.diag([1.0, 1.0, d])
+        R = Vt.T @ D @ U.T
+        t = post_c - R @ prep_c
+
+        # BFS to collect glycan tree atoms (heterogen atoms reachable from
+        # the anchor's bonded heterogen atoms).
+        seen = set()
+        queue = list(root_het_atoms)
+        while queue:
+            cur = queue.pop()
+            if cur in seen:
+                continue
+            seen.add(cur)
+            for nb in het_adj.get(cur, ()):
+                if nb not in seen:
+                    queue.append(nb)
+
+        # Apply transform to each glycan atom
+        for idx in seen:
+            p = in_pos[idx].value_in_unit(nm_unit)
+            v = np.array([float(p[0]), float(p[1]), float(p[2])])
+            v_new = R @ v + t
+            result_array[idx] = v_new
+            n_atoms_moved += 1
+
+        # Post-Kabsch correction: snap the linkage atom exactly to the ideal
+        # post-min trigonal-planar position by translating the whole glycan
+        # tree by (ideal - tracked). The Kabsch fit only approximately satisfies
+        # the ideal C1 target (it gets averaged with the 5 ASN reference
+        # points), but for correct stereochemistry the C1 needs to land on
+        # the exact amide plane direction. Translation preserves intra-glycan
+        # geometry; the next obminimize pass relaxes any residual strain.
+        if anchor_link_atom_name and 'ideal_pos' in locals() and ideal_pos is not None:
+            tracked_link = result_array[link_het_idx]
+            correction = ideal_pos - tracked_link
+            for idx in seen:
+                result_array[idx] = result_array[idx] + correction
+
+            # Also snap the amide H (HD21 for ASN/NLN) to its canonical
+            # trigonal-planar position — cis to OD1, in the amide plane.
+            # AMBER places HD21 at some valid sp2 position but not always at
+            # the canonical cis-OD1 spot; this enforces CG-ND2-HD21 ≈ 120°
+            # and the H in the amide plane.
+            if (post_anchor_name, anchor_link_atom_name) == ('ASN', 'ND2') or \
+               (post_anchor_name, anchor_link_atom_name) == ('NLN', 'ND2'):
+                # Find HD21 atom in in_top (prep NLN topology has HD21)
+                hd21_in_idx = None
+                for a in anchor_res.atoms():
+                    if a.name == 'HD21':
+                        hd21_in_idx = a.index
+                        break
+                if hd21_in_idx is not None:
+                    # Compute ideal HD21 position (cis to OD1, in amide plane).
+                    # Same formula as for C1 but with opposite perp sign.
+                    nd2_key = (anchor_ch, anchor_rid, 'ND2')
+                    cg_key = (anchor_ch, anchor_rid, 'CG')
+                    od1_key = (anchor_ch, anchor_rid, 'OD1')
+                    if all(k in min_pos_map for k in (nd2_key, cg_key, od1_key)):
+                        nd2_p = np.array(min_pos_map[nd2_key])
+                        cg_p = np.array(min_pos_map[cg_key])
+                        od1_p = np.array(min_pos_map[od1_key])
+                        u_ax = cg_p - nd2_p
+                        u_ax = u_ax / np.linalg.norm(u_ax)
+                        v_pn = od1_p - nd2_p
+                        v_perp = v_pn - np.dot(v_pn, u_ax) * u_ax
+                        n_perp = np.linalg.norm(v_perp)
+                        if n_perp > 1e-6:
+                            u_perp_to_od1 = v_perp / n_perp
+                            theta = np.radians(120.0)
+                            # HD21: trigonal-planar, cis to OD1 → same perp sign as OD1
+                            u_h = np.cos(theta) * u_ax + np.sin(theta) * u_perp_to_od1
+                            result_array[hd21_in_idx] = nd2_p + 0.101 * u_h  # N-H 1.01 Å
+        n_trees += 1
+
+    if verbose and n_trees:
+        print(f"  Rigid-tracked {n_trees} glycan tree(s) "
+              f"to follow protein anchor ({n_atoms_moved} atoms)")
+    return result_array
+
+
 def _restore_glycosylated_h(out_top, out_pos, in_top, in_pos):
     """Restore side-chain positions of glycosylated ASN/SER/THR (NLN/OLS/OLT)
     to their input values to preserve the protein-glycan stereochemistry.
@@ -943,12 +1282,11 @@ def _extract_heterogen_subsystem(topology, positions, padding_residues=False):
             for atom in res.atoms():
                 new_atom = sub_top.addAtom(atom.name, atom.element, new_res)
                 atom_index_map[atom.index] = new_atom.index
-                # Freeze the heterogen-side linkage atom (e.g. NAG C1) so the
-                # protein-glycan interface geometry (amide planarity, bond
-                # angle) is preserved by the OpenMM-AMBER minimization. UFF/MMFF
-                # lack the amide-planarity term and would rotate C1 out of plane.
-                if atom.index in linkage_het_atoms:
-                    anchor_sub_indices.add(new_atom.index)
+                # Linkage heterogen atom (e.g. NAG C1) is INTENTIONALLY LEFT
+                # FREE so UFF can minimize the protein-glycan bond length and
+                # angle. UFF's sp2 N type (N_2) has equilibrium angle 120° and
+                # an improper torsion that keeps the amide near-planar, so the
+                # geometry settles naturally instead of being snapped rigid.
                 p = positions[atom.index].value_in_unit(nanometer)
                 sub_pos_list.append(Vec3(float(p[0]), float(p[1]), float(p[2])))
 
@@ -965,11 +1303,35 @@ def _extract_heterogen_subsystem(topology, positions, padding_residues=False):
             anc_res = sub_top.addResidue(orig_res.name, anchor_chain,
                                          str(orig_res.id),
                                          orig_res.insertionCode)
+            # Freeze only the BACKBONE + first sidechain carbon of the anchor
+            # residue. The amide group (CG, OD1, ND2, HD21, HD22 for ASN; OG/HG
+            # for SER; OG1/HG1 for THR) and the linkage atom are LEFT FREE so
+            # UFF/MMFF can actually minimize the protein-glycan bond length,
+            # angle, and amide planarity. This is the answer to "why doesn't
+            # the tool minimize the ASN-glycan bond" — previously the whole
+            # anchor was frozen and the bond was only rigid-tracked, not
+            # minimized by any FF.
+            _FREEZE_ANCHOR_ATOMS = {
+                'ASN': {'N', 'H', 'CA', 'HA', 'CB', 'HB2', 'HB3', 'C', 'O'},
+                'NLN': {'N', 'H', 'CA', 'HA', 'CB', 'HB2', 'HB3', 'C', 'O'},
+                'SER': {'N', 'H', 'CA', 'HA', 'CB', 'HB2', 'HB3', 'C', 'O'},
+                'OLS': {'N', 'H', 'CA', 'HA', 'CB', 'HB2', 'HB3', 'C', 'O'},
+                'THR': {'N', 'H', 'CA', 'HA', 'CB', 'HB', 'CG2',
+                        'HG21', 'HG22', 'HG23', 'C', 'O'},
+                'OLT': {'N', 'H', 'CA', 'HA', 'CB', 'HB', 'CG2',
+                        'HG21', 'HG22', 'HG23', 'C', 'O'},
+            }
+            freeze_names = _FREEZE_ANCHOR_ATOMS.get(
+                orig_res.name,
+                # fallback: freeze everything for unfamiliar anchors
+                {a.name for a in [full_atoms[ai] for ai in atom_indices]}
+            )
             for ai in atom_indices:
                 a = full_atoms[ai]
                 new_atom = sub_top.addAtom(a.name, a.element, anc_res)
                 atom_index_map[ai] = new_atom.index
-                anchor_sub_indices.add(new_atom.index)
+                if a.name in freeze_names:
+                    anchor_sub_indices.add(new_atom.index)
                 p = positions[ai].value_in_unit(nanometer)
                 sub_pos_list.append(Vec3(float(p[0]), float(p[1]), float(p[2])))
 
@@ -1241,6 +1603,27 @@ def main(argv=None):
     if amber_renames:
         print(f"Detected {len(amber_renames)} AMBER protonation variants in input")
 
+    # Snapshot original GLYCAM residue names from the input PDB text. If the
+    # legacy strip-and-splice fallback fires inside minimize(), it renames
+    # NLN→ASN/OLS→SER/OLT→THR in place on the topology. Restore these on
+    # the final output so the GLYCAM input names survive end-to-end.
+    _glycam_orig_names = {}
+    try:
+        with open(input_path) as _gf:
+            for _line in _gf:
+                if not _line.startswith(('ATOM', 'HETATM')):
+                    continue
+                _rn = _line[17:20].strip()
+                if _rn in ('NLN', 'OLS', 'OLT'):
+                    _ch = _line[21]
+                    _seq = _line[22:26].strip()
+                    if _seq and _seq.lstrip('-').isdigit():
+                        _ic = _line[26].strip() if len(_line) > 26 else ''
+                        # Topology Residue.id is a string of the resSeq
+                        _glycam_orig_names[(_ch, _seq, _ic)] = _rn
+    except Exception:
+        pass
+
     pdb = PDBFile(str(input_path))
     topology = pdb.topology
     positions = pdb.positions
@@ -1299,6 +1682,28 @@ def main(argv=None):
             verbose=args.verbose,
         )
 
+    # Restore GLYCAM glycoprotein residue names that the legacy strip path
+    # may have renamed in-place (NLN→ASN, OLS→SER, OLT→THR). Keyed by the
+    # (chain_id, res_id_str, icode) tuple captured from the raw input PDB.
+    if _glycam_orig_names:
+        _restored = 0
+        for _res in final_topology.residues():
+            _key = (_res.chain.id, str(_res.id),
+                    _res.insertionCode.strip()
+                    if hasattr(_res, 'insertionCode') else '')
+            _orig = _glycam_orig_names.get(_key)
+            if _orig and _res.name != _orig:
+                _res.name = _orig
+                _restored += 1
+        if _restored and args.verbose:
+            print(f"  Restored {_restored} GLYCAM residue names "
+                  f"(NLN/OLS/OLT) renamed during legacy fallback")
+
     with open(output_path, 'w') as f:
         PDBFile.writeFile(final_topology, final_positions, f, keepIds=True)
+    # Rewrite HETATM→ATOM for AMBER protonation variants (HID/HIE/HIP/ASH/
+    # GLH/CYX/CYM/LYN) and GLYCAM glycoprotein residues (NLN/OLS/OLT) that
+    # PDBFile.writeFile emits as HETATM.
+    from dvbfixer.ffutils import fix_atom_hetatm_records
+    fix_atom_hetatm_records(output_path)
     print(f"\nSaved minimized structure: {output_path}")

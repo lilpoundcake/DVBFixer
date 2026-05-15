@@ -151,14 +151,40 @@ topology > 5000 atoms (UFF OOMs, xtb hours-slow).
 ### `acpype_export.prepare_for_openmm` — glycoprotein normalization
 
 Critical glue for the ACPYPE path. Handles:
-- CYS → CYX renaming from CONECT-detected SS bonds
+- CYS → CYX renaming from CONECT-detected SS bonds, plus distance
+  fallback (SG-SG within 2.5 Å) via `detect_ss_bonds`. Recognizes SG
+  on CYS, CYX, and CYM residues.
 - AMBER variant capture/restore across PDBFile normalization
-  (PDBFile.writeFile converts ASH→ASP, HIE→HIS, CYX→CYS on output)
-- Chain reordering: protein first, glycan after
-- Glycan TER record filtering (prevents chain breaks)
-- Terminal atom removal (OXT/H2/H3 from mid-chain residues)
-- HD21 addition for NLN (GLYCAM expects only HD21, not HD22)
-- Peptide bond repair for stretched bonds after transplant
+  (PDBFile.writeFile converts ASH→ASP, HIE→HIS, CYX→CYS on output).
+  Includes CYX and CYM (not just HID/HIE/HIP/ASH/GLH/LYN) so the
+  downstream `res_templates` loop can disambiguate against CYM/CYX.
+- Chain reordering: protein first, glycan after.
+- Glycan TER record filtering (prevents chain breaks).
+- Terminal atom removal (OXT/H2/H3 from mid-chain residues).
+- HD21 addition for NLN (GLYCAM expects only HD21, not HD22).
+- Peptide bond repair for stretched bonds after transplant.
+- **Selective H stripping** via per-residue `_GLYCAM_KEEP_H` allowlist
+  (NLN keeps `{H, HA, HB2, HB3, HD21}`, OLS keeps `{H, HA, HB2, HB3}`,
+  OLT keeps `{H, HA, HB, HG21/HG22/HG23}`). Only disallowed atoms are
+  stripped (HD22 on NLN, HG on OLS, HG1 on OLT, CHARMM HN/HT*). This
+  preserves the canonical HD21 geometry from minimize through the
+  acpype pipeline.
+
+### `acpype_export.add_glycam_bonds(topology, ff, positions=None)` — glycan bond population
+
+OpenMM's `PDBFile` doesn't infer bonds for non-standard residues.
+This helper adds three classes of bonds for GLYCAM residues:
+1. **Intra-residue bonds** — read from the FF template's bond list and
+   added by atom-name match.
+2. **Peptide bonds for NLN/OLS/OLT** — `prev.C → this.N` and
+   `this.C → next.N`.
+3. **Sugar-sugar glycosidic bonds** — distance-based detection (only
+   when `positions` is provided). Anomeric C1 (or C2 for sialic) within
+   2.0 Å of a linkage O2/O3/O4/O6 on another sugar. Without these,
+   GLYCAM templates for linkage-position sugars (e.g. 6LB declares O6
+   externally bonded) fail to match in `createSystem` ("missing 1
+   externally bonded O atom"). All three of prepare/minimize/protonate
+   call this with `positions=modeller.positions`.
 
 ### `transplant.py` — graft workflow
 
@@ -173,6 +199,31 @@ between sources).
 restraints on protein heavy atoms (k=1000→100→10→0 kJ/mol/nm²).
 `--gromacs DIR` exports GMX topology via the same `acpype_export.py`
 helpers used by `dvbfixer top --acpype`.
+
+### `ffutils.py` — shared GLYCAM helpers
+
+All four GLYCAM-aware tools (`prepare`, `minimize`, `protonate`,
+`top --acpype`) share these utilities:
+
+- `is_glycam_sugar(name)` → True for GLYCAM 3-char sugar codes
+  (linkage `[0-9VWUZXYTSRQPvwuzxytsr]` + sugar + anomer `[AB]`, e.g.
+  UYB/4YB/VMB/0YA) or caps (ROH/OME/TBT/CMET).
+- `is_glycam_residue(name)` → True for any GLYCAM sugar OR glycoprotein
+  residue (NLN/OLS/OLT).
+- `detect_glycam_input(topology)` → returns
+  `{'glycam_proteins', 'glycam_sugars', 'pdb_sugars', 'unknown_hets'}`
+  sets of (chain, res_id). Drives the FF auto-swap in `protonate` and
+  the H-polish short-circuit in `prepare`.
+- `fix_atom_hetatm_records(pdb_path)` → post-processes the output PDB
+  to rewrite `HETATM` → `ATOM` for any residue in `FORCE_ATOM_RESIDUES`
+  (= `PROTEIN_RESIDUES`, which includes the 20 std + AMBER variants
+  HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN + GLYCAM glycoprotein residues
+  NLN/OLS/OLT). OpenMM's `PDBFile.writeFile` defaults non-standard
+  residue names to HETATM; this restores them to ATOM. Idempotent.
+  Called after every PDB write in the three pipeline tools.
+- Constants: `GLYCAM_PROTEIN_RESIDUES = {'NLN', 'OLS', 'OLT'}`,
+  `GLYCAM_CAPS = {'ROH', 'OME', 'TBT', 'CMET'}`,
+  `FORCE_ATOM_RESIDUES = frozenset(PROTEIN_RESIDUES)`.
 
 ## Cross-module patterns
 

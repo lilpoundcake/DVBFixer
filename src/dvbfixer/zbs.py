@@ -44,12 +44,10 @@ def parse_args(argv=None):
     # prepare
     p.add_argument("--skip-prepare", action="store_true",
                    help="Skip the prepare step")
-    p.add_argument("--keep-heterogens", dest="keep_heterogens",
-                   action="store_true", default=True,
-                   help="Keep heterogens through prepare and minimize whole system. Default: ON.")
     p.add_argument("--strip-heterogens", dest="keep_heterogens",
-                   action="store_false",
-                   help="Strip heterogens (legacy protein-only pipeline).")
+                   action="store_false", default=True,
+                   help="Strip heterogens before processing (protein-only pipeline). "
+                        "Default: keep heterogens through prepare and minimize the whole system.")
     p.add_argument("--mutate", action="append", default=[],
                    metavar="CHAIN:RESNUM:NEW_AA",
                    help="Mutate a residue during prepare step (can be used multiple times)")

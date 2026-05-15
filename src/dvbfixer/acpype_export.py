@@ -14,31 +14,53 @@ from dvbfixer.ffutils import PROTEIN_RESIDUES
 
 
 def detect_ss_bonds(pdb_path):
-    """Detect disulfide bonds from CONECT records between SG atoms.
+    """Detect disulfide bonds from CONECT records between SG atoms, with
+    distance-based fallback (SG-SG within 2.5 Å) for inputs missing CONECTs.
 
-    Returns set of (chain, resseq) for CYS residues involved in SS bonds.
+    Recognizes SG on both CYS and CYX residues — input may already use either
+    name (e.g. crystal structures use CYS, dvbfixer prot output uses CYX).
+
+    Returns set of (chain, resseq) for cysteines involved in SS bonds.
     """
     with open(pdb_path) as f:
         lines = f.readlines()
 
-    # Build serial -> atom info
+    # Build serial -> atom info. Capture SG atoms of all cysteine variants
+    # (CYS / CYX / CYM) for downstream SS detection.
     serial_to_atom = {}
-    sg_serials = set()
+    sg_atoms = []  # list of dicts with chain/resseq/serial/x/y/z
+    _CYS_NAMES = {'CYS', 'CYX', 'CYM'}
     for line in lines:
         if line.startswith(('ATOM  ', 'HETATM')):
-            serial = int(line[6:11])
+            try:
+                serial = int(line[6:11])
+            except (ValueError, IndexError):
+                continue
             chain = line[21]
-            resseq = int(line[22:26])
+            try:
+                resseq = int(line[22:26])
+            except ValueError:
+                continue
             resname = line[17:20].strip()
             atomname = line[12:16].strip()
-            serial_to_atom[serial] = {
+            info = {
                 'chain': chain, 'resseq': resseq,
                 'resname': resname, 'name': atomname,
+                'serial': serial,
             }
-            if atomname == 'SG' and resname == 'CYS':
-                sg_serials.add(serial)
+            serial_to_atom[serial] = info
+            if atomname == 'SG' and resname in _CYS_NAMES:
+                try:
+                    info['x'] = float(line[30:38])
+                    info['y'] = float(line[38:46])
+                    info['z'] = float(line[46:54])
+                except ValueError:
+                    continue
+                sg_atoms.append(info)
 
-    # Check CONECT for SG-SG bonds
+    sg_serial_set = {a['serial'] for a in sg_atoms}
+
+    # Pass 1: CONECT-based detection
     ss_residues = set()
     for line in lines:
         if not line.startswith('CONECT'):
@@ -48,15 +70,34 @@ def detect_ss_bonds(pdb_path):
         while len(s) >= 5:
             chunk = s[:5].strip()
             if chunk:
-                serials.append(int(chunk))
+                try:
+                    serials.append(int(chunk))
+                except ValueError:
+                    pass
             s = s[5:]
-        if len(serials) >= 2 and serials[0] in sg_serials:
-            for s in serials[1:]:
-                if s in sg_serials:
+        if len(serials) >= 2 and serials[0] in sg_serial_set:
+            for s2 in serials[1:]:
+                if s2 in sg_serial_set:
                     a1 = serial_to_atom[serials[0]]
-                    a2 = serial_to_atom[s]
+                    a2 = serial_to_atom[s2]
                     ss_residues.add((a1['chain'], a1['resseq']))
                     ss_residues.add((a2['chain'], a2['resseq']))
+
+    # Pass 2: distance-based fallback. Catches inputs without CONECT records.
+    # SG-SG bond length is ~2.05 Å; use a generous 2.5 Å cutoff.
+    _SS_CUTOFF_A2 = 2.5 ** 2
+    for i, a1 in enumerate(sg_atoms):
+        if 'x' not in a1:
+            continue
+        for a2 in sg_atoms[i + 1:]:
+            if 'x' not in a2:
+                continue
+            d2 = ((a1['x'] - a2['x']) ** 2
+                  + (a1['y'] - a2['y']) ** 2
+                  + (a1['z'] - a2['z']) ** 2)
+            if d2 < _SS_CUTOFF_A2:
+                ss_residues.add((a1['chain'], a1['resseq']))
+                ss_residues.add((a2['chain'], a2['resseq']))
 
     return ss_residues
 
@@ -162,6 +203,21 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True,
                     continue
                 line = line[:17] + 'CYX' + line[20:]
 
+            elif resname == 'CYX':
+                # Already named CYX (e.g. from `dvbfixer protonate` output).
+                # Capture in amber_variants so res_templates can disambiguate
+                # against CYM after PDBFile normalizes CYX→CYS internally.
+                amber_variants[(chain, resseq)] = 'CYX'
+                # Strip HG defensively — CYX must not have it.
+                if atomname == 'HG':
+                    continue
+
+            elif resname == 'CYM':
+                # Explicitly deprotonated cysteine; preserve like CYX.
+                amber_variants[(chain, resseq)] = 'CYM'
+                if atomname in ('HG',):
+                    continue
+
             elif resname in _AMBER_TO_STD:
                 # Capture AMBER protonation variant from input PDB (no override).
                 # Rename to standard so PDBFile loads cleanly; restore via amber_variants.
@@ -169,7 +225,23 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True,
                 line = line[:17] + f"{_AMBER_TO_STD[resname]:>3s}" + line[20:]
 
             # GLYCAM protein residues: strip all H (will be re-added by addHydrogens)
-            if strip_glycam_h and resname in ('NLN', 'OLS', 'OLT') and atomname[0] == 'H':
+            # Only strip H atoms whose names don't match GLYCAM convention.
+            # Previously stripped EVERY H on NLN/OLS/OLT (including correctly-
+            # placed HD21), which forced addHydrogens to re-place it at a
+            # generic position — destroying the canonical cis-OD1 geometry
+            # from minimize's _rigid_track_glycan_trees.
+            # Keep: H, HA, HB2, HB3, HD21 (NLN); H, HA, HB2, HB3 (OLS);
+            #       H, HA, HB, HG21/HG22/HG23 (OLT).
+            # Strip: CHARMM-style (HN, HT*); HD22 on NLN (only HD21 in
+            #        glycosylated ASN); HG/HG1 on OLS/OLT (replaced by sugar).
+            _GLYCAM_KEEP_H = {
+                'NLN': {'H', 'HA', 'HB2', 'HB3', 'HD21'},
+                'OLS': {'H', 'HA', 'HB2', 'HB3'},
+                'OLT': {'H', 'HA', 'HB', 'HG21', 'HG22', 'HG23'},
+            }
+            if (strip_glycam_h and resname in _GLYCAM_KEEP_H
+                    and atomname[0] == 'H'
+                    and atomname not in _GLYCAM_KEEP_H[resname]):
                 nln_fix += 1
                 continue
 
@@ -273,12 +345,18 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True,
     return temp_path, amber_variants
 
 
-def add_glycam_bonds(topology, forcefield, verbose=False):
+def add_glycam_bonds(topology, forcefield, verbose=False, positions=None):
     """Add intra-residue and inter-residue bonds for GLYCAM residues.
 
     OpenMM PDBFile only infers bonds for standard amino acids. GLYCAM residues
     (NLN, OLS, OLT, sugars) get no intra-residue bonds. This function uses
     the force field templates to add the missing bonds.
+
+    When `positions` is provided, ALSO detects sugar-sugar glycosidic bonds
+    by distance (C1/C2 anomeric atom of one sugar within 2.0 Å of an
+    O2/O3/O4/O6 atom of another sugar) and adds them. Without these inter-
+    sugar bonds, OpenMM's template matching fails on linkage-position sugars
+    like 6LB ("missing 1 externally bonded O atom").
     """
     # Standard residues that PDBFile already handles
     standard_res = {
@@ -356,8 +434,73 @@ def add_glycam_bonds(topology, forcefield, verbose=False):
                             existing_bonds.add((n.index, c.index))
                             added_inter += 1
 
-    if added_intra or added_inter:
-        print(f"  Added {added_intra} intra-residue + {added_inter} inter-residue bonds for GLYCAM")
+    # Sugar-sugar glycosidic bond detection (distance-based). Anomeric carbon
+    # (C1 for most sugars, C2 for sialic acid) of one sugar within 2.0 Å of
+    # a linkage O atom (O2/O3/O4/O6) of another sugar.
+    # Required so GLYCAM templates like 6LB / 4YB / VMB which declare an
+    # external O bond can match. Without these bonds, addHydrogens and
+    # createSystem fail with "missing externally bonded O atom".
+    added_sugar = 0
+    if positions is not None:
+        try:
+            from openmm.unit import nanometer
+            from dvbfixer.ffutils import is_glycam_sugar, KNOWN_GLYCAN_SMILES
+        except Exception:
+            is_glycam_sugar = lambda n: False
+            KNOWN_GLYCAN_SMILES = {}
+            nanometer = None
+
+        def _is_sugar(name):
+            return is_glycam_sugar(name) or name in KNOWN_GLYCAN_SMILES
+
+        def _is_sialic(name):
+            # PDB sialic acid + GLYCAM sialic (3-char with sugar code S/s)
+            if name in ('SIA', 'NAN'):
+                return True
+            return len(name) == 3 and name[1] in ('S', 's')
+
+        anomeric_names_default = {'C1'}
+        linkage_o_names = {'O2', 'O3', 'O4', 'O6'}
+        sugar_residues = [r for r in topology.residues() if _is_sugar(r.name)]
+        cutoff_nm = 0.20  # 2.0 Å
+
+        # Pre-extract anomeric C and linkage O lists per residue
+        anomeric_atoms = []  # list of (atom, position_nm)
+        linkage_atoms = []   # list of (atom, position_nm)
+        for r in sugar_residues:
+            allowed_c = {'C2'} if _is_sialic(r.name) else anomeric_names_default
+            for a in r.atoms():
+                p = positions[a.index]
+                pv = p.value_in_unit(nanometer) if nanometer is not None else p
+                if a.name in allowed_c:
+                    anomeric_atoms.append((a, pv))
+                elif a.name in linkage_o_names:
+                    linkage_atoms.append((a, pv))
+
+        for atom_c, c_pos in anomeric_atoms:
+            cx, cy, cz = float(c_pos[0]), float(c_pos[1]), float(c_pos[2])
+            best = None
+            best_d2 = cutoff_nm * cutoff_nm
+            for atom_o, o_pos in linkage_atoms:
+                if atom_o.residue.index == atom_c.residue.index:
+                    continue
+                ox, oy, oz = float(o_pos[0]), float(o_pos[1]), float(o_pos[2])
+                d2 = (cx - ox) ** 2 + (cy - oy) ** 2 + (cz - oz) ** 2
+                if d2 < best_d2:
+                    best_d2 = d2
+                    best = atom_o
+            if best is not None:
+                pair = (atom_c.index, best.index)
+                rpair = (best.index, atom_c.index)
+                if pair not in existing_bonds and rpair not in existing_bonds:
+                    topology.addBond(atom_c, best)
+                    existing_bonds.add(pair)
+                    existing_bonds.add(rpair)
+                    added_sugar += 1
+
+    if added_intra or added_inter or added_sugar:
+        print(f"  Added {added_intra} intra-residue + {added_inter} inter-residue "
+              f"+ {added_sugar} sugar-sugar bonds for GLYCAM")
 
 
 _SOLVENT_IONS_BLOCK = """\
@@ -615,7 +758,12 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
                           f"{res_list[i+1].name}{res_list[i+1].id}:N")
 
     forcefield = ForceField('amber14-all.xml', 'amber14/GLYCAM_06j-1.xml')
-    add_glycam_bonds(topology, forcefield, verbose)
+    # Pass positions so sugar-sugar glycosidic bonds are detected by distance.
+    # Without these bonds, GLYCAM templates for linkage-position sugars (e.g.
+    # 6LB declares O6 must be externally bonded) fail to match and addHydrogens
+    # raises "No template found for residue X. The atoms and bonds match X,
+    # but the set of externally bonded atoms is missing 1 O atom."
+    add_glycam_bonds(topology, forcefield, verbose, positions=positions)
 
     # Build variants list from captured AMBER protonation names.
     # Skip variants for N/C-terminal residues (no NASH/CGLH in AMBER14).
@@ -688,6 +836,33 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
             if orig in forcefield._templates:
                 res.name = orig
                 res_templates[res] = orig
+        # Defensive disambiguation for any remaining CYS not yet templated.
+        # After addHydrogens, an isolated CYS might still match BOTH CYM and
+        # CYX templates (e.g. when the protein-glycan workflow stripped HG on
+        # an SS bond we missed). Force the right template:
+        #   - HG present → protonated CYS (template CYS)
+        #   - HG absent → CYX (assume disulfide; safer than CYM which is
+        #     charged and rare). For CYM, use --protonate flag explicitly.
+        elif res.name == 'CYS' and res not in res_templates:
+            atom_names = {a.name for a in res.atoms()}
+            is_terminal = key in n_term_keys or key in c_term_keys
+            if 'HG' in atom_names:
+                term_name = ('N' if key in n_term_keys else 'C') + 'CYS'
+                if is_terminal and term_name in forcefield._templates:
+                    res_templates[res] = term_name
+                else:
+                    res_templates[res] = 'CYS'
+            else:
+                # Missing HG and not yet flagged as CYX — assume disulfide.
+                if is_terminal:
+                    term_name = ('N' if key in n_term_keys else 'C') + 'CYX'
+                    if term_name in forcefield._templates:
+                        res.name = 'CYX'
+                        res_templates[res] = term_name
+                        continue
+                if 'CYX' in forcefield._templates:
+                    res.name = 'CYX'
+                    res_templates[res] = 'CYX'
         # Force template for GLYCAM sugars (ignoreExternalBonds can cause mismatches)
         elif res.name in forcefield._templates and _is_glycam_sugar(res.name):
             res_templates[res] = res.name

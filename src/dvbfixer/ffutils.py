@@ -37,6 +37,91 @@ SOLVENT_IONS = {
     'NA+', 'CL-', 'K+', 'MG2+', 'CA2+',
 }
 
+# GLYCAM force field naming detection. GLYCAM uses 3-char codes:
+#   [linkage][sugar][anomer] (e.g. UYB, 4YB, VMB, 0YA)
+# Plus glycoprotein residues (NLN/OLS/OLT) and reducing-end caps.
+_GLYCAM_LINKAGE_CHARS = set('0123456789VWUZXYTSRQPvwuzxytsr')
+_GLYCAM_ANOMER_CHARS = {'A', 'B'}
+GLYCAM_PROTEIN_RESIDUES = {'NLN', 'OLS', 'OLT'}
+GLYCAM_CAPS = {'ROH', 'OME', 'TBT', 'CMET'}
+
+# Residue names that should be written as ATOM (not HETATM) in PDB output.
+# OpenMM's PDBFile.writeFile defaults non-standard names to HETATM; this set
+# is used by fix_atom_hetatm_records() to rewrite them after writing.
+FORCE_ATOM_RESIDUES = frozenset(PROTEIN_RESIDUES)
+
+
+def is_glycam_sugar(name):
+    """True if `name` is a GLYCAM sugar code (3-char linkage+sugar+anomer or cap)."""
+    if name in GLYCAM_CAPS:
+        return True
+    return (len(name) == 3
+            and name[0] in _GLYCAM_LINKAGE_CHARS
+            and name[2] in _GLYCAM_ANOMER_CHARS)
+
+
+def is_glycam_residue(name):
+    """True if `name` is any GLYCAM-named residue (sugar OR glycoprotein)."""
+    return name in GLYCAM_PROTEIN_RESIDUES or is_glycam_sugar(name)
+
+
+def detect_glycam_input(topology):
+    """Scan topology for GLYCAM and PDB sugar residues.
+
+    Returns dict with keys:
+      - glycam_proteins: set of (chain_id, res_id) for NLN/OLS/OLT
+      - glycam_sugars:   set of (chain_id, res_id) for GLYCAM-named sugars
+      - pdb_sugars:      set of (chain_id, res_id) for known PDB sugars
+                          (NAG, BMA, MAN, FUC, ...) — present in KNOWN_GLYCAN_SMILES
+      - unknown_hets:    set of (chain_id, res_id) for anything non-protein
+                          non-solvent that's not in the above
+    """
+    known_prot_solv = PROTEIN_RESIDUES | SOLVENT_IONS
+    info = {
+        'glycam_proteins': set(),
+        'glycam_sugars': set(),
+        'pdb_sugars': set(),
+        'unknown_hets': set(),
+    }
+    for res in topology.residues():
+        key = (res.chain.id, res.id)
+        name = res.name
+        if name in GLYCAM_PROTEIN_RESIDUES:
+            info['glycam_proteins'].add(key)
+        elif is_glycam_sugar(name):
+            info['glycam_sugars'].add(key)
+        elif name in KNOWN_GLYCAN_SMILES:
+            info['pdb_sugars'].add(key)
+        elif name not in known_prot_solv:
+            info['unknown_hets'].add(key)
+    return info
+
+
+def fix_atom_hetatm_records(pdb_path):
+    """Rewrite HETATM→ATOM for protein residues that OpenMM's PDBFile.writeFile
+    incorrectly emitted as HETATM (AMBER protonation variants HID/HIE/HIP/
+    ASH/GLH/CYX/CYM/LYN and GLYCAM glycoprotein residues NLN/OLS/OLT).
+
+    Reads pdb_path, rewrites in place. Idempotent.
+    """
+    try:
+        with open(pdb_path) as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        return
+    changed = False
+    out = []
+    for line in lines:
+        if line.startswith('HETATM') and len(line) >= 20:
+            resname = line[17:20].strip()
+            if resname in FORCE_ATOM_RESIDUES:
+                line = 'ATOM  ' + line[6:]
+                changed = True
+        out.append(line)
+    if changed:
+        with open(pdb_path, 'w') as f:
+            f.writelines(out)
+
 
 def _find_unknown_residue_names(topology):
     """Find residue names in topology that aren't protein/water/ions."""

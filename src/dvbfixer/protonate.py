@@ -68,17 +68,71 @@ def parse_args(argv=None):
     return p.parse_args(argv)
 
 
+# GLYCAM glycoprotein residues that must be renamed to their standard parents
+# before PROPKA3 sees them. PROPKA3 only recognizes the 20 canonical amino acids.
+_PROPKA_RENAME = {'NLN': 'ASN', 'OLS': 'SER', 'OLT': 'THR'}
+
+
+def _sanitize_for_propka(input_path):
+    """Build a temp-file PDB with GLYCAM names renamed to standard parents
+    and all heterogens (sugars, ligands) stripped. PROPKA3 only knows
+    standard amino acids and will silently drop or error on NLN/UYB/etc.
+
+    Returns the temp file path (caller must delete).
+    """
+    import tempfile
+    from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
+    keep_resnames = PROTEIN_RESIDUES | SOLVENT_IONS
+
+    fd, tmp_path = tempfile.mkstemp(suffix='.pdb', prefix='propka_')
+    with open(input_path) as inp, open(tmp_path, 'w') as out:
+        for line in inp:
+            if line.startswith(('ATOM', 'HETATM', 'ANISOU')):
+                resname = line[17:20].strip()
+                # Rename GLYCAM glycoprotein residues so PROPKA processes them
+                # as their standard parent for pKa calculation.
+                if resname in _PROPKA_RENAME:
+                    parent = _PROPKA_RENAME[resname]
+                    line = line[:17] + f"{parent:<3s}" + line[20:]
+                    resname = parent
+                # Drop heterogens (sugars, ligands) — PROPKA doesn't need them.
+                if resname not in keep_resnames:
+                    continue
+            elif line.startswith('TER'):
+                # Keep TER but rewrite resname if it's a GLYCAM protein.
+                if len(line) > 20:
+                    resname = line[17:20].strip()
+                    if resname in _PROPKA_RENAME:
+                        line = line[:17] + f"{_PROPKA_RENAME[resname]:<3s}" + line[20:]
+            elif line.startswith('CONECT'):
+                # CONECT records reference HETATMs we stripped; skip.
+                continue
+            out.write(line)
+    import os
+    os.close(fd)
+    return tmp_path
+
+
 def run_propka(input_path):
-    """Run PROPKA3 on the input PDB and return the MolecularContainer."""
+    """Run PROPKA3 on the input PDB and return the MolecularContainer.
+
+    Pre-sanitizes input by renaming GLYCAM glycoprotein residues
+    (NLN→ASN, OLS→SER, OLT→THR) and stripping heterogens so PROPKA3
+    can process glycoprotein inputs.
+    """
     from propka.run import single
 
-    # Suppress PROPKA warnings to stderr
-    old_stderr = sys.stderr
-    sys.stderr = io.StringIO()
+    sanitized = _sanitize_for_propka(input_path)
     try:
-        mc = single(str(input_path), write_pka=False)
+        # Suppress PROPKA warnings to stderr
+        old_stderr = sys.stderr
+        sys.stderr = io.StringIO()
+        try:
+            mc = single(sanitized, write_pka=False)
+        finally:
+            sys.stderr = old_stderr
     finally:
-        sys.stderr = old_stderr
+        Path(sanitized).unlink(missing_ok=True)
 
     return mc
 
@@ -193,16 +247,30 @@ def _strip_hydrogens(topology, positions):
 def _add_hydrogens_to_output(input_path, output_path, args, renames):
     """Load original PDB, strip H, add H with correct protonation variants, write output."""
     from openmm.app import ForceField, Modeller, PDBFile
+    from dvbfixer.ffutils import (PROTEIN_RESIDUES, SOLVENT_IONS,
+                                   detect_glycam_input,
+                                   create_forcefield_with_openff,
+                                   fix_atom_hetatm_records)
 
     pdb = PDBFile(str(input_path))
+
+    # Detect GLYCAM residues. If present, we keep ALL residues in the system
+    # and use AMBER14+GLYCAM (which has NLN/OLS/OLT/sugar templates) instead
+    # of ff19SB (which has none).
+    info = detect_glycam_input(pdb.topology)
+    glycam_present = bool(info['glycam_proteins'] or info['glycam_sugars'])
 
     # Strip existing hydrogens
     topology, positions = _strip_hydrogens(pdb.topology, pdb.positions)
 
-    # Strip non-protein residues that the force field can't handle
-    from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
     known = PROTEIN_RESIDUES | SOLVENT_IONS
-    to_delete = [res for res in topology.residues() if res.name not in known]
+    # GLYCAM mode: keep heterogens in the topology (GLYCAM FF parametrizes
+    # NLN/OLS/OLT + sugar residues directly). Otherwise strip heterogens and
+    # re-append them verbatim at write time.
+    if glycam_present:
+        to_delete = []
+    else:
+        to_delete = [res for res in topology.residues() if res.name not in known]
     has_hetatm = len(to_delete) > 0
 
     if has_hetatm:
@@ -230,8 +298,33 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
             variants.append(None)
 
     print("Adding hydrogens for assigned protonation states...")
-    forcefield = ForceField(*args.ff)
     modeller = Modeller(stripped_top, stripped_pos)
+
+    if glycam_present:
+        # Build GLYCAM-aware FF. create_forcefield_with_openff loads the
+        # provided XMLs (caller upgraded args.ff to amber14+GLYCAM) and
+        # registers SMIRNOFF for any unknown ligands.
+        forcefield = create_forcefield_with_openff(
+            args.ff, modeller.topology, verbose=args.verbose,
+        )
+        # Load GLYCAM-specific H definitions so addHydrogens knows where to
+        # place H atoms on UYB/4YB/VMB/NLN/OLS/OLT/etc.
+        try:
+            Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')
+        except Exception:
+            pass
+        # Add intra-residue bonds for GLYCAM residues — OpenMM's PDBFile
+        # doesn't infer them for non-standard residues, but addHydrogens
+        # needs them to place H correctly.
+        try:
+            from dvbfixer.acpype_export import add_glycam_bonds
+            add_glycam_bonds(modeller.topology, forcefield, args.verbose,
+                              positions=modeller.positions)
+        except Exception as e:
+            if args.verbose:
+                print(f"  add_glycam_bonds skipped: {e}")
+    else:
+        forcefield = ForceField(*args.ff)
 
     # Use PDBFixer to add any missing heavy atoms first
     from pdbfixer import PDBFixer
@@ -244,6 +337,17 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
             fixer = PDBFixer(pdbfile=_f)
         fixer.findMissingResidues()
         fixer.missingResidues = {}  # Don't add missing residues, only atoms
+        # In GLYCAM mode, prevent PDBFixer from "fixing" NLN/OLS/OLT (it
+        # doesn't recognize them as standard residues and may strip/replace).
+        if glycam_present:
+            from dvbfixer.ffutils import GLYCAM_PROTEIN_RESIDUES
+            # PDBFixer's substitutions[chain_idx] is a list of (res_idx, new_name).
+            # Just clear it — we don't want any substitutions.
+            try:
+                fixer.findNonstandardResidues()
+                fixer.nonstandardResidues = []
+            except Exception:
+                pass
         fixer.findMissingAtoms()
         fixer.addMissingAtoms()
         modeller = Modeller(fixer.topology, fixer.positions)
@@ -265,7 +369,12 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     finally:
         Path(_tmp_path).unlink()
 
-    modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+    if glycam_present:
+        # ignoreExternalBonds=True: the protein-glycan ND2-C1 bond doesn't
+        # match any single template, so addHydrogens must tolerate it.
+        modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+    else:
+        modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
 
     # Rename residues in the final topology to match AMBER names
     for res in modeller.topology.residues():
@@ -302,8 +411,41 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         with open(output_path, 'w') as f:
             PDBFile.writeFile(modeller.topology, modeller.positions, f, keepIds=True)
 
+    # Rewrite HETATM→ATOM for AMBER protonation variants (HID/HIE/HIP/ASH/
+    # GLH/CYX/CYM/LYN) and GLYCAM glycoprotein residues (NLN/OLS/OLT).
+    # PDBFile.writeFile defaults non-standard names to HETATM.
+    fix_atom_hetatm_records(output_path)
+
     n_h = sum(1 for a in modeller.topology.atoms() if a.element.symbol == 'H')
     print(f"Added {n_h} hydrogen atoms")
+
+
+def _scan_glycam_residues(input_path):
+    """Quick text scan of input PDB. Returns (glycam_positions, has_glycam)
+    where glycam_positions is a set of (chain, resnum, icode) tuples for
+    NLN/OLS/OLT (and any GLYCAM sugar) in the file.
+    """
+    from dvbfixer.ffutils import is_glycam_residue
+    positions = set()
+    has_glycam = False
+    with open(input_path) as f:
+        for line in f:
+            if not line.startswith(('ATOM', 'HETATM')):
+                continue
+            resname = line[17:20].strip()
+            if is_glycam_residue(resname):
+                has_glycam = True
+                chain = line[21]
+                seq_str = line[22:26].strip()
+                if seq_str and seq_str.lstrip('-').isdigit():
+                    resnum = int(seq_str)
+                    icode = line[26].strip() if len(line) > 26 else ''
+                    positions.add((chain, resnum, icode))
+    return positions, has_glycam
+
+
+# Default FF args (in argparse) so we can detect whether the user changed them
+_DEFAULT_FF = ['amber19/protein.ff19SB.xml', 'amber19/tip3p.xml']
 
 
 def main(argv=None):
@@ -314,6 +456,15 @@ def main(argv=None):
         sys.exit(1)
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prot")
+
+    # GLYCAM detection: if input has NLN/OLS/OLT or GLYCAM-named sugars,
+    # switch FF to AMBER14+GLYCAM (ff19SB has no GLYCAM templates → crash).
+    glycam_positions, has_glycam = _scan_glycam_residues(input_path)
+    if has_glycam and args.ff == _DEFAULT_FF:
+        args.ff = ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml',
+                   'amber14/tip3pfb.xml']
+        if args.verbose:
+            print(f"GLYCAM residues detected → using FF: {' '.join(args.ff)}")
 
     print(f"Running PROPKA3 on {input_path} at pH {args.ph}...")
     mc = run_propka(input_path)
@@ -339,6 +490,39 @@ def main(argv=None):
         print()
 
     renames = decide_protonation(pka_results, args.ph, args.his_default, args.cys_disulfide_pka)
+
+    # PROPKA saw the GLYCAM glycoprotein residues as ASN/SER/THR (after our
+    # temp-PDB rename). Don't apply those protonation renames to the actual
+    # NLN/OLS/OLT positions — they have different chemistry (the sidechain N
+    # or O is bonded to a sugar, not protonated).
+    if glycam_positions:
+        renames = {k: v for k, v in renames.items() if k not in glycam_positions}
+
+    # Preserve AMBER protonation variants already present in the input. PROPKA
+    # ran on the sanitized PDB (which had its residues renamed to canonical
+    # parents), so it might predict "standard" protonation for a residue that
+    # the user had explicitly labeled HID/HIE/HIP/CYX/etc. in the input.
+    # If `renames` has no entry for that position, carry the input variant
+    # name forward so the output preserves it.
+    _AMBER_VARIANT_NAMES = {'HID', 'HIE', 'HIP', 'ASH', 'GLH',
+                             'CYX', 'CYM', 'LYN'}
+    input_variants = {}
+    with open(input_path) as _f:
+        for _ln in _f:
+            if not _ln.startswith(('ATOM', 'HETATM')):
+                continue
+            _rn = _ln[17:20].strip()
+            if _rn not in _AMBER_VARIANT_NAMES:
+                continue
+            _ch = _ln[21]
+            _ss = _ln[22:26].strip()
+            if _ss and _ss.lstrip('-').isdigit():
+                _rs = int(_ss)
+                _ic = _ln[26].strip() if len(_ln) > 26 else ''
+                input_variants[(_ch, _rs, _ic)] = _rn
+    for key, name in input_variants.items():
+        if key not in renames and key not in glycam_positions:
+            renames[key] = name
 
     if args.verbose or args.summary:
         if renames:

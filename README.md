@@ -175,7 +175,9 @@ dvbfixer model input.pdb --keep-workdir -v
 
 ### dvbfixer prepare — Structure Fixing with PDBFixer
 
-Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. **Heterogens (sugars, ligands) are kept and protonated by default** — H is added to them via AMBER14 + GLYCAM_06j-1 + SMIRNOFF (BioLuminate-style), so a crystal structure with bare glycans/ligands becomes fully protonated in one call. Pass `--strip-heterogens` for the legacy protein-only behavior, or `--no-heterogen-h` to keep heterogens but skip the H addition. User-specified protonation variants (HIE/HID/HIP/ASH/GLH/CYX from input PDB or `--mutate`) are passed as explicit OpenMM variants for correct hydrogen placement. Writes a `.dat` file recording which atoms were added (including variant overrides for downstream minimize).
+Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. **Heterogens (sugars, ligands) are kept and protonated by default** — H is added to them via AMBER14 + GLYCAM_06j-1 + SMIRNOFF (BioLuminate-style), so a crystal structure with bare glycans/ligands becomes fully protonated in one call. Pass `--strip-heterogens` to remove them (protein-only mode), or `--no-heterogen-h` to keep heterogens but skip the H addition. User-specified protonation variants (HIE/HID/HIP/ASH/GLH/CYX from input PDB or `--mutate`) are passed as explicit OpenMM variants for correct hydrogen placement. Writes a `.dat` file recording which atoms were added (including variant overrides for downstream minimize).
+
+**GLYCAM-named input** (NLN/OLS/OLT + GLYCAM sugars like UYB/4YB/VMB/0YA) is auto-detected and handled natively — `add_glycam_bonds(positions=...)` is called before addHydrogens to populate intra-residue, peptide, and sugar-sugar glycosidic bonds (required for template matching on NLN's protein neighbour). The RDKit/OpenBabel H-polish passes are skipped when all heterogens are GLYCAM-named (already protonated by GLYCAM templates). After writing the output, `fix_atom_hetatm_records` rewrites any HETATM lines for protein residues (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN/NLN/OLS/OLT) back to ATOM records.
 
 #### Usage
 
@@ -186,8 +188,11 @@ dvbfixer prepare input.pdb -v
 # Custom output
 dvbfixer prepare input.pdb -o fixed.pdb --dat fixed.dat
 
-# Keep crystallographic waters and heterogens
-dvbfixer prepare input.pdb --keep-water --keep-heterogens
+# Keep crystallographic waters (heterogens already kept by default)
+dvbfixer prepare input.pdb --keep-water
+
+# Strip heterogens (protein-only mode)
+dvbfixer prepare input.pdb --strip-heterogens
 
 # Apply point mutations
 dvbfixer prepare input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
@@ -201,9 +206,8 @@ dvbfixer prepare input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
 | `--dat` | `<output>.dat` | Restraint data file path |
 | `--ph` | 7.0 | pH for hydrogen addition |
 | `--keep-water` | off | Keep crystallographic waters |
-| `--keep-heterogens` | **on (default)** | Keep all heterogens (sugars, ligands, ions) and add H to them via AMBER14+GLYCAM+SMIRNOFF |
-| `--strip-heterogens` | off | Remove all heterogens (legacy protein-only behavior) |
-| `--no-heterogen-h` | off | Skip H addition for heterogens (keep them, just don't protonate) |
+| `--strip-heterogens` | off (default: keep) | Remove heterogens (sugars, ligands, ions) before processing — protein-only mode |
+| `--no-heterogen-h` | off | Keep heterogens but skip H addition |
 | `--mutate` | none | Mutate a residue: CHAIN:RESNUM:NEW_AA (can be used multiple times) |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
 | `-v`, `--verbose` | off | Print detailed progress |
@@ -265,7 +269,7 @@ dvbfixer pull input.pdb --bond A:22:SG:A:96:SG --radius 8.0 -o output.pdb
 
 ### dvbfixer minimize — Energy Minimization with OpenMM
 
-Energy-minimizes a PDB structure with OpenMM using selective restraints. **By default minimizes the whole system** (protein + sugars + ligands) — when heterogens are present, swaps the FF to AMBER14 + GLYCAM_06j-1 with SMIRNOFF for unknown residues, calls `add_glycam_bonds` to populate intra-residue bonds for GLYCAM templates, and uses `ignoreExternalBonds=True` for N-linked glycan junctions. Pass `--strip-heterogens` for the legacy strip-and-splice flow (protein-only minimization with HETATM coords restored verbatim). Reads a `.dat` file (from `dvbfixer model` + `dvbfixer prepare`) to apply different restraint strengths to original vs newly added atoms; heterogens not in `.dat` get no restraint and relax freely. All HIS residues are automatically renamed to explicit variants (HIE/HID/HIP). By default keeps existing hydrogens from input; with `--rebuild-h`, strips and re-adds via OpenMM. Detects AMBER protonation names (HIE/GLH/CYX etc.) from the raw PDB and passes them as `variants` to `addHydrogens`.
+Energy-minimizes a PDB structure with OpenMM using selective restraints. **By default minimizes the whole system** (protein + sugars + ligands) — when heterogens are present, swaps the FF to AMBER14 + GLYCAM_06j-1 with SMIRNOFF for unknown residues, calls `add_glycam_bonds(positions=...)` to populate intra-residue bonds for GLYCAM templates + protein-glycan peptide bonds + distance-based sugar-sugar glycosidic bonds, and uses `ignoreExternalBonds=True` for N-linked glycan junctions. Pass `--strip-heterogens` for the strip-and-splice flow (protein-only minimization with HETATM coords restored verbatim). NLN/OLS/OLT names from the input PDB are snapshotted and restored just before the final write — defensive belt-and-braces for the strip-and-splice fallback. Reads a `.dat` file (from `dvbfixer model` + `dvbfixer prepare`) to apply different restraint strengths to original vs newly added atoms; heterogens not in `.dat` get no restraint and relax freely. All HIS residues are automatically renamed to explicit variants (HIE/HID/HIP). By default keeps existing hydrogens from input; with `--rebuild-h`, strips and re-adds via OpenMM. Detects AMBER protonation names (HIE/GLH/CYX etc.) from the raw PDB and passes them as `variants` to `addHydrogens`. Calls `fix_atom_hetatm_records` on the output so protonation variants and NLN/OLS/OLT are written as ATOM records.
 
 For BioLuminate-style refinement of arbitrary ligands/sugars **without per-ligand parametrization**, pass `--xtb-refine` (xtb GFN-FF universal force field) or `--obminimize-refine` (OpenBabel MMFF94/UFF/GAFF) — both auto-type any organic molecule from connectivity rules. Combine with `--refine-heterogens-only` to keep the AMBER-quality protein frozen and refine only the glycan/ligand geometry. Anchor residues (e.g. ASN of an N-linked glycan) are included as frozen atoms so protein-glycan bond geometry is preserved.
 
@@ -317,8 +321,7 @@ dvbfixer minimize glycoprotein.pdb --obminimize-refine --refine-heterogens-only
 | `--weak-k` | 5.0 | Weak restraint constant for new backbone (kcal/mol/A^2) |
 | `--max-iter` | 1000 | Max minimization iterations per phase |
 | `--rebuild-h` | off | Strip and re-add hydrogens via OpenMM (default: keep existing) |
-| `--keep-heterogens` | **on (default)** | Minimize heterogens with protein. Uses AMBER14+GLYCAM+SMIRNOFF when heterogens present |
-| `--strip-heterogens` | off | Legacy: strip heterogens before parametrization, splice coords back |
+| `--strip-heterogens` | off (default: keep) | Strip heterogens before parametrization, splice coords back — protein-only mode |
 | `--no-solvent` | off | Minimize in vacuum |
 | `--xtb-refine` | off | Post-pass: refine geometry with xtb GFN-FF universal force field (auto-parametrizes any organic molecule, no templates needed) |
 | `--xtb-cycles` | 200 | Max xtb optimization cycles |
@@ -349,6 +352,8 @@ dvbfixer minimize input_prepared.pdb --dat input_prepared.dat -v
 ### dvbfixer protonate — PROPKA3 Protonation Assignment
 
 Runs PROPKA3 to predict per-residue pKa values, then renames titratable residues to their correct protonation state at the target pH and adds the corresponding hydrogen atoms. Uses AMBER force field naming conventions (HID/HIE/HIP, ASH, GLH, CYM, CYX, LYN). Existing hydrogens are stripped and re-added by OpenMM based on the renamed residue templates.
+
+**GLYCAM support**: PROPKA3 doesn't recognize GLYCAM glycoprotein residues (NLN/OLS/OLT), so they are renamed to ASN/SER/THR in a temp PDB (heterogens stripped) before PROPKA runs; pKa results are mapped back to the original input. When GLYCAM residues are detected, the FF auto-switches to AMBER14 + GLYCAM_06j-1 + tip3pfb (ff19SB has no GLYCAM templates → crash); `add_glycam_bonds(positions=...)` populates the missing bonds and `glycam-hydrogens.xml` provides the H definitions. PROPKA renames are filtered out for NLN/OLS/OLT positions (sugar-bonded sidechains, different chemistry). AMBER variant names (HID/HIE/HIP/CYX/etc.) already present in the input are preserved by scanning the raw PDB text before OpenMM normalizes them. After writing, `fix_atom_hetatm_records` rewrites HETATM lines for protein residues back to ATOM.
 
 #### Protonation Logic
 
@@ -804,7 +809,7 @@ dvbfixer zbs input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
 | `--md-level` | fast | Modeller MD refinement level |
 | `--fasta` | none | FASTA file for model step |
 | `--skip-prepare` | off | Skip prepare step |
-| `--keep-heterogens` | off | Keep heterogens during prepare |
+| `--strip-heterogens` | off (default: keep) | Strip heterogens during prepare/minimize — protein-only pipeline |
 | `--mutate` | none | Mutate a residue during prepare: CHAIN:RESNUM:NEW_AA (repeatable) |
 | `--skip-minimize` | off | Skip minimize step |
 | `--no-solvent` | off | Minimize in vacuum |
@@ -884,39 +889,65 @@ dvbfixer protonate 1HZH_renum_model_prepared_minimized_prot_minimized.pdb --no-h
 
 ### Glycoprotein preparation with GLYCAM
 
-#### Option A: Direct glycam → acpype pipeline (for structures with glycans already placed)
+**End-to-end pipeline** (recommended for glycoproteins with PDB-named sugars):
 
 ```bash
-# 1. Convert PDB glycan names + atom names to GLYCAM convention
-dvbfixer glycam glycoprotein.pdb -o glycam.pdb -v
-# -> glycam.pdb (residues: UYB, 4YB, VMB, 0fA, NLN etc.; atoms: C2N, N2, H3O etc.)
+# 1. Convert PDB glycan names + atom names to GLYCAM convention.
+#    Detects glycosidic bonds from CONECT, renames sugars (NAG→UYB/0YB,
+#    BMA→VMB, MAN→2MA, etc.) and glycoprotein residues (ASN→NLN,
+#    SER→OLS, THR→OLT). Renames atoms (C7→C2N, O7→O2N, HO3→H3O, etc.).
+dvbfixer glycam crystal.pdb -o glycam.pdb -v
 
-# 2. Generate GROMACS topology (AMBER14 + GLYCAM, handles mixed 1-4 scaling)
-dvbfixer top glycam.pdb --acpype -v
-# -> topol.top, glycam.gro, posre_glycam.itp
+# 2. Add hydrogens with AMBER14+GLYCAM_06j-1 templates.
+#    Auto-detects GLYCAM residues; runs add_glycam_bonds(positions=...)
+#    to populate intra-residue + peptide + sugar-sugar glycosidic bonds
+#    before addHydrogens. RDKit/OpenBabel H polish is skipped (GLYCAM
+#    already provides correct H placement). Output: NLN/UYB/4YB/VMB
+#    preserved with H atoms.
+dvbfixer prepare glycam.pdb -o prep.pdb -v
+
+# 3. Energy-minimize the whole system (protein + glycans) with
+#    AMBER14+GLYCAM. Glycans relax freely (no .dat restraint); protein
+#    heavy atoms strongly restrained. NLN/OLS/OLT names preserved.
+dvbfixer minimize prep.pdb -o min.pdb --no-solvent -v
+
+# 4. Assign protonation states with PROPKA3. Auto-renames NLN→ASN
+#    internally for the pKa calc, then maps results back. FF auto-
+#    switches to amber14+GLYCAM for the H addition.
+dvbfixer protonate min.pdb -o prot.pdb -v
+
+# 5. Generate GROMACS topology (AMBER14+GLYCAM, mixed 1-4 scaling
+#    via [ pairs_nb ]).
+dvbfixer top prot.pdb --acpype -o gmx/ -v
+# -> gmx/topol.top, gmx/prot.gro, gmx/posre_prot.itp
 ```
 
-#### Option B: GLYCAM-Web workflow (for adding glycans from scratch)
+GLYCAM names (NLN/UYB/4YB/VMB/0YB/0fA/0LA/2MA/...) and protonation
+variants (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN) survive end-to-end through
+all five steps. After the pipeline, run a normal GROMACS workflow:
+`gmx editconf` → `gmx solvate` → `gmx genion` → `gmx grompp` → `gmx mdrun`.
+
+#### Alternative: GLYCAM-Web workflow (for adding glycans from scratch)
+
+When the input has no glycans and you need to add them via the GLYCAM-Web
+glycan builder:
 
 ```bash
-# 1. Prepare protein structure
+# 1. Prepare the deglycosylated protein
 dvbfixer zbs antibody.pdb -v
-# -> antibody_zbs.pdb
 
-# 2. Extract glycosylation sites into donor.pdb (manually or with PyMOL)
-# 3. Submit donor.pdb to GLYCAM-Web -> get glycam_output.pdb
+# 2. Extract glycosylation site residues into donor.pdb (PyMOL select)
+# 3. Submit donor.pdb to GLYCAM-Web -> download glycam_output.pdb
 
-# 4. Transplant GLYCAM output back into full structure
-dvbfixer transplant antibody_zbs.pdb --donor donor.pdb --graft glycam_output.pdb -v
-# -> antibody_zbs_transplant.pdb
+# 4. Transplant GLYCAM output back, with relaxation
+dvbfixer transplant antibody_zbs.pdb --donor donor.pdb \
+    --graft glycam_output.pdb --relax -v
 
-# 5. Relax with AMBER+GLYCAM force fields
-dvbfixer transplant antibody_zbs.pdb --donor donor.pdb --graft glycam_output.pdb --relax -v
-# -> antibody_zbs_transplant.pdb + antibody_zbs_transplant_relaxed.pdb
-
-# 6. Generate GROMACS topology (handles mixed AMBER/GLYCAM 1-4 scaling)
-dvbfixer top antibody_zbs_transplant.pdb --acpype
-# -> topol.top, .gro, posre_*.itp
+# 5. Continue through the same prepare → minimize → protonate → top pipeline
+dvbfixer prepare   antibody_zbs_transplant_relaxed.pdb -o prep.pdb -v
+dvbfixer minimize  prep.pdb -o min.pdb --no-solvent -v
+dvbfixer protonate min.pdb -o prot.pdb -v
+dvbfixer top       prot.pdb --acpype -o gmx/ -v
 ```
 
 ### GROMACS topology generation
@@ -973,7 +1004,7 @@ dvbfixer parametrize acetate.pdb -n ACET --net-charge -1
 
 - **Pull valence checking**: The `pull` tool validates bonds before and after pulling. Pre-pull: checks valence (bond count vs element max), warns about unusual element pairs. Post-pull: checks convergence (distance vs target), bond length range, and steric clashes within the pulling residues. All checks are warnings only — they do not prevent the operation.
 
-- **Glycoprotein minimization in `minimize`**: Non-protein residues (glycans, ligands) are automatically stripped before minimization and restored with original coordinates afterward. For full glycoprotein minimization with GLYCAM force field, use `transplant --relax` instead.
+- **Glycoprotein minimization in `minimize`**: Default minimizes the WHOLE system (protein + glycans + ligands) with AMBER14 + GLYCAM_06j-1 + SMIRNOFF. Strip-and-splice mode (`--strip-heterogens`) is an opt-in protein-only flow with HETATM coords spliced back from the input. When the GLYCAM full-system path can't parametrize PDB-named sugars (NAG/BMA/MAN without GLYCAM templates), the tool auto-falls back to strip-and-splice and `_rigid_track_glycan_trees` does Kabsch tracking + canonical trans-amide C1/HD21 placement to preserve the glycan geometry relative to the moved protein.
 
 - **Mixed 1-4 scaling (AMBER+GLYCAM)**: AMBER uses fudgeLJ=0.5/fudgeQQ=0.8333, GLYCAM uses 1.0/1.0. GROMACS only supports one global value. The `--acpype` flag on `top` and `--gromacs` on `transplant` solve this via ACPYPE's `[ pairs_nb ]` directive with per-pair LJ/Coulomb parameters.
 
