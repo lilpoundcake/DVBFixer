@@ -533,12 +533,13 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         legacy_args.rebuild_h = True
         out_top, out_pos = minimize(topology, positions, new_atom_indices, legacy_args,
                                      amber_renames=amber_renames)
-        # Restore H positions on glycosylated residues from the original input.
-        # AMBER minimization treats NLN→ASN as a regular amide and may flip
-        # HD21/HD22 to the wrong side of ND2, ending up colliding with the
-        # linked sugar C1. Snap glycosylated H back to input positions to
-        # preserve the protein-glycan stereochemistry.
-        return _restore_glycosylated_h(out_top, out_pos, topology, positions)
+        # Rigid-tracking inside the inner minimize already aligned the
+        # glycan tree to the post-min anchor and snapped the linkage atom
+        # to its ideal trigonal-planar position. Calling
+        # _restore_glycosylated_h here would overwrite the post-min amide
+        # (CG/OD1/ND2/HD21) with stale prep coords, breaking the bond
+        # to the rigid-tracked glycan. Skip it.
+        return out_top, out_pos
 
     restraint, n_strong, n_weak, n_free = build_restraint_force(
         modeller.topology, modeller.positions,
