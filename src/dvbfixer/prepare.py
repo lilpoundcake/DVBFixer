@@ -17,8 +17,21 @@ from pdbfixer import PDBFixer
 DEFAULT_PH = 7.0
 
 # Residues that form glycosidic bonds through ND2 (N-linked glycosylation)
-GLYCOSYLATED_RESIDUES = {'ASN'}
-SUGAR_RESNAMES = {'NAG', 'NDG', 'BMA', 'MAN', 'FUC', 'FUL', 'GAL', 'BGC', 'GLC', 'SIA'}
+GLYCOSYLATED_RESIDUES = {'ASN', 'SER', 'THR'}
+# Known sugar residue names across the three force fields:
+#   - PDB-style 3-char codes from the RCSB Chemical Component Dictionary
+#   - CHARMM-GUI 4-char codes (BGLC, AMAN, BGAL, BGLCNA, ...)
+#   - GLYCAM 3-char codes are detected separately via is_glycam_sugar()
+SUGAR_RESNAMES = {
+    # PDB 3-char
+    'NAG', 'NDG', 'BMA', 'MAN', 'FUC', 'FUL', 'GAL', 'BGC', 'GLC', 'SIA',
+    'NGA', 'A2G', 'AFU', 'AMA', 'BGA', 'BGL', 'XYS', 'XYP', 'RIB', 'GCU',
+    'IDS', 'RAM', 'NAN',
+    # CHARMM-GUI 4-char
+    'BGLC', 'AGLC', 'BMAN', 'AMAN', 'BGAL', 'AGAL', 'BGLCNA', 'BGALNA',
+    'AFUC', 'BFUC', 'ANE5AC', 'BNE5AC', 'BXYL', 'AXYL', 'BIDOA', 'BGLCA',
+    'AGLCA',
+}
 
 
 def parse_args(argv=None):
@@ -103,25 +116,64 @@ def write_dat(dat, path):
 # ---------------------------------------------------------------------------
 
 def find_glycosylated_atoms(input_path):
-    """Parse CONECT records to find protein atoms bonded to sugars.
+    """Find protein atoms bonded to sugars (CONECT + distance fallback).
 
-    Returns set of (chain_id, resid, atom_name) for protein atoms with
-    glycosidic bonds (e.g. ASN ND2 bonded to NAG C1).
+    Returns a dict-like set of `(chain_id, resid, atom_name)` tuples
+    (e.g. ASN ND2 bonded to NAG C1). Use `find_glycosylated_atoms_with_sugar`
+    for the additional bonded-sugar resname info needed by GLYCAM rename
+    logic.
     """
+    return set(find_glycosylated_atoms_with_sugar(input_path).keys())
+
+
+def find_glycosylated_atoms_with_sugar(input_path):
+    """Find protein atoms bonded to sugars (CONECT records + distance
+    fallback). Returns dict `{(chain_id, resid, atom_name): sugar_resname}`.
+
+    Distance fallback is needed when the input is missing CONECT records
+    for some glycosidic bonds. ND2/OG/OG1 within 2.0 Å of a sugar anomeric
+    C (C1, or C2 for sialic acid) → glycosidic bond.
+
+    The sugar resname lets downstream rename logic distinguish GLYCAM-named
+    sugars (UYB/4YB/VMB/...) — which need the protein anchor renamed to
+    NLN/OLS/OLT for GLYCAM template matching — from PDB-named sugars
+    (NAG/NDG/BMA/MAN/...) — which go through SMIRNOFF and DON'T need the
+    rename (extra HD22 is still removed regardless).
+    """
+    from dvbfixer.ffutils import is_glycam_sugar
+
     with open(input_path) as f:
         lines = f.readlines()
 
     serials = {}
+    # Also collect atom coords for distance fallback
+    by_id = {}  # (chain, resname, resid, atomname) → (x, y, z)
     for line in lines:
         if line.startswith('ATOM') or line.startswith('HETATM'):
-            serial = int(line[6:11])
+            try:
+                serial = int(line[6:11])
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
+            except ValueError:
+                continue
             chain = line[21]
             resname = line[17:20].strip()
             resid = line[22:26].strip()
             atomname = line[12:16].strip()
             serials[serial] = (chain, resname, resid, atomname)
+            by_id[(chain, resname, resid, atomname)] = (x, y, z)
 
-    glycosylated = set()
+    glycosylated = {}  # (chain, resid, atom) → sugar_resname
+
+    def _sugar_class(name):
+        if name in SUGAR_RESNAMES:
+            return name
+        if is_glycam_sugar(name):
+            return name
+        return None
+
+    # Pass 1: CONECT-based detection.
     for line in lines:
         if not line.startswith('CONECT'):
             continue
@@ -130,7 +182,10 @@ def find_glycosylated_atoms(input_path):
         while len(s) >= 5:
             chunk = s[:5].strip()
             if chunk:
-                parts.append(int(chunk))
+                try:
+                    parts.append(int(chunk))
+                except ValueError:
+                    pass
             s = s[5:]
         if len(parts) < 2:
             continue
@@ -139,11 +194,56 @@ def find_glycosylated_atoms(input_path):
             if src not in serials or dst not in serials:
                 continue
             s_info, d_info = serials[src], serials[dst]
-            # Protein atom bonded to sugar
-            if s_info[1] in GLYCOSYLATED_RESIDUES and d_info[1] in SUGAR_RESNAMES:
-                glycosylated.add((s_info[0], s_info[2], s_info[3]))
-            elif d_info[1] in GLYCOSYLATED_RESIDUES and s_info[1] in SUGAR_RESNAMES:
-                glycosylated.add((d_info[0], d_info[2], d_info[3]))
+            d_sugar = _sugar_class(d_info[1])
+            s_sugar = _sugar_class(s_info[1])
+            if s_info[1] in GLYCOSYLATED_RESIDUES and d_sugar:
+                glycosylated[(s_info[0], s_info[2], s_info[3])] = d_sugar
+            elif d_info[1] in GLYCOSYLATED_RESIDUES and s_sugar:
+                glycosylated[(d_info[0], d_info[2], d_info[3])] = s_sugar
+
+    # Pass 2: distance-based fallback. Iterate over protein anchor atoms
+    # (ASN/SER/THR ND2/OG/OG1) and find nearby sugar anomeric carbons.
+    # 2.0 Å cutoff catches typical glycosidic bonds (~1.45 Å) with margin.
+    _ANCHOR_ATOMS = {'ASN': 'ND2', 'SER': 'OG', 'THR': 'OG1',
+                     'NLN': 'ND2', 'OLS': 'OG', 'OLT': 'OG1'}
+    _ANOMERIC_NAMES = {'C1', 'C2'}  # C2 for sialic acid
+    SIALIC_RESNAMES = {'SIA', 'NAN'}
+    sugar_anomeric = []  # list of (chain, resname, resid, atom, coord)
+    for (ch, rn, rs, an), pos in by_id.items():
+        if _sugar_class(rn) is None:
+            continue
+        if an not in _ANOMERIC_NAMES:
+            continue
+        # C2 anomeric is only for sialic acid (or GLYCAM *S* codes)
+        if an == 'C2':
+            is_sialic = rn in SIALIC_RESNAMES or (
+                len(rn) == 3 and rn[1] in ('S', 's')
+            )
+            if not is_sialic:
+                continue
+        sugar_anomeric.append((ch, rn, rs, an, pos))
+
+    cutoff2 = 2.0 ** 2
+    for (ch, rn, rs, an), pos in by_id.items():
+        if rn not in _ANCHOR_ATOMS:
+            continue
+        if an != _ANCHOR_ATOMS[rn]:
+            continue
+        key = (ch, rs, an)
+        if key in glycosylated:
+            continue  # already detected via CONECT
+        # Find nearest sugar anomeric C within cutoff
+        best = None
+        best_d2 = cutoff2
+        for (s_ch, s_rn, s_rs, s_an, s_pos) in sugar_anomeric:
+            d2 = ((pos[0] - s_pos[0]) ** 2
+                  + (pos[1] - s_pos[1]) ** 2
+                  + (pos[2] - s_pos[2]) ** 2)
+            if d2 < best_d2:
+                best_d2 = d2
+                best = s_rn
+        if best is not None:
+            glycosylated[key] = best
 
     return glycosylated
 
@@ -916,24 +1016,45 @@ def add_heterogen_h_via_openbabel(topology, positions, verbose=False):
 
 
 def rename_glycosylated_protein_residues(topology, positions, glycosylated_atoms,
-                                          verbose=False):
-    """Rename ASN/SER/THR with glycosidic external bonds to NLN/OLS/OLT in-place.
+                                          verbose=False, sugar_by_anchor=None):
+    """Rename ASN/SER/THR with glycosidic bonds to NLN/OLS/OLT — but ONLY
+    when the bonded sugar is GLYCAM-named (UYB/4YB/VMB/...).
 
-    Required so AMBER14+GLYCAM addHydrogens can match the correct template
-    (standard ASN/SER/THR template doesn't expect an external sugar bond on
-    ND2/OG/OG1). Sugar residues (NAG/FUC/...) are untouched.
+    For PDB-named sugars (NAG/NDG/BMA/MAN/...) the renames are NOT applied:
+    NLN/OLS/OLT are GLYCAM-specific templates, and PDB-sugar systems go
+    through the SMIRNOFF path which doesn't need them. Extra HD22 (etc.)
+    is still removed in both cases — that's handled by the caller via
+    `remove_extra_glycan_hydrogens`.
+
+    `sugar_by_anchor` (optional): dict {(chain, resid, atom): sugar_resname}
+    from `find_glycosylated_atoms_with_sugar`. If None, every entry in
+    `glycosylated_atoms` is treated as if bonded to a PDB-named sugar
+    (no rename).
 
     Returns (new_topology, new_positions, renamed_keys).
     """
+    from dvbfixer.ffutils import is_glycam_sugar
+
     by_res = {}
     for ch, rid, atom in glycosylated_atoms:
         by_res.setdefault((ch, rid), set()).add(atom)
+
+    # Determine which anchor residues are bonded to GLYCAM-named sugars.
+    glycam_anchors = set()
+    if sugar_by_anchor:
+        for (ch, rid, atom), sugar_rn in sugar_by_anchor.items():
+            if is_glycam_sugar(sugar_rn):
+                glycam_anchors.add((ch, rid))
 
     renamed = set()
     h_to_drop = []
     for res in topology.residues():
         key = (res.chain.id, res.id)
         if key not in by_res:
+            continue
+        if key not in glycam_anchors:
+            # PDB-named sugar → keep ASN/SER/THR name. HD22/HG removal is
+            # handled by remove_extra_glycan_hydrogens downstream.
             continue
         new_name = _GLYCAM_RENAME.get(res.name)
         if new_name is None:
@@ -1198,8 +1319,12 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     if preprocess_was_rewritten and canon_was_rewritten:
         Path(preprocessed_path).unlink(missing_ok=True)
 
-    # Detect glycosylated atoms before PDBFixer modifies anything
-    glycosylated_atoms = find_glycosylated_atoms(canon_path)
+    # Detect glycosylated atoms before PDBFixer modifies anything. Use the
+    # dict-returning variant so we also know which sugar each anchor is
+    # bonded to — needed to decide whether to rename ASN→NLN (only for
+    # GLYCAM-named sugars).
+    sugar_by_anchor = find_glycosylated_atoms_with_sugar(canon_path)
+    glycosylated_atoms = set(sugar_by_anchor.keys())
     if glycosylated_atoms and verbose:
         print(f"Detected {len(glycosylated_atoms)} glycosylated atom(s)")
 
@@ -1340,11 +1465,14 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
             variants.append(None)
 
     modeller = Modeller(fixer.topology, fixer.positions)
-    # Rename glycosylated ASN/SER/THR → NLN/OLS/OLT so GLYCAM templates match.
-    # This must happen on the Modeller topology before addHydrogens.
+    # Rename glycosylated ASN/SER/THR → NLN/OLS/OLT — but ONLY for those
+    # bonded to GLYCAM-named sugars (UYB/4YB/...). For PDB-named sugars
+    # (NAG/NDG/BMA/...) we keep ASN; HD22 is still removed downstream by
+    # remove_extra_glycan_hydrogens.
     if heterogen_h and glycosylated_atoms:
         new_top, new_pos, _renamed = rename_glycosylated_protein_residues(
             modeller.topology, modeller.positions, glycosylated_atoms, verbose,
+            sugar_by_anchor=sugar_by_anchor,
         )
         modeller = Modeller(new_top, new_pos)
     if heterogen_h:
