@@ -80,10 +80,34 @@ _NACETYL_RENAME_CHARMM = {
 # N-acetyl sugar PDB names (these get both PDB and CHARMM N-acetyl renames)
 _NACETYL_SUGARS = {'NAG', 'NDG', 'BGL', 'NGA', 'A2G'}
 
-# Per-residue specific renames (overrides)
+# Per-residue specific renames (overrides). Applied AFTER the universal
+# hydroxyl H rename and BEFORE the N-acetyl maps.
 GLYCAM_ATOM_MAP = {
-    # Sialic acid renames (different from standard sugars)
-    'SIA': {'C10': 'C5N', 'C11': 'CME', 'O10': 'O5N'},
+    # Sialic acid (Neu5Ac → 0SA / *SA in GLYCAM). The GLYCAM template
+    # uses stereo-specific naming for the two methylene H atoms (H3A/H3E
+    # on C3, H9R/H9S on C9), the amide H (H5N on N5), and the N-acetyl
+    # methyl H atoms (H1M/H2M/H3M on CME, plus C10→C5N / C11→CME / O10→O5N).
+    # We map both PDB-style (H3, H32) and CHARMM-style (H31, H32) input
+    # H-names; the actual stereo assignment is arbitrary because OpenMM
+    # only matches by name, then minimization refines positions.
+    'SIA': {
+        'C10': 'C5N', 'C11': 'CME', 'O10': 'O5N',
+        # Methylene H on C3 (PDB: H3+H32 or H31+H32)
+        'H3':  'H3A', 'H31': 'H3A', 'H32': 'H3E',
+        # Methylene H on C9 (PDB: H9+H92 or H91+H92)
+        'H9':  'H9R', 'H91': 'H9R', 'H92': 'H9S',
+        # Amide H on N5 (HN5 → H5N; H5 on C5 stays as-is)
+        'HN5': 'H5N',
+        # N-acetyl methyl H atoms on CME (PDB H11/H112/H113)
+        'H11':  'H1M', 'H112': 'H2M', 'H113': 'H3M',
+    },
+}
+
+# Atom names to DROP from specific residues (e.g. PDBFixer-added H on a
+# carboxylate). Applied during the rename pass.
+GLYCAM_ATOM_DROP = {
+    # Carboxylate -COO- has no H; PDBFixer sometimes adds one on O1B.
+    'SIA': {'HO1B', 'HO1A'},
 }
 
 # Protein residues that can be glycosylated
@@ -436,11 +460,23 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
             pos_str = ','.join(f'O{p}' for p in sorted(positions)) if positions else 'terminal'
             print(f"  {reskey[0]}:{pdb_resname}{reskey[1]} -> {glycam_name} ({pos_str})")
 
-    # Rename atoms in sugar residues
+    # Rename atoms in sugar residues + drop atoms that GLYCAM templates
+    # don't have (e.g. PDBFixer-added HO1B on sialic acid carboxylate).
+    n_dropped = 0
     for reskey in sugar_reskeys:
+        drop_set = GLYCAM_ATOM_DROP.get(atoms[residues[reskey][0]]['resname'], set())
+        kept_idx = []
         for atom_idx in residues[reskey]:
             atom = atoms[atom_idx]
+            if atom['name'] in drop_set:
+                n_dropped += 1
+                continue
             atom['name'] = _rename_atom(atom['resname'], atom['name'])
+            kept_idx.append(atom_idx)
+        residues[reskey] = kept_idx
+    if verbose and n_dropped:
+        print(f"  Dropped {n_dropped} atom(s) not in GLYCAM templates "
+              f"(e.g. HO1B on sialic carboxylate)")
 
     # Handle protein-linked residues
     protein_renames = {}
