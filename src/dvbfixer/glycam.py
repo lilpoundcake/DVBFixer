@@ -121,6 +121,242 @@ PROTEIN_TO_GLYCAM = {
 SIALIC_ACID_RESIDUES = {'SIA'}
 
 
+# ---------------------------------------------------------------------------
+# Reverse direction (GLYCAM → CHARMM)
+# ---------------------------------------------------------------------------
+
+# GLYCAM sugar letter → (alpha-anomer PDB name, beta-anomer PDB name).
+# Output uses standard 3-char PDB codes (NAG/BMA/MAN/GAL/...). These are
+# recognized by both CHARMM-GUI (as input) and `dvbfixer top --ff charmm`
+# (via the PDB_TO_CARB mapping which translates PDB names to CHARMM RTP
+# names like BGLCNA/BMAN/AMAN internally). The linkage character of the
+# GLYCAM 3-char code is dropped — linkage info is preserved via CONECT
+# records, exactly as in CHARMM-GUI PDB output.
+_SUGAR_LETTER_TO_CHARMM = {
+    'G': ('GLC', 'BGC'),   # glucose: alpha → GLC, beta → BGC
+    'L': ('BGA', 'GAL'),   # galactose: alpha → BGA, beta → GAL
+    'M': ('MAN', 'BMA'),   # mannose: alpha → MAN, beta → BMA
+    'Y': ('NDG', 'NAG'),   # GlcNAc: alpha → NDG, beta → NAG
+    'V': ('A2G', 'NGA'),   # GalNAc: alpha → A2G, beta → NGA
+    'f': ('FUC', 'FUL'),   # L-fucose: alpha → FUC, beta → FUL
+    'S': ('SIA', 'SIA'),   # Neu5Ac: only one PDB code (sialic always α)
+    'X': ('XYP', 'XYS'),   # xylose: alpha → XYP, beta → XYS
+    'R': ('RIB', 'RIB'),   # ribose (PDB has only one code)
+    'Z': ('GCU', 'GCU'),   # glucuronic acid
+    'U': ('IDS', 'IDS'),   # iduronic acid
+    'h': ('RAM', 'RAM'),   # L-rhamnose
+}
+
+# GLYCAM glycoprotein residue → standard protein residue name.
+GLYCAM_TO_STANDARD_PROTEIN = {'NLN': 'ASN', 'OLS': 'SER', 'OLT': 'THR'}
+
+# PDB 3-char names that are N-acetyl sugars (have an N-acetyl group).
+_NACETYL_PDB_NAMES = {'NAG', 'NDG', 'NGA', 'A2G'}
+
+# Inverse of _HYDROXYL_H_RENAME (universal hydroxyl H rename, all sugars).
+# GLYCAM H<n>O → PDB HO<n>
+_REV_HYDROXYL_H = {v: k for k, v in _HYDROXYL_H_RENAME.items()}
+
+# Inverse of _NACETYL_RENAME_PDB (N-acetyl group: GLYCAM → standard PDB)
+# for N-acetyl sugars (NAG/NDG/NGA/A2G).
+# C2N→C7, O2N→O7, CME→C8
+_REV_NACETYL_PDB = {v: k for k, v in _NACETYL_RENAME_PDB.items()}
+# Additional atom renames for standard PDB NAG-like residues:
+_REV_NACETYL_PDB.update({
+    'N2': 'N2',   # amide N — standard PDB keeps N2
+    'H2N': 'HN2', # amide H — PDB uses HN2 (vs CHARMM HN)
+    'H1M': 'H81', 'H2M': 'H82', 'H3M': 'H83',  # methyl H's: PDB H81/H82/H83
+})
+
+# Per-residue reverse atom rename. SIA has the N-acetyl group on C5,
+# not the standard C7 position, so it has a different layout.
+_REV_GLYCAM_ATOM_MAP = {
+    'SIA': {
+        # N-acetyl group on C5 (PDB SIA uses C10/CT11/O10 — but CHARMM-GUI
+        # and most PDB readers actually accept C5N/CME/O5N for sialic. We
+        # output standard PDB SIA naming: C10/C11/O10).
+        'C5N': 'C10', 'CME': 'C11', 'O5N': 'O10',
+        'H1M': 'H111', 'H2M': 'H112', 'H3M': 'H113',
+        # Amide H on N5 (PDB SIA uses HN5)
+        'H5N': 'HN5',
+        # C3 methylene (PDB SIA: H31/H32)
+        'H3A': 'H31', 'H3E': 'H32',
+        # C9 methylene (PDB SIA: H91/H92)
+        'H9R': 'H91', 'H9S': 'H92',
+    },
+}
+
+
+def _glycam_to_charmm_resname(glycam_name):
+    """Translate a GLYCAM 3-char sugar code to its CHARMM 4-char equivalent.
+    Returns the CHARMM name, or None if not a recognized GLYCAM sugar code.
+    """
+    if len(glycam_name) != 3:
+        return None
+    sugar_letter = glycam_name[1]
+    anomer = glycam_name[2]
+    pair = _SUGAR_LETTER_TO_CHARMM.get(sugar_letter)
+    if pair is None:
+        return None
+    if anomer == 'A':
+        return pair[0]
+    if anomer == 'B':
+        return pair[1]
+    return None
+
+
+def _rename_atom_reverse(glycam_resname, charmm_resname, atom_name):
+    """Rename a GLYCAM atom name back to standard PDB / CHARMM convention.
+
+    Applies in order:
+    1. Residue-specific reverse map (e.g. SIA's C5N→C10, H3A→H31)
+    2. N-acetyl group reverse map — only for N-acetyl sugars
+       (NAG/NDG/NGA/A2G in PDB; SIA uses its own map in step 1).
+    3. Universal hydroxyl H rename reverse (H<n>O → HO<n>).
+    """
+    # 1. Residue-specific (sialic acid: keyed by destination PDB name SIA)
+    if charmm_resname == 'SIA':
+        specific = _REV_GLYCAM_ATOM_MAP.get('SIA', {})
+        if atom_name in specific:
+            return specific[atom_name]
+
+    # 2. N-acetyl reverse — for NAG/NDG/NGA/A2G
+    if charmm_resname in _NACETYL_PDB_NAMES:
+        if atom_name in _REV_NACETYL_PDB:
+            return _REV_NACETYL_PDB[atom_name]
+
+    # 3. Universal hydroxyl H
+    if atom_name in _REV_HYDROXYL_H:
+        return _REV_HYDROXYL_H[atom_name]
+
+    return atom_name
+
+
+def convert_to_charmm(input_path, output_path, verbose=False):
+    """Convert a GLYCAM-named PDB to CHARMM-compatible naming.
+
+    Inverse of `convert_to_glycam`:
+    - GLYCAM 3-char sugar codes (UYB/4YB/0SA/VMB/...) → CHARMM 4-char
+      names (BGLCNA/ANE5AC/BMAN/...). Linkage info is lost from the
+      residue name but preserved via CONECT records.
+    - GLYCAM glycoprotein residues (NLN/OLS/OLT) → standard ASN/SER/THR.
+    - Atom names reverted via the inverse of the forward rename maps.
+    - ROH/OME caps stripped (CHARMM doesn't model reducing-end caps).
+
+    Returns: number of sugar residues converted.
+    """
+    from dvbfixer.ffutils import is_glycam_sugar
+
+    atoms, _residues, _bond_graph, _links = _parse_pdb(input_path)
+
+    # Group atoms into residues, preserving order
+    residues = {}  # (chain, resseq, icode) → list of atom indices
+    res_order = []
+    for i, atom in enumerate(atoms):
+        key = (atom['chain'], atom['resseq'], atom['icode'])
+        if key not in residues:
+            residues[key] = []
+            res_order.append(key)
+        residues[key].append(i)
+
+    # Classify each residue; collect rename decisions
+    res_new_name = {}  # key → new resname (or None to skip residue)
+    n_sugars = 0
+    n_protein = 0
+    n_caps_dropped = 0
+    for key in res_order:
+        first_atom = atoms[residues[key][0]]
+        rn = first_atom['resname']
+        if rn in {'ROH', 'OME', 'TBT', 'CMET'}:
+            # GLYCAM reducing-end cap — drop in CHARMM output
+            res_new_name[key] = None
+            n_caps_dropped += 1
+            if verbose:
+                print(f"  Dropped {rn} cap at {key[0]}:{key[1]}{key[2].strip()} "
+                      f"(CHARMM has no equivalent)")
+            continue
+        if rn in GLYCAM_TO_STANDARD_PROTEIN:
+            res_new_name[key] = GLYCAM_TO_STANDARD_PROTEIN[rn]
+            n_protein += 1
+            if verbose:
+                print(f"  {key[0]}:{rn}{key[1]} -> {res_new_name[key]}")
+            continue
+        if is_glycam_sugar(rn):
+            charmm_name = _glycam_to_charmm_resname(rn)
+            if charmm_name is None:
+                if verbose:
+                    print(f"  WARNING: GLYCAM sugar {rn} at {key[0]}:{key[1]} "
+                          f"has no CHARMM equivalent; keeping original name")
+                res_new_name[key] = rn
+            else:
+                res_new_name[key] = charmm_name
+                n_sugars += 1
+                if verbose:
+                    print(f"  {key[0]}:{rn}{key[1]} -> {charmm_name}")
+            continue
+        # Standard amino acid or unknown — keep as is
+        res_new_name[key] = rn
+
+    # Apply atom renames within sugar residues
+    for key in res_order:
+        new_rn = res_new_name.get(key)
+        if new_rn is None:
+            continue
+        orig_rn = atoms[residues[key][0]]['resname']
+        if not is_glycam_sugar(orig_rn):
+            continue
+        for idx in residues[key]:
+            atoms[idx]['name'] = _rename_atom_reverse(
+                orig_rn, new_rn, atoms[idx]['name'])
+
+    # Write output: emit atom lines for residues we keep, remap serials,
+    # then append CONECT records with remapped serials.
+    serial = 0
+    old_to_new_serial = {}
+    out_lines = []
+    for key in res_order:
+        new_rn = res_new_name.get(key)
+        if new_rn is None:
+            continue
+        for idx in residues[key]:
+            atom = atoms[idx]
+            serial += 1
+            old_to_new_serial[atom['serial']] = serial
+            line = _format_atom_line(atom, new_rn, serial)
+            out_lines.append(line)
+
+    # CONECT records — remap serials, drop bonds involving dropped atoms.
+    with open(input_path) as f:
+        for line in f:
+            if not line.startswith('CONECT'):
+                continue
+            parts = []
+            s = line[6:]
+            while len(s) >= 5:
+                chunk = s[:5].strip()
+                if chunk:
+                    try:
+                        parts.append(int(chunk))
+                    except ValueError:
+                        pass
+                s = s[5:]
+            if len(parts) < 2:
+                continue
+            new_parts = [old_to_new_serial.get(p) for p in parts]
+            if any(p is None for p in new_parts):
+                continue  # bond involves a dropped atom
+            line_out = 'CONECT' + ''.join(f'{p:5d}' for p in new_parts) + '\n'
+            out_lines.append(line_out)
+    out_lines.append('END\n')
+
+    with open(output_path, 'w') as f:
+        f.writelines(out_lines)
+
+    print(f"Converted {n_sugars} GLYCAM sugar(s) and {n_protein} glycoprotein "
+          f"residue(s) → CHARMM naming. Dropped {n_caps_dropped} cap(s).")
+    return n_sugars
+
+
 def _parse_pdb(path):
     """Parse PDB file into atoms, residues, and bond graph."""
     with open(path) as f:
@@ -586,9 +822,16 @@ def parse_args(argv=None):
     )
     p.add_argument("input", help="Input PDB file with glycan structure")
     p.add_argument("-o", "--output",
-                   help="Output PDB file (default: <input>_glycam.pdb)")
+                   help="Output PDB file (default: <input>_glycam.pdb, or "
+                        "<input>_charmm.pdb with --to-charmm)")
     p.add_argument("--no-roh", action="store_true",
                    help="Do not add ROH cap at the reducing end")
+    p.add_argument("--to-charmm", action="store_true",
+                   help="Reverse direction: convert GLYCAM-named input to "
+                        "CHARMM-compatible naming (BGLCNA/BMAN/AMAN/ANE5AC/...) "
+                        "with CHARMM atom names. Glycoprotein residues "
+                        "NLN/OLS/OLT revert to ASN/SER/THR; ROH/OME caps are "
+                        "dropped. Linkage info preserved via CONECT records.")
     p.add_argument("-v", "--verbose", action="store_true",
                    help="Print conversion details")
     return p.parse_args(argv)
@@ -601,8 +844,14 @@ def main(argv=None):
         print(f"File not found: {input_path}", file=sys.stderr)
         sys.exit(1)
 
+    default_suffix = "_charmm" if args.to_charmm else "_glycam"
     output_path = (Path(args.output) if args.output
-                   else input_path.with_stem(input_path.stem + "_glycam"))
+                   else input_path.with_stem(input_path.stem + default_suffix))
+
+    if args.to_charmm:
+        convert_to_charmm(input_path, output_path, verbose=args.verbose)
+        print(f"Wrote {output_path}")
+        return
 
     n_sugars, n_protein = convert_to_glycam(
         input_path, output_path,
