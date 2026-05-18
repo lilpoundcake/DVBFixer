@@ -1,0 +1,3 @@
+source: scipy
+kind: external
+purpose: SciPy: clustering, spatial routines.

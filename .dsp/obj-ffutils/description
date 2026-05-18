@@ -1,0 +1,3 @@
+source: src/dvbfixer/ffutils.py
+kind: module
+purpose: Shared FF utilities: PROTEIN_RESIDUES/SOLVENT_IONS sets, GLYCAM detection helpers (is_glycam_sugar/is_glycam_residue/detect_glycam_input), KNOWN_GLYCAN_SMILES, fix_atom_hetatm_records, create_forcefield_with_openff (AMBER14+GLYCAM+SMIRNOFF builder).

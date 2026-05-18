@@ -1,0 +1,3 @@
+source: MDAnalysis
+kind: external
+purpose: MDAnalysis: GRO ↔ PDB conversion, trajectory parsing for cluster.

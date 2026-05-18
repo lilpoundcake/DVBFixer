@@ -1,0 +1,5 @@
+parse_rtp(path) — GROMACS RTP file → residue templates
+parse_arn(path) — atom-name renames per residue
+parse_r2b(path) — residue→backbone-type table (CHARMM)
+parse_tdb(path) — terminal patches (CHARMM)
+parse_atomtypes(path) — atomtype.atp parsing

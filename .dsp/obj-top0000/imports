@@ -1,0 +1,6 @@
+obj-acpype0 — --acpype dispatches to export_gromacs
+obj-ext-mda — GRO → PDB conversion via Universe for input handling
+obj-ext-omm — Modeller.addHydrogens for --protonate
+obj-ffutils — PROTEIN_RESIDUES/SOLVENT_IONS
+obj-protnat — _strip_hydrogens helper for --protonate path
+obj-rtparse — parse_rtp/parse_arn/parse_r2b/parse_tdb/parse_atomtypes for AMBER/CHARMM FF data

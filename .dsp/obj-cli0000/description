@@ -1,0 +1,3 @@
+source: src/dvbfixer/cli.py
+kind: module
+purpose: Unified CLI dispatcher: routes `dvbfixer <cmd>` to subcommand main()s.

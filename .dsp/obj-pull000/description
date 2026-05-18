@@ -1,0 +1,3 @@
+source: src/dvbfixer/pull.py
+kind: module
+purpose: Subcommand `pull`: OpenMM partial minimization to pull atom pairs into a bond (SS, glycosidic). CustomBondForce for protein-protein, CustomExternalForce for protein-HETATM.

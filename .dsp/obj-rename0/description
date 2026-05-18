@@ -1,0 +1,3 @@
+source: src/dvbfixer/rename.py
+kind: module
+purpose: Text-based residue rename: AMBER variants/CHARMM HSE/MSE → canonical PDB names. Standalone tool + `--rename` flag on other tools.

@@ -1,0 +1,3 @@
+source: src/dvbfixer/parametrize.py
+kind: module
+purpose: Subcommand `parametrize`: GAFF2 small-molecule parametrization with AM1-BCC or RESP charges (antechamber → parmchk2 → tleap → ParmEd → GROMACS .itp).

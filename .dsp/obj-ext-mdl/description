@@ -1,0 +1,3 @@
+source: modeller
+kind: external
+purpose: Modeller 10.x: loop/gap rebuilding (model), homology modeling (homology). Requires academic license.

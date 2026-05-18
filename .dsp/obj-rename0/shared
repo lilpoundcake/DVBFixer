@@ -1,0 +1,3 @@
+CANONICAL_MAP — dict of non-standard resnames → standard PDB names
+canonicalize_pdb(input_path, output_path, verbose=False) → int (count renamed)
+main(argv) — `dvbfixer rename` CLI entry

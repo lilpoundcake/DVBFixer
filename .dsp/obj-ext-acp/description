@@ -1,0 +1,3 @@
+source: acpype
+kind: external
+purpose: ACPYPE: AMBER → GROMACS topology converter with [pairs_nb] for mixed 1-4 scaling.

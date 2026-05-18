@@ -1,0 +1,3 @@
+source: src/dvbfixer/split_chains.py
+kind: module
+purpose: Subcommand `split`: empirical chain splitting (numbering jumps + peptide-bond distance + 15Å gap fallback).

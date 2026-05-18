@@ -1,0 +1,5 @@
+main(argv) — `dvbfixer prepare` CLI entry
+run_pdbfixer(input_path, ph, ...) → (fixer, new_atom_indices, variant_overrides)
+find_glycosylated_atoms_with_sugar(input_path) → dict (chain, resid, atom) → sugar_resname
+add_heterogen_h_via_rdkit / add_heterogen_h_via_openbabel — BioLuminate-style H polish
+rename_glycosylated_protein_residues — FF-aware ASN→NLN (only for GLYCAM sugars)

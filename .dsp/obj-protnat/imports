@@ -1,0 +1,5 @@
+obj-acpype0 — add_glycam_bonds for GLYCAM-mode H addition
+obj-ext-omm — ForceField + Modeller.addHydrogens(variants=...) for protonation H placement
+obj-ext-pdf — PDBFixer findMissingAtoms after stripping H
+obj-ext-ppk — PROPKA3 single() for pKa prediction
+obj-ffutils — PROTEIN_RESIDUES/SOLVENT_IONS, detect_glycam_input, create_forcefield_with_openff, fix_atom_hetatm_records, is_glycam_residue, GLYCAM_PROTEIN_RESIDUES

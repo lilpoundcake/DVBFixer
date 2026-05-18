@@ -1,0 +1,3 @@
+source: openmm
+kind: external
+purpose: OpenMM 8.x: ForceField, Modeller, PDBFile, Simulation, CustomForce. Core of prepare/minimize/protonate/pull/transplant/top.

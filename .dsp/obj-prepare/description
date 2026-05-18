@@ -1,0 +1,3 @@
+source: src/dvbfixer/prepare.py
+kind: module
+purpose: Subcommand `prepare`: PDBFixer-based heavy-atom + hydrogen addition (BioLuminate-style). Default keeps heterogens, adds H via AMBER14+GLYCAM+SMIRNOFF + RDKit/OpenBabel polish for arbitrary ligands. FF-agnostic glycosylation detection (CONECT + distance). HETATM/TER preprocessing for upstream-tool quirks. Calls fix_atom_hetatm_records on output.

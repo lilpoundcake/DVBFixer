@@ -1,0 +1,4 @@
+main(argv) — `dvbfixer glycam` CLI entry
+convert_to_glycam(input_path, output_path, add_roh=True, verbose=False) → (n_sugars, n_protein)
+convert_to_charmm(input_path, output_path, verbose=False) → n_sugars
+PDB_TO_GLYCAM / PROTEIN_TO_GLYCAM / GLYCAM_ATOM_MAP / GLYCAM_ATOM_DROP — rename tables

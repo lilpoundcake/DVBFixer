@@ -1,0 +1,4 @@
+main(argv) — `dvbfixer top` CLI entry
+write_top — modular .itp + topol.top output
+PDB_TO_CARB — PDB sugar → CHARMM RTP name map
+PDB_TO_LIPID — ceramide PDB → CHARMM RTP map

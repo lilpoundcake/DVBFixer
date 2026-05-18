@@ -1,0 +1,3 @@
+source: src/dvbfixer/protonate.py
+kind: module
+purpose: Subcommand `protonate`: PROPKA3 pKa-based residue protonation rename to AMBER variants (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN). GLYCAM-aware: sanitizes NLN/OLS/OLT before PROPKA, auto-switches FF to AMBER14+GLYCAM when GLYCAM residues detected.

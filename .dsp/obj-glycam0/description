@@ -1,0 +1,3 @@
+source: src/dvbfixer/glycam.py
+kind: module
+purpose: Subcommand `glycam`: bidirectional PDB/CHARMM ↔ GLYCAM nomenclature converter. Forward: PDB sugars → GLYCAM 3-char codes (UYB/VMB/0SA/...) + atom rename + ROH cap. Reverse (--to-charmm): GLYCAM → standard 3-char PDB names + inverse atom rename + NLN→ASN.

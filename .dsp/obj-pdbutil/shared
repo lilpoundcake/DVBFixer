@@ -1,0 +1,3 @@
+build_serial_map(pdb_path) → dict (chain, resid, atomname) → serial
+remap_conect_records(input_path, new_serial_map) → list of CONECT lines
+append_before_end(path, extra_lines) — splice lines before END record

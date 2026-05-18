@@ -1,0 +1,3 @@
+source: rdkit
+kind: external
+purpose: RDKit: MolFromPDBBlock + AddHs(addCoords=True) for BioLuminate-style heterogen H placement.

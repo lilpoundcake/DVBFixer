@@ -1,0 +1,3 @@
+source: src/dvbfixer/pdbutils.py
+kind: module
+purpose: Shared PDB text utilities: build_serial_map (chain/resid/atomname → serial), remap_conect_records, append_before_end. Used wherever CONECT records need preservation across PDB rewrites.

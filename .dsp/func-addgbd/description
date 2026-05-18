@@ -1,0 +1,3 @@
+source: src/dvbfixer/acpype_export.py
+kind: function
+purpose: add_glycam_bonds(topology, ff, verbose, positions=None): add intra-residue GLYCAM bonds (from FF templates) + NLN/OLS/OLT peptide bonds + distance-based sugar-sugar glycosidic bonds. Required so OpenMM template matching succeeds on glycan trees.

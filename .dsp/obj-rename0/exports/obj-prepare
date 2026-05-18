@@ -1,0 +1,1 @@
+obj-prepare — --rename flag delegates to canonicalize_pdb

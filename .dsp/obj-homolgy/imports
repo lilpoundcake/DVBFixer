@@ -1,0 +1,5 @@
+obj-ext-anr — ANARCI for --antibody Kabat/IMGT numbering + CDR detection
+obj-ext-mdl — Modeller automodel + LoopModel for multi-template knowns
+obj-minimiz — --minimize flag invokes minimize.main on the prepared structure
+obj-model00 — reuses Modeller scaffolding for multi-template homology modeling
+obj-prepare — --prepare flag invokes prepare.main on the modeled structure

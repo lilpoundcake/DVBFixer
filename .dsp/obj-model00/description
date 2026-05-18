@@ -1,0 +1,3 @@
+source: src/dvbfixer/model.py
+kind: module
+purpose: Subcommand `model`: rebuild missing loops/gaps with Modeller LoopModel. Preserves non-protein chains via PIR `.` entries and Modeller env.io.hetatm=True.

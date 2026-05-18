@@ -1,0 +1,3 @@
+source: src/dvbfixer/cluster.py
+kind: module
+purpose: Subcommand `cluster`: glycan conformational clustering from MD trajectories (GFDB torsion-RMSD method). MDAnalysis + plotly. Per-linkage or global GROMOS clustering.

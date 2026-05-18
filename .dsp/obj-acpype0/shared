@@ -1,0 +1,4 @@
+detect_ss_bonds(pdb_path) → set of (chain, resseq) for SS-bonded cysteines (CONECT + 2.5Å distance fallback)
+prepare_for_openmm(pdb_path, temp_path, extra_ss, strip_glycam_h, prot_overrides) → (topology, amber_variants)
+add_glycam_bonds(topology, ff, verbose, positions=None) — populate GLYCAM intra/peptide/sugar-sugar bonds
+export_gromacs(pdb_path, output_dir, basename, extra_ss, prot_overrides) — full ACPYPE pipeline entry

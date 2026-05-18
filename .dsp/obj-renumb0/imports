@@ -1,0 +1,2 @@
+obj-ext-bio — pairwise2 / SeqIO for SEQRES↔ATOM subsequence alignment
+obj-rename0 — --rename → canonicalize_pdb

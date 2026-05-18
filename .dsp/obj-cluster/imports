@@ -1,0 +1,3 @@
+obj-ext-mda — Universe + trajectory reading for torsion extraction
+obj-ext-np — circular RMSD + Kabsch alignment + GROMOS clustering
+obj-ext-ply — interactive HTML Ramachandran + time-series plots

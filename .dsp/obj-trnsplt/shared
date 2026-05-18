@@ -1,0 +1,2 @@
+main(argv) — `dvbfixer transplant` CLI entry
+_renumber_graft — segment-aware chain renumber

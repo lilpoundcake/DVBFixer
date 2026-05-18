@@ -1,0 +1,7 @@
+func-detglc — self: detect_glycam_input is the public helper
+func-fixatm — self: fix_atom_hetatm_records is the public entry
+func-isglyc — self: is_glycam_sugar/is_glycam_residue are public helpers
+func-makeff — self: create_forcefield_with_openff is the public entry
+obj-ext-mof — SMIRNOFFTemplateGenerator for unknown-residue auto-parametrization
+obj-ext-oft — openff.toolkit.Molecule for SMILES → Molecule conversion
+obj-ext-omm — ForceField class for create_forcefield_with_openff

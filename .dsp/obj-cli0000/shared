@@ -1,0 +1,2 @@
+main() — entry point dispatched by pyproject.toml [project.scripts]
+COMMANDS — dict of all subcommand names + descriptions

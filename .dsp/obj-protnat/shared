@@ -1,0 +1,3 @@
+main(argv) — `dvbfixer protonate` CLI entry
+run_propka(input_path) → MolecularContainer (sanitizes GLYCAM names first)
+decide_protonation(pka_results, ph, his_default, cys_ss_pka) → renames dict

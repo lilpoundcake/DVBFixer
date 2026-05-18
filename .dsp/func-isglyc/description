@@ -1,0 +1,3 @@
+source: src/dvbfixer/ffutils.py
+kind: function
+purpose: is_glycam_sugar(name) / is_glycam_residue(name): True for GLYCAM 3-char sugar codes / sugars+glycoprotein. Drives FF-aware NLN renaming and the H-polish short-circuit.

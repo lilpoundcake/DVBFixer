@@ -1,0 +1,3 @@
+source: parmed
+kind: external
+purpose: ParmEd: OpenMM topology → AMBER prmtop/inpcrd → GROMACS .top conversion bridge.

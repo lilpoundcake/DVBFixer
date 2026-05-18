@@ -1,0 +1,3 @@
+source: src/dvbfixer/ffutils.py
+kind: function
+purpose: detect_glycam_input(topology): scan topology, return {glycam_proteins, glycam_sugars, pdb_sugars, unknown_hets}. Triggers FF auto-swap in protonate and minimize.

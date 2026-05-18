@@ -1,0 +1,3 @@
+source: src/dvbfixer/acpype_export.py
+kind: module
+purpose: ACPYPE-based GROMACS topology export pipeline (OpenMM AMBER14+GLYCAM → ParmEd → ACPYPE → GROMACS .top/.gro with [pairs_nb] for mixed 1-4 scaling). Shared helpers: detect_ss_bonds, prepare_for_openmm, add_glycam_bonds, export_gromacs.

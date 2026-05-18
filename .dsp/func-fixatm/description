@@ -1,0 +1,3 @@
+source: src/dvbfixer/ffutils.py
+kind: function
+purpose: fix_atom_hetatm_records(pdb_path): rewrite HETATM→ATOM in-place for protein/AMBER-variant/GLYCAM-glycoprotein residues. Idempotent. Called after every PDB write in prepare/minimize/protonate.

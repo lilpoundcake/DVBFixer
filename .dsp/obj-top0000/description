@@ -1,0 +1,3 @@
+source: src/dvbfixer/top.py
+kind: module
+purpose: Subcommand `top`: GROMACS topology generation. RTP-based for AMBER99SB-ILDN and CHARMM36 (parses RTP/ARN/R2B/TDB/ATP); --acpype flag dispatches to acpype_export for AMBER14+GLYCAM glycoproteins. Handles glycans, glycolipids, ions, water, small CGenFF molecules.

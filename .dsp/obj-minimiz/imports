@@ -1,0 +1,8 @@
+obj-acpype0 — detect_ss_bonds (auto CYX rename) + add_glycam_bonds (intra/peptide/sugar bonds)
+obj-ext-np — Kabsch + ideal trans-amide C1 geometry in _rigid_track_glycan_trees
+obj-ext-obb — --obminimize-refine: pybel + OBFFConstraints for anchor freezing
+obj-ext-omm — ForceField + createSystem + Simulation + LangevinIntegrator core
+obj-ext-pdf — PDBFixer for missing atom fixes (mutation/terminal repairs)
+obj-ext-xtb — --xtb-refine: subprocess GFN-FF universal FF refinement
+obj-ffutils — PROTEIN_RESIDUES/SOLVENT_IONS, create_forcefield_with_openff, fix_atom_hetatm_records
+obj-rename0 — --rename flag → canonicalize_pdb

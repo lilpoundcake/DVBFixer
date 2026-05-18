@@ -1,0 +1,17 @@
+obj-cluster — dispatch `dvbfixer cluster` to cluster.main
+obj-glycam0 — dispatch `dvbfixer glycam` to glycam.main
+obj-homolgy — dispatch `dvbfixer homology` to homology.main
+obj-minimiz — dispatch `dvbfixer minimize` to minimize.main
+obj-model00 — dispatch `dvbfixer model` to model.main
+obj-paramtz — dispatch `dvbfixer parametrize` to parametrize.main
+obj-pkginit — read __version__ for --version flag
+obj-prepare — dispatch `dvbfixer prepare` to prepare.main
+obj-protnat — dispatch `dvbfixer protonate` to protonate.main
+obj-pull000 — dispatch `dvbfixer pull` to pull.main
+obj-puppet0 — dispatch `dvbfixer puppet` to puppet.main
+obj-rename0 — dispatch `dvbfixer rename` to rename.main
+obj-renumb0 — dispatch `dvbfixer renumber` to renumber.main
+obj-split00 — dispatch `dvbfixer split` to split_chains.main
+obj-top0000 — dispatch `dvbfixer top` to top.main
+obj-trnsplt — dispatch `dvbfixer transplant` to transplant.main
+obj-zbs0000 — dispatch `dvbfixer zbs` to zbs.main

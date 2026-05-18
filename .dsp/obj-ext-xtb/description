@@ -1,0 +1,3 @@
+source: xtb
+kind: external
+purpose: xtb: GFN-FF universal force field, post-pass refinement for arbitrary heterogens.

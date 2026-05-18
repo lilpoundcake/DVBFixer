@@ -1,0 +1,3 @@
+source: src/dvbfixer/puppet.py
+kind: module
+purpose: Subcommand `puppet`: strip PDB to backbone-only polyglycine model. --keep preserves specified residues intact.

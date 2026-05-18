@@ -1,0 +1,3 @@
+source: src/dvbfixer/minimize.py
+kind: module
+purpose: Subcommand `minimize`: OpenMM energy minimization with 3-tier selective restraints from a .dat file. Default whole-system AMBER14+GLYCAM+SMIRNOFF; auto-fallback strip-and-splice path with rigid-body glycan tracking + ideal trans-amide C1/HD21 placement. Optional xtb/obminimize universal-FF refinement post-pass.

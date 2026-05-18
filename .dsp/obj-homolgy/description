@@ -1,0 +1,3 @@
+source: src/dvbfixer/homology.py
+kind: module
+purpose: Subcommand `homology`: multi-template homology modeling with Modeller automodel/LoopModel. Antibody mode uses ANARCI for Kabat numbering + CDR detection.

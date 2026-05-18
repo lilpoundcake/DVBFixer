@@ -1,0 +1,3 @@
+source: src/dvbfixer/renumber.py
+kind: module
+purpose: Subcommand `renumber`: SEQRES-based residue renumbering, removes Kabat insertion codes. Updates ATOM/HETATM/TER/HELIX/SHEET/SSBOND/LINK/CISPEP/HET/DBREF/SEQADV/CONECT/REMARK lines.

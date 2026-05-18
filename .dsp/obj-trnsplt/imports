@@ -1,0 +1,4 @@
+obj-acpype0 — detect_ss_bonds, prepare_for_openmm, add_glycam_bonds, export_gromacs for --relax and --gromacs paths
+obj-ext-np — Kabsch superposition for donor→acceptor alignment
+obj-ext-omm — ForceField + Modeller + simulation for --relax AMBER+GLYCAM minimization
+obj-ffutils — PROTEIN_RESIDUES set

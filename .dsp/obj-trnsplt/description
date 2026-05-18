@@ -1,0 +1,3 @@
+source: src/dvbfixer/transplant.py
+kind: module
+purpose: Subcommand `transplant`: graft molecules between PDBs (Kabsch superposition + CONECT remapping by atom identity). --relax runs AMBER14+GLYCAM 4-stage minimization; --gromacs DIR exports topology via acpype_export.

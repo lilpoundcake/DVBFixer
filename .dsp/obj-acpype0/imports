@@ -1,0 +1,8 @@
+func-addgbd — self-import: add_glycam_bonds populates GLYCAM bonds before addHydrogens
+func-detss0 — self-import: detect_ss_bonds is the SS detection entry point
+func-exgmx0 — self-import: export_gromacs is the public entry from top.py and transplant.py
+func-prepom — self-import: prepare_for_openmm orchestrates the PDB→OpenMM step
+obj-ext-acp — ACPYPE AMBER→GROMACS converter for mixed 1-4 scaling
+obj-ext-omm — OpenMM ForceField/Modeller/PDBFile for AMBER14+GLYCAM parametrization
+obj-ext-pmd — ParmEd OpenMM→AMBER prmtop bridge
+obj-ffutils — uses PROTEIN_RESIDUES set + is_glycam_sugar + KNOWN_GLYCAN_SMILES

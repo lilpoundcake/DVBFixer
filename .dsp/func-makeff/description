@@ -1,0 +1,3 @@
+source: src/dvbfixer/ffutils.py
+kind: function
+purpose: create_forcefield_with_openff(ff_xmls, topology, ...): build OpenMM ForceField with SMIRNOFF auto-parametrization registered for unknown residues. Suppresses GLYCAM sugar templates when PDB-named sugars are present.

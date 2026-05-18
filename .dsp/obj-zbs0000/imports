@@ -1,0 +1,5 @@
+obj-minimiz — pipeline steps 4 & 6: energy minimization (2 passes)
+obj-model00 — pipeline step 2: rebuild missing loops
+obj-prepare — pipeline step 3: PDBFixer atom/H addition
+obj-protnat — pipeline steps 5 & 7: PROPKA protonation (2 passes)
+obj-renumb0 — pipeline step 1: residue renumbering

@@ -1,0 +1,3 @@
+source: src/dvbfixer/acpype_export.py
+kind: function
+purpose: export_gromacs(pdb_path, output_dir, ...): full pipeline OpenMM AMBER14+GLYCAM → ParmEd → ACPYPE → GROMACS topology with mixed 1-4 scaling. Top-level entry for top --acpype and transplant --gromacs.

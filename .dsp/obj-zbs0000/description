@@ -1,0 +1,3 @@
+source: src/dvbfixer/zbs.py
+kind: module
+purpose: Subcommand `zbs`: full pipeline renumber → model → prepare → minimize → protonate → minimize → protonate. Two-pass protonate to apply AMBER names twice (OpenMM normalizes them on each write).

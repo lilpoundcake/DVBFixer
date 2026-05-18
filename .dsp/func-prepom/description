@@ -1,0 +1,3 @@
+source: src/dvbfixer/acpype_export.py
+kind: function
+purpose: prepare_for_openmm(pdb_path, temp_path, ...): preprocess PDB for OpenMM in the ACPYPE pipeline. CYS→CYX from SS bonds, selective H stripping on GLYCAM glycoprotein residues, glycan atom-name remap, mid-chain terminal-atom removal.

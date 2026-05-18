@@ -1,0 +1,8 @@
+obj-acpype0 — add_glycam_bonds(positions=...) before addHydrogens
+obj-ext-obb — OpenBabel pybel.addh per-residue fallback for under-protonated heterogens
+obj-ext-omm — Modeller.addHydrogens(ff, variants=...) + PDBFile read/write
+obj-ext-pdf — PDBFixer: findMissingResidues/findMissingAtoms/addMissingAtoms/applyMutations
+obj-ext-rdk — RDKit MolFromPDBBlock + AddHs(addCoords=True) BioLuminate-style H polish
+obj-ffutils — PROTEIN_RESIDUES/SOLVENT_IONS, create_forcefield_with_openff, fix_atom_hetatm_records, is_glycam_sugar/is_glycam_residue, FORCE_ATOM_RESIDUES
+obj-pdbutil — build_serial_map + append_before_end for CONECT preservation across heterogen H polish
+obj-rename0 — --rename flag delegates to canonicalize_pdb

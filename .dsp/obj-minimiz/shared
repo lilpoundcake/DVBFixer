@@ -1,0 +1,4 @@
+main(argv) — `dvbfixer minimize` CLI entry
+minimize(topology, positions, new_atom_indices, args, amber_renames) — core minimize routine
+_rigid_track_glycan_trees — Kabsch + ideal trans-amide C1/HD21 placement fallback
+refine_with_xtb / refine_with_obminimize — universal-FF post-pass

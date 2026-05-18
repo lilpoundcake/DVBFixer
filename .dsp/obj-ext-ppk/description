@@ -1,0 +1,3 @@
+source: propka
+kind: external
+purpose: PROPKA3: pKa prediction for titratable protein residues.

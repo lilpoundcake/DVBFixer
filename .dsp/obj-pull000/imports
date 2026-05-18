@@ -1,0 +1,4 @@
+obj-ext-omm — CustomBondForce + CustomExternalForce + LangevinIntegrator for partial minimization
+obj-ffutils — PROTEIN_RESIDUES/SOLVENT_IONS for HETATM detection
+obj-pdbutil — build_serial_map + append_before_end for CONECT preservation
+obj-rename0 — --rename → canonicalize_pdb

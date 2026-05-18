@@ -1,0 +1,3 @@
+source: plotly
+kind: external
+purpose: Plotly: interactive HTML plots (Ramachandran, time-series) for cluster.

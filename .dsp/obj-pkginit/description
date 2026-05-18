@@ -1,0 +1,3 @@
+source: src/dvbfixer/__init__.py
+kind: module
+purpose: Package marker, exposes __version__.

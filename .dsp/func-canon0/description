@@ -1,0 +1,3 @@
+source: src/dvbfixer/rename.py
+kind: function
+purpose: canonicalize_pdb(input_path, output_path): text-based AMBER/CHARMM variant → standard PDB rename. Reused as the --rename flag in prepare/minimize/pull/renumber.

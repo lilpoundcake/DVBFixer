@@ -1,0 +1,11 @@
+PROTEIN_RESIDUES — set of 20 std AA + AMBER variants (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN) + GLYCAM glycoprotein (NLN/OLS/OLT)
+SOLVENT_IONS — set of HOH/WAT/TIP3/SOL/NA/CL/K/MG/CA/ZN/...
+GLYCAM_PROTEIN_RESIDUES — frozenset {NLN, OLS, OLT}
+GLYCAM_CAPS — frozenset {ROH, OME, TBT, CMET}
+FORCE_ATOM_RESIDUES — alias of PROTEIN_RESIDUES used by fix_atom_hetatm_records
+KNOWN_GLYCAN_SMILES — dict of PDB sugar resname → SMILES for SMIRNOFF auto-parametrization
+is_glycam_sugar(name) → bool
+is_glycam_residue(name) → bool
+detect_glycam_input(topology) → dict {glycam_proteins, glycam_sugars, pdb_sugars, unknown_hets}
+create_forcefield_with_openff(ff_xmls, topology, ...) → ForceField
+fix_atom_hetatm_records(pdb_path) — rewrite HETATM→ATOM for protein-class residues in place

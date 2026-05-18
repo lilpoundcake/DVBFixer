@@ -1,0 +1,3 @@
+source: src/dvbfixer/rtp_parser.py
+kind: module
+purpose: GROMACS RTP/ARN/R2B/TDB/ATP file parsers. Used exclusively by top.py for AMBER/CHARMM topology generation.
