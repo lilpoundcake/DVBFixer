@@ -26,7 +26,7 @@ src/dvbfixer/
 ├── ffutils.py         137 lines    — shared FF utilities + SMIRNOFF auto-parametrization
 │
 │   GLYCAN / SMALL-MOLECULE TOOLS
-├── glycam.py          579 lines    — PDB → GLYCAM 3-char nomenclature converter
+├── glycam.py          820 lines    — bidirectional PDB/CHARMM ↔ GLYCAM nomenclature converter
 ├── transplant.py      841 lines    — graft residues between PDBs (Kabsch align)
 ├── parametrize.py     406 lines    — GAFF2 small molecule (antechamber→tleap→ParmEd)
 ├── cluster.py        1177 lines    — glycosidic torsion clustering from MD trajectory
@@ -199,6 +199,65 @@ between sources).
 restraints on protein heavy atoms (k=1000→100→10→0 kJ/mol/nm²).
 `--gromacs DIR` exports GMX topology via the same `acpype_export.py`
 helpers used by `dvbfixer top --acpype`.
+
+### `glycam.convert_to_charmm(input_path, output_path)` — reverse direction
+
+Mirror of `convert_to_glycam`. Strips GLYCAM linkage characters, looks up
+the (sugar_letter, anomer) pair in `_SUGAR_LETTER_TO_CHARMM` to get the
+standard PDB 3-char code (NAG/NDG/BMA/MAN/GAL/FUC/FUL/SIA/NGA/A2G/...).
+Reverts NLN/OLS/OLT → ASN/SER/THR via `GLYCAM_TO_STANDARD_PROTEIN`.
+Drops ROH/OME/TBT/CMET caps (CHARMM has no reducing-end caps).
+
+Atom-name inversion uses the dict-inverted forward maps:
+- `_REV_HYDROXYL_H` (universal H<n>O → HO<n>)
+- `_REV_NACETYL_PDB` (NAG/NDG/NGA/A2G: C2N→C7, O2N→O7, CME→C8,
+  H2N→HN2, H1M/H2M/H3M→H81/H82/H83)
+- `_REV_GLYCAM_ATOM_MAP['SIA']` (sialic: C5N→C10, CME→C11, O5N→O10,
+  H1M/H2M/H3M→H111/H112/H113, H5N→HN5, H3A/H3E→H31/H32, H9R/H9S→H91/H92)
+
+Output uses 3-char PDB sugar codes that work natively with both
+CHARMM-GUI (as input) and `dvbfixer top --ff charmm` (which maps them
+to CHARMM RTP names via `PDB_TO_CARB`). Linkage information is
+preserved via CONECT records — the residue name no longer carries it.
+
+CLI: `dvbfixer glycam <input> --to-charmm -o <output>`.
+
+### `prepare._preprocess_glycoprotein_input` — pre-PDBFixer input fixes
+
+Runs before `_canonicalize_conect_records` in `run_pdbfixer`. Two
+edits on the input PDB text:
+
+1. **HETATM → ATOM rewrite** for any residue in `FORCE_ATOM_RESIDUES`
+   (20 std AA + AMBER variants HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN +
+   GLYCAM glycoprotein residues NLN/OLS/OLT). HETATM gets treated as
+   ligand by OpenMM, breaking peptide bond inference to neighbours.
+
+2. **Spurious TER record removal** between two amino-acid residues on
+   the SAME chain. A TER forces OpenMM to split the chain, breaking
+   the polymer. Implementation buffers each TER and emits it only
+   after seeing the next ATOM/HETATM — drops if both flanking residues
+   are protein on the same chain.
+
+Both edits are no-ops on clean inputs (returns the original path,
+no temp file created).
+
+### `prepare.find_glycosylated_atoms_with_sugar` — FF-agnostic detection
+
+Returns `dict {(chain, resid, atom): bonded_sugar_resname}`. Two passes:
+
+1. **CONECT-based**: scan CONECT records for bonds where one end is
+   a protein anchor atom (ASN ND2, SER OG, THR OG1) and the other is
+   a sugar (anomeric C of any name in `SUGAR_RESNAMES` or matching
+   `is_glycam_sugar`).
+
+2. **Distance-based fallback**: for each protein anchor atom not yet
+   detected, find the nearest sugar anomeric C (C1, or C2 for sialic)
+   within 2.0 Å. Catches inputs without CONECT records.
+
+The bonded sugar name lets `rename_glycosylated_protein_residues`
+branch on FF: ASN→NLN renaming fires only when `is_glycam_sugar(name)`
+is True. For PDB/CHARMM sugars, ASN keeps its standard name; HD22
+removal still happens via `remove_extra_glycan_hydrogens`.
 
 ### `ffutils.py` — shared GLYCAM helpers
 

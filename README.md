@@ -179,6 +179,10 @@ Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. **Hete
 
 **GLYCAM-named input** (NLN/OLS/OLT + GLYCAM sugars like UYB/4YB/VMB/0YA) is auto-detected and handled natively — `add_glycam_bonds(positions=...)` is called before addHydrogens to populate intra-residue, peptide, and sugar-sugar glycosidic bonds (required for template matching on NLN's protein neighbour). The RDKit/OpenBabel H-polish passes are skipped when all heterogens are GLYCAM-named (already protonated by GLYCAM templates). After writing the output, `fix_atom_hetatm_records` rewrites any HETATM lines for protein residues (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN/NLN/OLS/OLT) back to ATOM records.
 
+**Input preprocessing** — `_preprocess_glycoprotein_input` runs first to fix two common upstream-tool issues that break OpenMM topology parsing: (1) HETATM lines for protein/GLYCAM glycoprotein residues are rewritten to ATOM (HETATM gets treated as ligand → no peptide bond inferred to neighbours → "TYR missing externally bonded C atom" template errors), and (2) spurious TER records between two amino-acid residues on the same chain are dropped (a TER forces a new chain in OpenMM, breaking the polymer). Both edits are no-ops on clean inputs.
+
+**Glycosylation detection is FF-agnostic** — `find_glycosylated_atoms_with_sugar` uses CONECT records AND a distance-based fallback (ASN ND2 / SER OG / THR OG1 within 2.0 Å of a sugar anomeric C). Inputs with PDB sugars (NAG/NDG/BMA/...) and inputs with CHARMM-GUI 4-char sugars (BGLC/BMAN/AMAN/BGLCNA/...) are both recognized. The ASN→NLN rename fires ONLY when the bonded sugar is GLYCAM-named — for PDB/CHARMM sugars, ASN stays as ASN. The extra HD22 on glycosylated ND2 is removed in all three FF conventions (consistent across CHARMM, AMBER, GLYCAM).
+
 #### Usage
 
 ```bash
@@ -580,15 +584,24 @@ Same ACPYPE pipeline as `dvbfixer top --acpype`: OpenMM parametrization -> ParmE
 
 ---
 
-### dvbfixer glycam — Convert to GLYCAM Nomenclature
+### dvbfixer glycam — Convert between PDB/CHARMM and GLYCAM Nomenclature
 
-Converts PDB glycan structures from standard PDB sugar names (BGC, GAL, NAG, etc.) to GLYCAM force field 3-character codes encoding `[linkage][sugar][anomer]`. Detects glycosidic bonds from CONECT records (or distance-based fallback), determines linkage patterns, renames residues and atoms to GLYCAM convention (hydroxyl H: HO3→H3O; N-acetyl: C7→C2N, O7→O2N, C8→CME, N2→N2, HN→H2N; methyl: HT1→H1M etc.), and optionally adds ROH cap at the reducing end. Also detects protein-linked glycans and renames ASN→NLN, SER→OLS, THR→OLT. Writes ATOM records for protein residues and HETATM for sugars. Text-based — no OpenMM dependency. Handles input from PDB, CHARMM-GUI, or `dvbfixer prepare`.
+Bidirectional converter between standard PDB/CHARMM sugar naming and GLYCAM force field nomenclature.
+
+**Forward (default)**: PDB → GLYCAM. Renames sugars from standard PDB codes (NAG, BMA, MAN, GAL, FUC, SIA, …) to GLYCAM 3-char codes `[linkage][sugar][anomer]` (UYB, VMB, 0MA, 6LB, 0fA, 0SA, …). Detects glycosidic bonds from CONECT records (or distance-based fallback), determines linkage patterns, renames atoms to GLYCAM convention (hydroxyl `HO3→H3O`; N-acetyl `C7→C2N`, `O7→O2N`, `C8→CME`, `H2N→HN2`; methyl `HT1→H1M` etc.). Sialic acid (SIA→0SA): full stereo-specific rename including methylene `H3/H32→H3A/H3E`, `H9/H92→H9R/H9S`, amide `HN5→H5N`, and methyl `H11/H112/H113→H1M/H2M/H3M`; the spurious `HO1B` (carboxylate H added by PDBFixer) is dropped because the GLYCAM template has no slot for it. Adds ROH cap at the reducing end unless `--no-roh`. Detects protein-linked glycans and renames `ASN→NLN`, `SER→OLS`, `THR→OLT`.
+
+**Reverse (`--to-charmm`)**: GLYCAM → standard PDB / CHARMM-compatible. Strips GLYCAM linkage characters, inverts atom-name renames, drops ROH/OME caps, reverts `NLN/OLS/OLT → ASN/SER/THR`. Output uses standard 3-char PDB sugar codes (NAG/NDG/BMA/MAN/GAL/FUL/SIA/…) accepted by both CHARMM-GUI and `dvbfixer top --ff charmm` (the latter maps PDB → CHARMM RTP names via `PDB_TO_CARB`). Linkage information is preserved in CONECT records, not in the residue name.
+
+Text-based — no OpenMM dependency. Handles input from PDB, CHARMM-GUI, or `dvbfixer prepare`.
 
 #### Usage
 
 ```bash
-# Basic usage — writes input_glycam.pdb
+# Forward: PDB → GLYCAM (writes input_glycam.pdb)
 dvbfixer glycam glycan.pdb -v
+
+# Reverse: GLYCAM → standard PDB / CHARMM-compatible (writes input_charmm.pdb)
+dvbfixer glycam glycam_in.pdb --to-charmm -v
 
 # Without ROH cap at reducing end
 dvbfixer glycam glycan.pdb --no-roh
@@ -601,8 +614,9 @@ dvbfixer glycam glycan.pdb -o glycam_output.pdb -v
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-o`, `--output` | `<input>_glycam.pdb` | Output file path |
-| `--no-roh` | off | Do not add ROH cap at the reducing end |
+| `-o`, `--output` | `<input>_glycam.pdb` (or `_charmm.pdb` with `--to-charmm`) | Output file path |
+| `--no-roh` | off | Do not add ROH cap at the reducing end (forward only) |
+| `--to-charmm` | off | Reverse direction: GLYCAM → standard PDB / CHARMM-compatible naming |
 | `-v`, `--verbose` | off | Print conversion details |
 
 #### GLYCAM Naming Convention
@@ -926,6 +940,26 @@ GLYCAM names (NLN/UYB/4YB/VMB/0YB/0fA/0LA/2MA/...) and protonation
 variants (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN) survive end-to-end through
 all five steps. After the pipeline, run a normal GROMACS workflow:
 `gmx editconf` → `gmx solvate` → `gmx genion` → `gmx grompp` → `gmx mdrun`.
+
+#### Switching the same structure to CHARMM36
+
+Use `dvbfixer glycam --to-charmm` to reverse the GLYCAM naming back to
+standard PDB / CHARMM-compatible names, then use the RTP CHARMM path
+in `top`:
+
+```bash
+# After step 1 (or any later step with GLYCAM names), reverse to CHARMM
+dvbfixer glycam glycam.pdb --to-charmm -o charmm.pdb -v
+# -> charmm.pdb has NAG/NDG/BMA/MAN/GAL/FUL/SIA (no GLYCAM codes),
+#    ASN (no NLN), and standard PDB atom names
+
+# CHARMM36 GROMACS topology (modular .itp files)
+dvbfixer top charmm.pdb --ff charmm -o gmx_charmm/topol.top -v
+```
+
+The same source structure can drive both AMBER14+GLYCAM (via `--acpype`)
+and CHARMM36 (via `--ff charmm`) — pick the FF by which renaming pass
+you use.
 
 #### Alternative: GLYCAM-Web workflow (for adding glycans from scratch)
 

@@ -133,6 +133,23 @@ dvbfixer top prot.pdb --acpype -o gmx/ -v
 GLYCAM names (NLN/UYB/4YB/VMB/0YB/...) and protonation variants
 (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN) are preserved end-to-end.
 
+**Switching the same source to CHARMM36**: after step 1 (or any later
+step with GLYCAM names), invert with `--to-charmm` and use the RTP
+path on `top`:
+
+```bash
+dvbfixer glycam glycam.pdb --to-charmm -o charmm.pdb -v
+# -> NAG/NDG/BMA/MAN/GAL/FUL/SIA + ASN (standard PDB sugar codes),
+#    with standard PDB atom names. Linkage info preserved via CONECT.
+dvbfixer top charmm.pdb --ff charmm -o charmm_topol.top -v
+# -> CHARMM36 modular .itp files
+```
+
+The reverse `--to-charmm` produces standard 3-char PDB sugar names
+that both CHARMM-GUI and `dvbfixer top --ff charmm` recognize natively.
+One source structure → two FFs (AMBER+GLYCAM via `--acpype` OR CHARMM36
+via `--ff charmm`).
+
 ## Workflow 4 — Custom protonation states
 
 To set specific protonation states (e.g. from pKa calculations):
@@ -209,8 +226,24 @@ dvbfixer cluster topol.tpr md.xtc --plot -v
   these and produces spurious bonds.
 
 - **NLN/OLS/OLT residues**: GLYCAM glycoprotein residues. `prepare` renames
-  ASN/SER/THR → NLN/OLS/OLT automatically when a CONECT bond connects them
-  to a sugar. Downstream tools (top, transplant, minimize) recognize these.
+  ASN/SER/THR → NLN/OLS/OLT automatically **only when the bonded sugar is
+  GLYCAM-named** (UYB/4YB/VMB/...). For PDB-named (NAG/NDG/BMA/...) or
+  CHARMM-named (BGLC/BMAN/...) sugars, ASN keeps its standard name. NLN
+  is a GLYCAM-specific convention; using it with non-GLYCAM sugars
+  confuses downstream tools.
+
+- **Glycosylation detection** is FF-agnostic in `prepare`: CONECT records
+  + distance-based fallback (ASN ND2 / SER OG / THR OG1 within 2.0 Å of
+  a sugar anomeric C). Works on inputs that have no CONECT for glycosidic
+  bonds (some crystal PDBs, CHARMM-GUI output for certain residues). The
+  extra HD22 on glycosylated ND2 is always removed, regardless of FF.
+
+- **HETATM-tagged NLN/OLS/OLT in input**: `prepare` preprocesses such
+  inputs by rewriting `HETATM` → `ATOM  ` for protein/GLYCAM residues
+  before PDBFixer reads them. Otherwise OpenMM treats them as ligands
+  and fails to infer peptide bonds to neighbours. Also drops spurious
+  TER records between same-chain amino-acid residues (a TER forces a
+  chain split). Both edits are no-ops on clean inputs.
 
 - **PDB sugar names with AMBER14**: NAG/FUC/etc. don't have AMBER14
   templates. `minimize` uses SMIRNOFF auto-parametrization for them via
