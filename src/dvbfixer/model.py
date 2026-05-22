@@ -1006,82 +1006,150 @@ def patch_missing_hetatm(result_lines, original_lines, all_chains, protein_chain
     return output
 
 
-def restore_conect_records(result_lines, original_lines, verbose=False):
+def restore_conect_records(result_lines, original_lines, verbose=False,
+                            per_chain_masks=None, all_chains=None):
     """Restore CONECT records from original PDB with remapped atom serials.
 
-    Modeller strips all CONECT records. This function rebuilds them using:
-    - ATOM records (protein): matched by (chain, resname, resnum, atomname)
-      directly, since renumber_model_output already restored original numbering
-    - HETATM records (non-protein): matched by (chain, resname, nth_occurrence,
-      atomname), since Modeller renumbers non-protein residues
+    Modeller strips all CONECT records. This function rebuilds them by:
+    1. Walking residues in chain order in BOTH the input and the model
+       output to build a position-based residue index per chain.
+    2. For each input residue, map its INPUT position N to its MODEL
+       output position via `per_chain_masks` (True=template, False=gap).
+       The Nth template-position in the mask is the Nth input residue;
+       its model output position is the mask index where that True sits.
+    3. Within each aligned residue, atom-name matching links input
+       atoms to model output atoms regardless of serial renumbering.
+
+    Without `per_chain_masks` (e.g. when called without alignment info),
+    falls back to naive position-by-position alignment which is correct
+    only when no gaps were filled.
     """
-    # Build positional map for HETATM residues only (non-protein)
-    def _build_hetatm_position_map(lines):
-        """Map (chain, resnum) -> (chain, resname, nth_occurrence) for HETATM."""
-        counter = {}
-        res_to_pos = {}
-        seen = set()
+    def _build_residue_index(lines):
+        """Walk all ATOM/HETATM lines and return:
+          - by_chain_pos: dict {chain: [(record_type, resname, resnum, icode), ...]}
+            (entries in file order, one per unique residue per chain)
+          - serial_to_pos: dict serial -> (chain, position_index, atomname)
+        """
+        by_chain_pos = {}
+        seen_per_chain = {}
+        serial_to_pos = {}
         for line in lines:
-            if not line.startswith("HETATM"):
+            if not line.startswith(("ATOM  ", "HETATM")):
                 continue
             chain = line[21]
             resname = line[17:20].strip()
             resnum = line[22:26].strip()
-            key = (chain, resnum)
-            if key not in seen:
-                seen.add(key)
-                ck = (chain, resname)
-                counter.setdefault(ck, 0)
-                counter[ck] += 1
-                res_to_pos[key] = (chain, resname, counter[ck])
-        return res_to_pos
-
-    orig_het_pos = _build_hetatm_position_map(original_lines)
-    model_het_pos = _build_hetatm_position_map(result_lines)
-
-    # Build original serial -> lookup key
-    # ATOM: key = ('atom', chain, resname, resnum, atomname)
-    # HETATM: key = ('het', chain, resname, nth, atomname)
-    orig_serial_to_key = {}
-    for line in original_lines:
-        if line.startswith("ATOM  "):
-            serial = int(line[6:11].strip())
-            chain = line[21]
-            resname = line[17:20].strip()
-            resnum = line[22:26].strip()
+            icode = line[26] if len(line) > 26 else ' '
             atomname = line[12:16].strip()
-            orig_serial_to_key[serial] = ('atom', chain, resname, resnum, atomname)
-        elif line.startswith("HETATM"):
-            serial = int(line[6:11].strip())
-            chain = line[21]
-            resname = line[17:20].strip()
-            resnum = line[22:26].strip()
-            atomname = line[12:16].strip()
-            pos = orig_het_pos.get((chain, resnum))
-            if pos:
-                orig_serial_to_key[serial] = ('het', pos[0], pos[1], pos[2], atomname)
+            try:
+                serial = int(line[6:11].strip())
+            except ValueError:
+                continue
+            res_key = (resnum, icode)
+            seen = seen_per_chain.setdefault(chain, {})
+            if res_key not in seen:
+                idx = len(by_chain_pos.setdefault(chain, []))
+                seen[res_key] = idx
+                by_chain_pos[chain].append(
+                    ('het' if line.startswith('HETATM') else 'atom',
+                     resname, resnum, icode))
+            pos = seen[res_key]
+            serial_to_pos[serial] = (chain, pos, atomname)
+        return by_chain_pos, serial_to_pos
 
-    # Build lookup key -> new serial in model output
-    key_to_new_serial = {}
+    orig_by_chain, orig_serial_to_pos = _build_residue_index(original_lines)
+    model_by_chain, _ = _build_residue_index(result_lines)
+
+    # Build (chain, model_pos) -> serial map by re-walking result_lines
+    model_atom_serial = {}
+    seen_per_chain = {}
     for line in result_lines:
-        if line.startswith("ATOM  "):
+        if not line.startswith(("ATOM  ", "HETATM")):
+            continue
+        chain = line[21]
+        resnum = line[22:26].strip()
+        icode = line[26] if len(line) > 26 else ' '
+        atomname = line[12:16].strip()
+        try:
             serial = int(line[6:11].strip())
-            chain = line[21]
-            resname = line[17:20].strip()
-            resnum = line[22:26].strip()
-            atomname = line[12:16].strip()
-            key = ('atom', chain, resname, resnum, atomname)
-            key_to_new_serial[key] = serial
-        elif line.startswith("HETATM"):
-            serial = int(line[6:11].strip())
-            chain = line[21]
-            resname = line[17:20].strip()
-            resnum = line[22:26].strip()
-            atomname = line[12:16].strip()
-            pos = model_het_pos.get((chain, resnum))
-            if pos:
-                key = ('het', pos[0], pos[1], pos[2], atomname)
-                key_to_new_serial[key] = serial
+        except ValueError:
+            continue
+        res_key = (resnum, icode)
+        seen = seen_per_chain.setdefault(chain, {})
+        if res_key not in seen:
+            seen[res_key] = len(seen)
+        pos = seen[res_key]
+        model_atom_serial[(chain, pos, atomname)] = serial
+
+    # Build per-chain map: input_position → model_output_position.
+    # When per_chain_masks is provided, use it: the Nth template-True
+    # in the mask is the Nth input residue, located at the model
+    # position corresponding to that mask index. When per_chain_masks
+    # is missing, fall back to naive identity (works only when no gaps).
+    chain_input_to_model_pos = {}  # {chain: {input_pos: model_pos}}
+    if per_chain_masks is not None and all_chains is not None:
+        for ci, chain in enumerate(all_chains):
+            if ci >= len(per_chain_masks):
+                continue
+            mask = per_chain_masks[ci]
+            input_pos = 0
+            mapping = {}
+            for model_pos, is_template in enumerate(mask):
+                if is_template:
+                    mapping[input_pos] = model_pos
+                    input_pos += 1
+            chain_input_to_model_pos[chain] = mapping
+
+    # Sanity: warn if input vs model chain lengths don't match the mask
+    # expectation. Non-protein chains aren't in the mask but should still
+    # align position-by-position (Modeller doesn't reorder them).
+    if verbose:
+        for chain, orig_residues in orig_by_chain.items():
+            model_residues = model_by_chain.get(chain, [])
+            if chain in chain_input_to_model_pos:
+                expected_input_n = sum(1 for v in chain_input_to_model_pos[chain].values())
+                if expected_input_n != len(orig_residues):
+                    print(f"  WARN: chain {chain}: mask says {expected_input_n} "
+                          f"input residues but PDB has {len(orig_residues)} "
+                          f"— bond restoration may miss some atoms")
+            elif len(orig_residues) != len(model_residues):
+                print(f"  WARN: chain {chain}: input has {len(orig_residues)} "
+                      f"residues, model has {len(model_residues)} — bonds may "
+                      f"be partially restored")
+
+    # Helper: resolve an input serial to the corresponding model output serial
+    def _remap(serial):
+        pos_info = orig_serial_to_pos.get(serial)
+        if pos_info is None:
+            return None
+        chain, orig_pos, atomname = pos_info
+        # Translate input_pos → model_pos via the mask (or identity).
+        pos_map = chain_input_to_model_pos.get(chain)
+        if pos_map is not None:
+            model_pos = pos_map.get(orig_pos)
+        else:
+            model_pos = orig_pos  # non-protein chain: position-by-position
+        if model_pos is None:
+            return None
+        # Check resname consistency to avoid misrouting if mask is wrong
+        model_residues = model_by_chain.get(chain, [])
+        orig_residues = orig_by_chain.get(chain, [])
+        if model_pos >= len(model_residues) or orig_pos >= len(orig_residues):
+            return None
+        if orig_residues[orig_pos][1] != model_residues[model_pos][1]:
+            # resname mismatch — drop the bond rather than misroute it.
+            return None
+        return model_atom_serial.get((chain, model_pos, atomname))
+
+    # Build a per-input-serial → per-model-serial map used below
+    orig_serial_to_model_serial = {}
+    for serial in orig_serial_to_pos:
+        new_serial = _remap(serial)
+        if new_serial is not None:
+            orig_serial_to_model_serial[serial] = new_serial
+
+    # Direct input-serial → model-serial mapping used for CONECT remap.
+    orig_to_model_serial = orig_serial_to_model_serial
 
     # Parse CONECT records from original
     conect_records = []
@@ -1107,11 +1175,7 @@ def restore_conect_records(result_lines, original_lines, verbose=False):
         new_serials = []
         skip = False
         for s in serials:
-            key = orig_serial_to_key.get(s)
-            if key is None:
-                skip = True
-                break
-            new_s = key_to_new_serial.get(key)
+            new_s = orig_to_model_serial.get(s)
             if new_s is None:
                 skip = True
                 break
@@ -1308,6 +1372,11 @@ def main(argv=None):
             'GLH': 'GLU', 'GLUP': 'GLU',
             'CYX': 'CYS', 'CYM': 'CYS',
             'LYN': 'LYS',
+            # GLYCAM glycoprotein residues — Modeller doesn't know NLN/
+            # OLS/OLT; pre-rename to the standard parent residue so the
+            # protein chain is recognized correctly. Restored on output
+            # via _input_variants downstream.
+            'NLN': 'ASN', 'OLS': 'SER', 'OLT': 'THR',
         }
         # Capture: (chain, resseq) -> original variant name
         _input_variants = {}
@@ -1395,7 +1464,10 @@ def main(argv=None):
         result_lines = _renumber_atom_serials(result_lines)
 
         # Restore CONECT records from original PDB with remapped atom serials
-        result_lines = restore_conect_records(result_lines, lines, args.verbose)
+        result_lines = restore_conect_records(
+            result_lines, lines, args.verbose,
+            per_chain_masks=per_chain_masks, all_chains=all_chains,
+        )
 
         if args.verbose:
             n_gaps_filled = sum(
