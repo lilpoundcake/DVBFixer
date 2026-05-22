@@ -14,6 +14,7 @@ any mismatch.
 import argparse
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -120,8 +121,9 @@ def parse_args(argv=None):
     p.add_argument("input", help="Input PDB file (must contain SEQRES or use --fasta)")
     p.add_argument("-o", "--output", help="Output PDB file (default: <input>_model.pdb)")
     p.add_argument(
-        "--fasta", help="FASTA file with complete sequence(s). Chain order must match "
-        "the PDB. Use instead of SEQRES."
+        "--fasta", help="FASTA file with complete sequence(s). Headers must encode "
+        "chain IDs: '>chain_X', '>PDBID_X', or '>X'. Mapping is by chain ID, "
+        "not file order. Use instead of SEQRES."
     )
     p.add_argument(
         "-n", "--num-models", type=int, default=1,
@@ -166,11 +168,48 @@ def parse_seqres(lines):
     return seqres
 
 
+_CHAIN_PATTERNS = [
+    re.compile(r'^chain[_\s]*([A-Za-z0-9])$', re.IGNORECASE),
+    re.compile(r'_([A-Za-z0-9])$'),
+    re.compile(r'^([A-Za-z0-9])$'),
+]
+
+
+def _chain_id_from_header(header):
+    """Extract chain ID from a FASTA header. Returns None on failure."""
+    h = header.strip()
+    for pat in _CHAIN_PATTERNS:
+        m = pat.search(h)
+        if m:
+            return m.group(1).upper()
+    return None
+
+
 def parse_fasta(fasta_path):
-    """Parse a FASTA file, return list of (header, sequence) tuples."""
+    """Parse a FASTA file, return dict {chain_id: sequence}.
+
+    Headers are parsed for a chain ID. Supported header formats:
+      >chain_X / >chainX  (explicit prefix, case-insensitive)
+      >XXXX_X             (PDB-style, e.g. '1abc_A')
+      >X                  (single-character header)
+
+    Raises ValueError if a chain ID cannot be determined or if duplicate
+    chain IDs are found.
+    """
     from Bio import SeqIO
     records = list(SeqIO.parse(fasta_path, "fasta"))
-    return [(r.id, str(r.seq)) for r in records]
+    result = {}
+    for r in records:
+        ch = _chain_id_from_header(r.id)
+        if ch is None:
+            raise ValueError(
+                f"Could not extract chain ID from FASTA header '{r.id}'. "
+                "Use '>chain_X', '>PDBID_X', or '>X' format."
+            )
+        if ch in result:
+            raise ValueError(f"Duplicate chain ID '{ch}' in FASTA file.")
+        result[ch] = str(r.seq)
+    return result
 
 
 def get_chain_order(lines, seqres_only=None):
@@ -711,33 +750,39 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
             gap_len = gap_end - gap_start
 
             # Find nearest non-None positions flanking the gap
-            left = 0
+            left = None
             for j in range(gap_start - 1, -1, -1):
                 if full_resids[j] is not None:
                     left = full_resids[j][0]
                     break
             right = None
-            if gap_end < len(mask):
-                for j in range(gap_end, len(mask)):
-                    if full_resids[j] is not None:
-                        right = full_resids[j][0]
-                        break
+            for j in range(gap_end, len(mask)):
+                if full_resids[j] is not None:
+                    right = full_resids[j][0]
+                    break
 
-            if right is not None:
-                # Internal gap or gap before a matched terminal: fit between left and right
+            if left is not None and right is not None:
+                # Internal gap: fit between left and right
                 available = right - left - 1
                 if available >= gap_len:
-                    # Enough room — number sequentially from left
                     for k in range(gap_len):
                         full_resids[gap_start + k] = (left + k + 1, ' ')
                 else:
                     # Not enough room — number backwards from right
                     for k in range(gap_len):
                         full_resids[gap_start + k] = (right - gap_len + k, ' ')
-            else:
-                # C-terminal gap (nothing to the right): number from left
+            elif left is None and right is not None:
+                # N-terminal gap: extend backward from the first template residue
+                for k in range(gap_len):
+                    full_resids[gap_start + k] = (right - gap_len + k, ' ')
+            elif left is not None and right is None:
+                # C-terminal gap: extend forward from the last template residue
                 for k in range(gap_len):
                     full_resids[gap_start + k] = (left + k + 1, ' ')
+            else:
+                # Whole chain is a gap — start at 1
+                for k in range(gap_len):
+                    full_resids[gap_start + k] = (k + 1, ' ')
 
         # Fill any remaining None entries (safety fallback)
         last_num = 0
@@ -1314,14 +1359,29 @@ def main(argv=None):
     # Determine protein chains (those with SEQRES)
     seqres = parse_seqres(lines)
     if args.fasta:
-        fasta_seqs = parse_fasta(args.fasta)
-        protein_chains = get_chain_order(lines, seqres_only=set(seqres.keys())) if seqres else get_chain_order(lines)
-        if len(fasta_seqs) != len(protein_chains):
-            print(f"Error: FASTA has {len(fasta_seqs)} sequences but PDB has "
-                  f"{len(protein_chains)} protein chains ({', '.join(protein_chains)})",
-                  file=sys.stderr)
+        try:
+            fasta_map = parse_fasta(args.fasta)
+        except ValueError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
             sys.exit(1)
-        protein_seq_map = {ch: seq for ch, (_, seq) in zip(protein_chains, fasta_seqs)}
+        protein_chains = (
+            get_chain_order(lines, seqres_only=set(seqres.keys()))
+            if seqres else get_chain_order(lines)
+        )
+        missing = [c for c in protein_chains if c not in fasta_map]
+        if missing:
+            print(
+                f"Error: FASTA missing sequences for chain(s): {', '.join(missing)}. "
+                f"FASTA has: {', '.join(sorted(fasta_map.keys()))}. "
+                f"PDB has: {', '.join(protein_chains)}.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        extra = [c for c in fasta_map if c not in protein_chains]
+        if extra and args.verbose:
+            print(f"Note: FASTA has extra chain(s) not in PDB (ignored): "
+                  f"{', '.join(extra)}")
+        protein_seq_map = {ch: fasta_map[ch] for ch in protein_chains}
     else:
         if not seqres:
             print("No SEQRES records found — no gaps to model, copying input")
