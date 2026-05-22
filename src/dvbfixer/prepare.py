@@ -1478,10 +1478,14 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     if heterogen_h:
         # BioLuminate-style: add H to protein AND heterogens (sugars, ligands).
         # Uses AMBER14 + GLYCAM_06j-1 + SMIRNOFF (for arbitrary ligands via SMILES).
+        # tip3pfb.xml is included for ion templates (Ca2+, Mg2+, Zn2+, Na+,
+        # Cl-, K+, etc.) — AMBER ships them inside the water-model XML, so
+        # without it any structure containing ions fails template matching.
         try:
             from dvbfixer.ffutils import create_forcefield_with_openff
             ff = create_forcefield_with_openff(
-                ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml'],
+                ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml',
+                 'amber14/tip3pfb.xml'],
                 modeller.topology, verbose=verbose,
             )
             Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')

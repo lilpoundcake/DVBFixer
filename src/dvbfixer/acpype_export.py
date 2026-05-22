@@ -757,7 +757,11 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
                     print(f"  Added peptide bond: {res_list[i].name}{res_list[i].id}:C → "
                           f"{res_list[i+1].name}{res_list[i+1].id}:N")
 
-    forcefield = ForceField('amber14-all.xml', 'amber14/GLYCAM_06j-1.xml')
+    # tip3pfb.xml included for ion templates (Ca2+, Mg2+, Zn2+, Na+, Cl-,
+    # K+, ...). AMBER ships ion params inside the water-model XML, so
+    # without it any structure containing ions fails template matching.
+    forcefield = ForceField('amber14-all.xml', 'amber14/GLYCAM_06j-1.xml',
+                             'amber14/tip3pfb.xml')
     # Pass positions so sugar-sugar glycosidic bonds are detected by distance.
     # Without these bonds, GLYCAM templates for linkage-position sugars (e.g.
     # 6LB declares O6 must be externally bonded) fail to match and addHydrogens

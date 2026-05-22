@@ -315,15 +315,21 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     )
     if has_heterogens:
         from dvbfixer.ffutils import create_forcefield_with_openff
-        # Replace user --ff with AMBER14 + GLYCAM + water model. The default
-        # ff19SB doesn't combine with GLYCAM; ff14SB does.
-        ff_xmls = ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml']
-        if not args.no_solvent:
-            ff_xmls.append('amber14/tip3pfb.xml')
+        # Replace user --ff with AMBER14 + GLYCAM + water/ion model. The
+        # default ff19SB doesn't combine with GLYCAM; ff14SB does.
+        # ALWAYS include the water-model XML even with --no-solvent: in
+        # AMBER14 the ion parameters (Ca2+, Mg2+, Zn2+, Na+, Cl-, K+, ...)
+        # ship inside the water-model XML, so structures containing ions
+        # would otherwise fail template matching. addSolvent itself is
+        # still gated by args.no_solvent below — loading the XML only
+        # registers templates, it doesn't add a solvent box.
+        ff_xmls = ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml',
+                   'amber14/tip3pfb.xml']
         forcefield = create_forcefield_with_openff(
             ff_xmls, stripped_top, verbose=args.verbose,
         )
-        print(f"  FF: AMBER14 + GLYCAM_06j-1 (+ SMIRNOFF for unknown ligands)")
+        print(f"  FF: AMBER14 + GLYCAM_06j-1 + tip3pfb (water+ions) "
+              f"(+ SMIRNOFF for unknown ligands)")
     else:
         forcefield = ForceField(*args.ff)
 
