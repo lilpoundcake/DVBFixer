@@ -59,50 +59,53 @@ def _explain_modeller_error(exc, protein_chains, protein_seq_map):
     msg = str(exc)
     lines = []
 
-    # Try `<resseq>:<chain>` Modeller convention first
+    # protein_seq_map values are 1-letter AA sequence STRINGS (one letter
+    # per protein residue in order). The exact PDB resseq/resname for each
+    # position is in the original PDB lines, not in protein_seq_map.
+    # Best-effort: report position-in-sequence + chain ID.
+
+    # Try `<resseq>:<chain>` Modeller convention first — this is already
+    # the most useful format because <resseq>:<chain> directly identifies
+    # the residue in the user's PDB.
     for m in re.finditer(r'(\d+)\s*:\s*([A-Za-z0-9])', msg):
         resseq, chain = int(m.group(1)), m.group(2)
         if chain in protein_seq_map:
-            for rseq, ic, rn in protein_seq_map[chain]:
-                if rseq == resseq:
-                    lines.append(
-                        f"Resolved {resseq}:{chain} → chain {chain} "
-                        f"resseq {resseq}{ic.strip()} resname {rn}"
-                    )
-                    break
+            lines.append(
+                f"Modeller error refers to residue {resseq}:{chain} "
+                f"(chain {chain}, resseq {resseq} — check this position "
+                f"in your input PDB)"
+            )
 
     # Try `residue <N>` where N is a 1-based index into target sequence
     for m in re.finditer(r'residue\s+(\d+)', msg, re.IGNORECASE):
         idx = int(m.group(1))
-        # Flatten the target sequence across chains
-        flat = []
+        # Walk the per-chain protein sequences to find which chain idx
+        # falls into, and the position within that chain.
+        cursor = 0
         for ch in protein_chains:
-            if ch in protein_seq_map:
-                for rseq, ic, rn in protein_seq_map[ch]:
-                    flat.append((ch, rseq, ic, rn))
-        if 1 <= idx <= len(flat):
-            ch, rseq, ic, rn = flat[idx - 1]
-            lines.append(
-                f"Resolved residue index {idx} → chain {ch} "
-                f"resseq {rseq}{ic.strip()} resname {rn}"
-            )
+            seq_len = len(protein_seq_map.get(ch, ''))
+            if cursor < idx <= cursor + seq_len:
+                pos_in_chain = idx - cursor   # 1-based
+                letter = protein_seq_map[ch][pos_in_chain - 1]
+                lines.append(
+                    f"Modeller error refers to residue index {idx} → "
+                    f"chain {ch}, position {pos_in_chain} of {seq_len} "
+                    f"(AA letter '{letter}' in target sequence)"
+                )
+                break
+            cursor += seq_len
 
     if not lines:
-        # Generic fallback: list the gap regions Modeller was modeling, so
-        # the user can at least see what loops were being built.
+        # Generic fallback: list per-chain residue counts so the user
+        # can at least see what chains were being modeled.
         for ch in protein_chains:
-            seq = protein_seq_map.get(ch, [])
+            seq = protein_seq_map.get(ch, '')
             if not seq:
                 continue
-            # No structured gap info available here; just list chain extents
-            first = f"{seq[0][0]}{seq[0][1].strip()}" if seq else ''
-            last = f"{seq[-1][0]}{seq[-1][1].strip()}" if seq else ''
-            lines.append(
-                f"chain {ch}: {len(seq)} residues, span {first} – {last}"
-            )
+            lines.append(f"chain {ch}: {len(seq)} protein residue(s) in target")
         if lines:
             lines.insert(0, "No specific residue identified in error message. "
-                            "Chain extents being modeled:")
+                            "Chain sizes being modeled:")
 
     return '\n'.join(lines) if lines else None
 
@@ -513,7 +516,18 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
             tpl_chain = ''
 
         if ch in protein_set and ch in protein_seq_map:
-            target_chain_seqs.append(protein_seq_map[ch])
+            # Preserve HETATM residues attached to a protein chain by
+            # counting '.' (BLK) entries in Modeller's template sequence
+            # for this chain and re-appending the same count to the SEQRES-
+            # derived target. Without this, glycans / ligands / ions
+            # attached to a protein chain (e.g. N-linked NAG covalently
+            # bonded to ASN.ND2 on the same chain) get dropped by Modeller
+            # during loop modeling because the target has no slot for them.
+            n_dots = tpl_chain.count('.')
+            seq = protein_seq_map[ch]
+            if n_dots:
+                seq = seq + '.' * n_dots
+            target_chain_seqs.append(seq)
         else:
             # Non-protein chain: use Modeller's template sequence verbatim
             target_chain_seqs.append(tpl_chain)
@@ -766,15 +780,16 @@ def restore_chain_ids_and_read(model_pdb_path, all_chains):
 
     # Modeller can write TER records without trailing newline,
     # causing them to be joined with the next line. Split on known
-    # record boundaries to handle this.
+    # record boundaries to handle this. Also split on CONECT so that a
+    # joined "TER...CONECT..." line gets disentangled and the CONECT
+    # part can be dropped explicitly below.
     lines = content.split('\n')
     expanded = []
     for line in lines:
-        # Check if a line contains a TER followed by ATOM/HETATM (no newline between)
         while True:
             found = False
-            for prefix in ("ATOM  ", "HETATM"):
-                idx = line.find(prefix, 1)  # skip pos 0 (the line itself might start with it)
+            for prefix in ("ATOM  ", "HETATM", "CONECT"):
+                idx = line.find(prefix, 1)  # skip pos 0
                 if idx > 0 and line[:idx].startswith("TER"):
                     expanded.append(line[:idx])
                     line = line[idx:]
@@ -802,6 +817,12 @@ def restore_chain_ids_and_read(model_pdb_path, all_chains):
             output_lines.append(line)
         elif line.startswith("END"):
             output_lines.append(line)
+        elif line.startswith("CONECT"):
+            # Explicitly drop Modeller-emitted CONECT records. Bonds are
+            # restored separately by restore_conect_records using the
+            # ORIGINAL PDB's CONECT entries, remapped by atom identity.
+            continue
+        # Any other line (REMARK, HEADER, SEQRES, SSBOND, etc.) is dropped.
 
     return output_lines
 
