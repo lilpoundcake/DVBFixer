@@ -859,6 +859,30 @@ def renumber_model_output(result_lines, resnum_mapping):
     return output
 
 
+def _renumber_atom_serials(lines):
+    """Assign sequential unique serials (1..N) to every ATOM/HETATM line.
+
+    Used after `patch_missing_hetatm`, which inserts atoms from the input
+    PDB keeping their original serials — those collide with Modeller's
+    renumbered serials in the result. Without re-serialization, the final
+    PDB has duplicate serials, and CONECT records resolve to whichever
+    atom the viewer happens to pick first → spurious bonds.
+
+    Returns a new list of lines with cols 7-11 (atom serial) rewritten.
+    Non-atom lines pass through unchanged.
+    """
+    out = []
+    serial = 0
+    for line in lines:
+        if line.startswith(("ATOM  ", "HETATM")):
+            serial += 1
+            new_serial = serial if serial < 100000 else (serial % 100000)
+            out.append(line[:6] + f"{new_serial:5d}" + line[11:])
+        else:
+            out.append(line)
+    return out
+
+
 def patch_missing_hetatm(result_lines, original_lines, all_chains, protein_chains, verbose=False):
     """Patch back HETATM atoms that Modeller dropped (e.g. linkage atoms).
 
@@ -1359,6 +1383,16 @@ def main(argv=None):
         result_lines = patch_missing_hetatm(
             result_lines, lines, all_chains, protein_chains, args.verbose
         )
+
+        # Re-serialize ALL atoms after patching so serials stay unique.
+        # patch_missing_hetatm copies orig_line[:21] + new_chain + new_resnum
+        # + orig_line[27:] — which keeps the ORIGINAL input serial in cols
+        # 7-11. That serial collides with Modeller's renumbered atoms,
+        # producing two atoms with the same serial in the output. CONECT
+        # records (added next by restore_conect_records) then resolve to
+        # whichever duplicate the viewer picks first, creating spurious
+        # bonds between unrelated atoms ("strange bonds inside glycans").
+        result_lines = _renumber_atom_serials(result_lines)
 
         # Restore CONECT records from original PDB with remapped atom serials
         result_lines = restore_conect_records(result_lines, lines, args.verbose)
