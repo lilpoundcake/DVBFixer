@@ -488,8 +488,14 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                                     ignoreExternalBonds=True,
                                     residueTemplates=res_templates)
         except Exception as e:
-            print(f"\nWARNING: pre-solvent parametrization failed:\n  {e}\n"
-                  f"  → falling back to --strip-heterogens flow.\n")
+            from dvbfixer.ffutils import explain_template_error
+            diag = explain_template_error(e, modeller.topology, forcefield)
+            print(f"\nWARNING: pre-solvent parametrization failed:\n  {e}\n")
+            if diag:
+                for line in diag.split('\n'):
+                    print(f"  {line}")
+                print()
+            print(f"  → falling back to --strip-heterogens flow.\n")
             import argparse as _ap
             legacy_args = _ap.Namespace(**vars(args))
             legacy_args.keep_heterogens = False
@@ -524,8 +530,14 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         # Heterogen parametrization failed (e.g. PDB-named sugars without H).
         # Auto-fall back to legacy strip-and-restore flow with --rebuild-h
         # forced so addHydrogens fills in any missing H on renamed NLN→ASN etc.
-        print(f"\nWARNING: whole-system parametrization failed:\n  {e}\n"
-              f"  → falling back to --strip-heterogens flow "
+        from dvbfixer.ffutils import explain_template_error
+        diag = explain_template_error(e, modeller.topology, forcefield)
+        print(f"\nWARNING: whole-system parametrization failed:\n  {e}\n")
+        if diag:
+            for line in diag.split('\n'):
+                print(f"  {line}")
+            print()
+        print(f"  → falling back to --strip-heterogens flow "
               f"(heterogens kept in output with original coords).\n")
         import argparse as _ap
         legacy_args = _ap.Namespace(**vars(args))

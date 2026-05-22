@@ -133,6 +133,110 @@ def _find_unknown_residue_names(topology):
     return unknown
 
 
+def explain_template_error(exc, topology, forcefield=None):
+    """Turn an opaque OpenMM template-match error into a useful diagnostic.
+
+    OpenMM's `_matchAllResiduesToTemplates` reports failures by TOPOLOGY
+    INDEX (0-based position in `topology.residues()` iteration order),
+    not by the PDB resseq the user wrote. Error messages like
+
+        "No template found for residue 181 (PHE). The set of heavy atoms
+         matches PHE, but the residue is missing 2 H atoms."
+
+    are misleading — there might be zero PHE residues with resseq 181 in
+    the input PDB; "181" is just the position of THIS residue in OpenMM's
+    iteration over the topology.
+
+    This helper extracts the residue index from the error message, looks
+    up the actual residue in the topology, and returns a multi-line
+    string identifying the (chain, resseq, icode, resname) plus — when a
+    forcefield is provided — the specific atom-set mismatch (missing /
+    extra atoms) against the named template.
+
+    Returns None if the error message doesn't match the OpenMM template-
+    error format (caller should fall back to the original `str(exc)`).
+    """
+    import re
+
+    msg = str(exc)
+    m = re.search(r'residue\s+(\d+)\s+\(([A-Za-z0-9_]+)\)', msg)
+    if not m:
+        return None
+    try:
+        res_idx = int(m.group(1))
+    except ValueError:
+        return None
+    expected_resname = m.group(2)
+
+    # Look up the actual residue by topology iteration order.
+    residues = list(topology.residues())
+    if res_idx < 0 or res_idx >= len(residues):
+        return None
+    res = residues[res_idx]
+
+    chain_id = res.chain.id if res.chain else '?'
+    res_id = res.id
+    icode = ''
+    if hasattr(res, 'insertionCode') and res.insertionCode:
+        icode = res.insertionCode.strip()
+    res_name = res.name
+
+    lines = [
+        f"Failed residue (topology index {res_idx}, NOT PDB resseq):",
+        f"  chain = {chain_id}    resseq = {res_id}{icode}    resname = {res_name}",
+    ]
+    if res_name != expected_resname:
+        lines.append(
+            f"  (OpenMM error said '{expected_resname}' — this is the template "
+            f"name it tried to fit, not the input resname)"
+        )
+
+    # List the atom set we currently have for this residue.
+    atom_names = [a.name for a in res.atoms()]
+    lines.append(f"  atoms in topology ({len(atom_names)}): {' '.join(atom_names)}")
+
+    # If a forcefield was provided, try to compute the actual atom-set
+    # mismatch against the matching template.
+    if forcefield is not None:
+        tpl_name = None
+        if res_name in forcefield._templates:
+            tpl_name = res_name
+        elif expected_resname in forcefield._templates:
+            tpl_name = expected_resname
+        if tpl_name is not None:
+            template = forcefield._templates[tpl_name]
+            tpl_atoms = {a.name for a in template.atoms}
+            cur_atoms = set(atom_names)
+            missing = sorted(tpl_atoms - cur_atoms)
+            extra = sorted(cur_atoms - tpl_atoms)
+            lines.append(f"  template '{tpl_name}' expects {len(tpl_atoms)} atoms")
+            if missing:
+                lines.append(f"  MISSING from input vs template: {' '.join(missing)}")
+            if extra:
+                lines.append(f"  EXTRA in input not in template: {' '.join(extra)}")
+            if not missing and not extra:
+                lines.append(
+                    "  (atom names match — failure is likely from external-bond "
+                    "expectations, not atom set)"
+                )
+
+    # Neighbour residues — often the real source of the problem (e.g. an
+    # NLN whose adjacent ASN is missing its peptide bond, or a sugar tree
+    # missing a glycosidic bond to a sibling).
+    if res_idx > 0:
+        prev = residues[res_idx - 1]
+        lines.append(
+            f"  prev residue (idx {res_idx-1}): {prev.chain.id}:{prev.name}{prev.id}"
+        )
+    if res_idx + 1 < len(residues):
+        nxt = residues[res_idx + 1]
+        lines.append(
+            f"  next residue (idx {res_idx+1}): {nxt.chain.id}:{nxt.name}{nxt.id}"
+        )
+
+    return '\n'.join(lines)
+
+
 def create_forcefield_with_openff(ff_xmls, topology, small_mol_ff='openff-2.2.0',
                                   extra_molecules=None, verbose=False):
     """Create OpenMM ForceField with automatic OpenFF parametrization for unknown residues.
