@@ -33,6 +33,80 @@ AA3TO1 = {
 WATER_RESNAMES = {'HOH', 'WAT', 'TIP3', 'TIP', 'SOL', 'T3P', 'T4P', 'T5P'}
 
 
+def _explain_modeller_error(exc, protein_chains, protein_seq_map):
+    """Translate a Modeller exception into a useful diagnostic.
+
+    Modeller error messages typically include either a residue index
+    (1-based position in the target sequence) or a (chain, resseq)
+    reference. They look like:
+
+      "Number of residues in the alignment and pdb files are different"
+      "Residue type 'X' too long: 'BLK'"
+      "Heavy atom at index N has zero coordinates"
+      "Atom 'XX' not found in residue NNN:C"
+
+    This helper looks for `(\\d+):([A-Z])` or `residue (\\d+)` style
+    references in the message and resolves them to the actual
+    (chain, resseq, resname) using `protein_seq_map`. Returns a
+    multi-line string with the resolved residue + neighbour context, or
+    None if no recognizable reference was found.
+
+    `protein_chains`: list of chain IDs in the target order.
+    `protein_seq_map`: dict {chain_id: [(resseq, icode, resname), ...]}.
+    """
+    import re
+
+    msg = str(exc)
+    lines = []
+
+    # Try `<resseq>:<chain>` Modeller convention first
+    for m in re.finditer(r'(\d+)\s*:\s*([A-Za-z0-9])', msg):
+        resseq, chain = int(m.group(1)), m.group(2)
+        if chain in protein_seq_map:
+            for rseq, ic, rn in protein_seq_map[chain]:
+                if rseq == resseq:
+                    lines.append(
+                        f"Resolved {resseq}:{chain} → chain {chain} "
+                        f"resseq {resseq}{ic.strip()} resname {rn}"
+                    )
+                    break
+
+    # Try `residue <N>` where N is a 1-based index into target sequence
+    for m in re.finditer(r'residue\s+(\d+)', msg, re.IGNORECASE):
+        idx = int(m.group(1))
+        # Flatten the target sequence across chains
+        flat = []
+        for ch in protein_chains:
+            if ch in protein_seq_map:
+                for rseq, ic, rn in protein_seq_map[ch]:
+                    flat.append((ch, rseq, ic, rn))
+        if 1 <= idx <= len(flat):
+            ch, rseq, ic, rn = flat[idx - 1]
+            lines.append(
+                f"Resolved residue index {idx} → chain {ch} "
+                f"resseq {rseq}{ic.strip()} resname {rn}"
+            )
+
+    if not lines:
+        # Generic fallback: list the gap regions Modeller was modeling, so
+        # the user can at least see what loops were being built.
+        for ch in protein_chains:
+            seq = protein_seq_map.get(ch, [])
+            if not seq:
+                continue
+            # No structured gap info available here; just list chain extents
+            first = f"{seq[0][0]}{seq[0][1].strip()}" if seq else ''
+            last = f"{seq[-1][0]}{seq[-1][1].strip()}" if seq else ''
+            lines.append(
+                f"chain {ch}: {len(seq)} residues, span {first} – {last}"
+            )
+        if lines:
+            lines.insert(0, "No specific residue identified in error message. "
+                            "Chain extents being modeled:")
+
+    return '\n'.join(lines) if lines else None
+
+
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="dvbfixer model",
@@ -489,13 +563,43 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
     a.loop.ending_model = args.num_loops
     a.loop.md_level = md_levels[args.md_level]
 
-    a.make()
+    try:
+        a.make()
+    except Exception as e:
+        diag = _explain_modeller_error(e, protein_chains, protein_seq_map)
+        print(f"\nERROR: Modeller failed during model building:\n  {e}\n",
+              file=sys.stderr)
+        if diag:
+            for line in diag.split('\n'):
+                print(f"  {line}", file=sys.stderr)
+        raise
 
     loop_models = [x for x in a.loop.outputs if x['failure'] is None]
     if not loop_models:
         init_models = [x for x in a.outputs if x['failure'] is None]
         if not init_models:
-            print("Error: all models failed", file=sys.stderr)
+            # Some/all initial models failed too — Modeller stores the per-
+            # model failure string. Print the failures with context so the
+            # user can see which residue/chain triggered the problem.
+            failed_init = [x for x in a.outputs if x.get('failure') is not None]
+            failed_loop = [x for x in a.loop.outputs if x.get('failure') is not None]
+            print("\nERROR: All Modeller models failed.\n", file=sys.stderr)
+            for i, x in enumerate(failed_init):
+                print(f"  initial model {i+1} failure: {x['failure']}",
+                      file=sys.stderr)
+            for i, x in enumerate(failed_loop):
+                print(f"  loop model {i+1} failure: {x['failure']}",
+                      file=sys.stderr)
+            # Best-effort: parse the first failure for residue context.
+            first_fail = (failed_init or failed_loop)[0] if (failed_init or failed_loop) else None
+            if first_fail:
+                diag = _explain_modeller_error(
+                    Exception(str(first_fail['failure'])),
+                    protein_chains, protein_seq_map)
+                if diag:
+                    print("", file=sys.stderr)
+                    for line in diag.split('\n'):
+                        print(f"  {line}", file=sys.stderr)
             sys.exit(1)
         best = min(init_models, key=lambda x: x['molpdf'])
         print("Warning: loop refinement failed, using initial model")

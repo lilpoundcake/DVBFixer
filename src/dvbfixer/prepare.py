@@ -1499,9 +1499,14 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                     print(f"  add_glycam_bonds skipped: {_e}")
             modeller.addHydrogens(ff, pH=ph, variants=variants)
         except (ValueError, KeyError, Exception) as e:
+            from dvbfixer.ffutils import explain_template_error
+            diag = explain_template_error(e, modeller.topology, ff)
             if verbose:
                 print(f"  Heterogen H-add failed ({type(e).__name__}: {e}); "
                       f"falling back to protein-only.")
+                if diag:
+                    for line in diag.split('\n'):
+                        print(f"    {line}")
             # Rebuild modeller since addHydrogens may have left it half-modified
             modeller = Modeller(fixer.topology, fixer.positions)
             modeller.addHydrogens(pH=ph, variants=variants)
