@@ -1,0 +1,77 @@
+# dvbfixer cluster — Glycan Conformational Clustering
+
+[← command index](index.md) · [← README](../../README.md)
+
+Clusters glycan conformations from GROMACS MD trajectories using glycosidic torsion angle RMSD — the gold-standard method used by the Glycan Fragment Database (GFDB) and CHARMM-GUI Glycan Modeler. Auto-detects glycosidic linkages from the topology, extracts phi/psi/omega torsion angles across all frames, and clusters with the GROMOS algorithm.
+
+Supports both CHARMM36 and GLYCAM force field naming, including sialic acid (Neu5Ac) which links via C2 instead of C1. Two clustering modes: `global` (all torsions at once) and `per-linkage` (each linkage independently, then combined into compound states — default, better for capturing per-linkage conformational variation). Representative structures are medoids (real frames closest to circular mean), automatically aligned on the root sugar or protein attachment point.
+
+## Usage
+
+```bash
+# Basic usage — auto-detects linkages, per-linkage clustering
+dvbfixer cluster topology.tpr trajectory.xtc -v
+
+# With interactive plots
+dvbfixer cluster topology.tpr trajectory.xtc --plot -v
+
+# Global clustering mode (GFDB-style, all torsions at once)
+dvbfixer cluster topology.tpr trajectory.xtc --mode global
+
+# Custom cutoff and stride
+dvbfixer cluster topology.tpr trajectory.xtc --cutoff 20 --stride 10
+
+# PDB input (no .tpr needed)
+dvbfixer cluster structure.pdb trajectory.xtc -o my_clusters --plot
+
+# Separate PDB per cluster, no alignment
+dvbfixer cluster topology.tpr trajectory.xtc --separate-pdb --no-align
+
+# Align on specific residue
+dvbfixer cluster topology.tpr trajectory.xtc --align-resid 5
+```
+
+## Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-o`, `--output` | trajectory stem | Output file prefix |
+| `--cutoff` | 30.0 | RMSD cutoff in degrees for GROMOS clustering |
+| `--mode` | `per-linkage` | `global` (all torsions) or `per-linkage` (each linkage independently) |
+| `--stride` | 1 | Read every Nth frame |
+| `--begin` | 0 | First frame to read (0-based) |
+| `--end` | last | Last frame (exclusive) |
+| `--align-resid` | auto | Residue ID to align representatives on (auto: protein attachment or root sugar) |
+| `--no-align` | off | Disable alignment of representative PDBs |
+| `--separate-pdb` | off | Write each cluster as separate PDB (default: multi-MODEL PDB) |
+| `--select` | all | MDAnalysis selection for output PDB atoms |
+| `--plot` | off | Generate interactive HTML plots (requires plotly) |
+| `-v`, `--verbose` | off | Verbose output |
+
+## Output Files
+
+| File | Description |
+|------|-------------|
+| `{prefix}_torsions.csv` | Torsion angles per frame |
+| `{prefix}_clusters.csv` | Cluster assignment per frame |
+| `{prefix}_summary.txt` | Human-readable summary with per-cluster average torsions |
+| `{prefix}_summary.json` | Machine-readable JSON summary |
+| `{prefix}_representatives.pdb` | Multi-MODEL PDB with cluster representative structures (aligned) |
+| `{prefix}_rama_{linkage}.html` | Ramachandran scatter + free energy surface (interactive, with `--plot`) |
+| `{prefix}_timeseries.html` | Torsion angle time series colored by cluster (with `--plot`) |
+| `{prefix}_populations.html` | Cluster population bar chart (with `--plot`) |
+
+## Torsion Angle Definitions
+
+Crystallographic convention (IUPAC):
+
+| Angle | Standard hexose | Sialic acid (Neu5Ac) |
+|-------|----------------|---------------------|
+| **phi** | O5–C1–Ox–C'x | O6–C2–Ox–C'x |
+| **psi** | C1–Ox–C'x–C'(x-1) | C2–Ox–C'x–C'(x-1) |
+| **omega** | Ox–C'6–C'5–O'5 (1→6 only) | same |
+
+## See also
+
+- [`top`](top.md) — generates the `.tpr` topology that `cluster` reads
+- [BEST_PRACTICES.md](../../BEST_PRACTICES.md) — glycan conformational analysis recipe
