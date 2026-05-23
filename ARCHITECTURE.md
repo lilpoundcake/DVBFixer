@@ -114,6 +114,52 @@ mismatched atom set).
 
 ## Key abstractions
 
+### `model.build_resnum_mapping` — three-stage resnum reconstruction
+
+After Modeller produces `output.B9999*.pdb` with renumbered residues
+(1..N) and reassigned chain IDs (A,B,C,...), `build_resnum_mapping`
+reconstructs the original (resSeq, iCode) numbering per chain through a
+three-stage pipeline:
+
+1. `_find_seqres_offset_by_resseq` (K-finder) — deterministic resseq
+   offset by letter-match tolerance. Primary path; fast and unambiguous
+   when input resseq jumps line up with SEQRES missing positions.
+   Tolerates up to 10% letter mismatches (mutations).
+2. `_align_atoms_to_seqres` (NW fallback) — semi-global Needleman-Wunsch
+   with affine gap penalties (open=-10, extend=-1, X-neutral, free end
+   gaps on SEQRES side). Mutation-tolerant; handles chains where the
+   deterministic offset doesn't exist.
+3. align2d mask consumption (legacy) — original PIR-mask based path,
+   kept as a final fallback for chains that defeat both deterministic
+   paths (icode-bearing antibody Kabat numbering, etc.).
+
+`_interpolate_gaps` is the reusable helper for all three stages: it
+fills N-terminal, internal, C-terminal, and all-gap regions in one
+place, given the flanking original (resSeq, iCode) tuples.
+
+HETATM resseqs are preserved verbatim on the deterministic paths (no
+longer renumbered sequentially after the protein), so ligand and glycan
+numbering from the input PDB survives Modeller round-tripping.
+
+### `model._reorder_chains_for_modeller` — pre-Modeller chain grouping
+
+Modeller segments chains by file-block when reading a PDB. If a single
+chain ID appears in two disjoint blocks (e.g. chain A protein + chain
+B sugar + chain A more protein), Modeller treats the two A-blocks as
+separate chains and the PIR alignment fails with a BLK alignment error
+(or silently drops the second block). This preprocessing pass groups
+every chain ID's ATOM/HETATM records into a single contiguous block in
+the temp PDB Modeller reads. No-op on already-contiguous inputs.
+
+### `model.parse_fasta` — chain-ID-keyed FASTA parsing
+
+Returns `dict[chain_id, sequence]` (previously a list of tuples in
+file order). Chain IDs are parsed from the FASTA header via priority
+patterns: `chain_X`, `PDBID_X` (PDB-style `>4ABC_H`), then a final
+bare `X` fallback. Chain order in the FASTA file is no longer
+significant — the mapping is by chain ID, so users can list chains in
+any order.
+
 ### `prepare.add_heterogen_h_via_rdkit` — BioLuminate-style H placement
 
 Pipes the prepared PDB through RDKit:

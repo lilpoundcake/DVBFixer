@@ -208,6 +208,23 @@ dvbfixer homology target.fasta \
 # --antibody uses ANARCI for Kabat numbering + CDR detection
 ```
 
+For loop modelling with a multi-chain FASTA (e.g. antibody Fv with heavy + light chains, or full IgG):
+
+```bash
+dvbfixer model input.pdb --fasta target.fasta -o modeled.pdb -v
+```
+
+The FASTA must use chain-ID headers — the mapping is by chain ID, not file order, so any order in the FASTA file works:
+
+```
+>chain_H
+EVQLVESGGGLVQPGGSLRLSCAASGFNIKDTYIHWVRQAPGKGLEWVA...
+>chain_L
+DIQMTQSPSSLSASVGDRVSITCRASQDVNTAVAWYQQKPGKAPKLLIY...
+```
+
+PDB-style headers like `>4HKZ_H` are also accepted (the trailing `_X` is treated as the chain ID).
+
 ## Workflow 7 — Glycan conformational clustering from MD
 
 After running MD on a glycoprotein:
@@ -294,6 +311,14 @@ dvbfixer cluster topol.tpr md.xtc --plot -v
   every new H atom RDKit places is bonded to its parent in the topology,
   so the CONECT record carries the bond into OpenBabel/xtb and they apply
   the proper bond-length restraint.
+
+- **Modeller BLK alignment error**: occurs when a chain ID appears in two
+  disjoint file segments in the input PDB (e.g. chain A protein, then
+  chain B sugar, then more chain A). Modeller segments by file-block and
+  the PIR alignment fails. `dvbfixer model` now auto-reorders the input
+  so every chain ID is contiguous before Modeller sees it — the error
+  should be rare. If it still appears, check the input PDB for duplicated
+  chain IDs in non-contiguous segments.
 
 ## Recommended pipeline for production MD
 

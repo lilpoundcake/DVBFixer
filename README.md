@@ -129,6 +129,12 @@ Non-protein chains (glycans, ligands) are included in the Modeller pipeline via 
 
 Writes a `.dat` file recording all atoms in rebuilt gap residues. This is merged by `dvbfixer prepare` with its own additions, so that `dvbfixer minimize` applies appropriate restraints to all rebuilt regions. Water molecules are removed by default (`--keep-water` to preserve).
 
+**Key behaviour:**
+- **Robust multi-chain handling** — chains are reordered before Modeller so disjoint file-order blocks sharing a chain ID (ATOM protein + HETATM glycans split by other chains) are grouped into one contiguous segment. Fixes silent glycan drops (e.g. 3ry6 chain C, FcgRI chain A).
+- **Deterministic residue numbering** — gap-fill residues are numbered from input resseq jumps (not from `align2d`'s score-based placement). N-terminal extras extend backward, internal gaps fill between input neighbours, C-terminal extras extend forward — all via `first_resseq + N - K`. Mutation-tolerant via Needleman-Wunsch fallback. HETATMs attached to a protein chain keep their original resseqs.
+- **`--fasta` headers must encode chain IDs**: `>chain_X`, `>PDBID_X` (e.g. `>1abc_A`), or `>X`. Matched by ID, not file order. Clear error if unparseable.
+- **Plain-language Modeller diagnostics** — common errors (BLK alignment, sequence difference, unknown residue type) get a clear cause + remediation alongside the raw Modeller message.
+
 #### Usage
 
 ```bash
@@ -139,6 +145,7 @@ dvbfixer model input.pdb -v
 dvbfixer model input.pdb --num-models 2 --num-loops 4 --md-level slow -v
 
 # Use FASTA instead of SEQRES for complete sequence
+# (FASTA headers must encode chain IDs: >chain_A, >1abc_A, or >A)
 dvbfixer model input.pdb --fasta sequence.fasta -v
 
 # Keep Modeller working directory for debugging
@@ -163,13 +170,14 @@ dvbfixer model input.pdb --keep-workdir -v
 
 1. Parses SEQRES (or FASTA) for the complete target sequence
 2. Builds a target PIR with protein chains from SEQRES and non-protein chains as `'.'` (BLK residues)
-3. Reads the full PDB with `env.io.hetatm=True` so non-protein atoms are included
-4. Creates a PIR alignment between the structure (with gaps as `-`) and the target sequence using Modeller's `align2d`
-5. Runs `LoopModel` to generate initial model(s) filling the gaps
-6. Refines loop regions with configurable MD level
-7. Selects the best model by lowest `molpdf` score
-8. Restores original chain IDs (Modeller A,B,C,... -> original letters)
-9. Restores original residue numbering using the alignment (template positions get original numbers, gap-filled positions get interpolated numbers)
+3. Reorders chains so disjoint file-order blocks sharing a chain ID (e.g. protein + HETATM glycans on the same chain split by other chains) are grouped into one contiguous segment before Modeller runs
+4. Reads the full PDB with `env.io.hetatm=True` so non-protein atoms are included
+5. Creates a PIR alignment between the structure (with gaps as `-`) and the target sequence using Modeller's `align2d`
+6. Runs `LoopModel` to generate initial model(s) filling the gaps
+7. Refines loop regions with configurable MD level
+8. Selects the best model by lowest `molpdf` score
+9. Restores original chain IDs (Modeller A,B,C,... -> original letters)
+10. Restores original residue numbering: template positions keep their original `(resSeq, iCode)`; gap-filled positions are numbered deterministically from input resseq jumps (N-terminal extras extend backward, internal gaps fill between input neighbours, C-terminal extras extend forward — all via `first_resseq + N - K`). HETATM residues attached to a protein chain keep their original resseqs.
 
 ---
 
@@ -1045,5 +1053,7 @@ dvbfixer parametrize acetate.pdb -n ACET --net-charge -1
 - **AMBER14 has no terminal protonated ASP/GLU**: AMBER14 lacks NASH/NGLH/CASH/CGLH templates (no RESP charges were ever computed for terminal protonated ASP/GLU — a 15+ year gap). Affects both `dvbfixer top --acpype` and `dvbfixer top --ff amber --protonate`. When ASH/GLH is requested at a terminus, the protonation H is dropped, the residue is converted to standard ASP/GLU (using the existing NASP/CASP/NGLU/CGLU templates), and a `UserWarning` is emitted. HIS variants (HID/HIE/HIP) are unaffected — terminal templates exist (NHIE/CHIE etc.). CHARMM is unaffected — it uses TDB patches that combine cleanly with ASPP/GLUP.
 
 - **Modeller terminal alignment**: `align2d` can misplace terminal gaps (e.g. matching last template residue to last target residue). This is auto-corrected by `_fix_terminal_alignment` which forces gaps to the actual N/C termini.
+
+- **FASTA chain IDs required**: `dvbfixer model --fasta` matches sequences to PDB chains by chain ID embedded in the FASTA header. Accepted forms: `>chain_X`, `>PDBID_X` (e.g. `>1abc_A`), or bare `>X`. Sequences are NOT matched by file order. Headers without a parseable chain ID produce a clear error.
 
 - **HIS tautomer selection**: PROPKA only predicts the overall pKa, not which nitrogen is protonated. The `--his-default` flag sets a global default (HIE or HID). For accurate per-residue tautomer assignment, use tools like MolProbity's Reduce or Schrodinger's ProtAssign.
