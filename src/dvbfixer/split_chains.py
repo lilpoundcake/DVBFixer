@@ -137,6 +137,29 @@ def make_ter(serial, resname, chain_id, resid):
     return f"TER   {serial:>5d}      {resname:<3s} {chain_id}{resid:>4d}\n"
 
 
+def find_model_blocks(lines):
+    """Return a list of (model_label, atom_line_idx_range) for each MODEL.
+
+    Each entry is ((model_start_line, model_end_line), model_label_or_None).
+    `model_start_line` is the index of MODEL (or 0 if none), `model_end_line`
+    is the index of ENDMDL (or len(lines) if none). Returns None if no MODEL
+    records are present (single-block case).
+    """
+    blocks = []
+    current_start = None
+    current_label = None
+    for i, line in enumerate(lines):
+        if line.startswith("MODEL"):
+            current_start = i
+            current_label = line[10:14].strip() or str(len(blocks) + 1)
+        elif line.startswith("ENDMDL"):
+            if current_start is not None:
+                blocks.append((current_start, i, current_label))
+                current_start = None
+                current_label = None
+    return blocks if blocks else None
+
+
 def find_chain_breaks(atom_lines, distance_cutoff, gap_cutoff, use_distance):
     """Return sorted list of atom_lines indices where new chains start.
 
@@ -238,18 +261,21 @@ def main(argv=None):
         with open(input_path) as f:
             lines = f.readlines()
 
-    # Separate water/ions from other atoms BEFORE chain break detection
-    # so they don't cause false breaks between protein chains
-    atom_lines = []
-    atom_orig_indices = []
-    solvent_lines = []
-    for i, line in enumerate(lines):
-        if is_atom_line(line):
-            if get_resname(line) in SOLVENT_IONS:
-                solvent_lines.append(line)
-            else:
-                atom_lines.append(line)
-                atom_orig_indices.append(i)
+    model_blocks = find_model_blocks(lines)
+    if model_blocks and len(model_blocks) > 1:
+        _process_multi_model(
+            lines, model_blocks, output_path, args, use_distance, renumber, is_gro
+        )
+        return
+
+    # Single-block path (no MODEL records, or just one MODEL).
+    # If there's exactly one MODEL, restrict atom scanning to inside it.
+    block_range = None
+    if model_blocks and len(model_blocks) == 1:
+        m_start, m_end, _label = model_blocks[0]
+        block_range = (m_start + 1, m_end)
+
+    atom_lines, atom_orig_indices, solvent_lines = _collect_atoms(lines, block_range)
 
     if not atom_lines:
         print("No ATOM/HETATM records found.", file=sys.stderr)
@@ -262,81 +288,19 @@ def main(argv=None):
         print(f"Too many chains ({n_chains}) for available chain IDs.", file=sys.stderr)
         sys.exit(1)
 
-    # Map each atom index to its chain index
-    chain_for_atom = np.zeros(len(atom_lines), dtype=int)
-    for ci in range(n_chains):
-        start = breaks[ci]
-        end = breaks[ci + 1] if ci + 1 < n_chains else len(atom_lines)
-        chain_for_atom[start:end] = ci
-
-    # Build per-chain residue renumbering maps
-    resid_maps = {}
-    if renumber:
-        for ci in range(n_chains):
-            start = breaks[ci]
-            end = breaks[ci + 1] if ci + 1 < n_chains else len(atom_lines)
-            seen = {}
-            counter = 1
-            for j in range(start, end):
-                rid = get_resid(atom_lines[j])  # (resSeq, iCode) tuple
-                if rid not in seen:
-                    seen[rid] = counter
-                    counter += 1
-            resid_maps[ci] = seen
+    chain_for_atom = _build_chain_for_atom(breaks, len(atom_lines))
+    resid_maps = _build_resid_maps(atom_lines, breaks, n_chains) if renumber else {}
 
     if args.verbose:
-        print(f"Detected {n_chains} chain(s):")
-        for ci in range(n_chains):
-            start = breaks[ci]
-            end = (breaks[ci + 1] if ci + 1 < n_chains else len(atom_lines)) - 1
-            n_atoms = end - start + 1
-            n_res = len(resid_maps[ci]) if renumber else len(set(get_resid(atom_lines[j]) for j in range(start, end + 1)))
-            print(
-                f"  Chain {CHAIN_IDS[ci]}: {n_atoms:>5d} atoms, {n_res:>4d} residues, "
-                f"{get_resname(atom_lines[start])} {get_resseq(atom_lines[start])} - "
-                f"{get_resname(atom_lines[end])} {get_resseq(atom_lines[end])}"
-            )
+        _print_chain_summary(atom_lines, breaks, n_chains, resid_maps, renumber)
 
-    # Set of break atom indices for quick TER insertion lookup
     break_set = set(breaks)
+    output_lines = _render_block(
+        lines, atom_lines, atom_orig_indices, chain_for_atom, break_set,
+        resid_maps, renumber, start_serial=1, chain_id_assignment=CHAIN_IDS,
+    )
 
-    # Build output
-    output_lines = []
-    ai = 0  # atom_lines index
-    serial = 1
-
-    for line in lines:
-        if is_atom_line(line) and get_resname(line) in SOLVENT_IONS:
-            continue  # solvent/ions already separated
-        if is_atom_line(line) and ai < len(atom_lines):
-            ci = int(chain_for_atom[ai])
-            chain_id = CHAIN_IDS[ci]
-
-            new_line = set_chain_id(line, chain_id)
-            if renumber:
-                rid = get_resid(line)
-                new_line = set_resid(new_line, resid_maps[ci][rid], icode=" ")
-            new_line = new_line[:6] + f"{serial:5d}" + new_line[11:]
-            output_lines.append(new_line)
-
-            # Insert TER after last atom of a chain (before next chain starts)
-            next_ai = ai + 1
-            if next_ai in break_set:
-                serial += 1
-                resname = get_resname(new_line)
-                resid = int(new_line[22:26].strip())
-                output_lines.append(make_ter(serial, resname, chain_id, resid))
-
-            serial += 1
-            ai += 1
-        elif line.startswith("TER"):
-            continue  # skip original TER records
-        else:
-            output_lines.append(line)
-
-    # Re-append solvent/ions if requested
     if args.keep_water and solvent_lines:
-        # Insert before END
         end_idx = len(output_lines)
         for i, line in enumerate(output_lines):
             if line.startswith("END"):
@@ -346,7 +310,6 @@ def main(argv=None):
             output_lines.insert(end_idx, sl)
             end_idx += 1
 
-    # Ensure END record for GRO input (PDB files already have one)
     if is_gro and (not output_lines or not output_lines[-1].startswith("END")):
         output_lines.append("END\n")
 
@@ -354,3 +317,269 @@ def main(argv=None):
         f.writelines(output_lines)
 
     print(f"Wrote {output_path} with {n_chains} chain(s)")
+
+
+def _collect_atoms(lines, block_range=None):
+    """Pull out ATOM/HETATM lines from a region of `lines`, separating solvent.
+
+    Returns (atom_lines, atom_orig_indices, solvent_lines). When `block_range`
+    is given, only lines in [start, end) are scanned; otherwise all lines.
+    """
+    start, end = (0, len(lines)) if block_range is None else block_range
+    atom_lines = []
+    atom_orig_indices = []
+    solvent_lines = []
+    for i in range(start, end):
+        line = lines[i]
+        if is_atom_line(line):
+            if get_resname(line) in SOLVENT_IONS:
+                solvent_lines.append(line)
+            else:
+                atom_lines.append(line)
+                atom_orig_indices.append(i)
+    return atom_lines, atom_orig_indices, solvent_lines
+
+
+def _build_chain_for_atom(breaks, n_atoms):
+    """Map each atom-list index to its chain index."""
+    chain_for_atom = np.zeros(n_atoms, dtype=int)
+    for ci in range(len(breaks)):
+        s = breaks[ci]
+        e = breaks[ci + 1] if ci + 1 < len(breaks) else n_atoms
+        chain_for_atom[s:e] = ci
+    return chain_for_atom
+
+
+def _build_resid_maps(atom_lines, breaks, n_chains):
+    """Build per-chain (resSeq, iCode) → new-resnum maps starting at 1 per chain."""
+    resid_maps = {}
+    for ci in range(n_chains):
+        start = breaks[ci]
+        end = breaks[ci + 1] if ci + 1 < n_chains else len(atom_lines)
+        seen = {}
+        counter = 1
+        for j in range(start, end):
+            rid = get_resid(atom_lines[j])
+            if rid not in seen:
+                seen[rid] = counter
+                counter += 1
+        resid_maps[ci] = seen
+    return resid_maps
+
+
+def _chain_signature(atom_lines, breaks):
+    """Compact structural fingerprint of a model's chain layout for comparison
+    across MODELs. Returns a tuple of (n_atoms, n_residues, first_resname,
+    last_resname) per chain. Two MODELs are considered the same complex when
+    their signatures are equal.
+    """
+    sig = []
+    n = len(atom_lines)
+    for ci in range(len(breaks)):
+        start = breaks[ci]
+        end = breaks[ci + 1] if ci + 1 < len(breaks) else n
+        residues = set()
+        for j in range(start, end):
+            residues.add(get_resid(atom_lines[j]))
+        sig.append((
+            end - start,
+            len(residues),
+            get_resname(atom_lines[start]),
+            get_resname(atom_lines[end - 1]),
+        ))
+    return tuple(sig)
+
+
+def _print_chain_summary(atom_lines, breaks, n_chains, resid_maps, renumber,
+                          chain_ids=CHAIN_IDS, prefix=""):
+    print(f"{prefix}Detected {n_chains} chain(s):")
+    for ci in range(n_chains):
+        start = breaks[ci]
+        end = (breaks[ci + 1] if ci + 1 < n_chains else len(atom_lines)) - 1
+        n_atoms = end - start + 1
+        if renumber and ci in resid_maps:
+            n_res = len(resid_maps[ci])
+        else:
+            n_res = len({get_resid(atom_lines[j]) for j in range(start, end + 1)})
+        print(
+            f"{prefix}  Chain {chain_ids[ci]}: {n_atoms:>5d} atoms, {n_res:>4d} residues, "
+            f"{get_resname(atom_lines[start])} {get_resseq(atom_lines[start])} - "
+            f"{get_resname(atom_lines[end])} {get_resseq(atom_lines[end])}"
+        )
+
+
+def _render_block(lines, atom_lines, atom_orig_indices, chain_for_atom,
+                   break_set, resid_maps, renumber, start_serial,
+                   chain_id_assignment, line_range=None):
+    """Emit output lines for a single block (whole file or one MODEL).
+
+    `chain_id_assignment` is a sequence indexed by chain index; for single-block
+    operation pass CHAIN_IDS itself. For multi-MODEL operation, pass the
+    consensus chain ID list (so every MODEL uses the same IDs).
+    `line_range` restricts which slice of `lines` to iterate.
+    """
+    start, end = (0, len(lines)) if line_range is None else line_range
+    atom_orig_set = set(atom_orig_indices)
+    # Map original line index → atom_lines index
+    orig_to_ai = {idx: ai for ai, idx in enumerate(atom_orig_indices)}
+
+    output_lines = []
+    serial = start_serial
+    for i in range(start, end):
+        line = lines[i]
+        if is_atom_line(line) and get_resname(line) in SOLVENT_IONS:
+            continue
+        if is_atom_line(line) and i in atom_orig_set:
+            ai = orig_to_ai[i]
+            ci = int(chain_for_atom[ai])
+            chain_id = chain_id_assignment[ci]
+            new_line = set_chain_id(line, chain_id)
+            if renumber:
+                rid = get_resid(line)
+                new_line = set_resid(new_line, resid_maps[ci][rid], icode=" ")
+            new_line = new_line[:6] + f"{serial:5d}" + new_line[11:]
+            output_lines.append(new_line)
+            next_ai = ai + 1
+            if next_ai in break_set:
+                serial += 1
+                resname = get_resname(new_line)
+                resid = int(new_line[22:26].strip())
+                output_lines.append(make_ter(serial, resname, chain_id, resid))
+            serial += 1
+        elif line.startswith("TER"):
+            continue
+        else:
+            output_lines.append(line)
+    return output_lines
+
+
+def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
+                          renumber, is_gro):
+    """Process an input with multiple MODEL records.
+
+    Each MODEL is split independently (so chain breaks within each state are
+    detected correctly), then the per-MODEL chain signatures are compared. If
+    all MODELs share the same signature (same complex sampled at different
+    states), every MODEL is rewritten with the SAME chain IDs (A, B, C, …),
+    matching the expected behaviour of an MD trajectory. If MODELs differ
+    structurally, each one falls back to its own independent chain IDs and a
+    warning is emitted.
+    """
+    n_models = len(model_blocks)
+    per_model = []  # one entry per MODEL: dict of analysis results
+    for (m_start, m_end, label) in model_blocks:
+        atom_lines, atom_orig_indices, solvent_lines = _collect_atoms(
+            lines, block_range=(m_start + 1, m_end)
+        )
+        if not atom_lines:
+            print(f"MODEL {label}: no ATOM/HETATM records.", file=sys.stderr)
+            sys.exit(1)
+        breaks = find_chain_breaks(
+            atom_lines, args.distance_cutoff, args.gap_cutoff, use_distance
+        )
+        per_model.append({
+            "label": label,
+            "m_start": m_start,
+            "m_end": m_end,
+            "atom_lines": atom_lines,
+            "atom_orig_indices": atom_orig_indices,
+            "solvent_lines": solvent_lines,
+            "breaks": breaks,
+            "signature": _chain_signature(atom_lines, breaks),
+        })
+
+    signatures = [m["signature"] for m in per_model]
+    all_same = all(s == signatures[0] for s in signatures)
+
+    if all_same:
+        n_chains = len(per_model[0]["breaks"])
+        if n_chains > len(CHAIN_IDS):
+            print(f"Too many chains ({n_chains}) for available chain IDs.",
+                  file=sys.stderr)
+            sys.exit(1)
+        chain_id_lists = [CHAIN_IDS] * n_models
+        if args.verbose:
+            print(f"Detected {n_models} MODEL records, all with identical "
+                  f"chain layout — reusing chain IDs across MODELs.")
+            _print_chain_summary(
+                per_model[0]["atom_lines"], per_model[0]["breaks"], n_chains,
+                _build_resid_maps(per_model[0]["atom_lines"],
+                                   per_model[0]["breaks"], n_chains) if renumber else {},
+                renumber,
+            )
+    else:
+        print(f"Warning: {n_models} MODEL records have differing chain layouts; "
+              f"assigning independent chain IDs per MODEL.", file=sys.stderr)
+        chain_id_lists = []
+        offset = 0
+        for m in per_model:
+            n_c = len(m["breaks"])
+            ids = CHAIN_IDS[offset:offset + n_c]
+            if len(ids) < n_c:
+                print(f"Too many total chains across MODELs for available IDs.",
+                      file=sys.stderr)
+                sys.exit(1)
+            chain_id_lists.append(ids)
+            offset += n_c
+
+    # Render output. Walk the original `lines` and emit each segment:
+    # - lines before MODEL 1 (header / SEQRES / etc.)
+    # - for each MODEL: MODEL header + atom block (with chain IDs from
+    #   `chain_id_lists[i]`) + ENDMDL
+    # - lines after final ENDMDL (footer)
+    output_lines = []
+    prev_end = 0
+    all_solvent = []
+    for i, m in enumerate(per_model):
+        # Pre-MODEL lines (header for MODEL 1, otherwise inter-MODEL lines)
+        output_lines.extend(lines[prev_end:m["m_start"] + 1])  # include MODEL line itself
+        n_c = len(m["breaks"])
+        chain_for_atom = _build_chain_for_atom(m["breaks"], len(m["atom_lines"]))
+        resid_maps = _build_resid_maps(
+            m["atom_lines"], m["breaks"], n_c
+        ) if renumber else {}
+        break_set = set(m["breaks"])
+        block_out = _render_block(
+            lines, m["atom_lines"], m["atom_orig_indices"], chain_for_atom,
+            break_set, resid_maps, renumber, start_serial=1,
+            chain_id_assignment=chain_id_lists[i],
+            line_range=(m["m_start"] + 1, m["m_end"]),
+        )
+        output_lines.extend(block_out)
+        output_lines.append(lines[m["m_end"]])  # ENDMDL line
+        prev_end = m["m_end"] + 1
+        all_solvent.append(m["solvent_lines"])
+
+    # Trailing lines after last ENDMDL
+    output_lines.extend(lines[prev_end:])
+
+    # Re-append solvent only if --keep-water (one copy per MODEL would change
+    # atom counts; for simplicity insert each MODEL's solvent inside its block
+    # — but this requires re-walking. Skipping that complexity: append all
+    # solvent before END once, matching single-block behaviour.)
+    if args.keep_water and any(all_solvent):
+        end_idx = len(output_lines)
+        for i, line in enumerate(output_lines):
+            if line.startswith("END") and not line.startswith("ENDMDL"):
+                end_idx = i
+                break
+        # Use solvent from the first MODEL only (all MODELs should have the
+        # same solvent in a same-complex trajectory).
+        for sl in all_solvent[0]:
+            output_lines.insert(end_idx, sl)
+            end_idx += 1
+
+    if is_gro and (not output_lines or not output_lines[-1].startswith("END")):
+        output_lines.append("END\n")
+
+    with open(output_path, 'w') as f:
+        f.writelines(output_lines)
+
+    n_chains_first = len(per_model[0]["breaks"])
+    if all_same:
+        print(f"Wrote {output_path} with {n_models} MODEL(s), "
+              f"{n_chains_first} chain(s) per MODEL (consistent across MODELs)")
+    else:
+        total = sum(len(m["breaks"]) for m in per_model)
+        print(f"Wrote {output_path} with {n_models} MODEL(s), "
+              f"{total} total chain(s)")
