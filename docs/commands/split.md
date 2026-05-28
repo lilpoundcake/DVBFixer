@@ -10,6 +10,8 @@ Chain breaks are detected by three criteria, applied in priority order:
 2. **C->N peptide bond distance** — distance exceeds 2.5 A (any residue with backbone C/N atoms)
 3. **Nearest-atom gap** — minimum distance between any atoms of consecutive residues exceeds 15 A (fallback for sugars, ligands, ions that lack peptide bonds)
 
+**Multi-MODEL inputs** (multi-state PDBs, NMR ensembles, GROMACS trajectory exports with MODEL records) are handled as one complex sampled at multiple states: every MODEL gets the SAME chain IDs (A, B, C in every MODEL — not A B C / D E F / G H I as a naive walk would produce). The per-MODEL chain signature (atom count + residue count + first/last resname per chain) is compared across MODELs; when all match, chain IDs are reused. If MODELs differ structurally the tool falls back to independent per-MODEL chain IDs with a warning. Atom serials reset within each MODEL (standard PDB convention).
+
 ## Usage
 
 ```bash

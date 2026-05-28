@@ -151,6 +151,79 @@ separate chains and the PIR alignment fails with a BLK alignment error
 every chain ID's ATOM/HETATM records into a single contiguous block in
 the temp PDB Modeller reads. No-op on already-contiguous inputs.
 
+### `antibody.number_chain` — antibody-aware residue numbering
+
+Module: `src/dvbfixer/antibody.py`. Used by `renumber` when `--scheme` is
+not `seqres`. Three-stage pipeline per chain:
+
+1. **V-domain numbering via ANARCI** — `_number_v_domain(seq, scheme)`
+   runs `anarci.anarci(seq, scheme=...)` for one of {kabat, chothia, imgt,
+   martin, aho}. EU's V-domain numbering matches Kabat. Returns per-residue
+   `(input_idx, resseq, icode)` placements including CDR insertion codes
+   (H100A/B/C etc.).
+2. **C-domain numbering via embedded EU references** — three reference
+   sequences are baked in (`IGG1_HEAVY_CONST_SEQ` covering EU 118-447,
+   `CK_SEQ` covering EU 108-214 IgK, `CL_SEQ` covering EU 108-214 IgL).
+   Post-V residues are aligned against all three via semi-global
+   Needleman-Wunsch (`_nw_align`, affine gaps open=-10/extend=-1,
+   X-neutral, free end gaps on the reference side). Best-scoring alignment
+   wins; placements require ≥50% of input length matching.
+3. **V/C collision shift** — when V-scheme extends past EU position 117
+   (IMGT/Martin/Aho), the EU C-domain numbers are shifted forward by
+   `(max_V_resseq + 5) - first_C_EU` to keep numbering monotonic. A
+   warning is emitted.
+
+Chains where neither ANARCI nor the C-domain alignment placed anything
+fall back to the SEQRES path. ANARCI is OPTIONAL — `_have_anarci` checks
+import availability; failure returns `None` cleanly so the SEQRES fallback
+fires.
+
+### `prepare.apply_deletions_to_pdb_text` — pre-PDBFixer raw-text deletion
+
+Module: `src/dvbfixer/prepare.py`. Implements `--mutate CHAIN:RESNUM:del`
+by editing the PDB text BEFORE PDBFixer sees the structure. Three
+passes over the input lines:
+
+1. **Index** — build `res_lines` (reskey → [line_idx]), `res_resname`,
+   `serial_to_reskey`, `serial_to_atomname`, `serial_is_hetatm`,
+   `serial_to_coord`, `conect_graph` (bidirectional, from CONECT records),
+   `ssbond_pairs`, `link_pairs`, `chain_seq_order`.
+2. **Resolve each deletion** — mark the residue's atoms for removal; BFS
+   the CONECT graph from the sidechain anchor (`SIDECHAIN_ANCHORS` keyed
+   by resname) into HETATM-only territory to collect the attached glycan
+   tree; find the disulfide partner via SSBOND records or CONECT SG-SG
+   and queue it for CYX→CYS rename + HG drop; classify the gap as
+   internal/terminal_N/terminal_C/whole_chain by walking the chain's
+   residue order. Computes `prev.C → next.N` distance for internal gaps.
+3. **Write** the cleaned PDB — filter atom lines by serial, rewrite kept
+   CONECT lines without removed serials, drop SSBOND/LINK lines that
+   referenced the deleted residue, rename CYX partners to CYS and drop
+   their existing HG.
+
+After PDBFixer loads the cleaned file, `run_pdbfixer` scrubs
+`fixer.missingResidues` entries that correspond to user-deleted positions
+— otherwise PDBFixer's SEQRES-driven gap filler would re-add the residue.
+The scrub handles chains where multiple OpenMM `Chain` objects share a
+chain ID (e.g. a trailing HETATM block gets its own `Chain` even though
+it shares the protein's letter; both chain indices must be scrubbed).
+
+The `.dat` file gains a `removed_residues` field with per-deletion
+metadata so downstream `minimize` / `model` know which residues are
+intentionally absent.
+
+### `split._process_multi_model` — multi-MODEL chain ID consistency
+
+Module: `src/dvbfixer/split_chains.py`. Multi-MODEL inputs (NMR ensembles,
+GROMACS trajectory exports with MODEL records) are processed per-MODEL:
+each MODEL's atom block runs through the existing chain-break detection
+independently, then per-MODEL chain signatures (`_chain_signature`:
+per-chain atom count + residue count + first/last resname) are compared
+across MODELs. If all match, the same chain ID sequence is reused in
+every MODEL (A B C in every MODEL — matching the natural interpretation
+of a multi-state ensemble). If signatures differ, the tool falls back to
+per-MODEL independent chain IDs with a warning. Atom serials reset within
+each MODEL; TER records inserted between chains in every MODEL.
+
 ### `model.parse_fasta` — chain-ID-keyed FASTA parsing
 
 Returns `dict[chain_id, sequence]` (previously a list of tuples in

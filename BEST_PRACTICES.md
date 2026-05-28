@@ -225,7 +225,66 @@ DIQMTQSPSSLSASVGDRVSITCRASQDVNTAVAWYQQKPGKAPKLLIY...
 
 PDB-style headers like `>4HKZ_H` are also accepted (the trailing `_X` is treated as the chain ID).
 
-## Workflow 7 — Glycan conformational clustering from MD
+**Antibody numbering** with `renumber --scheme`. Five schemes supported, all local — no web service. ANARCI handles V-domains; bundled human IgG1/Cκ/Cλ EU references handle C-domains via Needleman-Wunsch.
+
+```bash
+# Kabat numbering — CDR insertions at H100A/B/C etc.
+dvbfixer renumber antibody.pdb --scheme kabat -v
+
+# EU numbering across the full IgG (V 1-113 then 118-447)
+dvbfixer renumber igg.pdb --scheme eu -v
+
+# Mix per-chain (default chain assignment + Kabat for HL)
+dvbfixer renumber bispecific.pdb \
+    --chain-scheme H:kabat --chain-scheme L:kabat -v
+```
+
+Partial chains (Fc-only with CH2+CH3, Fv-only with just VH, hinge-truncated constructs) are handled automatically — the V-detection and C-alignment run independently. Non-antibody chains fall back to the SEQRES path.
+
+When the V-scheme extends past EU position 117 (IMGT V ends at 128, Martin/Aho end at 113-149), the EU C-domain numbering is shifted forward by `(max_V_resseq + 5 - first_C_EU)` to avoid number collisions, and a warning is printed. If you need fully monotonic numbering without the shift, stick with `--scheme kabat`, `--scheme chothia`, or `--scheme eu`.
+
+## Workflow 7 — Residue deletion mutations
+
+Delete residues from a structure (e.g. for IgG truncation, hinge engineering, glycosite knockouts) via `prepare --mutate X:N:del`. The tool automatically handles three edge cases:
+
+```bash
+# Truncate the C-terminal lysine of an IgG heavy chain
+dvbfixer prepare igg.pdb --mutate H:447:del -o trunc.pdb -v
+
+# Knock out an N-glycosylation site — attached glycan tree disappears too
+dvbfixer prepare glycoprotein.pdb --mutate A:297:del -o no_glycan.pdb -v
+
+# Delete a CYS that forms a disulfide — partner is auto-reduced (CYX→CYS,
+# HG regenerated)
+dvbfixer prepare antibody.pdb --mutate H:22:del -o no_ss.pdb -v
+
+# Multiple deletions (consecutive treated as one contiguous gap)
+dvbfixer prepare igg.pdb --mutate H:446:del --mutate H:447:del -v
+
+# Mix substitution and deletion
+dvbfixer prepare in.pdb --mutate A:39:ALA --mutate H:446:del -v
+
+# Insertion-code residues
+dvbfixer prepare antibody.pdb --mutate H:100A:del -v
+```
+
+The `.dat` file records each deletion in a `removed_residues` field (chain, resid, icode, resname, gap_type, gap_distance_A, linked_glycan_residues, disulfide_partner_repaired). Downstream `minimize` / `model` reads this so it doesn't try to match against an upstream `.dat` that still listed the residue.
+
+If a deletion produces an internal gap with `prev.C → next.N` distance > 5 Å, a warning is printed — consider running `dvbfixer pull` to close the gap or `dvbfixer model` to graft a replacement loop.
+
+## Workflow 8 — Multi-state PDB / MD trajectory chain assignment
+
+`dvbfixer split` now handles multi-MODEL PDBs (NMR ensembles, GROMACS trajectory exports with MODEL records) as one complex sampled at multiple states. The same chain IDs are reused in every MODEL (A B C in every MODEL, not A B C / D E F / G H I as a naive walk would produce):
+
+```bash
+dvbfixer split trajectory.pdb -v
+# Detected 50 MODEL records, all with identical chain layout
+# — reusing chain IDs across MODELs.
+```
+
+If the MODELs differ structurally (e.g. one MODEL has a ligand the others lack), the tool falls back to per-MODEL independent chain IDs and emits a warning.
+
+## Workflow 9 — Glycan conformational clustering from MD
 
 After running MD on a glycoprotein:
 

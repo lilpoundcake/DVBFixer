@@ -19,10 +19,10 @@ Full install instructions (including the Modeller license step) are in [`docs/in
 
 | Command | What it does |
 |---------|--------------|
-| [`split`](docs/commands/split.md) | Empirical chain splitting for GRO/PDB files without chain IDs |
-| [`renumber`](docs/commands/renumber.md) | SEQRES-based residue renumbering (removes insertion codes) |
+| [`split`](docs/commands/split.md) | Empirical chain splitting for GRO/PDB files without chain IDs (multi-MODEL aware) |
+| [`renumber`](docs/commands/renumber.md) | SEQRES-based renumbering OR antibody schemes (Kabat/Chothia/IMGT/Martin/Aho/EU) |
 | [`model`](docs/commands/model.md) | Rebuild missing loops/gaps with Modeller's LoopModel |
-| [`prepare`](docs/commands/prepare.md) | PDBFixer-based missing-atom/H repair (BioLuminate-style heterogen H) |
+| [`prepare`](docs/commands/prepare.md) | PDBFixer-based missing-atom/H repair, plus substitution and deletion mutations |
 | [`pull`](docs/commands/pull.md) | OpenMM partial minimization to form SS / glycosidic bonds |
 | [`minimize`](docs/commands/minimize.md) | Energy minimization with selective restraints, optional xtb/obminimize refinement |
 | [`protonate`](docs/commands/protonate.md) | PROPKA3 pKa prediction + AMBER residue renaming + H repair |

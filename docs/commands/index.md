@@ -12,13 +12,13 @@ Every `dvbfixer` subcommand has its own page. The first column is alphabetical; 
 | [`minimize`](minimize.md) | Energy minimization with OpenMM + selective restraints, optional xtb/obminimize refinement | Refinement |
 | [`model`](model.md) | Rebuild missing loops/gaps with Modeller's LoopModel | Structure prep |
 | [`parametrize`](parametrize.md) | GAFF2 + AM1-BCC/RESP small-molecule parametrization (GROMACS-ready) | Topology |
-| [`prepare`](prepare.md) | PDBFixer-based missing-atom/H repair with BioLuminate-style heterogen H | Structure prep |
+| [`prepare`](prepare.md) | PDBFixer-based missing-atom/H repair; substitution and deletion mutations | Structure prep |
 | [`protonate`](protonate.md) | PROPKA3 pKa prediction + AMBER residue renaming + H repair | Refinement |
 | [`pull`](pull.md) | OpenMM partial minimization to form bonds (SS, glycosidic) | Refinement |
 | [`puppet`](puppet.md) | Strip a PDB to backbone-only polyglycine (template / visualization) | Utilities |
 | [`rename`](rename.md) | Canonicalize residue names (AMBER/CHARMM/MSE → standard PDB) | Utilities |
-| [`renumber`](renumber.md) | SEQRES-based residue renumbering, removes insertion codes | Structure prep |
-| [`split`](split.md) | Empirical chain splitting for GRO/PDB files without chain IDs | Structure prep |
+| [`renumber`](renumber.md) | SEQRES renumbering OR antibody schemes (Kabat/Chothia/IMGT/Martin/Aho/EU) | Structure prep |
+| [`split`](split.md) | Empirical chain splitting for GRO/PDB files without chain IDs (multi-MODEL aware) | Structure prep |
 | [`top`](top.md) | GROMACS topology from PDB/GRO (AMBER, CHARMM, or ACPYPE pipeline) | Topology |
 | [`transplant`](transplant.md) | Transplant molecules between PDB structures (GLYCAM glycoprotein workflow) | Glycoprotein prep |
 | [`zbs`](zbs.md) | Full pipeline: renumber → model → prepare → minimize → protonate → minimize | Pipeline |

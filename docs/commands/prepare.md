@@ -10,6 +10,23 @@ Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. **Hete
 
 **Glycosylation detection is FF-agnostic** — `find_glycosylated_atoms_with_sugar` uses CONECT records AND a distance-based fallback (ASN ND2 / SER OG / THR OG1 within 2.0 Å of a sugar anomeric C). Inputs with PDB sugars (NAG/NDG/BMA/...) and inputs with CHARMM-GUI 4-char sugars (BGLC/BMAN/AMAN/BGLCNA/...) are both recognized. The ASN→NLN rename fires ONLY when the bonded sugar is GLYCAM-named — for PDB/CHARMM sugars, ASN stays as ASN. The extra HD22 on glycosylated ND2 is removed in all three FF conventions (consistent across CHARMM, AMBER, GLYCAM).
 
+**Mutations — substitutions and deletions** via `--mutate`. Two forms are supported:
+
+- `CHAIN:RESNUM:NEW_AA` — substitute (e.g. `A:39:ALA`, `A:83:HIP` for a protonation variant)
+- `CHAIN:RESNUM:del` — DELETE the residue entirely (e.g. `H:446:del`, `H:100A:del`)
+
+Deletion is applied at the raw-PDB-text level **before** PDBFixer runs, so SEQRES-driven gap-filling never re-inserts the deleted residue. Edge cases handled automatically:
+
+- **Glycan removal** — if the deleted residue's sidechain anchor (ASN ND2, SER OG, THR OG1, TYR OH, CYS SG, LYS NZ, ARG NH2) carries a HETATM tree via CONECT, the entire glycan tree is walked and removed too.
+- **Disulfide partner repair** — deleting a CYS/CYX automatically reduces its SS partner: CYX→CYS rename + drop existing HG (so `addHydrogens` regenerates it). SSBOND records referencing the deleted residue are dropped.
+- **LINK partners** — LINK records mentioning a deleted residue are dropped and a warning is printed. The partner is left as-is — inspect manually if it needs repair.
+- **Terminal vs internal** — terminal deletions need no peptide-bond reconnection; internal deletions are bridged by the downstream `minimize` step. If the post-deletion C(i-1)→N(i+1) distance exceeds 5 Å a warning is printed (consider running `dvbfixer pull` or `dvbfixer model`).
+- **Insertion codes** — `H:100A:del` selects residue 100A specifically.
+- **Multiple deletions** — consecutive deletions are treated as one contiguous gap.
+- **Mixed with substitutions** — deletion and substitution of the same residue is rejected at parse time.
+
+The `.dat` file gains a `removed_residues` field with per-deletion metadata (resname, gap type, gap distance, linked glycan residues, disulfide partner repaired).
+
 ## Usage
 
 ```bash
@@ -27,6 +44,12 @@ dvbfixer prepare input.pdb --strip-heterogens
 
 # Apply point mutations
 dvbfixer prepare input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
+
+# Delete residues (handles attached glycans + SS partners automatically)
+dvbfixer prepare input.pdb --mutate H:446:del --mutate H:447:del -v
+
+# Mix substitution and deletion
+dvbfixer prepare input.pdb --mutate A:39:ALA --mutate H:446:del -v
 ```
 
 ## Options
@@ -39,7 +62,7 @@ dvbfixer prepare input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
 | `--keep-water` | off | Keep crystallographic waters |
 | `--strip-heterogens` | off (default: keep) | Remove heterogens (sugars, ligands, ions) before processing — protein-only mode |
 | `--no-heterogen-h` | off | Keep heterogens but skip H addition |
-| `--mutate` | none | Mutate a residue: CHAIN:RESNUM:NEW_AA (can be used multiple times) |
+| `--mutate` | none | Mutate a residue: `CHAIN:RESNUM:NEW_AA` (substitution) or `CHAIN:RESNUM:del` (deletion). Insertion codes supported (`H:100A:del`). Repeatable. |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
 | `-v`, `--verbose` | off | Print detailed progress |
 
@@ -65,6 +88,23 @@ Structure:
 ```
 
 You can edit the `added_atoms` list to change which atoms receive weak/no restraints during minimization. For example, remove entries to make those atoms "original" (strong restraints), or add entries to make existing atoms "new" (weak/free).
+
+When `--mutate ...:del` is used, the `.dat` also contains a `removed_residues` list:
+
+```json
+"removed_residues": [
+  {
+    "chain": "C", "resid": "64", "icode": "", "resname": "ASN",
+    "removed_atoms": 8, "gap_type": "internal",
+    "prev_residue": "C/ASN/63", "next_residue": "C/ASP/65",
+    "gap_distance_A": 3.5,
+    "linked_glycan_residues": [{"chain":"C","resid":"206","resname":"NAG"}],
+    "disulfide_partner_repaired": null
+  }
+]
+```
+
+Downstream `minimize` reads this so it knows which residues are intentionally absent (and doesn't try to match against an upstream `.dat` that still listed them).
 
 ## See also
 
