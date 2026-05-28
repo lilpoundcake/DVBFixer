@@ -1358,14 +1358,11 @@ def apply_deletions_to_pdb_text(input_path, deletions, verbose=False,
         if tkey not in res_lines:
             chain, rs, ic = tkey
             ic_disp = '' if ic == ' ' else ic
-            if tkind == "delete":
-                print(f"Error: residue {chain}:{rs}{ic_disp} not found in input "
-                      f"(cannot delete a residue that doesn't exist)", file=sys.stderr)
-                sys.exit(1)
-            else:
-                # Substitution target missing — skip silently; PDBFixer will
-                # report the missing residue when applyMutations runs.
-                continue
+            new_aa_disp = 'del' if tkind == 'delete' else (t_newrn or 'NEW_AA')
+            print(f"Warning: residue {chain}:{rs}{ic_disp} not found in input — "
+                  f"skipping --mutate {chain}:{rs}{ic_disp}:{new_aa_disp}",
+                  file=sys.stderr)
+            continue
         if tkind == "delete":
             dkey = tkey
             residues_to_remove.add(dkey)
