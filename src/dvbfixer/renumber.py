@@ -9,6 +9,20 @@ from pathlib import Path
 
 WATER_RESNAMES = {'HOH', 'WAT', 'TIP3', 'TIP', 'SOL', 'T3P', 'T4P', 'T5P'}
 
+# Three-letter → one-letter AA code (used by antibody numbering)
+_AA3TO1 = {
+    'ALA': 'A', 'ARG': 'R', 'ASN': 'N', 'ASP': 'D', 'CYS': 'C',
+    'GLN': 'Q', 'GLU': 'E', 'GLY': 'G', 'HIS': 'H', 'ILE': 'I',
+    'LEU': 'L', 'LYS': 'K', 'MET': 'M', 'PHE': 'F', 'PRO': 'P',
+    'SER': 'S', 'THR': 'T', 'TRP': 'W', 'TYR': 'Y', 'VAL': 'V',
+    # Common protonation / non-canonical variants — map to parent.
+    'HID': 'H', 'HIE': 'H', 'HIP': 'H', 'HSD': 'H', 'HSE': 'H', 'HSP': 'H',
+    'CYX': 'C', 'CYM': 'C', 'ASH': 'D', 'GLH': 'E', 'GLUP': 'E', 'ASPP': 'D',
+    'LYN': 'K', 'MSE': 'M',
+    # GLYCAM glycoprotein residues map to the parent AA.
+    'NLN': 'N', 'OLS': 'S', 'OLT': 'T',
+}
+
 
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
@@ -26,6 +40,22 @@ def parse_args(argv=None):
     p.add_argument(
         "--rename", action="store_true",
         help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing"
+    )
+    p.add_argument(
+        "--scheme", choices=["seqres", "kabat", "chothia", "imgt", "martin", "eu", "aho"],
+        default="seqres",
+        help="Antibody numbering scheme. Default 'seqres' uses SEQRES-based "
+             "sequential numbering (the original behaviour). The four V-domain "
+             "schemes (kabat/chothia/imgt/martin/aho) are produced by ANARCI; "
+             "'eu' uses Kabat for V-domains and EU positions for C-domains. "
+             "Constant-region numbering always uses EU (Edelman 1969) regardless "
+             "of the V-scheme — Kabat/Chothia/Martin don't define C-domain "
+             "positions. Non-antibody chains fall back to SEQRES."
+    )
+    p.add_argument(
+        "--chain-scheme", action="append", default=[],
+        metavar="CHAIN:SCHEME",
+        help="Per-chain scheme override (e.g. H:kabat). Repeatable. Wins over --scheme."
     )
     p.add_argument(
         "-v", "--verbose", action="store_true",
@@ -90,6 +120,9 @@ def remap_resid(line, chain_col, seq_cols, ic_col, chain_maps):
     seq_cols: (start, end) 0-based slice for resSeq (4 chars)
     ic_col: 0-based index of insertion code character
     Returns modified line, or original if no mapping found.
+
+    `chain_maps[chain]` values can be either an int (legacy SEQRES path) or
+    a (new_resseq, new_icode) tuple (antibody path with insertion codes).
     """
     if len(line) <= ic_col:
         return line
@@ -101,9 +134,15 @@ def remap_resid(line, chain_col, seq_cols, ic_col, chain_maps):
     old_ic = line[ic_col]
     old_key = (old_seq, old_ic)
     if chain in chain_maps and old_key in chain_maps[chain]:
-        new_seq = chain_maps[chain][old_key]
+        val = chain_maps[chain][old_key]
+        if isinstance(val, tuple):
+            new_seq, new_ic = val
+            if not new_ic:
+                new_ic = " "
+        else:
+            new_seq, new_ic = val, " "
         line = line[:seq_cols[0]] + f"{new_seq:4d}" + line[seq_cols[1]:]
-        line = line[:ic_col] + " " + line[ic_col + 1:]
+        line = line[:ic_col] + new_ic + line[ic_col + 1:]
     return line
 
 
@@ -278,11 +317,66 @@ def main(argv=None):
                 seen_chains.add(c)
                 atom_chains.append(c)
 
+    # Parse per-chain scheme overrides (--chain-scheme H:kabat,L:chothia)
+    chain_scheme_override = {}
+    for spec in args.chain_scheme:
+        if ':' not in spec:
+            print(f"Error: invalid --chain-scheme format '{spec}' "
+                  f"(expected CHAIN:SCHEME)", file=sys.stderr)
+            sys.exit(1)
+        ch, sch = spec.split(':', 1)
+        sch = sch.lower()
+        if sch not in {"seqres", "kabat", "chothia", "imgt", "martin", "eu", "aho"}:
+            print(f"Error: unknown scheme '{sch}' for chain {ch}", file=sys.stderr)
+            sys.exit(1)
+        chain_scheme_override[ch] = sch
+
     # Build renumbering map per chain: {(old_resSeq, old_iCode): new_resSeq}
+    # or {(old_resSeq, old_iCode): (new_resSeq, new_iCode)} for antibody path.
     chain_maps = {}
 
     for chain in atom_chains:
         atom_res = get_atom_residues(lines, chain)
+
+        # Pick scheme for this chain: per-chain override > global > seqres
+        scheme = chain_scheme_override.get(chain, args.scheme)
+
+        # Try antibody numbering when an antibody scheme is selected
+        if scheme != "seqres":
+            from dvbfixer.antibody import number_chain_to_mapping
+            if args.verbose:
+                print(f"Chain {chain}: scheme={scheme}")
+            ab_map, info = number_chain_to_mapping(atom_res, scheme, verbose=args.verbose)
+            if info["is_antibody"] and ab_map:
+                # Merge with SEQRES fallback for any residues not placed
+                placed_keys = set(ab_map.keys())
+                fallback = {}
+                if chain in seqres:
+                    seqres_map = align_to_seqres(atom_res, seqres[chain])
+                    next_num = len(seqres[chain]) + 1
+                    for key in seqres_map:
+                        if seqres_map[key] is None:
+                            seqres_map[key] = next_num
+                            next_num += 1
+                    fallback = seqres_map
+                else:
+                    for i, (rs, ic, _) in enumerate(atom_res, 1):
+                        fallback[(rs, ic)] = i
+                # Antibody wins where it placed something; SEQRES fills the rest
+                merged = {}
+                for key in fallback:
+                    if key in placed_keys:
+                        merged[key] = ab_map[key]
+                    else:
+                        merged[key] = fallback[key]
+                chain_maps[chain] = merged
+                if args.verbose and info["warnings"]:
+                    for w in info["warnings"]:
+                        print(f"  warning: {w}")
+                continue
+            else:
+                if args.verbose:
+                    print(f"  no antibody domain detected — falling back to SEQRES")
 
         if chain in seqres:
             mapping = align_to_seqres(atom_res, seqres[chain])
@@ -375,8 +469,15 @@ def main(argv=None):
             if old_serial is not None:
                 serial_map[old_serial] = serial
             if chain in chain_maps and old_key in chain_maps[chain]:
-                new_resseq = chain_maps[chain][old_key]
-                new_line = line[:6] + f"{serial:5d}" + line[11:22] + f"{new_resseq:4d}" + " " + line[27:]
+                val = chain_maps[chain][old_key]
+                if isinstance(val, tuple):
+                    new_resseq, new_icode = val
+                    if not new_icode:
+                        new_icode = " "
+                else:
+                    new_resseq, new_icode = val, " "
+                new_line = (line[:6] + f"{serial:5d}" + line[11:22]
+                            + f"{new_resseq:4d}" + new_icode + line[27:])
             else:
                 new_line = line[:6] + f"{serial:5d}" + line[11:]
             output_lines.append(new_line)
@@ -393,10 +494,16 @@ def main(argv=None):
                 if seq_str and seq_str.isdigit() and chain in chain_maps:
                     old_key = (int(seq_str), icode)
                     if old_key in chain_maps[chain]:
-                        new_seq = chain_maps[chain][old_key]
+                        val = chain_maps[chain][old_key]
+                        if isinstance(val, tuple):
+                            new_seq, new_icode = val
+                            if not new_icode:
+                                new_icode = " "
+                        else:
+                            new_seq, new_icode = val, " "
                         resname = line[17:20]
                         output_lines.append(
-                            f"TER   {serial:>5d}      {resname} {chain}{new_seq:>4d} \n"
+                            f"TER   {serial:>5d}      {resname} {chain}{new_seq:>4d}{new_icode}\n"
                         )
                         continue
             output_lines.append(f"TER   {serial:>5d}" + line[11:])
