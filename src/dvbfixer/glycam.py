@@ -110,6 +110,30 @@ GLYCAM_ATOM_DROP = {
     'SIA': {'HO1B', 'HO1A'},
 }
 
+# Atom names to DROP from AMBER protonation-variant protein residues so the
+# residue's atom set matches the AMBER template. Applied during glycam's
+# rename pass — common when a user manually renamed e.g. LYS → LYN to mark
+# deprotonation but didn't strip the HZ1 atom that LYN doesn't carry.
+#
+# Reference (AMBER19/ff19SB templates):
+#   LYN = deprotonated K, NZ has only HZ2 + HZ3 (no HZ1).
+#   CYX = disulfide-bonded C, SG has NO H.
+#   CYM = deprotonated C, SG has NO H.
+#   HID = neutral H, HD1 only (no HE2).
+#   HIE = neutral H, HE2 only (no HD1).
+#   HIP = protonated H, HD1 + HE2 (no drops).
+#   ASH = protonated D, adds HD2 (no drops).
+#   GLH = protonated E, adds HE2 (no drops).
+#   NLN/OLS/OLT — glycoprotein residues (sidechain bonded to sugar);
+#   HD22 / HG / HG1 dropped already in glycam's protein-link path.
+PROTEIN_VARIANT_ATOM_DROP = {
+    'LYN': {'HZ1', '1HZ'},
+    'CYX': {'HG', '1HG', 'HG1'},
+    'CYM': {'HG', '1HG', 'HG1'},
+    'HID': {'HE2'},
+    'HIE': {'HD1'},
+}
+
 # Protein residues that can be glycosylated
 PROTEIN_TO_GLYCAM = {
     'ASN': ('NLN', 'ND2'),   # N-linked glycosylation
@@ -756,6 +780,12 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
         else:
             out_resname = pdb_resname
 
+        # Strip atoms that the output residue's AMBER template doesn't carry.
+        # Applies to AMBER protonation variants (LYN/CYX/CYM/HID/HIE) in the
+        # input — e.g. a user manually renamed LYS → LYN to mark deprotonation
+        # but left HZ1 in place; LYN's AMBER template has only HZ2/HZ3.
+        variant_drop_set = PROTEIN_VARIANT_ATOM_DROP.get(out_resname, set())
+
         for atom_idx in atom_indices:
             atom = atoms[atom_idx]
 
@@ -769,6 +799,13 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
             if reskey in protein_renames and protein_renames[reskey] == 'NLN':
                 if atom['name'] == 'HD22':
                     continue
+
+            # Drop atoms that don't belong in the AMBER variant template.
+            if atom['name'] in variant_drop_set:
+                if verbose:
+                    print(f"  Dropped {reskey[0]}:{out_resname}{reskey[1]} "
+                          f"{atom['name']} (not in AMBER {out_resname} template)")
+                continue
 
             serial += 1
             serial_map[atom['serial']] = serial

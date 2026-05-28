@@ -10,6 +10,18 @@ Bidirectional converter between standard PDB/CHARMM sugar naming and GLYCAM forc
 
 Text-based — no OpenMM dependency. Handles input from PDB, CHARMM-GUI, or `dvbfixer prepare`.
 
+**AMBER protonation-variant cleanup**: when an input PDB labels a residue with an AMBER variant name (`LYN`/`CYX`/`CYM`/`HID`/`HIE`) but still carries H atoms that the variant template doesn't have — common when a user manually renamed `LYS→LYN` to mark deprotonation but forgot to drop `HZ1` — glycam drops the extra H atoms during its rename pass so the output matches the AMBER template directly. Per-variant drops:
+
+| Variant | Atoms dropped | Why |
+|---------|---------------|-----|
+| `LYN` | `HZ1`, `1HZ` | Deprotonated NZ has only HZ2 + HZ3 |
+| `CYX` | `HG`, `HG1` | Disulfide-bonded SG has no H |
+| `CYM` | `HG`, `HG1` | Deprotonated SG has no H |
+| `HID` | `HE2` | HD1-only tautomer |
+| `HIE` | `HD1` | HE2-only tautomer |
+
+`HIP`, `ASH`, `GLH` are not in the table — they ADD an H rather than miss one. Vanilla `LYS`/`CYS`/`HIS` are untouched.
+
 ## Usage
 
 ```bash

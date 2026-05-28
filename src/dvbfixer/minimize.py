@@ -400,9 +400,51 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             modeller = Modeller(_fixer.topology, _fixer.positions)
         elif not _has_hydrogens(modeller.topology):
             print("No hydrogens found, adding them...")
-            modeller.addHydrogens(forcefield, pH=args.ph)
+            variants = _build_variants(modeller.topology, amber_renames)
+            if variants:
+                modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+            else:
+                modeller.addHydrogens(forcefield, pH=args.ph)
         else:
-            print("Keeping existing hydrogens from input")
+            # Per-residue H check: PDBFixer's findMissingAtoms only counts
+            # heavy atoms, so a protein residue with all its heavy atoms but
+            # zero H (e.g. a user-edited LYN with no hydrogens; common after
+            # text-level renaming tools like `dvbfixer glycam` or after a
+            # mutation that didn't run addHydrogens) won't trigger the
+            # branch above. createSystem then fails with a "template X does
+            # not match residue Y" error. Detect this case and run
+            # addHydrogens with variants — OpenMM only adds missing H, so
+            # existing H on other residues are untouched.
+            from dvbfixer.ffutils import PROTEIN_RESIDUES as _PR
+            no_h_residues = []
+            for res in modeller.topology.residues():
+                if res.name not in _PR:
+                    continue
+                if res.name == 'PRO':
+                    # Proline has no backbone H — skip
+                    expected_min = 1   # at least HA / HB
+                else:
+                    expected_min = 1
+                h_count = sum(1 for a in res.atoms() if a.element.symbol == 'H')
+                heavy_count = sum(1 for a in res.atoms() if a.element.symbol != 'H')
+                # A protein residue with heavy atoms but ZERO hydrogens is
+                # clearly de-protonated by accident; addHydrogens will fix
+                # only those (preserves H on already-protonated residues).
+                if heavy_count > 1 and h_count < expected_min:
+                    no_h_residues.append(res)
+            if no_h_residues:
+                print(f"  {len(no_h_residues)} protein residue(s) missing all "
+                      f"H atoms (e.g. {no_h_residues[0].chain.id}:"
+                      f"{no_h_residues[0].name}{no_h_residues[0].id}) — "
+                      f"running addHydrogens to fill them in")
+                variants = _build_variants(modeller.topology, amber_renames)
+                if variants:
+                    modeller.addHydrogens(forcefield, pH=args.ph,
+                                          variants=variants)
+                else:
+                    modeller.addHydrogens(forcefield, pH=args.ph)
+            else:
+                print("Keeping existing hydrogens from input")
     else:
         # Strip H, fix any missing heavy atoms via PDBFixer, then re-add correct H.
         # addHydrogens adds correct H for every residue, so stripping is safe.
