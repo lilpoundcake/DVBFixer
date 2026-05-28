@@ -2040,6 +2040,69 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
             sugar_by_anchor=sugar_by_anchor,
         )
         modeller = Modeller(new_top, new_pos)
+    # OpenMM's Modeller.addHydrogens looks up `res.name` in its internal
+    # `_residueHydrogens` dict — which is keyed by the standard residue name
+    # ("LYS", "HIS", "CYS"), not by AMBER variant names ("LYN", "HID", "HIE",
+    # ...). When a topology has a residue with `res.name = "LYN"`, addHydrogens
+    # SKIPS it entirely (residue.name not in _residueHydrogens) — no H atoms
+    # get added — and the next createSystem call then fails with
+    # "No template found for residue (LYN). The set of heavy atoms matches
+    # LYN, but the residue is missing N H atoms."
+    #
+    # Fix: rename topology residues from AMBER variant names back to their
+    # standard parents BEFORE calling addHydrogens, pass the variants list
+    # so addHydrogens applies the variant rules (gates HZ3 for LYS-only,
+    # skips HE2 for HID, etc.), then restore the variant names after.
+    def _rename_variants_to_parent(top):
+        """Rename variant residues (LYN, HID/HIE/HIP, ASH, GLH, CYX/CYM) in
+        `top` to their standard parent names so OpenMM's addHydrogens can
+        find them in its hydrogens.xml (which is keyed by parent name only).
+        Returns a dict {(chain_id, res_id): original_name} so the caller can
+        restore the variant names on the NEW topology produced by
+        addHydrogens (which rebuilds the topology object — residue references
+        in the OLD topology are stale after the call).
+        """
+        saved = {}
+        for res in top.residues():
+            if res.name in _VARIANT_TO_STANDARD:
+                saved[(res.chain.id, res.id)] = res.name
+                res.name = _VARIANT_TO_STANDARD[res.name]
+        return saved
+
+    def _restore_variants_post_addhydrogens(top, saved):
+        """Restore the variant residue names in the NEW topology produced by
+        addHydrogens. Walk by (chain_id, res_id) lookup since the residue
+        objects in `saved` were from the pre-addHydrogens topology and are
+        now orphaned.
+        """
+        for res in top.residues():
+            key = (res.chain.id, res.id)
+            if key in saved:
+                res.name = saved[key]
+
+    def _fix_lyn_hz_naming(top, saved):
+        """OpenMM's hydrogens.xml gates HZ3 by variant="LYS", so addHydrogens
+        with variant=LYN produces HZ1+HZ2 — but the AMBER ff14SB/ff19SB LYN
+        template expects HZ2+HZ3 (HZ1 is the one removed on deprotonation).
+        Rename HZ1 → HZ3 on every LYN residue (chemically equivalent — HZ2
+        and HZ3 share the same charge and bond topology in the LYN template).
+        Identifies LYN residues from `saved` so this runs BEFORE
+        `_restore_variants_post_addhydrogens` is needed.
+        """
+        renamed = 0
+        for res in top.residues():
+            key = (res.chain.id, res.id)
+            if saved.get(key) != 'LYN':
+                continue
+            for atom in res.atoms():
+                if atom.name == 'HZ1':
+                    atom.name = 'HZ3'
+                    renamed += 1
+                    break
+        if verbose and renamed:
+            print(f"  Renamed HZ1→HZ3 on {renamed} LYN residue(s) to match "
+                  f"AMBER ff14SB/ff19SB LYN template (HZ2 + HZ3)")
+
     if heterogen_h:
         # BioLuminate-style: add H to protein AND heterogens (sugars, ligands).
         # Uses AMBER14 + GLYCAM_06j-1 + SMIRNOFF (for arbitrary ligands via SMILES).
@@ -2066,7 +2129,12 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
             except Exception as _e:
                 if verbose:
                     print(f"  add_glycam_bonds skipped: {_e}")
-            modeller.addHydrogens(ff, pH=ph, variants=variants)
+            _saved = _rename_variants_to_parent(modeller.topology)
+            try:
+                modeller.addHydrogens(ff, pH=ph, variants=variants)
+            finally:
+                _fix_lyn_hz_naming(modeller.topology, _saved)
+                _restore_variants_post_addhydrogens(modeller.topology, _saved)
         except (ValueError, KeyError, Exception) as e:
             from dvbfixer.ffutils import explain_template_error
             diag = explain_template_error(e, modeller.topology, ff)
@@ -2078,10 +2146,20 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                         print(f"    {line}")
             # Rebuild modeller since addHydrogens may have left it half-modified
             modeller = Modeller(fixer.topology, fixer.positions)
-            modeller.addHydrogens(pH=ph, variants=variants)
+            _saved = _rename_variants_to_parent(modeller.topology)
+            try:
+                modeller.addHydrogens(pH=ph, variants=variants)
+            finally:
+                _fix_lyn_hz_naming(modeller.topology, _saved)
+                _restore_variants_post_addhydrogens(modeller.topology, _saved)
     else:
         # Legacy: protein-only H addition
-        modeller.addHydrogens(pH=ph, variants=variants)
+        _saved = _rename_variants_to_parent(modeller.topology)
+        try:
+            modeller.addHydrogens(pH=ph, variants=variants)
+        finally:
+            _fix_lyn_hz_naming(modeller.topology, _saved)
+            _restore_variants_post_addhydrogens(modeller.topology, _saved)
     fixer.topology = modeller.topology
     fixer.positions = modeller.positions
 

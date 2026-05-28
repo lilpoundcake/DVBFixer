@@ -115,17 +115,22 @@ GLYCAM_ATOM_DROP = {
 # rename pass — common when a user manually renamed e.g. LYS → LYN to mark
 # deprotonation but didn't strip the HZ1 atom that LYN doesn't carry.
 #
-# Reference (AMBER19/ff19SB templates):
-#   LYN = deprotonated K, NZ has only HZ2 + HZ3 (no HZ1).
-#   CYX = disulfide-bonded C, SG has NO H.
-#   CYM = deprotonated C, SG has NO H.
-#   HID = neutral H, HD1 only (no HE2).
-#   HIE = neutral H, HE2 only (no HD1).
-#   HIP = protonated H, HD1 + HE2 (no drops).
-#   ASH = protonated D, adds HD2 (no drops).
-#   GLH = protonated E, adds HE2 (no drops).
-#   NLN/OLS/OLT — glycoprotein residues (sidechain bonded to sugar);
-#   HD22 / HG / HG1 dropped already in glycam's protein-link path.
+# Atom names verified from the AMBER ff14SB / ff19SB XML templates in
+# OpenMM's data dir:
+#   LYS NZ: HZ1, HZ2, HZ3.
+#   LYN NZ: HZ2, HZ3 (HZ1 is the one stripped by deprotonation).
+#
+# Note: OpenMM's `hydrogens.xml` uses an inconsistent convention — it gates
+# HZ3 by `variant="LYS"` (so addHydrogens with variant=LYN produces HZ1+HZ2,
+# the OPPOSITE of the AMBER template). prepare and minimize patch this up
+# with a post-addHydrogens HZ1→HZ3 rename. For glycam (text-only PDB
+# rename) the AMBER template's atom set is the ground truth, so:
+#   LYN: drop HZ1   (AMBER LYN keeps HZ2 + HZ3)
+#   CYX/CYM: drop HG   (no SG-H)
+#   HID: drop HE2   (HD1-only tautomer)
+#   HIE: drop HD1   (HE2-only tautomer)
+#   HIP / ASH / GLH have no drops.
+#   NLN/OLS/OLT — handled by glycam's protein-link path (drops HD22/HG/HG1).
 PROTEIN_VARIANT_ATOM_DROP = {
     'LYN': {'HZ1', '1HZ'},
     'CYX': {'HG', '1HG', 'HG1'},

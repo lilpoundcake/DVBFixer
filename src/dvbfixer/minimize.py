@@ -371,6 +371,55 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             else:
                 res.name = 'HIE'  # default
 
+    # OpenMM's Modeller.addHydrogens looks up `res.name` in its internal
+    # `_residueHydrogens` dict — keyed by the standard residue name ("LYS",
+    # "HIS", "CYS"), not by AMBER variant names ("LYN", "HID", "HIE", ...).
+    # A topology residue with `res.name = "LYN"` is silently SKIPPED by
+    # addHydrogens — no H atoms get added — and the next createSystem then
+    # fails with "No template found for residue (LYN). ... missing N H atoms".
+    # Rename variant residues to their parent names before addHydrogens and
+    # restore the original names afterwards.
+    _VARIANT_TO_PARENT = {
+        'LYN': 'LYS', 'CYX': 'CYS', 'CYM': 'CYS',
+        'HID': 'HIS', 'HIE': 'HIS', 'HIP': 'HIS',
+        'ASH': 'ASP', 'GLH': 'GLU',
+    }
+
+    def _rename_variants_to_parent(top):
+        """Rename variant residues to parent so addHydrogens recognises them.
+        Returns dict {(chain_id, res_id): original_name} for the post-pass —
+        residue refs in the OLD topology are stale after addHydrogens (which
+        rebuilds the topology entirely).
+        """
+        saved = {}
+        for res in top.residues():
+            if res.name in _VARIANT_TO_PARENT:
+                saved[(res.chain.id, res.id)] = res.name
+                res.name = _VARIANT_TO_PARENT[res.name]
+        return saved
+
+    def _restore_variants_in_topology(top, saved):
+        for res in top.residues():
+            key = (res.chain.id, res.id)
+            if key in saved:
+                res.name = saved[key]
+
+    def _fix_lyn_hz_naming(top, saved):
+        """OpenMM's hydrogens.xml gates HZ3 by variant="LYS", so addHydrogens
+        with variant=LYN produces HZ1+HZ2 — but the AMBER LYN template expects
+        HZ2+HZ3. Rename HZ1 → HZ3 on every LYN residue (chemically equivalent).
+        Uses `saved` to identify which residues started life as LYN, since
+        `res.name` may still be "LYS" at call time.
+        """
+        for res in top.residues():
+            key = (res.chain.id, res.id)
+            if saved.get(key) != 'LYN':
+                continue
+            for atom in res.atoms():
+                if atom.name == 'HZ1':
+                    atom.name = 'HZ3'
+                    break
+
     # Default: keep existing hydrogens. --rebuild-h strips and re-adds via OpenMM.
     keep_h = not args.rebuild_h
     if keep_h:
@@ -401,10 +450,15 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         elif not _has_hydrogens(modeller.topology):
             print("No hydrogens found, adding them...")
             variants = _build_variants(modeller.topology, amber_renames)
-            if variants:
-                modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
-            else:
-                modeller.addHydrogens(forcefield, pH=args.ph)
+            _saved = _rename_variants_to_parent(modeller.topology)
+            try:
+                if variants:
+                    modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+                else:
+                    modeller.addHydrogens(forcefield, pH=args.ph)
+            finally:
+                _fix_lyn_hz_naming(modeller.topology, _saved)
+                _restore_variants_in_topology(modeller.topology, _saved)
         else:
             # Per-residue H check: PDBFixer's findMissingAtoms only counts
             # heavy atoms, so a protein residue with all its heavy atoms but
@@ -438,11 +492,16 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                       f"{no_h_residues[0].name}{no_h_residues[0].id}) — "
                       f"running addHydrogens to fill them in")
                 variants = _build_variants(modeller.topology, amber_renames)
-                if variants:
-                    modeller.addHydrogens(forcefield, pH=args.ph,
-                                          variants=variants)
-                else:
-                    modeller.addHydrogens(forcefield, pH=args.ph)
+                _saved = _rename_variants_to_parent(modeller.topology)
+                try:
+                    if variants:
+                        modeller.addHydrogens(forcefield, pH=args.ph,
+                                              variants=variants)
+                    else:
+                        modeller.addHydrogens(forcefield, pH=args.ph)
+                finally:
+                    _fix_lyn_hz_naming(modeller.topology, _saved)
+                    _restore_variants_in_topology(modeller.topology, _saved)
             else:
                 print("Keeping existing hydrogens from input")
     else:
@@ -477,9 +536,15 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         if variants:
             n_var = sum(1 for v in variants if v is not None)
             print(f"  {n_var} AMBER protonation variants detected")
-            modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
-        else:
-            modeller.addHydrogens(forcefield, pH=args.ph)
+        _saved = _rename_variants_to_parent(modeller.topology)
+        try:
+            if variants:
+                modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+            else:
+                modeller.addHydrogens(forcefield, pH=args.ph)
+        finally:
+            _fix_lyn_hz_naming(modeller.topology, _saved)
+            _restore_variants_in_topology(modeller.topology, _saved)
 
     # When keeping heterogens with GLYCAM, OpenMM's PDBFile doesn't infer
     # intra-residue bonds for GLYCAM residues (NLN/OLS/OLT + sugars).
