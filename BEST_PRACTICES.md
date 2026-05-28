@@ -243,20 +243,31 @@ Partial chains (Fc-only with CH2+CH3, Fv-only with just VH, hinge-truncated cons
 
 When the V-scheme extends past EU position 117 (IMGT V ends at 128, Martin/Aho end at 113-149), the EU C-domain numbering is shifted forward by `(max_V_resseq + 5 - first_C_EU)` to avoid number collisions, and a warning is printed. If you need fully monotonic numbering without the shift, stick with `--scheme kabat`, `--scheme chothia`, or `--scheme eu`.
 
-## Workflow 7 — Residue deletion mutations
+## Workflow 7 — Residue mutations (substitution + deletion with dependency cleanup)
 
-Delete residues from a structure (e.g. for IgG truncation, hinge engineering, glycosite knockouts) via `prepare --mutate X:N:del`. The tool automatically handles three edge cases:
+Substitute or delete residues from a structure via `prepare --mutate X:N:NEW_AA` or `--mutate X:N:del`. Both forms automatically clean up dependencies that won't survive the change:
 
 ```bash
 # Truncate the C-terminal lysine of an IgG heavy chain
 dvbfixer prepare igg.pdb --mutate H:447:del -o trunc.pdb -v
 
-# Knock out an N-glycosylation site — attached glycan tree disappears too
-dvbfixer prepare glycoprotein.pdb --mutate A:297:del -o no_glycan.pdb -v
+# Knock out an N-glycosylation site by mutation — attached glycan tree
+# disappears too (ALA can't carry the NAG)
+dvbfixer prepare glycoprotein.pdb --mutate H:297:ALA -o no_glycan.pdb -v
 
-# Delete a CYS that forms a disulfide — partner is auto-reduced (CYX→CYS,
-# HG regenerated)
+# Same effect by deletion
+dvbfixer prepare glycoprotein.pdb --mutate H:297:del -o no_glycan.pdb -v
+
+# Break a disulfide by mutation — partner is auto-reduced (CYX→CYS, HG
+# regenerated)
+dvbfixer prepare antibody.pdb --mutate H:22:ALA -o no_ss.pdb -v
+
+# Same effect by deletion
 dvbfixer prepare antibody.pdb --mutate H:22:del -o no_ss.pdb -v
+
+# Protonation-variant rename — does NOT trigger cleanup (parent unchanged)
+dvbfixer prepare antibody.pdb --mutate A:39:CYX -v   # SS bond preserved
+dvbfixer prepare antibody.pdb --mutate A:83:HIP -v   # standard H placement
 
 # Multiple deletions (consecutive treated as one contiguous gap)
 dvbfixer prepare igg.pdb --mutate H:446:del --mutate H:447:del -v
@@ -264,7 +275,7 @@ dvbfixer prepare igg.pdb --mutate H:446:del --mutate H:447:del -v
 # Mix substitution and deletion
 dvbfixer prepare in.pdb --mutate A:39:ALA --mutate H:446:del -v
 
-# Insertion-code residues
+# Insertion-code residues (deletion only — substitution can't address iCodes)
 dvbfixer prepare antibody.pdb --mutate H:100A:del -v
 ```
 

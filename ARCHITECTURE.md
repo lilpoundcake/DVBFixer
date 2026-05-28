@@ -178,23 +178,30 @@ fall back to the SEQRES path. ANARCI is OPTIONAL — `_have_anarci` checks
 import availability; failure returns `None` cleanly so the SEQRES fallback
 fires.
 
-### `prepare.apply_deletions_to_pdb_text` — pre-PDBFixer raw-text deletion
+### `prepare.apply_deletions_to_pdb_text` — pre-PDBFixer raw-text residue cleanup
 
-Module: `src/dvbfixer/prepare.py`. Implements `--mutate CHAIN:RESNUM:del`
-by editing the PDB text BEFORE PDBFixer sees the structure. Three
+Module: `src/dvbfixer/prepare.py`. Implements both `--mutate CHAIN:RESNUM:del`
+AND substitution-induced dependency cleanup (`--mutate H:297:ALA` on a
+glycosylated ASN removes the attached glycan tree because ALA can't carry
+it). Operates on PDB text BEFORE PDBFixer sees the structure. Three
 passes over the input lines:
 
 1. **Index** — build `res_lines` (reskey → [line_idx]), `res_resname`,
    `serial_to_reskey`, `serial_to_atomname`, `serial_is_hetatm`,
    `serial_to_coord`, `conect_graph` (bidirectional, from CONECT records),
    `ssbond_pairs`, `link_pairs`, `chain_seq_order`.
-2. **Resolve each deletion** — mark the residue's atoms for removal; BFS
-   the CONECT graph from the sidechain anchor (`SIDECHAIN_ANCHORS` keyed
-   by resname) into HETATM-only territory to collect the attached glycan
-   tree; find the disulfide partner via SSBOND records or CONECT SG-SG
-   and queue it for CYX→CYS rename + HG drop; classify the gap as
+2. **Resolve each target** — for deletions, mark the residue's atoms for
+   removal; for substitution-cleanup, the residue stays and only its
+   dependents are cleaned. Both flavours run: BFS the CONECT graph from
+   the sidechain anchor (`SIDECHAIN_ANCHORS` keyed by resname) into
+   HETATM-only territory to collect the attached glycan tree; find the
+   disulfide partner via SSBOND records or CONECT SG-SG and queue it for
+   CYX→CYS rename + HG drop. For deletions only, classify the gap as
    internal/terminal_N/terminal_C/whole_chain by walking the chain's
-   residue order. Computes `prev.C → next.N` distance for internal gaps.
+   residue order and compute `prev.C → next.N` distance for internal gaps.
+   Substitution-cleanup is filtered: skipped when the new AA's parent
+   name matches the old residue name (e.g. CYS→CYX is just a protonation
+   variant rename — the SS bond is preserved).
 3. **Write** the cleaned PDB — filter atom lines by serial, rewrite kept
    CONECT lines without removed serials, drop SSBOND/LINK lines that
    referenced the deleted residue, rename CYX partners to CYS and drop

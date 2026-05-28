@@ -1175,23 +1175,44 @@ def parse_mutations(mutate_args):
     return mutations_by_chain, variant_overrides, deletions
 
 
-def apply_deletions_to_pdb_text(input_path, deletions, verbose=False):
-    """Apply --mutate ...:del deletions to the PDB at the raw-text level.
+def apply_deletions_to_pdb_text(input_path, deletions, verbose=False,
+                                  substitution_cleanups=None):
+    """Apply residue cleanups to the PDB at the raw-text level.
 
-    Removes the targeted residues' ATOM/HETATM lines, walks CONECT to remove
-    any glycan tree attached via the deleted residue's sidechain, reduces a
-    deleted CYS's disulfide partner (CYX → CYS, drop HG), and drops SSBOND /
-    LINK / CONECT records that reference removed atoms. Operates on raw text
-    BEFORE the PDBFixer pipeline.
+    Two flavours of target:
+
+    * **deletions** — fully remove the residue's atoms. The targeted residue
+      itself disappears from the output. Triggered by `--mutate X:N:del`.
+    * **substitution_cleanups** — keep the residue, but remove dependent
+      atoms/records that won't survive the upcoming substitution. Triggered
+      by `--mutate X:N:NEW_AA` when the new AA can't carry the old AA's
+      sidechain-mediated bonds (e.g. ASN→ALA loses N-linked glycan;
+      CYS→ALA loses the disulfide bridge). Pass as a list of
+      `(chain, resseq, icode, old_resname, new_resname)` tuples; cleanup
+      is only run when the parent residue names differ (so CYS→CYX, which
+      is a protonation-variant rename, does NOT trigger cleanup and the
+      SS bond is preserved).
+
+    Both flavours trigger:
+
+    * Glycan walk: BFS through CONECT from the residue's sidechain anchor
+      (ASN ND2, SER OG, THR OG1, TYR OH, CYS SG, LYS NZ, ARG NH2) into
+      attached HETATM territory — the whole glycan tree is removed.
+    * Disulfide partner repair: CYX→CYS rename + drop HG (so addHydrogens
+      regenerates it); SSBOND record dropped.
+    * LINK record drop with warning; partner left as-is.
+
+    Operates on raw text BEFORE the PDBFixer pipeline.
 
     Returns: (cleaned_path, removed_residues_meta) where cleaned_path is a
-    temp file (the original path if `deletions` is empty), and meta is a list
-    of dicts ready for the .dat file.
+    temp file (the original path if no targets), and meta is a list of
+    dicts ready for the .dat file.
     """
     import math
     import tempfile as _tf
 
-    if not deletions:
+    substitution_cleanups = substitution_cleanups or []
+    if not deletions and not substitution_cleanups:
         return input_path, []
 
     with open(input_path) as f:
@@ -1318,21 +1339,47 @@ def apply_deletions_to_pdb_text(input_path, deletions, verbose=False):
     dropped_link_lines = set()
     removed_residues_meta = []
 
+    # Unify deletion + substitution-cleanup targets. Each entry is
+    # (reskey, kind, old_resname, new_resname). For substitutions, only
+    # run cleanup when the new AA's parent residue name differs from the
+    # old — so CYS→CYX (a protonation variant rename) does NOT trigger
+    # cleanup and the SS bond is preserved.
+    targets = []
     for dkey in deletions:
-        if dkey not in res_lines:
-            chain, rs, ic = dkey
+        targets.append((dkey, "delete", None, None))
+    for entry in substitution_cleanups:
+        ch, rs, ic, old_rn, new_rn = entry
+        rkey = (ch, rs, ic)
+        if old_rn == new_rn:
+            continue  # CYS→CYX style rename — no cleanup
+        targets.append((rkey, "substitution", old_rn, new_rn))
+
+    for tkey, tkind, t_oldrn, t_newrn in targets:
+        if tkey not in res_lines:
+            chain, rs, ic = tkey
             ic_disp = '' if ic == ' ' else ic
-            print(f"Error: residue {chain}:{rs}{ic_disp} not found in input "
-                  f"(cannot delete a residue that doesn't exist)", file=sys.stderr)
-            sys.exit(1)
-        residues_to_remove.add(dkey)
-        for ln_idx in res_lines[dkey]:
-            line = lines[ln_idx]
-            try:
-                s = int(line[6:11].strip())
-                atoms_to_remove.add(s)
-            except ValueError:
-                pass
+            if tkind == "delete":
+                print(f"Error: residue {chain}:{rs}{ic_disp} not found in input "
+                      f"(cannot delete a residue that doesn't exist)", file=sys.stderr)
+                sys.exit(1)
+            else:
+                # Substitution target missing — skip silently; PDBFixer will
+                # report the missing residue when applyMutations runs.
+                continue
+        if tkind == "delete":
+            dkey = tkey
+            residues_to_remove.add(dkey)
+            for ln_idx in res_lines[dkey]:
+                line = lines[ln_idx]
+                try:
+                    s = int(line[6:11].strip())
+                    atoms_to_remove.add(s)
+                except ValueError:
+                    pass
+        else:
+            # Substitution: keep the residue, only its dependent atoms are
+            # cleaned up. dkey is reused as the local name for the target.
+            dkey = tkey
 
         resname = res_resname[dkey]
         # --- Glycan walk (BFS) from the sidechain anchor ---
@@ -1423,32 +1470,38 @@ def apply_deletions_to_pdb_text(input_path, deletions, verbose=False):
                           f"left as-is. Inspect manually if it needs repair.",
                           file=sys.stderr)
 
-        # --- Terminal vs internal classification ---
-        chain = dkey[0]
-        order = chain_seq_order.get(chain, [])
-        try:
-            idx_in_chain = order.index(dkey)
-        except ValueError:
-            idx_in_chain = -1
-        prev_reskey = None
-        next_reskey = None
-        # Walk backward to find prev that isn't being deleted
-        for j in range(idx_in_chain - 1, -1, -1):
-            if order[j] not in deletion_set:
-                prev_reskey = order[j]
-                break
-        for j in range(idx_in_chain + 1, len(order)):
-            if order[j] not in deletion_set:
-                next_reskey = order[j]
-                break
+        # --- Terminal vs internal classification (deletions only) ---
+        if tkind == "delete":
+            chain = dkey[0]
+            order = chain_seq_order.get(chain, [])
+            try:
+                idx_in_chain = order.index(dkey)
+            except ValueError:
+                idx_in_chain = -1
+            prev_reskey = None
+            next_reskey = None
+            # Walk backward to find prev that isn't being deleted
+            for j in range(idx_in_chain - 1, -1, -1):
+                if order[j] not in deletion_set:
+                    prev_reskey = order[j]
+                    break
+            for j in range(idx_in_chain + 1, len(order)):
+                if order[j] not in deletion_set:
+                    next_reskey = order[j]
+                    break
 
-        gap_type = "internal"
-        if prev_reskey is None and next_reskey is None:
-            gap_type = "whole_chain"
-        elif prev_reskey is None:
-            gap_type = "terminal_N"
-        elif next_reskey is None:
-            gap_type = "terminal_C"
+            gap_type = "internal"
+            if prev_reskey is None and next_reskey is None:
+                gap_type = "whole_chain"
+            elif prev_reskey is None:
+                gap_type = "terminal_N"
+            elif next_reskey is None:
+                gap_type = "terminal_C"
+        else:
+            # Substitution cleanup: residue stays — no gap classification.
+            prev_reskey = None
+            next_reskey = None
+            gap_type = "substitution"
 
         # Compute the bridge distance (prev.C → next.N) for internal gaps
         gap_distance = None
@@ -1482,7 +1535,7 @@ def apply_deletions_to_pdb_text(input_path, deletions, verbose=False):
             "resid": str(rs_),
             "icode": ic_ if ic_ != ' ' else '',
             "resname": resname,
-            "removed_atoms": len(res_lines[dkey]),
+            "removed_atoms": len(res_lines[dkey]) if tkind == "delete" else 0,
             "gap_type": gap_type,
             "prev_residue": (f"{prev_reskey[0]}/{res_resname.get(prev_reskey, '?')}"
                              f"/{prev_reskey[1]}{prev_reskey[2].strip()}"
@@ -1498,12 +1551,20 @@ def apply_deletions_to_pdb_text(input_path, deletions, verbose=False):
                 f"/{disulfide_partner[1]}{disulfide_partner[2].strip()}"
                 if disulfide_partner else None),
         }
+        if tkind == "substitution":
+            meta["substituted_to"] = t_newrn
         removed_residues_meta.append(meta)
         if verbose:
             ic_disp = '' if ic_ == ' ' else ic_
-            print(f"  Delete {chain_}:{rs_}{ic_disp} ({resname}) — "
-                  f"{gap_type}{', ' + str(len(glycan_resnames)) + ' glycan res' if glycan_resnames else ''}"
-                  f"{', SS partner ' + str(disulfide_partner) + ' → CYS' if disulfide_partner else ''}")
+            if tkind == "delete":
+                print(f"  Delete {chain_}:{rs_}{ic_disp} ({resname}) — "
+                      f"{gap_type}{', ' + str(len(glycan_resnames)) + ' glycan res' if glycan_resnames else ''}"
+                      f"{', SS partner ' + str(disulfide_partner) + ' → CYS' if disulfide_partner else ''}")
+            elif glycan_resnames or disulfide_partner:
+                print(f"  Substitute {chain_}:{rs_}{ic_disp} ({resname}→{t_newrn}) — "
+                      f"cleanup: "
+                      f"{str(len(glycan_resnames)) + ' glycan res' if glycan_resnames else ''}"
+                      f"{', SS partner ' + str(disulfide_partner) + ' → CYS' if disulfide_partner else ''}")
             if gap_distance is not None and gap_distance > 5.0:
                 print(f"    WARNING: gap C(i-1)→N(i+1) distance = "
                       f"{gap_distance:.2f} Å — chain may need pulling/modeling")
@@ -2084,16 +2145,49 @@ def main(argv=None):
         elif _tmp.exists():
             _tmp.unlink()
 
-    # Apply --mutate ...:del deletions at the raw-text level BEFORE PDBFixer.
-    # Returns the deletion-cleaned PDB path (or the original if no del specs).
+    # Apply --mutate ...:del deletions AND substitution-cleanup at the raw-
+    # text level BEFORE PDBFixer. Substitution cleanup removes dependent
+    # atoms/records (attached glycan tree, SS partner repair, LINK records)
+    # for substitution mutations where the new AA can't carry the old AA's
+    # sidechain-mediated bonds — e.g. --mutate H:297:ALA on a glycosylated
+    # ASN removes the entire NAG-NAG-BMA-... tree along with the substitution.
     removed_residues_meta = []
     deletion_path = input_path
     if args.mutate:
-        _subs, _vars, deletions = parse_mutations(args.mutate)
-        if deletions:
-            print(f"Applying {len(deletions)} deletion mutation(s)...")
+        subs_by_chain, _vars, deletions = parse_mutations(args.mutate)
+        # Build substitution-cleanup list: read old residue name from raw PDB
+        # so we can decide whether the cleanup is needed (skip CYS→CYX style
+        # protonation-variant renames where the parent residue is unchanged).
+        substitution_cleanups = []
+        if subs_by_chain:
+            old_resname = {}  # (chain, int(resseq)) → resname
+            with open(input_path) as _f:
+                for _line in _f:
+                    if not _line.startswith(('ATOM  ', 'HETATM')):
+                        continue
+                    try:
+                        _rs = int(_line[22:26].strip())
+                    except ValueError:
+                        continue
+                    _ch = _line[21]
+                    _rn = _line[17:20].strip()
+                    old_resname.setdefault((_ch, _rs), _rn)
+            for ch, muts in subs_by_chain.items():
+                for (resnum_str, new_aa) in muts:
+                    try:
+                        rs = int(resnum_str)
+                    except ValueError:
+                        continue
+                    orn = old_resname.get((ch, rs))
+                    if orn is None:
+                        continue
+                    substitution_cleanups.append((ch, rs, ' ', orn, new_aa))
+        if deletions or substitution_cleanups:
+            if deletions:
+                print(f"Applying {len(deletions)} deletion mutation(s)...")
             deletion_path, removed_residues_meta = apply_deletions_to_pdb_text(
                 input_path, deletions, verbose=args.verbose,
+                substitution_cleanups=substitution_cleanups,
             )
             input_path = deletion_path
 

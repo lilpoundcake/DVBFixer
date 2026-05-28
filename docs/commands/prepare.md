@@ -15,17 +15,17 @@ Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. **Hete
 - `CHAIN:RESNUM:NEW_AA` — substitute (e.g. `A:39:ALA`, `A:83:HIP` for a protonation variant)
 - `CHAIN:RESNUM:del` — DELETE the residue entirely (e.g. `H:446:del`, `H:100A:del`)
 
-Deletion is applied at the raw-PDB-text level **before** PDBFixer runs, so SEQRES-driven gap-filling never re-inserts the deleted residue. Edge cases handled automatically:
+Both forms run a **dependency cleanup** at the raw-PDB-text level BEFORE PDBFixer sees the structure, so the new residue (or empty slot) is internally consistent. Edge cases handled automatically:
 
-- **Glycan removal** — if the deleted residue's sidechain anchor (ASN ND2, SER OG, THR OG1, TYR OH, CYS SG, LYS NZ, ARG NH2) carries a HETATM tree via CONECT, the entire glycan tree is walked and removed too.
-- **Disulfide partner repair** — deleting a CYS/CYX automatically reduces its SS partner: CYX→CYS rename + drop existing HG (so `addHydrogens` regenerates it). SSBOND records referencing the deleted residue are dropped.
-- **LINK partners** — LINK records mentioning a deleted residue are dropped and a warning is printed. The partner is left as-is — inspect manually if it needs repair.
-- **Terminal vs internal** — terminal deletions need no peptide-bond reconnection; internal deletions are bridged by the downstream `minimize` step. If the post-deletion C(i-1)→N(i+1) distance exceeds 5 Å a warning is printed (consider running `dvbfixer pull` or `dvbfixer model`).
+- **Glycan removal on glycosylation-site change** — if the substituted/deleted residue's sidechain anchor (ASN ND2, SER OG, THR OG1, TYR OH, CYS SG, LYS NZ, ARG NH2) carries a HETATM tree via CONECT, the entire glycan tree is walked and removed. Applies to both deletions (`--mutate H:297:del`) and substitutions to a residue that can't carry the glycan (`--mutate H:297:ALA`). Protonation-variant renames where the parent residue is unchanged (`--mutate A:39:CYX`, `--mutate A:83:HIP`) do NOT trigger cleanup.
+- **Disulfide partner repair** — substituting/deleting a CYS/CYX automatically reduces its SS partner: CYX→CYS rename + drop existing HG (so `addHydrogens` regenerates it). SSBOND records referencing the affected residue are dropped. `--mutate A:39:CYX` keeps the bridge (no parent change).
+- **LINK partners** — LINK records mentioning an affected residue are dropped and a warning is printed. The partner is left as-is — inspect manually if it needs repair.
+- **Terminal vs internal (deletion only)** — terminal deletions need no peptide-bond reconnection; internal deletions are bridged by the downstream `minimize` step. If the post-deletion C(i-1)→N(i+1) distance exceeds 5 Å a warning is printed (consider running `dvbfixer pull` or `dvbfixer model`).
 - **Insertion codes** — `H:100A:del` selects residue 100A specifically.
 - **Multiple deletions** — consecutive deletions are treated as one contiguous gap.
 - **Mixed with substitutions** — deletion and substitution of the same residue is rejected at parse time.
 
-The `.dat` file gains a `removed_residues` field with per-deletion metadata (resname, gap type, gap distance, linked glycan residues, disulfide partner repaired).
+The `.dat` file gains a `removed_residues` field with per-mutation metadata (resname, gap type which is `substitution` for substitution cleanups, gap distance, linked glycan residues, disulfide partner repaired, `substituted_to` field for substitutions).
 
 ## Usage
 
@@ -47,6 +47,12 @@ dvbfixer prepare input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
 
 # Delete residues (handles attached glycans + SS partners automatically)
 dvbfixer prepare input.pdb --mutate H:446:del --mutate H:447:del -v
+
+# Knock out a glycosylation site — attached glycan tree is removed too
+dvbfixer prepare glycoprotein.pdb --mutate H:297:ALA -v
+
+# Break a disulfide — partner is auto-reduced (CYX→CYS + HG regenerated)
+dvbfixer prepare antibody.pdb --mutate H:22:ALA -v
 
 # Mix substitution and deletion
 dvbfixer prepare input.pdb --mutate A:39:ALA --mutate H:446:del -v
