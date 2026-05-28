@@ -30,9 +30,19 @@ STANDARD_RESIDUES = {
     "LEU", "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL",
     # Common protonation/tautomer variants
     "HID", "HIE", "HIP", "HSD", "HSE", "HSP", "CYX", "CYM",
+    "ASH", "GLH", "LYN", "ASPP", "GLUP",
+    # GLYCAM glycoprotein residues (still part of the protein backbone)
+    "NLN", "OLS", "OLT",
     # Terminal patches
     "ACE", "NME", "NH2",
+    # Selenomethionine and other commonly-treated-as-protein residues
+    "MSE",
 }
+
+# Default threshold: when the total number of detected chains exceeds this,
+# small-molecule chains (ions, ligands, lipids, etc.) no longer get unique
+# chain IDs — only protein chains do. Overridable via --max-chains.
+DEFAULT_MAX_CHAIN_THRESHOLD = 26
 
 
 def parse_gro(path):
@@ -86,6 +96,15 @@ def parse_args(argv=None):
     p.add_argument(
         "--keep-water", action="store_true",
         help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
+    )
+    p.add_argument(
+        "--max-chains", type=int, default=DEFAULT_MAX_CHAIN_THRESHOLD,
+        help=f"When more than this many chains are detected, do NOT assign "
+             f"chain IDs to small-molecule chains (ions, ligands, lipids, "
+             f"single-residue HETATMs) — they stay with blank chain ID. "
+             f"Protein chains always get chain IDs. "
+             f"Default: {DEFAULT_MAX_CHAIN_THRESHOLD}. Set higher to keep "
+             f"the original assign-all behaviour (max {52} via lowercase fallback)."
     )
     p.add_argument(
         "-v", "--verbose", action="store_true",
@@ -158,6 +177,60 @@ def find_model_blocks(lines):
                 current_start = None
                 current_label = None
     return blocks if blocks else None
+
+
+def _classify_chains(atom_lines, breaks):
+    """Return per-chain classification: 'protein' or 'small_molecule'.
+
+    A chain is 'protein' when its residue set is dominated (>= 50%) by
+    standard amino acids. Glycan trees, single-ion chains, lipid chains,
+    and arbitrary ligands fall into 'small_molecule'.
+    """
+    kinds = []
+    n = len(atom_lines)
+    for ci in range(len(breaks)):
+        s = breaks[ci]
+        e = breaks[ci + 1] if ci + 1 < len(breaks) else n
+        residues = {}
+        for j in range(s, e):
+            rid = get_resid(atom_lines[j])
+            if rid not in residues:
+                residues[rid] = get_resname(atom_lines[j])
+        if not residues:
+            kinds.append('small_molecule')
+            continue
+        n_std = sum(1 for rn in residues.values() if rn in STANDARD_RESIDUES)
+        if n_std / len(residues) >= 0.5:
+            kinds.append('protein')
+        else:
+            kinds.append('small_molecule')
+    return kinds
+
+
+def _assign_chain_ids(kinds, max_chain_threshold):
+    """Return a list of chain IDs per chain (one entry per `kinds`).
+
+    When `len(kinds) > max_chain_threshold`, protein chains are assigned
+    chain IDs from CHAIN_IDS in order and small-molecule chains keep an
+    empty/blank chain ID (' ' written into PDB column 22). Otherwise every
+    chain gets a chain ID as before.
+    """
+    if len(kinds) <= max_chain_threshold:
+        return [CHAIN_IDS[i] for i in range(len(kinds))]
+    assigned = []
+    cursor = 0
+    for k in kinds:
+        if k == 'protein':
+            if cursor >= len(CHAIN_IDS):
+                # Run out even of protein chain IDs — emit blank and warn
+                # downstream; caller already validates protein count.
+                assigned.append(' ')
+            else:
+                assigned.append(CHAIN_IDS[cursor])
+                cursor += 1
+        else:
+            assigned.append(' ')
+    return assigned
 
 
 def find_chain_breaks(atom_lines, distance_cutoff, gap_cutoff, use_distance):
@@ -284,20 +357,32 @@ def main(argv=None):
     breaks = find_chain_breaks(atom_lines, args.distance_cutoff, args.gap_cutoff, use_distance)
     n_chains = len(breaks)
 
-    if n_chains > len(CHAIN_IDS):
-        print(f"Too many chains ({n_chains}) for available chain IDs.", file=sys.stderr)
+    kinds = _classify_chains(atom_lines, breaks)
+    n_protein = kinds.count('protein')
+    if n_protein > len(CHAIN_IDS):
+        print(f"Too many protein chains ({n_protein}) for available chain IDs "
+              f"({len(CHAIN_IDS)}).", file=sys.stderr)
         sys.exit(1)
+
+    chain_id_assignment = _assign_chain_ids(kinds, args.max_chains)
+    if args.verbose and n_chains > args.max_chains:
+        n_sm_blank = sum(1 for cid in chain_id_assignment if cid == ' ')
+        print(f"Detected {n_chains} chain(s) > --max-chains={args.max_chains}: "
+              f"{n_protein} protein chain(s) get IDs; "
+              f"{n_sm_blank} small-molecule chain(s) keep blank chain ID.")
 
     chain_for_atom = _build_chain_for_atom(breaks, len(atom_lines))
     resid_maps = _build_resid_maps(atom_lines, breaks, n_chains) if renumber else {}
 
     if args.verbose:
-        _print_chain_summary(atom_lines, breaks, n_chains, resid_maps, renumber)
+        _print_chain_summary(atom_lines, breaks, n_chains, resid_maps, renumber,
+                              chain_ids=chain_id_assignment)
 
     break_set = set(breaks)
     output_lines = _render_block(
         lines, atom_lines, atom_orig_indices, chain_for_atom, break_set,
-        resid_maps, renumber, start_serial=1, chain_id_assignment=CHAIN_IDS,
+        resid_maps, renumber, start_serial=1,
+        chain_id_assignment=chain_id_assignment,
     )
 
     if args.keep_water and solvent_lines:
@@ -493,19 +578,32 @@ def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
 
     if all_same:
         n_chains = len(per_model[0]["breaks"])
-        if n_chains > len(CHAIN_IDS):
-            print(f"Too many chains ({n_chains}) for available chain IDs.",
-                  file=sys.stderr)
+        # Classify chains in MODEL 1 (signatures match, so other MODELs share
+        # the same protein/small-molecule layout) and pick chain IDs honouring
+        # --max-chains.
+        kinds = _classify_chains(
+            per_model[0]["atom_lines"], per_model[0]["breaks"]
+        )
+        n_protein = kinds.count('protein')
+        if n_protein > len(CHAIN_IDS):
+            print(f"Too many protein chains ({n_protein}) for available chain "
+                  f"IDs ({len(CHAIN_IDS)}).", file=sys.stderr)
             sys.exit(1)
-        chain_id_lists = [CHAIN_IDS] * n_models
+        assignment = _assign_chain_ids(kinds, args.max_chains)
+        chain_id_lists = [assignment] * n_models
         if args.verbose:
             print(f"Detected {n_models} MODEL records, all with identical "
                   f"chain layout — reusing chain IDs across MODELs.")
+            if n_chains > args.max_chains:
+                n_sm_blank = sum(1 for cid in assignment if cid == ' ')
+                print(f"  {n_chains} chain(s) > --max-chains={args.max_chains}: "
+                      f"{n_protein} protein chain(s) get IDs; "
+                      f"{n_sm_blank} small-molecule chain(s) keep blank chain ID.")
             _print_chain_summary(
                 per_model[0]["atom_lines"], per_model[0]["breaks"], n_chains,
                 _build_resid_maps(per_model[0]["atom_lines"],
                                    per_model[0]["breaks"], n_chains) if renumber else {},
-                renumber,
+                renumber, chain_ids=assignment,
             )
     else:
         print(f"Warning: {n_models} MODEL records have differing chain layouts; "
@@ -513,14 +611,36 @@ def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
         chain_id_lists = []
         offset = 0
         for m in per_model:
-            n_c = len(m["breaks"])
-            ids = CHAIN_IDS[offset:offset + n_c]
-            if len(ids) < n_c:
-                print(f"Too many total chains across MODELs for available IDs.",
-                      file=sys.stderr)
-                sys.exit(1)
-            chain_id_lists.append(ids)
-            offset += n_c
+            kinds_m = _classify_chains(m["atom_lines"], m["breaks"])
+            n_c = len(kinds_m)
+            n_prot_m = kinds_m.count('protein')
+            if n_c > args.max_chains:
+                # Only assign IDs to protein chains; small molecules get blank.
+                assignment = []
+                cursor = 0
+                for k in kinds_m:
+                    if k == 'protein':
+                        if offset + cursor >= len(CHAIN_IDS):
+                            assignment.append(' ')
+                        else:
+                            assignment.append(CHAIN_IDS[offset + cursor])
+                            cursor += 1
+                    else:
+                        assignment.append(' ')
+                if offset + n_prot_m > len(CHAIN_IDS):
+                    print(f"Too many protein chains across MODELs for "
+                          f"available IDs.", file=sys.stderr)
+                    sys.exit(1)
+                offset += n_prot_m
+                chain_id_lists.append(assignment)
+            else:
+                ids = CHAIN_IDS[offset:offset + n_c]
+                if len(ids) < n_c:
+                    print(f"Too many total chains across MODELs for available IDs.",
+                          file=sys.stderr)
+                    sys.exit(1)
+                chain_id_lists.append(ids)
+                offset += n_c
 
     # Render output. Walk the original `lines` and emit each segment:
     # - lines before MODEL 1 (header / SEQRES / etc.)

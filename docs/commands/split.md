@@ -12,6 +12,8 @@ Chain breaks are detected by three criteria, applied in priority order:
 
 **Multi-MODEL inputs** (multi-state PDBs, NMR ensembles, GROMACS trajectory exports with MODEL records) are handled as one complex sampled at multiple states: every MODEL gets the SAME chain IDs (A, B, C in every MODEL — not A B C / D E F / G H I as a naive walk would produce). The per-MODEL chain signature (atom count + residue count + first/last resname per chain) is compared across MODELs; when all match, chain IDs are reused. If MODELs differ structurally the tool falls back to independent per-MODEL chain IDs with a warning. Atom serials reset within each MODEL (standard PDB convention).
 
+**Small-molecule threshold (`--max-chains`)** — when more than N chains are detected (default 26), only **protein** chains get chain IDs. Small-molecule chains (ions, ligands, lipids, single-residue HETATMs, glycan trees) keep a blank chain ID. A chain is classified "protein" when ≥50% of its residues are standard amino acids (incl. AMBER protonation variants HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN, GLYCAM glycoprotein NLN/OLS/OLT, ACE/NME caps, MSE). Useful for structures with dozens of crystallographic ions/ligands/lipids that don't need their own letter. Raise the threshold with `--max-chains 62` to keep the original assign-all behaviour (cap is `len(CHAIN_IDS) = 62`: A-Z + a-z + 0-9).
+
 ## Usage
 
 ```bash
@@ -44,6 +46,7 @@ dvbfixer split input.pdb --no-renumber
 | `--no-distance` | off | Disable all distance-based detection |
 | `--no-renumber` | off | Keep original residue numbers |
 | `--keep-water` | off | Keep water and ions in output (removed by default) |
+| `--max-chains` | 26 | Above this many detected chains, small-molecule chains (ions, ligands, lipids, single-residue HETATMs, glycan trees) get blank chain ID; only protein chains get IDs. |
 | `-v`, `--verbose` | off | Print detected chain info |
 
 ## See also
