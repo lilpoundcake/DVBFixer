@@ -244,6 +244,60 @@ def _strip_hydrogens(topology, positions):
     return modeller.topology, modeller.positions
 
 
+_VARIANT_TO_PARENT_FOR_ADDHYDROGENS = {
+    'LYN': 'LYS', 'CYX': 'CYS', 'CYM': 'CYS',
+    'HID': 'HIS', 'HIE': 'HIS', 'HIP': 'HIS',
+    'ASH': 'ASP', 'GLH': 'GLU',
+}
+
+
+def _rename_variants_to_parent(top):
+    """Rename variant residues (LYN/HID/HIE/CYX/...) to their standard parent
+    names so OpenMM's addHydrogens can find them in hydrogens.xml (keyed by
+    parent name only). Returns dict {(chain_id, res_id): original_name}.
+    Residue references in the OLD topology are stale after addHydrogens
+    rebuilds the topology — use this dict for the post-pass lookup.
+    """
+    saved = {}
+    for res in top.residues():
+        if res.name in _VARIANT_TO_PARENT_FOR_ADDHYDROGENS:
+            saved[(res.chain.id, res.id)] = res.name
+            res.name = _VARIANT_TO_PARENT_FOR_ADDHYDROGENS[res.name]
+    return saved
+
+
+def _restore_variants_post_addhydrogens(top, saved):
+    """Walk the NEW topology after addHydrogens and restore variant names."""
+    for res in top.residues():
+        key = (res.chain.id, res.id)
+        if key in saved:
+            res.name = saved[key]
+
+
+def _fix_lyn_hz_naming(top, saved, renames):
+    """Rename HZ1 → HZ3 on every LYN residue (chemically equivalent — HZ2
+    and HZ3 in the AMBER LYN template share the same charge and bond
+    topology). hydrogens.xml gates HZ3 by variant="LYS" so addHydrogens with
+    variant=LYN produces HZ1+HZ2 — the OPPOSITE of what the AMBER LYN
+    template expects (HZ2+HZ3).
+
+    LYN identification merges two sources: residues whose pre-addHydrogens
+    name was LYN (from `saved`), and residues whose PROPKA-assigned variant
+    is LYN (from `renames`).
+    """
+    lyn_keys = {k for k, v in saved.items() if v == 'LYN'}
+    for (ch, rs, ic), variant in renames.items():
+        if variant == 'LYN':
+            lyn_keys.add((ch, str(rs)))
+    for res in top.residues():
+        if (res.chain.id, res.id) not in lyn_keys:
+            continue
+        for atom in res.atoms():
+            if atom.name == 'HZ1':
+                atom.name = 'HZ3'
+                break
+
+
 def _add_hydrogens_to_output(input_path, output_path, args, renames):
     """Load original PDB, strip H, add H with correct protonation variants, write output."""
     from openmm.app import ForceField, Modeller, PDBFile
@@ -369,12 +423,22 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     finally:
         Path(_tmp_path).unlink()
 
-    if glycam_present:
-        # ignoreExternalBonds=True: the protein-glycan ND2-C1 bond doesn't
-        # match any single template, so addHydrogens must tolerate it.
-        modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
-    else:
-        modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+    # Rename variant residues to parent so addHydrogens can find them in
+    # hydrogens.xml (keyed by parent name). After addHydrogens, restore the
+    # variant names AND patch HZ1→HZ3 on LYN residues (AMBER LYN expects
+    # HZ2+HZ3; addHydrogens with variant=LYN produces HZ1+HZ2 because of an
+    # OpenMM hydrogens.xml vs AMBER template inconsistency).
+    _saved = _rename_variants_to_parent(modeller.topology)
+    try:
+        if glycam_present:
+            # ignoreExternalBonds=True: the protein-glycan ND2-C1 bond doesn't
+            # match any single template, so addHydrogens must tolerate it.
+            modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+        else:
+            modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+    finally:
+        _fix_lyn_hz_naming(modeller.topology, _saved, renames)
+        _restore_variants_post_addhydrogens(modeller.topology, _saved)
 
     # Rename residues in the final topology to match AMBER names
     for res in modeller.topology.residues():
