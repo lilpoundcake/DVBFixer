@@ -179,6 +179,43 @@ _SUGAR_LETTER_TO_CHARMM = {
 # GLYCAM glycoprotein residue → standard protein residue name.
 GLYCAM_TO_STANDARD_PROTEIN = {'NLN': 'ASN', 'OLS': 'SER', 'OLT': 'THR'}
 
+# AMBER protonation-variant residue name → CHARMM equivalent. Used by
+# `glycam --to-charmm` so the output is directly consumable by
+# `dvbfixer top --ff charmm` and downstream CHARMM-aware minimization.
+# Source: AMBER ff14SB/ff19SB XML + CHARMM36 aminoacids.rtp (verified).
+PROTONATION_AMBER_TO_CHARMM = {
+    'HID': 'HSD', 'HIE': 'HSE', 'HIP': 'HSP',
+    'ASH': 'ASPP', 'GLH': 'GLUP',
+    'LYN': 'LSN',
+    'CYX': 'CYS',   # CHARMM uses CYS + DISU patch, applied via SSBOND
+    # CYM stays as CYM — CHARMM36 has a [ CYM ] residue.
+}
+
+# Reverse direction (default `glycam` forward path).
+PROTONATION_CHARMM_TO_AMBER = {
+    'HSD': 'HID', 'HSE': 'HIE', 'HSP': 'HIP',
+    'ASPP': 'ASH', 'GLUP': 'GLH',
+    'LSN': 'LYN',
+}
+
+# Per-residue atom renames at the glycam stage. Methylene H shifts
+# (HB2/HB3 ↔ HB1/HB2 etc.) and backbone H ↔ HN are NOT in here — top.py
+# already handles them during topology generation (methylene_shift +
+# aminoacids.arn). The only AMBER↔CHARMM rename that's asymmetric on the
+# atom set (so top.py can't infer it) is LYN/LSN's NH2-H pair:
+#
+#   AMBER LYN: HZ2 + HZ3 (HZ1 absent)
+#   CHARMM LSN: HZ1 + HZ2 (HZ3 absent)
+#
+# So LYN → LSN needs HZ2→HZ1, HZ3→HZ2 (and the reverse for LSN → LYN).
+# Apply in a single atomic pass to avoid the HZ2→HZ1 then HZ3→HZ2 collision.
+PROTONATION_ATOM_RENAME_TO_CHARMM = {
+    'LYN': {'HZ2': 'HZ1', 'HZ3': 'HZ2'},
+}
+PROTONATION_ATOM_RENAME_TO_AMBER = {
+    'LSN': {'HZ1': 'HZ2', 'HZ2': 'HZ3'},
+}
+
 # PDB 3-char names that are N-acetyl sugars (have an N-acetyl group).
 _NACETYL_PDB_NAMES = {'NAG', 'NDG', 'NGA', 'A2G'}
 
@@ -323,6 +360,13 @@ def convert_to_charmm(input_path, output_path, verbose=False):
                 if verbose:
                     print(f"  {key[0]}:{rn}{key[1]} -> {charmm_name}")
             continue
+        # AMBER protonation variant → CHARMM equivalent
+        if rn in PROTONATION_AMBER_TO_CHARMM:
+            res_new_name[key] = PROTONATION_AMBER_TO_CHARMM[rn]
+            if verbose:
+                print(f"  {key[0]}:{rn}{key[1]} -> {res_new_name[key]} "
+                      f"(AMBER→CHARMM protonation variant)")
+            continue
         # Standard amino acid or unknown — keep as is
         res_new_name[key] = rn
 
@@ -337,6 +381,21 @@ def convert_to_charmm(input_path, output_path, verbose=False):
         for idx in residues[key]:
             atoms[idx]['name'] = _rename_atom_reverse(
                 orig_rn, new_rn, atoms[idx]['name'])
+
+    # Apply protonation-variant atom renames (LYN→LSN swaps HZ atoms).
+    # Single atomic pass per residue to avoid HZ2→HZ1 then HZ3→HZ2 collision.
+    for key in res_order:
+        orig_rn = atoms[residues[key][0]]['resname']
+        atom_map = PROTONATION_ATOM_RENAME_TO_CHARMM.get(orig_rn)
+        if not atom_map:
+            continue
+        for idx in residues[key]:
+            old_name = atoms[idx]['name']
+            if old_name in atom_map:
+                atoms[idx]['name'] = atom_map[old_name]
+                if verbose:
+                    print(f"    Renamed {key[0]}:{orig_rn}{key[1]} "
+                          f"{old_name} → {atom_map[old_name]}")
 
     # Write output: emit atom lines for residues we keep, remap serials,
     # then append CONECT records with remapped serials.
@@ -396,12 +455,35 @@ def _parse_pdb(path):
     bond_graph = defaultdict(set)  # serial -> set of bonded serials
     link_records = []   # parsed LINK records
 
+    # CHARMM-GUI uses 4-character residue names (ASPP, GLUP, BGLC, ANE5AC, ...).
+    # In PDB layout the 4th character extends into col 21 — the standard
+    # chain-ID column. Detect this case via the trailing letter at col 20
+    # (0-indexed): when col 17:21 spells a known 4-char resname, the chain
+    # ID is at col 22 (shifted by 1). Otherwise the standard col-22 chain
+    # applies. Known 4-char names accepted here:
+    _CHARMM_4CHAR_RESNAMES = {
+        'ASPP', 'GLUP',                           # protonated D / E
+        'BGLC', 'AGLC', 'BMAN', 'AMAN', 'BGAL', 'AGAL', 'BFUC', 'AFUC',
+        'BGLCNA', 'AGLCNA',                       # GlcNAc α/β
+        'BGALNA', 'AGALNA',                       # GalNAc α/β
+        'ANE5', 'ANE5AC', 'BNE5', 'BNE5AC',       # sialic acid variants
+        'AIDO', 'BIDO',
+        'CER1', 'CER160', 'CER180', 'CER181',
+        'CER2', 'CER200', 'CER220', 'CER240', 'CER241', 'CER3E',
+    }
+
+    def _read_resname_chain(line):
+        """Return (resname, chain) handling both 3-char and CHARMM 4-char layouts."""
+        candidate4 = line[17:21].strip()
+        if candidate4 in _CHARMM_4CHAR_RESNAMES:
+            return candidate4, line[21]
+        return line[17:20].strip(), line[21] if len(line) > 21 else ' '
+
     for line in lines:
         if line.startswith(('ATOM  ', 'HETATM')):
             serial = int(line[6:11])
             name = line[12:16].strip()
-            resname = line[17:20].strip()
-            chain = line[21]
+            resname, chain = _read_resname_chain(line)
             resseq = int(line[22:26])
             icode = line[26] if len(line) > 26 else ' '
             x = float(line[30:38])
@@ -650,13 +732,27 @@ def _format_atom_line(atom, new_resname, new_serial, new_resseq=None):
         'ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS', 'ILE',
         'LEU', 'LYS', 'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP', 'TYR', 'VAL',
         'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYX', 'CYM', 'LYN',  # AMBER variants
+        'HSD', 'HSE', 'HSP', 'ASPP', 'GLUP', 'LSN',  # CHARMM variants
         'NLN', 'OLS', 'OLT',  # GLYCAM protein residues
     }
     record = 'ATOM  ' if new_resname in _STD_AA else 'HETATM'
 
+    # CHARMM 4-character residue names (ASPP, GLUP, LSN [3 char actually],
+    # ANE5AC, ...) extend into the col-20 gap between resname and chain ID,
+    # leaving altLoc (col 17) still as a space. Layout per PDB convention:
+    #   cols 13-16: atom name (`name_field`)
+    #   col 17:     altLoc (always space here)
+    #   cols 18-20: resname (3 chars), or 18-21 if resname is 4 chars
+    #   col 21:     space (3-char path) or chain ID (4-char path, immediately
+    #               after the 4-char resname)
+    #   col 22:     chain ID (3-char path) -- shifted left by 1 for 4-char
+    if len(new_resname) >= 4:
+        resname_block = f" {new_resname[:4]:<4s}"       # altLoc + 4-char + no gap
+    else:
+        resname_block = f" {new_resname:>3s} "          # altLoc + 3-char + gap
     return (
-        f"{record}{new_serial:5d} {name_field} "
-        f"{new_resname:>3s} {atom['chain']}{resseq:4d}{icode}"
+        f"{record}{new_serial:5d} {name_field}"
+        f"{resname_block}{atom['chain']}{resseq:4d}{icode}"
         f"   {atom['x']:8.3f}{atom['y']:8.3f}{atom['z']:8.3f}"
         f"                      {element:>2s}  \n"
     )
@@ -777,13 +873,27 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
         first_atom = atoms[atom_indices[0]]
         pdb_resname = first_atom['resname']
 
-        # Determine output residue name
+        # Determine output residue name. CHARMM protonation variants in the
+        # input (HSD/HSE/HSP/ASPP/GLUP/LSN) are renamed to their AMBER
+        # equivalents (HID/HIE/HIP/ASH/GLH/LYN) so the output is consumable
+        # by AMBER-aware downstream tools (prepare, minimize, top --acpype).
         if reskey in glycam_names:
             out_resname = glycam_names[reskey]
         elif reskey in protein_renames:
             out_resname = protein_renames[reskey]
+        elif pdb_resname in PROTONATION_CHARMM_TO_AMBER:
+            out_resname = PROTONATION_CHARMM_TO_AMBER[pdb_resname]
+            if verbose:
+                print(f"  {reskey[0]}:{pdb_resname}{reskey[1]} -> "
+                      f"{out_resname} (CHARMM→AMBER protonation variant)")
         else:
             out_resname = pdb_resname
+
+        # Apply protonation-variant atom renames (LSN → LYN swaps HZ atoms).
+        # Build a per-atom-index rewrite dict from the source CHARMM resname's
+        # entry in PROTONATION_ATOM_RENAME_TO_AMBER; apply atomically so
+        # HZ1→HZ2 and HZ2→HZ3 don't collide.
+        proton_atom_map = PROTONATION_ATOM_RENAME_TO_AMBER.get(pdb_resname, {})
 
         # Strip atoms that the output residue's AMBER template doesn't carry.
         # Applies to AMBER protonation variants (LYN/CYX/CYM/HID/HIE) in the
@@ -804,6 +914,14 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
             if reskey in protein_renames and protein_renames[reskey] == 'NLN':
                 if atom['name'] == 'HD22':
                     continue
+
+            # Apply protonation-variant atom rename (e.g. LSN HZ1 → LYN HZ2).
+            if atom['name'] in proton_atom_map:
+                old_name = atom['name']
+                atom['name'] = proton_atom_map[old_name]
+                if verbose:
+                    print(f"    Renamed {reskey[0]}:{pdb_resname}{reskey[1]} "
+                          f"{old_name} → {atom['name']}")
 
             # Drop atoms that don't belong in the AMBER variant template.
             if atom['name'] in variant_drop_set:
