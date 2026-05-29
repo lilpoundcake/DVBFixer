@@ -15,7 +15,7 @@ COMMANDS = {
     "top": "Generate GROMACS .itp/.top topology files from PDB",
     "transplant": "Transplant molecules from donor PDB to acceptor PDB",
     "puppet": "Strip PDB to backbone-only polyglycine model",
-    "glycam": "Convert glycan PDB to GLYCAM force field nomenclature",
+    "convert": "Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants)",
     "cluster": "Cluster glycan conformations from MD trajectory",
     "parametrize": "Parametrize small molecules with GAFF2 + AM1-BCC/RESP",
     "homology": "Multi-template homology modeling with Modeller",
@@ -68,7 +68,13 @@ def main():
         from dvbfixer.transplant import main as cmd_main
     elif command == "puppet":
         from dvbfixer.puppet import main as cmd_main
-    elif command == "glycam":
+    elif command in ("convert", "glycam"):
+        # `glycam` is the legacy name; `convert` is preferred. The module
+        # filename stays as `glycam.py` for now to keep imports stable.
+        if command == "glycam":
+            print("[deprecated] 'dvbfixer glycam' is now 'dvbfixer convert'. "
+                  "The old name still works but please update scripts.",
+                  file=sys.stderr)
         from dvbfixer.glycam import main as cmd_main
     elif command == "cluster":
         from dvbfixer.cluster import main as cmd_main

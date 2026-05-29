@@ -346,7 +346,7 @@ CHARMM-GUI (as input) and `dvbfixer top --ff charmm` (which maps them
 to CHARMM RTP names via `PDB_TO_CARB`). Linkage information is
 preserved via CONECT records — the residue name no longer carries it.
 
-CLI: `dvbfixer glycam <input> --to-charmm -o <output>`.
+CLI: `dvbfixer convert <input> --to-charmm -o <output>` (legacy alias: `dvbfixer glycam`).
 
 ### `prepare._preprocess_glycoprotein_input` — pre-PDBFixer input fixes
 

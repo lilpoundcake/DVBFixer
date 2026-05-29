@@ -73,7 +73,7 @@ dvbfixer protonate 1HZH_renum_model_prepared_minimized_prot_minimized.pdb --no-h
 #    Detects glycosidic bonds from CONECT, renames sugars (NAG→UYB/0YB,
 #    BMA→VMB, MAN→2MA, etc.) and glycoprotein residues (ASN→NLN,
 #    SER→OLS, THR→OLT). Renames atoms (C7→C2N, O7→O2N, HO3→H3O, etc.).
-dvbfixer glycam crystal.pdb -o glycam.pdb -v
+dvbfixer convert crystal.pdb -o glycam.pdb -v
 
 # 2. Add hydrogens with AMBER14+GLYCAM_06j-1 templates.
 #    Auto-detects GLYCAM residues; runs add_glycam_bonds(positions=...)
@@ -106,13 +106,13 @@ all five steps. After the pipeline, run a normal GROMACS workflow:
 
 ### Switching the same structure to CHARMM36
 
-Use [`dvbfixer glycam --to-charmm`](commands/glycam.md) to reverse the
+Use [`dvbfixer convert --to-charmm`](commands/convert.md) to reverse the
 GLYCAM naming back to standard PDB / CHARMM-compatible names, then use
 the RTP CHARMM path in [`top`](commands/top.md):
 
 ```bash
 # After step 1 (or any later step with GLYCAM names), reverse to CHARMM
-dvbfixer glycam glycam.pdb --to-charmm -o charmm.pdb -v
+dvbfixer convert glycam.pdb --to-charmm -o charmm.pdb -v
 # -> charmm.pdb has NAG/NDG/BMA/MAN/GAL/FUL/SIA (no GLYCAM codes),
 #    ASN (no NLN), and standard PDB atom names
 

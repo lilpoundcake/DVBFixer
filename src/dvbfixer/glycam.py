@@ -974,24 +974,38 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
 
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
-        prog="dvbfixer glycam",
-        description="Convert PDB glycan nomenclature to GLYCAM force field naming. "
-        "Renames sugar residues to GLYCAM 3-character codes encoding "
-        "[linkage][sugar][anomer], renames atoms, and optionally adds ROH cap "
-        "at the reducing end.",
+        prog="dvbfixer convert",
+        description="Convert structure naming between PDB/AMBER/GLYCAM and "
+        "CHARMM conventions. Default direction (`--to-amber`): convert PDB / "
+        "CHARMM-named input to GLYCAM sugar codes + AMBER protonation variants "
+        "(consumable by `prepare`, `minimize`, `protonate`, `top --acpype`). "
+        "With `--to-charmm`: reverse direction, output CHARMM-compatible names "
+        "(consumable by `top --ff charmm`). Both directions are idempotent — "
+        "running the tool on already-correct input is a no-op.",
     )
-    p.add_argument("input", help="Input PDB file with glycan structure")
+    p.add_argument("input", help="Input PDB file")
     p.add_argument("-o", "--output",
-                   help="Output PDB file (default: <input>_glycam.pdb, or "
-                        "<input>_charmm.pdb with --to-charmm)")
+                   help="Output PDB file (default: <input>_amber.pdb in "
+                        "the default direction, <input>_charmm.pdb with "
+                        "--to-charmm)")
     p.add_argument("--no-roh", action="store_true",
-                   help="Do not add ROH cap at the reducing end")
-    p.add_argument("--to-charmm", action="store_true",
-                   help="Reverse direction: convert GLYCAM-named input to "
-                        "CHARMM-compatible naming (BGLCNA/BMAN/AMAN/ANE5AC/...) "
-                        "with CHARMM atom names. Glycoprotein residues "
-                        "NLN/OLS/OLT revert to ASN/SER/THR; ROH/OME caps are "
-                        "dropped. Linkage info preserved via CONECT records.")
+                   help="Do not add ROH cap at the reducing end (forward / "
+                        "--to-amber direction only)")
+    direction = p.add_mutually_exclusive_group()
+    direction.add_argument("--to-amber", action="store_true",
+                           help="PDB/CHARMM → GLYCAM (sugars) + AMBER "
+                                "(protonation variants HID/HIE/HIP/ASH/GLH/LYN/"
+                                "CYX/CYM). This is the default if no direction "
+                                "flag is given.")
+    direction.add_argument("--to-charmm", action="store_true",
+                           help="Reverse direction: convert GLYCAM/AMBER-named "
+                                "input to CHARMM-compatible naming "
+                                "(BGLCNA/BMAN/AMAN/ANE5AC/... sugars, "
+                                "HSD/HSE/HSP/ASPP/GLUP/LSN protonation "
+                                "variants). Glycoprotein residues "
+                                "NLN/OLS/OLT revert to ASN/SER/THR; ROH/OME "
+                                "caps are dropped. Linkage info preserved via "
+                                "CONECT records.")
     p.add_argument("-v", "--verbose", action="store_true",
                    help="Print conversion details")
     return p.parse_args(argv)
@@ -1004,7 +1018,7 @@ def main(argv=None):
         print(f"File not found: {input_path}", file=sys.stderr)
         sys.exit(1)
 
-    default_suffix = "_charmm" if args.to_charmm else "_glycam"
+    default_suffix = "_charmm" if args.to_charmm else "_amber"
     output_path = (Path(args.output) if args.output
                    else input_path.with_stem(input_path.stem + default_suffix))
 

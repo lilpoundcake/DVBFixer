@@ -25,7 +25,7 @@ academic license — set the key in `<env>/lib/modeller-10.8/modlib/modeller/con
 | Energy-minimize with selective restraints | `dvbfixer minimize` |
 | Set protonation states via PROPKA3 pKa | `dvbfixer protonate` |
 | Pull two atoms together (form SS, glycosidic) | `dvbfixer pull` |
-| Convert glycan PDB → GLYCAM naming | `dvbfixer glycam` |
+| Convert between PDB/AMBER/GLYCAM and CHARMM naming | `dvbfixer convert` (bidirectional) |
 | Transplant residues between PDBs | `dvbfixer transplant` |
 | Generate GROMACS topology | `dvbfixer top` |
 | Parametrize a small molecule (GAFF2) | `dvbfixer parametrize` |
@@ -88,13 +88,13 @@ lands.
 
 When the input already uses GLYCAM 3-char sugar codes (UYB, 4YB, VMB,
 0YA, 0fA, etc.) and glycoprotein residues (NLN/OLS/OLT) — typically the
-output of `dvbfixer glycam` — full whole-system minimization works
+output of `dvbfixer convert` — full whole-system minimization works
 without fallback. All four tools (`prepare`, `minimize`, `protonate`,
 `top --acpype`) accept GLYCAM-named input end-to-end:
 
 ```bash
 # 1. Convert PDB sugars to GLYCAM names (skip if already GLYCAM-named)
-dvbfixer glycam crystal.pdb -o glycam.pdb -v
+dvbfixer convert crystal.pdb -o glycam.pdb -v
 # - Detects glycosidic bonds from CONECT (or distance fallback)
 # - Renames NAG→UYB/0YB, BMA→VMB, MAN→2MA, etc.
 # - Renames ASN/SER/THR → NLN/OLS/OLT at glycosylation sites
@@ -138,7 +138,7 @@ step with GLYCAM names), invert with `--to-charmm` and use the RTP
 path on `top`:
 
 ```bash
-dvbfixer glycam glycam.pdb --to-charmm -o charmm.pdb -v
+dvbfixer convert glycam.pdb --to-charmm -o charmm.pdb -v
 # -> NAG/NDG/BMA/MAN/GAL/FUL/SIA + ASN (standard PDB sugar codes),
 #    with standard PDB atom names. Linkage info preserved via CONECT.
 dvbfixer top charmm.pdb --ff charmm -o charmm_topol.top -v
@@ -193,7 +193,7 @@ dvbfixer top glycoprotein_glycam.pdb --acpype -o gmx/
 For a glycoprotein from GLYCAM-Web through ACPYPE:
 
 ```bash
-dvbfixer glycam crystal.pdb -o crystal_glycam.pdb       # rename to GLYCAM
+dvbfixer convert crystal.pdb -o crystal_glycam.pdb       # rename to GLYCAM
 dvbfixer top crystal_glycam.pdb --acpype -o gmx/
 ```
 
@@ -396,7 +396,7 @@ For a glycoprotein crystal structure → GROMACS-ready topology:
 
 ```bash
 # 1. Convert to GLYCAM names (skip if already GLYCAM-named)
-dvbfixer glycam   crystal.pdb -o glycam.pdb -v
+dvbfixer convert   crystal.pdb -o glycam.pdb -v
 
 # 2. Structure prep with AMBER14+GLYCAM templates
 dvbfixer prepare  glycam.pdb -o prep.pdb -v

@@ -7,7 +7,7 @@ Every `dvbfixer` subcommand has its own page. The first column is alphabetical; 
 | Command | What it does | Workflow group |
 |---------|--------------|----------------|
 | [`cluster`](cluster.md) | Glycan conformational clustering from MD trajectories (GFDB-style) | Analysis |
-| [`glycam`](glycam.md) | Convert between PDB/CHARMM and GLYCAM nomenclature (bidirectional) | Glycoprotein prep |
+| [`convert`](convert.md) | Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants); bidirectional | Glycoprotein prep |
 | [`homology`](homology.md) | Multi-template homology modeling with Modeller (antibody-aware) | Modeling |
 | [`minimize`](minimize.md) | Energy minimization with OpenMM + selective restraints, optional xtb/obminimize refinement | Refinement |
 | [`model`](model.md) | Rebuild missing loops/gaps with Modeller's LoopModel | Structure prep |
