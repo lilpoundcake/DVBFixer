@@ -151,15 +151,25 @@ dvbfixer top       prot.pdb --acpype -o gmx/ -v
 
 ```bash
 # RTP-based (fast, modular .itp output — no FF dir needed)
-dvbfixer top input.pdb --ff amber       # proteins
-dvbfixer top input.pdb --ff charmm      # proteins + glycans + lipids + NA + more
+dvbfixer top input.pdb --ff amber                   # AMBER + TIP3P + JC-TIP3P ions (default)
+dvbfixer top input.pdb --ff amber --water opc       # AMBER + OPC + Li-Merz HFE-OPC ions
+dvbfixer top input.pdb --ff amber --water tip4pew   # AMBER + TIP4P-Ew + JC-TIP4P-Ew ions
+dvbfixer top input.pdb --ff charmm                  # CHARMM + CHARMM-TIP3P + CHARMM ions
+
+# Override ion parameter set (AMBER only)
+dvbfixer top input.pdb --water opc --ion-set lm-iod-opc      # IOD-fit instead of HFE
+dvbfixer top input.pdb --water tip3p --ion-set dang-legacy   # bundled pre-2008 values
 
 # Glycolipid from CHARMM-GUI (auto-detected, CHARMM36 only)
 dvbfixer top glycolipid_charmm.pdb --ff charmm -o gmx_top/
 
 # ACPYPE-based (proteins + GLYCAM glycans, handles mixed 1-4 scaling)
+# Note: --acpype hardcodes TIP3P; --water/--ion-set are ignored.
 dvbfixer top input.pdb --acpype
 ```
+
+Ion atom-type set is auto-selected from `--water` and covers Na⁺/K⁺/Cl⁻/Ca²⁺/Mg²⁺/Zn²⁺.
+See [`top`](commands/top.md#water-matched-ions-amber) for the full mapping.
 
 ## Glycan conformational analysis
 

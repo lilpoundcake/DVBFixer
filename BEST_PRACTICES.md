@@ -197,6 +197,47 @@ dvbfixer convert crystal.pdb -o crystal_glycam.pdb       # rename to GLYCAM
 dvbfixer top crystal_glycam.pdb --acpype -o gmx/
 ```
 
+### Choosing the water model + ion set (AMBER)
+
+`dvbfixer top` selects ion LJ parameters matched to your water model. With
+`--ion-set auto` (default), each water model gets its canonical ion set:
+
+```bash
+# Modern OPC water (recommended for protein and glycoprotein MD)
+dvbfixer top input.pdb --water opc -o gmx/
+# -> ions: Li-Merz HFE-OPC (Na+/K+/Cl-/Ca2+/Mg2+/Zn2+)
+
+# TIP3P (classical AMBER water)
+dvbfixer top input.pdb --water tip3p -o gmx/
+# -> ions: Joung-Cheatham TIP3P monovalents + Li-Merz 12-6 HFE divalents
+
+# TIP4P-Ew
+dvbfixer top input.pdb --water tip4pew -o gmx/
+# -> ions: Joung-Cheatham TIP4P-Ew
+
+# SPC/E
+dvbfixer top input.pdb --water spce -o gmx/
+# -> ions: Joung-Cheatham SPC/E
+```
+
+`--ion-set` overrides the default. Useful overrides:
+
+- `--ion-set lm-iod-opc` — Li-Merz ion-oxygen-distance fit for OPC. Better
+  first-shell RDF than HFE-fit; choose it if you care about RDF peak positions
+  (e.g. crystallography refinement). HFE-fit (the default) is better for
+  hydration thermodynamics and ion activity at finite concentration.
+- `--ion-set dang-legacy` — bundled FF defaults (Aqvist Na⁺, Dang Cl⁻).
+  Pre-2008 parametrization; only useful for reproducing older runs.
+
+**Don't mix water models and ion sets.** Dang Cl⁻ with OPC water causes Cl⁻
+to over-attract to protein cations; in a real user case this triggered a
+−9000 bar atomic-pressure swing in 10 ps of NPT equilibration and crashed
+LINCS at step 8027. The `auto` default prevents this.
+
+**CHARMM is restricted to TIP3P/SPC/SPCE.** CHARMM ions (SOD/CLA/POT/CAL/MGA)
+are fitted to CHARMM-TIP3P; `dvbfixer top --ff charmm --water opc` is rejected
+at the CLI. Combine OPC with `--ff amber` instead.
+
 ## Workflow 6 — Antibody-specific tasks
 
 Multi-template homology model (e.g. Fab on one template + Fc on another):

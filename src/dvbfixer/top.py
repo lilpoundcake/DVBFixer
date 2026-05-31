@@ -149,6 +149,109 @@ _KNOWN_4CHAR_RESNAMES = {
 # Water residue names (for counting SOL molecules in PDB)
 _WATER_RESNAMES = {'SOL', 'HOH', 'WAT', 'TIP3', 'SPC', 'SPCE', 'TIP4', 'TIP5'}
 
+# ---------------------------------------------------------------------------
+# Water-model-matched ion Lennard-Jones parameters (AMBER side)
+#
+# Sources:
+#   JC = Joung & Cheatham, J Phys Chem B 112, 9020 (2008) — monovalents for
+#        TIP3P, SPC/E, TIP4P-Ew.
+#   LM = Li, Roberts, Chakravorty, Merz, JCTC 9, 2733 (2013) — 12-6 divalents
+#        (Ca/Mg/Zn) for the same three water models.
+#   LSM = Li, Song, Merz, JCTC 16, 4429 (2020) [PMC8173364] — 12-6 divalents
+#        for OPC/OPC3/TIP3P-FB/TIP4P-FB.
+#   SLM = Sengupta, Li, Wynn, Merz, JCIM 61, 869 (2021) [PMC8173365] — 12-6
+#        monovalents for the same OPC family.
+#
+# σ_nm = R*_Å × 0.17818; ε_kJ = ε_kcal × 4.184.
+# Atom-type names match the bundled FF/amber99sb-ildn-lipid21.ff/ions.itp
+# moleculetype references: Na, K, Cl, C0 (Ca²⁺), MG, Zn.
+#
+# Format: {ion_set: {atomtype: (atnum, mass, sigma_nm, eps_kj, charge,
+#                                  moleculetype_resname)}}
+# ---------------------------------------------------------------------------
+ION_PARAMS = {
+    'jc-tip3p': {
+        # JC TIP3P monovalent: Na 1.369/0.0874, K 1.705/0.19368, Cl 2.513/0.03559
+        'Na': (11, 22.990, 0.24393, 0.36586, +1.0, 'NA'),
+        'K':  (19, 39.098, 0.30380, 0.81036, +1.0, 'K'),
+        'Cl': (17, 35.453, 0.44786, 0.14887, -1.0, 'CL'),
+        # LM 12-6 HFE TIP3P divalent: Ca 1.649/0.10593, Mg 1.360/0.01020, Zn 1.271/0.00330
+        'C0': (20, 40.078, 0.29381, 0.44317, +2.0, 'CA'),
+        'MG': (12, 24.305, 0.24232, 0.04269, +2.0, 'MG'),
+        'Zn': (30, 65.380, 0.22647, 0.01382, +2.0, 'ZN'),
+    },
+    'jc-spce': {
+        # JC SPC/E monovalent: Na 1.212/0.35264, K 1.593/0.42971, Cl 2.711/0.01279
+        'Na': (11, 22.990, 0.21595, 1.47545, +1.0, 'NA'),
+        'K':  (19, 39.098, 0.28384, 1.79789, +1.0, 'K'),
+        'Cl': (17, 35.453, 0.48309, 0.05349, -1.0, 'CL'),
+        # LM 12-6 HFE SPC/E divalent: Ca 1.635/0.09788, Mg 1.360/0.01020, Zn 1.276/0.00354
+        'C0': (20, 40.078, 0.29132, 0.40955, +2.0, 'CA'),
+        'MG': (12, 24.305, 0.24232, 0.04269, +2.0, 'MG'),
+        'Zn': (30, 65.380, 0.22736, 0.01482, +2.0, 'ZN'),
+    },
+    'jc-tip4pew': {
+        # JC TIP4P-Ew monovalent: Na 1.226/0.16844, K 1.590/0.27947, Cl 2.760/0.01166
+        'Na': (11, 22.990, 0.21845, 0.70474, +1.0, 'NA'),
+        'K':  (19, 39.098, 0.28332, 1.16928, +1.0, 'K'),
+        'Cl': (17, 35.453, 0.49179, 0.04880, -1.0, 'CL'),
+        # LM 12-6 HFE TIP4P-Ew divalent: Ca 1.657/0.11069, Mg 1.353/0.00942, Zn 1.252/0.00251
+        'C0': (20, 40.078, 0.29524, 0.46312, +2.0, 'CA'),
+        'MG': (12, 24.305, 0.24108, 0.03941, +2.0, 'MG'),
+        'Zn': (30, 65.380, 0.22308, 0.01051, +2.0, 'ZN'),
+    },
+    'lm-hfe-opc': {
+        # SLM 2021 HFE-OPC monovalent: Na 1.4670/0.02960, K 1.7020/0.13954, Cl 2.3600/0.67879
+        'Na': (11, 22.990, 0.26139, 0.12385, +1.0, 'NA'),
+        'K':  (19, 39.098, 0.30336, 0.58385, +1.0, 'K'),
+        'Cl': (17, 35.453, 0.42050, 2.84010, -1.0, 'CL'),
+        # LSM 2020 HFE-OPC divalent: Ca 1.4930/0.03685, Mg 1.2390/0.00206, Zn 1.1510/0.00046
+        'C0': (20, 40.078, 0.26602, 0.15419, +2.0, 'CA'),
+        'MG': (12, 24.305, 0.22076, 0.00864, +2.0, 'MG'),
+        'Zn': (30, 65.380, 0.20509, 0.00192, +2.0, 'ZN'),
+    },
+    'lm-iod-opc': {
+        # SLM 2021 IOD-OPC monovalent: Na 1.4400/0.02322, K 1.7380/0.16500, Cl 2.1500/0.52153
+        'Na': (11, 22.990, 0.25658, 0.09715, +1.0, 'NA'),
+        'K':  (19, 39.098, 0.30978, 0.69036, +1.0, 'K'),
+        'Cl': (17, 35.453, 0.38308, 2.18207, -1.0, 'CL'),
+        # LSM 2020 IOD-OPC divalent: Ca 1.5900/0.07447, Mg 1.3730/0.01179, Zn 1.3730/0.01179
+        'C0': (20, 40.078, 0.28331, 0.31159, +2.0, 'CA'),
+        'MG': (12, 24.305, 0.24464, 0.04935, +2.0, 'MG'),
+        'Zn': (30, 65.380, 0.24464, 0.04935, +2.0, 'ZN'),
+    },
+    'dang-legacy': {
+        # Bundled FF/amber99sb-ildn-lipid21.ff/ffnonbonded.itp (Aqvist Na, Dang Cl,
+        # Aqvist K + Allnér Mg + Hoops Zn + Bradbrook Ca). Kept for backward
+        # compatibility with topologies generated before water-matched ions.
+        'Na': (11, 22.990, 0.33284, 0.01159, +1.0, 'NA'),
+        'K':  (19, 39.098, 0.47360, 0.00137, +1.0, 'K'),
+        'Cl': (17, 35.453, 0.44010, 0.41840, -1.0, 'CL'),
+        'C0': (20, 40.078, 0.30524, 1.92376, +2.0, 'CA'),
+        'MG': (12, 24.305, 0.14123, 3.74342, +2.0, 'MG'),
+        'Zn': (30, 65.380, 0.19600, 0.05230, +2.0, 'ZN'),
+    },
+}
+
+# Default ion set for each water model (used when --ion-set auto)
+_WATER_DEFAULT_ION_SET = {
+    'tip3p':   'jc-tip3p',
+    'spc':     'jc-spce',     # plain SPC not parametrized by JC — use SPC/E
+    'spce':    'jc-spce',
+    'tip4p':   'jc-tip4pew',  # plain TIP4P not parametrized by JC — use TIP4P-Ew
+    'tip4pew': 'jc-tip4pew',
+    'opc':     'lm-hfe-opc',
+}
+
+# Water choices that trigger an alias warning (silent substitute)
+_WATER_ION_ALIAS = {
+    'spc':   'spce',
+    'tip4p': 'tip4pew',
+}
+
+# Atom-type names in ffnonbonded.itp that ION_PARAMS replaces
+_ION_ATOMTYPE_NAMES = {'Na', 'K', 'Cl', 'C0', 'MG', 'Zn'}
+
 # Known atom name differences between AMBER RTP and PDB/IUPAC naming.
 # Key = RTP name, value = PDB name.
 # Applied per-residue after detecting which convention the PDB uses.
@@ -2634,14 +2737,68 @@ _GLYCAN_LINKAGE_PARAMS = """\
 """
 
 
+def _strip_ion_atomtypes(nb_content):
+    """Remove ion atom-type lines from ffnonbonded.itp content.
+
+    Lines matched by atom-type name in column 1 against _ION_ATOMTYPE_NAMES.
+    Used so the water-matched ion set can replace them.
+    """
+    lines = nb_content.split('\n')
+    kept = []
+    for line in lines:
+        s = line.strip()
+        if not s or s.startswith(';') or s.startswith('['):
+            kept.append(line)
+            continue
+        first = s.split()[0]
+        if first in _ION_ATOMTYPE_NAMES:
+            continue
+        kept.append(line)
+    return '\n'.join(kept)
+
+
+def _emit_ion_atomtypes(ion_set):
+    """Return [ atomtypes ]-formatted lines for the chosen ion parameter set."""
+    if ion_set not in ION_PARAMS:
+        return ''
+    table = ION_PARAMS[ion_set]
+    lines = [f"; Ion atom types: {ion_set}"]
+    for atname, (atnum, mass, sigma, eps, _q, _rn) in table.items():
+        lines.append(f"{atname:<8s} {atnum:>5d}  {mass:>9.4f}   0.0000  A "
+                     f"  {sigma:.5e}  {eps:.5e}")
+    return '\n'.join(lines) + '\n'
+
+
+def _emit_ions_itp(ion_set, out_path):
+    """Write a fresh ions.itp with moleculetypes referencing the ion-set's atom types."""
+    if ion_set not in ION_PARAMS:
+        # No ion set known — emit empty file with a comment.
+        with open(out_path, 'w') as f:
+            f.write(f"; No ion parameter set selected (ion_set={ion_set})\n")
+        return
+    table = ION_PARAMS[ion_set]
+    with open(out_path, 'w') as f:
+        f.write(f"; Ion moleculetypes — generated by dvbfixer top\n")
+        f.write(f"; Ion parameter set: {ion_set}\n\n")
+        for atname, (_atnum, _mass, _sigma, _eps, charge, resname) in table.items():
+            f.write("[ moleculetype ]\n")
+            f.write("; molname       nrexcl\n")
+            f.write(f"{resname:<14s}  1\n\n")
+            f.write("[ atoms ]\n")
+            f.write("; id    at type         res nr  residu name     at name  cg nr  charge\n")
+            f.write(f"1       {atname:<14s}  1       {resname:<14s}  {resname:<6s}  1      {charge:>.5f}\n\n\n")
+
+
 def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
               water_model='tip3p', system_name='Protein',
               has_interchain_ss=False, extra_molecules=None,
-              small_mol_itps=None):
+              small_mol_itps=None, ion_set=None):
     """Write topology: FF params in ffparams.itp, rest in topol.top.
 
     extra_molecules: list of (name, count) for ions/BUF/small molecules/water.
     small_mol_itps: list of small molecule .itp filenames to include.
+    ion_set: ion LJ parameter set key (one of ION_PARAMS keys, or None to keep
+             the bundled FF ions verbatim — used for CHARMM).
     """
     ff_dir = Path(ff_dir)
     ff_name = ff_dir.name
@@ -2652,6 +2809,8 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
         'spc': 'spc.itp',
         'spce': 'spce.itp',
         'tip4p': 'tip4p.itp',
+        'tip4pew': 'tip4pew.itp',
+        'opc': 'opc.itp',
     }
 
     # --- Write ffparams.itp with all FF parameters ---
@@ -2667,7 +2826,12 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
         # [ atomtypes ] from ffnonbonded.itp (deduplicated)
         f.write("; Non-bonded parameters (from ffnonbonded.itp)\n")
         nb_content = _read_ff_content(ff_dir / 'ffnonbonded.itp')
+        if ion_set is not None:
+            # Replace bundled ion atom types with the water-matched set
+            nb_content = _strip_ion_atomtypes(nb_content)
         f.write(_dedup_atomtypes(nb_content))
+        if ion_set is not None:
+            f.write(_emit_ion_atomtypes(ion_set))
         f.write("\n")
 
         # [ bondtypes ], [ angletypes ], [ dihedraltypes ] from ffbonded.itp
@@ -2741,14 +2905,20 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
             f.write('#include "water.itp"\n')
 
         # Ion moleculetypes (separate .itp)
-        ions_path = ff_dir / 'ions.itp'
-        if ions_path.exists():
-            ions_out = out_dir / 'ions.itp'
-            with open(ions_out, 'w') as ionf:
-                ionf.write("; Ion topology\n")
-                ionf.write("; Generated by dvbfixer top\n\n")
-                ionf.write(_read_ff_content(ions_path, keep_posres_ifdef=True))
+        ions_out = out_dir / 'ions.itp'
+        if ion_set is not None:
+            # AMBER path: emit fresh ions.itp matched to the chosen ion set.
+            _emit_ions_itp(ion_set, ions_out)
             f.write('#include "ions.itp"\n')
+        else:
+            # CHARMM path: copy bundled ions.itp verbatim.
+            ions_path = ff_dir / 'ions.itp'
+            if ions_path.exists():
+                with open(ions_out, 'w') as ionf:
+                    ionf.write("; Ion topology\n")
+                    ionf.write("; Generated by dvbfixer top\n\n")
+                    ionf.write(_read_ff_content(ions_path, keep_posres_ifdef=True))
+                f.write('#include "ions.itp"\n')
         f.write("\n")
 
         # [ system ]
@@ -2825,8 +2995,15 @@ def parse_args(argv=None):
                         help='Force field (default: amber)')
     parser.add_argument('--ff-dir', help='Custom force field directory')
     parser.add_argument('--water', default='tip3p',
-                        choices=['tip3p', 'spc', 'spce', 'tip4p'],
-                        help='Water model (default: tip3p)')
+                        choices=['tip3p', 'spc', 'spce', 'tip4p', 'tip4pew', 'opc'],
+                        help='Water model (default: tip3p). With --ff charmm only '
+                             'tip3p/spc/spce are accepted; OPC/TIP4P/TIP4P-Ew are '
+                             'not parametrized for CHARMM36 ions.')
+    parser.add_argument('--ion-set', default='auto', dest='ion_set',
+                        choices=['auto', 'jc-tip3p', 'jc-spce', 'jc-tip4pew',
+                                 'lm-hfe-opc', 'lm-iod-opc', 'dang-legacy'],
+                        help='Ion LJ parameter set (default: auto, picks the set '
+                             'matched to the water model). Ignored with --ff charmm.')
     parser.add_argument('--ignh', action='store_true',
                         help='Ignore hydrogens in input PDB')
     parser.add_argument('--ss', action='append', default=[],
@@ -2856,6 +3033,30 @@ def main(argv=None):
     if not input_path.exists():
         print(f"Error: {input_path} not found", file=sys.stderr)
         sys.exit(1)
+
+    # Validate (--ff, --water) compatibility and resolve --ion-set auto.
+    # CHARMM ions (SOD/CLA/POT/CAL/MGA) are fitted to CHARMM-TIP3P; mixing them
+    # with OPC/TIP4P/TIP4P-Ew is not supported by CHARMM developers.
+    if args.ff == 'charmm':
+        if args.water in {'tip4p', 'tip4pew', 'opc'}:
+            print(f"ERROR: --water {args.water} is not parametrized for CHARMM36. "
+                  f"Use --ff amber to combine those waters with matched ions, or "
+                  f"pick --water tip3p|spc|spce for CHARMM.",
+                  file=sys.stderr)
+            sys.exit(1)
+        if args.ion_set != 'auto':
+            print(f"INFO: --ion-set is ignored with --ff charmm "
+                  f"(CHARMM ions come from the bundled ions.itp).",
+                  file=sys.stderr)
+    else:  # AMBER
+        if args.ion_set == 'auto':
+            args.ion_set = _WATER_DEFAULT_ION_SET[args.water]
+        # Warn about water-model substitutions for non-JC waters
+        if args.water in _WATER_ION_ALIAS and args.ion_set.startswith('jc-'):
+            alias = _WATER_ION_ALIAS[args.water]
+            print(f"WARNING: plain {args.water.upper()} was not parametrized by "
+                  f"Joung-Cheatham; using {alias.upper()} ions ({args.ion_set}).",
+                  file=sys.stderr)
 
     # Convert GRO to temp PDB if needed
     tmp_pdb = None
@@ -3367,11 +3568,15 @@ def main(argv=None):
     # Write TOP file with modular .itp includes
     small_mol_names = [ct.name for ct, _ in small_mol_tops]
     system_name = orig_input_path.stem
+    # ion_set is None for CHARMM (use bundled ions.itp) and the resolved set name
+    # for AMBER (emit water-matched ion atom types + moleculetypes).
+    write_top_ion_set = None if args.ff == 'charmm' else args.ion_set
     write_top(chain_tops, top_path, ff_dir, args.ff, bonded_types_list,
               args.water, system_name,
               has_interchain_ss=has_interchain_bonds,
               extra_molecules=extra_molecules,
-              small_mol_itps=small_mol_names)
+              small_mol_itps=small_mol_names,
+              ion_set=write_top_ion_set)
     print(f"Wrote {out_dir / 'ffparams.itp'}")
     for ct in chain_tops:
         print(f"Wrote {out_dir / ct.name}.itp")

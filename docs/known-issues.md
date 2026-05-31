@@ -24,6 +24,12 @@
 
 - **HIS tautomer selection**: PROPKA only predicts the overall pKa, not which nitrogen is protonated. The `--his-default` flag sets a global default (HIE or HID). For accurate per-residue tautomer assignment, use tools like MolProbity's Reduce or Schrodinger's ProtAssign.
 
+- **Water + ion mismatch causes LINCS failure**: Prior to the `--ion-set` flag, `dvbfixer top --water` only changed the water moleculetype while keeping bundled Aqvist Na⁺/Dang Cl⁻ ions regardless of water choice. Combining OPC water with Dang Cl⁻ caused Cl⁻ to over-attract to protein cations; in a real user case a 4× trastuzumab + OPC system saw atomic pressure crash to −9000 bar in 10 ps of NPT and LINCS died at step 8027. Now `--ion-set auto` (default) picks the matched set: TIP3P→JC-TIP3P, SPC/E→JC-SPCE, TIP4P-Ew→JC-TIP4P-Ew, OPC→Li-Merz HFE-OPC. Pass `--ion-set dang-legacy` only when reproducing pre-flag runs.
+
+- **CHARMM water restriction**: CHARMM ions (SOD/CLA/POT/CAL/MGA) are fitted to CHARMM-TIP3P. `dvbfixer top --ff charmm` only accepts `--water tip3p|spc|spce`; `--water opc|tip4p|tip4pew` is rejected at the CLI level. To use OPC water with this protein, switch to `--ff amber`. `--ion-set` is a no-op with `--ff charmm`.
+
+- **`--acpype` mode is TIP3P-locked**: The `--acpype` pipeline (OpenMM → ParmEd → ACPYPE) hardcodes TIP3P water + AMBER14+GLYCAM ions and ignores `--water`/`--ion-set`. A future enhancement could add OPC support there; today, use the RTP-based `dvbfixer top --water opc` path if you need OPC.
+
 ## See also
 
 - [Command index](commands/index.md)

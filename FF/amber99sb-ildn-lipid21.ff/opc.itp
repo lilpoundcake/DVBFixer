@@ -1,0 +1,59 @@
+; OPC water model
+; Izadi, Anandakrishnan, Onufriev, J Phys Chem Lett 5, 3863 (2014)
+; 4-site rigid water; M-site (MW) is a virtual site on the H-O-H bisector.
+
+[ moleculetype ]
+; molname	nrexcl
+SOL		2
+
+[ atoms ]
+; id  at type   res nr  res name  at name  cg nr  charge      mass
+  1   OW_opc    1       SOL       OW       1       0.000000   16.00000
+  2   HW_opc    1       SOL       HW1      1       0.679142    1.00800
+  3   HW_opc    1       SOL       HW2      1       0.679142    1.00800
+  4   MW        1       SOL       MW       1      -1.358284    0.00000
+
+#ifndef FLEXIBLE
+
+[ settles ]
+; i	funct	doh	dhh
+1	1	0.08724	0.13712
+
+#else
+
+[ bonds ]
+; i     j       funct   length  force.c.
+1       2       1       0.08724 502416.0 0.08724 502416.0
+1       3       1       0.08724 502416.0 0.08724 502416.0
+
+[ angles ]
+; i     j       k       funct   angle   force.c.
+2       1       3       1       103.60  628.02  103.60  628.02
+
+#endif
+
+
+[ virtual_sites3 ]
+; Vsite from                    funct   a               b
+4       1       2       3       1       0.14772100      0.14772100
+
+
+[ exclusions ]
+1	2	3	4
+2	1	3	4
+3	1	2	4
+4	1	2	3
+
+
+; OPC geometry:
+;   d(O-H)  = 0.08724 nm
+;   d(H-H)  = 0.13712 nm  → H-O-H angle 103.6°
+;   d(O-M)  = 0.01594 nm  (on the H-O-H bisector)
+;   q(H)    = +0.679142 e
+;   q(M)    = -1.358284 e
+;   OW σ    = 0.316655 nm   ε = 0.89036 kJ/mol
+;
+; Vsite weights for funct=1: M = (1-a-b)*O + a*H1 + b*H2
+;   a = b = d(O-M) / [cos(angle/2) * d(O-H)] / 2
+;         = 0.01594 / (cos(51.8°) * 0.08724) / 2
+;         = 0.14772

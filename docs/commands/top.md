@@ -46,7 +46,8 @@ dvbfixer top input.pdb -o my_topology.top --pdb my_conf.pdb
 | `-o`, `--output` | `topol.top` | Output .top file |
 | `--ff` | `amber` | Force field: `amber` or `charmm` |
 | `--ff-dir` | (bundled) | Custom force field directory |
-| `--water` | `tip3p` | Water model: tip3p, spc, spce, tip4p |
+| `--water` | `tip3p` | Water model: `tip3p`, `spc`, `spce`, `tip4p`, `tip4pew`, `opc`. With `--ff charmm` only `tip3p`/`spc`/`spce` are accepted (the CHARMM-tuned variants); `opc`/`tip4p`/`tip4pew` with CHARMM is rejected because CHARMM ions are fitted to CHARMM-TIP3P |
+| `--ion-set` | `auto` | Ion LJ parameter set: `auto` picks the set matched to the water model (`jc-tip3p` for TIP3P, `jc-spce` for SPC/SPCE, `jc-tip4pew` for TIP4P/TIP4P-Ew, `lm-hfe-opc` for OPC). Override choices: `jc-tip3p`, `jc-spce`, `jc-tip4pew`, `lm-hfe-opc`, `lm-iod-opc`, `dang-legacy` (bundled Aqvist Na⁺/Dang Cl⁻ — pre-2008 behaviour, for backwards-compat). AMBER only — ignored with `--ff charmm`. Covers Na⁺/K⁺/Cl⁻/Ca²⁺/Mg²⁺/Zn²⁺ |
 | `--ignh` | off | Ignore hydrogens in input PDB |
 | `--ss` | auto | Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable) |
 | `--his` | auto | HIS protonation: CHAIN:NUM:STATE (HIE/HID/HIP, repeatable) |
@@ -59,6 +60,41 @@ dvbfixer top input.pdb -o my_topology.top --pdb my_conf.pdb
 ## RTP-based mode (default)
 
 Parses force field RTP files to build topology from bond graph: resolves inter-residue bonds (`-C`, `+N`), enumerates angles/dihedrals/pairs algorithmically, copies impropers and CMAP from templates, applies terminal patches. Intra-chain disulfide bonds (SG-SG between CYS2 residues) are added explicitly to the chain topology with all derived angles, dihedrals, and 1-4 pairs; inter-chain SS bonds go to `interchain_ss.itp`. For CHARMM36, loads all molecule-type RTP files (aminoacids, carb, lipid, na, cgenff, ethers, metals, silicates, solvent — ~2400+ residue types). Non-protein chains are built without terminal patches. Glycan trees are detected from C1-O distances and built with proper glycosidic bond handling (HO removal, charge redistribution, atom type changes). Output is modular: `ffparams.itp` (all FF parameters including atomtypes, bonded params, water model params), chain `.itp` files, `water.itp`, `ions.itp`, `posre_*.itp` (position restraints, `#ifdef POSRES`), and `interchain_ss.itp` (if needed). `topol.top` contains only `#include` directives, `[ system ]`, and `[ molecules ]`. Ions and buffer particles (BUF) in the input PDB are auto-detected and added to the `[ molecules ]` section.
+
+## Water-matched ions (AMBER)
+
+By default, `--water` only swapped the water moleculetype; ion atom types were
+loaded unchanged from the bundled `ffnonbonded.itp` (Aqvist Na⁺, Dang Cl⁻ — fit
+for TIP3P). This caused stability problems when users combined newer water models
+(OPC, TIP4P-Ew) with the legacy ions.
+
+`dvbfixer top` now swaps the ion Lennard-Jones parameters to match the water
+model. Set `--ion-set auto` (default) and the right set is chosen automatically:
+
+| `--water` | Default ion set | Source |
+|-----------|-----------------|--------|
+| `tip3p`   | `jc-tip3p`      | Joung & Cheatham 2008 monovalents + Li-Merz 2013 12-6 HFE divalents |
+| `spce`    | `jc-spce`       | same papers, SPC/E fit |
+| `spc`     | `jc-spce` (alias, warns) | plain SPC was not parametrized by JC — using SPC/E |
+| `tip4pew` | `jc-tip4pew`    | same papers, TIP4P-Ew fit |
+| `tip4p`   | `jc-tip4pew` (alias, warns) | original TIP4P was not parametrized by JC — using TIP4P-Ew |
+| `opc`     | `lm-hfe-opc`    | Sengupta-Li-Merz 2021 monovalents + Li-Song-Merz 2020 12-6 HFE divalents (OPC) |
+
+`--ion-set` can override the default. `lm-iod-opc` swaps to Li-Merz's
+ion-oxygen-distance-fit set (better first-shell RDF for OPC, slightly worse
+hydration free energy). `dang-legacy` keeps the pre-2008 Aqvist/Dang values
+for backwards compatibility with older runs.
+
+Covered ions: **Na⁺, K⁺, Cl⁻, Ca²⁺, Mg²⁺, Zn²⁺**.
+
+**CHARMM** uses its own ions (SOD/CLA/POT/CAL/MGA in the bundled `ions.itp`),
+fitted to CHARMM-TIP3P. `--ion-set` is ignored with `--ff charmm`. Using
+`--water opc/tip4p/tip4pew` with `--ff charmm` is rejected at the CLI level —
+combine OPC with `--ff amber` instead.
+
+OPC water itself is a new water choice. The bundled `FF/amber99sb-ildn-lipid21.ff/opc.itp`
+implements the 4-site OPC water (Izadi-Anandakrishnan-Onufriev 2014) with the
+M-site as a `virtual_sites3` particle.
 
 ## ACPYPE mode (`--acpype`)
 

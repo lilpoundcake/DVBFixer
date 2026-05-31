@@ -91,6 +91,19 @@ of ceramide+sugar trees.
 Weaknesses: only handles residues with RTP templates. Unknown organic
 molecules fail.
 
+**Water + ion handling (AMBER):** `--water` choices `{tip3p, spc, spce,
+tip4p, tip4pew, opc}` drive both the water moleculetype AND the ion LJ
+parameters via the `ION_PARAMS` dict in `top.py`. `--ion-set auto`
+(default) selects the JC/LM set matched to the water model; manual
+overrides include `jc-tip3p`, `jc-spce`, `jc-tip4pew`, `lm-hfe-opc`,
+`lm-iod-opc`, and `dang-legacy` (the pre-2008 bundled Aqvist/Dang
+values). The helpers `_strip_ion_atomtypes()` and `_emit_ion_atomtypes()`
+replace ion lines in `ffnonbonded.itp` before write; `_emit_ions_itp()`
+generates a fresh `ions.itp` with moleculetypes matched to the chosen
+set. Covers Na⁺/K⁺/Cl⁻/Ca²⁺/Mg²⁺/Zn²⁺. CHARMM is excluded from this
+mechanism — `--water opc/tip4p/tip4pew` with `--ff charmm` is rejected
+at the CLI because CHARMM ions are fitted to CHARMM-TIP3P.
+
 ### 2. ACPYPE path (`--acpype`) — `acpype_export.py`
 
 OpenMM (AMBER14 + GLYCAM_06j-1) → ParmEd → ACPYPE → GROMACS. Solves
