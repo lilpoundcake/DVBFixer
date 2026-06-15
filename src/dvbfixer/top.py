@@ -3311,12 +3311,40 @@ def main(argv=None):
         if actual_parent != expected_parent:
             bad_targets.append((cid, rseq, state, actual))
     if bad_targets:
+        # Pre-index residues by (chain, parent_family) for nearby-suggestion
+        # output: when a target is wrong, show the closest residues in the same
+        # chain that ARE valid for the requested state.
+        chain_family_residues = defaultdict(list)  # (cid, parent) -> [(rseq, resname)]
+        for chain in protein_chains:
+            for r in chain.residues:
+                parent = _PROT_PARENT.get(r.resname.upper(), r.resname.upper())
+                chain_family_residues[(r.chain_id, parent)].append(
+                    (r.resseq, r.resname))
+
+        def _nearest(cid, rseq, parent, n=5):
+            candidates = chain_family_residues.get((cid, parent), [])
+            if not candidates:
+                return []
+            return sorted(candidates, key=lambda rr: abs(rr[0] - rseq))[:n]
+
         print("ERROR: --protonate targets that don't match the actual residue:",
               file=sys.stderr)
         for cid, rseq, state, actual in bad_targets:
             if actual is None:
-                print(f"  {cid}:{rseq}:{state}  →  no residue at that chain/resnum",
-                      file=sys.stderr)
+                # No residue at all — show neighbouring resseqs that DO exist
+                existing = sorted({r.resseq for chain in protein_chains
+                                   for r in chain.residues
+                                   if chain.chain_id == cid})
+                if existing:
+                    print(f"  {cid}:{rseq}:{state}  →  no residue at that "
+                          f"chain/resnum. Chain {cid} has resseq "
+                          f"{existing[0]}..{existing[-1]} "
+                          f"({len(existing)} residues).",
+                          file=sys.stderr)
+                else:
+                    print(f"  {cid}:{rseq}:{state}  →  chain {cid} not found "
+                          f"in the input.",
+                          file=sys.stderr)
             elif state not in _PROT_PARENT and state != '(default)':
                 print(f"  {cid}:{rseq}:{state}  →  unknown protonation state "
                       f"(valid: ASH/ASPP, GLH/GLUP, HIE/HID/HIP/HSE/HSD/HSP, "
@@ -3324,8 +3352,16 @@ def main(argv=None):
                       file=sys.stderr)
             else:
                 expected = _PROT_PARENT.get(state.upper(), '?')
+                nearby = _nearest(cid, rseq, expected)
+                hint = ''
+                if nearby:
+                    nearby_str = ', '.join(
+                        f"{cid}:{rs}({rn})" for rs, rn in nearby)
+                    hint = f" Nearest {expected} in chain {cid}: {nearby_str}."
+                else:
+                    hint = f" Chain {cid} has no {expected} residues at all."
                 print(f"  {cid}:{rseq}:{state}  →  residue at that position is "
-                      f"{actual}, but {state} is only valid for {expected}.",
+                      f"{actual}, but {state} is only valid for {expected}.{hint}",
                       file=sys.stderr)
         print(f"Check that the chain IDs and residue numbers match your input "
               f"PDB. Use `grep '^ATOM' input.pdb | awk '{{print $5,$6,$4}}' | "
