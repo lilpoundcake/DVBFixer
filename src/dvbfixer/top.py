@@ -3268,6 +3268,71 @@ def main(argv=None):
         if len(parts) == 3:
             his_overrides[(parts[0], int(parts[1]))] = parts[2]
 
+    # Map each protonation STATE to the residue family it's valid for.
+    # A user passing --protonate X:N:HIP must point at a HIS-family residue,
+    # not a VAL — catch this before OpenMM does and emit a clear error.
+    _PROT_PARENT = {
+        # ASH family — must target ASP
+        'ASH': 'ASP', 'ASPP': 'ASP', 'ASPH': 'ASP',
+        # GLH family — must target GLU
+        'GLH': 'GLU', 'GLUP': 'GLU', 'GLUH': 'GLU',
+        # HIS variants — must target HIS
+        'HIP': 'HIS', 'HSP': 'HIS', 'HISH': 'HIS',
+        'HIE': 'HIS', 'HSE': 'HIS', 'HISE': 'HIS',
+        'HID': 'HIS', 'HSD': 'HIS', 'HISD': 'HIS',
+        # CYS variants — must target CYS
+        'CYX': 'CYS', 'CYM': 'CYS',
+        # LYS variant — must target LYS
+        'LYN': 'LYS', 'LSN': 'LYS',
+        # Vanilla standard names are also legal "targets" for themselves
+        'ASP': 'ASP', 'GLU': 'GLU', 'HIS': 'HIS', 'CYS': 'CYS', 'LYS': 'LYS',
+    }
+
+    # Pre-validate every --protonate target: residue name vs requested state.
+    # Build a (chain_id, resseq) -> resname lookup from the parsed PDB.
+    seen_residues = {(r.chain_id, r.resseq): r.resname
+                     for chain in protein_chains for r in chain.residues}
+    bad_targets = []  # (cid, rseq, requested_state, actual_resname_or_missing)
+    for (cid, rseq), state in prot_overrides.items():
+        actual = seen_residues.get((cid, rseq))
+        if actual is None:
+            bad_targets.append((cid, rseq, state, None))
+            continue
+        if state is None:
+            # No explicit STATE — only valid if residue is in _PROT_DEFAULTS keys
+            if actual not in _PROT_DEFAULTS:
+                bad_targets.append((cid, rseq, '(default)', actual))
+            continue
+        expected_parent = _PROT_PARENT.get(state.upper())
+        if expected_parent is None:
+            bad_targets.append((cid, rseq, state, actual))
+            continue
+        actual_parent = _PROT_PARENT.get(actual.upper(), actual.upper())
+        if actual_parent != expected_parent:
+            bad_targets.append((cid, rseq, state, actual))
+    if bad_targets:
+        print("ERROR: --protonate targets that don't match the actual residue:",
+              file=sys.stderr)
+        for cid, rseq, state, actual in bad_targets:
+            if actual is None:
+                print(f"  {cid}:{rseq}:{state}  →  no residue at that chain/resnum",
+                      file=sys.stderr)
+            elif state not in _PROT_PARENT and state != '(default)':
+                print(f"  {cid}:{rseq}:{state}  →  unknown protonation state "
+                      f"(valid: ASH/ASPP, GLH/GLUP, HIE/HID/HIP/HSE/HSD/HSP, "
+                      f"CYX/CYM, LYN/LSN). Residue at this position is {actual}.",
+                      file=sys.stderr)
+            else:
+                expected = _PROT_PARENT.get(state.upper(), '?')
+                print(f"  {cid}:{rseq}:{state}  →  residue at that position is "
+                      f"{actual}, but {state} is only valid for {expected}.",
+                      file=sys.stderr)
+        print(f"Check that the chain IDs and residue numbers match your input "
+              f"PDB. Use `grep '^ATOM' input.pdb | awk '{{print $5,$6,$4}}' | "
+              f"sort -u` to list (chain, resnum, resname) triples.",
+              file=sys.stderr)
+        sys.exit(1)
+
     # Apply overrides or auto-detect from PDB atoms
     for chain in protein_chains:
         for res in chain.residues:
