@@ -221,28 +221,89 @@ def _write_posre(amber_struct, path, fc=1000.0):
 
 
 def generate_gaussian_input(input_path, output_path, net_charge=0,
-                            multiplicity=1):
-    """Generate Gaussian input file for RESP charge calculation."""
-    # First run antechamber to get proper geometry
-    with tempfile.TemporaryDirectory() as tmpdir:
-        ext = Path(input_path).suffix.lower()
-        in_fmt = _FORMAT_MAP.get(ext, 'pdb')
+                            multiplicity=1, mem='4GB', nproc=4,
+                            method='HF/6-31G*', verbose=False):
+    """Generate a Gaussian input file (.com) for RESP charge calculation.
 
-        # Generate Gaussian input via antechamber
+    Writes the .com to the absolute resolved `output_path` (not into a
+    tempdir that gets deleted). Antechamber's default gcrt template runs
+    HF/6-31G* with Pop=MK ESP grid generation — exactly what RESP needs.
+
+    Post-processes the antechamber output to add:
+      - `%mem=<mem>` for memory allocation
+      - `%nproc=<nproc>` for parallelism
+      - `%chk=<stem>.chk` named after the structure (was 'molecule')
+      - Useful remark line with the molecule name and date
+      - Optional method override (default keeps antechamber's HF/6-31G* + MK)
+    Returns True on success, False otherwise.
+    """
+    input_path = Path(input_path).resolve()
+    output_path = Path(output_path).resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    stem = output_path.stem
+
+    ext = input_path.suffix.lower()
+    in_fmt = _FORMAT_MAP.get(ext, 'pdb')
+
+    with tempfile.TemporaryDirectory(prefix='dvbfixer_gau_') as tmpdir:
+        # Copy input into tmpdir so antechamber doesn't pollute the user's cwd
+        local_in = Path(tmpdir) / input_path.name
+        shutil.copy2(input_path, local_in)
+        # antechamber writes the .com to a relative path in cwd; we'll move
+        # it to the absolute output_path afterwards.
+        local_out = Path(tmpdir) / f'{stem}.com'
+        local_gesp = f'{stem}.gesp'  # antechamber needs this as a string
+
         cmd = [
             'antechamber',
-            '-i', str(input_path), '-fi', in_fmt,
-            '-o', str(output_path), '-fo', 'gcrt',
+            '-i', local_in.name, '-fi', in_fmt,
+            '-o', local_out.name, '-fo', 'gcrt',
             '-at', 'gaff2',
             '-nc', str(net_charge), '-m', str(multiplicity),
-            '-gv', '1',  # verbose Gaussian output
-            '-ge', str(output_path).replace('.com', '.gesp'),
+            '-gv', '1',
+            '-ge', local_gesp,
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, cwd=tmpdir)
-        if result.returncode != 0:
-            print(f"ERROR: Failed to generate Gaussian input:\n{result.stderr}",
-                  file=sys.stderr)
+        if result.returncode != 0 or not local_out.exists():
+            print(f"ERROR: antechamber failed to generate Gaussian input:\n"
+                  f"{result.stderr}", file=sys.stderr)
             return False
+
+        com_content = local_out.read_text()
+
+    # Post-process: add %mem and %nproc, rename %chk, customise method/remark.
+    import datetime
+    today = datetime.date.today().isoformat()
+    lines = com_content.splitlines()
+    new_lines = [
+        f'%mem={mem}',
+        f'%nproc={nproc}',
+        f'%chk={stem}.chk',
+    ]
+    seen_chk = False
+    seen_route = False
+    skip_blank = False
+    for line in lines:
+        s = line.strip()
+        # Drop antechamber's default %chk=molecule (we already added one)
+        if s.startswith('%chk='):
+            seen_chk = True
+            continue
+        # Override route line with user-chosen method if not the default
+        if s.startswith('#') and not seen_route:
+            seen_route = True
+            if method != 'HF/6-31G*':
+                # Substitute method but keep antechamber's MK + IOp directives
+                line = line.replace('HF/6-31G*', method, 1)
+        # Replace placeholder remark
+        if s == 'remark line goes here':
+            line = f'RESP charges for {stem} (q={net_charge}, m={multiplicity}) — {today}'
+        new_lines.append(line)
+
+    # Write to the FINAL absolute output_path (not in the deleted tempdir)
+    output_path.write_text('\n'.join(new_lines) + '\n')
+    if verbose:
+        print(f"  Wrote {output_path} ({len(new_lines)} lines)")
     return True
 
 
@@ -271,9 +332,24 @@ def parse_args(argv=None):
     p.add_argument('--multiplicity', type=int, default=1,
                    help='Spin multiplicity (default: 1)')
     p.add_argument('--gaussian-log', default=None,
-                   help='Gaussian log file for RESP charges')
+                   help='Gaussian log file for RESP charges (output of running '
+                        'Gaussian on the .com file from --gen-gaussian)')
     p.add_argument('--gen-gaussian', action='store_true',
-                   help='Generate Gaussian input file for RESP and exit')
+                   help='Generate a Gaussian .com input file for RESP charges '
+                        'and exit. Run Gaussian on the .com, then re-invoke '
+                        'this command with --gaussian-log.')
+    p.add_argument('--gaussian-mem', default='4GB',
+                   help='Memory for Gaussian %%mem= directive in the generated '
+                        '.com (default: 4GB). Examples: 8GB, 16GB.')
+    p.add_argument('--gaussian-nproc', type=int, default=4,
+                   help='Processors for Gaussian %%nproc= directive in the '
+                        'generated .com (default: 4).')
+    p.add_argument('--gaussian-method', default='HF/6-31G*',
+                   help='QM method for Gaussian ESP calculation (default: '
+                        'HF/6-31G*, the AMBER-standard RESP recipe). Override '
+                        'only if you know what you are doing — using a '
+                        'different method changes the charges in non-obvious '
+                        'ways.')
     p.add_argument('--keep-intermediate', action='store_true',
                    help='Keep antechamber/tleap intermediate files')
     p.add_argument('-v', '--verbose', action='store_true',
@@ -295,14 +371,27 @@ def main(argv=None):
     # RESP without Gaussian log: generate input and exit
     if args.charge_method == 'resp' and not args.gaussian_log:
         if args.gen_gaussian:
-            gau_path = f"{output_prefix}.com"
+            gau_path = Path(f"{output_prefix}.com").resolve()
             print(f"Generating Gaussian input for RESP charges...")
             if generate_gaussian_input(input_path, gau_path,
-                                       args.net_charge, args.multiplicity):
+                                       net_charge=args.net_charge,
+                                       multiplicity=args.multiplicity,
+                                       mem=args.gaussian_mem,
+                                       nproc=args.gaussian_nproc,
+                                       method=args.gaussian_method,
+                                       verbose=args.verbose):
                 print(f"Wrote {gau_path}")
-                print(f"\nRun Gaussian, then re-run with:")
-                print(f"  dvbfixer parametrize {args.input} -c resp "
-                      f"--gaussian-log {output_prefix}.log")
+                print()
+                print(f"Next steps:")
+                print(f"  1. Run Gaussian (this produces {gau_path.stem}.log "
+                      f"and {gau_path.stem}.gesp):")
+                print(f"       g16 < {gau_path.name} > {gau_path.stem}.log")
+                print(f"     (or g09 — both work; computation is "
+                      f"HF/6-31G* opt+pop=MK).")
+                print(f"  2. Re-run parametrize with the log file:")
+                print(f"       dvbfixer parametrize {args.input} "
+                      f"-n {mol_name} --net-charge {args.net_charge} "
+                      f"-c resp --gaussian-log {gau_path.stem}.log")
             sys.exit(0)
         else:
             print("RESP charges require a Gaussian log file.")
