@@ -3006,6 +3006,11 @@ def parse_args(argv=None):
                              'matched to the water model). Ignored with --ff charmm.')
     parser.add_argument('--ignh', action='store_true',
                         help='Ignore hydrogens in input PDB')
+    parser.add_argument('--no-infer-conect', dest='no_infer_conect',
+                        action='store_true',
+                        help='Skip automatic CONECT inference. By default '
+                             'missing SS/glycosidic/glycosylation bonds are '
+                             'perceived from coordinates before topology build.')
     parser.add_argument('--ss', action='append', default=[],
                         help='Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable)')
     parser.add_argument('--his', action='append', default=[],
@@ -3065,6 +3070,13 @@ def main(argv=None):
         print(f"Converting GRO to PDB via MDAnalysis...")
         tmp_pdb = _gro_to_pdb(input_path)
         input_path = tmp_pdb
+
+    # Auto-infer CONECT records so SS detection, glycosidic-bond detection,
+    # and glycosylation-site detection work on inputs without CONECT.
+    if not args.no_infer_conect:
+        from dvbfixer.pdbutils import _materialise_inferred_pdb
+        input_path = Path(_materialise_inferred_pdb(
+            input_path, verbose=args.verbose))
 
     # ACPYPE mode: OpenMM + ParmEd + ACPYPE pipeline
     if args.acpype:

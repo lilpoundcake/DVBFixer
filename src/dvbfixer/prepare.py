@@ -63,6 +63,12 @@ def parse_args(argv=None):
                         "Can be used multiple times.")
     p.add_argument("--rename", action="store_true",
                    help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing")
+    p.add_argument("--no-infer-conect", dest="no_infer_conect",
+                   action="store_true",
+                   help="Skip automatic CONECT inference. By default dvbfixer "
+                        "perceives missing CONECT records (SS, glycosidic, "
+                        "glycosylation) so glycoprotein flows work even on "
+                        "inputs without CONECT.")
     p.add_argument("-v", "--verbose", action="store_true",
                    help="Print detailed progress")
     return p.parse_args(argv)
@@ -2208,6 +2214,14 @@ def main(argv=None):
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prepared")
     dat_path = Path(args.dat) if args.dat else output_path.with_suffix(".dat")
+
+    # Auto-infer CONECT records into a temp PDB copy so downstream flows
+    # (glycosylation detection, mutation glycan walk, SS detection) work on
+    # inputs that lack explicit CONECT.
+    if not args.no_infer_conect:
+        from dvbfixer.pdbutils import _materialise_inferred_pdb
+        input_path = Path(_materialise_inferred_pdb(
+            input_path, verbose=args.verbose))
 
     if args.rename:
         from dvbfixer.rename import canonicalize_pdb

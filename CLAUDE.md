@@ -30,7 +30,9 @@ src/dvbfixer/
   zbs.py          — full pipeline (renumber->model->prepare->minimize->protonate->minimize)
   acpype_export.py — ACPYPE-based GROMACS topology export (AMBER+GLYCAM)
   ffutils.py      — shared force field utilities (residue sets, OpenFF setup)
-  pdbutils.py     — shared PDB utilities (CONECT remapping, serial maps)
+  pdbutils.py     — shared PDB utilities (CONECT remapping, serial maps,
+                    automatic CONECT inference via OpenBabel + domain overrides)
+  conect.py       — standalone `dvbfixer conect` subcommand
 FF/               — bundled GROMACS force field directories (AMBER, CHARMM36)
 ```
 
@@ -227,6 +229,25 @@ Bidirectional converter for BOTH sugar nomenclature AND protein protonation vari
 **ATOM vs HETATM:** `_format_atom_line()` writes `ATOM` records for standard amino acids (including AMBER protonation variants HIE/HID/HIP/ASH/GLH/CYX/CYM/LYN and GLYCAM protein residues NLN/OLS/OLT) and `HETATM` for sugar residues. This is critical for downstream tools that expect protein residues as ATOM records.
 
 **Pipeline:** Forward output feeds `dvbfixer top --acpype` (AMBER14+GLYCAM). Reverse (`--to-charmm`) output feeds `dvbfixer top --ff charmm` (CHARMM36). The same source structure can drive both FFs.
+
+### dvbfixer conect
+
+Standalone subcommand and shared backend for automatic CONECT-record inference. Used as the **primary** path for bond connectivity now that the previous scattered distance-based fallbacks are augmented by a single well-tested engine.
+
+**Algorithm** (in `pdbutils.infer_conect_records`):
+1. Parse existing CONECT into a canonical sorted-tuple set.
+2. Load via OpenBabel; let `ReadFile` run `ConnectTheDots`+`PerceiveBondOrders` internally (do NOT call `mol.ConnectTheDots()` after ReadFile — that wipes the PDB serial mapping; `GetResidue().GetSerialNum(atom)` returns 0 afterwards).
+3. Filter inferred bonds: drop intra-standard-AA bonds (FF templates own those), drop water bonds. Keep all other bonds + SS bonds (CYS-family SG-SG) regardless.
+4. Force-add three domain overrides at known dvbfixer cutoffs: SS (SG-SG within 2.5 Å between CYS/CYX/CYM), glycosidic (sugar anomeric C1 / C2-sialic within 2.0 Å of any O2/O3/O4/O6 on a neighbour), glycosylation (protein ND2/OG/OG1 within 2.5 Å of sugar anomeric C).
+5. Union (existing) ∪ (filtered + overrides), drop bonds referencing stale serials.
+
+Falls back to element-aware distance cutoffs + scipy.spatial.cKDTree if OpenBabel is unavailable. Detects coarse-grained inputs (≥80% C beads with <5% H/N/O) and skips inference with a warning.
+
+**Auto-call inside dependent tools.** `prepare`, `top`, `minimize`, `transplant`, and `convert` materialise an inferred-CONECT temp PDB at the top of `main()` via `pdbutils._materialise_inferred_pdb()` and use it for the rest of the flow. **The user's input file is never modified.** Each tool exposes `--no-infer-conect` as an opt-out (default OFF, i.e. inference runs by default).
+
+**Standalone use.** `dvbfixer conect input.pdb -o output.pdb` writes a copy with merged CONECT. Idempotent: running twice produces identical output. Options: `--force` to allow `--output == input`, `--include-protein-backbone` to also emit standard-AA bonds (needed for cyclic peptides), `-v` for bond counts.
+
+The legacy scattered fallbacks in `prepare.find_glycosylated_atoms_with_sugar`, `top.detect_glycan_links`, `acpype_export.detect_ss_bonds`, and `glycam._detect_glycosidic_bonds_by_distance` are kept as defence-in-depth: they're never reached on the happy path (auto-infer populates CONECT first), but they catch the `--no-infer-conect` case.
 
 ### dvbfixer homology
 Multi-template homology modeling with Modeller. Takes a target FASTA (multi-chain) and one or more template PDB files. Auto-aligns target to templates via Modeller's `align2d` (or `salign` with `--salign`). Builds model with `automodel` or `LoopModel` using multiple `knowns`. Point mutations handled naturally by differing target sequence from templates. Post-processing restores chain IDs and residue numbering. Writes `.dat` file for downstream `prepare`/`minimize` restraints. `--prepare` and `--minimize` flags run the full pipeline automatically. Antibody mode (`--antibody`): uses ANARCI for Kabat/IMGT numbering, CDR detection, VH/VL/CH/CL domain classification, and auto-mapping of Fv from one template + constant domains from another. Dependencies: Modeller (required), ANARCI (for `--antibody` mode).

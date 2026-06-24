@@ -1006,6 +1006,11 @@ def parse_args(argv=None):
                                 "NLN/OLS/OLT revert to ASN/SER/THR; ROH/OME "
                                 "caps are dropped. Linkage info preserved via "
                                 "CONECT records.")
+    p.add_argument("--no-infer-conect", dest="no_infer_conect",
+                   action="store_true",
+                   help="Skip automatic CONECT inference (default: infer "
+                        "missing glycosidic / glycosylation bonds so linkage "
+                        "detection works on CONECT-less inputs).")
     p.add_argument("-v", "--verbose", action="store_true",
                    help="Print conversion details")
     return p.parse_args(argv)
@@ -1021,6 +1026,11 @@ def main(argv=None):
     default_suffix = "_charmm" if args.to_charmm else "_amber"
     output_path = (Path(args.output) if args.output
                    else input_path.with_stem(input_path.stem + default_suffix))
+
+    if not args.no_infer_conect:
+        from dvbfixer.pdbutils import _materialise_inferred_pdb
+        input_path = Path(_materialise_inferred_pdb(
+            input_path, verbose=args.verbose))
 
     if args.to_charmm:
         convert_to_charmm(input_path, output_path, verbose=args.verbose)

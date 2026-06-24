@@ -30,6 +30,8 @@
 
 - **`--acpype` mode is TIP3P-locked**: The `--acpype` pipeline (OpenMM → ParmEd → ACPYPE) hardcodes TIP3P water + AMBER14+GLYCAM ions and ignores `--water`/`--ion-set`. A future enhancement could add OPC support there; today, use the RTP-based `dvbfixer top --water opc` path if you need OPC.
 
+- **Inputs without CONECT (RESOLVED)**: Previously `prepare`, `top`, `minimize`, `transplant`, and `convert` could silently mis-detect glycosylation sites, disulfide bonds, and glycan trees on PDBs that lacked CONECT records (downloaded RCSB files, GROMACS-saved frames, EM depositions, GLYCAM-Web output). Each tool now runs automatic CONECT inference (OpenBabel `ConnectTheDots` + domain overrides for SS / glycosidic / glycosylation) into a temp PDB copy before processing. See [`conect`](commands/conect.md). Pass `--no-infer-conect` to any affected tool to opt out (e.g. for debugging what the input actually declared).
+
 ## See also
 
 - [Command index](commands/index.md)

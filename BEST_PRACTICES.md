@@ -366,6 +366,15 @@ dvbfixer cluster topol.tpr md.xtc --plot -v
   bonds (some crystal PDBs, CHARMM-GUI output for certain residues). The
   extra HD22 on glycosylated ND2 is always removed, regardless of FF.
 
+- **Inputs without CONECT records**: `prepare`, `top`, `minimize`,
+  `transplant`, and `convert` now run automatic CONECT inference
+  (OpenBabel `ConnectTheDots` + domain overrides for SS bonds, sugar
+  glycosidic linkages, and ASN/SER/THR glycosylation sites) on a temp
+  PDB copy at the start of `main()`. The user's input file is never
+  modified. For explicit preprocessing or debugging, run
+  [`dvbfixer conect input.pdb -o output.pdb`](docs/commands/conect.md).
+  Pass `--no-infer-conect` to any affected tool to opt out.
+
 - **HETATM-tagged NLN/OLS/OLT in input**: `prepare` preprocesses such
   inputs by rewriting `HETATM` → `ATOM  ` for protein/GLYCAM residues
   before PDBFixer reads them. Otherwise OpenMM treats them as ligands

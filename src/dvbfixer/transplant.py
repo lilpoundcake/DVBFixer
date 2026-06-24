@@ -595,6 +595,10 @@ def parse_args(argv=None):
                         "Uses AMBER+GLYCAM with per-pair 1-4 scaling ([ pairs_nb ]).")
     p.add_argument("-o", "--output",
                    help="Output PDB (default: <acceptor>_transplant.pdb)")
+    p.add_argument("--no-infer-conect", dest="no_infer_conect",
+                   action="store_true",
+                   help="Skip automatic CONECT inference on acceptor/donor/graft "
+                        "(default: infer missing bonds before transplant).")
     p.add_argument("-v", "--verbose", action='store_true')
     return p.parse_args(argv)
 
@@ -611,8 +615,21 @@ def main(argv=None):
             print(f"File not found: {p}", file=sys.stderr)
             sys.exit(1)
 
+    # Compute output path from ORIGINAL acceptor BEFORE we replace the path
+    # with a materialised temp copy.
     output_path = Path(args.output) if args.output else \
         acceptor_path.with_stem(acceptor_path.stem + "_transplant")
+
+    # Auto-infer CONECT on each input separately (different serial spaces).
+    if not args.no_infer_conect:
+        from dvbfixer.pdbutils import _materialise_inferred_pdb
+        acceptor_path = Path(_materialise_inferred_pdb(
+            acceptor_path, verbose=args.verbose))
+        donor_path = Path(_materialise_inferred_pdb(
+            donor_path, verbose=args.verbose))
+        if graft_path:
+            graft_path = Path(_materialise_inferred_pdb(
+                graft_path, verbose=args.verbose))
 
     # Parse structures
     donor_atoms, donor_other = _parse_pdb(donor_path)

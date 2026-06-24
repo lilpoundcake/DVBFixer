@@ -7,6 +7,7 @@ Every `dvbfixer` subcommand has its own page. The first column is alphabetical; 
 | Command | What it does | Workflow group |
 |---------|--------------|----------------|
 | [`cluster`](cluster.md) | Glycan conformational clustering from MD trajectories (GFDB-style) | Analysis |
+| [`conect`](conect.md) | Infer missing CONECT records (SS, glycosidic, glycosylation) into a PDB | Utilities |
 | [`convert`](convert.md) | Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants); bidirectional | Glycoprotein prep |
 | [`homology`](homology.md) | Multi-template homology modeling with Modeller (antibody-aware) | Modeling |
 | [`minimize`](minimize.md) | Energy minimization with OpenMM + selective restraints, optional xtb/obminimize refinement | Refinement |

@@ -16,6 +16,7 @@ COMMANDS = {
     "transplant": "Transplant molecules from donor PDB to acceptor PDB",
     "puppet": "Strip PDB to backbone-only polyglycine model",
     "convert": "Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants)",
+    "conect": "Add inferred CONECT records (SS bonds, glycosidic links, glycosylation)",
     "cluster": "Cluster glycan conformations from MD trajectory",
     "parametrize": "Parametrize small molecules with GAFF2 + AM1-BCC/RESP",
     "homology": "Multi-template homology modeling with Modeller",
@@ -76,6 +77,8 @@ def main():
                   "The old name still works but please update scripts.",
                   file=sys.stderr)
         from dvbfixer.glycam import main as cmd_main
+    elif command == "conect":
+        from dvbfixer.conect import main as cmd_main
     elif command == "cluster":
         from dvbfixer.cluster import main as cmd_main
     elif command == "parametrize":
