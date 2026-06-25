@@ -62,6 +62,19 @@ def parse_args(argv=None):
         help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
     )
     p.add_argument(
+        "--protassign", action="store_true",
+        help="Run MolProbity Reduce to optimise HIS tautomers (HID/HIE/HIP) "
+             "and detect ASN/GLN side-chain flips based on local H-bond "
+             "network. Default OFF (preserves pH-only behaviour). Requires "
+             "the `reduce` binary (bundled with AmberTools in the dvbfixer "
+             "env)."
+    )
+    p.add_argument(
+        "--protassign-binary", dest="protassign_binary", default=None,
+        help="Override the `reduce` binary path (default: search PATH, then "
+             "the dvbfixer env's bin dir)."
+    )
+    p.add_argument(
         "-v", "--verbose", action="store_true",
         help="Print only residues that get non-standard protonation"
     )
@@ -512,6 +525,239 @@ def _scan_glycam_residues(input_path):
 _DEFAULT_FF = ['amber19/protein.ff19SB.xml', 'amber19/tip3p.xml']
 
 
+# ---------------------------------------------------------------------------
+# ProtAssign-style optimisation via MolProbity Reduce
+#
+# `reduce -build -flip` runs the Word-Lovell-Richardson 1999 algorithm:
+# local H-bond network + van-der-Waals clash optimisation over HIS tautomers
+# (HID/HIE/HIP) and ASN/GLN side-chain 180° flips.
+#
+# We wrap reduce, then parse its output to extract:
+#   - HIS tautomer per residue (from which H atoms reduce placed)
+#   - ASN/GLN flip decisions (from heavy-atom coordinate diff vs input)
+# The decisions are merged with PROPKA's pH-driven renames (PROPKA wins
+# HIP — that's pKa-driven, more reliable than reduce's local count).
+# ---------------------------------------------------------------------------
+
+def _find_reduce_binary(override=None):
+    """Locate the `reduce` binary. Returns Path or None.
+
+    Search order: explicit override → PATH → directory of the running
+    Python interpreter (env's bin dir, where conda installs binaries).
+    """
+    import os
+    import shutil
+    from pathlib import Path
+    if override:
+        p = Path(override)
+        return p if p.is_file() and os.access(p, os.X_OK) else None
+    hit = shutil.which('reduce')
+    if hit:
+        return Path(hit)
+    env_bin = Path(sys.executable).parent / 'reduce'
+    if env_bin.is_file() and os.access(env_bin, os.X_OK):
+        return env_bin
+    return None
+
+
+def _run_reduce(pdb_path, binary):
+    """Run `reduce -build -flip -quiet -noheterogens` on pdb_path.
+
+    Returns the path to a temp output PDB. Caller deletes it.
+    """
+    import subprocess
+    import tempfile
+    fd, out_path = tempfile.mkstemp(suffix='.reduce.pdb', prefix='dvbfixer_')
+    cmd = [str(binary), '-build', '-flip', '-quiet', '-noheterogens',
+           str(pdb_path)]
+    with open(out_path, 'w') as outf:
+        result = subprocess.run(cmd, stdout=outf,
+                                stderr=subprocess.PIPE, text=True)
+    # Reduce returns 0 on success but uses non-zero codes for some warnings;
+    # check that the output file is non-empty instead.
+    import os as _os
+    if _os.path.getsize(out_path) == 0:
+        _os.unlink(out_path)
+        raise RuntimeError(
+            f"reduce produced empty output. stderr:\n{result.stderr}")
+    return out_path
+
+
+def _read_atom_positions(pdb_path):
+    """Parse ATOM/HETATM records → {(chain, resseq, icode, atomname): (x, y, z), resname}.
+
+    Returns two dicts keyed by (chain, resseq, icode, atomname):
+      positions: (x, y, z) tuple in Å
+      resnames: residue name string
+    """
+    positions = {}
+    resnames = {}
+    with open(pdb_path) as f:
+        for line in f:
+            if not line.startswith(('ATOM', 'HETATM')):
+                continue
+            atom = line[12:16].strip()
+            resname = line[17:20].strip()
+            chain = line[21]
+            ss = line[22:26].strip()
+            if not ss or not ss.lstrip('-').isdigit():
+                continue
+            resseq = int(ss)
+            icode = line[26].strip() if len(line) > 26 else ''
+            try:
+                x = float(line[30:38]); y = float(line[38:46]); z = float(line[46:54])
+            except ValueError:
+                continue
+            key = (chain, resseq, icode, atom)
+            positions[key] = (x, y, z)
+            resnames[key] = resname
+    return positions, resnames
+
+
+def _parse_reduce_decisions(reduce_pdb, input_pdb):
+    """Extract HIS tautomer + ASN/GLN flip decisions from reduce's output.
+
+    HIS tautomer is inferred from which H atoms reduce placed on each HIS:
+      HD1 + HE2 → HIP
+      HD1 only  → HID
+      HE2 only  → HIE
+      neither   → None (caller falls back to --his-default)
+
+    ASN flip: in the input, OD1 and ND2 are at specific coordinates. In
+    reduce's output, the atom NAMES are the same but COORDINATES may have
+    been swapped (reduce flips by reassigning labels). We detect by
+    checking whether |OD1_reduce - ND2_input| < 0.1 Å.
+
+    Same for GLN: OE1, NE2.
+
+    Returns (his_picks dict, asn_flip set, gln_flip set), all keyed by
+    (chain, resseq, icode).
+    """
+    in_pos, in_res = _read_atom_positions(input_pdb)
+    out_pos, out_res = _read_atom_positions(reduce_pdb)
+
+    # Build a HIS residue index: which H atoms reduce placed?
+    his_picks = {}
+    his_residues = set()
+    for (ch, rs, ic, atom), resname in out_res.items():
+        if resname == 'HIS':
+            his_residues.add((ch, rs, ic))
+    for key in his_residues:
+        ch, rs, ic = key
+        has_hd1 = (ch, rs, ic, 'HD1') in out_pos
+        has_he2 = (ch, rs, ic, 'HE2') in out_pos
+        if has_hd1 and has_he2:
+            his_picks[key] = 'HIP'
+        elif has_hd1:
+            his_picks[key] = 'HID'
+        elif has_he2:
+            his_picks[key] = 'HIE'
+        # else: skip — let downstream decide
+
+    def _swapped(in_a, in_b, out_a, tol=0.1):
+        """True if out_a is at the position where in_b was (within tol Å)."""
+        if in_a is None or in_b is None or out_a is None:
+            return False
+        d = sum((out_a[i] - in_b[i]) ** 2 for i in range(3)) ** 0.5
+        return d < tol
+
+    asn_flip = set()
+    gln_flip = set()
+    asn_residues = {(ch, rs, ic) for (ch, rs, ic, _), rn in in_res.items()
+                    if rn == 'ASN'}
+    gln_residues = {(ch, rs, ic) for (ch, rs, ic, _), rn in in_res.items()
+                    if rn == 'GLN'}
+
+    for key in asn_residues:
+        ch, rs, ic = key
+        in_od1 = in_pos.get((ch, rs, ic, 'OD1'))
+        in_nd2 = in_pos.get((ch, rs, ic, 'ND2'))
+        out_od1 = out_pos.get((ch, rs, ic, 'OD1'))
+        if _swapped(in_od1, in_nd2, out_od1):
+            asn_flip.add(key)
+
+    for key in gln_residues:
+        ch, rs, ic = key
+        in_oe1 = in_pos.get((ch, rs, ic, 'OE1'))
+        in_ne2 = in_pos.get((ch, rs, ic, 'NE2'))
+        out_oe1 = out_pos.get((ch, rs, ic, 'OE1'))
+        if _swapped(in_oe1, in_ne2, out_oe1):
+            gln_flip.add(key)
+
+    return his_picks, asn_flip, gln_flip
+
+
+def _apply_flips_to_pdb_text(lines, asn_flips, gln_flips):
+    """Swap heavy-atom coordinates for flipped ASN/GLN residues in PDB text.
+
+    Atom names are kept the same — only the coordinate triples in cols
+    30-54 are exchanged between OD1/ND2 (ASN) or OE1/NE2 (GLN). Hydrogens
+    HD21/HD22 (resp HE21/HE22) are also swapped if present, for
+    completeness — but they get stripped before addHydrogens anyway.
+    """
+    flip_pairs = {
+        ('ASN', 'OD1'): 'ND2', ('ASN', 'ND2'): 'OD1',
+        ('ASN', 'HD21'): 'HD22', ('ASN', 'HD22'): 'HD21',
+        ('GLN', 'OE1'): 'NE2', ('GLN', 'NE2'): 'OE1',
+        ('GLN', 'HE21'): 'HE22', ('GLN', 'HE22'): 'HE21',
+    }
+    # Build a coord lookup: (chain, resseq, icode, atomname) -> coord str
+    coords = {}
+    for line in lines:
+        if not line.startswith(('ATOM', 'HETATM')):
+            continue
+        resname = line[17:20].strip()
+        if resname not in ('ASN', 'GLN'):
+            continue
+        chain = line[21]
+        ss = line[22:26].strip()
+        if not ss or not ss.lstrip('-').isdigit():
+            continue
+        resseq = int(ss)
+        icode = line[26].strip() if len(line) > 26 else ''
+        key = (chain, resseq, icode)
+        flip_set = asn_flips if resname == 'ASN' else gln_flips
+        if key not in flip_set:
+            continue
+        atom = line[12:16].strip()
+        coords[(chain, resseq, icode, atom)] = line[30:54]
+
+    # Rewrite lines, swapping the coord field for paired atoms.
+    out = []
+    for line in lines:
+        if not line.startswith(('ATOM', 'HETATM')):
+            out.append(line)
+            continue
+        resname = line[17:20].strip()
+        if resname not in ('ASN', 'GLN'):
+            out.append(line)
+            continue
+        chain = line[21]
+        ss = line[22:26].strip()
+        if not ss or not ss.lstrip('-').isdigit():
+            out.append(line)
+            continue
+        resseq = int(ss)
+        icode = line[26].strip() if len(line) > 26 else ''
+        key = (chain, resseq, icode)
+        flip_set = asn_flips if resname == 'ASN' else gln_flips
+        if key not in flip_set:
+            out.append(line)
+            continue
+        atom = line[12:16].strip()
+        partner_atom = flip_pairs.get((resname, atom))
+        if partner_atom is None:
+            out.append(line)
+            continue
+        partner_coords = coords.get((chain, resseq, icode, partner_atom))
+        if partner_coords is None:
+            out.append(line)  # partner atom not present
+            continue
+        new_line = line[:30] + partner_coords + line[54:]
+        out.append(new_line)
+    return out
+
+
 def main(argv=None):
     args = parse_args(argv)
     input_path = Path(args.input)
@@ -562,6 +808,59 @@ def main(argv=None):
     if glycam_positions:
         renames = {k: v for k, v in renames.items() if k not in glycam_positions}
 
+    # ProtAssign-style optimisation (opt-in via --protassign):
+    # Wrap MolProbity Reduce to pick HIS tautomers and detect ASN/GLN flips
+    # from local H-bond network + clash analysis. Merge into PROPKA renames.
+    protassign_asn_flips = set()
+    protassign_gln_flips = set()
+    if args.protassign:
+        reduce_binary = _find_reduce_binary(args.protassign_binary)
+        if reduce_binary is None:
+            print("ERROR: --protassign requires the `reduce` binary. Install "
+                  "AmberTools (`conda install -c conda-forge ambertools`) or "
+                  "pass --protassign-binary PATH.",
+                  file=sys.stderr)
+            sys.exit(1)
+        print(f"Running MolProbity Reduce ({reduce_binary}) for HIS tautomers "
+              f"+ ASN/GLN flip optimisation...")
+        import os as _os
+        try:
+            reduce_out = _run_reduce(input_path, reduce_binary)
+            his_picks, asn_flips, gln_flips = _parse_reduce_decisions(
+                reduce_out, input_path)
+        finally:
+            try:
+                _os.unlink(reduce_out)
+            except (OSError, NameError, UnboundLocalError):
+                pass
+        protassign_asn_flips = asn_flips
+        protassign_gln_flips = gln_flips
+        # GLYCAM glycoprotein residues at NLN/OLS/OLT positions: skip — their
+        # sidechain N/O is sugar-bonded, not a normal amide/hydroxyl.
+        his_picks = {k: v for k, v in his_picks.items()
+                     if k not in glycam_positions}
+        asn_flips = {k for k in asn_flips if k not in glycam_positions}
+        gln_flips = {k for k in gln_flips if k not in glycam_positions}
+        # Overlay Reduce's HIS picks onto PROPKA's renames. PROPKA wins HIP
+        # (pKa-driven, more reliable for charged-state decisions); Reduce
+        # wins HID vs HIE (local H-bond geometry).
+        applied_his = 0
+        for key, variant in his_picks.items():
+            current = renames.get(key)
+            if current == 'HIP':
+                continue  # PROPKA's HIP wins
+            if current != variant:
+                renames[key] = variant
+                applied_his += 1
+        if args.verbose:
+            print(f"  --protassign: {applied_his} HIS tautomer override(s) from Reduce")
+            print(f"  --protassign: {len(asn_flips)} ASN flip(s), "
+                  f"{len(gln_flips)} GLN flip(s)")
+            for k in sorted(asn_flips):
+                print(f"    ASN flip at {k[0]}:{k[1]}{k[2]}")
+            for k in sorted(gln_flips):
+                print(f"    GLN flip at {k[0]}:{k[1]}{k[2]}")
+
     # Preserve AMBER protonation variants already present in the input. PROPKA
     # ran on the sanitized PDB (which had its residues renamed to canonical
     # parents), so it might predict "standard" protonation for a residue that
@@ -608,6 +907,13 @@ def main(argv=None):
     with open(input_path) as f:
         lines = f.readlines()
 
+    # Apply ASN/GLN coord swaps from --protassign BEFORE the residue rename
+    # (rename doesn't touch coordinates, so order doesn't really matter, but
+    # this keeps the data flow easy to follow).
+    if protassign_asn_flips or protassign_gln_flips:
+        lines = _apply_flips_to_pdb_text(
+            lines, protassign_asn_flips, protassign_gln_flips)
+
     output_lines = rename_residues(lines, renames)
 
     if not args.keep_water:
@@ -625,7 +931,27 @@ def main(argv=None):
         output_lines = filtered
 
     if not args.no_hydrogens:
-        _add_hydrogens_to_output(input_path, output_path, args, renames)
+        # If we applied ASN/GLN flips, _add_hydrogens_to_output must see the
+        # flipped coordinates. Write the flipped+renamed lines to a temp file
+        # and use it as the OpenMM input.
+        h_input_path = input_path
+        h_tmp_path = None
+        if protassign_asn_flips or protassign_gln_flips:
+            import tempfile as _tempfile
+            _fd, h_tmp_path = _tempfile.mkstemp(
+                suffix='.pdb', prefix='dvbfixer_protassign_')
+            with open(h_tmp_path, 'w') as _tf:
+                _tf.writelines(output_lines)
+            h_input_path = Path(h_tmp_path)
+        try:
+            _add_hydrogens_to_output(h_input_path, output_path, args, renames)
+        finally:
+            if h_tmp_path is not None:
+                import os as _os
+                try:
+                    _os.unlink(h_tmp_path)
+                except OSError:
+                    pass
     else:
         with open(output_path, 'w') as f:
             f.writelines(output_lines)

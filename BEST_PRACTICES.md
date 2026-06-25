@@ -171,6 +171,36 @@ For terminal residues, AMBER14 has no NASH/NGLH/CASH/CGLH templates —
 dvbfixer detects this and emits a `UserWarning`, reverting to standard
 ASP/GLU at the terminus.
 
+### High-quality H-bond network (`--protassign`)
+
+`dvbfixer protonate` defaults to PROPKA-only pKa → HID/HIE/HIP picks
+based on `--his-default`. That misses two whole classes of optimisation
+that crystal structures need:
+
+1. **HIS tautomer selection by local H-bond environment** — PROPKA only
+   says "this HIS has pKa < pH so it's neutral", not "Nδ1 is donating
+   to a nearby carbonyl so HID is right, not HIE".
+2. **ASN/GLN side-chain flip detection** — the carbonyl O and amide N
+   of Asn/Gln are nearly indistinguishable in electron density at
+   typical X-ray resolution, so ~20% of PDB entries have these
+   residues 180° mis-oriented (Popowicz 2007).
+
+The `--protassign` flag (opt-in) wraps MolProbity Reduce to do both
+in one pass — analogous to Schrödinger PrepWizard's ProtAssign step.
+
+```bash
+# Before any MD initialisation, especially for crystal structures
+dvbfixer protonate input.pdb --protassign -v
+# -v shows: 7 HIS overrides, 3 ASN flips, 6 GLN flips, etc.
+```
+
+Recommended **before** any production MD setup. Adds ~1 second per
+chain. PROPKA still wins HIP decisions (charged-state, pKa-driven);
+Reduce only contributes HID-vs-HIE picks and the flip swaps.
+
+Requires the `reduce` binary (bundled with AmberTools in the dvbfixer
+env; install via `conda install -c conda-forge ambertools` if missing).
+
 ## Workflow 5 — GROMACS topology generation
 
 For MD-ready topology files:

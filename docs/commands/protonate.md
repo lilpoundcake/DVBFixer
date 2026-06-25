@@ -46,11 +46,82 @@ dvbfixer protonate input.pdb --his-default HID
 | `--ph` | 7.0 | Target pH |
 | `--his-default` | HIE | Default neutral HIS tautomer (HIE or HID) |
 | `--cys-disulfide-pka` | 90.0 | pKa threshold for CYS -> CYX assignment |
+| `--protassign` | off | Run MolProbity Reduce to optimise HIS tautomers and detect ASN/GLN side-chain flips (see below) |
+| `--protassign-binary` | auto | Override path to the `reduce` binary |
 | `--no-hydrogens` | off | Only rename residues, do not add/fix hydrogen atoms |
 | `--ff` | amber19/protein.ff19SB.xml amber19/tip3p.xml | Force field XML files for hydrogen addition |
 | `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |
 | `--summary` | off | Print full pKa table |
 | `-v`, `--verbose` | off | Print non-standard protonation changes |
+
+## ProtAssign-style optimisation (`--protassign`)
+
+PROPKA only predicts pKa — it doesn't pick between the two neutral HIS
+tautomers (HID vs HIE) or detect ASN/GLN side-chain flips. With
+`--protassign`, dvbfixer wraps **MolProbity Reduce** (Word, Lovell &
+Richardson 1999) to make those decisions from local H-bond geometry
+and van der Waals clash scoring — analogous to Schrödinger's ProtAssign
+preprocessor.
+
+What it does:
+
+- **HIS tautomer choice** — for each HIS, Reduce decides whether HID
+  (Nδ1-protonated), HIE (Nε2-protonated), or HIP (both, charged) gives
+  the best local H-bond network. dvbfixer overlays Reduce's choice on
+  top of PROPKA's pKa-driven rename. **PROPKA still wins HIP** (pKa-driven
+  charged-state decision is more reliable than Reduce's local count);
+  Reduce wins HID vs HIE picks for neutral tautomers.
+- **ASN flip** — for each ASN, Reduce evaluates whether swapping OD1
+  and ND2 atom positions improves the H-bond network. ~20% of PDB
+  entries have ASN/GLN flipped (Popowicz 2007, NQ-Flipper); the
+  carbonyl O and amide N have nearly indistinguishable electron density
+  at typical crystallographic resolution. If Reduce flips it, dvbfixer
+  swaps the OD1/ND2 coordinates in the input before adding hydrogens
+  so the HD21/HD22 protons end up on the correct nitrogen.
+- **GLN flip** — same as ASN, on OE1/NE2.
+
+```bash
+# Default behaviour unchanged (no Reduce, pH-only HIS tautomer)
+dvbfixer protonate input.pdb
+
+# Enable ProtAssign-style optimisation
+dvbfixer protonate input.pdb --protassign -v
+# -v shows which HIS got re-tautomerised + how many ASN/GLN got flipped
+```
+
+Example output with `-v`:
+
+```
+Running MolProbity Reduce for HIS tautomers + ASN/GLN flip optimisation...
+  --protassign: 7 HIS tautomer override(s) from Reduce
+  --protassign: 3 ASN flip(s), 6 GLN flip(s)
+    ASN flip at C:387
+    ASN flip at C:392
+    ASN flip at L:210
+    GLN flip at A:38
+    ...
+```
+
+**Requires** the `reduce` binary. It's bundled with AmberTools (already
+in the dvbfixer env). If missing, install via
+`conda install -c conda-forge ambertools` or pass `--protassign-binary
+PATH` to point at a local build.
+
+**When to use**:
+- Crystal structures (X-ray, EM) where ASN/GLN orientations may be
+  mis-assigned at the deposit stage.
+- Any time the H-bond network of the starting structure matters
+  (MD initialization, docking, free-energy calculations).
+
+**When NOT to use**:
+- If your input has been through Schrödinger PrepWizard or
+  MolProbity Reduce already (no benefit — same algorithm).
+- Cyclic peptides / non-standard residues (Reduce ignores them; no harm).
+
+**Reference**: Word JM, Lovell SC, Richardson JS, Richardson DC (1999).
+"Asparagine and glutamine: using hydrogen atom contacts in the choice
+of side-chain amide orientation." *J Mol Biol* 285, 1735.
+[PubMed 9917408](https://pubmed.ncbi.nlm.nih.gov/9917408/).
 
 ## See also
 
