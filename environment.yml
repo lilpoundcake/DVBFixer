@@ -21,9 +21,18 @@ dependencies:
   - anarci
   - xtb              # GFN-FF/GFN-xTB universal FF for --xtb-refine
   - openbabel        # obminimize CLI for --obminimize-refine
-  - psi4             # optional QM backend for `parametrize -c resp --qm-engine psi4`
-  - psiresp          # AMBER-standard 2-stage RESP fit on PSI4 wavefunctions
   - pip
   - pip:
     - propka >=3.5
     - acpype
+
+# Optional: free RESP backend for `parametrize -c resp --qm-engine psi4`.
+# Not bundled because psi4 ships its own BLAS/MKL stack that conflicts with
+# OpenMM's. Install it in a SEPARATE conda env (recommended) or after the
+# main env is built (may need --solver libmamba and patience):
+#   micromamba create -n dvbfixer-psi4 -c conda-forge psi4 psiresp
+#   # then run parametrize from that env when you want PSI4-RESP
+# OR (single-env, fragile):
+#   micromamba install -n dvbfixer -c conda-forge psi4 psiresp
+#
+# The Gaussian RESP path and the AM1-BCC default path don't need either.

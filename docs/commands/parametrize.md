@@ -72,8 +72,22 @@ Output (in current directory):
 ## RESP via PSI4 (free, one-shot)
 
 PSI4 + psiresp produce AMBER-standard 2-stage RESP charges without
-needing Gaussian. Both packages are bundled in `environment.yml`
-(`conda env update -f environment.yml` will install them if not present).
+needing Gaussian. **Install them separately** — they ship their own
+BLAS/MKL stack that fights with OpenMM's in a single env, so they're
+NOT in the main `environment.yml`. Two install options:
+
+```bash
+# Recommended: separate dvbfixer-psi4 env (clean, no conflicts)
+micromamba create -n dvbfixer-psi4 -c conda-forge psi4 psiresp
+micromamba run -n dvbfixer-psi4 pip install -e /path/to/dvbfixer
+# Then run RESP jobs from that env.
+
+# OR (single-env, may take ~10 min and need libmamba solver):
+micromamba install -n dvbfixer -c conda-forge psi4 psiresp
+```
+
+If you skip the install and try `--qm-engine psi4`, dvbfixer prints a
+clean error pointing back here.
 
 ```bash
 # Acetate, charged -1, free RESP via PSI4
