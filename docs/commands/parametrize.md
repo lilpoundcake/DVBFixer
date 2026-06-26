@@ -72,22 +72,33 @@ Output (in current directory):
 ## RESP via PSI4 (free, one-shot)
 
 PSI4 + psiresp produce AMBER-standard 2-stage RESP charges without
-needing Gaussian. **Install them separately** — they ship their own
-BLAS/MKL stack that fights with OpenMM's in a single env, so they're
-NOT in the main `environment.yml`. Two install options:
+needing Gaussian. **They live in a separate conda env** (PSI4 ships its
+own BLAS/MKL stack that conflicts with OpenMM's in a single env). One
+command to set up, then dvbfixer shells out to it via `micromamba run`:
 
 ```bash
-# Recommended: separate dvbfixer-psi4 env (clean, no conflicts)
-micromamba create -n dvbfixer-psi4 -c conda-forge psi4 psiresp
-micromamba run -n dvbfixer-psi4 pip install -e /path/to/dvbfixer
-# Then run RESP jobs from that env.
+# One-time setup (creates a dedicated env, ~5 minutes):
+micromamba create -n psi4 -c conda-forge psi4 psiresp
 
-# OR (single-env, may take ~10 min and need libmamba solver):
-micromamba install -n dvbfixer -c conda-forge psi4 psiresp
+# That's it. dvbfixer (in its main env) calls psi4 in that env:
+dvbfixer parametrize molecule.pdb -n MOL --net-charge -1 \
+    -c resp --qm-engine psi4 -v
 ```
 
-If you skip the install and try `--qm-engine psi4`, dvbfixer prints a
-clean error pointing back here.
+The dvbfixer process stays in its own env (Python 3.11 + OpenMM); the
+psi4 env stays separate (Python 3.9 or whatever PSI4 pulls). They
+communicate via a temp XYZ file + JSON charges. No `pip install` of
+dvbfixer in the psi4 env is needed — only psi4 + psiresp belong there.
+
+If you named the env differently:
+
+```bash
+dvbfixer parametrize molecule.pdb -c resp --qm-engine psi4 \
+    --psi4-env my_custom_psi4_env
+```
+
+Missing env → dvbfixer prints the exact `micromamba create` command
+to copy-paste.
 
 ```bash
 # Acetate, charged -1, free RESP via PSI4
@@ -207,6 +218,7 @@ path.
 | `--psi4-method` | `HF/6-31G*` | QM method for PSI4 path |
 | `--psi4-nthreads` | `4` | OpenMP threads for PSI4 |
 | `--psi4-memory` | `4GB` | Memory cap for PSI4 |
+| `--psi4-env` | `psi4` | Name of the conda env containing psi4 + psiresp. dvbfixer invokes it via `micromamba run -n <name>` so the BLAS/MKL conflict with OpenMM is avoided. |
 | `--keep-intermediate` | off | Keep `mol.mol2`, `mol.frcmod`, `mol.prmtop`, `leap.log` |
 | `-v`, `--verbose` | off | Show every antechamber/tleap/parmchk2 invocation |
 

@@ -311,97 +311,192 @@ def generate_gaussian_input(input_path, output_path, net_charge=0,
 # PSI4 + psiresp RESP backend (opt-in via --qm-engine psi4)
 #
 # PSI4 (Smith et al. JCP 2020, LGPL-3) + psiresp (Wang et al. JOSS 2022)
-# compute the AMBER-standard RESP-A1 two-stage fit at HF/6-31G* without
-# requiring Gaussian. Pipeline:
-#   1. Load coords from PDB/MOL2/SDF via OpenBabel.
-#   2. psi4.optimize('hf', ...) to get equilibrium geometry + wavefunction.
-#   3. psiresp.Molecule.from_psi4(wfn) → psiresp.Job(TwoStageRESP) → charges.
-#   4. _patch_mol2_charges() overwrites antechamber's BCC charges with the
-#      RESP values; downstream parmchk2/tleap/ParmEd consume the patched mol2.
+# compute the AMBER-standard RESP-A1 two-stage fit at HF/6-31G*.
+#
+# Implementation: PSI4 brings its own BLAS/MKL stack that conflicts with
+# OpenMM's in a single conda env, so we DON'T install psi4 in dvbfixer's
+# main env. Instead we shell out to a SEPARATE conda env that contains
+# only psi4 + psiresp. The main env (this code) writes the input geometry
+# to a temp XYZ file + a worker script, invokes the psi4 env's Python via
+# `micromamba run -n <env> python worker.py ...`, and reads back a JSON
+# blob of fitted RESP charges.
+#
+# Setup (user side, one-time):
+#   micromamba create -n psi4 -c conda-forge psi4 psiresp
+# Then:
+#   dvbfixer parametrize input.pdb -c resp --qm-engine psi4 [--psi4-env psi4]
 # ---------------------------------------------------------------------------
+
+# Worker script: runs INSIDE the user's psi4 conda env (Python 3.9 - 3.12
+# whatever psi4 pulled), reads XYZ + parameters, writes JSON charges.
+# Kept as a string literal so we can ship it without packaging issues.
+_PSI4_WORKER_SCRIPT = r"""
+import json
+import sys
+
+xyz_path, net_q, mult, method, nthreads, memory, out_json = sys.argv[1:]
+net_q = int(net_q); mult = int(mult); nthreads = int(nthreads)
+
+with open(xyz_path) as f:
+    lines = f.read().splitlines()
+n_atoms = int(lines[0].strip())
+xyz_body = '\n'.join(lines[2:2 + n_atoms])
+
+try:
+    import psi4
+    import psiresp
+except ImportError as e:
+    json.dump({'error': f'import failed in psi4 env: {e}'},
+              open(out_json, 'w'))
+    sys.exit(2)
+
+if '/' in method:
+    family, basis = method.split('/', 1)
+else:
+    family, basis = method, '6-31G*'
+
+psi4.core.be_quiet()
+psi4.set_num_threads(nthreads)
+psi4.set_memory(memory)
+psi4.set_options({'basis': basis, 'scf_type': 'df',
+                  'guess': 'sad',
+                  'reference': 'rhf' if mult == 1 else 'uhf'})
+
+geom = psi4.geometry(f"{net_q} {mult}\n{xyz_body}\nno_reorient\nno_com\n")
+try:
+    energy, wfn = psi4.optimize(family.lower(), molecule=geom, return_wfn=True)
+except Exception as e:
+    json.dump({'error': f'psi4.optimize failed: {e}'}, open(out_json, 'w'))
+    sys.exit(3)
+
+try:
+    pr_mol = psiresp.Molecule.from_psi4(wfn)
+    job = psiresp.Job(molecules=[pr_mol],
+                      config=psiresp.configs.TwoStageRESP())
+    job.run()
+    charges = pr_mol.charges
+except Exception as e:
+    json.dump({'error': f'psiresp fit failed: {e}'}, open(out_json, 'w'))
+    sys.exit(4)
+
+if charges is None or len(charges) != n_atoms:
+    json.dump({'error': f'psiresp returned {len(charges) if charges is not None else 0}'
+                       f' charges; expected {n_atoms}'},
+              open(out_json, 'w'))
+    sys.exit(5)
+
+json.dump({'energy_hartree': float(energy),
+           'charges': [float(q) for q in charges]},
+          open(out_json, 'w'))
+"""
+
+
+def _find_env_runner():
+    """Locate a conda-family runner (micromamba > mamba > conda) on PATH."""
+    import shutil
+    for tool in ('micromamba', 'mamba', 'conda'):
+        path = shutil.which(tool)
+        if path:
+            return path
+    return None
+
 
 def _compute_resp_charges_psi4(input_path, net_charge=0, multiplicity=1,
                                method='HF/6-31G*', nthreads=4, memory='4GB',
-                               verbose=False):
-    """Compute RESP charges via PSI4 + psiresp. Returns list of charges.
+                               psi4_env='psi4', verbose=False):
+    """Compute RESP charges by running psi4 + psiresp in a SEPARATE conda env.
 
-    Atom ordering matches the input file's atom serial order. If PSI4
-    reorders during optimisation, we map back via element + position.
+    The main dvbfixer env does NOT need psi4/psiresp installed — they're
+    invoked via `micromamba run -n <psi4_env> python worker.py ...` so the
+    BLAS/MKL conflict with OpenMM is avoided.
+
+    Returns list of charges in the same order as the input atoms.
     """
+    import json as _json
+    import subprocess
+    import tempfile as _tf
+
+    runner = _find_env_runner()
+    if runner is None:
+        raise RuntimeError(
+            "--qm-engine psi4 requires `micromamba`, `mamba`, or `conda` on "
+            "PATH to invoke the separate psi4 env. None was found.")
+
+    # Load coords from input (PDB/MOL2/SDF) via OpenBabel in the MAIN env
+    # (where it's installed). We only ship element + xyz to the worker.
     try:
-        import psi4
-        import psiresp
+        from openbabel import pybel, openbabel as ob
     except ImportError as exc:
         raise RuntimeError(
-            "--qm-engine psi4 requires the `psi4` and `psiresp` packages. "
-            "Install via `conda install -c conda-forge psi4 psiresp`."
-        ) from exc
-
-    try:
-        from openbabel import pybel
-    except ImportError as exc:
-        raise RuntimeError(
-            "PSI4 RESP backend requires `openbabel` for coord loading "
-            "(should be in dvbfixer's environment).") from exc
-
+            "PSI4 RESP backend requires `openbabel` in the main dvbfixer "
+            "env for coord loading.") from exc
     in_fmt = _FORMAT_MAP.get(Path(input_path).suffix.lower(), 'pdb')
     obmol = next(pybel.readfile(in_fmt, str(input_path)))
-    elements = []
-    coords = []  # input atom order
-    for atom in obmol.atoms:
-        from openbabel import openbabel as ob
-        elements.append(ob.GetSymbol(atom.atomicnum))
-        coords.append(atom.coords)
+    elements = [ob.GetSymbol(a.atomicnum) for a in obmol.atoms]
+    coords = [a.coords for a in obmol.atoms]
     n_atoms = len(elements)
-
-    # Build PSI4 geometry block
-    xyz_body = '\n'.join(
-        f"{el} {x:14.8f} {y:14.8f} {z:14.8f}"
-        for el, (x, y, z) in zip(elements, coords)
-    )
     if verbose:
-        print(f"  PSI4 input: {n_atoms} atoms, q={net_charge}, m={multiplicity}, "
-              f"method={method}")
+        print(f"  PSI4 input: {n_atoms} atoms, q={net_charge}, "
+              f"m={multiplicity}, method={method}, env={psi4_env}")
 
-    # Parse "FAMILY/BASIS" into family + basis. Default is HF/6-31G*.
-    if '/' in method:
-        qm_family, qm_basis = method.split('/', 1)
-    else:
-        qm_family, qm_basis = method, '6-31G*'
+    # Write input XYZ
+    fd_in, in_xyz = _tf.mkstemp(suffix='.xyz', prefix='dvbfixer_psi4_in_')
+    with os.fdopen(fd_in, 'w') as f:
+        f.write(f"{n_atoms}\nrenamed by dvbfixer\n")
+        for el, (x, y, z) in zip(elements, coords):
+            f.write(f"{el} {x:14.8f} {y:14.8f} {z:14.8f}\n")
 
-    psi4.core.be_quiet()
-    psi4.set_num_threads(int(nthreads))
-    psi4.set_memory(memory)
-    psi4.set_options({
-        'basis': qm_basis,
-        'scf_type': 'df',
-        'guess': 'sad',
-        'reference': 'rhf' if (multiplicity == 1) else 'uhf',
-    })
+    # Write worker script
+    fd_w, worker = _tf.mkstemp(suffix='.py', prefix='dvbfixer_psi4_worker_')
+    with os.fdopen(fd_w, 'w') as f:
+        f.write(_PSI4_WORKER_SCRIPT)
 
-    geom_str = f"{net_charge} {multiplicity}\n{xyz_body}\nno_reorient\nno_com\n"
-    geom = psi4.geometry(geom_str)
-    # Geometry optimisation at HF/6-31G* — matches Gaussian's default for RESP.
+    # Output JSON path
+    fd_o, out_json = _tf.mkstemp(suffix='.json', prefix='dvbfixer_psi4_out_')
+    os.close(fd_o)
+
+    cmd = [runner, 'run', '-n', psi4_env, 'python', worker,
+           in_xyz, str(net_charge), str(multiplicity), method,
+           str(nthreads), memory, out_json]
     if verbose:
-        print(f"  Running PSI4 {qm_family} geometry optimisation...")
-    energy, wfn = psi4.optimize(qm_family.lower(), molecule=geom,
-                                return_wfn=True)
-    if verbose:
-        print(f"  PSI4 SCF converged, E = {energy:.6f} Ha")
+        print(f"  Running: {' '.join(cmd)}")
 
-    pr_mol = psiresp.Molecule.from_psi4(wfn)
-    # Default psiresp config = TwoStageRESP (AMBER-standard).
-    job = psiresp.Job(molecules=[pr_mol],
-                      config=psiresp.configs.TwoStageRESP())
-    if verbose:
-        print(f"  Running 2-stage RESP fit via psiresp...")
-    job.run()
-    charges = pr_mol.charges  # numpy array, one entry per atom
-    if charges is None or len(charges) != n_atoms:
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            err = result.stderr.strip() or result.stdout.strip()
+            # If JSON has a structured error, prefer that
+            try:
+                with open(out_json) as f:
+                    err_obj = _json.load(f)
+                    if 'error' in err_obj:
+                        err = err_obj['error']
+            except (OSError, ValueError):
+                pass
+            raise RuntimeError(
+                f"psi4 subprocess in env '{psi4_env}' failed "
+                f"(exit {result.returncode}):\n{err}\n\n"
+                f"If env '{psi4_env}' doesn't exist, create it via:\n"
+                f"  micromamba create -n {psi4_env} -c conda-forge psi4 psiresp\n"
+                f"or override the env name with --psi4-env <name>.")
+        with open(out_json) as f:
+            data = _json.load(f)
+    finally:
+        for path in (in_xyz, worker, out_json):
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
+
+    if 'error' in data:
+        raise RuntimeError(f"psi4 worker reported: {data['error']}")
+    charges = data.get('charges', [])
+    if len(charges) != n_atoms:
         raise RuntimeError(
-            f"psiresp returned {0 if charges is None else len(charges)} "
-            f"charges; expected {n_atoms}. Check PSI4/psiresp install.")
-    return [float(q) for q in charges]
+            f"psi4 worker returned {len(charges)} charges; expected {n_atoms}.")
+    if verbose and 'energy_hartree' in data:
+        print(f"  PSI4 SCF converged, E = {data['energy_hartree']:.6f} Ha")
+    return charges
 
 
 def _patch_mol2_charges(mol2_path, charges):
@@ -508,6 +603,13 @@ def parse_args(argv=None):
     p.add_argument('--psi4-memory', dest='psi4_memory', default='4GB',
                    help='Memory cap for PSI4 (default: 4GB). PSI4 errors out '
                         'if too low for the basis set.')
+    p.add_argument('--psi4-env', dest='psi4_env', default='psi4',
+                   help='Name of the conda env containing psi4 + psiresp '
+                        '(default: psi4). dvbfixer invokes that env via '
+                        '`micromamba run -n <name> python ...` so the BLAS/MKL '
+                        'conflict with OpenMM is avoided. Create it once '
+                        'with `micromamba create -n psi4 -c conda-forge '
+                        'psi4 psiresp`.')
     p.add_argument('--keep-intermediate', action='store_true',
                    help='Keep antechamber/tleap intermediate files')
     p.add_argument('-v', '--verbose', action='store_true',
@@ -645,6 +747,7 @@ def main(argv=None):
                     method=args.psi4_method,
                     nthreads=args.psi4_nthreads,
                     memory=args.psi4_memory,
+                    psi4_env=args.psi4_env,
                     verbose=args.verbose)
             except RuntimeError as e:
                 print(f"ERROR: {e}", file=sys.stderr)

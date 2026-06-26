@@ -27,12 +27,12 @@ dependencies:
     - acpype
 
 # Optional: free RESP backend for `parametrize -c resp --qm-engine psi4`.
-# Not bundled because psi4 ships its own BLAS/MKL stack that conflicts with
-# OpenMM's. Install it in a SEPARATE conda env (recommended) or after the
-# main env is built (may need --solver libmamba and patience):
-#   micromamba create -n dvbfixer-psi4 -c conda-forge psi4 psiresp
-#   # then run parametrize from that env when you want PSI4-RESP
-# OR (single-env, fragile):
-#   micromamba install -n dvbfixer -c conda-forge psi4 psiresp
+# psi4 + psiresp ship their own BLAS/MKL stack that conflicts with OpenMM's,
+# AND psi4 conda-forge builds pull Python 3.9 which dvbfixer doesn't accept.
+# So they live in a SEPARATE conda env; dvbfixer shells out to it via
+# `micromamba run -n psi4 python ...`:
 #
-# The Gaussian RESP path and the AM1-BCC default path don't need either.
+#   micromamba create -n psi4 -c conda-forge psi4 psiresp
+#
+# Do NOT pip-install dvbfixer in the psi4 env — dvbfixer stays here and
+# invokes the psi4 env on demand. Override env name via --psi4-env.
