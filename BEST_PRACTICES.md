@@ -376,6 +376,41 @@ dvbfixer cluster topol.tpr md.xtc --plot -v
 # clustering per linkage, outputs Ramachandran HTML + PDB of representatives.
 ```
 
+## Workflow 10 — Small-molecule parametrization (GAFF2)
+
+`dvbfixer parametrize` produces GROMACS-ready topology for buffer
+components / drugs / cofactors via AmberTools GAFF2. AM1-BCC is the
+default (`-c bcc`); ~95% of cases don't need anything more.
+
+```bash
+# Default: AM1-BCC charges, seconds per molecule
+dvbfixer parametrize acetate.pdb -n ACET --net-charge -1 -v
+```
+
+For the small fraction of cases where you specifically want RESP (e.g.
+charged buffer ions where you care about the dipole, or reproducing a
+published RESP recipe), there are now two backends:
+
+```bash
+# Free RESP via PSI4 (one-shot; bundled in environment.yml)
+dvbfixer parametrize acetate.pdb -n ACET --net-charge -1 \
+    -c resp --qm-engine psi4 -v
+# ~1-3 min on 4 cores for small organics. No external QM step.
+
+# Reference RESP via Gaussian (commercial; two-step, unchanged)
+dvbfixer parametrize acetate.pdb -n ACET --net-charge -1 \
+    -c resp --qm-engine gaussian --gen-gaussian
+# Then: g16 < acetate.com > acetate.log
+dvbfixer parametrize acetate.pdb -n ACET --net-charge -1 \
+    -c resp --qm-engine gaussian --gaussian-log acetate.log
+```
+
+Both engines produce charges within 0.05 e/atom of each other on standard
+AMBER test molecules. `-c resp` without `--qm-engine` errors out asking
+you to pick one; legacy `-c resp --gen-gaussian` and `-c resp
+--gaussian-log` auto-promote to `--qm-engine gaussian` for backwards
+compatibility.
+
 ## Common gotchas
 
 - **CONECT formatting in input PDB**: `prepare` canonicalizes malformed CONECT

@@ -21,6 +21,8 @@ dependencies:
   - anarci
   - xtb              # GFN-FF/GFN-xTB universal FF for --xtb-refine
   - openbabel        # obminimize CLI for --obminimize-refine
+  - psi4             # optional QM backend for `parametrize -c resp --qm-engine psi4`
+  - psiresp          # AMBER-standard 2-stage RESP fit on PSI4 wavefunctions
   - pip
   - pip:
     - propka >=3.5

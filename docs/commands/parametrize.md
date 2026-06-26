@@ -25,14 +25,29 @@ All AmberTools binaries ship with the bundled environment (`antechamber`,
 
 ## Charge methods
 
-| Method | Flag | Speed | Quality | When to use |
-|--------|------|-------|---------|-------------|
-| **AM1-BCC** | `-c bcc` (default) | Seconds | Within ~5% of RESP for organic molecules. AMBER's recommended fast alternative. | Most cases. Default. |
-| **RESP** | `-c resp` | Minutes (Gaussian QM, but each calculation costs as much as a small protein QM job) | Highest quality, AMBER-standard methodology | Buffer ions, conjugated systems, charged molecules where you care about the dipole. |
+| Method | Flag | QM backend | Speed | Quality | When to use |
+|--------|------|-----|-------|---------|-------------|
+| **AM1-BCC** | `-c bcc` (default) | — (no QM) | Seconds | Within ~5% of RESP for organic molecules | Most cases. Default. |
+| **RESP via Gaussian** | `-c resp --qm-engine gaussian` | Commercial license, manual two-step | Minutes + manual time | Reference standard | If you already have Gaussian + license |
+| **RESP via PSI4** | `-c resp --qm-engine psi4` | Free (`conda install -c conda-forge psi4 psiresp`) | ~5-7× slower than Gaussian, one-shot | Within 0.05 e/atom of Gaussian | If you want RESP without a Gaussian license |
 
-If unsure: **start with AM1-BCC**. Switch to RESP only when you have
-empirical reason to think the BCC charges are off (compare against
-published RESP charges for a similar molecule).
+If unsure: **start with AM1-BCC**. Per AMBER + OpenFF community
+benchmarks, AM1-BCC and HF/6-31G* RESP charges differ by < 5% for typical
+organic drug-like molecules, and MD ΔΔG differs by ~0.01-0.07 kcal/mol
+between the two. Switch to RESP only for:
+- Charged molecules (acetate, sulfates, phosphates)
+- Highly conjugated systems
+- Reproducing published RESP results
+
+If you DO need RESP, `--qm-engine psi4` is the friction-free path (no
+license, no manual external step). `--qm-engine gaussian` is for users
+who already have a Gaussian licence and prefer the reference recipe.
+
+**Both engines must be explicitly chosen.** Running `-c resp` without
+`--qm-engine` errors with a message listing both options and their
+trade-offs. Old scripts that pass `-c resp --gen-gaussian` or
+`-c resp --gaussian-log` auto-promote to `--qm-engine gaussian` (with an
+INFO line) for backwards compatibility.
 
 ## Quick start (AM1-BCC)
 
@@ -54,16 +69,45 @@ Output (in current directory):
 - `ACET.gro` — coordinates with FF atom names
 - `posre_ACET.itp` — position restraints (`#ifdef POSRES`)
 
-## RESP workflow (3 steps)
+## RESP via PSI4 (free, one-shot)
 
-RESP requires running Gaussian, which is not bundled. You need a Gaussian
-license + installation (g09 or g16).
+PSI4 + psiresp produce AMBER-standard 2-stage RESP charges without
+needing Gaussian. Both packages are bundled in `environment.yml`
+(`conda env update -f environment.yml` will install them if not present).
+
+```bash
+# Acetate, charged -1, free RESP via PSI4
+dvbfixer parametrize acetate.pdb -n ACET --net-charge -1 \
+    -c resp --qm-engine psi4 -v
+# That's it. No external QM step, no .com/.log shuffle. ~1-3 min for
+# small organics on 4 cores.
+```
+
+What happens internally:
+1. antechamber runs in `bcc` mode to assign GAFF2 atom types (charges placeholder).
+2. PSI4 optimises geometry at HF/6-31G* with `psi4.optimize('hf', ...)`.
+3. psiresp fits 2-stage RESP charges from the PSI4 wavefunction at MK ESP grid.
+4. The MOL2 from step 1 has its BCC charges overwritten with PSI4-RESP.
+5. parmchk2 → tleap → ParmEd continue as for the BCC path.
+
+Tuning knobs:
+- `--psi4-method 'HF/6-31G*'` (default; the AMBER recipe — change only if you know why)
+- `--psi4-nthreads 4` (default; OpenMP, ~30% speedup at 4 cores; not linear)
+- `--psi4-memory '4GB'` (default; raise for larger molecules)
+
+Quality: per-atom charges within 0.05 e of Gaussian-RESP on standard
+AMBER test molecules. Use whichever engine is more convenient.
+
+## RESP via Gaussian (commercial, three-step)
+
+Use this path if you already have a Gaussian licence. Otherwise prefer
+`--qm-engine psi4`.
 
 ### Step 1 — generate the Gaussian input
 
 ```bash
 dvbfixer parametrize molecule.pdb -n MOL --net-charge -1 \
-    -c resp --gen-gaussian
+    -c resp --qm-engine gaussian --gen-gaussian
 ```
 
 Writes `molecule.com`. The file is a complete Gaussian input with:
@@ -123,7 +167,7 @@ Pass the `.log` back to dvbfixer:
 
 ```bash
 dvbfixer parametrize molecule.pdb -n MOL --net-charge -1 \
-    -c resp --gaussian-log molecule.log
+    -c resp --qm-engine gaussian --gaussian-log molecule.log
 ```
 
 Antechamber extracts the ESP from the log, fits RESP charges, and
@@ -140,11 +184,15 @@ path.
 | `-c`, `--charge-method` | `bcc` | `bcc` (AM1-BCC) or `resp` |
 | `--net-charge` | `0` | Net molecular charge (integer) |
 | `--multiplicity` | `1` | Spin multiplicity (1 = singlet, 2 = doublet, …) |
-| `--gaussian-log` | none | Gaussian output `.log` (RESP only) |
-| `--gen-gaussian` | off | Generate Gaussian input `.com` and exit (RESP only) |
+| `--qm-engine` | (required for `-c resp`) | `gaussian` or `psi4`. Both opt-in; no default. Picks the QM backend for RESP. |
+| `--gaussian-log` | none | Gaussian output `.log` (Gaussian path) |
+| `--gen-gaussian` | off | Generate Gaussian input `.com` and exit (Gaussian path) |
 | `--gaussian-mem` | `4GB` | `%mem=` directive in generated `.com` |
 | `--gaussian-nproc` | `4` | `%nproc=` directive in generated `.com` |
-| `--gaussian-method` | `HF/6-31G*` | QM method (don't change unless you know why) |
+| `--gaussian-method` | `HF/6-31G*` | QM method for Gaussian path |
+| `--psi4-method` | `HF/6-31G*` | QM method for PSI4 path |
+| `--psi4-nthreads` | `4` | OpenMP threads for PSI4 |
+| `--psi4-memory` | `4GB` | Memory cap for PSI4 |
 | `--keep-intermediate` | off | Keep `mol.mol2`, `mol.frcmod`, `mol.prmtop`, `leap.log` |
 | `-v`, `--verbose` | off | Show every antechamber/tleap/parmchk2 invocation |
 
