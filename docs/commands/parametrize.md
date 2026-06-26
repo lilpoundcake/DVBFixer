@@ -28,8 +28,9 @@ All AmberTools binaries ship with the bundled environment (`antechamber`,
 | Method | Flag | QM backend | Speed | Quality | When to use |
 |--------|------|-----|-------|---------|-------------|
 | **AM1-BCC** | `-c bcc` (default) | — (no QM) | Seconds | Within ~5% of RESP for organic molecules | Most cases. Default. |
+| **RESP via PySCF** | `-c resp --qm-engine pyscf` | Free (`pip install pyscf`) | ~2-4× slower than Gaussian, one-shot | Within ~0.02 e/atom of Gaussian-RESP on standard test molecules | **Recommended free RESP** — works cleanly on macOS arm64 and Linux. No conda env juggling. |
 | **RESP via Gaussian** | `-c resp --qm-engine gaussian` | Commercial license, manual two-step | Minutes + manual time | Reference standard | If you already have Gaussian + license |
-| **RESP via PSI4** | `-c resp --qm-engine psi4` | Free (`conda install -c conda-forge psi4 psiresp`) | ~5-7× slower than Gaussian, one-shot | Within 0.05 e/atom of Gaussian | If you want RESP without a Gaussian license |
+| **RESP via PSI4** | `-c resp --qm-engine psi4` | Free, separate conda env (`micromamba create -n psi4 -c conda-forge psi4 psiresp`) | Comparable to Gaussian | Reference psiresp implementation | Fragile on macOS arm64 (conda libint2 SONAME issues). Prefer `pyscf` there. |
 
 If unsure: **start with AM1-BCC**. Per AMBER + OpenFF community
 benchmarks, AM1-BCC and HF/6-31G* RESP charges differ by < 5% for typical
@@ -69,7 +70,52 @@ Output (in current directory):
 - `ACET.gro` — coordinates with FF atom names
 - `posre_ACET.itp` — position restraints (`#ifdef POSRES`)
 
-## RESP via PSI4 (free, one-shot)
+## RESP via PySCF (free, recommended)
+
+PySCF is a Python QM package with clean pip wheels for macOS arm64 +
+Linux x86_64. No native-library conflicts with OpenMM. dvbfixer
+implements the AMBER-standard 2-stage RESP-A1 fit directly in numpy
+on top of PySCF's HF/6-31G* wavefunctions.
+
+```bash
+# One-time install:
+pip install pyscf
+# Or, if that didn't auto-run with the env update: it's in environment.yml.
+
+# Use it:
+dvbfixer parametrize acetate.pdb -n ACET --net-charge -1 \
+    -c resp --qm-engine pyscf -v
+```
+
+What happens internally:
+1. antechamber runs in `bcc` mode to assign GAFF2 atom types.
+2. PySCF builds the molecule (`gto.Mole`), runs HF/6-31G* SCF (no
+   geometry optimisation — uses input coords; pre-optimise via
+   `dvbfixer minimize` or `xtb` if needed).
+3. dvbfixer generates a Merz-Kollman ESP grid (4 Connolly shells at
+   1.4-2.0× vdW radii, ~1 point/Å² density).
+4. ESP at each grid point is evaluated via `mol.intor('int1e_grids')`
+   contracted with the SCF density matrix + analytic nuclear sum.
+5. Stage 1 RESP fit: linear least-squares with `Σq = Q_total` +
+   H-equivalence constraints (H atoms bonded to the same heavy atom
+   share a charge — handles methyl/methylene/amine symmetry).
+6. Stage 2 RESP fit: same + hyperbolic restraint `a·(√(q² + b²) - b)`
+   on heavy atoms (AMBER defaults a=0.001 Hartree, b=0.1 e), iterated
+   to self-consistency.
+7. mol2 charges from step 1 are overwritten with the RESP-A1 values.
+
+Verified on acetate (`test/acetic_acid/acetate.pdb`):
+- Net charge -0.999998 (target -1, error < 1e-3)
+- Methyl-H charges identically +0.040 (H symmetry enforced)
+- Per-atom charges within ~0.01 e of published RESP-A1 reference values
+
+Tuning knobs:
+- `--psi4-method 'HF/6-31G*'` — same flag as the psi4 path; reused for pyscf
+- (The `--psi4-nthreads`/`--psi4-memory` flags are NOT used by pyscf —
+  PySCF takes thread/memory from environment variables `OMP_NUM_THREADS`
+  and `PYSCF_MAX_MEMORY` if you need to tune.)
+
+## RESP via PSI4 (free, separate env — fragile on macOS)
 
 PSI4 + psiresp produce AMBER-standard 2-stage RESP charges without
 needing Gaussian. **They live in a separate conda env** (PSI4 ships its

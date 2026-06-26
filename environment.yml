@@ -25,6 +25,7 @@ dependencies:
   - pip:
     - propka >=3.5
     - acpype
+    - pyscf       # QM backend for `parametrize -c resp --qm-engine pyscf`
 
 # Optional: free RESP backend for `parametrize -c resp --qm-engine psi4`.
 # psi4 + psiresp ship their own BLAS/MKL stack that conflicts with OpenMM's,

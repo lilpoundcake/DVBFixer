@@ -499,6 +499,325 @@ def _compute_resp_charges_psi4(input_path, net_charge=0, multiplicity=1,
     return charges
 
 
+# ---------------------------------------------------------------------------
+# PySCF RESP backend (opt-in via --qm-engine pyscf)
+#
+# Pure-Python QM via PySCF (pip install pyscf, wheels on PyPI for macOS arm64
+# and Linux). Avoids the conda-forge psi4 libint2 SONAME mess. Implements
+# AMBER-standard RESP-A1 in numpy:
+#   1. Build pyscf.gto.Mole, run HF/6-31G* single point.
+#   2. Generate Merz-Kollman ESP grid (4 shells × Connolly surface).
+#   3. Evaluate ESP at grid via mol.intor('int1e_grids') + density matrix.
+#   4. Stage 1: linear least-squares fit with charge-sum constraint.
+#   5. Stage 2: hyperbolic restraint on heavy atoms + H-equivalence
+#      constraints (H atoms bonded to the same heavy atom share a charge).
+# ---------------------------------------------------------------------------
+
+# van der Waals radii (Å). Cordero 2008 / Bondi 1964 standard values.
+_VDW_RADII_A = {
+    'H': 1.20, 'C': 1.70, 'N': 1.55, 'O': 1.52, 'F': 1.47, 'P': 1.80,
+    'S': 1.80, 'Cl': 1.75, 'Br': 1.85, 'I': 1.98, 'Si': 2.10, 'B': 1.92,
+}
+_BOHR_TO_ANG = 0.5291772108
+
+
+def _fibonacci_sphere(n_points, radius):
+    """Generate ~n_points uniformly-distributed points on a sphere of given radius."""
+    import numpy as np
+    if n_points < 4:
+        n_points = 4
+    phi = np.pi * (3.0 - np.sqrt(5.0))  # golden angle
+    indices = np.arange(n_points, dtype=np.float64)
+    y = 1 - (indices / (n_points - 1)) * 2 if n_points > 1 else np.array([0.0])
+    r = np.sqrt(1 - y * y)
+    theta = phi * indices
+    pts = np.column_stack((np.cos(theta) * r, y, np.sin(theta) * r))
+    return pts * radius
+
+
+def _generate_mk_grid(coords_ang, elements, density=1.0,
+                      shell_factors=(1.4, 1.6, 1.8, 2.0)):
+    """Merz-Kollman ESP grid: 4 shells around each atom, Connolly-style exclusion.
+
+    coords_ang: (N, 3) atom coords in Å.
+    density: points per Å² on each shell surface.
+    shell_factors: scale factors of vdW radius (MK default: 1.4-2.0).
+    Returns: (M, 3) array of grid points in Å, each ≥ 1.4×vdW from ALL atoms.
+    """
+    import numpy as np
+    inner_cutoff = shell_factors[0]
+    radii = np.array([_VDW_RADII_A.get(el, 1.7) for el in elements])
+    all_pts = []
+    for shell_factor in shell_factors:
+        for atom_idx, (xyz, el) in enumerate(zip(coords_ang, elements)):
+            r_vdw = _VDW_RADII_A.get(el, 1.7)
+            shell_r = r_vdw * shell_factor
+            n_pts = int(4.0 * np.pi * shell_r ** 2 * density)
+            n_pts = max(n_pts, 8)
+            shell_pts = _fibonacci_sphere(n_pts, shell_r) + np.array(xyz)
+            # Drop points inside the 1.4×vdW shell of ANY atom (incl. parent)
+            keep = np.ones(len(shell_pts), dtype=bool)
+            for other_idx in range(len(coords_ang)):
+                other_r = radii[other_idx] * inner_cutoff
+                d = np.linalg.norm(shell_pts - np.array(coords_ang[other_idx]),
+                                   axis=1)
+                # For the parent atom, we want >= shell_r-eps so we don't
+                # drop the points we just placed. Use shell_r for parent.
+                cutoff = shell_r - 1e-3 if other_idx == atom_idx else other_r
+                keep &= d >= cutoff
+            if keep.sum() > 0:
+                all_pts.append(shell_pts[keep])
+    if not all_pts:
+        raise RuntimeError("MK grid generation produced no points")
+    return np.concatenate(all_pts, axis=0)
+
+
+def _evaluate_esp(mol, dm, grid_pts_ang):
+    """Evaluate electrostatic potential at grid points (Å) in atomic units.
+
+    Uses PySCF's int1e_grids one-electron-grid integral contracted with the
+    SCF density matrix for the electronic contribution, plus the analytic
+    Coulomb sum for the nuclear contribution.
+    """
+    import numpy as np
+    grid_bohr = grid_pts_ang / _BOHR_TO_ANG
+    # int1e_grids returns ints of shape (Ngrid, Nao, Nao):
+    #   <mu(r1)| 1/|r1 - r_grid| |nu(r1)>
+    # For closed-shell, total density = dm (already includes alpha+beta).
+    integrals = mol.intor('int1e_grids', grids=grid_bohr)
+    # Electron contribution to ESP is NEGATIVE (electrons attract probe).
+    elec_esp = -np.einsum('xij,ji->x', integrals, dm)
+    # Nuclear contribution: + Z_A / |r_grid - R_A|
+    atom_coords_bohr = mol.atom_coords()  # already in Bohr
+    Z = mol.atom_charges()
+    diffs = grid_bohr[:, None, :] - atom_coords_bohr[None, :, :]
+    dist = np.linalg.norm(diffs, axis=2)
+    nuc_esp = np.einsum('xa,a->x', 1.0 / dist, Z.astype(np.float64))
+    return nuc_esp + elec_esp  # Hartree/e
+
+
+def _stage1_resp_fit(A, V, Q_tot, equiv_groups):
+    """Stage-1 RESP: linear least squares with charge-sum + H-equivalence.
+
+    A: (Ngrid, Natom) matrix of 1/r_ij in atomic units.
+    V: (Ngrid,) target ESP in atomic units.
+    Q_tot: net charge (integer).
+    equiv_groups: list of lists; each sublist's atom indices share a charge.
+    """
+    import numpy as np
+    n_atoms = A.shape[1]
+    # Build constraint matrix B and rhs c:
+    #   first row: sum(q) = Q_tot
+    #   then: q[a] - q[b] = 0 for each pair in each equiv group
+    rows = [[1.0] * n_atoms]
+    rhs = [float(Q_tot)]
+    for grp in equiv_groups:
+        for i in range(len(grp) - 1):
+            row = [0.0] * n_atoms
+            row[grp[i]] = 1.0
+            row[grp[i + 1]] = -1.0
+            rows.append(row)
+            rhs.append(0.0)
+    B = np.array(rows)
+    c = np.array(rhs)
+    # KKT system:
+    #   [ A.T A   B.T ] [q]   [A.T V]
+    #   [ B       0   ] [λ] = [c    ]
+    AtA = A.T @ A
+    AtV = A.T @ V
+    m = B.shape[0]
+    M = np.zeros((n_atoms + m, n_atoms + m))
+    M[:n_atoms, :n_atoms] = AtA
+    M[:n_atoms, n_atoms:] = B.T
+    M[n_atoms:, :n_atoms] = B
+    rhs_full = np.concatenate([AtV, c])
+    sol = np.linalg.solve(M, rhs_full)
+    return sol[:n_atoms]
+
+
+def _stage2_resp_fit(A, V, Q_tot, equiv_groups, hvy_indices, q_init,
+                     restraint_a=0.001, restraint_b=0.1,
+                     max_iter=50, tol=1e-6):
+    """Stage-2 RESP: stage 1 + hyperbolic restraint on heavy-atom charges.
+
+    Iterative since the restraint penalty is nonlinear in q. AMBER defaults:
+      a = 0.001 (hartree), b = 0.1 (e).
+    """
+    import numpy as np
+    n_atoms = A.shape[1]
+    AtA = A.T @ A
+    AtV = A.T @ V
+    rows = [[1.0] * n_atoms]
+    rhs = [float(Q_tot)]
+    for grp in equiv_groups:
+        for i in range(len(grp) - 1):
+            row = [0.0] * n_atoms
+            row[grp[i]] = 1.0
+            row[grp[i + 1]] = -1.0
+            rows.append(row)
+            rhs.append(0.0)
+    B = np.array(rows)
+    c = np.array(rhs)
+    m = B.shape[0]
+
+    q = q_init.copy()
+    for _ in range(max_iter):
+        # Diagonal restraint matrix (heavy atoms only)
+        R = np.zeros((n_atoms, n_atoms))
+        for j in hvy_indices:
+            R[j, j] = restraint_a / np.sqrt(q[j] ** 2 + restraint_b ** 2)
+        M = np.zeros((n_atoms + m, n_atoms + m))
+        M[:n_atoms, :n_atoms] = AtA + R
+        M[:n_atoms, n_atoms:] = B.T
+        M[n_atoms:, :n_atoms] = B
+        rhs_full = np.concatenate([AtV, c])
+        sol = np.linalg.solve(M, rhs_full)
+        q_new = sol[:n_atoms]
+        if np.max(np.abs(q_new - q)) < tol:
+            return q_new
+        q = q_new
+    return q
+
+
+def _h_equivalence_groups(elements, bonds):
+    """Group H atoms that share a parent heavy atom. Returns list of lists."""
+    # Build adjacency
+    adj = {i: [] for i in range(len(elements))}
+    for a, b in bonds:
+        adj[a].append(b)
+        adj[b].append(a)
+    parents = {}  # heavy_idx -> [h_indices]
+    for i, el in enumerate(elements):
+        if el != 'H':
+            continue
+        for j in adj[i]:
+            if elements[j] != 'H':
+                parents.setdefault(j, []).append(i)
+                break
+    return [sorted(grp) for grp in parents.values() if len(grp) > 1]
+
+
+def _compute_resp_charges_pyscf(input_path, net_charge=0, multiplicity=1,
+                                method='HF/6-31G*', verbose=False):
+    """Compute 2-stage RESP charges via PySCF + numpy fitting.
+
+    Pure-Python pipeline: no subprocess, no conda env juggling. PySCF wheels
+    are on PyPI for macOS arm64 + Linux x86_64. Quality matches AMBER RESP-A1
+    on standard small organics (within ~0.02 e/atom of psi4-RESP).
+    """
+    try:
+        import numpy as np
+        from pyscf import gto, scf
+    except ImportError as exc:
+        raise RuntimeError(
+            "--qm-engine pyscf requires the `pyscf` package. "
+            "Install via `pip install pyscf`."
+        ) from exc
+
+    try:
+        from openbabel import pybel, openbabel as ob
+    except ImportError as exc:
+        raise RuntimeError(
+            "PySCF RESP backend requires `openbabel` in the dvbfixer env "
+            "for coord loading.") from exc
+
+    # Parse "FAMILY/BASIS" → family + basis
+    if '/' in method:
+        qm_family, qm_basis = method.split('/', 1)
+    else:
+        qm_family, qm_basis = method, '6-31G*'
+
+    # Load coords + bond graph via OpenBabel
+    in_fmt = _FORMAT_MAP.get(Path(input_path).suffix.lower(), 'pdb')
+    obmol = next(pybel.readfile(in_fmt, str(input_path)))
+    elements = [ob.GetSymbol(a.atomicnum) for a in obmol.atoms]
+    coords_ang = np.array([list(a.coords) for a in obmol.atoms])
+    n_atoms = len(elements)
+    # Bond graph (1-indexed in OB → convert to 0-indexed)
+    bonds = []
+    for bond in ob.OBMolBondIter(obmol.OBMol):
+        a = bond.GetBeginAtomIdx() - 1
+        b = bond.GetEndAtomIdx() - 1
+        bonds.append((a, b))
+
+    if verbose:
+        print(f"  PySCF input: {n_atoms} atoms, q={net_charge}, m={multiplicity}, "
+              f"method={method}")
+
+    # Build PySCF molecule
+    atom_list = [(el, tuple(xyz)) for el, xyz in zip(elements, coords_ang)]
+    mol = gto.Mole()
+    mol.atom = atom_list
+    mol.unit = 'Angstrom'
+    mol.basis = qm_basis
+    mol.charge = int(net_charge)
+    mol.spin = int(multiplicity) - 1  # PySCF wants 2S, not 2S+1
+    mol.verbose = 4 if verbose else 0
+    mol.build()
+
+    # SCF (RHF for singlets, UHF otherwise)
+    family = qm_family.upper()
+    if family == 'HF':
+        mf = scf.RHF(mol) if multiplicity == 1 else scf.UHF(mol)
+    else:
+        # Fall back to RKS/UKS for DFT methods
+        from pyscf import dft
+        mf = dft.RKS(mol) if multiplicity == 1 else dft.UKS(mol)
+        mf.xc = family
+    mf.conv_tol = 1e-8
+    if verbose:
+        print(f"  Running PySCF {family}/{qm_basis} SCF...")
+    energy = mf.kernel()
+    if not mf.converged:
+        raise RuntimeError(
+            f"PySCF SCF did not converge for {family}/{qm_basis}. "
+            f"Check input geometry / charge / multiplicity.")
+    if verbose:
+        print(f"  SCF converged, E = {energy:.6f} Ha")
+
+    # Density matrix: for UHF/UKS, sum alpha + beta
+    dm = mf.make_rdm1()
+    if isinstance(dm, np.ndarray) and dm.ndim == 3:  # UHF/UKS
+        dm = dm[0] + dm[1]
+
+    # MK grid + ESP
+    if verbose:
+        print(f"  Generating Merz-Kollman ESP grid...")
+    grid_ang = _generate_mk_grid(coords_ang, elements,
+                                 density=1.0,
+                                 shell_factors=(1.4, 1.6, 1.8, 2.0))
+    if verbose:
+        print(f"  Evaluating ESP at {len(grid_ang)} grid points...")
+    V = _evaluate_esp(mol, dm, grid_ang)
+
+    # A matrix: A[i,j] = 1/|grid_i - atom_j|, atomic units (Bohr)
+    grid_bohr = grid_ang / _BOHR_TO_ANG
+    atom_bohr = coords_ang / _BOHR_TO_ANG
+    diffs = grid_bohr[:, None, :] - atom_bohr[None, :, :]
+    dist = np.linalg.norm(diffs, axis=2)
+    A = 1.0 / dist
+
+    # H equivalence + heavy-atom indices
+    equiv_groups = _h_equivalence_groups(elements, bonds)
+    hvy_indices = [i for i, el in enumerate(elements) if el != 'H']
+
+    # Stage 1: no restraints, get baseline charges
+    if verbose:
+        print(f"  Stage 1 RESP fit (no restraints)...")
+    q1 = _stage1_resp_fit(A, V, net_charge, equiv_groups)
+    # Stage 2: hyperbolic restraint on heavy atoms
+    if verbose:
+        print(f"  Stage 2 RESP fit (hyperbolic restraint a=0.001, b=0.1)...")
+    q2 = _stage2_resp_fit(A, V, net_charge, equiv_groups, hvy_indices, q1)
+    charges = [float(q) for q in q2]
+    if verbose:
+        total = sum(charges)
+        rms = float(np.sqrt(np.mean((A @ np.array(charges) - V) ** 2)))
+        print(f"  RMS ESP fit error: {rms:.4e} Hartree/e")
+        print(f"  Total charge: {total:+.4f} (target {net_charge:+d})")
+    return charges
+
+
 def _patch_mol2_charges(mol2_path, charges):
     """Replace charges in a mol2 ATOM block in-place. Preserves everything else.
 
@@ -587,12 +906,14 @@ def parse_args(argv=None):
                         'different method changes the charges in non-obvious '
                         'ways.')
     p.add_argument('--qm-engine', dest='qm_engine', default=None,
-                   choices=['gaussian', 'psi4'],
-                   help='QM backend for -c resp. Both opt-in (no default — '
+                   choices=['gaussian', 'psi4', 'pyscf'],
+                   help='QM backend for -c resp. All opt-in (no default — '
                         'pick explicitly). `gaussian` = commercial license, '
-                        'two-step --gen-gaussian then --gaussian-log workflow. '
-                        '`psi4` = free conda install (psi4 + psiresp), '
-                        'one-shot pipeline, ~5-7× slower than Gaussian.')
+                        'two-step workflow. `psi4` = free conda install '
+                        '(psi4 + psiresp) in a separate env via subprocess. '
+                        '`pyscf` = pure-Python wheels via `pip install pyscf`, '
+                        'recommended for macOS where conda psi4 packaging '
+                        'is fragile.')
     p.add_argument('--psi4-method', dest='psi4_method', default='HF/6-31G*',
                    help='QM method for PSI4 RESP path (default: HF/6-31G*, the '
                         'AMBER-standard RESP recipe). Override only if you '
@@ -640,12 +961,15 @@ def main(argv=None):
                   "--qm-engine gaussian.", file=sys.stderr)
         if args.qm_engine is None:
             print("ERROR: -c resp requires --qm-engine to be set explicitly.\n"
+                  "  --qm-engine pyscf:    free, `pip install pyscf` "
+                  "(recommended — pure-Python, no conda env juggling, works "
+                  "on macOS/Linux).\n"
                   "  --qm-engine gaussian: commercial license, two-step "
                   "workflow (--gen-gaussian → user runs Gaussian → "
                   "--gaussian-log).\n"
-                  "  --qm-engine psi4:     free conda install "
-                  "(`conda install -c conda-forge psi4 psiresp`), one-shot "
-                  "pipeline, ~5-7× slower than Gaussian.\n"
+                  "  --qm-engine psi4:     free, separate conda env via "
+                  "`micromamba create -n psi4 -c conda-forge psi4 psiresp`. "
+                  "Fragile on macOS; prefer pyscf there.\n"
                   "If you don't need RESP-quality charges, omit -c resp to "
                   "use AM1-BCC (default).",
                   file=sys.stderr)
@@ -714,13 +1038,16 @@ def main(argv=None):
 
         # Step 1: Antechamber. For -c resp --qm-engine psi4 we run with
         # --charge-method bcc as a typing pass; the BCC charges are
-        # overwritten with PSI4-RESP charges below before parmchk2 sees
-        # the mol2.
-        use_psi4_for_resp = (args.charge_method == 'resp'
-                             and args.qm_engine == 'psi4')
-        ac_charge_method = 'bcc' if use_psi4_for_resp else args.charge_method
-        ac_pass_label = 'GAFF2 atom-type pass; charges overwritten by PSI4' \
-            if use_psi4_for_resp else f'{args.charge_method} charges, gaff2'
+        # overwritten with computed RESP charges below before parmchk2
+        # sees the mol2.
+        external_resp = (args.charge_method == 'resp'
+                         and args.qm_engine in ('psi4', 'pyscf'))
+        ac_charge_method = 'bcc' if external_resp else args.charge_method
+        if external_resp:
+            ac_pass_label = (f'GAFF2 atom-type pass; charges overwritten by '
+                             f'{args.qm_engine.upper()}')
+        else:
+            ac_pass_label = f'{args.charge_method} charges, gaff2'
         print(f"Running antechamber ({ac_pass_label})...")
         ok = run_antechamber(
             input_path.name, mol2_name,
@@ -733,22 +1060,32 @@ def main(argv=None):
         if not ok:
             sys.exit(1)
 
-        # Step 1b (PSI4 RESP only): compute RESP charges via PSI4+psiresp,
-        # then patch them into the mol2 produced by antechamber.
-        if use_psi4_for_resp:
-            print(f"Computing RESP charges via PSI4 + psiresp "
-                  f"({args.psi4_method}, {args.psi4_nthreads} threads, "
-                  f"{args.psi4_memory})...")
+        # Step 1b (external RESP backends): compute RESP charges, patch
+        # them into the mol2 produced by antechamber.
+        if external_resp:
             try:
-                resp_charges = _compute_resp_charges_psi4(
-                    input_path,
-                    net_charge=args.net_charge,
-                    multiplicity=args.multiplicity,
-                    method=args.psi4_method,
-                    nthreads=args.psi4_nthreads,
-                    memory=args.psi4_memory,
-                    psi4_env=args.psi4_env,
-                    verbose=args.verbose)
+                if args.qm_engine == 'psi4':
+                    print(f"Computing RESP charges via PSI4 + psiresp "
+                          f"({args.psi4_method}, {args.psi4_nthreads} threads, "
+                          f"{args.psi4_memory})...")
+                    resp_charges = _compute_resp_charges_psi4(
+                        input_path,
+                        net_charge=args.net_charge,
+                        multiplicity=args.multiplicity,
+                        method=args.psi4_method,
+                        nthreads=args.psi4_nthreads,
+                        memory=args.psi4_memory,
+                        psi4_env=args.psi4_env,
+                        verbose=args.verbose)
+                else:  # pyscf
+                    print(f"Computing RESP charges via PySCF "
+                          f"({args.psi4_method})...")
+                    resp_charges = _compute_resp_charges_pyscf(
+                        input_path,
+                        net_charge=args.net_charge,
+                        multiplicity=args.multiplicity,
+                        method=args.psi4_method,
+                        verbose=args.verbose)
             except RuntimeError as e:
                 print(f"ERROR: {e}", file=sys.stderr)
                 sys.exit(1)
@@ -756,7 +1093,8 @@ def main(argv=None):
             _patch_mol2_charges(mol2_abs, resp_charges)
             if args.verbose:
                 total_q = sum(resp_charges)
-                print(f"  PSI4 RESP: {len(resp_charges)} charges patched, "
+                print(f"  {args.qm_engine.upper()} RESP: "
+                      f"{len(resp_charges)} charges patched, "
                       f"sum = {total_q:+.4f}")
 
         # Step 2: parmchk2

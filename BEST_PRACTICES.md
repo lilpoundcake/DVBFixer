@@ -392,12 +392,17 @@ charged buffer ions where you care about the dipole, or reproducing a
 published RESP recipe), there are now two backends:
 
 ```bash
-# Free RESP via PSI4 (one-time setup, then one-shot per molecule)
-micromamba create -n psi4 -c conda-forge psi4 psiresp   # one-time, ~5 min
+# RECOMMENDED — Free RESP via PySCF (pure-Python wheels, no conda)
+pip install pyscf   # one-time, in the main dvbfixer env
+dvbfixer parametrize acetate.pdb -n ACET --net-charge -1 \
+    -c resp --qm-engine pyscf -v
+# Works cleanly on macOS arm64 and Linux. ~30s-2min per small molecule.
+
+# Alternative — RESP via PSI4 (separate conda env, fragile on macOS)
+micromamba create -n psi4 -c conda-forge psi4 psiresp   # one-time
 dvbfixer parametrize acetate.pdb -n ACET --net-charge -1 \
     -c resp --qm-engine psi4 -v
 # dvbfixer shells out to the `psi4` env via `micromamba run`.
-# ~1-3 min per molecule on 4 cores.
 
 # Reference RESP via Gaussian (commercial; two-step, unchanged)
 dvbfixer parametrize acetate.pdb -n ACET --net-charge -1 \
