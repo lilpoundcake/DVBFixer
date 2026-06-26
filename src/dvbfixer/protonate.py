@@ -62,12 +62,14 @@ def parse_args(argv=None):
         help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
     )
     p.add_argument(
-        "--protassign", action="store_true",
+        "--protassign", action=argparse.BooleanOptionalAction, default=True,
         help="Run MolProbity Reduce to optimise HIS tautomers (HID/HIE/HIP) "
              "and detect ASN/GLN side-chain flips based on local H-bond "
-             "network. Default OFF (preserves pH-only behaviour). Requires "
-             "the `reduce` binary (bundled with AmberTools in the dvbfixer "
-             "env)."
+             "network. **Default ON** — gives every protonate run the same "
+             "higher-quality H-network without remembering a flag. Pass "
+             "--no-protassign to disable (PROPKA-only pH-driven decisions). "
+             "Requires the `reduce` binary (bundled with AmberTools in the "
+             "dvbfixer env)."
     )
     p.add_argument(
         "--protassign-binary", dest="protassign_binary", default=None,
@@ -816,9 +818,11 @@ def main(argv=None):
     if args.protassign:
         reduce_binary = _find_reduce_binary(args.protassign_binary)
         if reduce_binary is None:
-            print("ERROR: --protassign requires the `reduce` binary. Install "
-                  "AmberTools (`conda install -c conda-forge ambertools`) or "
-                  "pass --protassign-binary PATH.",
+            print("ERROR: --protassign (default ON) requires the `reduce` "
+                  "binary. Install AmberTools "
+                  "(`conda install -c conda-forge ambertools`), pass "
+                  "--protassign-binary PATH, or pass --no-protassign to "
+                  "skip the optimisation (PROPKA-only mode).",
                   file=sys.stderr)
             sys.exit(1)
         print(f"Running MolProbity Reduce ({reduce_binary}) for HIS tautomers "

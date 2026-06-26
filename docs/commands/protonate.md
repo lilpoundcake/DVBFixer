@@ -46,7 +46,7 @@ dvbfixer protonate input.pdb --his-default HID
 | `--ph` | 7.0 | Target pH |
 | `--his-default` | HIE | Default neutral HIS tautomer (HIE or HID) |
 | `--cys-disulfide-pka` | 90.0 | pKa threshold for CYS -> CYX assignment |
-| `--protassign` | off | Run MolProbity Reduce to optimise HIS tautomers and detect ASN/GLN side-chain flips (see below) |
+| `--protassign` / `--no-protassign` | **ON** | Run MolProbity Reduce to optimise HIS tautomers and detect ASN/GLN side-chain flips (see below). Pass `--no-protassign` to disable |
 | `--protassign-binary` | auto | Override path to the `reduce` binary |
 | `--no-hydrogens` | off | Only rename residues, do not add/fix hydrogen atoms |
 | `--ff` | amber19/protein.ff19SB.xml amber19/tip3p.xml | Force field XML files for hydrogen addition |
@@ -54,14 +54,16 @@ dvbfixer protonate input.pdb --his-default HID
 | `--summary` | off | Print full pKa table |
 | `-v`, `--verbose` | off | Print non-standard protonation changes |
 
-## ProtAssign-style optimisation (`--protassign`)
+## ProtAssign-style optimisation (`--protassign`, default ON)
 
 PROPKA only predicts pKa — it doesn't pick between the two neutral HIS
-tautomers (HID vs HIE) or detect ASN/GLN side-chain flips. With
-`--protassign`, dvbfixer wraps **MolProbity Reduce** (Word, Lovell &
-Richardson 1999) to make those decisions from local H-bond geometry
-and van der Waals clash scoring — analogous to Schrödinger's ProtAssign
-preprocessor.
+tautomers (HID vs HIE) or detect ASN/GLN side-chain flips. dvbfixer
+wraps **MolProbity Reduce** (Word, Lovell & Richardson 1999) to make
+those decisions from local H-bond geometry and van der Waals clash
+scoring — analogous to Schrödinger's ProtAssign preprocessor.
+
+**This runs by default on every `protonate` invocation.** Pass
+`--no-protassign` to disable (PROPKA-only mode, the legacy behaviour).
 
 What it does:
 
@@ -81,12 +83,13 @@ What it does:
 - **GLN flip** — same as ASN, on OE1/NE2.
 
 ```bash
-# Default behaviour unchanged (no Reduce, pH-only HIS tautomer)
-dvbfixer protonate input.pdb
-
-# Enable ProtAssign-style optimisation
-dvbfixer protonate input.pdb --protassign -v
+# Default: ProtAssign runs (HIS tautomer + ASN/GLN flip detection)
+dvbfixer protonate input.pdb -v
 # -v shows which HIS got re-tautomerised + how many ASN/GLN got flipped
+
+# Disable ProtAssign (PROPKA-only mode — pH-driven HIS tautomers,
+# no flip detection, no Reduce binary required)
+dvbfixer protonate input.pdb --no-protassign -v
 ```
 
 Example output with `-v`:
@@ -104,8 +107,9 @@ Running MolProbity Reduce for HIS tautomers + ASN/GLN flip optimisation...
 
 **Requires** the `reduce` binary. It's bundled with AmberTools (already
 in the dvbfixer env). If missing, install via
-`conda install -c conda-forge ambertools` or pass `--protassign-binary
-PATH` to point at a local build.
+`conda install -c conda-forge ambertools`, pass `--protassign-binary
+PATH` to point at a local build, or pass `--no-protassign` to skip
+the optimisation (PROPKA-only mode).
 
 **When to use**:
 - Crystal structures (X-ray, EM) where ASN/GLN orientations may be

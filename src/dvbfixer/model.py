@@ -168,6 +168,15 @@ def parse_args(argv=None):
         help="Number of loop refinement models per initial model (default: 2)"
     )
     p.add_argument(
+        "--num-output", type=int, default=1, dest="num_output",
+        help="Number of top-ranked candidate models to save (default: 1; "
+             "ceiling: num_models × num_loops). Output PDBs are sorted "
+             "ascending by Modeller's molpdf score (best first). With "
+             "--num-output > 1, output filenames get a _N suffix: "
+             "<stem>_model_1.pdb, _model_2.pdb, ... (and matching .dat). "
+             "With --num-output 1 the filename is unchanged from today."
+    )
+    p.add_argument(
         "--md-level", choices=["none", "fast", "slow", "very_slow", "slow_large"],
         default="fast",
         help="MD refinement level for loop modeling (default: fast)"
@@ -779,13 +788,18 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
                     for line in diag.split('\n'):
                         print(f"  {line}", file=sys.stderr)
             sys.exit(1)
-        best = min(init_models, key=lambda x: x['molpdf'])
-        print("Warning: loop refinement failed, using initial model")
+        candidates_sorted = sorted(init_models, key=lambda x: x['molpdf'])
+        print("Warning: loop refinement failed, using initial model(s)")
     else:
-        best = min(loop_models, key=lambda x: x['molpdf'])
+        candidates_sorted = sorted(loop_models, key=lambda x: x['molpdf'])
 
-    print(f"Best model: {best['name']} (molpdf={best['molpdf']:.1f})")
-    return best['name'], aln_path
+    # Return a list of (path, molpdf) tuples sorted by molpdf ascending
+    # (best first). Caller picks the top-N via --num-output.
+    candidates = [(c['name'], c['molpdf']) for c in candidates_sorted]
+    best_name, best_molpdf = candidates[0]
+    print(f"Best model: {best_name} (molpdf={best_molpdf:.1f})"
+          + (f" of {len(candidates)} candidates" if len(candidates) > 1 else ""))
+    return candidates, aln_path
 
 
 # ---------------------------------------------------------------------------
@@ -1804,6 +1818,18 @@ def main(argv=None):
         print(f"File not found: {input_path}", file=sys.stderr)
         sys.exit(1)
 
+    # Validate --num-output BEFORE running Modeller so bad input fails fast.
+    if args.num_output < 1:
+        print(f"ERROR: --num-output must be >= 1 (got {args.num_output})",
+              file=sys.stderr)
+        sys.exit(1)
+    pool_size = args.num_models * args.num_loops
+    if args.num_output > pool_size:
+        print(f"WARNING: --num-output {args.num_output} exceeds the candidate "
+              f"pool (num-models {args.num_models} × num-loops "
+              f"{args.num_loops} = {pool_size}); at most {pool_size} models "
+              f"can be saved.", file=sys.stderr)
+
     if args.output:
         output_path = Path(args.output).resolve()
     else:
@@ -1927,14 +1953,33 @@ def main(argv=None):
             f.writelines(reordered_lines)
 
         # Run Modeller — target is built inside using Modeller's own template
-        # reading, so non-protein '.' counts are guaranteed to match
-        best_model, aln_path = run_modeller(
+        # reading, so non-protein '.' counts are guaranteed to match.
+        # Returns a list of (model_path, molpdf) sorted ascending — best first.
+        candidates, aln_path = run_modeller(
             Path(input_pdb), protein_chains, protein_seq_map, all_chains, args
         )
 
+        # Clamp --num-output to the number of successfully completed
+        # candidates (some Modeller loops can fail individually).
+        n_save = min(args.num_output, len(candidates))
+        if args.num_output > len(candidates):
+            print(f"WARNING: requested {args.num_output} outputs but only "
+                  f"{len(candidates)} candidate model(s) succeeded; "
+                  f"saving {n_save}.", file=sys.stderr)
+
+        # First candidate (best) — if there's just one, we may be on the
+        # no-gap shortcut where run_modeller returned the input path unchanged.
+        first_path, _ = candidates[0]
+        no_gap_shortcut = (first_path == str(Path(input_pdb)))
+        if no_gap_shortcut and args.num_output > 1:
+            print(f"INFO: --num-output={args.num_output} requested but no "
+                  f"gaps detected; only 1 output is meaningful.", file=sys.stderr)
+            n_save = 1
+
         # If no gaps were found, run_modeller returns the input path unchanged.
         # Just copy input to output with variant restoration and skip post-processing.
-        if best_model == str(Path(input_pdb)):
+        if no_gap_shortcut:
+            best_model = first_path
             result_lines = lines[:]
             # Restore variant names
             if _input_variants:
@@ -1966,101 +2011,113 @@ def main(argv=None):
             print(f"Wrote {dat_path}")
             return
 
-        # Restore original chain IDs (Modeller reassigns A,B,C,... to all chains)
-        result_lines = restore_chain_ids_and_read(best_model, all_chains)
-
-        # Restore residue numbering for protein chains only
+        # Per-candidate post-processing loop. Each Modeller candidate gets the
+        # same chain-ID / numbering / variant restoration, then writes its own
+        # _N-suffixed PDB and .dat file (no suffix when --num-output == 1).
         _, per_chain_masks = get_template_mask(aln_path)
         resnum_mapping = build_resnum_mapping(
             per_chain_masks, all_chains, protein_chains, lines,
             protein_seq_map=protein_seq_map,
         )
-        result_lines = renumber_model_output(result_lines, resnum_mapping)
-
-        # Patch back any HETATM atoms Modeller dropped (e.g. NAG C1 linkage atom)
-        result_lines = patch_missing_hetatm(
-            result_lines, lines, all_chains, protein_chains, args.verbose
-        )
-
-        # Re-serialize ALL atoms after patching so serials stay unique.
-        # patch_missing_hetatm copies orig_line[:21] + new_chain + new_resnum
-        # + orig_line[27:] — which keeps the ORIGINAL input serial in cols
-        # 7-11. That serial collides with Modeller's renumbered atoms,
-        # producing two atoms with the same serial in the output. CONECT
-        # records (added next by restore_conect_records) then resolve to
-        # whichever duplicate the viewer picks first, creating spurious
-        # bonds between unrelated atoms ("strange bonds inside glycans").
-        result_lines = _renumber_atom_serials(result_lines)
-
-        # Restore CONECT records from original PDB with remapped atom serials
-        result_lines = restore_conect_records(
-            result_lines, lines, args.verbose,
-            per_chain_masks=per_chain_masks, all_chains=all_chains,
-        )
-
-        if args.verbose:
-            n_gaps_filled = sum(
-                not m for ci, cm in enumerate(per_chain_masks)
-                for m in cm
-                if ci < len(all_chains) and all_chains[ci] in set(protein_chains)
-            )
-            print(f"Restored numbering ({n_gaps_filled} gap positions assigned)")
-
-        if not args.keep_water:
-            result_lines = remove_water_lines(result_lines)
-
-        # Restore original protonation variant names (HIE, ASH, etc.)
-        if _input_variants:
-            restored = []
-            for line in result_lines:
-                if line.startswith(('ATOM  ', 'HETATM')):
-                    ch = line[21]
-                    rs = line[22:26].strip()
-                    orig = _input_variants.get((ch, rs))
-                    if orig:
-                        line = line[:17] + f"{orig:>3s}" + line[20:]
-                restored.append(line)
-            result_lines = restored
-
-        # Final pass: split any remaining concatenated TER+ATOM/HETATM lines
-        # that may have survived post-processing, and ensure all lines end with \n
-        sanitized = []
-        for line in result_lines:
-            while True:
-                found = False
-                for prefix in ("ATOM  ", "HETATM"):
-                    idx = line.find(prefix, 1)
-                    if idx > 0 and line[:idx].rstrip().startswith("TER"):
-                        ter = line[:idx].rstrip() + "\n"
-                        sanitized.append(ter)
-                        line = line[idx:]
-                        found = True
-                        break
-                if not found:
-                    break
-            if not line.endswith("\n"):
-                line = line + "\n"
-            sanitized.append(line)
-        result_lines = sanitized
-
-        with open(str(output_path), 'w') as f:
-            f.writelines(result_lines)
-        print(f"Wrote {output_path}")
-
-        # Write .dat file only if there were actual gaps
         n_gaps = sum(
             not m for ci, chain in enumerate(all_chains)
             if chain in set(protein_chains) and ci < len(per_chain_masks)
             for m in per_chain_masks[ci]
         )
-        if n_gaps > 0:
-            dat = build_model_dat(
-                result_lines, per_chain_masks, all_chains, protein_chains, resnum_mapping
+
+        for idx, (candidate_path, molpdf) in enumerate(candidates[:n_save]):
+            if n_save == 1:
+                this_output = output_path
+            else:
+                this_output = output_path.with_stem(
+                    output_path.stem + f"_{idx + 1}")
+
+            # Restore original chain IDs (Modeller reassigns A,B,C,... to all chains)
+            result_lines = restore_chain_ids_and_read(
+                candidate_path, all_chains)
+
+            # Restore residue numbering for protein chains only
+            result_lines = renumber_model_output(result_lines, resnum_mapping)
+
+            # Patch back any HETATM atoms Modeller dropped (e.g. NAG C1 linkage atom)
+            result_lines = patch_missing_hetatm(
+                result_lines, lines, all_chains, protein_chains, args.verbose
             )
-            dat_path = output_path.with_suffix('.dat')
-            with open(dat_path, 'w') as f:
-                json.dump(dat, f, indent=2)
-            print(f"Saved restraint data: {dat_path} ({dat['total_added']} atoms in rebuilt regions)")
+
+            # Re-serialize ALL atoms after patching so serials stay unique.
+            # patch_missing_hetatm copies orig_line[:21] + new_chain + new_resnum
+            # + orig_line[27:] — which keeps the ORIGINAL input serial in cols
+            # 7-11. That serial collides with Modeller's renumbered atoms,
+            # producing two atoms with the same serial in the output. CONECT
+            # records (added next by restore_conect_records) then resolve to
+            # whichever duplicate the viewer picks first, creating spurious
+            # bonds between unrelated atoms ("strange bonds inside glycans").
+            result_lines = _renumber_atom_serials(result_lines)
+
+            # Restore CONECT records from original PDB with remapped atom serials
+            result_lines = restore_conect_records(
+                result_lines, lines, args.verbose,
+                per_chain_masks=per_chain_masks, all_chains=all_chains,
+            )
+
+            if args.verbose and idx == 0:
+                n_gaps_filled = sum(
+                    not m for ci, cm in enumerate(per_chain_masks)
+                    for m in cm
+                    if ci < len(all_chains) and all_chains[ci] in set(protein_chains)
+                )
+                print(f"Restored numbering ({n_gaps_filled} gap positions assigned)")
+
+            if not args.keep_water:
+                result_lines = remove_water_lines(result_lines)
+
+            # Restore original protonation variant names (HIE, ASH, etc.)
+            if _input_variants:
+                restored = []
+                for line in result_lines:
+                    if line.startswith(('ATOM  ', 'HETATM')):
+                        ch = line[21]
+                        rs = line[22:26].strip()
+                        orig = _input_variants.get((ch, rs))
+                        if orig:
+                            line = line[:17] + f"{orig:>3s}" + line[20:]
+                    restored.append(line)
+                result_lines = restored
+
+            # Final pass: split any remaining concatenated TER+ATOM/HETATM lines
+            # that may have survived post-processing, and ensure all lines end with \n
+            sanitized = []
+            for line in result_lines:
+                while True:
+                    found = False
+                    for prefix in ("ATOM  ", "HETATM"):
+                        sub_idx = line.find(prefix, 1)
+                        if sub_idx > 0 and line[:sub_idx].rstrip().startswith("TER"):
+                            ter = line[:sub_idx].rstrip() + "\n"
+                            sanitized.append(ter)
+                            line = line[sub_idx:]
+                            found = True
+                            break
+                    if not found:
+                        break
+                if not line.endswith("\n"):
+                    line = line + "\n"
+                sanitized.append(line)
+            result_lines = sanitized
+
+            with open(str(this_output), 'w') as f:
+                f.writelines(result_lines)
+            print(f"Wrote {this_output} (molpdf={molpdf:.1f})")
+
+            # Write .dat file only if there were actual gaps
+            if n_gaps > 0:
+                dat = build_model_dat(
+                    result_lines, per_chain_masks, all_chains, protein_chains, resnum_mapping
+                )
+                dat_path = this_output.with_suffix('.dat')
+                with open(dat_path, 'w') as f:
+                    json.dump(dat, f, indent=2)
+                print(f"  Saved restraint data: {dat_path} ({dat['total_added']} atoms in rebuilt regions)")
 
     finally:
         os.chdir(orig_dir)

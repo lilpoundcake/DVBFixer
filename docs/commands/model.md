@@ -23,6 +23,12 @@ dvbfixer model input.pdb -v
 # Higher quality (more sampling, slower)
 dvbfixer model input.pdb --num-models 2 --num-loops 4 --md-level slow -v
 
+# Save the top 5 candidates instead of just the best one
+# (useful for ensemble analysis or visual inspection)
+dvbfixer model input.pdb --num-models 2 --num-loops 5 --num-output 5 -v
+# → input_model_1.pdb, input_model_2.pdb, ..., input_model_5.pdb
+#   (sorted ascending by Modeller's molpdf — best first; matching .dat files)
+
 # Use FASTA instead of SEQRES for complete sequence
 # (FASTA headers must encode chain IDs: >chain_A, >1abc_A, or >A)
 dvbfixer model input.pdb --fasta sequence.fasta -v
@@ -39,6 +45,7 @@ dvbfixer model input.pdb --keep-workdir -v
 | `--fasta` | none | FASTA file with complete sequence(s) (alternative to SEQRES) |
 | `-n`, `--num-models` | 1 | Number of initial models to generate |
 | `--num-loops` | 2 | Number of loop refinement models per initial model |
+| `--num-output` | 1 | Number of top-ranked candidates to save (ceiling: `num_models × num_loops`). Sorted ascending by Modeller's `molpdf` (best first). With `--num-output > 1`, output filenames get a `_N` suffix |
 | `--md-level` | fast | MD refinement level: none, fast, slow, very_slow, slow_large |
 | `--no-terminal` | off | Do not model missing N/C terminal residues (only rebuild internal gaps) |
 | `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |

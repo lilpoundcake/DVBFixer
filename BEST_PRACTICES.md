@@ -171,11 +171,11 @@ For terminal residues, AMBER14 has no NASH/NGLH/CASH/CGLH templates —
 dvbfixer detects this and emits a `UserWarning`, reverting to standard
 ASP/GLU at the terminus.
 
-### High-quality H-bond network (`--protassign`)
+### High-quality H-bond network (`--protassign`, default ON)
 
-`dvbfixer protonate` defaults to PROPKA-only pKa → HID/HIE/HIP picks
-based on `--his-default`. That misses two whole classes of optimisation
-that crystal structures need:
+`dvbfixer protonate` now wraps MolProbity Reduce by default — analogous
+to Schrödinger PrepWizard's ProtAssign step. This fixes two issues that
+PROPKA-only pKa decisions miss:
 
 1. **HIS tautomer selection by local H-bond environment** — PROPKA only
    says "this HIS has pKa < pH so it's neutral", not "Nδ1 is donating
@@ -185,21 +185,21 @@ that crystal structures need:
    typical X-ray resolution, so ~20% of PDB entries have these
    residues 180° mis-oriented (Popowicz 2007).
 
-The `--protassign` flag (opt-in) wraps MolProbity Reduce to do both
-in one pass — analogous to Schrödinger PrepWizard's ProtAssign step.
-
 ```bash
-# Before any MD initialisation, especially for crystal structures
-dvbfixer protonate input.pdb --protassign -v
+# Default (runs Reduce automatically)
+dvbfixer protonate input.pdb -v
 # -v shows: 7 HIS overrides, 3 ASN flips, 6 GLN flips, etc.
+
+# Disable Reduce — PROPKA-only mode (the pre-June-2026 behaviour)
+dvbfixer protonate input.pdb --no-protassign
 ```
 
-Recommended **before** any production MD setup. Adds ~1 second per
-chain. PROPKA still wins HIP decisions (charged-state, pKa-driven);
-Reduce only contributes HID-vs-HIE picks and the flip swaps.
+Adds ~1 second per chain. PROPKA still wins HIP decisions (charged-state,
+pKa-driven); Reduce only contributes HID-vs-HIE picks and the flip swaps.
 
 Requires the `reduce` binary (bundled with AmberTools in the dvbfixer
-env; install via `conda install -c conda-forge ambertools` if missing).
+env; install via `conda install -c conda-forge ambertools` if missing,
+or pass `--no-protassign` to skip).
 
 ## Workflow 5 — GROMACS topology generation
 
@@ -295,6 +295,23 @@ DIQMTQSPSSLSASVGDRVSITCRASQDVNTAVAWYQQKPGKAPKLLIY...
 ```
 
 PDB-style headers like `>4HKZ_H` are also accepted (the trailing `_X` is treated as the chain ID).
+
+### Ensemble of loop conformations
+
+Save the top-N candidate models from a single `model` run instead of
+just the best — useful for ensemble MD, RMSD clustering, or visual
+inspection before committing to a single model:
+
+```bash
+# Generate 2×5 = 10 internal candidates, save the top 3 by Modeller's molpdf
+dvbfixer model input.pdb --num-models 2 --num-loops 5 --num-output 3 -v
+# → input_model_1.pdb (best), input_model_2.pdb, input_model_3.pdb
+#   (plus matching input_model_1.dat, _2.dat, _3.dat for downstream restraints)
+```
+
+Default `--num-output 1` keeps today's single-file naming
+(`<stem>_model.pdb`) unchanged. With `-o custom.pdb --num-output N`
+the names become `custom_1.pdb`, `custom_2.pdb`, etc.
 
 **Antibody numbering** with `renumber --scheme`. Five schemes supported, all local — no web service. ANARCI handles V-domains; bundled human IgG1/Cκ/Cλ EU references handle C-domains via Needleman-Wunsch.
 
