@@ -26,14 +26,20 @@ dependencies:
     - propka >=3.5
     - acpype
     - pyscf       # QM backend for `parametrize -c resp --qm-engine pyscf`
+                  # — RECOMMENDED free RESP path. Pure-Python wheels on PyPI
+                  # for macOS arm64 + Linux x86_64. dvbfixer implements the
+                  # AMBER 2-stage RESP-A1 fit in numpy on top of PySCF's
+                  # HF/6-31G* wavefunction.
 
-# Optional: free RESP backend for `parametrize -c resp --qm-engine psi4`.
-# psi4 + psiresp ship their own BLAS/MKL stack that conflicts with OpenMM's,
-# AND psi4 conda-forge builds pull Python 3.9 which dvbfixer doesn't accept.
+# Optional alternative RESP backend: psi4 + psiresp.
+# These ship their own BLAS/MKL stack that conflicts with OpenMM's, AND
+# psi4 conda-forge builds pull Python 3.9 which dvbfixer doesn't accept.
 # So they live in a SEPARATE conda env; dvbfixer shells out to it via
 # `micromamba run -n psi4 python ...`:
 #
 #   micromamba create -n psi4 -c conda-forge psi4 psiresp
 #
-# Do NOT pip-install dvbfixer in the psi4 env — dvbfixer stays here and
-# invokes the psi4 env on demand. Override env name via --psi4-env.
+# Fragile on macOS arm64 (libint2 SONAME mismatches). Prefer `--qm-engine
+# pyscf` there. Do NOT pip-install dvbfixer in the psi4 env — dvbfixer
+# stays here and invokes the psi4 env on demand. Override env name via
+# --psi4-env.

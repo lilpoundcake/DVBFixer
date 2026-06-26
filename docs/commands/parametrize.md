@@ -109,11 +109,17 @@ Verified on acetate (`test/acetic_acid/acetate.pdb`):
 - Methyl-H charges identically +0.040 (H symmetry enforced)
 - Per-atom charges within ~0.01 e of published RESP-A1 reference values
 
-Tuning knobs:
-- `--psi4-method 'HF/6-31G*'` — same flag as the psi4 path; reused for pyscf
-- (The `--psi4-nthreads`/`--psi4-memory` flags are NOT used by pyscf —
-  PySCF takes thread/memory from environment variables `OMP_NUM_THREADS`
-  and `PYSCF_MAX_MEMORY` if you need to tune.)
+Tuning knobs (shared with the PSI4 backend):
+- `--qm-method 'HF/6-31G*'` — QM method/basis. AMBER RESP-A1 standard;
+  override only if you know why.
+- `--qm-nthreads 4` — OpenMP threads (applies to PSI4; PySCF reads
+  `OMP_NUM_THREADS` env var if you need to tune its parallelism).
+- `--qm-memory '4GB'` — memory cap (applies to PSI4; PySCF reads
+  `PYSCF_MAX_MEMORY` env var if you need to tune).
+
+The legacy names `--psi4-method`, `--psi4-nthreads`, `--psi4-memory`
+are kept as aliases of the `--qm-*` flags for scripts that already
+use them.
 
 ## RESP via PSI4 (free, separate env — fragile on macOS)
 
@@ -247,24 +253,48 @@ path.
 
 ## Options
 
+Listed in priority order — input & basic chemistry first, then the
+RESP backend selector, then per-backend tuning knobs.
+
+### Input / output
 | Flag | Default | Description |
 |------|---------|-------------|
 | `input` | (required) | Input structure: `.pdb`, `.mol2`, `.sdf`, or `.mol` |
 | `-o`, `--output` | input stem | Output file prefix |
 | `-n`, `--name` | input stem (uppercased) | Name for `[ moleculetype ]` (≤4 chars works best) |
-| `-c`, `--charge-method` | `bcc` | `bcc` (AM1-BCC) or `resp` |
+
+### Chemistry
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-c`, `--charge-method` | `bcc` | `bcc` (AM1-BCC, default — fast, ~95% RESP accuracy) or `resp` (slower, needs `--qm-engine`) |
 | `--net-charge` | `0` | Net molecular charge (integer) |
 | `--multiplicity` | `1` | Spin multiplicity (1 = singlet, 2 = doublet, …) |
-| `--qm-engine` | (required for `-c resp`) | `gaussian` or `psi4`. Both opt-in; no default. Picks the QM backend for RESP. |
-| `--gaussian-log` | none | Gaussian output `.log` (Gaussian path) |
-| `--gen-gaussian` | off | Generate Gaussian input `.com` and exit (Gaussian path) |
-| `--gaussian-mem` | `4GB` | `%mem=` directive in generated `.com` |
-| `--gaussian-nproc` | `4` | `%nproc=` directive in generated `.com` |
-| `--gaussian-method` | `HF/6-31G*` | QM method for Gaussian path |
-| `--psi4-method` | `HF/6-31G*` | QM method for PSI4 path |
-| `--psi4-nthreads` | `4` | OpenMP threads for PSI4 |
-| `--psi4-memory` | `4GB` | Memory cap for PSI4 |
-| `--psi4-env` | `psi4` | Name of the conda env containing psi4 + psiresp. dvbfixer invokes it via `micromamba run -n <name>` so the BLAS/MKL conflict with OpenMM is avoided. |
+
+### RESP backend (only when `-c resp`)
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--qm-engine` | (required for `-c resp`) | `pyscf` (recommended — `pip install pyscf`, pure-Python), `gaussian` (commercial license, two-step), or `psi4` (separate conda env). All opt-in. |
+
+### QM compute knobs (shared by `pyscf` and `psi4` backends)
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--qm-method` (alias: `--psi4-method`) | `HF/6-31G*` | QM method/basis. AMBER RESP-A1 standard. |
+| `--qm-nthreads` (alias: `--psi4-nthreads`) | `4` | OpenMP threads (PSI4 only; PySCF reads `OMP_NUM_THREADS`) |
+| `--qm-memory` (alias: `--psi4-memory`) | `4GB` | Memory cap (PSI4 only; PySCF reads `PYSCF_MAX_MEMORY`) |
+| `--psi4-env` | `psi4` | Name of the conda env with `psi4 + psiresp` (only for `--qm-engine psi4`) |
+
+### Gaussian-specific (only when `--qm-engine gaussian`)
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--gen-gaussian` | off | Generate `.com` and exit (implies `--qm-engine gaussian`) |
+| `--gaussian-log` | none | Consume Gaussian `.log` (implies `--qm-engine gaussian`) |
+| `--gaussian-method` | `HF/6-31G*` | Method written into the `.com` |
+| `--gaussian-mem` | `4GB` | `%mem=` directive in the `.com` |
+| `--gaussian-nproc` | `4` | `%nproc=` directive in the `.com` |
+
+### Housekeeping
+| Flag | Default | Description |
+|------|---------|-------------|
 | `--keep-intermediate` | off | Keep `mol.mol2`, `mol.frcmod`, `mol.prmtop`, `leap.log` |
 | `-v`, `--verbose` | off | Show every antechamber/tleap/parmchk2 invocation |
 

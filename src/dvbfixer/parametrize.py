@@ -872,65 +872,85 @@ def parse_args(argv=None):
         description='Parametrize small molecules with GAFF2 for GROMACS MD. '
                     'Uses antechamber + parmchk2 + tleap + ParmEd pipeline.',
     )
+
+    # === Input / output ===
     p.add_argument('input',
                    help='Input structure file (.pdb, .mol2, .sdf)')
     p.add_argument('-o', '--output', default=None,
                    help='Output prefix (default: input stem)')
     p.add_argument('-n', '--name', default=None,
                    help='Molecule name for [ moleculetype ] '
-                        '(default: from input filename)')
+                        '(default: from input filename, uppercased)')
+
+    # === Chemistry ===
     p.add_argument('-c', '--charge-method', default='bcc',
                    choices=['bcc', 'resp'],
-                   help='Charge method: bcc (AM1-BCC, default) or resp')
+                   help='Charge method: bcc (AM1-BCC, default — fast, '
+                        '~95%% RESP accuracy) or resp (slower, requires '
+                        '--qm-engine to pick a QM backend).')
     p.add_argument('--net-charge', type=int, default=0,
                    help='Net charge of the molecule (default: 0)')
     p.add_argument('--multiplicity', type=int, default=1,
                    help='Spin multiplicity (default: 1)')
-    p.add_argument('--gaussian-log', default=None,
-                   help='Gaussian log file for RESP charges (output of running '
-                        'Gaussian on the .com file from --gen-gaussian)')
-    p.add_argument('--gen-gaussian', action='store_true',
-                   help='Generate a Gaussian .com input file for RESP charges '
-                        'and exit. Run Gaussian on the .com, then re-invoke '
-                        'this command with --gaussian-log.')
-    p.add_argument('--gaussian-mem', default='4GB',
-                   help='Memory for Gaussian %%mem= directive in the generated '
-                        '.com (default: 4GB). Examples: 8GB, 16GB.')
-    p.add_argument('--gaussian-nproc', type=int, default=4,
-                   help='Processors for Gaussian %%nproc= directive in the '
-                        'generated .com (default: 4).')
-    p.add_argument('--gaussian-method', default='HF/6-31G*',
-                   help='QM method for Gaussian ESP calculation (default: '
-                        'HF/6-31G*, the AMBER-standard RESP recipe). Override '
-                        'only if you know what you are doing — using a '
-                        'different method changes the charges in non-obvious '
-                        'ways.')
+
+    # === RESP backend (only when -c resp) ===
     p.add_argument('--qm-engine', dest='qm_engine', default=None,
-                   choices=['gaussian', 'psi4', 'pyscf'],
+                   choices=['pyscf', 'gaussian', 'psi4'],
                    help='QM backend for -c resp. All opt-in (no default — '
-                        'pick explicitly). `gaussian` = commercial license, '
-                        'two-step workflow. `psi4` = free conda install '
-                        '(psi4 + psiresp) in a separate env via subprocess. '
-                        '`pyscf` = pure-Python wheels via `pip install pyscf`, '
-                        'recommended for macOS where conda psi4 packaging '
-                        'is fragile.')
-    p.add_argument('--psi4-method', dest='psi4_method', default='HF/6-31G*',
-                   help='QM method for PSI4 RESP path (default: HF/6-31G*, the '
-                        'AMBER-standard RESP recipe). Override only if you '
-                        'know why.')
-    p.add_argument('--psi4-nthreads', dest='psi4_nthreads', type=int, default=4,
-                   help='OpenMP threads for PSI4 (default: 4). ~30%% speedup '
-                        'at 4 cores; not linear.')
-    p.add_argument('--psi4-memory', dest='psi4_memory', default='4GB',
-                   help='Memory cap for PSI4 (default: 4GB). PSI4 errors out '
-                        'if too low for the basis set.')
+                        'pick explicitly). `pyscf` = `pip install pyscf`, '
+                        'pure-Python, RECOMMENDED. `gaussian` = commercial '
+                        'license, two-step --gen-gaussian / --gaussian-log '
+                        'workflow. `psi4` = free, separate conda env via '
+                        '`micromamba create -n psi4 -c conda-forge psi4 '
+                        'psiresp`.')
+
+    # PySCF / PSI4 shared knobs (the QM job's compute parameters).
+    # --psi4-* names kept as aliases for backwards compatibility with
+    # invocations from older scripts.
+    p.add_argument('--qm-method', '--psi4-method',
+                   dest='qm_method', default='HF/6-31G*',
+                   help='QM method for --qm-engine pyscf / psi4 '
+                        '(default: HF/6-31G*, the AMBER-standard RESP '
+                        'recipe). Override only if you know why.')
+    p.add_argument('--qm-nthreads', '--psi4-nthreads',
+                   dest='qm_nthreads', type=int, default=4,
+                   help='OpenMP threads for the QM job (default: 4). '
+                        'PySCF/PSI4 scale modestly (~30%% at 4 cores).')
+    p.add_argument('--qm-memory', '--psi4-memory',
+                   dest='qm_memory', default='4GB',
+                   help='Memory cap for the QM job (default: 4GB). '
+                        'PSI4 errors out if too low for the basis set; '
+                        'PySCF reads PYSCF_MAX_MEMORY env var if set.')
     p.add_argument('--psi4-env', dest='psi4_env', default='psi4',
-                   help='Name of the conda env containing psi4 + psiresp '
-                        '(default: psi4). dvbfixer invokes that env via '
-                        '`micromamba run -n <name> python ...` so the BLAS/MKL '
-                        'conflict with OpenMM is avoided. Create it once '
-                        'with `micromamba create -n psi4 -c conda-forge '
-                        'psi4 psiresp`.')
+                   help='Name of the conda env containing psi4 + psiresp, '
+                        'only used by --qm-engine psi4 (default: psi4). '
+                        'dvbfixer invokes that env via `micromamba run -n '
+                        '<name> python ...` so the BLAS/MKL conflict with '
+                        'OpenMM is avoided. Create it once with '
+                        '`micromamba create -n psi4 -c conda-forge psi4 '
+                        'psiresp`.')
+
+    # Gaussian-specific flags (only used by --qm-engine gaussian)
+    p.add_argument('--gen-gaussian', action='store_true',
+                   help='Generate a Gaussian .com input file for RESP '
+                        'charges and exit. Implies --qm-engine gaussian. '
+                        'Run Gaussian on the .com, then re-invoke this '
+                        'command with --gaussian-log.')
+    p.add_argument('--gaussian-log', default=None,
+                   help='Gaussian log file for RESP charges (output of '
+                        'running Gaussian on the .com file). Implies '
+                        '--qm-engine gaussian.')
+    p.add_argument('--gaussian-method', default='HF/6-31G*',
+                   help='QM method written into the generated Gaussian '
+                        '.com (default: HF/6-31G*).')
+    p.add_argument('--gaussian-mem', default='4GB',
+                   help='%%mem= directive in the generated .com '
+                        '(default: 4GB).')
+    p.add_argument('--gaussian-nproc', type=int, default=4,
+                   help='%%nproc= directive in the generated .com '
+                        '(default: 4).')
+
+    # === Housekeeping ===
     p.add_argument('--keep-intermediate', action='store_true',
                    help='Keep antechamber/tleap intermediate files')
     p.add_argument('-v', '--verbose', action='store_true',
@@ -1066,25 +1086,25 @@ def main(argv=None):
             try:
                 if args.qm_engine == 'psi4':
                     print(f"Computing RESP charges via PSI4 + psiresp "
-                          f"({args.psi4_method}, {args.psi4_nthreads} threads, "
-                          f"{args.psi4_memory})...")
+                          f"({args.qm_method}, {args.qm_nthreads} threads, "
+                          f"{args.qm_memory})...")
                     resp_charges = _compute_resp_charges_psi4(
                         input_path,
                         net_charge=args.net_charge,
                         multiplicity=args.multiplicity,
-                        method=args.psi4_method,
-                        nthreads=args.psi4_nthreads,
-                        memory=args.psi4_memory,
+                        method=args.qm_method,
+                        nthreads=args.qm_nthreads,
+                        memory=args.qm_memory,
                         psi4_env=args.psi4_env,
                         verbose=args.verbose)
                 else:  # pyscf
                     print(f"Computing RESP charges via PySCF "
-                          f"({args.psi4_method})...")
+                          f"({args.qm_method})...")
                     resp_charges = _compute_resp_charges_pyscf(
                         input_path,
                         net_charge=args.net_charge,
                         multiplicity=args.multiplicity,
-                        method=args.psi4_method,
+                        method=args.qm_method,
                         verbose=args.verbose)
             except RuntimeError as e:
                 print(f"ERROR: {e}", file=sys.stderr)
