@@ -442,6 +442,16 @@ compatibility.
   fit the fixed-width columns). Without canonicalization OpenMM mis-parses
   these and produces spurious bonds.
 
+- **Free reducing-end sugars in `dvbfixer top`**: by default `dvbfixer top`
+  strips `HO1`/`HO2`/`HO3`/`HO4`/`HO6` at any detected sugar-sugar (or
+  ceramide-sugar) linkage and redistributes the charge onto the linked O
+  (which also switches from `OC311` hydroxyl to `OC3C61` ether). If your
+  glycan has a **genuine free reducing end** and its H is real, use
+  `--keep-all-hydrogens` to bypass the strip. Also honoured by `--acpype`
+  (skips the `_GLYCAM_KEEP_H` filter, so e.g. `NLN HD22` passes through).
+  Do NOT use this flag at real glycosidic linkages — you'll get an
+  over-valent O and grompp will warn.
+
 - **NLN/OLS/OLT residues**: GLYCAM glycoprotein residues. `prepare` renames
   ASN/SER/THR → NLN/OLS/OLT automatically **only when the bonded sugar is
   GLYCAM-named** (UYB/4YB/VMB/...). For PDB-named (NAG/NDG/BMA/...) or

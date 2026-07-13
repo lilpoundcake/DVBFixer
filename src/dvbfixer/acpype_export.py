@@ -118,7 +118,7 @@ def _is_glycam_sugar(resname):
 
 
 def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True,
-                       prot_overrides=None):
+                       prot_overrides=None, keep_all_hydrogens=False):
     """Preprocess PDB for OpenMM:
     - CYS->CYX for disulfide bonds (from CONECT + extra_ss), strip HG
     - Strip H from GLYCAM protein residues (NLN/OLS/OLT), re-added by addHydrogens
@@ -239,7 +239,10 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True,
                 'OLS': {'H', 'HA', 'HB2', 'HB3'},
                 'OLT': {'H', 'HA', 'HB', 'HG21', 'HG22', 'HG23'},
             }
-            if (strip_glycam_h and resname in _GLYCAM_KEEP_H
+            # --keep-all-hydrogens skips the GLYCAM H strip: every input H
+            # passes through even if it's not on the KEEP allowlist.
+            if (not keep_all_hydrogens
+                    and strip_glycam_h and resname in _GLYCAM_KEEP_H
                     and atomname[0] == 'H'
                     and atomname not in _GLYCAM_KEEP_H[resname]):
                 nln_fix += 1
@@ -657,7 +660,8 @@ def _append_solvent_ions(top_path):
 
 
 def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
-                   prot_overrides=None, verbose=False):
+                   prot_overrides=None, verbose=False,
+                   keep_all_hydrogens=False):
     """Export GROMACS topology files using ACPYPE.
 
     Pipeline: PDB -> OpenMM (AMBER+GLYCAM parametrize) -> ParmEd (prmtop/inpcrd)
@@ -671,6 +675,9 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
         prot_overrides: Optional dict {(chain, resseq): variant} for protonation
                         renames (ASH/GLH/HIE/HID/HIP/CYX/LYN)
         verbose: Print detailed output
+        keep_all_hydrogens: If True, skip the _GLYCAM_KEEP_H allowlist filter
+                            in prepare_for_openmm — every input H atom passes
+                            through even if not on the KEEP list.
     """
     from openmm.app import ForceField, Modeller, PDBFile, NoCutoff
     import parmed
@@ -690,7 +697,8 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
     temp_pdb = pdb_path.parent / '_gmx_temp.pdb'
     _, amber_variants = prepare_for_openmm(pdb_path, temp_pdb, extra_ss=extra_ss,
                                            strip_glycam_h=True,
-                                           prot_overrides=prot_overrides)
+                                           prot_overrides=prot_overrides,
+                                           keep_all_hydrogens=keep_all_hydrogens)
 
     pdb = PDBFile(str(temp_pdb))
     topology = pdb.topology

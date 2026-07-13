@@ -1230,10 +1230,15 @@ def build_glycan_trees(glycan_links, chains):
 # Topology builder
 # ---------------------------------------------------------------------------
 class TopologyBuilder:
-    def __init__(self, ff_dir, ff_type='amber', verbose=False):
+    def __init__(self, ff_dir, ff_type='amber', verbose=False,
+                 keep_all_hydrogens=False):
         self.ff_dir = Path(ff_dir)
         self.ff_type = ff_type
         self.verbose = verbose
+        # When True, skip stripping HO1/HO2/HO3/HO4/HO6 at glycosidic
+        # linkage sites and skip the associated charge redistribution.
+        # Used for free reducing-end sugars where the H is real.
+        self.keep_all_hydrogens = keep_all_hydrogens
 
         # Parse all FF files
         rtp_file = self.ff_dir / ('aminoacids.rtp' if ff_type == 'amber' else 'aminoacids.rtp')
@@ -1896,14 +1901,17 @@ class TopologyBuilder:
             rtp_atom_names = [a[0] for a in rtp_res.atoms]
 
             # Determine which HO atoms to remove at linked positions
-            # and redistribute their charge to the bonded O atom
+            # and redistribute their charge to the bonded O atom.
+            # --keep-all-hydrogens skips this stripping (user opts to keep
+            # every input H, e.g. for a free reducing end).
             linked_os = link_atoms.get((ch, rs), set())
             remove_ho = {}  # ho_name -> o_name (for charge transfer)
             rtp_charges = {a[0]: a[2] for a in rtp_res.atoms}
-            for o_name in linked_os:
-                ho_name = 'HO' + o_name[1:]
-                if ho_name in rtp_charges:
-                    remove_ho[ho_name] = o_name
+            if not self.keep_all_hydrogens:
+                for o_name in linked_os:
+                    ho_name = 'HO' + o_name[1:]
+                    if ho_name in rtp_charges:
+                        remove_ho[ho_name] = o_name
 
             # Build RTP->PDB mapping using sugar-specific atom map
             # Invert the PDB->CHARMM map to get CHARMM->PDB
@@ -1946,21 +1954,23 @@ class TopologyBuilder:
             # Defensive: if O1/O2 is not in PDB but wasn't detected as linked,
             # still redistribute its charge to anomeric C. Also skip its HO if
             # the HO is also not in PDB (both removed at glycosidic bond site).
-            for o_name in ('O1', 'O2'):
-                if o_name in linked_os:
-                    continue  # already handled above
-                pdb_o = rtp_to_pdb.get(o_name, o_name)
-                if pdb_o not in pdb_coords and o_name in rtp_charges:
-                    c_name = 'C2' if rtp_name in ('ANE5AC', 'BNE5AC') else 'C1'
-                    charge_adjust[c_name] = charge_adjust.get(c_name, 0.0) + \
-                        rtp_charges[o_name]
-                    # Also handle corresponding HO if it's also not in PDB
-                    ho_name = 'HO' + o_name[1:]
-                    if ho_name in rtp_charges:
-                        ho_pdb = rtp_to_pdb.get(ho_name, ho_name)
-                        if ho_pdb not in pdb_coords:
-                            charge_adjust[c_name] += rtp_charges[ho_name]
-                            remove_ho[ho_name] = o_name
+            # --keep-all-hydrogens skips this defensive redistribution too.
+            if not self.keep_all_hydrogens:
+                for o_name in ('O1', 'O2'):
+                    if o_name in linked_os:
+                        continue  # already handled above
+                    pdb_o = rtp_to_pdb.get(o_name, o_name)
+                    if pdb_o not in pdb_coords and o_name in rtp_charges:
+                        c_name = 'C2' if rtp_name in ('ANE5AC', 'BNE5AC') else 'C1'
+                        charge_adjust[c_name] = charge_adjust.get(c_name, 0.0) + \
+                            rtp_charges[o_name]
+                        # Also handle corresponding HO if it's also not in PDB
+                        ho_name = 'HO' + o_name[1:]
+                        if ho_name in rtp_charges:
+                            ho_pdb = rtp_to_pdb.get(ho_name, ho_name)
+                            if ho_pdb not in pdb_coords:
+                                charge_adjust[c_name] += rtp_charges[ho_name]
+                                remove_ho[ho_name] = o_name
 
             for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
                 # Skip HO atoms at linked positions
@@ -2120,10 +2130,11 @@ class TopologyBuilder:
 
         # At linkage: remove ceramide HO1 and O1 (not in PDB — CHARMM-GUI
         # already removed them). Redistribute their combined charge to C1S.
+        # --keep-all-hydrogens skips this to preserve the input H verbatim.
         cer_remove_ho = {}
         cer_charge_adjust = {}
         cer_type_change = {}
-        if 'HO1' in rtp_charges:
+        if 'HO1' in rtp_charges and not self.keep_all_hydrogens:
             cer_remove_ho['HO1'] = 'O1'
             # O1 not in PDB: redistribute O1+HO1 combined charge to C1S
             if 'O1' not in pdb_atom_names:
@@ -2206,14 +2217,15 @@ class TopologyBuilder:
             pdb_atom_names_set = {a[0] for a in res.atoms}
             rtp_atom_names = [a[0] for a in rtp_res.atoms]
 
-            # Determine linked O atoms
+            # Determine linked O atoms; skip HO-strip if --keep-all-hydrogens
             linked_os = link_atoms.get((ch, rs), set())
             remove_ho = {}
             rtp_charges = {a[0]: a[2] for a in rtp_res.atoms}
-            for o_name in linked_os:
-                ho_name = 'HO' + o_name[1:]
-                if ho_name in rtp_charges:
-                    remove_ho[ho_name] = o_name
+            if not self.keep_all_hydrogens:
+                for o_name in linked_os:
+                    ho_name = 'HO' + o_name[1:]
+                    if ho_name in rtp_charges:
+                        remove_ho[ho_name] = o_name
 
             # Build RTP->PDB atom name mapping
             carb_rtp_to_pdb = {}
@@ -2254,21 +2266,23 @@ class TopologyBuilder:
                     else:
                         type_change[o_name] = 'OC3C61'
 
-            # Defensive: redistribute charge of O1/O2 not in PDB even if not in linked_os
-            for o_name in ('O1', 'O2'):
-                if o_name in linked_os:
-                    continue
-                pdb_o = rtp_to_pdb.get(o_name, o_name)
-                if pdb_o not in pdb_coords and o_name in rtp_charges:
-                    c_name = 'C2' if rtp_name in ('ANE5AC', 'BNE5AC') else 'C1'
-                    charge_adjust[c_name] = charge_adjust.get(c_name, 0.0) + \
-                        rtp_charges[o_name]
-                    ho_name = 'HO' + o_name[1:]
-                    if ho_name in rtp_charges:
-                        ho_pdb = rtp_to_pdb.get(ho_name, ho_name)
-                        if ho_pdb not in pdb_coords:
-                            charge_adjust[c_name] += rtp_charges[ho_name]
-                            remove_ho[ho_name] = o_name
+            # Defensive: redistribute charge of O1/O2 not in PDB even if not
+            # in linked_os. --keep-all-hydrogens skips this too.
+            if not self.keep_all_hydrogens:
+                for o_name in ('O1', 'O2'):
+                    if o_name in linked_os:
+                        continue
+                    pdb_o = rtp_to_pdb.get(o_name, o_name)
+                    if pdb_o not in pdb_coords and o_name in rtp_charges:
+                        c_name = 'C2' if rtp_name in ('ANE5AC', 'BNE5AC') else 'C1'
+                        charge_adjust[c_name] = charge_adjust.get(c_name, 0.0) + \
+                            rtp_charges[o_name]
+                        ho_name = 'HO' + o_name[1:]
+                        if ho_name in rtp_charges:
+                            ho_pdb = rtp_to_pdb.get(ho_name, ho_name)
+                            if ho_pdb not in pdb_coords:
+                                charge_adjust[c_name] += rtp_charges[ho_name]
+                                remove_ho[ho_name] = o_name
 
             resnr_sugar = tree_idx + 2  # ceramide is resnr 1
             for atom_name, atom_type, charge, cgnr in rtp_res.atoms:
@@ -3006,6 +3020,21 @@ def parse_args(argv=None):
                              'matched to the water model). Ignored with --ff charmm.')
     parser.add_argument('--ignh', action='store_true',
                         help='Ignore hydrogens in input PDB')
+    parser.add_argument('--keep-all-hydrogens', dest='keep_all_hydrogens',
+                        action='store_true',
+                        help='Do not remove any hydrogen atoms from the '
+                             'input (default OFF: HO1/HO2/HO3/HO4/HO6 at '
+                             'glycosidic linkage sites are stripped and '
+                             'their charge is redistributed onto the linked '
+                             'O — matches the CHARMM RTP template for a '
+                             'formed glycosidic bond). Use when the input '
+                             'has a free reducing end that must keep its H, '
+                             'or when charges must round-trip untouched. '
+                             'WARNING: at a real glycosidic linkage this '
+                             'produces an over-valent O (H + neighbour C '
+                             'bonded to the same O); grompp may complain '
+                             'and the resulting energy is chemically wrong. '
+                             'Use only when you know why.')
     parser.add_argument('--no-infer-conect', dest='no_infer_conect',
                         action='store_true',
                         help='Skip automatic CONECT inference. By default '
@@ -3133,7 +3162,8 @@ def main(argv=None):
         export_gromacs(input_path, out_dir, basename=basename,
                        extra_ss=extra_ss or None,
                        prot_overrides=prot_overrides or None,
-                       verbose=args.verbose)
+                       verbose=args.verbose,
+                       keep_all_hydrogens=args.keep_all_hydrogens)
         return
 
     # Determine FF directory
@@ -3157,7 +3187,8 @@ def main(argv=None):
         sys.exit(1)
 
     # Build topology builder first (need its residue dict for chain filtering)
-    builder = TopologyBuilder(ff_dir, args.ff, args.verbose)
+    builder = TopologyBuilder(ff_dir, args.ff, args.verbose,
+                              keep_all_hydrogens=args.keep_all_hydrogens)
 
     # Strip water and ion residues (handled separately via counting)
     ion_names_for_filter = set()
