@@ -13,6 +13,7 @@ Writes a `.dat` file recording all atoms in rebuilt gap residues. This is merged
 - **Deterministic residue numbering** — gap-fill residues are numbered from input resseq jumps (not from `align2d`'s score-based placement). N-terminal extras extend backward, internal gaps fill between input neighbours, C-terminal extras extend forward — all via `first_resseq + N - K`. Mutation-tolerant via Needleman-Wunsch fallback. HETATMs attached to a protein chain keep their original resseqs.
 - **`--fasta` headers must encode chain IDs**: `>chain_X`, `>PDBID_X` (e.g. `>1abc_A`), or `>X`. Matched by ID, not file order. Clear error if unparseable.
 - **Plain-language Modeller diagnostics** — common errors (BLK alignment, sequence difference, unknown residue type) get a clear cause + remediation alongside the raw Modeller message.
+- **Input residues pinned by default** — a `_PinnedLoopModel` subclass overrides `select_loop_atoms()` so only the newly-modeled gap residues move during Modeller's loop refinement MD. Prevents the ±~3 residue flank drift produced by stock LoopModel. The initial automodel CG is left untouched (all atoms) so any pre-existing input close contacts get relaxed as usual — otherwise they'd survive into the model output and trip OpenBabel's CONECT inference in the downstream `prepare` step (spurious external bonds → OpenMM template match failures on residues far from any gap). Downstream `minimize` still refines the whole system under a proper force field. Pass `--no-pin-input` to restore the legacy behaviour.
 
 ## Usage
 
@@ -47,6 +48,7 @@ dvbfixer model input.pdb --keep-workdir -v
 | `--num-loops` | 2 | Number of loop refinement models per initial model |
 | `--num-output` | 1 | Number of top-ranked candidates to save (ceiling: `num_models × num_loops`). Sorted ascending by Modeller's `molpdf` (best first). With `--num-output > 1`, output filenames get a `_N` suffix |
 | `--md-level` | fast | MD refinement level: none, fast, slow, very_slow, slow_large |
+| `--pin-input` / `--no-pin-input` | **on** | Freeze every input-structure residue during MD refinement — only gap residues move. Prevents flanking-residue drift; the downstream `minimize` step refines the whole system properly. Pass `--no-pin-input` for the legacy LoopModel behaviour (gap ±~3 residue flank mobile). |
 | `--no-terminal` | off | Do not model missing N/C terminal residues (only rebuild internal gaps) |
 | `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |
 | `--keep-workdir` | off | Keep Modeller temp directory |

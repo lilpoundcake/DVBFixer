@@ -76,6 +76,7 @@ Organised by which pipeline step each flag flows into.
 | `--md-level` | fast | Modeller MD refinement level (`none`, `fast`, `slow`, `very_slow`, `slow_large`) |
 | `--fasta` | none | FASTA file with complete sequence(s) |
 | `--num-output` | 1 | Save top-N candidate models; zbs uses the best (`_1`) downstream, other candidates remain on disk |
+| `--pin-input` / `--no-pin-input` | **on** | Freeze input residues during Modeller's MD refinement (only gap residues move). Prevents flanking drift. Pass `--no-pin-input` for legacy LoopModel behaviour (gap ±~3 residue flank mobile). |
 
 ### `prepare` (step 3)
 | Flag | Default | Description |

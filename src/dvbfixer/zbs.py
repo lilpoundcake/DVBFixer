@@ -56,6 +56,13 @@ def parse_args(argv=None):
                    help="Save top-N candidate models from Modeller (default: 1). "
                         "With N>1, the model step writes <stem>_model_1.pdb, "
                         "..._2.pdb, ... zbs picks _1 (best) for downstream.")
+    p.add_argument("--pin-input", dest="pin_input",
+                   action=argparse.BooleanOptionalAction, default=True,
+                   help="During Modeller's loop refinement MD, allow only "
+                        "the gap residues to move (no ±flank margin). "
+                        "Default ON — pass --no-pin-input to restore the "
+                        "legacy LoopModel behaviour (gap ±~3 residue flank "
+                        "mobile).")
 
     # prepare
     p.add_argument("--skip-prepare", action="store_true",
@@ -176,6 +183,8 @@ def main(argv=None):
             model_argv.append("--no-terminal")
         if args.fasta:
             model_argv.extend(["--fasta", args.fasta])
+        if not args.pin_input:
+            model_argv.append("--no-pin-input")
         if args.verbose:
             model_argv.append("-v")
         model_main(model_argv)

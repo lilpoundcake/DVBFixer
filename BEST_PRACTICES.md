@@ -315,6 +315,27 @@ Default `--num-output 1` keeps today's single-file naming
 (`<stem>_model.pdb`) unchanged. With `-o custom.pdb --num-output N`
 the names become `custom_1.pdb`, `custom_2.pdb`, etc.
 
+### Preventing flanking-residue drift
+
+By default `dvbfixer model` freezes every input-structure residue during
+Modeller's MD refinement — only the newly-modeled gap residues move. This
+matters most for antibodies: stock Modeller `LoopModel` treats the ±~3
+residue flank around each CDR gap as mobile and lets it drift during MD,
+which shows up as CDR-anchor residues no longer matching the input crystal
+coordinates. `dvbfixer model` now installs a `_PinnedLoopModel` subclass
+that clips `insertion_ext=0, deletion_ext=0` so only the gap residues
+themselves move. Downstream `dvbfixer minimize` then refines everything
+under AMBER/CHARMM anyway, so no fidelity is lost.
+
+Escape hatch (rarely needed):
+
+```bash
+# Legacy LoopModel behaviour — gap ±~3 residue flank mobile during MD
+dvbfixer model input.pdb --no-pin-input -v
+```
+
+Also available on `dvbfixer zbs` (same flag, same default).
+
 **Antibody numbering** with `renumber --scheme`. Five schemes supported, all local — no web service. ANARCI handles V-domains; bundled human IgG1/Cκ/Cλ EU references handle C-domains via Needleman-Wunsch.
 
 ```bash

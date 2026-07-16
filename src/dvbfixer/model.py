@@ -182,6 +182,16 @@ def parse_args(argv=None):
         help="MD refinement level for loop modeling (default: fast)"
     )
     p.add_argument(
+        "--pin-input", dest="pin_input",
+        action=argparse.BooleanOptionalAction, default=True,
+        help="During Modeller's loop refinement MD, allow only the "
+             "newly-modeled gap residues to move — no ±flank margin. "
+             "Default ON: prevents flanking-residue drift; the initial "
+             "automodel CG still runs on all atoms so any input close "
+             "contacts get relaxed normally. Pass --no-pin-input for the "
+             "legacy LoopModel behaviour (gap ±~3 residue flank mobile)."
+    )
+    p.add_argument(
         "--no-terminal", action="store_true",
         help="Do not model missing N/C terminal residues (only rebuild internal gaps)"
     )
@@ -645,9 +655,36 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
     The target sequence for non-protein chains is derived from Modeller's own
     template reading to guarantee the '.' counts match exactly.
     """
-    from modeller import Environ, Alignment, Model, log
+    from modeller import Environ, Alignment, Model, Selection, log
     from modeller.automodel import LoopModel
     from modeller import automodel as am
+
+    class _PinnedLoopModel(LoopModel):
+        """LoopModel variant that lets ONLY gap residues move during
+        loop refinement MD.
+
+        Overrides only `select_loop_atoms` — the loop refinement stage
+        that produces the visible ±~3 residue flank drift. Deliberately
+        does NOT override `select_atoms` (initial automodel CG). Doing so
+        (earlier version of this class did) held every non-gap atom at
+        its raw input coords, which preserved any pre-existing input
+        close contacts. Downstream `dvbfixer prepare` runs OpenBabel
+        `ConnectTheDots` on the model output, which then infers a
+        spurious bond across a close contact and trips OpenMM template
+        matching (e.g. `1 N atom too many externally bonded` on a GLN
+        far away from any gap). Letting the initial automodel CG run on
+        all atoms lets those contacts relax normally.
+
+        Uses `self.loops(..., insertion_ext=0, deletion_ext=0)` to strip
+        the default extension margin that stock LoopModel adds.
+        """
+        def select_loop_atoms(self):
+            aln = self.read_alignment()
+            loops = self.loops(aln, minlength=1, maxlength=9999,
+                               insertion_ext=0, deletion_ext=0,
+                               include_termini=True)
+            sel = Selection(loops).only_std_residues()
+            return sel if len(sel) > 0 else Selection(self)
 
     if args.verbose:
         log.verbose()
@@ -740,10 +777,14 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
         "slow_large": am.refine.slow_large,
     }
 
-    a = LoopModel(env,
-                  alnfile='alignment.pir',
-                  knowns=pdb_name,
-                  sequence='target')
+    LoopModelCls = _PinnedLoopModel if getattr(args, 'pin_input', True) else LoopModel
+    a = LoopModelCls(env,
+                     alnfile='alignment.pir',
+                     knowns=pdb_name,
+                     sequence='target')
+    if args.verbose and LoopModelCls is _PinnedLoopModel:
+        print("Pinning input residues: only gap residues will move during MD "
+              "refinement (--no-pin-input to disable)")
     a.starting_model = 1
     a.ending_model = args.num_models
     a.loop.starting_model = 1
