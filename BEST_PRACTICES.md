@@ -33,6 +33,19 @@ academic license — set the key in `<env>/lib/modeller-10.8/modlib/modeller/con
 | Multi-template homology model | `dvbfixer homology` |
 | Run the full prepare pipeline | `dvbfixer zbs` |
 
+## Force-field selection
+
+Every OpenMM-using tool (`prepare`, `minimize`, `protonate`, `pull`, `zbs`) accepts `--ff <short-name>` — no more typing `amber19/protein.ff19SB.xml amber19/tip3p.xml`. The short-names are:
+
+- `auto` (default) — detect from residue names in the input.
+- `amber` / `amber19` — ff19SB + TIP3P (plain protein).
+- `amber+glycam` — ff14SB + GLYCAM_06j-1 + TIP3P-FB (glycoproteins with GLYCAM naming: NLN/OLS/OLT + 3-char sugar codes like 4YB, VMB).
+- `amber+lipid`, `amber+nucleic` — for membrane and nucleic-acid systems.
+- `charmm` / `charmm36` — CHARMM36 (auto-picked when HSD/HSE/HSP/ASPP/GLUP or CHARMM-GUI 4-char sugars like BGLC/BMAN are detected).
+- `charmm2024` — CHARMM36 (2024 release).
+
+The tool always prints its FF choice on startup (`FF: amber+glycam (auto-selected: ...)  → amber14-all.xml ...`). Explicit XML paths still work for backward compat. See [docs/force-fields.md](docs/force-fields.md) for the full table and auto-detection rules.
+
 ## Workflow 1 — Standard protein from PDB
 
 The fastest path for a crystal structure with no glycans / unusual ligands:

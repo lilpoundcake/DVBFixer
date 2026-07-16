@@ -56,7 +56,7 @@ Organised by which pipeline step each flag flows into.
 |------|---------|-------------|
 | `-o`, `--output` | `<input>_zbs.pdb` | Final output PDB file |
 | `--ph` | 7.0 | pH for protonation and hydrogen addition (used by prepare, minimize, protonate) |
-| `--ff` | amber19/protein.ff19SB.xml amber19/tip3p.xml | Force field XML files (minimize) |
+| `--ff` | `auto` | Force field forwarded to prepare / minimize / protonate. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. See [force-fields.md](../force-fields.md). |
 | `--keep-water` | off | Keep water molecules (removed by default) |
 | `--no-infer-conect` | off | Skip auto CONECT inference in prepare/minimize/protonate |
 | `--keep-interim` | off | Keep all intermediate files (default: only final output) |

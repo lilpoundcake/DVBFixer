@@ -26,6 +26,7 @@ dvbfixer pull input.pdb --bond A:22:SG:A:96:SG --radius 8.0 -o output.pdb
 | `--radius` | 6.0 | Radius around bond endpoints for free atoms (angstroms) |
 | `--target` | auto | Target bond distance (angstroms, auto-detected from element pair) |
 | `--rename` | off | Rename non-canonical residues before processing |
+| `--ff` | `auto` | Force field for the OpenMM partial minimization. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. See [force-fields.md](../force-fields.md). |
 | `-v`, `--verbose` | off | Print detailed progress |
 
 ## See also

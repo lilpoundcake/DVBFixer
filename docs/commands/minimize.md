@@ -48,7 +48,7 @@ dvbfixer minimize glycoprotein.pdb --obminimize-refine --refine-heterogens-only
 | `-o`, `--output` | `<input>_minimized.pdb` | Output minimized PDB |
 | `--dat` | `<input>.dat` | Restraint data file from `dvbfixer prepare` |
 | `--ph` | 7.0 | pH for hydrogen addition if needed |
-| `--ff` | amber19/protein.ff19SB.xml amber19/tip3p.xml | Force field XML files |
+| `--ff` | `auto` | Force field. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. See [force-fields.md](../force-fields.md). |
 | `--padding` | 1.0 | Solvent padding in nm |
 | `--restraint-k` | 100.0 | Strong restraint constant (kcal/mol/A^2) |
 | `--weak-k` | 5.0 | Weak restraint constant for new backbone (kcal/mol/A^2) |

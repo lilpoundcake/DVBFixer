@@ -24,7 +24,7 @@ from openmm.app import ForceField, Modeller, PDBFile, PME, Simulation
 from openmm.unit import kelvin, nanometer, picosecond
 
 
-DEFAULT_FF = ['amber19/protein.ff19SB.xml', 'amber19/tip3p.xml']
+DEFAULT_FF = 'auto'
 DEFAULT_PH = 7.0
 DEFAULT_PADDING = 1.0  # nm
 DEFAULT_RESTRAINT_K = 100.0  # kcal/mol/A^2 for original atoms
@@ -46,8 +46,12 @@ def parse_args(argv=None):
     p.add_argument("--dat", help="Restraint data file from 'dvbfixer prepare' (default: <input>.dat)")
     p.add_argument("--ph", type=float, default=DEFAULT_PH,
                    help=f"pH for hydrogen addition if needed (default: {DEFAULT_PH})")
-    p.add_argument("--ff", nargs='+', default=DEFAULT_FF,
-                   help=f"Force field XML files (default: {' '.join(DEFAULT_FF)})")
+    p.add_argument("--ff", nargs='+', default=[DEFAULT_FF],
+                   help="Force field selection. Accepts a short name "
+                        "(auto, amber, amber+glycam, charmm, ...) or an "
+                        "explicit list of OpenMM XML paths. Default: 'auto' — "
+                        "detect from residue names in the input. "
+                        "See docs/force-fields.md.")
     p.add_argument("--padding", type=float, default=DEFAULT_PADDING,
                    help=f"Solvent padding in nm (default: {DEFAULT_PADDING})")
     p.add_argument("--restraint-k", type=float, default=DEFAULT_RESTRAINT_K,
@@ -319,21 +323,12 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     )
     if has_heterogens:
         from dvbfixer.ffutils import create_forcefield_with_openff
-        # Replace user --ff with AMBER14 + GLYCAM + water/ion model. The
-        # default ff19SB doesn't combine with GLYCAM; ff14SB does.
-        # ALWAYS include the water-model XML even with --no-solvent: in
-        # AMBER14 the ion parameters (Ca2+, Mg2+, Zn2+, Na+, Cl-, K+, ...)
-        # ship inside the water-model XML, so structures containing ions
-        # would otherwise fail template matching. addSolvent itself is
-        # still gated by args.no_solvent below — loading the XML only
-        # registers templates, it doesn't add a solvent box.
-        ff_xmls = ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml',
-                   'amber14/tip3pfb.xml']
+        # SMIRNOFF is registered on top of the resolved args.ff so any
+        # unknown ligand residues can still be parametrised on the fly
+        # (create_forcefield_with_openff's original purpose).
         forcefield = create_forcefield_with_openff(
-            ff_xmls, stripped_top, verbose=args.verbose,
+            args.ff, stripped_top, verbose=args.verbose,
         )
-        print(f"  FF: AMBER14 + GLYCAM_06j-1 + tip3pfb (water+ions) "
-              f"(+ SMIRNOFF for unknown ligands)")
     else:
         forcefield = ForceField(*args.ff)
 
@@ -1713,6 +1708,12 @@ def main(argv=None):
         from dvbfixer.pdbutils import _materialise_inferred_pdb
         input_path = Path(_materialise_inferred_pdb(
             input_path, verbose=args.verbose))
+
+    # Resolve --ff short-name / auto-detect from input residue names.
+    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    args.ff, _ff_alias, _ff_reason = resolve_ff(
+        args.ff, args.input, verbose=args.verbose)
+    print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
     # .dat is optional: if --dat given, use it; otherwise auto-detect; otherwise skip
     if args.dat:

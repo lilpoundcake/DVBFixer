@@ -44,7 +44,7 @@ dvbfixer top input.pdb -o my_topology.top --pdb my_conf.pdb
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-o`, `--output` | `topol.top` | Output .top file |
-| `--ff` | `amber` | Force field: `amber` or `charmm` |
+| `--ff` | `amber` | Force field: `amber` (bundled `FF/amber99sb-ildn-lipid21.ff/`) or `charmm` (bundled `FF/charmm36_ljpme-jul2022.ff/`). **Note**: `top` uses a separate `--ff` namespace from the OpenMM tools (`prepare`/`minimize`/`protonate`/`pull`/`zbs`) — it parses GROMACS RTP files, not OpenMM XML. See [force-fields.md](../force-fields.md) for the side-by-side comparison. |
 | `--ff-dir` | (bundled) | Custom force field directory |
 | `--water` | `tip3p` | Water model: `tip3p`, `spc`, `spce`, `tip4p`, `tip4pew`, `opc`. With `--ff charmm` only `tip3p`/`spc`/`spce` are accepted (the CHARMM-tuned variants); `opc`/`tip4p`/`tip4pew` with CHARMM is rejected because CHARMM ions are fitted to CHARMM-TIP3P |
 | `--ion-set` | `auto` | Ion LJ parameter set: `auto` picks the set matched to the water model (`jc-tip3p` for TIP3P, `jc-spce` for SPC/SPCE, `jc-tip4pew` for TIP4P/TIP4P-Ew, `lm-hfe-opc` for OPC). Override choices: `jc-tip3p`, `jc-spce`, `jc-tip4pew`, `lm-hfe-opc`, `lm-iod-opc`, `dang-legacy` (bundled Aqvist Na⁺/Dang Cl⁻ — pre-2008 behaviour, for backwards-compat). AMBER only — ignored with `--ff charmm`. Covers Na⁺/K⁺/Cl⁻/Ca²⁺/Mg²⁺/Zn²⁺ |

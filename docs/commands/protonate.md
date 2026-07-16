@@ -49,7 +49,7 @@ dvbfixer protonate input.pdb --his-default HID
 | `--protassign` / `--no-protassign` | **ON** | Run MolProbity Reduce to optimise HIS tautomers and detect ASN/GLN side-chain flips (see below). Pass `--no-protassign` to disable |
 | `--protassign-binary` | auto | Override path to the `reduce` binary |
 | `--no-hydrogens` | off | Only rename residues, do not add/fix hydrogen atoms |
-| `--ff` | amber19/protein.ff19SB.xml amber19/tip3p.xml | Force field XML files for hydrogen addition |
+| `--ff` | `auto` | Force field for hydrogen addition. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. See [force-fields.md](../force-fields.md). |
 | `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |
 | `--summary` | off | Print full pKa table |
 | `-v`, `--verbose` | off | Print non-standard protonation changes |

@@ -336,6 +336,25 @@ All three tools (prepare/minimize/protonate) share these:
 - `fix_atom_hetatm_records(pdb_path)` — post-processes the output PDB to rewrite `HETATM` → `ATOM` for protein residues (incl. AMBER protonation variants HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN and GLYCAM glycoprotein residues NLN/OLS/OLT). OpenMM's `PDBFile.writeFile` defaults non-standard residue names to HETATM; this helper restores them to ATOM. Called after every PDB write in prepare/minimize/protonate. Idempotent.
 - Constants: `PROTEIN_RESIDUES` (includes NLN/OLS/OLT + AMBER variants), `GLYCAM_PROTEIN_RESIDUES = {'NLN', 'OLS', 'OLT'}`, `GLYCAM_CAPS = {'ROH', 'OME', 'TBT', 'CMET'}`, `FORCE_ATOM_RESIDUES = frozenset(PROTEIN_RESIDUES)`.
 
+### Shared FF selection (`ffutils.resolve_ff`)
+
+Every OpenMM-using tool (`prepare`, `minimize`, `protonate`, `pull`, `zbs`) accepts `--ff` as either a short-name alias (`auto`, `amber`, `amber+glycam`, `amber+lipid`, `amber+nucleic`, `charmm`, `charmm2024`, …) or an explicit list of OpenMM XML paths (backward compat). Default: `auto`. Wired at the top of each tool's `main()`:
+
+```python
+from dvbfixer.ffutils import resolve_ff, print_ff_selection
+args.ff, alias, reason = resolve_ff(args.ff, args.input, verbose=args.verbose)
+print_ff_selection(alias, reason, args.ff)
+```
+
+`FF_ALIASES` dict in `ffutils.py` maps short names → XML lists. `detect_ff_from_pdb(pdb_path)` scans residue names for **unambiguous** markers:
+- **CHARMM** (any hit → `charmm`): protonation names `HSD/HSE/HSP/ASPP/GLUP/LSN`; CHARMM-GUI 4-char sugar names `BGLC/AGLC/BMAN/AMAN/BGAL/AGAL/BFUC/AFUC/BGLCNA/AGLCNA/BGALNA/AGALNA/ANE5/BNE5/ANE5AC/BNE5AC/AIDO/BIDO`; ceramides `CER1/CER160/CER180/…`.
+- **GLYCAM** (any hit → `amber+glycam`): protein `NLN/OLS/OLT`; caps `ROH/OME/TBT/CMET`; 3-char sugar codes matching `[linkage][sugar][anomer]` via `is_glycam_sugar`.
+- **Ambiguous PDB sugars** (`NAG/BMA/MAN/GAL/FUC/…`): NEVER auto-select an FF. Neither `amber+glycam` (needs GLYCAM 3-char codes) nor `charmm36.xml` (needs 4-char names) has templates for bare PDB names. Falls through to `amber` default with a warning telling the user to `dvbfixer convert --to-amber` or `--to-charmm` first.
+
+Precedence: CHARMM markers win over GLYCAM (protonation names are full-file FF-prep signals). If the user asked for `amber`/`amber19`/`amber14` but the input clearly has CHARMM or GLYCAM markers, `resolve_ff` *upgrades* the choice and logs why. If the user asked for `charmm` on a plain-protein input, no downgrade — user's explicit choice wins.
+
+`top.py` uses a separate `--ff` namespace (`amber` or `charmm` mapping to bundled GROMACS FF directories in `FF/`, parsed via `rtp_parser.py`) — different format (RTP not XML), different set of supported FFs, different alias-to-file mapping. See `docs/force-fields.md` for the side-by-side.
+
 ## PDB Format Notes
 
 - Residue identity = `(resSeq, iCode)` not just resSeq. Column 26 (0-based) is the insertion code.

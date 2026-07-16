@@ -54,8 +54,11 @@ def parse_args(argv=None):
         help="Only rename residues, do not add/fix hydrogen atoms"
     )
     p.add_argument(
-        "--ff", nargs='+', default=['amber19/protein.ff19SB.xml', 'amber19/tip3p.xml'],
-        help="Force field XML files for hydrogen addition (default: amber19/protein.ff19SB.xml amber19/tip3p.xml)"
+        "--ff", nargs='+', default=['auto'],
+        help="Force field for hydrogen addition. Accepts a short name "
+             "(auto, amber, amber+glycam, charmm, ...) or an explicit list "
+             "of OpenMM XML paths. Default: 'auto' — detect from residue "
+             "names in the input. See docs/force-fields.md."
     )
     p.add_argument(
         "--keep-water", action="store_true",
@@ -523,7 +526,8 @@ def _scan_glycam_residues(input_path):
     return positions, has_glycam
 
 
-# Default FF args (in argparse) so we can detect whether the user changed them
+# Kept for backwards-compat imports; FF selection now flows through
+# ffutils.resolve_ff (see main()).
 _DEFAULT_FF = ['amber19/protein.ff19SB.xml', 'amber19/tip3p.xml']
 
 
@@ -769,14 +773,14 @@ def main(argv=None):
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prot")
 
-    # GLYCAM detection: if input has NLN/OLS/OLT or GLYCAM-named sugars,
-    # switch FF to AMBER14+GLYCAM (ff19SB has no GLYCAM templates → crash).
+    # Position scan is still needed downstream (to filter GLYCAM residues
+    # out of PROPKA-driven renames). FF selection now goes through the
+    # shared resolver so short-names like --ff amber / charmm work.
     glycam_positions, has_glycam = _scan_glycam_residues(input_path)
-    if has_glycam and args.ff == _DEFAULT_FF:
-        args.ff = ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml',
-                   'amber14/tip3pfb.xml']
-        if args.verbose:
-            print(f"GLYCAM residues detected → using FF: {' '.join(args.ff)}")
+    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    args.ff, _ff_alias, _ff_reason = resolve_ff(
+        args.ff, input_path, verbose=args.verbose)
+    print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
     print(f"Running PROPKA3 on {input_path} at pH {args.ph}...")
     mc = run_propka(input_path)

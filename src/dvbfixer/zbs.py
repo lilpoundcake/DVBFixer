@@ -34,9 +34,12 @@ def parse_args(argv=None):
     p.add_argument("-o", "--output", help="Final output PDB file (default: <input>_zbs.pdb)")
     p.add_argument("--ph", type=float, default=7.0,
                    help="pH for protonation and hydrogen addition (default: 7.0)")
-    p.add_argument("--ff", nargs='+',
-                   default=['amber19/protein.ff19SB.xml', 'amber19/tip3p.xml'],
-                   help="Force field XML files for minimization")
+    p.add_argument("--ff", nargs='+', default=['auto'],
+                   help="Force field selection forwarded to prepare / "
+                        "minimize / protonate. Accepts a short name (auto, "
+                        "amber, amber+glycam, charmm, ...) or an explicit "
+                        "list of OpenMM XML paths. Default: 'auto'. "
+                        "See docs/force-fields.md.")
 
     # renumber
     p.add_argument("--skip-renumber", action="store_true",
@@ -207,7 +210,8 @@ def main(argv=None):
         print(f"{'='*60}")
         from dvbfixer.prepare import main as prepare_main
         out = step_output("prepared")
-        prepare_argv = [current, "-o", out, "--ph", str(args.ph)]
+        prepare_argv = [current, "-o", out, "--ph", str(args.ph),
+                        "--ff"] + args.ff
         if not args.keep_heterogens:
             prepare_argv.append("--strip-heterogens")
         if not args.heterogen_h:
@@ -264,7 +268,8 @@ def main(argv=None):
         from dvbfixer.protonate import main as protonate_main
         out = step_output("prot")
         protonate_argv = [current, "-o", out,
-                          "--ph", str(args.ph)]
+                          "--ph", str(args.ph),
+                          "--ff"] + args.ff
         if not args.protassign:
             protonate_argv.append("--no-protassign")
         if args.no_infer_conect:

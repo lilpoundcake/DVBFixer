@@ -68,6 +68,7 @@ dvbfixer prepare input.pdb --mutate A:39:ALA --mutate H:446:del -v
 | `--keep-water` | off | Keep crystallographic waters |
 | `--strip-heterogens` | off (default: keep) | Remove heterogens (sugars, ligands, ions) before processing — protein-only mode |
 | `--no-heterogen-h` | off | Keep heterogens but skip H addition |
+| `--ff` | `auto` | Force field for the heterogen-H addition step. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. Only consulted when heterogen-H addition actually runs. See [force-fields.md](../force-fields.md). |
 | `--mutate` | none | Mutate a residue: `CHAIN:RESNUM:NEW_AA` (substitution) or `CHAIN:RESNUM:del` (deletion). Insertion codes supported (`H:100A:del`). Repeatable. |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
 | `-v`, `--verbose` | off | Print detailed progress |

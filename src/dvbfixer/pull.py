@@ -21,7 +21,7 @@ from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
 
 
 # Default force field (protein only)
-DEFAULT_FF = ['amber19/protein.ff19SB.xml', 'amber19/tip3p.xml']
+DEFAULT_FF = 'auto'
 
 # Default target distances by bond type (angstroms)
 TARGET_DISTANCES = {
@@ -69,8 +69,12 @@ def parse_args(argv=None):
                    help="Anchor one endpoint (freeze its side, only move the other)")
     p.add_argument("--max-iter", type=int, default=1000,
                    help="Max minimization iterations (default: 1000)")
-    p.add_argument("--ff", nargs='+', default=DEFAULT_FF,
-                   help=f"Force field XML files (default: {' '.join(DEFAULT_FF)})")
+    p.add_argument("--ff", nargs='+', default=[DEFAULT_FF],
+                   help="Force field selection. Accepts a short name "
+                        "(auto, amber, amber+glycam, charmm, ...) or an "
+                        "explicit list of OpenMM XML paths. Default: 'auto' — "
+                        "detect from residue names in the input. "
+                        "See docs/force-fields.md.")
     p.add_argument("--rename", action="store_true",
                    help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing")
     p.add_argument("-v", "--verbose", action="store_true",
@@ -549,6 +553,11 @@ def main(argv=None):
         sys.exit(1)
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_pulled")
+
+    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    args.ff, _ff_alias, _ff_reason = resolve_ff(
+        args.ff, input_path, verbose=args.verbose)
+    print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
     if args.rename:
         from dvbfixer.rename import canonicalize_pdb

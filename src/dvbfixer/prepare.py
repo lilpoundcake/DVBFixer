@@ -55,6 +55,14 @@ def parse_args(argv=None):
     p.add_argument("--no-heterogen-h", dest="heterogen_h",
                    action="store_false", default=True,
                    help="Skip hydrogen addition for heterogens (sugars/ligands).")
+    p.add_argument("--ff", nargs='+', default=['auto'],
+                   help="Force field selection for heterogen-H addition. "
+                        "Accepts a short name (auto, amber, amber+glycam, "
+                        "charmm, ...) or an explicit list of OpenMM XML "
+                        "paths. Default: 'auto' — detect from residue names "
+                        "in the input. See docs/force-fields.md. Only "
+                        "consulted when heterogen-H addition runs; the "
+                        "protein-only PDBFixer path is unaffected.")
     p.add_argument("--mutate", action="append", default=[],
                    metavar="CHAIN:RESNUM:NEW_AA",
                    help="Mutate a residue (e.g. A:39:ALA, A:83:HIP). Use "
@@ -1803,7 +1811,8 @@ def _canonicalize_conect_records(input_path, verbose=False):
 
 
 def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
-                 mutations=None, heterogen_h=True, removed_residues_meta=None):
+                 mutations=None, heterogen_h=True, removed_residues_meta=None,
+                 ff_xmls=None):
     """Run PDBFixer to add missing atoms/residues. Returns (fixer, new_atom_indices)."""
     # Glycoprotein-input fixes: rewrite HETATM→ATOM for protein/GLYCAM
     # glycoprotein residues (NLN/OLS/OLT) and drop spurious TER records
@@ -2111,16 +2120,18 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
 
     if heterogen_h:
         # BioLuminate-style: add H to protein AND heterogens (sugars, ligands).
-        # Uses AMBER14 + GLYCAM_06j-1 + SMIRNOFF (for arbitrary ligands via SMILES).
-        # tip3pfb.xml is included for ion templates (Ca2+, Mg2+, Zn2+, Na+,
-        # Cl-, K+, etc.) — AMBER ships them inside the water-model XML, so
-        # without it any structure containing ions fails template matching.
+        # ff_xmls comes from the caller (resolved via ffutils.resolve_ff).
+        # Fall back to amber14+GLYCAM if caller didn't pass one. SMIRNOFF is
+        # registered on top for arbitrary unknown ligands via SMILES. The
+        # water-model XML is included for ion templates (Ca2+, Mg2+, Zn2+,
+        # Na+, Cl-, K+, etc.) which AMBER ships inside the water XML.
+        _ff_xmls = ff_xmls or ['amber14-all.xml',
+                               'amber14/GLYCAM_06j-1.xml',
+                               'amber14/tip3pfb.xml']
         try:
             from dvbfixer.ffutils import create_forcefield_with_openff
             ff = create_forcefield_with_openff(
-                ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml',
-                 'amber14/tip3pfb.xml'],
-                modeller.topology, verbose=verbose,
+                _ff_xmls, modeller.topology, verbose=verbose,
             )
             Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')
             # OpenMM's PDBFile does not infer intra-residue bonds for GLYCAM
@@ -2223,6 +2234,14 @@ def main(argv=None):
         input_path = Path(_materialise_inferred_pdb(
             input_path, verbose=args.verbose))
 
+    # Resolve --ff for the heterogen-H step. Only prints when heterogen-H
+    # actually runs; auto-detects from residue names.
+    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    _ff_xmls, _ff_alias, _ff_reason = resolve_ff(
+        args.ff, input_path, verbose=args.verbose)
+    if args.heterogen_h:
+        print_ff_selection(_ff_alias, _ff_reason, _ff_xmls)
+
     if args.rename:
         from dvbfixer.rename import canonicalize_pdb
         import tempfile as _tf
@@ -2285,6 +2304,7 @@ def main(argv=None):
         input_path, args.ph, args.keep_water, args.keep_heterogens, args.verbose,
         mutations=args.mutate, heterogen_h=args.heterogen_h,
         removed_residues_meta=removed_residues_meta,
+        ff_xmls=_ff_xmls,
     )
 
     # Write PDB with standard names first (OpenMM writes HETATM for non-standard)

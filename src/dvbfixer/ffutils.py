@@ -51,6 +51,202 @@ GLYCAM_CAPS = {'ROH', 'OME', 'TBT', 'CMET'}
 FORCE_ATOM_RESIDUES = frozenset(PROTEIN_RESIDUES)
 
 
+# ---------------------------------------------------------------------------
+# Shared FF selection: short-name aliases, auto-detection, and resolver.
+# Used by prepare / minimize / protonate / pull / zbs. `top.py` uses a
+# different (GROMACS FF-dir) namespace; see docs/force-fields.md.
+# ---------------------------------------------------------------------------
+
+FF_ALIASES = {
+    'amber':          ['amber19/protein.ff19SB.xml', 'amber19/tip3p.xml'],
+    'amber19':        ['amber19/protein.ff19SB.xml', 'amber19/tip3p.xml'],
+    'amber14':        ['amber14/protein.ff14SB.xml', 'amber14/tip3p.xml'],
+    'amber+glycam':   ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml',
+                       'amber14/tip3pfb.xml'],
+    'amber14+glycam': ['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml',
+                       'amber14/tip3pfb.xml'],
+    'amber+lipid':    ['amber14-all.xml', 'amber14/lipid17.xml',
+                       'amber14/tip3p.xml'],
+    'amber+nucleic':  ['amber14-all.xml', 'amber14/DNA.OL15.xml',
+                       'amber14/RNA.OL3.xml', 'amber14/tip3p.xml'],
+    'charmm':         ['charmm36.xml', 'charmm36/water.xml'],
+    'charmm36':       ['charmm36.xml', 'charmm36/water.xml'],
+    'charmm2024':     ['charmm36_2024.xml', 'charmm36/water.xml'],
+}
+
+# Marker residue names that unambiguously identify a force field.
+# CHARMM markers: CHARMM-specific protonation names + CHARMM-GUI 4-char sugar
+# names + ceramide names. See top.CERAMIDE_RTP / glycam._CHARMM_4CHAR_RESNAMES.
+_CHARMM_PROTONATION_MARKERS = {'HSD', 'HSE', 'HSP', 'ASPP', 'GLUP', 'LSN'}
+_CHARMM_SUGAR_MARKERS = {
+    'BGLC', 'AGLC', 'BMAN', 'AMAN', 'BGAL', 'AGAL', 'BFUC', 'AFUC',
+    'BGLCNA', 'AGLCNA', 'BGALNA', 'AGALNA',
+    'ANE5', 'BNE5', 'ANE5AC', 'BNE5AC',
+    'AIDO', 'BIDO',
+}
+_CHARMM_CERAMIDE_MARKERS = {
+    'CER1', 'CER160', 'CER180', 'CER181',
+    'CER2', 'CER200', 'CER220', 'CER240', 'CER241', 'CER3E',
+}
+_CHARMM_MARKERS = (_CHARMM_PROTONATION_MARKERS
+                   | _CHARMM_SUGAR_MARKERS
+                   | _CHARMM_CERAMIDE_MARKERS)
+
+# Ambiguous names — standard PDB Chemical Component Dictionary sugar names.
+# Present in raw crystal PDBs / GLYCAM-pre-rename / CHARMM-pre-rename inputs.
+# Neither amber14+GLYCAM (needs 3-char linkage codes like UYB, VMB) nor
+# charmm36 (needs BGLCNA, BMAN, ...) has templates for these bare names.
+# Detected only to emit a "convert first" warning, NOT to auto-pick an FF.
+_AMBIGUOUS_SUGAR_MARKERS = frozenset(KNOWN_GLYCAN_SMILES)
+
+
+def _scan_resnames(pdb_path):
+    """Return set of resnames present in a PDB file (ATOM/HETATM lines).
+
+    Reads both 3-char (cols 18-20) and CHARMM 4-char (cols 18-21) forms
+    so CHARMM-GUI-style names like ASPP/BGLCNA are detected.
+    """
+    names = set()
+    try:
+        with open(pdb_path) as f:
+            for line in f:
+                if not (line.startswith('ATOM') or line.startswith('HETATM')):
+                    continue
+                # Try 4-char first (CHARMM-GUI); if the 4-char slice hits a
+                # known CHARMM 4-char name we take it, otherwise fall back
+                # to the standard 3-char slice.
+                cand4 = line[17:21].strip() if len(line) >= 21 else ''
+                if cand4 in _CHARMM_SUGAR_MARKERS or cand4 in _CHARMM_CERAMIDE_MARKERS:
+                    names.add(cand4)
+                    continue
+                cand3 = line[17:20].strip()
+                if cand3:
+                    names.add(cand3)
+    except (FileNotFoundError, OSError):
+        pass
+    return names
+
+
+def detect_ff_from_pdb(pdb_path):
+    """Scan a PDB file and return (alias, reason).
+
+    - `('charmm', reason)` if any CHARMM-specific marker is found.
+    - `('amber+glycam', reason)` if any GLYCAM-specific marker is found.
+    - `('amber', reason)` otherwise (with a warning-worthy reason if only
+      ambiguous PDB sugar names are present).
+
+    CHARMM wins over GLYCAM when both markers appear (CHARMM protonation
+    names are unambiguous FF-prep signals).
+    """
+    names = _scan_resnames(pdb_path)
+
+    charmm_hits = names & _CHARMM_MARKERS
+    if charmm_hits:
+        sample = ', '.join(sorted(charmm_hits)[:3])
+        return 'charmm', f'CHARMM residue(s) detected ({sample})'
+
+    glycam_protein = names & GLYCAM_PROTEIN_RESIDUES
+    glycam_caps = names & GLYCAM_CAPS
+    glycam_sugars = {n for n in names if is_glycam_sugar(n)}
+    glycam_hits = glycam_protein | glycam_caps | glycam_sugars
+    if glycam_hits:
+        sample = ', '.join(sorted(glycam_hits)[:3])
+        return 'amber+glycam', f'GLYCAM residue(s) detected ({sample})'
+
+    ambig_hits = names & _AMBIGUOUS_SUGAR_MARKERS
+    if ambig_hits:
+        sample = ', '.join(sorted(ambig_hits)[:3])
+        return 'amber', (
+            f'PDB-standard sugar name(s) detected ({sample}) with no '
+            f'FF-specific markers — cannot auto-select. Run '
+            f'`dvbfixer convert --to-amber` (→ GLYCAM UYB/VMB/...) or '
+            f'`dvbfixer convert --to-charmm` (→ BGLCNA/BMAN/...) before '
+            f'this step, or pass --ff explicitly'
+        )
+
+    return 'amber', 'no non-standard residues detected'
+
+
+def _looks_like_xml_path(item):
+    """True if `item` looks like an OpenMM FF XML path, not a short-name alias."""
+    return item.endswith('.xml') or '/' in item or '\\' in item
+
+
+def resolve_ff(user_ff, pdb_path, *, verbose=False):
+    """Resolve a user's --ff argument into (xml_list, alias_name, reason).
+
+    Accepts:
+      - None or 'auto' or ['auto']: run detect_ff_from_pdb, expand alias.
+      - A single short name in FF_ALIASES: expand; also run auto-detect to
+        emit an *upgrade* if the input clearly needs a different FF (user
+        said 'amber' but input has GLYCAM markers → upgrade to
+        'amber+glycam' with a log line explaining why).
+      - A list containing any '.xml' path: pass through unchanged
+        (backward compat with the old `--ff a.xml b.xml` UX).
+
+    Returns (xml_list, alias_name, upgrade_reason_or_None). The caller
+    typically prints one line at startup:
+
+        FF: {alias_name}  ({upgrade_reason} if upgrade_reason else "")
+          → {" ".join(xml_list)}
+    """
+    # Normalise to a list
+    if user_ff is None:
+        items = ['auto']
+    elif isinstance(user_ff, str):
+        items = [user_ff]
+    else:
+        items = list(user_ff)
+
+    # Explicit XML list? Pass through.
+    if items and any(_looks_like_xml_path(x) for x in items):
+        return items, 'custom', None
+
+    if len(items) != 1:
+        # Multiple short names — take the first, ignore the rest with a warning.
+        if verbose:
+            print(f"WARN: --ff got {len(items)} short-names; using first "
+                  f"({items[0]}), ignoring {items[1:]}")
+        items = items[:1]
+
+    tok = items[0].lower().strip() if items else 'auto'
+
+    if tok in ('auto', ''):
+        alias, reason = detect_ff_from_pdb(pdb_path)
+        if alias not in FF_ALIASES:
+            alias = 'amber'
+        return FF_ALIASES[alias], alias, reason
+
+    if tok not in FF_ALIASES:
+        raise ValueError(
+            f"Unknown --ff short-name '{items[0]}'. "
+            f"Valid: {', '.join(sorted(FF_ALIASES))} or pass explicit "
+            f"XML paths (see docs/force-fields.md)."
+        )
+
+    # User asked for a specific short name; check if input clearly warrants
+    # an upgrade (e.g. user said 'amber' but input has GLYCAM markers).
+    detected, detect_reason = detect_ff_from_pdb(pdb_path)
+    if detected != tok and detected in ('charmm', 'amber+glycam'):
+        # Only auto-upgrade when detected FF is more specific than the plain
+        # 'amber' family. Don't downgrade user's explicit CHARMM/GLYCAM choice.
+        if tok in ('amber', 'amber19', 'amber14'):
+            reason = (f"upgraded from '{tok}' → '{detected}' because "
+                      f"{detect_reason}")
+            return FF_ALIASES[detected], detected, reason
+
+    return FF_ALIASES[tok], tok, None
+
+
+def print_ff_selection(alias, reason, xml_list, prefix=""):
+    """Emit the standard two-line FF selection banner used by every tool."""
+    tag = f"{prefix}FF: {alias}"
+    if reason:
+        tag += f"  ({reason})"
+    print(tag)
+    print(f"{prefix}  → {' '.join(xml_list)}")
+
+
 def is_glycam_sugar(name):
     """True if `name` is a GLYCAM sugar code (3-char linkage+sugar+anomer or cap)."""
     if name in GLYCAM_CAPS:
