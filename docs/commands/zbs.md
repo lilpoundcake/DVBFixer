@@ -2,7 +2,22 @@
 
 [← command index](index.md) · [← README](../../README.md)
 
-Runs the complete preparation workflow in one command: **renumber → model → prepare → minimize → protonate → minimize**. Intermediate files are cleaned up by default — use `--keep-interim` to preserve them. Two minimize passes ensure correct protonation: the first keeps existing hydrogens (default) to get good heavy-atom positions, then protonate assigns AMBER protonation names (HIE/GLH/CYX etc.) based on PROPKA pKa predictions, then the second minimize uses `--rebuild-h` to strip and re-add hydrogens matching the correct protonation state (e.g. HE2 for GLH). The final output has AMBER protonation names — use `dvbfixer rename` if you need canonical PDB names. The `.dat` file flows from model (gap atoms) through prepare (merged with PDBFixer additions) to minimize (selective restraints). Water is removed by default. Each step can be skipped individually.
+Runs the complete preparation workflow in one command: **renumber → model → prepare → minimize → protonate → minimize**.
+
+Six steps. The pipeline was simplified from seven — the old `protonate --no-hydrogens` rename-only step (and its second-protonate cleanup) has been dropped because `--no-hydrogens` leaves existing H atoms in wrong positions relative to the new HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN residue names. The full `protonate` (PROPKA + MolProbity Reduce for HIS tautomers + ASN/GLN flip detection + variant-aware OpenMM addHydrogens) now runs once between the two minimize passes; the second minimize just refines the H positions.
+
+Intermediate files are cleaned up by default — use `--keep-interim` to preserve them. The `.dat` file flows from model (gap atoms) through prepare (merged with PDBFixer additions) to minimize (selective restraints). Water is removed by default. Each step can be skipped individually.
+
+## Pipeline
+
+| # | Step | What it does |
+|---|---|---|
+| 1 | `renumber` | SEQRES-based renumbering; removes insertion codes |
+| 2 | `model` | Rebuild missing loops via Modeller (`--num-output` saves top-N candidates) |
+| 3 | `prepare` | Fix missing atoms + preliminary hydrogens via PDBFixer |
+| 4 | `minimize` (pass 1) | Relax heavy atoms using prepare's approximate hydrogens |
+| 5 | `protonate` (**full**) | PROPKA pKa + MolProbity Reduce (`--protassign` default ON) + variant-aware addHydrogens. Places final H correctly with respect to the ASN/GLN flips and HIS tautomer choices. |
+| 6 | `minimize` (pass 2) | Refine the freshly-placed hydrogens; heavy atoms stay restrained. Preserves AMBER variant names via minimize's `_input_variants` capture. Optional post-minimize refinement via `--refine {xtb, obminimize}`. |
 
 ## Usage
 
@@ -21,35 +36,73 @@ dvbfixer zbs input.pdb -o output.pdb --ph 6.5 -v
 
 # With point mutations
 dvbfixer zbs input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
+
+# Save top 3 candidate loop models from Modeller (best is used downstream)
+dvbfixer zbs input.pdb --num-loops 4 --num-output 3 -v
+
+# xtb refinement pass after minimize pass 2 (organic ligands)
+dvbfixer zbs input.pdb --refine xtb --refine-heterogens-only -v
+
+# Disable MolProbity Reduce in protonate (fall back to pure PROPKA + --his-default)
+dvbfixer zbs input.pdb --no-protassign -v
 ```
 
 ## Options
 
+Organised by which pipeline step each flag flows into.
+
+### General
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-o`, `--output` | `<input>_zbs.pdb` | Final output PDB file |
-| `--ph` | 7.0 | pH for protonation and hydrogen addition |
-| `--ff` | amber19/protein.ff19SB.xml amber19/tip3p.xml | Force field XML files |
-| `--skip-renumber` | off | Skip renumber step |
-| `--skip-model` | off | Skip model step |
-| `--no-terminal` | off | Do not model N/C terminal residues |
-| `--num-loops` | 2 | Number of loop models |
-| `--md-level` | fast | Modeller MD refinement level |
-| `--fasta` | none | FASTA file for model step |
-| `--skip-prepare` | off | Skip prepare step |
-| `--strip-heterogens` | off (default: keep) | Strip heterogens during prepare/minimize — protein-only pipeline |
-| `--mutate` | none | Mutate a residue during prepare: CHAIN:RESNUM:NEW_AA (repeatable) |
-| `--skip-minimize` | off | Skip minimize step |
-| `--no-solvent` | off | Minimize in vacuum |
-| `--rebuild-h` | off | Strip and re-add hydrogens via OpenMM during minimization (default: keep existing) |
-| `--restraint-k` | 100.0 | Restraint force constant |
-| `--max-iter` | 1000 | Max minimization iterations per phase |
-| `--platform` | auto | OpenMM platform |
-| `--skip-protonate` | off | Skip protonate step |
-| `--no-hydrogens` | off | Only rename residues, skip hydrogen addition |
+| `--ph` | 7.0 | pH for protonation and hydrogen addition (used by prepare, minimize, protonate) |
+| `--ff` | amber19/protein.ff19SB.xml amber19/tip3p.xml | Force field XML files (minimize) |
 | `--keep-water` | off | Keep water molecules (removed by default) |
+| `--no-infer-conect` | off | Skip auto CONECT inference in prepare/minimize/protonate |
 | `--keep-interim` | off | Keep all intermediate files (default: only final output) |
 | `-v`, `--verbose` | off | Print detailed progress for all steps |
+
+### `renumber` (step 1)
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--skip-renumber` | off | Skip this step |
+
+### `model` (step 2)
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--skip-model` | off | Skip this step |
+| `--no-terminal` | off | Do not model N/C terminal residues |
+| `--num-loops` | 2 | Number of loop refinement models per initial model |
+| `--md-level` | fast | Modeller MD refinement level (`none`, `fast`, `slow`, `very_slow`, `slow_large`) |
+| `--fasta` | none | FASTA file with complete sequence(s) |
+| `--num-output` | 1 | Save top-N candidate models; zbs uses the best (`_1`) downstream, other candidates remain on disk |
+
+### `prepare` (step 3)
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--skip-prepare` | off | Skip this step |
+| `--strip-heterogens` | off | Strip heterogens (protein-only pipeline); default keeps them |
+| `--no-heterogen-h` | off | Skip H addition on heterogens in prepare (default: add H BioLuminate-style) |
+| `--mutate CHAIN:RESNUM:NEW_AA` | none | Mutate a residue; repeatable; use `del` for deletion |
+| `--rename` | off | Canonicalise non-standard residue names before prepare/minimize |
+
+### `minimize` (steps 4 & 6)
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--skip-minimize` | off | Skip both minimize steps |
+| `--no-solvent` | off | Minimize in vacuum |
+| `--rebuild-h` | off | Force `--rebuild-h` on both passes (default off; pass 2 already has correct H from protonate) |
+| `--restraint-k` | 100.0 | Restraint force constant for original atoms |
+| `--max-iter` | 1000 | Max minimization iterations per phase |
+| `--platform` | auto | OpenMM platform (`CPU`, `CUDA`, `OpenCL`, `Reference`) |
+| `--refine` | `none` | Post-minimize refinement pass in step 6: `xtb` (GFN-FF) or `obminimize` (UFF). Off by default. |
+| `--refine-heterogens-only` | off | Restrict `--refine` pass to heterogen residues (protein frozen). Only meaningful with `--refine != none`. |
+
+### `protonate` (step 5)
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--skip-protonate` | off | Skip this step (also disables pass 2 minimize since it needs post-protonate input) |
+| `--no-protassign` | off | Disable MolProbity Reduce (falls back to pure PROPKA + `--his-default`). Default: run Reduce. |
 
 ## See also
 
