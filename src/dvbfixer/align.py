@@ -1,11 +1,25 @@
-"""Kabsch superposition of one PDB onto a reference.
+"""Sequence-aware Kabsch superposition of one PDB onto a reference.
 
 Used inside `dvbfixer zbs` after every pipeline step (default ON, opt-out
-via `--no-align-to-input`) so that interim outputs stay in the same
-Cartesian frame as the user's original input — no accumulated drift from
+via `--no-align-to-input`) so interim outputs stay in the same Cartesian
+frame as the user's original input — no accumulated rigid-body drift from
 successive OpenMM minimizations.
 
-Only exposed as an internal helper. No standalone CLI subcommand.
+Only exposed as an internal helper; there's no standalone
+`dvbfixer align` subcommand.
+
+**v2 (2026-07)** — atom correspondences are established by GLOBAL
+protein-sequence alignment per chain (via `Bio.Align.PairwiseAligner`).
+The previous version keyed on `(chain, resseq, icode, atomname)` and
+broke the moment `renumber` rewrote residue numbers: nearly every key
+mismatched, Kabsch fit to random-atom pairs, and RMSD floored around
+~6 Å on `test/gaff_test/1VCU.pdb` even for coord-identical steps.
+
+Sequence-based pairing (what PyMOL's `align` and MDAnalysis's
+`fasta2select` do) is dependency-free (biopython + MDAnalysis already in
+env) and robust to `renumber`, model loop insertion, protonation renames
+(HIS→HIE/HID/HIP, etc.), and altLoc removal. The Kabsch fit itself is a
+plain SVD on the matched-atom coord pairs — that's the structural part.
 """
 
 from __future__ import annotations
@@ -15,169 +29,196 @@ from pathlib import Path
 
 _BACKBONE_ATOMS = ('N', 'CA', 'C', 'O')
 
+# AMBER + CHARMM protonation-variant → canonical parent, so
+# `.residues.sequence()` returns matching letters across renames.
+_CANONICAL = {
+    'HIE': 'HIS', 'HID': 'HIS', 'HIP': 'HIS',
+    'HSD': 'HIS', 'HSE': 'HIS', 'HSP': 'HIS',
+    'ASH': 'ASP', 'ASPP': 'ASP',
+    'GLH': 'GLU', 'GLUP': 'GLU',
+    'CYX': 'CYS', 'CYM': 'CYS',
+    'LYN': 'LYS', 'LSN': 'LYS',
+    'MSE': 'MET',
+}
 
-def _load_atom_records(pdb_path):
-    """Parse ATOM+HETATM lines. Returns list of (line, key, x, y, z, is_hetatm).
 
-    key is (chain, resseq_str, icode_str, atomname). resseq is kept as a
-    STRING to preserve insertion codes and PDB negative-number quirks.
+def _canonical_sequence(mda_residues):
+    """Return one-letter sequence + list of matching MDA Residue objects.
+
+    Non-protein residues are skipped. AMBER/CHARMM protonation variants
+    are folded to their parent so a HIS in the reference matches a HIE in
+    the mobile.
     """
-    out = []
-    with open(pdb_path) as f:
-        for line in f:
-            if not (line.startswith('ATOM') or line.startswith('HETATM')):
-                out.append((line, None, None, None, None, False))
-                continue
-            try:
-                x = float(line[30:38])
-                y = float(line[38:46])
-                z = float(line[46:54])
-            except ValueError:
-                out.append((line, None, None, None, None, False))
-                continue
-            chain = line[21]
-            resseq = line[22:26].strip()
-            icode = line[26].strip() if len(line) > 26 else ''
-            atomname = line[12:16].strip()
-            key = (chain, resseq, icode, atomname)
-            is_het = line.startswith('HETATM')
-            out.append((line, key, x, y, z, is_het))
-    return out
-
-
-def _select_indices(records, selection, is_reference=False):
-    """Return list of dict indices whose atom matches the selection."""
-    sel = selection.lower()
-    picked = []
-    for i, (_line, key, _x, _y, _z, is_het) in enumerate(records):
-        if key is None:
+    from Bio.SeqUtils import IUPACData
+    three_to_one = {k.upper(): v for k, v in
+                    IUPACData.protein_letters_3to1_extended.items()}
+    seq = []
+    res_list = []
+    for r in mda_residues:
+        rn = _CANONICAL.get(r.resname, r.resname)
+        letter = three_to_one.get(rn)
+        if letter is None:
             continue
-        atomname = key[3]
-        if sel == 'ca':
-            if atomname == 'CA' and not is_het:
-                picked.append(i)
-        elif sel == 'backbone':
-            if atomname in _BACKBONE_ATOMS and not is_het:
-                picked.append(i)
-        elif sel == 'heavy':
-            if not atomname.startswith('H'):
-                picked.append(i)
-        elif sel == 'all':
-            picked.append(i)
-        else:
-            raise ValueError(f"unknown selection '{selection}'")
-    return picked
+        seq.append(letter)
+        res_list.append(r)
+    return ''.join(seq), res_list
 
 
 def _kabsch(P, Q):
-    """Return (R, t) such that (P @ R.T + t) best superposes P onto Q.
-
-    P, Q: (N, 3) numpy arrays. Both must have the same length.
-    """
+    """Return (R, t) that best superposes P onto Q. P, Q: (N, 3) arrays."""
     import numpy as np
     P = np.asarray(P, dtype=float)
     Q = np.asarray(Q, dtype=float)
     Pc = P.mean(axis=0)
     Qc = Q.mean(axis=0)
-    P0 = P - Pc
-    Q0 = Q - Qc
-    H = P0.T @ Q0
+    H = (P - Pc).T @ (Q - Qc)
     U, _S, Vt = np.linalg.svd(H)
-    # Correct for reflection so det(R) == +1.
-    d = np.sign(np.linalg.det(Vt.T @ U.T))
+    d = float(1.0 if np.linalg.det(Vt.T @ U.T) > 0 else -1.0)
     D = np.diag([1.0, 1.0, d])
     R = Vt.T @ D @ U.T
     t = Qc - Pc @ R.T
     return R, t
 
 
+def _fit_atoms_for_selection(res_pairs, selection):
+    """From matched residue pairs, harvest coord pairs for the Kabsch fit.
+
+    Returns two (N, 3) numpy arrays P, Q (mobile then reference).
+    """
+    import numpy as np
+    sel = selection.lower()
+    if sel == 'ca':
+        want = {'CA'}
+    elif sel == 'backbone':
+        want = set(_BACKBONE_ATOMS)
+    elif sel == 'heavy':
+        want = None  # keep every non-H atom whose name matches on both sides
+    elif sel == 'all':
+        want = None  # keep every atom whose name matches on both sides
+    else:
+        raise ValueError(f"unknown selection '{selection}'")
+
+    P, Q = [], []
+    for m_res, r_res in res_pairs:
+        m_atoms = {a.name: a for a in m_res.atoms}
+        r_atoms = {a.name: a for a in r_res.atoms}
+        common = set(m_atoms) & set(r_atoms)
+        if want is not None:
+            common &= want
+        elif sel == 'heavy':
+            common = {n for n in common if not n.startswith('H')}
+        # deterministic ordering — sorted() over the atom-name intersection
+        for name in sorted(common):
+            P.append(m_atoms[name].position)
+            Q.append(r_atoms[name].position)
+    if not P:
+        return np.zeros((0, 3)), np.zeros((0, 3))
+    return np.asarray(P), np.asarray(Q)
+
+
 def kabsch_align_pdb(input_pdb, reference_pdb, output_pdb, *,
                      selection='backbone', verbose=False):
     """Kabsch-superpose `input_pdb` onto `reference_pdb`, write `output_pdb`.
 
-    Atoms are matched by (chain, resseq, icode, atomname). The Kabsch
-    rotation + translation is computed on the intersection filtered by
-    `selection` and applied to EVERY atom line in the input (ATOM +
-    HETATM). Non-coordinate lines pass through unchanged.
-
-    Args:
-        input_pdb: source PDB to be aligned.
-        reference_pdb: reference PDB defining the target frame.
-        output_pdb: destination PDB (may equal input_pdb).
-        selection: `'backbone'` (default; N/CA/C/O of standard AAs),
-            `'ca'` (CA only), `'heavy'` (all non-H atoms of any residue),
-            or `'all'` (every atom).
-        verbose: print RMSD + atom counts.
+    Correspondences are established by per-chain protein-sequence
+    alignment (`Bio.Align.PairwiseAligner`, global mode). The Kabsch
+    rotation + translation is computed on the matched-residue atoms
+    (backbone/ca/heavy/all — controlled by `selection`) and applied to
+    EVERY atom in the input universe (protein + HETATMs + water etc.).
 
     Returns:
-        (rmsd_before, rmsd_after, n_matched) — floats/int for tests and logging.
-        rmsd_before / rmsd_after are None if the alignment atom set was empty.
+        (rmsd_before, rmsd_after, n_matched_atoms) — floats/int. On any
+        failure (unreadable PDB, no protein overlap, biopython missing)
+        the function copies the input to the output unchanged and returns
+        (None, None, 0).
     """
-    import numpy as np
-
-    inp_recs = _load_atom_records(input_pdb)
-    ref_recs = _load_atom_records(reference_pdb)
-
-    inp_sel_idx = _select_indices(inp_recs, selection)
-    ref_map = {}
-    for i in _select_indices(ref_recs, selection, is_reference=True):
-        key = ref_recs[i][1]
-        ref_map[key] = i
-
-    P_list = []
-    Q_list = []
-    for i in inp_sel_idx:
-        key = inp_recs[i][1]
-        j = ref_map.get(key)
-        if j is None:
-            continue
-        _, _, xp, yp, zp, _ = inp_recs[i]
-        _, _, xq, yq, zq, _ = ref_recs[j]
-        P_list.append((xp, yp, zp))
-        Q_list.append((xq, yq, zq))
-
-    n_matched = len(P_list)
-    if n_matched < 3:
+    try:
+        import numpy as np
+        import MDAnalysis as mda
+        from Bio.Align import PairwiseAligner
+    except ImportError as e:
         if verbose:
-            print(f"  [align] not enough matching atoms in selection "
-                  f"'{selection}' (found {n_matched}); writing input "
-                  f"unchanged")
+            print(f"  [align] optional dependency missing ({e}); passing "
+                  f"input through unchanged")
         _copy_file(input_pdb, output_pdb)
-        return None, None, n_matched
+        return None, None, 0
 
-    P = np.asarray(P_list)
-    Q = np.asarray(Q_list)
+    try:
+        u_mobile = mda.Universe(str(input_pdb))
+        u_ref = mda.Universe(str(reference_pdb))
+    except Exception as e:
+        if verbose:
+            print(f"  [align] could not load PDBs ({e}); passing through")
+        _copy_file(input_pdb, output_pdb)
+        return None, None, 0
+
+    aligner = PairwiseAligner(mode='global',
+                              match_score=2, mismatch_score=-1,
+                              open_gap_score=-10, extend_gap_score=-1)
+
+    # Per-chain sequence pairing → flat list of matched (mobile_res, ref_res).
+    matched_pairs = []
+    common_chains = sorted(set(u_mobile.atoms.chainIDs)
+                           & set(u_ref.atoms.chainIDs))
+    for ch in common_chains:
+        mob_ca = u_mobile.select_atoms(
+            f"protein and name CA and chainID {ch}")
+        ref_ca = u_ref.select_atoms(
+            f"protein and name CA and chainID {ch}")
+        if len(mob_ca) < 3 or len(ref_ca) < 3:
+            continue
+        mob_seq, mob_residues = _canonical_sequence(mob_ca.residues)
+        ref_seq, ref_residues = _canonical_sequence(ref_ca.residues)
+        if not mob_seq or not ref_seq:
+            continue
+        try:
+            aln = aligner.align(mob_seq, ref_seq)[0]
+        except Exception:
+            continue
+        # aln.aligned is (mobile_blocks, reference_blocks); each is an
+        # (N, 2) int array of [start, end) index pairs.
+        mob_blocks, ref_blocks = aln.aligned
+        for (m0, m1), (r0, r1) in zip(mob_blocks, ref_blocks):
+            for k in range(int(m1 - m0)):
+                matched_pairs.append(
+                    (mob_residues[int(m0) + k], ref_residues[int(r0) + k]))
+
+    if len(matched_pairs) < 3:
+        if verbose:
+            print(f"  [align] not enough protein overlap "
+                  f"({len(matched_pairs)} matched residues); passing "
+                  f"through")
+        _copy_file(input_pdb, output_pdb)
+        return None, None, 0
+
+    P, Q = _fit_atoms_for_selection(matched_pairs, selection)
+    if len(P) < 3:
+        if verbose:
+            print(f"  [align] no atoms matched for selection "
+                  f"'{selection}' across {len(matched_pairs)} residue "
+                  f"pairs; passing through")
+        _copy_file(input_pdb, output_pdb)
+        return None, None, 0
+
     rmsd_before = float(np.sqrt(np.mean(np.sum((P - Q) ** 2, axis=1))))
-
     R, t = _kabsch(P, Q)
 
-    # Apply to every input coordinate line.
-    out_lines = []
-    all_new_coords = []
-    for rec in inp_recs:
-        line, key, x, y, z, _is_het = rec
-        if key is None:
-            out_lines.append(line)
-            continue
-        v = np.array([x, y, z])
-        v_new = v @ R.T + t
-        all_new_coords.append(v_new)
-        # Replace cols 30-54 with new coords; preserve everything else.
-        new_coord = f"{v_new[0]:8.3f}{v_new[1]:8.3f}{v_new[2]:8.3f}"
-        out_lines.append(line[:30] + new_coord + line[54:])
+    # Apply to EVERY atom in the mobile universe (protein + HETATMs +
+    # waters + ions). MDAnalysis works in Å.
+    u_mobile.atoms.positions = u_mobile.atoms.positions @ R.T + t
 
-    # Post-alignment RMSD on the selection.
+    # Post-fit RMSD on the same atom pairs.
     P_new = P @ R.T + t
     rmsd_after = float(np.sqrt(np.mean(np.sum((P_new - Q) ** 2, axis=1))))
 
-    with open(output_pdb, 'w') as f:
-        f.writelines(out_lines)
+    u_mobile.atoms.write(str(output_pdb))
 
     if verbose:
         print(f"  [align] {selection} RMSD: {rmsd_before:.3f} → "
-              f"{rmsd_after:.3f} Å ({n_matched} atoms)")
+              f"{rmsd_after:.3f} Å ({len(P)} atoms, "
+              f"{len(matched_pairs)} residues)")
 
-    return rmsd_before, rmsd_after, n_matched
+    return rmsd_before, rmsd_after, len(P)
 
 
 def _copy_file(src, dst):
