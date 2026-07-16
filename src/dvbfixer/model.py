@@ -765,7 +765,11 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
     n_gaps = count_gaps(aln_path)
     if n_gaps == 0:
         print("No gaps found — structure matches SEQRES completely.")
-        return str(input_path), aln_path
+        # Return the same shape as the normal path: list[(path, molpdf)].
+        # Fake molpdf = 0.0 since we never actually scored anything. The
+        # caller detects the shortcut by comparing this first path to
+        # str(Path(input_pdb)) — see main()'s `no_gap_shortcut` flag.
+        return [(str(input_path), 0.0)], aln_path
 
     print(f"Alignment: {n_gaps} gap residue(s) to rebuild")
 
@@ -1993,12 +1997,31 @@ def main(argv=None):
         with open(input_pdb, 'w') as f:
             f.writelines(reordered_lines)
 
-        # Run Modeller — target is built inside using Modeller's own template
-        # reading, so non-protein '.' counts are guaranteed to match.
-        # Returns a list of (model_path, molpdf) sorted ascending — best first.
-        candidates, aln_path = run_modeller(
-            Path(input_pdb), protein_chains, protein_seq_map, all_chains, args
+        # Fast pre-check: if every protein chain's ATOM sequence already
+        # matches SEQRES exactly, there are NO gaps → skip Modeller
+        # entirely. Modeller's align2d step is O(N^2) DP and can take
+        # minutes on multi-chain complexes (2BNQ: 5 chains × 829 residues
+        # → ~2 min just to conclude "no gaps"). Comparing sequences in
+        # Python takes microseconds.
+        _no_gaps_fast = all(
+            get_atom_sequence(reordered_lines, ch) == protein_seq_map[ch]
+            for ch in protein_chains
         )
+        if _no_gaps_fast:
+            print("No gaps found (fast pre-check: ATOM sequences match "
+                  "SEQRES exactly on every chain) — skipping Modeller, "
+                  "copying input verbatim.")
+            candidates = [(str(Path(input_pdb)), 0.0)]
+            aln_path = ''  # not used on the shortcut path
+        else:
+            # Run Modeller — target is built inside using Modeller's own
+            # template reading, so non-protein '.' counts are guaranteed
+            # to match. Returns a list of (model_path, molpdf) sorted
+            # ascending — best first.
+            candidates, aln_path = run_modeller(
+                Path(input_pdb), protein_chains, protein_seq_map,
+                all_chains, args
+            )
 
         # Clamp --num-output to the number of successfully completed
         # candidates (some Modeller loops can fail individually).
