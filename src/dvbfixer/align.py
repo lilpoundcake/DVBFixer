@@ -203,15 +203,17 @@ def kabsch_align_pdb(input_pdb, reference_pdb, output_pdb, *,
     rmsd_before = float(np.sqrt(np.mean(np.sum((P - Q) ** 2, axis=1))))
     R, t = _kabsch(P, Q)
 
-    # Apply to EVERY atom in the mobile universe (protein + HETATMs +
-    # waters + ions). MDAnalysis works in Å.
-    u_mobile.atoms.positions = u_mobile.atoms.positions @ R.T + t
-
     # Post-fit RMSD on the same atom pairs.
     P_new = P @ R.T + t
     rmsd_after = float(np.sqrt(np.mean(np.sum((P_new - Q) ** 2, axis=1))))
 
-    u_mobile.atoms.write(str(output_pdb))
+    # Apply (R, t) to every ATOM/HETATM line in the INPUT FILE and pass
+    # every other record (SEQRES, HELIX, SHEET, SSBOND, LINK, CISPEP,
+    # HET, DBREF, SEQADV, CONECT, REMARK, HEADER, TITLE, MODEL/ENDMDL,
+    # TER, END, CRYST1) through unchanged. MDAnalysis's PDB writer would
+    # strip all headers, which breaks downstream steps that need SEQRES
+    # (model) or CONECT (prepare/minimize).
+    _apply_transform_preserving_headers(input_pdb, output_pdb, R, t)
 
     if verbose:
         print(f"  [align] {selection} RMSD: {rmsd_before:.3f} → "
@@ -226,3 +228,38 @@ def _copy_file(src, dst):
         return
     with open(src) as f_in, open(dst, 'w') as f_out:
         f_out.writelines(f_in)
+
+
+def _apply_transform_preserving_headers(input_pdb, output_pdb, R, t):
+    """Apply the Kabsch (R, t) to every ATOM/HETATM line in `input_pdb`;
+    write to `output_pdb`. Every other line (SEQRES, HELIX, SHEET, SSBOND,
+    LINK, CISPEP, HET, DBREF, SEQADV, CONECT, REMARK, HEADER, TITLE,
+    MODEL/ENDMDL, TER, END, CRYST1) is passed through byte-identical.
+
+    Read-then-write so input_pdb == output_pdb is safe.
+    """
+    with open(input_pdb) as f:
+        lines = f.readlines()
+    out = []
+    r00, r01, r02 = R[0, 0], R[0, 1], R[0, 2]
+    r10, r11, r12 = R[1, 0], R[1, 1], R[1, 2]
+    r20, r21, r22 = R[2, 0], R[2, 1], R[2, 2]
+    t0, t1, t2 = t[0], t[1], t[2]
+    for line in lines:
+        if (line.startswith(('ATOM  ', 'HETATM')) and len(line) >= 54):
+            try:
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
+            except ValueError:
+                out.append(line)
+                continue
+            xn = r00 * x + r01 * y + r02 * z + t0
+            yn = r10 * x + r11 * y + r12 * z + t1
+            zn = r20 * x + r21 * y + r22 * z + t2
+            new_coord = f"{xn:8.3f}{yn:8.3f}{zn:8.3f}"
+            out.append(line[:30] + new_coord + line[54:])
+        else:
+            out.append(line)
+    with open(output_pdb, 'w') as f:
+        f.writelines(out)
