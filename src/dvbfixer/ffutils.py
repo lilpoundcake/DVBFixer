@@ -481,6 +481,11 @@ def create_forcefield_with_openff(ff_xmls, topology,
                       f"(PDB sugars detected)")
 
     for gen in (extra_generators or ()):
-        ff.registerTemplateGenerator(gen)
+        # openmmforcefields' *TemplateGenerator objects expose a bound
+        # `.generator` method; OpenMM's registerTemplateGenerator wants
+        # that method, not the object itself. Callables are passed through
+        # unchanged so callers can also hand in raw functions.
+        hook = getattr(gen, 'generator', gen)
+        ff.registerTemplateGenerator(hook)
 
     return ff

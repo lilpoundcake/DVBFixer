@@ -312,6 +312,8 @@ def main(argv=None):
             minimize_argv.append("--rename")
         if args.no_infer_conect:
             minimize_argv.append("--no-infer-conect")
+        if args.parametrize_ligands:
+            minimize_argv.append("--parametrize-ligands")
         if args.refine == "xtb":
             minimize_argv.append("--xtb-refine")
         elif args.refine == "obminimize":

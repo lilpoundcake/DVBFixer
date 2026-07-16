@@ -335,14 +335,17 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     )
 
     # --parametrize-ligands: build GAFF2 templates for unknown ligands and
-    # register them on the ForceField below via extra_generators.
+    # register them on the ForceField below via extra_generators. Strict mode:
+    # any failure raises LigandParamError (propagated to main); we do NOT
+    # silently fall back to strip-heterogens when the user explicitly asked
+    # for parametrisation.
     if has_heterogens and getattr(args, 'parametrize_ligands', False):
         from openmm.app import ForceField as _FF
         base_templates = set(_FF(*args.ff)._templates)
         from dvbfixer.lig_params import build_ligand_generator
         _lig_gen = build_ligand_generator(
-            args.input, stripped_top, base_templates,
-            verbose=args.verbose,
+            stripped_top, stripped_pos, base_templates,
+            strict=True, verbose=args.verbose,
         )
         args._ligand_generators = [_lig_gen] if _lig_gen else None
 
