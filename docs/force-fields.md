@@ -158,6 +158,7 @@ dvbfixer minimize input.pdb --obminimize-refine --refine-heterogens-only -v
 
 - **When to use**: sanity-check ligand geometry when you don't want to (or can't) generate real FF parameters. Also useful for glycan systems where sugar-sugar bonds have no OpenMM template — the refinement pass fixes strain that OpenMM couldn't touch.
 - Auto-switches to heterogens-only above 5000 atoms (whole-system xtb takes hours).
+- **`--refine-heterogens-only` interface caveat**: with the protein frozen, only the ligand's INTERNAL geometry is refined. Any pre-existing clash at the protein-ligand INTERFACE (contacts, H-bonds) will persist because the ligand can only slide sideways, not accommodate. Drop the flag for whole-system refinement when the interface matters.
 - **NOT a replacement** for `--parametrize-ligands`: universal FFs are less accurate than GAFF2, and running xtb/UFF on a ligand doesn't give you MD-ready parameters — you still need real FF templates for a production MD run.
 
 ### Which to use?
@@ -165,10 +166,13 @@ dvbfixer minimize input.pdb --obminimize-refine --refine-heterogens-only -v
 | Need                                                      | Use                                        |
 |-----------------------------------------------------------|--------------------------------------------|
 | Isolated ligand, want real FF params for MD               | `--parametrize-ligands`                    |
-| Just want the geometry to look sensible                   | `--xtb-refine` or `--obminimize-refine`    |
+| Protein-ligand INTERFACE geometry matters (H-bonds, contacts) | `--parametrize-ligands` (whole system optimised together; do NOT rely on `--strip-heterogens` or `--refine-heterogens-only` which leave the interface unrelaxed) |
+| Just want the ligand's internal geometry to look sensible | `--xtb-refine` or `--obminimize-refine` (add `--refine-heterogens-only` for speed if interface geometry doesn't matter) |
 | Glycan tree with PDB names (NAG/BMA/MAN)                  | `dvbfixer convert --to-amber` first        |
 | Glycan tree with CHARMM-GUI names (BGLC/BMAN/…)           | `--ff charmm` (auto-detected)              |
 | Glycan tree with GLYCAM names (4YB/UYB/…)                 | `--ff amber+glycam` (auto-detected)        |
+
+**About `--strip-heterogens` (opt-in) and its auto-fallback**: this mode runs the OpenMM minimize on protein only and splices the heterogens back at their raw INPUT coordinates. The protein has moved by then, so the protein-ligand interface (H-bonds, close contacts) can end up strained. The tool now emits a WARNING in both cases; if the interface matters to you, use `--parametrize-ligands` instead.
 
 ## Water models
 

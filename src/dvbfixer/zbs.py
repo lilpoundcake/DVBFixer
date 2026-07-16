@@ -130,6 +130,15 @@ def parse_args(argv=None):
                         "(SS/glycosidic/glycosylation) from coordinates.")
     p.add_argument("--keep-interim", action="store_true",
                    help="Keep all intermediate files (default: only final output)")
+    p.add_argument("--align-to-input", dest="align_to_input",
+                   action=argparse.BooleanOptionalAction, default=True,
+                   help="After every pipeline step, Kabsch-align the output "
+                        "back to the ORIGINAL input on protein backbone "
+                        "atoms. Prevents accumulated rigid-body drift so "
+                        "residue-by-residue comparisons in a viewer line up. "
+                        "Default ON — pass --no-align-to-input for the "
+                        "legacy behaviour (each step's output in its own "
+                        "frame).")
     p.add_argument("-v", "--verbose", action="store_true",
                    help="Print detailed progress for all steps")
     return p.parse_args(argv)
@@ -158,6 +167,22 @@ def main(argv=None):
         interim_files.append(str(Path(path).with_suffix('.dat')))
         return path
 
+    def _maybe_align(path):
+        """Kabsch-superpose `path` onto the original input in-place.
+        No-op if --no-align-to-input, or the file didn't get written,
+        or the align helper couldn't match enough atoms."""
+        if not args.align_to_input:
+            return
+        if not Path(path).exists():
+            return
+        try:
+            from dvbfixer.align import kabsch_align_pdb
+            kabsch_align_pdb(path, str(input_path), path,
+                             selection='backbone', verbose=args.verbose)
+        except Exception as e:
+            print(f"  WARNING: align-to-input failed on {path} ({e}); "
+                  f"leaving unaligned")
+
     # 1. Renumber
     if not args.skip_renumber:
         step_num += 1
@@ -172,6 +197,7 @@ def main(argv=None):
         if args.verbose:
             renumber_argv.append("-v")
         renumber_main(renumber_argv)
+        _maybe_align(out)
         current = out
 
     # 2. Model
@@ -204,6 +230,7 @@ def main(argv=None):
                 interim_files.append(multi_out)
                 interim_files.append(str(Path(multi_out).with_suffix('.dat')))
                 out = multi_out
+        _maybe_align(out)
         current = out
 
     # 3. Prepare
@@ -229,6 +256,7 @@ def main(argv=None):
         if args.verbose:
             prepare_argv.append("-v")
         prepare_main(prepare_argv)
+        _maybe_align(out)
         current = out
 
     # 4. Minimize (pass 1 — relax heavy atoms using prepare's approximate H)
@@ -261,6 +289,7 @@ def main(argv=None):
         if args.verbose:
             minimize_argv.append("-v")
         minimize_main(minimize_argv)
+        _maybe_align(out)
         current = out
 
     # 5. Protonate (FULL — PROPKA + Reduce + variant-aware addHydrogens).
@@ -285,6 +314,7 @@ def main(argv=None):
         if args.verbose:
             protonate_argv.extend(["-v", "--summary"])
         protonate_main(protonate_argv)
+        _maybe_align(out)
         current = out
 
     # 6. Minimize (pass 2 — refine the fresh H positions).
@@ -325,6 +355,7 @@ def main(argv=None):
         if args.verbose:
             minimize_argv.append("-v")
         minimize_main(minimize_argv)
+        _maybe_align(out)
         current = out
 
     # Copy last output to final destination

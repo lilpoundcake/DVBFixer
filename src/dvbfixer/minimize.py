@@ -87,8 +87,14 @@ def parse_args(argv=None):
     p.add_argument("--obminimize-steps", type=int, default=500,
                    help="OpenBabel minimization steps (default: 500)")
     p.add_argument("--refine-heterogens-only", action="store_true",
-                   help="Restrict xtb/obminimize refinement to heterogen residues "
-                        "(protein heavy atoms frozen). Default: refine whole system.")
+                   help="Restrict xtb/obminimize refinement to heterogen "
+                        "residues (protein heavy atoms frozen). Refines only "
+                        "the ligand's INTERNAL geometry — the protein-ligand "
+                        "INTERFACE (contacts, H-bonds) is NOT relaxed and "
+                        "any pre-existing clash there will persist. Use "
+                        "without this flag for whole-system refinement when "
+                        "the interface matters (whole-system xtb auto-switches "
+                        "to heterogens-only above ~5000 atoms for performance).")
     p.add_argument("--platform", choices=["CPU", "CUDA", "OpenCL", "Reference"],
                    help="OpenMM platform (default: auto-select fastest)")
     p.add_argument("--rename", action="store_true",
@@ -317,6 +323,20 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         n_stripped = sum(1 for _ in topology.residues()) - sum(1 for _ in stripped_top.residues())
         if n_stripped > 0:
             print(f"Stripped {n_stripped} non-protein residues for minimization")
+            # The stripped heterogens will be spliced back at their ORIGINAL
+            # coords after the protein-only minimize. Warn about the
+            # inevitable interface strain and point at the higher-fidelity
+            # path (--parametrize-ligands) so users don't take the artifact
+            # for a real signal.
+            print(
+                "WARNING: heterogens will be restored at their INPUT "
+                "coordinates while the protein has moved during minimization. "
+                "Protein-ligand interface geometry (H-bonds, contacts) may "
+                "be strained. For proper interface geometry re-run with "
+                "`dvbfixer minimize --parametrize-ligands` instead (real "
+                "GAFF2 templates for the ligand; whole system optimised "
+                "together)."
+            )
         # Remap new_atom_indices to stripped topology
         known = PROTEIN_RESIDUES | SOLVENT_IONS
         old_to_new = {}
@@ -638,7 +658,13 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                 for line in diag.split('\n'):
                     print(f"  {line}")
                 print()
-            print(f"  → falling back to --strip-heterogens flow.\n")
+            print(f"  → falling back to --strip-heterogens flow.")
+            print(f"    NOTE: heterogens will be restored at their INPUT "
+                  f"coords while the protein moves during minimize, so the "
+                  f"interface geometry may be strained. For proper interface "
+                  f"geometry re-run with `--parametrize-ligands` (real GAFF2 "
+                  f"templates for the ligand; whole system optimised "
+                  f"together).\n")
             import argparse as _ap
             legacy_args = _ap.Namespace(**vars(args))
             legacy_args.keep_heterogens = False
@@ -681,7 +707,12 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                 print(f"  {line}")
             print()
         print(f"  → falling back to --strip-heterogens flow "
-              f"(heterogens kept in output with original coords).\n")
+              f"(heterogens kept in output with original coords).")
+        print(f"    NOTE: heterogens will be restored at their INPUT coords "
+              f"while the protein moves during minimize, so the interface "
+              f"geometry may be strained. For proper interface geometry "
+              f"re-run with `--parametrize-ligands` (real GAFF2 templates "
+              f"for the ligand; whole system optimised together).\n")
         import argparse as _ap
         legacy_args = _ap.Namespace(**vars(args))
         legacy_args.keep_heterogens = False
@@ -1746,11 +1777,14 @@ def main(argv=None):
         args.ff, args.input, verbose=args.verbose)
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
-    # .dat is optional: if --dat given, use it; otherwise auto-detect; otherwise skip
+    # .dat is optional: if --dat given, use it; otherwise auto-detect next
+    # to the USER'S input (args.input) — not the mutated `input_path`,
+    # which by now points at a /tmp/dvbfixer_conect_*.pdb temp file that
+    # obviously has no .dat sibling.
     if args.dat:
         dat_path = Path(args.dat)
     else:
-        dat_path = input_path.with_suffix(".dat")
+        dat_path = Path(args.input).with_suffix(".dat")
 
     if args.rename:
         from dvbfixer.rename import canonicalize_pdb

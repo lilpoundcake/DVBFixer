@@ -543,41 +543,71 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
     # MMFF94 geometry refinement of heterogen atoms (BioLuminate-style).
     # Freeze protein atoms; let glycan H atoms + glycosidic geometry relax.
     # This gives proper bond lengths/angles for glycans before any FF minimize.
+    # RDKit's MMFF setup emits multi-line C++ stack traces to stderr when
+    # SSSR wasn't precomputed on an unusual ligand (harmless — we catch the
+    # exception and skip the pass). Silence its log for the duration.
+    _RDKIT_LOG_QUIETED = False
     try:
-        from rdkit.Chem import AllChem
-        # Get atom indices of heterogen heavy atoms + their newly-added H
-        het_indices = set()
-        for atom in molh.GetAtoms():
-            info = atom.GetPDBResidueInfo()
-            if info and info.GetResidueName().strip() not in known:
-                het_indices.add(atom.GetIdx())
-            elif atom.GetIdx() >= n_before:
-                # Added H — keep its position frozen if parent is protein,
-                # let it move if parent is heterogen
-                for bond in atom.GetBonds():
-                    other = bond.GetOtherAtom(atom)
-                    other_info = other.GetPDBResidueInfo()
-                    if (other_info and
-                            other_info.GetResidueName().strip() not in known):
-                        het_indices.add(atom.GetIdx())
-                    break
+        from rdkit import RDLogger
+        RDLogger.DisableLog('rdApp.*')
+        _RDKIT_LOG_QUIETED = True
+    except Exception:
+        pass
 
-        if het_indices and len(het_indices) < molh.GetNumAtoms():
-            # Build per-atom constraint: freeze non-heterogen atoms via FF
-            props = AllChem.MMFFGetMoleculeProperties(molh, mmffVariant='MMFF94s')
-            if props is not None:
-                ff = AllChem.MMFFGetMoleculeForceField(molh, props,
-                                                       ignoreInterfragInteractions=False)
-                if ff is not None:
-                    for i in range(molh.GetNumAtoms()):
-                        if i not in het_indices:
-                            ff.AddFixedPoint(i)
-                    ff.Minimize(maxIts=400)
-                    if verbose:
-                        print(f"  MMFF94 refined {len(het_indices)} heterogen atoms")
-    except Exception as e:
+    import contextlib as _cl
+    import io as _io
+    _rd_stderr = _io.StringIO()
+    try:
+        with _cl.redirect_stderr(_rd_stderr):
+            from rdkit.Chem import AllChem
+            # Get atom indices of heterogen heavy atoms + their newly-added H
+            het_indices = set()
+            for atom in molh.GetAtoms():
+                info = atom.GetPDBResidueInfo()
+                if info and info.GetResidueName().strip() not in known:
+                    het_indices.add(atom.GetIdx())
+                elif atom.GetIdx() >= n_before:
+                    # Added H — keep its position frozen if parent is protein,
+                    # let it move if parent is heterogen
+                    for bond in atom.GetBonds():
+                        other = bond.GetOtherAtom(atom)
+                        other_info = other.GetPDBResidueInfo()
+                        if (other_info and
+                                other_info.GetResidueName().strip() not in known):
+                            het_indices.add(atom.GetIdx())
+                        break
+
+            if het_indices and len(het_indices) < molh.GetNumAtoms():
+                # NOTE: do NOT pre-compute SSSR on `molh` here. `molh` is
+                # the whole PDB (protein + heterogens, thousands of atoms)
+                # and RDKit's SSSR can run unboundedly long on large mixed
+                # systems. If MMFFGetMoleculeProperties needs ring info
+                # and it isn't there, it will raise — the except below
+                # takes the "MMFF skipped" branch, which is the correct
+                # behaviour for ligands MMFF can't type.
+                props = AllChem.MMFFGetMoleculeProperties(
+                    molh, mmffVariant='MMFF94s')
+                if props is not None:
+                    ff = AllChem.MMFFGetMoleculeForceField(
+                        molh, props, ignoreInterfragInteractions=False)
+                    if ff is not None:
+                        for i in range(molh.GetNumAtoms()):
+                            if i not in het_indices:
+                                ff.AddFixedPoint(i)
+                        ff.Minimize(maxIts=400)
+                        if verbose:
+                            print(f"  MMFF94 refined {len(het_indices)} "
+                                  f"heterogen atoms")
+    except Exception:
         if verbose:
-            print(f"  MMFF94 refinement skipped: {e}")
+            print("  MMFF94 refinement skipped (ligand not MMFF-typeable — "
+                  "harmless; coords unchanged)")
+    finally:
+        if _RDKIT_LOG_QUIETED:
+            try:
+                RDLogger.EnableLog('rdApp.*')
+            except Exception:
+                pass
 
     n_after = molh.GetNumAtoms()
     added = n_after - n_before
@@ -2157,11 +2187,38 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                 _fix_lyn_hz_naming(modeller.topology, _saved)
                 _restore_variants_post_addhydrogens(modeller.topology, _saved)
         except (ValueError, KeyError, Exception) as e:
-            from dvbfixer.ffutils import explain_template_error
+            from dvbfixer.ffutils import (
+                explain_template_error, PROTEIN_RESIDUES, SOLVENT_IONS,
+            )
             diag = explain_template_error(e, modeller.topology, ff)
-            if verbose:
-                print(f"  Heterogen H-add failed ({type(e).__name__}: {e}); "
-                      f"falling back to protein-only.")
+            # Classify: was the failed residue an unknown ligand (expected —
+            # OpenBabel/RDKit will place its H below) or something else
+            # (real problem)?
+            known = PROTEIN_RESIDUES | SOLVENT_IONS
+            failed_name = None
+            try:
+                import re as _re
+                m = _re.search(r'residue\s+(\d+)\s+\(([A-Za-z0-9_]+)\)',
+                               str(e))
+                if m:
+                    failed_name = m.group(2)
+            except Exception:
+                failed_name = None
+            is_unknown_ligand = (failed_name is not None
+                                 and failed_name not in known)
+
+            if is_unknown_ligand:
+                print(f"  INFO: {failed_name} has no FF template — its H "
+                      f"atoms will be placed by OpenBabel/RDKit (universal). "
+                      f"Pass `dvbfixer minimize --parametrize-ligands` for "
+                      f"real GAFF2 parameters downstream.")
+                if verbose and diag:
+                    for line in diag.split('\n'):
+                        print(f"    {line}")
+            else:
+                print(f"  WARNING: whole-topology addHydrogens failed "
+                      f"({type(e).__name__}: {e}); falling back to "
+                      f"protein-only.")
                 if diag:
                     for line in diag.split('\n'):
                         print(f"    {line}")

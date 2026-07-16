@@ -60,6 +60,7 @@ Organised by which pipeline step each flag flows into.
 | `--keep-water` | off | Keep water molecules (removed by default) |
 | `--no-infer-conect` | off | Skip auto CONECT inference in prepare/minimize/protonate |
 | `--keep-interim` | off | Keep all intermediate files (default: only final output) |
+| `--align-to-input` / `--no-align-to-input` | **on** | After every pipeline step, Kabsch-align the output back to the ORIGINAL input on protein backbone atoms. Prevents accumulated rigid-body drift so residue-by-residue comparisons in a viewer line up. Pass `--no-align-to-input` for the legacy behaviour (each step's output in its own frame). |
 | `-v`, `--verbose` | off | Print detailed progress for all steps |
 
 ### `renumber` (step 1)

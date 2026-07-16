@@ -54,14 +54,14 @@ dvbfixer minimize glycoprotein.pdb --obminimize-refine --refine-heterogens-only
 | `--weak-k` | 5.0 | Weak restraint constant for new backbone (kcal/mol/A^2) |
 | `--max-iter` | 1000 | Max minimization iterations per phase |
 | `--rebuild-h` | off | Strip and re-add hydrogens via OpenMM (default: keep existing) |
-| `--strip-heterogens` | off (default: keep) | Strip heterogens before parametrization, splice coords back — protein-only mode |
+| `--strip-heterogens` | off (default: keep) | Strip heterogens before parametrization, splice coords back — protein-only mode. **Warning**: heterogens are restored at their INPUT coords while the protein has moved during minimization; the protein-ligand interface (H-bonds, contacts) may end up strained. For proper interface geometry use `--parametrize-ligands` instead. |
 | `--no-solvent` | off | Minimize in vacuum |
 | `--xtb-refine` | off | Post-pass: refine geometry with xtb GFN-FF universal force field (auto-parametrizes any organic molecule, no templates needed) |
 | `--xtb-cycles` | 200 | Max xtb optimization cycles |
 | `--obminimize-refine` | off | Post-pass: refine geometry with OpenBabel obminimize (faster than xtb, UFF / MMFF94 / GAFF) |
 | `--obminimize-ff` | UFF | OpenBabel force field. UFF is default — handles N-glycosidic linkages correctly. MMFF94s mistypes anomeric C as sp2 (gives ~120° instead of ~109° angles around the C1-N bond) |
 | `--obminimize-steps` | 500 | OpenBabel minimization steps |
-| `--refine-heterogens-only` | off | With `--xtb-refine`/`--obminimize-refine`: refine only heterogen residues (protein frozen). BioLuminate-style ligand-only minimization |
+| `--refine-heterogens-only` | off | With `--xtb-refine`/`--obminimize-refine`: refine only heterogen residues (protein frozen). BioLuminate-style ligand-only minimization. **Caveat**: only the ligand's INTERNAL geometry gets refined — the protein-ligand INTERFACE is NOT relaxed, so any pre-existing clash there persists. Drop the flag for whole-system refinement when the interface matters. |
 | `--platform` | auto | OpenMM platform (CPU, CUDA, OpenCL, Reference) |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
 | `--parametrize-ligands` | off | For each heterogen residue with no template in the resolved `--ff`, run GAFF2 + AM1-BCC via antechamber and register the result as an OpenMM template. Cached under `~/.cache/dvbfixer/lig_params/` (override with `$DVBFIXER_LIG_CACHE`). Requires AmberTools (`antechamber`/`parmchk2`) and `openmmforcefields`. See [force-fields.md](../force-fields.md). |

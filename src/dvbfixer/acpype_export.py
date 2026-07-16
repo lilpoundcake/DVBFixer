@@ -409,7 +409,16 @@ def add_glycam_bonds(topology, forcefield, verbose=False, positions=None):
                     break
 
             if not matched and verbose:
-                print(f"    WARNING: No FF template for {res.name}:{res.id}")
+                # Not really a warning — most non-glycam heterogens (drug
+                # ligands, cofactors, PDB sugars) have no GLYCAM/AMBER
+                # template. Their bonds are inferred from coords elsewhere
+                # (prepare's OpenBabel pass; pdbutils.infer_conect_records).
+                # Suggest --parametrize-ligands for real MD parameters.
+                print(f"    [add_glycam_bonds] {res.name}:{res.id} has no "
+                      f"GLYCAM/AMBER template — intra-residue bonds will "
+                      f"be inferred from coordinates. Pass "
+                      f"`dvbfixer minimize --parametrize-ligands` for real "
+                      f"GAFF2 parameters.")
 
             # Peptide bonds: connect to previous and next residue
             if res.name in glycam_protein:
