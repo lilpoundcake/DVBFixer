@@ -98,6 +98,7 @@ Organised by which pipeline step each flag flows into.
 | `--platform` | auto | OpenMM platform (`CPU`, `CUDA`, `OpenCL`, `Reference`) |
 | `--refine` | `none` | Post-minimize refinement pass in step 6: `xtb` (GFN-FF) or `obminimize` (UFF). Off by default. |
 | `--refine-heterogens-only` | off | Restrict `--refine` pass to heterogen residues (protein frozen). Only meaningful with `--refine != none`. |
+| `--parametrize-ligands` | off | Forward `--parametrize-ligands` to both minimize passes: GAFF2 + AM1-BCC for each heterogen residue with no template in the resolved `--ff`. See [force-fields.md](../force-fields.md). |
 
 ### `protonate` (step 5)
 | Flag | Default | Description |

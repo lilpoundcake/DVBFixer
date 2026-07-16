@@ -123,6 +123,53 @@ Applies to: `top` **only**. Different namespace — it doesn't load OpenMM XML f
 
 The two are separate because they consume completely different file formats: OpenMM parses XML; GROMACS parses `.rtp` / `.atp` / `.itp`. The bundled GROMACS FF dirs let dvbfixer emit topologies that don't need any external FF installation on the target machine.
 
+## Handling arbitrary unknown ligands
+
+Standard AMBER19, AMBER14+GLYCAM, and CHARMM36 XMLs don't have templates for arbitrary drug-like molecules, cofactors, or non-standard ligands. Two orthogonal escape hatches:
+
+### Real force-field parameters — `minimize --parametrize-ligands`
+
+Runs the same pipeline as `dvbfixer parametrize` (antechamber → parmchk2) on each unknown residue in the input, wraps the result in an `openmmforcefields.generators.GAFFTemplateGenerator`, and registers it on the OpenMM ForceField before `createSystem`.
+
+```bash
+dvbfixer minimize protein_with_ligand.pdb --parametrize-ligands -v
+# Output includes:
+#   [lig_params] extracted LIG (24 atoms)
+#   [lig_params] built GAFF2 templates for: LIG (cache: ~/.cache/dvbfixer/lig_params/gaff_ligands.json)
+```
+
+- Uses AMBER GAFF2 + AM1-BCC charges via `antechamber`. Same charge model as `parametrize`'s default (`-c bcc`).
+- Cached on disk between runs (default cache: `~/.cache/dvbfixer/lig_params/`; override with `$DVBFIXER_LIG_CACHE`).
+- Requires `openmmforcefields`, `openff-toolkit`, and AmberTools (`antechamber`, `parmchk2`) in the env.
+- **Limitation**: cross-residue bonds between two ligand residues get no parameters. Same limitation as GLYCAM for glycan-glycan bonds. Works cleanly for **isolated** ligands (a bound small molecule, a cofactor, etc.).
+- Forwarded by `zbs --parametrize-ligands` to both minimize passes.
+
+### Universal-FF geometry refinement — `--xtb-refine` / `--obminimize-refine`
+
+Different mechanism entirely. These are **post-minimize refinement passes** that run AFTER OpenMM finishes. They apply a universal force field (xtb GFN-FF; OpenBabel UFF / MMFF94 / GAFF) to the whole system or just the heterogens, purely on connectivity — **no template matching**, so no unknown-residue errors.
+
+```bash
+# After OpenMM minimize, run xtb GFN-FF only on the heterogens
+dvbfixer minimize input.pdb --xtb-refine --refine-heterogens-only -v
+
+# OpenBabel obminimize (UFF by default; handles N-glycosidic angles correctly)
+dvbfixer minimize input.pdb --obminimize-refine --refine-heterogens-only -v
+```
+
+- **When to use**: sanity-check ligand geometry when you don't want to (or can't) generate real FF parameters. Also useful for glycan systems where sugar-sugar bonds have no OpenMM template — the refinement pass fixes strain that OpenMM couldn't touch.
+- Auto-switches to heterogens-only above 5000 atoms (whole-system xtb takes hours).
+- **NOT a replacement** for `--parametrize-ligands`: universal FFs are less accurate than GAFF2, and running xtb/UFF on a ligand doesn't give you MD-ready parameters — you still need real FF templates for a production MD run.
+
+### Which to use?
+
+| Need                                                      | Use                                        |
+|-----------------------------------------------------------|--------------------------------------------|
+| Isolated ligand, want real FF params for MD               | `--parametrize-ligands`                    |
+| Just want the geometry to look sensible                   | `--xtb-refine` or `--obminimize-refine`    |
+| Glycan tree with PDB names (NAG/BMA/MAN)                  | `dvbfixer convert --to-amber` first        |
+| Glycan tree with CHARMM-GUI names (BGLC/BMAN/…)           | `--ff charmm` (auto-detected)              |
+| Glycan tree with GLYCAM names (4YB/UYB/…)                 | `--ff amber+glycam` (auto-detected)        |
+
 ## Water models
 
 The OpenMM aliases pick a default water XML that matches the FF (e.g. `amber` uses `tip3p`, `amber+glycam` uses `tip3pfb`). If you need a different water model, pass the water XML explicitly:

@@ -4,8 +4,9 @@ Selected atoms near the bond endpoints are free to move, while all other atoms
 are frozen (mass=0) but still provide forces. This is equivalent to Schrödinger's
 "minimize selected atoms" workspace operation.
 
-Uses OpenFF (SMIRNOFF) via openmmforcefields to auto-parametrize non-standard
-residues (glycans, ligands) that lack AMBER templates.
+Force-field selection flows through `ffutils.resolve_ff` (short-name aliases,
+auto-detection). For arbitrary unknown ligands, use `minimize
+--parametrize-ligands` beforehand to register GAFF2 + AM1-BCC templates.
 """
 
 import argparse

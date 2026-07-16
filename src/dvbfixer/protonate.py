@@ -375,7 +375,8 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     if glycam_present:
         # Build GLYCAM-aware FF. create_forcefield_with_openff loads the
         # provided XMLs (caller upgraded args.ff to amber14+GLYCAM) and
-        # registers SMIRNOFF for any unknown ligands.
+        # suppresses GLYCAM sugar templates that would fuzzy-match PDB
+        # sugar residues to the wrong entry.
         forcefield = create_forcefield_with_openff(
             args.ff, modeller.topology, verbose=args.verbose,
         )

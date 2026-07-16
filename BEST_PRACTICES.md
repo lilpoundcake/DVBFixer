@@ -123,7 +123,8 @@ dvbfixer prepare glycam.pdb -o prep.pdb -v
 #   + sugar-sugar glycosidic bonds BEFORE addHydrogens
 # - Filters NLN/OLS/OLT out of PDBFixer's nonstandard-residue warning
 
-# 3. Energy-minimize the WHOLE system with AMBER14 + GLYCAM + SMIRNOFF
+# 3. Energy-minimize the WHOLE system with AMBER14 + GLYCAM
+#    (add --parametrize-ligands for unknown non-glycan ligands via GAFF2)
 dvbfixer minimize prep.pdb -o min.pdb --no-solvent -v
 # - ignoreExternalBonds=True for N-linked glycan junctions
 # - Pre-solvent check uses residueTemplates to avoid CYM/CYX false
@@ -517,11 +518,15 @@ compatibility.
   TER records between same-chain amino-acid residues (a TER forces a
   chain split). Both edits are no-ops on clean inputs.
 
-- **PDB sugar names with AMBER14**: NAG/FUC/etc. don't have AMBER14
-  templates. `minimize` uses SMIRNOFF auto-parametrization for them via
-  `create_forcefield_with_openff`. If that fails (e.g. unknown ligand without
-  a SMILES entry in `KNOWN_GLYCAN_SMILES`), the tool auto-falls back to
+- **PDB sugar names with AMBER14**: NAG/FUC/etc. have no AMBER14 or
+  bare-name GLYCAM template. Rename to a real scheme first via
+  `dvbfixer convert --to-amber` (→ GLYCAM UYB/VMB/...) or
+  `dvbfixer convert --to-charmm` (→ BGLCNA/BMAN/...). When template
+  matching still can't cover the input, `minimize` auto-falls back to
   legacy strip-and-splice + `--obminimize-refine` for glycan geometry.
+  For non-sugar unknown ligands (drugs, cofactors), use
+  `minimize --parametrize-ligands` to build per-ligand GAFF2 + AM1-BCC
+  templates on the fly.
 
 - **Disulfide bonds**: Detected from input CONECT records, with distance
   fallback (SG-SG within 2.5 Å) for inputs without CONECTs. Recognizes SG
@@ -586,7 +591,8 @@ dvbfixer convert   crystal.pdb -o glycam.pdb -v
 # 2. Structure prep with AMBER14+GLYCAM templates
 dvbfixer prepare  glycam.pdb -o prep.pdb -v
 
-# 3. Energy minimize (full system, AMBER14+GLYCAM+SMIRNOFF)
+# 3. Energy minimize (full system, AMBER14+GLYCAM; add
+#    --parametrize-ligands for isolated non-glycan ligands)
 dvbfixer minimize prep.pdb -o min.pdb --no-solvent -v
 
 # 4. Assign protonation states via PROPKA

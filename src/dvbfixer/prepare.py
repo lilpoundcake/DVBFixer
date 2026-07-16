@@ -154,8 +154,9 @@ def find_glycosylated_atoms_with_sugar(input_path):
     The sugar resname lets downstream rename logic distinguish GLYCAM-named
     sugars (UYB/4YB/VMB/...) — which need the protein anchor renamed to
     NLN/OLS/OLT for GLYCAM template matching — from PDB-named sugars
-    (NAG/NDG/BMA/MAN/...) — which go through SMIRNOFF and DON'T need the
-    rename (extra HD22 is still removed regardless).
+    (NAG/NDG/BMA/MAN/...) — which are handled by whatever FF the user
+    routes them through and don't need the rename (extra HD22 is still
+    removed regardless).
     """
     from dvbfixer.ffutils import is_glycam_sugar
 
@@ -324,7 +325,7 @@ def _write_heterogen_conects(pdb_path, topology):
     heterogen (not in PROTEIN_RESIDUES | SOLVENT_IONS). Appends before END.
 
     Without this, PyMOL/VMD show no protein-glycan or sugar-sugar bonds, and
-    downstream minimize loses connectivity for SMIRNOFF parametrization.
+    downstream minimize loses cross-residue connectivity.
     """
     from collections import defaultdict
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
@@ -856,7 +857,7 @@ def add_heterogen_h_via_openbabel(topology, positions, verbose=False):
     protein-anchor atoms with their real elements so OpenBabel sees the linkage
     and doesn't add H at linkage carbons). Distance-based sugar-sugar bonds are
     discovered too. Perceived intra-residue and sugar-sugar bonds are added to
-    the returned OpenMM topology so SMIRNOFF can parametrize sugars in minimize.
+    the returned OpenMM topology so downstream FF parametrization sees them.
 
     Returns new (topology, positions).
     """
@@ -1038,10 +1039,11 @@ def rename_glycosylated_protein_residues(topology, positions, glycosylated_atoms
     when the bonded sugar is GLYCAM-named (UYB/4YB/VMB/...).
 
     For PDB-named sugars (NAG/NDG/BMA/MAN/...) the renames are NOT applied:
-    NLN/OLS/OLT are GLYCAM-specific templates, and PDB-sugar systems go
-    through the SMIRNOFF path which doesn't need them. Extra HD22 (etc.)
-    is still removed in both cases — that's handled by the caller via
-    `remove_extra_glycan_hydrogens`.
+    NLN/OLS/OLT are GLYCAM-specific templates and the user is expected to
+    either (a) convert PDB sugars to GLYCAM naming via `dvbfixer convert
+    --to-amber` first, or (b) rely on downstream tools that don't need the
+    glycoprotein rename. Extra HD22 (etc.) is still removed in both cases
+    — that's handled by the caller via `remove_extra_glycan_hydrogens`.
 
     `sugar_by_anchor` (optional): dict {(chain, resid, atom): sugar_resname}
     from `find_glycosylated_atoms_with_sugar`. If None, every entry in
@@ -2121,10 +2123,12 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     if heterogen_h:
         # BioLuminate-style: add H to protein AND heterogens (sugars, ligands).
         # ff_xmls comes from the caller (resolved via ffutils.resolve_ff).
-        # Fall back to amber14+GLYCAM if caller didn't pass one. SMIRNOFF is
-        # registered on top for arbitrary unknown ligands via SMILES. The
+        # Fall back to amber14+GLYCAM if caller didn't pass one. The
         # water-model XML is included for ion templates (Ca2+, Mg2+, Zn2+,
-        # Na+, Cl-, K+, etc.) which AMBER ships inside the water XML.
+        # Na+, Cl-, K+, etc.) which AMBER ships inside the water XML. For
+        # arbitrary unknown ligands without an FF template, run `minimize
+        # --parametrize-ligands` (GAFF2 + AM1-BCC) rather than relying on
+        # this step (prepare only needs enough templates to place H).
         _ff_xmls = ff_xmls or ['amber14-all.xml',
                                'amber14/GLYCAM_06j-1.xml',
                                'amber14/tip3pfb.xml']

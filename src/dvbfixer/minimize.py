@@ -97,6 +97,15 @@ def parse_args(argv=None):
                    action="store_true",
                    help="Skip automatic CONECT inference (default: infer missing "
                         "SS / glycosidic / glycosylation bonds before minimize).")
+    p.add_argument("--parametrize-ligands", action="store_true",
+                   help="For each heterogen residue that lacks a template in "
+                        "the resolved --ff, run GAFF2 + AM1-BCC parametrisation "
+                        "via antechamber/parmchk2 and register the resulting "
+                        "GAFF template with OpenMM before createSystem. "
+                        "Requires openmmforcefields + openff-toolkit + "
+                        "AmberTools (antechamber, parmchk2). Cached to "
+                        "~/.cache/dvbfixer/lig_params/ (override with "
+                        "$DVBFIXER_LIG_CACHE). See docs/force-fields.md.")
     p.add_argument("-v", "--verbose", action="store_true",
                    help="Print detailed progress")
     return p.parse_args(argv)
@@ -287,10 +296,13 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
 
     Two modes:
     - keep_heterogens (default): minimize the whole system (protein + sugars +
-      ligands) using AMBER + GLYCAM + SMIRNOFF. Glycan bonds are added from FF
-      templates. Heterogens not in .dat get no restraint (free to relax).
-    - strip-heterogens (legacy): strip non-protein/non-solvent residues before
-      parametrization and restore with original coordinates afterward.
+      ligands) using the resolved --ff (AMBER + GLYCAM for glycoproteins,
+      CHARMM36 for CHARMM inputs, plus any per-ligand GAFF2 templates
+      registered via --parametrize-ligands). Heterogens not in .dat get no
+      restraint (free to relax).
+    - strip-heterogens (legacy): strip non-protein/non-solvent residues
+      before parametrization and restore with original coordinates
+      afterward.
     """
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
 
@@ -321,13 +333,29 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         res.name not in (PROTEIN_RESIDUES | SOLVENT_IONS)
         for res in stripped_top.residues()
     )
+
+    # --parametrize-ligands: build GAFF2 templates for unknown ligands and
+    # register them on the ForceField below via extra_generators.
+    if has_heterogens and getattr(args, 'parametrize_ligands', False):
+        from openmm.app import ForceField as _FF
+        base_templates = set(_FF(*args.ff)._templates)
+        from dvbfixer.lig_params import build_ligand_generator
+        _lig_gen = build_ligand_generator(
+            args.input, stripped_top, base_templates,
+            verbose=args.verbose,
+        )
+        args._ligand_generators = [_lig_gen] if _lig_gen else None
+
     if has_heterogens:
         from dvbfixer.ffutils import create_forcefield_with_openff
-        # SMIRNOFF is registered on top of the resolved args.ff so any
-        # unknown ligand residues can still be parametrised on the fly
-        # (create_forcefield_with_openff's original purpose).
+        # Loads the resolved --ff XMLs and prunes GLYCAM sugar/NA templates
+        # that would fuzzy-match PDB-named sugars to the wrong entry. Any
+        # GAFF2 ligand templates from --parametrize-ligands are appended
+        # via extra_generators (see below).
         forcefield = create_forcefield_with_openff(
-            args.ff, stripped_top, verbose=args.verbose,
+            args.ff, stripped_top,
+            extra_generators=getattr(args, '_ligand_generators', None),
+            verbose=args.verbose,
         )
     else:
         forcefield = ForceField(*args.ff)

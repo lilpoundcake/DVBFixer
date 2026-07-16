@@ -106,6 +106,10 @@ def parse_args(argv=None):
                    help="Restrict --refine pass to heterogen residues "
                         "(protein backbone frozen). Only meaningful with "
                         "--refine != none.")
+    p.add_argument("--parametrize-ligands", action="store_true",
+                   help="Forward --parametrize-ligands to both minimize "
+                        "passes (GAFF2 + AM1-BCC for unknown ligands via "
+                        "antechamber). See docs/force-fields.md.")
 
     # protonate
     p.add_argument("--skip-protonate", action="store_true",
@@ -250,6 +254,8 @@ def main(argv=None):
             minimize_argv.append("--rename")
         if args.no_infer_conect:
             minimize_argv.append("--no-infer-conect")
+        if args.parametrize_ligands:
+            minimize_argv.append("--parametrize-ligands")
         if args.platform:
             minimize_argv.extend(["--platform", args.platform])
         if args.verbose:

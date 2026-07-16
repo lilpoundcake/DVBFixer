@@ -1,26 +1,24 @@
 """Shared force field utilities for dvbfixer.
 
-Provides OpenFF-based parametrization for non-standard residues (glycans,
-ligands) that lack templates in standard AMBER force fields. Uses
-SMIRNOFFTemplateGenerator from openmmforcefields to auto-parametrize
-unknown residues on the fly.
+FF selection (short-name aliases + auto-detection) via `resolve_ff`, shared
+`fix_atom_hetatm_records`, GLYCAM residue detection, and a small helper
+`create_forcefield_with_glycam_suppression` that prunes GLYCAM's 1400+
+sugar / nucleic-acid templates when the input carries PDB-standard sugar
+names (which otherwise fuzzy-match to the wrong GLYCAM template).
+
+For arbitrary unknown ligands (cofactors, drug-like molecules) that lack a
+template in the resolved FF, use `--parametrize-ligands` on `minimize` /
+`zbs` — that runs `parametrize`'s GAFF2 + AM1-BCC pipeline and registers a
+real OpenMM template per ligand. See `docs/force-fields.md`.
 """
 
 from openmm.app import ForceField
 
-# SMILES for common glycan residues (from PDB Chemical Component Dictionary).
-# These are used to create OpenFF Molecule objects for parametrization.
-KNOWN_GLYCAN_SMILES = {
-    'NAG': 'CC(=O)N[C@@H]1[C@@H](O)[C@H](O)[C@@H](CO)O[C@@H]1O',   # N-acetyl-D-glucosamine
-    'NDG': 'CC(=O)N[C@@H]1[C@@H](O)[C@H](O)[C@@H](CO)O[C@@H]1O',   # N-acetyl-D-glucosamine (alt)
-    'BMA': 'OC[C@H]1OC(O)[C@@H](O)[C@@H](O)[C@@H]1O',              # beta-D-mannose
-    'MAN': 'OC[C@H]1OC(O)[C@@H](O)[C@@H](O)[C@@H]1O',              # alpha-D-mannose
-    'FUC': 'C[C@H]1OC(O)[C@@H](O)[C@@H](O)[C@@H]1O',               # L-fucose
-    'FUL': 'C[C@H]1OC(O)[C@@H](O)[C@@H](O)[C@@H]1O',               # L-fucose (alt)
-    'GAL': 'OC[C@H]1OC(O)[C@H](O)[C@@H](O)[C@@H]1O',               # D-galactose
-    'BGC': 'OC[C@H]1OC(O)[C@H](O)[C@@H](O)[C@@H]1O',               # beta-D-glucose
-    'GLC': 'OC[C@H]1OC(O)[C@H](O)[C@@H](O)[C@@H]1O',               # D-glucose
-    'SIA': 'OC[C@@H](O)[C@@H]1OC(=O)[C@H](O)[C@@H](O)[C@@H]1NC(C)=O',  # sialic acid (simplified)
+# PDB-standard sugar residue names — the ambiguous set from the auto-detect
+# path (a hit alone does not identify an FF; user is warned to convert first).
+# Kept as a module-level constant because detect_ff_from_pdb consults it.
+_PDB_SUGAR_NAMES = {
+    'NAG', 'NDG', 'BMA', 'MAN', 'FUC', 'FUL', 'GAL', 'BGC', 'GLC', 'SIA',
 }
 
 # Standard protein/water/ion residues that don't need OpenFF parametrization
@@ -97,7 +95,7 @@ _CHARMM_MARKERS = (_CHARMM_PROTONATION_MARKERS
 # Neither amber14+GLYCAM (needs 3-char linkage codes like UYB, VMB) nor
 # charmm36 (needs BGLCNA, BMAN, ...) has templates for these bare names.
 # Detected only to emit a "convert first" warning, NOT to auto-pick an FF.
-_AMBIGUOUS_SUGAR_MARKERS = frozenset(KNOWN_GLYCAN_SMILES)
+_AMBIGUOUS_SUGAR_MARKERS = frozenset(_PDB_SUGAR_NAMES)
 
 
 def _scan_resnames(pdb_path):
@@ -267,8 +265,8 @@ def detect_glycam_input(topology):
     Returns dict with keys:
       - glycam_proteins: set of (chain_id, res_id) for NLN/OLS/OLT
       - glycam_sugars:   set of (chain_id, res_id) for GLYCAM-named sugars
-      - pdb_sugars:      set of (chain_id, res_id) for known PDB sugars
-                          (NAG, BMA, MAN, FUC, ...) — present in KNOWN_GLYCAN_SMILES
+      - pdb_sugars:      set of (chain_id, res_id) for standard PDB sugar
+                          names (NAG, BMA, MAN, FUC, ... — see _PDB_SUGAR_NAMES)
       - unknown_hets:    set of (chain_id, res_id) for anything non-protein
                           non-solvent that's not in the above
     """
@@ -286,7 +284,7 @@ def detect_glycam_input(topology):
             info['glycam_proteins'].add(key)
         elif is_glycam_sugar(name):
             info['glycam_sugars'].add(key)
-        elif name in KNOWN_GLYCAN_SMILES:
+        elif name in _PDB_SUGAR_NAMES:
             info['pdb_sugars'].add(key)
         elif name not in known_prot_solv:
             info['unknown_hets'].add(key)
@@ -433,32 +431,41 @@ def explain_template_error(exc, topology, forcefield=None):
     return '\n'.join(lines)
 
 
-def create_forcefield_with_openff(ff_xmls, topology, small_mol_ff='openff-2.2.0',
-                                  extra_molecules=None, verbose=False):
-    """Create OpenMM ForceField with automatic OpenFF parametrization for unknown residues.
+def create_forcefield_with_openff(ff_xmls, topology,
+                                  extra_generators=None, verbose=False,
+                                  **_legacy_kwargs):
+    """Build an OpenMM ForceField with GLYCAM template suppression.
 
-    When PDB-named sugars (NAG, FUC, GAL, MAN, etc.) are present in the
-    topology and GLYCAM_06j-1.xml was loaded, this function deletes GLYCAM's
-    sugar/nucleic acid templates (keeping only NLN/OLS/OLT/ROH/etc.) so
-    SMIRNOFF can handle the sugars cleanly. Without this, the 1400+ GLYCAM
-    templates fuzzy-match PDB sugars to wrong templates (NAG → UVA, etc.).
+    When `GLYCAM_06j-1.xml` is loaded AND the input topology carries
+    PDB-standard sugar names (NAG / BMA / MAN / …), the ~1400 GLYCAM sugar
+    and nucleic-acid templates fuzzy-match the wrong residues (NAG → UVA,
+    …). This helper drops those GLYCAM templates so the PDB-named sugars
+    fall through to whatever handler you want (a `--parametrize-ligands`
+    generator, an explicit XML, etc.). GLYCAM's glycoprotein and cap
+    templates (NLN/OLS/OLT/ROH/OME/TBT/CMET) are kept.
+
+    Note: dvbfixer used to auto-register a SMIRNOFF generator here for
+    unknown ligands. That path was removed — SMIRNOFF doesn't handle
+    cross-residue bonds (glycosidic / protein-glycan linkages have no
+    parameters, geometry blows up on minimize). Use `--parametrize-ligands`
+    for real per-ligand GAFF2 + AM1-BCC via antechamber. See
+    docs/force-fields.md.
 
     Args:
-        ff_xmls: List of force field XML files (e.g., ['amber19/protein.ff19SB.xml', ...])
-        topology: OpenMM Topology to scan for unknown residues
-        small_mol_ff: OpenFF force field name (default: openff-2.2.0 Sage)
-        extra_molecules: Optional list of additional openff.toolkit.Molecule objects
-        verbose: Print info about parametrized residues
-
-    Returns:
-        ForceField object with SMIRNOFFTemplateGenerator registered for unknown residues
+        ff_xmls: OpenMM FF XML paths (from ffutils.resolve_ff).
+        topology: OpenMM Topology (scanned for PDB-sugar names).
+        extra_generators: Optional iterable of already-built template
+            generators to register on the returned ForceField (used by
+            `--parametrize-ligands` to plug in GAFF2 templates).
+        verbose: Extra logging.
+        _legacy_kwargs: Silently swallowed (was `small_mol_ff`,
+            `extra_molecules`); kept for callers that hadn't been updated.
     """
     ff = ForceField(*ff_xmls)
 
-    # If GLYCAM xml was loaded AND PDB-named sugars are in topology, suppress
-    # GLYCAM sugar/NA templates (keep glycoprotein/cap templates).
+    # Suppress GLYCAM sugar/NA templates when PDB-named sugars are present.
     pdb_sugars = {r.name for r in topology.residues()
-                  if r.name in KNOWN_GLYCAN_SMILES}
+                  if r.name in _PDB_SUGAR_NAMES}
     glycam_loaded = any('GLYCAM' in str(x) for x in ff_xmls)
     if glycam_loaded and pdb_sugars:
         amber_only_xmls = [x for x in ff_xmls if 'GLYCAM' not in str(x)]
@@ -471,52 +478,9 @@ def create_forcefield_with_openff(ff_xmls, topology, small_mol_ff='openff-2.2.0'
                 del ff._templates[n]
             if verbose and removed:
                 print(f"Suppressed {len(removed)} GLYCAM sugar/NA templates "
-                      f"(PDB sugars detected → SMIRNOFF will handle them)")
+                      f"(PDB sugars detected)")
 
-    unknown = _find_unknown_residue_names(topology)
-    if not unknown and not extra_molecules:
-        return ff
-
-    # Build Molecule objects for known glycans
-    from openff.toolkit import Molecule
-    from openmmforcefields.generators import SMIRNOFFTemplateGenerator
-
-    molecules = []
-    matched = set()
-    for resname in unknown:
-        if resname in KNOWN_GLYCAN_SMILES:
-            mol = Molecule.from_smiles(KNOWN_GLYCAN_SMILES[resname],
-                                       allow_undefined_stereo=True)
-            molecules.append(mol)
-            matched.add(resname)
-
-    if extra_molecules:
-        molecules.extend(extra_molecules)
-
-    unmatched = unknown - matched
-    if unmatched and verbose:
-        print(f"Warning: no SMILES for residues: {', '.join(sorted(unmatched))}")
-        print("  These residues may cause errors. Use --sdf to provide molecule definitions.")
-
-    if molecules:
-        smirnoff = SMIRNOFFTemplateGenerator(molecules=molecules, forcefield=small_mol_ff)
-        ff.registerTemplateGenerator(smirnoff.generator)
-        if verbose:
-            print(f"OpenFF parametrization registered for: {', '.join(sorted(matched))}")
-
-        # Pre-generate templates for each PDB sugar residue in topology so they
-        # get registered by exact name. Without this, OpenMM's fuzzy template
-        # matcher tries to fit nucleotide templates (CN, A, etc.) to sugars
-        # before falling back to the SMIRNOFF generator.
-        seen_resnames = set()
-        for res in topology.residues():
-            if res.name not in matched or res.name in seen_resnames:
-                continue
-            seen_resnames.add(res.name)
-            try:
-                smirnoff.generator(ff, res)
-            except Exception as e:
-                if verbose:
-                    print(f"  Pre-register SMIRNOFF template {res.name}: {e}")
+    for gen in (extra_generators or ()):
+        ff.registerTemplateGenerator(gen)
 
     return ff
