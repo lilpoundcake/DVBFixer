@@ -12,7 +12,6 @@ any mismatch.
 """
 
 import argparse
-import json
 import os
 import re
 import shutil
@@ -2063,15 +2062,14 @@ def main(argv=None):
                 f.writelines(result_lines)
             print(f"Wrote {output_path}")
             # Write empty .dat (no gaps filled)
-            dat = {"description": "No gaps — input copied unchanged",
-                   "total_added": 0, "residue_summary": {}, "added_atoms": []}
+            from dvbfixer.ffutils.dat import DatRecord
+            record = DatRecord(description="No gaps — input copied unchanged")
             if _input_variants:
-                dat['variant_overrides'] = {
+                record.variant_overrides = {
                     f"{ch}:{rs}": var for (ch, rs), var in _input_variants.items()
                 }
             dat_path = output_path.with_suffix('.dat')
-            with open(dat_path, 'w') as f:
-                json.dump(dat, f, indent=2)
+            record.save(dat_path, verbose=False)
             print(f"Wrote {dat_path}")
             return
 
@@ -2175,12 +2173,16 @@ def main(argv=None):
 
             # Write .dat file only if there were actual gaps
             if n_gaps > 0:
+                from dvbfixer.ffutils.dat import DatRecord
                 dat = build_model_dat(
                     result_lines, per_chain_masks, all_chains, protein_chains, resnum_mapping
                 )
                 dat_path = this_output.with_suffix('.dat')
-                with open(dat_path, 'w') as f:
-                    json.dump(dat, f, indent=2)
+                DatRecord(
+                    description=dat["description"],
+                    added_atoms=dat["added_atoms"],
+                    residue_summary=dat["residue_summary"],
+                ).save(dat_path, verbose=False)
                 print(f"  Saved restraint data: {dat_path} ({dat['total_added']} atoms in rebuilt regions)")
 
     finally:

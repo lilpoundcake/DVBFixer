@@ -15,7 +15,6 @@ Minimization runs in two phases:
 """
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -123,17 +122,13 @@ def parse_args(argv=None):
 # ---------------------------------------------------------------------------
 
 def load_dat(path):
-    """Load .dat file, return set of (chain, resid, icode, atom_name) for added atoms."""
-    with open(path) as f:
-        dat = json.load(f)
+    """Load a ``.dat`` file, return set of (chain, resid, icode, atom_name).
 
-    added_keys = set()
-    for entry in dat["added_atoms"]:
-        added_keys.add((entry["chain"], entry["resid"],
-                        entry["icode"], entry["atom"]))
-
-    print(f"Loaded restraint data: {path} ({len(added_keys)} added atoms)")
-    return added_keys
+    Delegates to :func:`dvbfixer.ffutils.dat.load_added_keys` — schema
+    lives there.
+    """
+    from dvbfixer.ffutils.dat import load_added_keys
+    return load_added_keys(path)
 
 
 def resolve_new_atom_indices(topology, added_keys, verbose=False):
@@ -1859,11 +1854,12 @@ def main(argv=None):
         added_keys = load_dat(dat_path)
         new_atom_indices = resolve_new_atom_indices(topology, added_keys, args.verbose)
 
-        # Also load variant overrides from .dat (saved by prepare)
-        import json
-        with open(dat_path) as _df:
-            _dat = json.load(_df)
-        for key_str, var_name in _dat.get('variant_overrides', {}).items():
+        # Also load variant overrides from .dat (saved by prepare) — use the
+        # shared DatRecord to avoid re-parsing.
+        from dvbfixer.ffutils.dat import DatRecord
+
+        _dat = DatRecord.load(dat_path)
+        for key_str, var_name in (_dat.variant_overrides or {}).items():
             ch, rn = key_str.split(':', 1)
             if (ch, rn) not in amber_renames:
                 amber_renames[(ch, rn)] = var_name

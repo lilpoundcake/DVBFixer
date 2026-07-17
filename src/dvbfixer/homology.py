@@ -8,7 +8,6 @@ Antibody mode (--antibody): uses ANARCI for numbering/CDR detection.
 """
 
 import argparse
-import json
 import os
 import shutil
 import sys
@@ -724,16 +723,14 @@ def main(argv=None):
         # For homology modeling, all atoms are "new" since the entire structure
         # is built. But we mark template-covered regions as "original" and
         # gap regions as "new" for restraint purposes.
+        from dvbfixer.ffutils.dat import DatRecord
+
         dat_path = f"{output_prefix}_homology.dat"
-        dat_info = {
-            'description': 'Homology model built by dvbfixer homology',
-            'templates': [Path(t).name for t in template_paths],
-            'target_chains': {ch: len(seq) for ch, seq in target_chains},
-            'total_added': 0,  # all atoms are modeled
-            'added_atoms': [],
-        }
-        with open(dat_path, 'w') as f:
-            json.dump(dat_info, f, indent=2)
+        DatRecord(
+            description="Homology model built by dvbfixer homology",
+            templates=[Path(t).name for t in template_paths],
+            target_chains={ch: len(seq) for ch, seq in target_chains},
+        ).save(dat_path, verbose=False)
         print(f"Wrote {dat_path}")
 
     finally:

@@ -6,7 +6,6 @@ selective restraints.
 """
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -122,9 +121,22 @@ def build_dat(fixer, new_atom_indices):
 
 
 def write_dat(dat, path):
-    with open(path, 'w') as f:
-        json.dump(dat, f, indent=2)
-    print(f"Saved restraint data: {path}")
+    """Serialise a ``.dat`` dict to disk. Delegates to ``ffutils.dat`` so
+    the schema (fields, total_added invariant, JSON layout) lives in one
+    place.
+
+    ``dat`` here is the dict shape returned by ``build_dat`` (plus optional
+    ``variant_overrides`` / ``removed_residues`` added by the caller);
+    :class:`DatRecord` accepts it via ``**dat`` decomposition.
+    """
+    from dvbfixer.ffutils.dat import DatRecord
+
+    known = {
+        "description", "total_added", "residue_summary", "added_atoms",
+        "variant_overrides", "removed_residues", "templates", "target_chains",
+    }
+    kwargs = {k: v for k, v in dat.items() if k in known and k != "total_added"}
+    DatRecord(**kwargs).save(path)
 
 
 # ---------------------------------------------------------------------------
@@ -2345,30 +2357,21 @@ def main(argv=None):
     if removed_residues_meta:
         dat['removed_residues'] = removed_residues_meta
 
-    # Merge with upstream .dat (e.g. from model step) if it exists
+    # Merge with upstream .dat (e.g. from model step) if it exists.
+    # Delegate to ffutils.dat's merge logic so the "downstream wins on
+    # optional-field collision" semantics stay in one place.
     upstream_dat = input_path.with_suffix('.dat')
     if upstream_dat.exists():
-        with open(upstream_dat) as f:
-            prev = json.load(f)
-        # Carry forward upstream added_atoms that still exist in output
-        # (keyed by chain+resid+icode+atom to avoid duplicates)
-        existing_keys = {(a["chain"], a["resid"], a["icode"], a["atom"])
-                         for a in dat["added_atoms"]}
-        carried = 0
-        for a in prev["added_atoms"]:
-            key = (a["chain"], a["resid"], a["icode"], a["atom"])
-            if key not in existing_keys:
-                dat["added_atoms"].append(a)
-                existing_keys.add(key)
-                rkey = f"{a['chain']}/{a['resname']}{a['resid']}"
-                if rkey not in dat["residue_summary"]:
-                    dat["residue_summary"][rkey] = {"heavy": 0, "hydrogen": 0}
-                if a.get("element") == 'H':
-                    dat["residue_summary"][rkey]["hydrogen"] += 1
-                else:
-                    dat["residue_summary"][rkey]["heavy"] += 1
-                carried += 1
-        dat["total_added"] = len(dat["added_atoms"])
+        from dvbfixer.ffutils.dat import DatRecord
+
+        known = {
+            "description", "residue_summary", "added_atoms",
+            "variant_overrides", "removed_residues", "templates", "target_chains",
+        }
+        downstream = DatRecord(**{k: v for k, v in dat.items() if k in known})
+        upstream = DatRecord.load(upstream_dat)
+        carried = downstream.merge(upstream)
+        dat = downstream.to_dict()
         if carried > 0:
             print(f"Merged {carried} atoms from upstream {upstream_dat.name}")
 
