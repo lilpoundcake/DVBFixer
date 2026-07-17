@@ -23,10 +23,10 @@ keeps working from ``cli.py``, ``zbs.py``, and downstream tests.
 from __future__ import annotations
 
 from dvbfixer.model.cli import AA3TO1, WATER_RESNAMES, parse_args
+from dvbfixer.model.modeller_run import parse_pir_sequence
 from dvbfixer.model.pipeline import (
     build_model_dat,
     main,
-    parse_pir_sequence,
     remove_water_lines,
 )
 
