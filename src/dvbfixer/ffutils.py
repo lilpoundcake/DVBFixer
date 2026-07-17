@@ -291,6 +291,116 @@ def detect_glycam_input(topology):
     return info
 
 
+def sanitize_protein_hetatm(pdb_path, verbose=False):
+    """Rewrite `pdb_path` so protein/GLYCAM-glycoprotein residues are
+    guaranteed to be `ATOM` and any spurious mid-chain `TER` records are
+    dropped. Both issues break OpenMM's peptide-bond inference.
+
+    Two fixes applied (both no-ops on clean inputs):
+
+    1. **HETATM → ATOM** for any residue name in `FORCE_ATOM_RESIDUES`
+       (standard AAs + AMBER protonation variants HID/HIE/HIP/ASH/GLH/
+       CYX/CYM/LYN + GLYCAM glycoprotein residues NLN/OLS/OLT). OpenMM's
+       PDBFile parser only infers peptide bonds between `ATOM` records;
+       a lone `HETATM ASN` sits in isolation with no bond to its
+       neighbours, and downstream `addHydrogens` fails with the confusing
+       "missing 1 C atom externally bonded" template error.
+
+    2. **Spurious `TER` records** between two protein residues on the
+       same chain. A TER forces OpenMM to start a new chain, breaking
+       the polymer.
+
+    Returns a temp-file path if any rewrite happened, or the original
+    `pdb_path` unchanged otherwise.
+    """
+    import tempfile as _tf
+
+    with open(pdb_path) as f:
+        lines = f.readlines()
+
+    res_at_pos = {}
+    for line in lines:
+        if line.startswith(('ATOM', 'HETATM')) and len(line) >= 27:
+            ch = line[21]
+            try:
+                rs = int(line[22:26])
+            except ValueError:
+                continue
+            ic = line[26] if len(line) > 26 else ' '
+            rn = line[17:20].strip()
+            res_at_pos.setdefault((ch, rs, ic), rn)
+
+    n_hetatm_fix = 0
+    n_ter_drop = 0
+    out_lines = []
+    last_res_key = None
+    pending_ter = None
+
+    def _flush_pending(flush_list):
+        nonlocal pending_ter
+        if pending_ter is not None:
+            flush_list.append(pending_ter)
+            pending_ter = None
+
+    for line in lines:
+        if line.startswith(('ATOM', 'HETATM')) and len(line) >= 27:
+            ch = line[21]
+            try:
+                rs = int(line[22:26])
+                ic = line[26] if len(line) > 26 else ' '
+            except ValueError:
+                _flush_pending(out_lines)
+                out_lines.append(line)
+                continue
+            rn = line[17:20].strip()
+
+            if line.startswith('HETATM') and rn in FORCE_ATOM_RESIDUES:
+                line = 'ATOM  ' + line[6:]
+                n_hetatm_fix += 1
+
+            if pending_ter is not None:
+                prev_rn = res_at_pos.get(last_res_key) if last_res_key else None
+                same_chain = last_res_key and last_res_key[0] == ch
+                both_protein = (
+                    prev_rn in FORCE_ATOM_RESIDUES
+                    and rn in FORCE_ATOM_RESIDUES
+                )
+                if same_chain and both_protein:
+                    n_ter_drop += 1
+                    pending_ter = None
+                else:
+                    out_lines.append(pending_ter)
+                    pending_ter = None
+
+            out_lines.append(line)
+            last_res_key = (ch, rs, ic)
+
+        elif line.startswith('TER'):
+            _flush_pending(out_lines)
+            pending_ter = line
+
+        else:
+            _flush_pending(out_lines)
+            out_lines.append(line)
+
+    _flush_pending(out_lines)
+
+    if n_hetatm_fix == 0 and n_ter_drop == 0:
+        return str(pdb_path)
+
+    tmp_path = _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False).name
+    with open(tmp_path, 'w') as f:
+        f.writelines(out_lines)
+    if verbose:
+        if n_hetatm_fix:
+            print(f"  [sanitize] rewrote {n_hetatm_fix} HETATM → ATOM lines "
+                  f"for protein/GLYCAM glycoprotein residues")
+        if n_ter_drop:
+            print(f"  [sanitize] dropped {n_ter_drop} spurious TER record(s) "
+                  f"between same-chain protein residues")
+    return tmp_path
+
+
 def fix_atom_hetatm_records(pdb_path):
     """Rewrite HETATM→ATOM for protein residues that OpenMM's PDBFile.writeFile
     incorrectly emitted as HETATM (AMBER protonation variants HID/HIE/HIP/

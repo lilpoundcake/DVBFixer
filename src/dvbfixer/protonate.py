@@ -181,11 +181,57 @@ def get_pka_results(mc):
     return results
 
 
+# AMBER-style variant → CHARMM-style equivalent. Used when the resolved
+# FF is CHARMM: PROPKA + decide_protonation always produce AMBER names
+# (because that's what OpenMM's hydrogens.xml recognises for addHydrogens);
+# after addHydrogens completes, the OUTPUT PDB gets rewritten to
+# CHARMM-native names so downstream CHARMM tools recognise them.
+#
+# Only the variants that OpenMM's shipped `charmm36.xml` actually contains
+# as templates are listed here. ASH/GLH/LYN have NO OpenMM-CHARMM36
+# equivalent (CHARMM-GUI uses ASPP/GLUP/LSN as 4-char names but those
+# aren't in the OpenMM XML), so on `--ff charmm` those residues fall back
+# to their standard parent (ASP/GLU/LYS). Warned in the log.
+_AMBER_TO_CHARMM_VARIANT = {
+    'HID': 'HSD',
+    'HIE': 'HSE',
+    'HIP': 'HSP',
+    'CYX': 'CYS',   # CHARMM tracks disulfide via SSBOND/DISU patch, not resname
+    'CYM': 'CYM',   # CHARMM36 also uses CYM for the deprotonated thiolate
+}
+
+# AMBER variants that CHARMM36 has no template for — mapped to their
+# standard parent so the pipeline still succeeds (charge state may not
+# be what PROPKA asked for; user warned).
+_AMBER_UNSUPPORTED_IN_CHARMM = {
+    'ASH': 'ASP',
+    'GLH': 'GLU',
+    'LYN': 'LYS',
+}
+
+
+def _is_charmm_ff(ff_xmls):
+    """True when the resolved --ff list is CHARMM (any charmm*.xml present)."""
+    return any('charmm' in str(x).lower() for x in (ff_xmls or ()))
+
+
 def decide_protonation(pka_results, ph, his_default, cys_ss_pka):
     """Decide protonation state for each titratable residue.
 
     Returns dict: (chain, resnum, icode) -> new_resname
     Only includes residues that need renaming (non-standard protonation).
+
+    Names always use AMBER-style variants (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN)
+    because those are the only names OpenMM's `hydrogens.xml` recognises
+    in its `variants=` argument. For CHARMM outputs, the caller remaps
+    these to CHARMM-native names (HSD/HSE/HSP/ASPP/GLUP/CYS/CYM/LSN) via
+    `_AMBER_TO_CHARMM_VARIANT` AFTER addHydrogens completes.
+
+    Note: PROPKA also reports pKas for TYR and ARG (and terminal N+/C-),
+    but neither AMBER14/19 nor CHARMM36 ship a `TYD`/`TYN`/`ARN` variant
+    template; there is no way to add a "deprotonated tyrosinate" or
+    "neutral arginine" hydrogen set via the stock addHydrogens flow.
+    Callers should log those pKas but not rename.
     """
     renames = {}
 
@@ -214,6 +260,8 @@ def decide_protonation(pka_results, ph, his_default, cys_ss_pka):
         elif rt == "LYS":
             if pka < ph:
                 renames[key] = "LYN"  # neutral lysine
+        # TYR / ARG: no FF-supported deprotonated/neutral variant. The
+        # caller logs the pKa in --verbose mode but skips the rename.
 
     return renames
 
@@ -267,6 +315,71 @@ _VARIANT_TO_PARENT_FOR_ADDHYDROGENS = {
     'HID': 'HIS', 'HIE': 'HIS', 'HIP': 'HIS',
     'ASH': 'ASP', 'GLH': 'GLU',
 }
+
+
+# CHARMM variant → parent (mirror of _VARIANT_TO_PARENT_FOR_ADDHYDROGENS
+# but for CHARMM-style names that show up in CHARMM-GUI outputs).
+_CHARMM_VARIANT_TO_PARENT = {
+    'HSD': 'HIS', 'HSE': 'HIS', 'HSP': 'HIS',
+    'ASPP': 'ASP', 'GLUP': 'GLU', 'LSN': 'LYS',
+}
+
+
+def _text_rename_variants_to_parent(pdb_path, verbose=False):
+    """Rewrite AMBER and CHARMM protonation-variant residue names to their
+    standard parent (LYS/HIS/ASP/GLU/CYS) in the raw PDB text.
+
+    Returns (out_path, saved_map) where `saved_map` is
+    `{(chain, resid, icode): original_variant_name}` for every residue
+    that was rewritten. Caller uses `saved_map` to restore the variant
+    name on the topology after `addHydrogens` succeeds.
+
+    Needed because OpenMM's PDBFile parser only recognises standard AA
+    residue names when inferring peptide bonds — a mid-chain LYN (or
+    HSE, LSN, ...) blocks the peptide bond from its previous residue's
+    C to its own N, making downstream addHydrogens fail with a confusing
+    "missing external C atom" error on the previous residue.
+    """
+    import tempfile as _tf
+    # Combined lookup: AMBER + CHARMM variants → parent.
+    combined = dict(_VARIANT_TO_PARENT_FOR_ADDHYDROGENS)
+    combined.update(_CHARMM_VARIANT_TO_PARENT)
+
+    with open(pdb_path) as f:
+        lines = f.readlines()
+    n_rewrite = 0
+    saved = {}
+    out = []
+    for line in lines:
+        if line.startswith(('ATOM', 'HETATM')) and len(line) >= 20:
+            rn = line[17:20].strip()
+            parent = combined.get(rn)
+            if parent is not None and parent != rn:
+                # Track the (chain, resid, icode) → original name so the
+                # caller can restore it after addHydrogens.
+                ch = line[21] if len(line) > 21 else ' '
+                try:
+                    rs = int(line[22:26])
+                except ValueError:
+                    rs = 0
+                ic = line[26] if len(line) > 26 else ' '
+                saved[(ch, str(rs), ic.strip())] = rn
+                # All parent names are 3-char (HIS/ASP/GLU/CYS/LYS); write
+                # as a fixed 3-char field so column alignment is preserved
+                # even when the source resname was 4-char (ASPP/GLUP/LSN).
+                line = line[:17] + f"{parent:<3s}" + line[20:]
+                n_rewrite += 1
+        out.append(line)
+    if n_rewrite == 0:
+        return str(pdb_path), {}
+    tmp = _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False).name
+    with open(tmp, 'w') as f:
+        f.writelines(out)
+    if verbose:
+        print(f"  [protonate] pre-renamed {n_rewrite} variant lines to "
+              f"standard parents (AMBER/CHARMM) so OpenMM can infer "
+              f"peptide bonds; original names restored after addHydrogens")
+    return tmp, saved
 
 
 def _rename_variants_to_parent(top):
@@ -323,6 +436,21 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
                                    detect_glycam_input,
                                    create_forcefield_with_openff,
                                    fix_atom_hetatm_records)
+
+    # Rename AMBER + CHARMM variant residues (LYN/HID/HIE/HIP/ASH/GLH/
+    # CYX/CYM/HSD/HSE/HSP/ASPP/GLUP/LSN) to their standard parent in the
+    # PDB TEXT before OpenMM's PDBFile parses it. OpenMM's parser
+    # recognises only standard AA names for peptide-bond inference: a
+    # residue named "LYN" mid-chain is treated as unknown, its peptide
+    # bond to the previous residue is NOT inferred, and downstream
+    # addHydrogens fails with the confusing "residue X (ASN) missing 1 C
+    # atom externally bonded" (the missing bond is on the LYN-neighbour
+    # ASN, not on ASN itself). Renaming to LYS/HIS/… in the raw text
+    # lets OpenMM parse the chain correctly; `_pretext_saved` tracks
+    # the original names so we can restore them on the topology after
+    # addHydrogens completes.
+    input_path, _pretext_saved = _text_rename_variants_to_parent(
+        input_path, verbose=args.verbose)
 
     pdb = PDBFile(str(input_path))
 
@@ -447,14 +575,57 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     # variant names AND patch HZ1→HZ3 on LYN residues (AMBER LYN expects
     # HZ2+HZ3; addHydrogens with variant=LYN produces HZ1+HZ2 because of an
     # OpenMM hydrogens.xml vs AMBER template inconsistency).
+    # Two sources of variant-rename tracking:
+    #   1. `_pretext_saved` — populated by the raw-text pre-rename above.
+    #      Keys are (chain, str(resid), icode.strip()) as they appear in
+    #      the PDB text; values are original variant names (LYN, HSE, ...).
+    #   2. `_rename_variants_to_parent(topology)` — legacy topology-level
+    #      rename. If the pre-rename already handled everything, this
+    #      finds nothing new. Kept for defence in depth (e.g. GLYCAM
+    #      topology-only paths that might introduce variants after load).
     _saved = _rename_variants_to_parent(modeller.topology)
+    # Merge the pre-rename map into _saved so restore covers both.
+    # Topology-level keys use res.chain.id + res.id (both strings) —
+    # normalise the pre-rename keys accordingly.
+    for (ch, rs, ic), orig in _pretext_saved.items():
+        _saved.setdefault((ch, rs), orig)
     try:
-        if glycam_present:
-            # ignoreExternalBonds=True: the protein-glycan ND2-C1 bond doesn't
-            # match any single template, so addHydrogens must tolerate it.
-            modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
-        else:
-            modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+        try:
+            if glycam_present:
+                # ignoreExternalBonds=True: the protein-glycan ND2-C1 bond
+                # doesn't match any single template, so addHydrogens must
+                # tolerate it.
+                modeller.addHydrogens(forcefield, pH=args.ph,
+                                       variants=variants)
+            else:
+                modeller.addHydrogens(forcefield, pH=args.ph,
+                                       variants=variants)
+        except Exception as e:
+            # OpenMM's raw error uses topology INDEX ("residue 117 (ASN)"),
+            # not the PDB resseq the user knows. `explain_template_error`
+            # translates + shows chain/resseq/icode/atom-set diffs and
+            # the neighbouring residues so the user can pinpoint the
+            # actual problematic residue in the input PDB.
+            from dvbfixer.ffutils import explain_template_error
+            diag = explain_template_error(e, modeller.topology, forcefield)
+            print(f"\nERROR: protonate addHydrogens failed:\n  {e}",
+                  file=sys.stderr)
+            if diag:
+                for line in diag.split('\n'):
+                    print(f"  {line}", file=sys.stderr)
+            print(
+                "\n  Common causes:\n"
+                "    - a protein residue is a HETATM (peptide bond not\n"
+                "      inferred → 'missing external C atom'). protonate\n"
+                "      already runs `sanitize_protein_hetatm` on the\n"
+                "      input; if the message persists, an upstream tool\n"
+                "      is producing an unusual atom layout.\n"
+                "    - a chain break between two consecutive residues\n"
+                "      (prev-C to this-N distance too large for OpenMM).\n"
+                "    - an FF-external atom left over from a previous step.\n"
+                "  Re-run the upstream step with -v to inspect.\n",
+                file=sys.stderr)
+            raise
     finally:
         _fix_lyn_hz_naming(modeller.topology, _saved, renames)
         _restore_variants_post_addhydrogens(modeller.topology, _saved)
@@ -499,8 +670,68 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     # PDBFile.writeFile defaults non-standard names to HETATM.
     fix_atom_hetatm_records(output_path)
 
+    # FF-aware output naming: if the resolved FF is CHARMM, remap the
+    # AMBER-style variant names we wrote (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN)
+    # to their CHARMM-native equivalents (HSD/HSE/HSP/ASPP/GLUP/CYS/CYM/
+    # LSN) so downstream CHARMM tools recognise them. addHydrogens itself
+    # ran with the AMBER names because that's the only vocabulary
+    # `hydrogens.xml` speaks.
+    if _is_charmm_ff(getattr(args, 'ff', None)):
+        _remap_amber_variants_to_charmm_in_pdb(output_path,
+                                                verbose=args.verbose)
+
     n_h = sum(1 for a in modeller.topology.atoms() if a.element.symbol == 'H')
     print(f"Added {n_h} hydrogen atoms")
+
+
+def _remap_amber_variants_to_charmm_in_pdb(pdb_path, verbose=False):
+    """Rewrite AMBER-style variant resnames in an already-written PDB
+    file to their CHARMM36 equivalents:
+      HID→HSD, HIE→HSE, HIP→HSP, CYX→CYS, CYM→CYM (idempotent).
+    ASH/GLH/LYN have NO OpenMM-CHARMM36 template and get folded to their
+    STANDARD parent (ASP/GLU/LYS) — the protonation state PROPKA
+    requested cannot be expressed with the current CHARMM36 XML. Emits
+    an INFO line noting the dropped protonation whenever this happens.
+
+    All resnames written stay in the 3-char slot (cols 17-19), so column
+    alignment is safe. In-place. Idempotent.
+    """
+    with open(pdb_path) as f:
+        lines = f.readlines()
+    n_rewrite = 0
+    n_dropped = 0
+    dropped_names = set()
+    out = []
+    for line in lines:
+        if line.startswith(('ATOM', 'HETATM')) and len(line) >= 20:
+            rn = line[17:20].strip()
+            new_rn = _AMBER_TO_CHARMM_VARIANT.get(rn)
+            if new_rn is not None and new_rn != rn:
+                # All CHARMM equivalents are 3-char, safe in-place.
+                line = line[:17] + f"{new_rn:<3s}" + line[20:]
+                n_rewrite += 1
+            elif rn in _AMBER_UNSUPPORTED_IN_CHARMM:
+                # Drop to the standard parent — CHARMM36 has no template
+                # for this protonation state.
+                parent = _AMBER_UNSUPPORTED_IN_CHARMM[rn]
+                line = line[:17] + f"{parent:<3s}" + line[20:]
+                n_dropped += 1
+                dropped_names.add(rn)
+        out.append(line)
+    if n_rewrite or n_dropped:
+        with open(pdb_path, 'w') as f:
+            f.writelines(out)
+        if verbose:
+            if n_rewrite:
+                print(f"  [protonate] remapped {n_rewrite} AMBER variant "
+                      f"lines to CHARMM36 equivalents in {pdb_path}")
+            if n_dropped:
+                names = ', '.join(sorted(dropped_names))
+                print(f"  WARNING: {n_dropped} residue(s) with AMBER-only "
+                      f"variants ({names}) folded back to standard parent "
+                      f"— OpenMM's charmm36.xml has no template for "
+                      f"protonated ASP/GLU or neutral LYS. Charge state "
+                      f"differs from PROPKA's prediction.")
 
 
 def _scan_glycam_residues(input_path):
@@ -774,6 +1005,19 @@ def main(argv=None):
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prot")
 
+    # Sanitize protein-residue HETATM records + drop spurious mid-chain
+    # TER records BEFORE any downstream OpenMM load. If a protein residue
+    # comes in as HETATM (some upstream tools produce this), OpenMM's
+    # PDBFile parser won't infer its peptide bond to neighbours and
+    # `addHydrogens` fails with a confusing "missing 1 C atom externally
+    # bonded" template error. No-op on clean input.
+    from dvbfixer.ffutils import sanitize_protein_hetatm
+    sanitized_path = sanitize_protein_hetatm(input_path, verbose=args.verbose)
+    if sanitized_path != str(input_path):
+        # Rewritten to a temp file — use the sanitized version for the
+        # rest of protonate.
+        input_path = Path(sanitized_path)
+
     # Position scan is still needed downstream (to filter GLYCAM residues
     # out of PROPKA-driven renames). FF selection now goes through the
     # shared resolver so short-names like --ff amber / charmm work.
@@ -911,6 +1155,35 @@ def main(argv=None):
                 print(f"  {chain}/{orig} {resnum}{ic_str} -> {new_name}  (pKa={pka:.2f})")
         else:
             print(f"All residues have standard protonation at pH {args.ph}")
+
+        # PROPKA also computes pKas for TYR (deprotonated tyrosinate) and
+        # ARG (neutral arginine). Neither AMBER14/19 nor CHARMM36 ships a
+        # `TYD`/`TYN`/`ARN` variant template — there's no way to add a
+        # "deprotonated tyrosinate" or "neutral arginine" hydrogen set via
+        # the stock addHydrogens flow. Log any hits so the user knows to
+        # handle manually (custom template, CpHMD, etc.).
+        _unsupported = []
+        for r in pka_results:
+            rt = r["restype"]
+            pka = r["pka"]
+            if rt == "TYR" and pka < args.ph:
+                _unsupported.append((r["chain"], r["resnum"],
+                                     r["icode"], rt, pka,
+                                     "deprotonated tyrosinate — no "
+                                     "TYD/TYN variant in AMBER14/19 or "
+                                     "CHARMM36; skipping rename"))
+            elif rt == "ARG" and pka < args.ph:
+                _unsupported.append((r["chain"], r["resnum"],
+                                     r["icode"], rt, pka,
+                                     "neutral arginine — no ARN variant "
+                                     "in AMBER14/19 or CHARMM36; "
+                                     "skipping rename"))
+        if _unsupported:
+            print(f"Unsupported PROPKA-titratable groups at pH {args.ph} "
+                  f"(no FF variant available):")
+            for ch, rs, ic, rt, pk, msg in _unsupported:
+                ic_str = ic if ic else ""
+                print(f"  {ch}/{rt} {rs}{ic_str}  (pKa={pk:.2f}) — {msg}")
 
     # Read and rename
     with open(input_path) as f:
