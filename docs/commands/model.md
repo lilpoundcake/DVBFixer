@@ -14,6 +14,7 @@ Writes a `.dat` file recording all atoms in rebuilt gap residues. This is merged
 - **`--fasta` headers must encode chain IDs**: `>chain_X`, `>PDBID_X` (e.g. `>1abc_A`), or `>X`. Matched by ID, not file order. Clear error if unparseable.
 - **Plain-language Modeller diagnostics** — common errors (BLK alignment, sequence difference, unknown residue type) get a clear cause + remediation alongside the raw Modeller message.
 - **Input residues pinned by default** — a `_PinnedLoopModel` subclass overrides `select_loop_atoms()` so only the newly-modeled gap residues move during Modeller's loop refinement MD. Prevents the ±~3 residue flank drift produced by stock LoopModel. The initial automodel CG is left untouched (all atoms) so any pre-existing input close contacts get relaxed as usual — otherwise they'd survive into the model output and trip OpenBabel's CONECT inference in the downstream `prepare` step (spurious external bonds → OpenMM template match failures on residues far from any gap). Downstream `minimize` still refines the whole system under a proper force field. Pass `--no-pin-input` to restore the legacy behaviour.
+- **Fast no-gap pre-check** (since v0.3) — before invoking Modeller, model.py compares each protein chain's ATOM sequence to its SEQRES via string equality. If every chain matches, no gaps → copy input verbatim and skip Modeller entirely. Runtime drops from ~2 min (align2d on a 5-chain × 829-residue complex is O(N²)) to ~0.25 s. Falls through to the full Modeller path when any chain has a mismatch (real gaps).
 
 ## Usage
 
