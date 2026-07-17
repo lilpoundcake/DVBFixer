@@ -20,6 +20,19 @@ import io
 import sys
 from pathlib import Path
 
+from dvbfixer.ffutils.variants import (
+    fix_lyn_hz_naming as _fix_lyn_hz_naming_shared,
+)
+from dvbfixer.ffutils.variants import (
+    rename_variants_to_parent_in_topology as _rename_variants_to_parent,
+)
+from dvbfixer.ffutils.variants import (
+    restore_variants_post_addhydrogens as _restore_variants_post_addhydrogens_shared,
+)
+from dvbfixer.ffutils.variants import (
+    text_rename_variants_to_parent as _text_rename_variants_to_parent_shared,
+)
+
 WATER_RESNAMES = {'HOH', 'WAT', 'TIP3', 'TIP', 'SOL', 'T3P', 'T4P', 'T5P'}
 
 
@@ -311,123 +324,28 @@ def _strip_hydrogens(topology, positions):
     return modeller.topology, modeller.positions
 
 
-_VARIANT_TO_PARENT_FOR_ADDHYDROGENS = {
-    'LYN': 'LYS', 'CYX': 'CYS', 'CYM': 'CYS',
-    'HID': 'HIS', 'HIE': 'HIS', 'HIP': 'HIS',
-    'ASH': 'ASP', 'GLH': 'GLU',
-}
-
-
-# CHARMM variant → parent (mirror of _VARIANT_TO_PARENT_FOR_ADDHYDROGENS
-# but for CHARMM-style names that show up in CHARMM-GUI outputs).
-_CHARMM_VARIANT_TO_PARENT = {
-    'HSD': 'HIS', 'HSE': 'HIS', 'HSP': 'HIS',
-    'ASPP': 'ASP', 'GLUP': 'GLU', 'LSN': 'LYS',
-}
-
-
 def _text_rename_variants_to_parent(pdb_path, verbose=False):
-    """Rewrite AMBER and CHARMM protonation-variant residue names to their
-    standard parent (LYS/HIS/ASP/GLU/CYS) in the raw PDB text.
+    """Delegate to ``ffutils.variants.text_rename_variants_to_parent``.
 
-    Returns (out_path, saved_map) where `saved_map` is
-    `{(chain, resid, icode): original_variant_name}` for every residue
-    that was rewritten. Caller uses `saved_map` to restore the variant
-    name on the topology after `addHydrogens` succeeds.
-
-    Needed because OpenMM's PDBFile parser only recognises standard AA
-    residue names when inferring peptide bonds — a mid-chain LYN (or
-    HSE, LSN, ...) blocks the peptide bond from its previous residue's
-    C to its own N, making downstream addHydrogens fail with a confusing
-    "missing external C atom" error on the previous residue.
+    Kept as a thin wrapper so the module-level call sites and any external
+    tests importing this name remain valid.
     """
-    import tempfile as _tf
-    # Combined lookup: AMBER + CHARMM variants → parent.
-    combined = dict(_VARIANT_TO_PARENT_FOR_ADDHYDROGENS)
-    combined.update(_CHARMM_VARIANT_TO_PARENT)
-
-    with open(pdb_path) as f:
-        lines = f.readlines()
-    n_rewrite = 0
-    saved = {}
-    out = []
-    for line in lines:
-        if line.startswith(('ATOM', 'HETATM')) and len(line) >= 20:
-            rn = line[17:20].strip()
-            parent = combined.get(rn)
-            if parent is not None and parent != rn:
-                # Track the (chain, resid, icode) → original name so the
-                # caller can restore it after addHydrogens.
-                ch = line[21] if len(line) > 21 else ' '
-                try:
-                    rs = int(line[22:26])
-                except ValueError:
-                    rs = 0
-                ic = line[26] if len(line) > 26 else ' '
-                saved[(ch, str(rs), ic.strip())] = rn
-                # All parent names are 3-char (HIS/ASP/GLU/CYS/LYS); write
-                # as a fixed 3-char field so column alignment is preserved
-                # even when the source resname was 4-char (ASPP/GLUP/LSN).
-                line = line[:17] + f"{parent:<3s}" + line[20:]
-                n_rewrite += 1
-        out.append(line)
-    if n_rewrite == 0:
-        return str(pdb_path), {}
-    tmp = _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False).name
-    with open(tmp, 'w') as f:
-        f.writelines(out)
-    if verbose:
-        print(f"  [protonate] pre-renamed {n_rewrite} variant lines to "
-              f"standard parents (AMBER/CHARMM) so OpenMM can infer "
-              f"peptide bonds; original names restored after addHydrogens")
-    return tmp, saved
-
-
-def _rename_variants_to_parent(top):
-    """Rename variant residues (LYN/HID/HIE/CYX/...) to their standard parent
-    names so OpenMM's addHydrogens can find them in hydrogens.xml (keyed by
-    parent name only). Returns dict {(chain_id, res_id): original_name}.
-    Residue references in the OLD topology are stale after addHydrogens
-    rebuilds the topology — use this dict for the post-pass lookup.
-    """
-    saved = {}
-    for res in top.residues():
-        if res.name in _VARIANT_TO_PARENT_FOR_ADDHYDROGENS:
-            saved[(res.chain.id, res.id)] = res.name
-            res.name = _VARIANT_TO_PARENT_FOR_ADDHYDROGENS[res.name]
-    return saved
+    return _text_rename_variants_to_parent_shared(pdb_path, verbose=verbose)
 
 
 def _restore_variants_post_addhydrogens(top, saved):
-    """Walk the NEW topology after addHydrogens and restore variant names."""
-    for res in top.residues():
-        key = (res.chain.id, res.id)
-        if key in saved:
-            res.name = saved[key]
+    """Delegate to ``ffutils.variants.restore_variants_post_addhydrogens``."""
+    _restore_variants_post_addhydrogens_shared(top, saved)
 
 
 def _fix_lyn_hz_naming(top, saved, renames):
-    """Rename HZ1 → HZ3 on every LYN residue (chemically equivalent — HZ2
-    and HZ3 in the AMBER LYN template share the same charge and bond
-    topology). hydrogens.xml gates HZ3 by variant="LYS" so addHydrogens with
-    variant=LYN produces HZ1+HZ2 — the OPPOSITE of what the AMBER LYN
-    template expects (HZ2+HZ3).
+    """Delegate to ``ffutils.variants.fix_lyn_hz_naming``.
 
-    LYN identification merges two sources: residues whose pre-addHydrogens
-    name was LYN (from `saved`), and residues whose PROPKA-assigned variant
-    is LYN (from `renames`).
+    ``renames`` here is protonate.py's PROPKA-produced
+    ``{(chain, resseq, icode): variant}`` map — pass it through as the
+    ``extra_lyn_keys`` argument.
     """
-    lyn_keys = {k for k, v in saved.items() if v == 'LYN'}
-    for (ch, rs, ic), variant in renames.items():
-        if variant == 'LYN':
-            lyn_keys.add((ch, str(rs)))
-    for res in top.residues():
-        if (res.chain.id, res.id) not in lyn_keys:
-            continue
-        for atom in res.atoms():
-            if atom.name == 'HZ1':
-                atom.name = 'HZ3'
-                break
+    _fix_lyn_hz_naming_shared(top, saved, extra_lyn_keys=renames)
 
 
 def _add_hydrogens_to_output(input_path, output_path, args, renames):

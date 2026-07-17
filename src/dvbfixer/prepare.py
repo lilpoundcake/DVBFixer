@@ -1998,52 +1998,18 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     # standard parents BEFORE calling addHydrogens, pass the variants list
     # so addHydrogens applies the variant rules (gates HZ3 for LYS-only,
     # skips HE2 for HID, etc.), then restore the variant names after.
-    def _rename_variants_to_parent(top):
-        """Rename variant residues (LYN, HID/HIE/HIP, ASH, GLH, CYX/CYM) in
-        `top` to their standard parent names so OpenMM's addHydrogens can
-        find them in its hydrogens.xml (which is keyed by parent name only).
-        Returns a dict {(chain_id, res_id): original_name} so the caller can
-        restore the variant names on the NEW topology produced by
-        addHydrogens (which rebuilds the topology object — residue references
-        in the OLD topology are stale after the call).
-        """
-        saved = {}
-        for res in top.residues():
-            if res.name in _VARIANT_TO_STANDARD:
-                saved[(res.chain.id, res.id)] = res.name
-                res.name = _VARIANT_TO_STANDARD[res.name]
-        return saved
-
-    def _restore_variants_post_addhydrogens(top, saved):
-        """Restore the variant residue names in the NEW topology produced by
-        addHydrogens. Walk by (chain_id, res_id) lookup since the residue
-        objects in `saved` were from the pre-addHydrogens topology and are
-        now orphaned.
-        """
-        for res in top.residues():
-            key = (res.chain.id, res.id)
-            if key in saved:
-                res.name = saved[key]
+    from dvbfixer.ffutils.variants import (
+        fix_lyn_hz_naming as _fix_lyn_hz_naming_shared,
+    )
+    from dvbfixer.ffutils.variants import (
+        rename_variants_to_parent_in_topology as _rename_variants_to_parent,
+    )
+    from dvbfixer.ffutils.variants import (
+        restore_variants_post_addhydrogens as _restore_variants_post_addhydrogens,
+    )
 
     def _fix_lyn_hz_naming(top, saved):
-        """OpenMM's hydrogens.xml gates HZ3 by variant="LYS", so addHydrogens
-        with variant=LYN produces HZ1+HZ2 — but the AMBER ff14SB/ff19SB LYN
-        template expects HZ2+HZ3 (HZ1 is the one removed on deprotonation).
-        Rename HZ1 → HZ3 on every LYN residue (chemically equivalent — HZ2
-        and HZ3 share the same charge and bond topology in the LYN template).
-        Identifies LYN residues from `saved` so this runs BEFORE
-        `_restore_variants_post_addhydrogens` is needed.
-        """
-        renamed = 0
-        for res in top.residues():
-            key = (res.chain.id, res.id)
-            if saved.get(key) != 'LYN':
-                continue
-            for atom in res.atoms():
-                if atom.name == 'HZ1':
-                    atom.name = 'HZ3'
-                    renamed += 1
-                    break
+        renamed = _fix_lyn_hz_naming_shared(top, saved)
         if verbose and renamed:
             print(f"  Renamed HZ1→HZ3 on {renamed} LYN residue(s) to match "
                   f"AMBER ff14SB/ff19SB LYN template (HZ2 + HZ3)")

@@ -23,6 +23,8 @@ from openmm import CustomExternalForce, LangevinMiddleIntegrator
 from openmm.app import PME, ForceField, Modeller, PDBFile, Simulation
 from openmm.unit import kelvin, nanometer, picosecond
 
+from dvbfixer.ffutils.variants import AMBER_VARIANTS, scan_variant_names
+
 DEFAULT_FF = 'auto'
 DEFAULT_PH = 7.0
 DEFAULT_PADDING = 1.0  # nm
@@ -219,28 +221,20 @@ def _has_hydrogens(topology):
     return any(a.element.symbol == 'H' for a in topology.atoms())
 
 
-# AMBER protonation variant names that need explicit variants in addHydrogens
-AMBER_VARIANTS = {'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYM', 'CYX', 'LYN'}
-
-
 def _read_amber_renames(pdb_path):
     """Read PDB text to find AMBER protonation names before OpenMM normalizes them.
 
-    OpenMM's PDBFile converts GLH->GLU, HIE->HIS, CYX->CYS on read.
-    This reads the raw PDB to capture the original names.
-
-    Returns dict: (chain_id, resid_str) -> amber_name
+    Wraps the shared ``ffutils.variants.scan_variant_names`` scanner and
+    projects its ``(chain, resseq, icode)`` keys down to the legacy
+    ``(chain, resseq)`` shape that this module's callers use. Filters out
+    CHARMM-only variants (HSD/HSE/HSP/ASPP/GLUP/LSN) — minimize's
+    downstream ``addHydrogens`` path only knows AMBER variant names.
     """
+    saved = scan_variant_names(pdb_path)
     renames = {}
-    with open(pdb_path) as f:
-        for line in f:
-            if not line.startswith(("ATOM  ", "HETATM")):
-                continue
-            resname = line[17:20].strip()
-            if resname in AMBER_VARIANTS:
-                chain = line[21]
-                resid = line[22:26].strip()
-                renames[(chain, resid)] = resname
+    for (chain, resseq, _icode), name in saved.items():
+        if name in AMBER_VARIANTS:
+            renames[(chain, resseq)] = name
     return renames
 
 

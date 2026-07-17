@@ -152,12 +152,14 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True,
         if residue_order[i-1][0] == residue_order[i][0] == residue_order[i+1][0]:
             midchain.add(residue_order[i])
 
-    # AMBER protonation variants → standard names (OpenMM needs standard names
-    # in topology, variants passed separately to addHydrogens)
+    # AMBER protonation variants → standard names. Pull from the shared
+    # ``ffutils.variants`` table so this and prepare/minimize/protonate stay
+    # in sync. The acpype flow only strips HG explicitly for CYX/CYM (see
+    # below), so we intentionally omit CYX/CYM from the rename map here —
+    # they get handled by the dedicated ``elif resname == 'CYX'`` branch.
+    from dvbfixer.ffutils.variants import AMBER_VARIANT_TO_PARENT
     _AMBER_TO_STD = {
-        'ASH': 'ASP', 'GLH': 'GLU',
-        'HIE': 'HIS', 'HID': 'HIS', 'HIP': 'HIS',
-        'LYN': 'LYS',
+        k: v for k, v in AMBER_VARIANT_TO_PARENT.items() if k not in {'CYX', 'CYM'}
     }
     # OpenMM variant names for addHydrogens
     _OPENMM_VARIANTS = {'ASH', 'GLH', 'HIE', 'HID', 'HIP', 'CYX', 'LYN'}
