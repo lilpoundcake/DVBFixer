@@ -695,6 +695,29 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             system = forcefield.createSystem(modeller.topology, nonbondedMethod=nbm)
     except (ValueError, Exception) as e:
         if not has_heterogens:
+            # Protein-only path — no auto-fallback available. Surface
+            # `explain_template_error` so the user sees the specific
+            # chain/resseq/atom-set (OpenMM's raw message uses topology
+            # index which is useless for debugging), plus a hint about
+            # the two most common causes on this path.
+            from dvbfixer.ffutils import explain_template_error
+            diag = explain_template_error(e, modeller.topology, forcefield)
+            print(f"\nERROR: minimize createSystem failed:\n  {e}\n",
+                  file=sys.stderr)
+            if diag:
+                for line in diag.split('\n'):
+                    print(f"  {line}", file=sys.stderr)
+            print(
+                "\n  Common causes on the protein-only path:\n"
+                "    - CONECT record (in the input PDB or added by\n"
+                "      dvbfixer's auto-inference) linked an unrelated\n"
+                "      atom into the residue's external bonds.\n"
+                "    - An upstream tool changed the topology so a\n"
+                "      standard AA now has an unexpected neighbour.\n"
+                "  Re-run with --no-infer-conect to bypass the\n"
+                "  CONECT-inference layer and confirm which side is\n"
+                "  at fault.\n",
+                file=sys.stderr)
             raise
         # Heterogen parametrization failed (e.g. PDB-named sugars without H).
         # Auto-fall back to legacy strip-and-restore flow with --rebuild-h

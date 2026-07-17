@@ -289,9 +289,17 @@ def _apply_filter(bonds, atoms, by_serial):
       - bonds where BOTH atoms are in the same standard amino-acid residue
         (FF templates own intra-AA chemistry)
       - bonds involving any water atom
+      - bonds between two DIFFERENT standard-AA residues that AREN'T a
+        canonical peptide backbone C-N or disulfide SG-SG. OpenBabel's
+        ConnectTheDots occasionally infers proximity-based false-positive
+        bonds (e.g. ARG NH1 → some Ser OG, at ~1.7 Å H-bond distance,
+        looks like a bond). These slip past OpenMM's template matcher
+        as "extra external X atom" errors, which are confusing because
+        the residue itself is fine.
     Keeps:
       - any bond with at least one HETATM in a non-AA residue
       - SS bonds (CYS family SG-SG) regardless of residue classification
+      - real peptide backbone C-N bonds between adjacent protein residues
     """
     from dvbfixer.ffutils import PROTEIN_RESIDUES
     _WATER = {'HOH', 'WAT', 'TIP3', 'TIP4', 'TIP5', 'SOL', 'SPC', 'SPCE'}
@@ -313,6 +321,15 @@ def _apply_filter(bonds, atoms, by_serial):
         if same_res and a['resname'] in PROTEIN_RESIDUES:
             # Intra standard-AA — FF templates own it
             continue
+        # Inter-residue where BOTH are standard-AA: keep ONLY the
+        # canonical peptide-backbone C-N bond. Everything else (N-O,
+        # N-N, S-N, sidechain-sidechain contacts) is spurious.
+        if (not same_res
+                and a['resname'] in PROTEIN_RESIDUES
+                and b['resname'] in PROTEIN_RESIDUES):
+            names = {a['name'], b['name']}
+            if names != {'C', 'N'}:
+                continue
         out.add((lo, hi))
     return out
 

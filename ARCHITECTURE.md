@@ -17,25 +17,29 @@ src/dvbfixer/
 ├── pull.py            636 lines    — bond pulling via OpenMM mass=0 partial min
 ├── rename.py          102 lines    — text-based variant → canonical name
 ├── puppet.py           98 lines    — strip to backbone polyglycine
-├── zbs.py             262 lines    — full pipeline (renumber→model→prepare→minimize→...)
+├── zbs.py             ~370 lines   — full pipeline (renumber→model→prepare→minimize→protonate→minimize) + --align-to-input
 │
 │   FF / TOPOLOGY GENERATION
-├── top.py            3507 lines    — RTP-based GROMACS topology (AMBER + CHARMM)
-├── rtp_parser.py      261 lines    — parses GROMACS RTP/ARN/R2B/TDB/ATP files
-├── acpype_export.py   760 lines    — ACPYPE-based GMX topology (OpenMM→ParmEd→ACPYPE)
-├── ffutils.py         137 lines    — shared FF utilities + SMIRNOFF auto-parametrization
+├── top.py            ~3500 lines   — RTP-based GROMACS topology (AMBER + CHARMM)
+├── rtp_parser.py     ~260 lines    — parses GROMACS RTP/ARN/R2B/TDB/ATP files
+├── acpype_export.py  ~760 lines    — ACPYPE-based GMX topology (OpenMM→ParmEd→ACPYPE)
+├── ffutils.py        ~600 lines    — shared FF selection: FF_ALIASES + resolve_ff (short-name / auto-detect), sanitize_protein_hetatm, GLYCAM helpers, explain_template_error, create_forcefield_with_openff (GLYCAM template suppression; SMIRNOFF path removed)
 │
 │   GLYCAN / SMALL-MOLECULE TOOLS
-├── glycam.py          820 lines    — bidirectional PDB/CHARMM ↔ GLYCAM nomenclature converter
-├── transplant.py      841 lines    — graft residues between PDBs (Kabsch align)
-├── parametrize.py     406 lines    — GAFF2 small molecule (antechamber→tleap→ParmEd)
-├── cluster.py        1177 lines    — glycosidic torsion clustering from MD trajectory
+├── glycam.py         ~1000 lines   — bidirectional PDB/CHARMM ↔ GLYCAM nomenclature converter
+├── transplant.py     ~840 lines    — graft residues between PDBs (Kabsch align)
+├── parametrize.py    ~1000 lines   — GAFF2 small molecule (antechamber→tleap→ParmEd); RESP via Gaussian / PSI4-subprocess / PySCF
+├── lig_params.py     ~250 lines    — on-the-fly GAFF2+AM1-BCC template generation for unknown ligands (feeds `minimize --parametrize-ligands`)
+├── cluster.py        ~1180 lines   — glycosidic torsion clustering from MD trajectory
 │
 │   ANTIBODY / HOMOLOGY
-├── homology.py        766 lines    — multi-template homology with ANARCI antibody mode
+├── homology.py       ~770 lines    — multi-template homology with ANARCI antibody mode
+├── antibody.py       ~440 lines    — antibody-scheme numbering (Kabat/Chothia/IMGT/Martin/Aho) via ANARCI + embedded EU C-domain references
 │
 │   SHARED HELPERS
-└── pdbutils.py         83 lines    — CONECT record remapping, atom serial maps
+├── pdbutils.py       ~500 lines    — CONECT record remapping + inference (OpenBabel ConnectTheDots + domain overrides for SS/glycosidic/glycosylation); _materialise_inferred_pdb temp-file bridge
+├── align.py          ~250 lines    — internal Kabsch superposition (sequence-paired via Bio.Align.PairwiseAligner); line-level PDB rewrite preserves SEQRES/CONECT/all non-ATOM records
+└── conect.py         ~100 lines    — standalone `dvbfixer conect` subcommand wrapping the pdbutils inference
 ```
 
 ## Data flow
@@ -116,14 +120,37 @@ names across PDBFile normalization, adds peptide bonds for GLYCAM
 protein residues, uses `ignoreExternalBonds=True` + `residueTemplates`
 for CYX disambiguation.
 
-### 3. OpenFF auto-parametrization (used inside `minimize.py`) — `ffutils.create_forcefield_with_openff`
+### 3. GAFF2 per-ligand path (`minimize --parametrize-ligands`) — `lig_params.py`
 
-For OpenMM `createSystem` only (not for GROMACS topology output). Loads
-AMBER14 + GLYCAM_06j-1 + registers `SMIRNOFFTemplateGenerator` for any
-residue not in `PROTEIN_RESIDUES | SOLVENT_IONS` whose name appears in
-`KNOWN_GLYCAN_SMILES`. Suppresses GLYCAM sugar templates when PDB-named
-sugars are present (otherwise NAG fuzzy-matches to GLYCAM "QVA" with
-mismatched atom set).
+For OpenMM `createSystem` on structures with unknown organic ligands
+(cofactors, drug molecules, etc. — anything not in a standard AMBER /
+CHARMM / GLYCAM template set). REPLACES the previous SMIRNOFF-based path
+which never actually parametrised cross-residue glycan bonds correctly.
+
+Pipeline:
+1. Load `topology + positions` in MDA-agnostic form; dump to a temp PDB
+   so OpenBabel sees the same atoms we iterate.
+2. For each unknown residue: extract via OpenBabel → SDF (has bond
+   orders + 3D stereochemistry).
+3. Wrap in `openff.toolkit.Molecule`; hand the list to
+   `openmmforcefields.generators.GAFFTemplateGenerator` (GAFF-2.11 +
+   AM1-BCC via antechamber under the hood).
+4. Register generator on the OpenMM ForceField via `extra_generators`
+   arg to `create_forcefield_with_openff`, then `createSystem` runs.
+
+Cached to `~/.cache/dvbfixer/lig_params/gaff_ligands.json` (override
+`$DVBFIXER_LIG_CACHE`). Strict-mode by default: any extraction /
+generator failure raises `LigandParamError` — no silent strip-heterogens
+fallback when the user explicitly asked for parametrisation.
+
+Requires AmberTools binaries on PATH; `lig_params.py` prepends the env
+bin dir + explicitly registers `AmberToolsToolkitWrapper` in the OpenFF
+global registry to survive shim-invoked env-less PATH.
+
+`ffutils.create_forcefield_with_openff` was renamed in spirit — its
+current job is just GLYCAM template suppression (removes ~1400 sugar/NA
+templates that fuzzy-match PDB names to wrong entries) plus registering
+any `extra_generators` (GAFFTemplateGenerator etc.) the caller passes.
 
 ## Key abstractions
 
@@ -422,6 +449,91 @@ All four GLYCAM-aware tools (`prepare`, `minimize`, `protonate`,
 - Constants: `GLYCAM_PROTEIN_RESIDUES = {'NLN', 'OLS', 'OLT'}`,
   `GLYCAM_CAPS = {'ROH', 'OME', 'TBT', 'CMET'}`,
   `FORCE_ATOM_RESIDUES = frozenset(PROTEIN_RESIDUES)`.
+
+### `ffutils.resolve_ff(user_ff, pdb_path, verbose)` — shared FF selection
+
+Called by `prepare`, `minimize`, `protonate`, `pull`, `zbs` at the top
+of `main()` to translate `--ff` into an OpenMM XML list. Accepts:
+
+- `'auto'` / None — auto-detect from residue names in the PDB.
+- A short-name in `FF_ALIASES` — `amber`, `amber14`, `amber19`,
+  `amber+glycam`, `amber+lipid`, `amber+nucleic`, `charmm`, `charmm36`,
+  `charmm2024`. Alias also runs auto-detect to check for an *upgrade*
+  (user said `amber` but input has GLYCAM → upgrades to `amber+glycam`
+  with a log line).
+- A list of `.xml` paths — pass through unchanged (backward compat).
+
+Auto-detection scanner in `detect_ff_from_pdb`:
+- CHARMM markers (any hit → `charmm`): `HSD/HSE/HSP/ASPP/GLUP/LSN` (CHARMM
+  protonation), `BGLC/AGLC/BMAN/AMAN/BGAL/AGAL/BFUC/AFUC/BGLCNA/AGLCNA/…`
+  (CHARMM-GUI 4-char sugars), `CER1/CER160/CER180/…` (ceramides).
+- GLYCAM markers (any hit → `amber+glycam`): `NLN/OLS/OLT` (glycoproteins),
+  `ROH/OME/TBT/CMET` (caps), any 3-char sugar matching `is_glycam_sugar`.
+- Ambiguous PDB sugar names (`NAG/BMA/MAN/…`): NEVER auto-select an FF
+  (neither AMBER+GLYCAM nor CHARMM36 has templates for bare PDB names).
+  Falls through to `amber` with a `dvbfixer convert` hint.
+- CHARMM markers win over GLYCAM (unambiguous FF-prep signal).
+
+Every tool prints a two-line banner: `FF: <alias> (<reason>)` + `→ <XML list>`.
+
+### `ffutils.sanitize_protein_hetatm(pdb_path)` — shared HETATM/TER fix
+
+Rewrites protein-residue `HETATM` → `ATOM` (any name in
+`FORCE_ATOM_RESIDUES`) and drops spurious mid-chain `TER` records between
+same-chain AA residues. Fixes OpenMM's peptide-bond inference on messy
+inputs. Called by both `prepare` and `protonate` at the top of `main()`.
+No-op on clean input.
+
+### `protonate._text_rename_variants_to_parent` — variant → parent pre-rename
+
+OpenMM's `PDBFile` parser only recognises standard AA residue names for
+peptide-bond inference — mid-chain `LYN/HIE/HSE/…` blocks the peptide
+bond from the previous residue's C to its N, and downstream
+`addHydrogens` then fails on the ADJACENT residue with a misleading
+"missing 1 C atom externally bonded" error.
+
+Fix: rewrite AMBER (`HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN`) and CHARMM
+(`HSD/HSE/HSP/ASPP/GLUP/LSN`) variant names → standard parent
+(`HIS/ASP/GLU/CYS/LYS`) in the RAW PDB TEXT before OpenMM parses.
+Returns a `saved_map` merged into `_saved` before `addHydrogens`, so
+`_restore_variants_post_addhydrogens` renames back correctly on the
+output topology.
+
+`--ff charmm`: after `addHydrogens` (which always uses AMBER variant
+names because `hydrogens.xml` only speaks AMBER), rewrite output to
+CHARMM36 equivalents via `_remap_amber_variants_to_charmm_in_pdb`:
+`HID→HSD, HIE→HSE, HIP→HSP, CYX→CYS, CYM→CYM`. `ASH/GLH/LYN` have no
+OpenMM-charmm36.xml template → folded back to `ASP/GLU/LYS` with a
+WARNING (charge state can't be expressed in the shipped CHARMM XML).
+
+### `align.py` — Kabsch superposition via sequence-paired atom matching
+
+Pipeline-internal helper (no standalone subcommand). Used by
+`zbs._maybe_align` after every step (default ON via `--align-to-input`;
+opt-out `--no-align-to-input`) to superpose interim outputs onto the
+ORIGINAL user input so residue-by-residue viewer comparisons line up.
+
+Atom correspondences via per-chain global NW (`Bio.Align.PairwiseAligner`)
+on protein CA sequences — folds AMBER/CHARMM variants to canonical parent
+so `protonate`'s renames don't break the match. Harvests matching atoms
+by name from aligned residues, runs numpy-SVD Kabsch, applies (R, t) to
+the entire mobile universe (protein + HETATMs + waters).
+
+I/O critical: MUST be line-level, not via MDAnalysis's PDB writer. MDA's
+writer strips SEQRES/HELIX/SHEET/CONECT/REMARK/HEADER/TITLE — a fatal
+bug in an earlier revision when `renumber`'s SEQRES got stripped by the
+align pass and downstream `model` saw no gaps to fill.
+`_apply_transform_preserving_headers` reads the input file and rewrites
+only cols 30-54 of ATOM/HETATM lines, passing everything else through
+byte-identical.
+
+### `lig_params.build_ligand_generator` — GAFF2 per-ligand templates
+
+See "Three force-field paths" section 3 above. Called by
+`minimize --parametrize-ligands` (and `zbs --parametrize-ligands`)
+before `create_forcefield_with_openff` so the resulting
+`GAFFTemplateGenerator` gets registered on the ForceField for
+`createSystem`.
 
 ## Cross-module patterns
 
