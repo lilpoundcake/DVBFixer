@@ -261,9 +261,9 @@ def fix_lyn_hz_naming(
         if name != "LYN":
             continue
         if isinstance(key, tuple) and len(key) == 2:
-            lyn_ids.add(key)  # type: ignore[arg-type]
+            lyn_ids.add(key)
         elif isinstance(key, tuple) and len(key) == 3:
-            chain, resseq, _icode = key  # type: ignore[misc]
+            chain, resseq, _icode = key
             lyn_ids.add((chain, str(resseq)))
 
     if extra_lyn_keys:

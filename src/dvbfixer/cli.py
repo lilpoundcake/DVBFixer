@@ -1,8 +1,10 @@
 """dvbfixer — unified CLI for PDB structure preparation tools."""
 
+from __future__ import annotations
+
 import sys
 
-COMMANDS = {
+COMMANDS: dict[str, str] = {
     "split": "Split chains empirically (distance + numbering)",
     "renumber": "Renumber residues using SEQRES alignment",
     "model": "Rebuild missing loops/gaps with Modeller",
@@ -23,7 +25,7 @@ COMMANDS = {
 }
 
 
-def print_help():
+def print_help() -> None:
     print("dvbfixer — PDB structure preparation tools\n")
     print("Usage: dvbfixer <command> [options]\n")
     print("Commands:")
@@ -33,7 +35,7 @@ def print_help():
     print("\nRun 'dvbfixer <command> --help' for command-specific options.")
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
         print_help()
         sys.exit(0)

@@ -39,12 +39,12 @@ jobs:
           pip install --no-deps -e .
           pytest tests/ -q
 
-      # mypy is intentionally best-effort during Phase 0/1 — the strict overrides
-      # in pyproject.toml apply only to the API-surface modules. Allowed to fail
-      # until Phase 3.
-      - name: mypy (advisory)
-        continue-on-error: true
-        run: mypy src/dvbfixer/cli.py src/dvbfixer/ffutils.py src/dvbfixer/pdbutils.py src/dvbfixer/align.py
+      # mypy is REQUIRED on the API-surface modules as of Phase 3. Everything
+      # in pyproject.toml's `[tool.mypy.overrides]` list runs strict; other
+      # modules are still advisory (mypy would flag hundreds of untyped defs
+      # in the OpenMM/Modeller/PDBFixer callers).
+      - name: mypy (API surface)
+        run: mypy src/dvbfixer/cli.py src/dvbfixer/ffutils src/dvbfixer/pdbutils src/dvbfixer/align.py
 
   # Slow lane: full environment.yml with Modeller/OpenMM/OpenBabel. Skipped in
   # PRs from forks (no access to the salilab channel key). Runs on push to main
