@@ -173,8 +173,11 @@ def _iter_unique_ligand_residues(topology, base_ff_templates):
     are handled by the base FF).
     """
     from dvbfixer.ffutils import (
-        PROTEIN_RESIDUES, SOLVENT_IONS, GLYCAM_PROTEIN_RESIDUES,
-        GLYCAM_CAPS, is_glycam_sugar,
+        GLYCAM_CAPS,
+        GLYCAM_PROTEIN_RESIDUES,
+        PROTEIN_RESIDUES,
+        SOLVENT_IONS,
+        is_glycam_sugar,
     )
 
     skip = PROTEIN_RESIDUES | SOLVENT_IONS | GLYCAM_PROTEIN_RESIDUES | GLYCAM_CAPS

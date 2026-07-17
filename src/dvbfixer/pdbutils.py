@@ -436,8 +436,8 @@ def infer_conect_records(pdb_path, *, preserve_existing=True,
     used_fallback = False
     if inferred is None:
         if verbose:
-            print(f"  [conect] OpenBabel unavailable or load failed; "
-                  f"falling back to element-aware distance cutoffs.")
+            print("  [conect] OpenBabel unavailable or load failed; "
+                  "falling back to element-aware distance cutoffs.")
         inferred = _fallback_distance_bonds(atoms, by_serial)
         used_fallback = True
 

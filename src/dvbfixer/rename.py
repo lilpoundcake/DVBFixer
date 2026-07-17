@@ -9,7 +9,6 @@ import argparse
 import sys
 from pathlib import Path
 
-
 # Non-canonical -> canonical residue name mapping
 CANONICAL_MAP = {
     # AMBER protonation variants

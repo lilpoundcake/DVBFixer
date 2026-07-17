@@ -99,6 +99,7 @@ def _sanitize_for_propka(input_path):
     Returns the temp file path (caller must delete).
     """
     import tempfile
+
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
     keep_resnames = PROTEIN_RESIDUES | SOLVENT_IONS
 
@@ -432,10 +433,14 @@ def _fix_lyn_hz_naming(top, saved, renames):
 def _add_hydrogens_to_output(input_path, output_path, args, renames):
     """Load original PDB, strip H, add H with correct protonation variants, write output."""
     from openmm.app import ForceField, Modeller, PDBFile
-    from dvbfixer.ffutils import (PROTEIN_RESIDUES, SOLVENT_IONS,
-                                   detect_glycam_input,
-                                   create_forcefield_with_openff,
-                                   fix_atom_hetatm_records)
+
+    from dvbfixer.ffutils import (
+        PROTEIN_RESIDUES,
+        SOLVENT_IONS,
+        create_forcefield_with_openff,
+        detect_glycam_input,
+        fix_atom_hetatm_records,
+    )
 
     # Rename AMBER + CHARMM variant residues (LYN/HID/HIE/HIP/ASH/GLH/
     # CYX/CYM/HSD/HSE/HSP/ASPP/GLUP/LSN) to their standard parent in the
@@ -528,8 +533,9 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         forcefield = ForceField(*args.ff)
 
     # Use PDBFixer to add any missing heavy atoms first
-    from pdbfixer import PDBFixer
     import tempfile as _tempfile
+
+    from pdbfixer import PDBFixer
     with _tempfile.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False) as _tmp:
         PDBFile.writeFile(modeller.topology, modeller.positions, _tmp, keepIds=True)
         _tmp_path = _tmp.name
@@ -541,7 +547,6 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         # In GLYCAM mode, prevent PDBFixer from "fixing" NLN/OLS/OLT (it
         # doesn't recognize them as standard residues and may strip/replace).
         if glycam_present:
-            from dvbfixer.ffutils import GLYCAM_PROTEIN_RESIDUES
             # PDBFixer's substitutions[chain_idx] is a list of (res_idx, new_name).
             # Just clear it — we don't want any substitutions.
             try:
@@ -843,7 +848,9 @@ def _read_atom_positions(pdb_path):
             resseq = int(ss)
             icode = line[26].strip() if len(line) > 26 else ''
             try:
-                x = float(line[30:38]); y = float(line[38:46]); z = float(line[46:54])
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
             except ValueError:
                 continue
             key = (chain, resseq, icode, atom)
@@ -1022,7 +1029,7 @@ def main(argv=None):
     # out of PROPKA-driven renames). FF selection now goes through the
     # shared resolver so short-names like --ff amber / charmm work.
     glycam_positions, has_glycam = _scan_glycam_residues(input_path)
-    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    from dvbfixer.ffutils import print_ff_selection, resolve_ff
     args.ff, _ff_alias, _ff_reason = resolve_ff(
         args.ff, input_path, verbose=args.verbose)
     print_ff_selection(_ff_alias, _ff_reason, args.ff)

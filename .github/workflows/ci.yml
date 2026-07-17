@@ -1,0 +1,73 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # Fast lane: pure-Python checks that do NOT need OpenMM/Modeller/OpenBabel.
+  # Runs on every push and stays under a minute.
+  lint-and-fast-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dev extras only (no scientific stack)
+        run: |
+          # Install ruff + pytest + mypy without touching the heavy deps.
+          # The lightweight subcommands (rename, puppet, split, convert)
+          # don't need OpenMM/Modeller. Tests that DO need them are skipped
+          # via pytest.importorskip.
+          python -m pip install --upgrade pip
+          pip install ruff mypy pytest pytest-xdist
+          pip install numpy scipy biopython MDAnalysis
+
+      - name: ruff check
+        run: ruff check src/dvbfixer
+
+      - name: pytest (fast lane, no OpenMM)
+        run: |
+          # Install the package itself in editable mode so `import dvbfixer` works.
+          # The seed tests avoid heavy deps; anything that needs OpenBabel/OpenMM
+          # is guarded with pytest.importorskip and will skip cleanly here.
+          pip install --no-deps -e .
+          pytest tests/ -q
+
+      # mypy is intentionally best-effort during Phase 0/1 — the strict overrides
+      # in pyproject.toml apply only to the API-surface modules. Allowed to fail
+      # until Phase 3.
+      - name: mypy (advisory)
+        continue-on-error: true
+        run: mypy src/dvbfixer/cli.py src/dvbfixer/ffutils.py src/dvbfixer/pdbutils.py src/dvbfixer/align.py
+
+  # Slow lane: full environment.yml with Modeller/OpenMM/OpenBabel. Skipped in
+  # PRs from forks (no access to the salilab channel key). Runs on push to main
+  # and PRs from the same repo.
+  full-env-tests:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+          environment-name: dvbfixer
+          cache-environment: true
+          cache-downloads: true
+
+      - name: Install package + dev extras
+        shell: bash -el {0}
+        run: |
+          pip install -e ".[dev]"
+
+      - name: pytest (full lane)
+        shell: bash -el {0}
+        run: pytest tests/ -q

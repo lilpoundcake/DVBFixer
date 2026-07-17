@@ -53,7 +53,7 @@ def main(argv=None):
         out_path = in_path.with_name(in_path.stem + '_conect.pdb')
 
     if out_path.resolve() == in_path.resolve() and not args.force:
-        print(f"Error: --output equals input. Pass --force to overwrite.",
+        print("Error: --output equals input. Pass --force to overwrite.",
               file=sys.stderr)
         sys.exit(1)
 

@@ -16,7 +16,6 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-
 # PDB residue name -> (GLYCAM sugar code, GLYCAM anomer code)
 # Lowercase sugar code = L-sugar
 PDB_TO_GLYCAM = {

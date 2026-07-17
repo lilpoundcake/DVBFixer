@@ -9,7 +9,6 @@ import argparse
 import sys
 from pathlib import Path
 
-
 BACKBONE_ATOMS = {'N', 'CA', 'C', 'O', 'OXT'}
 
 

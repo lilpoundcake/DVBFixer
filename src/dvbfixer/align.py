@@ -26,7 +26,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 _BACKBONE_ATOMS = ('N', 'CA', 'C', 'O')
 
 # AMBER + CHARMM protonation-variant → canonical parent, so
@@ -133,8 +132,8 @@ def kabsch_align_pdb(input_pdb, reference_pdb, output_pdb, *,
         (None, None, 0).
     """
     try:
-        import numpy as np
         import MDAnalysis as mda
+        import numpy as np
         from Bio.Align import PairwiseAligner
     except ImportError as e:
         if verbose:

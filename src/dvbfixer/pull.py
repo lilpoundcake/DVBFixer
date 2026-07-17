@@ -16,10 +16,9 @@ from pathlib import Path
 import numpy as np
 from openmm import CustomBondForce, CustomExternalForce, LangevinMiddleIntegrator
 from openmm.app import Modeller, NoCutoff, PDBFile, Simulation
-from openmm.unit import angstrom, kilocalorie_per_mole, kelvin, nanometer, picosecond
+from openmm.unit import angstrom, kelvin, nanometer, picosecond
 
 from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
-
 
 # Default force field (protein only)
 DEFAULT_FF = 'auto'
@@ -312,7 +311,7 @@ def strip_hetatm(topology, positions):
 
     removed_info is a list of (chain_id, res_id, res_name, atom_data) for restoration.
     """
-    from openmm.app import Topology, Modeller
+    from openmm.app import Modeller
 
     known = PROTEIN_RESIDUES | SOLVENT_IONS
     to_delete = []
@@ -477,7 +476,7 @@ def write_output(topology, positions, output_path, bond_info_list, input_path=No
 
     bond_info_list: list of (idx_a, idx_b) tuples for new bonds.
     """
-    from dvbfixer.pdbutils import build_serial_map, append_before_end
+    from dvbfixer.pdbutils import append_before_end, build_serial_map
 
     with open(output_path, 'w') as f:
         PDBFile.writeFile(topology, positions, f, keepIds=True)
@@ -555,14 +554,15 @@ def main(argv=None):
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_pulled")
 
-    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    from dvbfixer.ffutils import print_ff_selection, resolve_ff
     args.ff, _ff_alias, _ff_reason = resolve_ff(
         args.ff, input_path, verbose=args.verbose)
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
     if args.rename:
-        from dvbfixer.rename import canonicalize_pdb
         import tempfile as _tf
+
+        from dvbfixer.rename import canonicalize_pdb
         _tmp = Path(_tf.mktemp(suffix='.pdb'))
         n = canonicalize_pdb(input_path, _tmp, args.verbose)
         if n > 0:
@@ -616,7 +616,7 @@ def main(argv=None):
                 topology, positions, idx_a, idx_b, args.radius, anchor_idx
             )
             if idx_a not in fi or idx_b not in fi:
-                print(f"Error: bond endpoints outside free region. Increase --radius.",
+                print("Error: bond endpoints outside free region. Increase --radius.",
                       file=sys.stderr)
                 sys.exit(1)
             free_indices |= fi

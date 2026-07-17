@@ -13,7 +13,6 @@ from pathlib import Path
 from openmm.app import Modeller, PDBFile
 from pdbfixer import PDBFixer
 
-
 DEFAULT_PH = 7.0
 
 # Residues that form glycosidic bonds through ND2 (N-linked glycosylation)
@@ -328,8 +327,9 @@ def _write_heterogen_conects(pdb_path, topology):
     downstream minimize loses cross-residue connectivity.
     """
     from collections import defaultdict
+
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
-    from dvbfixer.pdbutils import build_serial_map, append_before_end
+    from dvbfixer.pdbutils import append_before_end, build_serial_map
 
     known = PROTEIN_RESIDUES | SOLVENT_IONS
     serial_map = build_serial_map(pdb_path)
@@ -618,9 +618,9 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
     # all get tagged as UNL/Unknown Ligand). Instead, extract each new H atom
     # with its parent (bonded heavy atom) and use the parent's residue info
     # to assign H to the correct OpenMM residue.
-    from openmm.app import element, Topology
     from openmm import Vec3
-    from openmm.unit import nanometer, Quantity
+    from openmm.app import Topology, element
+    from openmm.unit import Quantity, nanometer
 
     new_h_specs = []  # (parent_omm, h_name, (x_nm, y_nm, z_nm))
     omm_atoms = list(topology.atoms())
@@ -898,9 +898,10 @@ def add_heterogen_h_via_openbabel(topology, positions, verbose=False):
             print("  OpenBabel not available — skipping heterogen H polish")
         return topology, positions
 
-    from openmm.app import element, Topology
     from openmm import Vec3
-    from openmm.unit import nanometer, Quantity
+    from openmm.app import Topology, element
+    from openmm.unit import Quantity, nanometer
+
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
 
     known = PROTEIN_RESIDUES | SOLVENT_IONS
@@ -1302,7 +1303,9 @@ def apply_deletions_to_pdb_text(input_path, deletions, verbose=False,
             serial_to_atomname[serial] = atomname
             serial_is_hetatm[serial] = line.startswith('HETATM')
             try:
-                x = float(line[30:38]); y = float(line[38:46]); z = float(line[46:54])
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
                 serial_to_coord[serial] = (x, y, z)
             except ValueError:
                 pass
@@ -1642,7 +1645,8 @@ def apply_deletions_to_pdb_text(input_path, deletions, verbose=False,
                 try:
                     rs = int(line[22:26].strip())
                 except ValueError:
-                    f.write(line); continue
+                    f.write(line)
+                    continue
                 ic = line[26] if len(line) > 26 else ' '
                 reskey = (chain, rs, ic)
                 if reskey in cyx_partners_to_repair:
@@ -2082,7 +2086,9 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                 _restore_variants_post_addhydrogens(modeller.topology, _saved)
         except (ValueError, KeyError, Exception) as e:
             from dvbfixer.ffutils import (
-                explain_template_error, PROTEIN_RESIDUES, SOLVENT_IONS,
+                PROTEIN_RESIDUES,
+                SOLVENT_IONS,
+                explain_template_error,
             )
             diag = explain_template_error(e, modeller.topology, ff)
             # Classify: was the failed residue an unknown ligand (expected —
@@ -2191,15 +2197,16 @@ def main(argv=None):
 
     # Resolve --ff for the heterogen-H step. Only prints when heterogen-H
     # actually runs; auto-detects from residue names.
-    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    from dvbfixer.ffutils import print_ff_selection, resolve_ff
     _ff_xmls, _ff_alias, _ff_reason = resolve_ff(
         args.ff, input_path, verbose=args.verbose)
     if args.heterogen_h:
         print_ff_selection(_ff_alias, _ff_reason, _ff_xmls)
 
     if args.rename:
-        from dvbfixer.rename import canonicalize_pdb
         import tempfile as _tf
+
+        from dvbfixer.rename import canonicalize_pdb
         _tmp = Path(_tf.mktemp(suffix='.pdb'))
         n = canonicalize_pdb(input_path, _tmp, args.verbose)
         if n > 0:
@@ -2305,8 +2312,9 @@ def main(argv=None):
     # the GLYCAM templates + glycam-hydrogens.xml definitions. Running the
     # polish on top would strip and re-add H via valence rules, breaking
     # GLYCAM atom names (C2N/O2N/CME/etc.) that OpenBabel doesn't recognize.
-    from dvbfixer.ffutils import (is_glycam_residue, PROTEIN_RESIDUES as _PR,
-                                   SOLVENT_IONS as _SI)
+    from dvbfixer.ffutils import PROTEIN_RESIDUES as _PR
+    from dvbfixer.ffutils import SOLVENT_IONS as _SI
+    from dvbfixer.ffutils import is_glycam_residue
     _known = _PR | _SI
     needs_polish = any(
         not is_glycam_residue(r.name) and r.name not in _known

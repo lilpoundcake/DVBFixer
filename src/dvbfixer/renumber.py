@@ -290,8 +290,9 @@ def main(argv=None):
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_renum")
 
     if args.rename:
-        from dvbfixer.rename import canonicalize_pdb
         import tempfile as _tf
+
+        from dvbfixer.rename import canonicalize_pdb
         _tmp = Path(_tf.mktemp(suffix='.pdb'))
         n = canonicalize_pdb(input_path, _tmp, args.verbose)
         if n > 0:
@@ -376,7 +377,7 @@ def main(argv=None):
                 continue
             else:
                 if args.verbose:
-                    print(f"  no antibody domain detected — falling back to SEQRES")
+                    print("  no antibody domain detected — falling back to SEQRES")
 
         if chain in seqres:
             mapping = align_to_seqres(atom_res, seqres[chain])
@@ -400,7 +401,7 @@ def main(argv=None):
                 insertions = [(k, v) for k, v in mapping.items()
                               if k[1] != ' ' and v <= len(seqres[chain])]
                 if insertions:
-                    print(f"  Resolved insertion codes:")
+                    print("  Resolved insertion codes:")
                     for (old_seq, old_ic), new_seq in insertions:
                         rn = next(rn for s, ic, rn in atom_res if s == old_seq and ic == old_ic)
                         print(f"    {rn} {old_seq}{old_ic.strip()} -> {new_seq}")
@@ -421,7 +422,7 @@ def main(argv=None):
                 if in_gap:
                     gaps.append((gap_start, len(seqres[chain])))
                 if gaps:
-                    print(f"  Gaps (missing ATOM residues):")
+                    print("  Gaps (missing ATOM residues):")
                     for gs, ge in gaps:
                         resnames = seqres[chain][gs - 1:ge]
                         print(f"    positions {gs}-{ge} ({ge - gs + 1} residues): "

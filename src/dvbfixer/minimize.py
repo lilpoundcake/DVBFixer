@@ -20,9 +20,8 @@ import sys
 from pathlib import Path
 
 from openmm import CustomExternalForce, LangevinMiddleIntegrator
-from openmm.app import ForceField, Modeller, PDBFile, PME, Simulation
+from openmm.app import PME, ForceField, Modeller, PDBFile, Simulation
 from openmm.unit import kelvin, nanometer, picosecond
-
 
 DEFAULT_FF = 'auto'
 DEFAULT_PH = 7.0
@@ -477,6 +476,7 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         # Even in keep_h mode, mutated residues may have incomplete sidechains
         # (e.g. LYS from VAL mutation missing CE + H atoms).
         import tempfile as _tf
+
         from pdbfixer import PDBFixer as _PDBFixer
         with _tf.NamedTemporaryFile(mode='w', suffix='.pdb',
                                     delete=False) as _tmp:
@@ -563,6 +563,7 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
 
         # Use PDBFixer to detect and add any missing heavy atoms
         import tempfile as _tf
+
         from pdbfixer import PDBFixer as _PDBFixer
         with _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False) as _tmp:
             PDBFile.writeFile(modeller.topology, modeller.positions, _tmp, keepIds=True)
@@ -658,13 +659,13 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                 for line in diag.split('\n'):
                     print(f"  {line}")
                 print()
-            print(f"  → falling back to --strip-heterogens flow.")
-            print(f"    NOTE: heterogens will be restored at their INPUT "
-                  f"coords while the protein moves during minimize, so the "
-                  f"interface geometry may be strained. For proper interface "
-                  f"geometry re-run with `--parametrize-ligands` (real GAFF2 "
-                  f"templates for the ligand; whole system optimised "
-                  f"together).\n")
+            print("  → falling back to --strip-heterogens flow.")
+            print("    NOTE: heterogens will be restored at their INPUT "
+                  "coords while the protein moves during minimize, so the "
+                  "interface geometry may be strained. For proper interface "
+                  "geometry re-run with `--parametrize-ligands` (real GAFF2 "
+                  "templates for the ligand; whole system optimised "
+                  "together).\n")
             import argparse as _ap
             legacy_args = _ap.Namespace(**vars(args))
             legacy_args.keep_heterogens = False
@@ -729,13 +730,13 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             for line in diag.split('\n'):
                 print(f"  {line}")
             print()
-        print(f"  → falling back to --strip-heterogens flow "
-              f"(heterogens kept in output with original coords).")
-        print(f"    NOTE: heterogens will be restored at their INPUT coords "
-              f"while the protein moves during minimize, so the interface "
-              f"geometry may be strained. For proper interface geometry "
-              f"re-run with `--parametrize-ligands` (real GAFF2 templates "
-              f"for the ligand; whole system optimised together).\n")
+        print("  → falling back to --strip-heterogens flow "
+              "(heterogens kept in output with original coords).")
+        print("    NOTE: heterogens will be restored at their INPUT coords "
+              "while the protein moves during minimize, so the interface "
+              "geometry may be strained. For proper interface geometry "
+              "re-run with `--parametrize-ligands` (real GAFF2 templates "
+              "for the ligand; whole system optimised together).\n")
         import argparse as _ap
         legacy_args = _ap.Namespace(**vars(args))
         legacy_args.keep_heterogens = False
@@ -802,8 +803,8 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
 
         # Merge: use minimized positions for protein atoms, original for HETATM
         # Match by (chain, resid, atomname) since addHydrogens may have changed indices
-        from openmm.unit import nanometer as nm_unit
         import numpy as np
+        from openmm.unit import nanometer as nm_unit
 
         # Build position lookup from minimized protein
         min_pos_map = {}
@@ -847,8 +848,8 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
 
 def _find_binary(name):
     """Locate a binary, checking PATH and the current Python env's bin dir."""
-    import shutil as _sh
     import os as _os
+    import shutil as _sh
     import sys as _sys
     found = _sh.which(name)
     if found:
@@ -863,7 +864,7 @@ def _find_binary(name):
 
 def _write_xyz(path, topology, positions, comment=""):
     """Write topology + positions to XYZ format (used by xtb)."""
-    from openmm.unit import angstrom, nanometer
+    from openmm.unit import nanometer
     atoms = list(topology.atoms())
     with open(path, 'w') as f:
         f.write(f"{len(atoms)}\n{comment}\n")
@@ -916,7 +917,7 @@ def refine_with_xtb(topology, positions, cycles=200, heterogens_only=False,
     otherwise xtb tries to handle the full system which is slow.
     """
     from openmm import Vec3
-    from openmm.unit import nanometer, Quantity
+    from openmm.unit import Quantity, nanometer
 
     xtb_bin = _find_binary('xtb')
     if xtb_bin is None:
@@ -969,11 +970,12 @@ def _run_xtb(topology, positions, xtb_bin, cycles, verbose, frozen_indices=None)
     frozen_indices: set of sub-topology atom indices (0-based) to freeze.
     Written to xcontrol with $fix atoms (1-based).
     """
+    import os as _os
     import shutil as _sh
     import subprocess as _sp
     import tempfile as _tf
-    import os as _os
-    from openmm.unit import nanometer, Quantity
+
+    from openmm.unit import Quantity, nanometer
 
     workdir = _tf.mkdtemp(prefix='dvbfixer_xtb_')
     old_cwd = _os.getcwd()
@@ -1062,6 +1064,7 @@ def _rigid_track_glycan_trees(in_top, in_pos, result_array, min_pos_map,
     """
     import numpy as np
     from openmm.unit import nanometer as nm_unit
+
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
 
     known = PROTEIN_RESIDUES | SOLVENT_IONS
@@ -1355,7 +1358,8 @@ def _restore_glycosylated_h(out_top, out_pos, in_top, in_pos):
     interface back to the prepared geometry. Backbone atoms remain refined.
     """
     from openmm import Vec3
-    from openmm.unit import nanometer, Quantity
+    from openmm.unit import Quantity, nanometer
+
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
 
     known = PROTEIN_RESIDUES | SOLVENT_IONS
@@ -1436,9 +1440,10 @@ def _extract_heterogen_subsystem(topology, positions, padding_residues=False):
     anchor_sub_indices = set of sub_topology atom indices that are protein
                         anchors (should be frozen during refinement).
     """
-    from openmm.app import Topology, element
     from openmm import Vec3
-    from openmm.unit import nanometer, Quantity
+    from openmm.app import Topology
+    from openmm.unit import Quantity, nanometer
+
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
 
     known = PROTEIN_RESIDUES | SOLVENT_IONS
@@ -1564,13 +1569,8 @@ def refine_with_obminimize(topology, positions, ff='MMFF94s', steps=500,
     OpenBabel auto-types any organic molecule via SMARTS rules.
     Returns refined positions (Quantity).
     """
-    import shutil as _sh
-    import subprocess as _sp
-    import tempfile as _tf
-    import os as _os
-    from openmm.app import PDBFile
-    from openmm.unit import nanometer, Quantity
     from openmm import Vec3
+    from openmm.unit import Quantity, nanometer
 
     if _find_binary('obminimize') is None:
         print("WARNING: obminimize binary not found in PATH — skipping refinement")
@@ -1622,14 +1622,16 @@ def _run_obminimize_pybel(topology, positions, ff, steps, frozen_indices, verbos
     OBFFConstraints.AddAtomConstraint(idx) freezes atoms by 1-based index.
     Used when frozen_indices is non-empty (CLI obminimize has no freeze flag).
     """
-    import tempfile as _tf
     import os as _os
-    from openmm.app import PDBFile
-    from openmm.unit import nanometer, Quantity
+    import tempfile as _tf
+
     from openmm import Vec3
+    from openmm.app import PDBFile
+    from openmm.unit import Quantity, nanometer
 
     try:
-        from openbabel import openbabel as ob, pybel
+        from openbabel import openbabel as ob
+        from openbabel import pybel
     except ImportError:
         print("WARNING: openbabel Python bindings missing — skipping refinement")
         return None
@@ -1674,7 +1676,7 @@ def _run_obminimize_pybel(topology, positions, ff, steps, frozen_indices, verbos
                                    ob_a.GetY() / 10.0,
                                    ob_a.GetZ() / 10.0))
             return Quantity(coords, nanometer)
-        print(f"WARNING: obminimize Python API: no FF could be set up")
+        print("WARNING: obminimize Python API: no FF could be set up")
         return None
     finally:
         import shutil as _sh
@@ -1691,13 +1693,14 @@ def _run_obminimize(topology, positions, ff, steps, verbose, frozen_indices=None
         return _run_obminimize_pybel(
             topology, positions, ff, steps, frozen_indices, verbose
         )
+    import os as _os
     import shutil as _sh
     import subprocess as _sp
     import tempfile as _tf
-    import os as _os
-    from openmm.app import PDBFile
-    from openmm.unit import nanometer, Quantity
+
     from openmm import Vec3
+    from openmm.app import PDBFile
+    from openmm.unit import Quantity, nanometer
 
     workdir = _tf.mkdtemp(prefix='dvbfixer_obmin_')
     try:
@@ -1795,7 +1798,7 @@ def main(argv=None):
             input_path, verbose=args.verbose))
 
     # Resolve --ff short-name / auto-detect from input residue names.
-    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    from dvbfixer.ffutils import print_ff_selection, resolve_ff
     args.ff, _ff_alias, _ff_reason = resolve_ff(
         args.ff, args.input, verbose=args.verbose)
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
@@ -1810,8 +1813,9 @@ def main(argv=None):
         dat_path = Path(args.input).with_suffix(".dat")
 
     if args.rename:
-        from dvbfixer.rename import canonicalize_pdb
         import tempfile as _tf
+
+        from dvbfixer.rename import canonicalize_pdb
         _tmp = Path(_tf.mktemp(suffix='.pdb'))
         n = canonicalize_pdb(input_path, _tmp, args.verbose)
         if n > 0:

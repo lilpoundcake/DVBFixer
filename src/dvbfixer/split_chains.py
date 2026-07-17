@@ -52,6 +52,7 @@ def parse_gro(path):
     """
     import tempfile
     import warnings
+
     import MDAnalysis as mda
 
     with warnings.catch_warnings():
@@ -628,15 +629,15 @@ def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
                     else:
                         assignment.append(' ')
                 if offset + n_prot_m > len(CHAIN_IDS):
-                    print(f"Too many protein chains across MODELs for "
-                          f"available IDs.", file=sys.stderr)
+                    print("Too many protein chains across MODELs for "
+                          "available IDs.", file=sys.stderr)
                     sys.exit(1)
                 offset += n_prot_m
                 chain_id_lists.append(assignment)
             else:
                 ids = CHAIN_IDS[offset:offset + n_c]
                 if len(ids) < n_c:
-                    print(f"Too many total chains across MODELs for available IDs.",
+                    print("Too many total chains across MODELs for available IDs.",
                           file=sys.stderr)
                     sys.exit(1)
                 chain_id_lists.append(ids)

@@ -655,9 +655,9 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
     The target sequence for non-protein chains is derived from Modeller's own
     template reading to guarantee the '.' counts match exactly.
     """
-    from modeller import Environ, Alignment, Model, Selection, log
-    from modeller.automodel import LoopModel
+    from modeller import Alignment, Environ, Model, Selection, log
     from modeller import automodel as am
+    from modeller.automodel import LoopModel
 
     class _PinnedLoopModel(LoopModel):
         """LoopModel variant that lets ONLY gap residues move during

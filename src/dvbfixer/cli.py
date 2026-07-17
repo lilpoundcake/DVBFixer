@@ -2,7 +2,6 @@
 
 import sys
 
-
 COMMANDS = {
     "split": "Split chains empirically (distance + numbering)",
     "renumber": "Renumber residues using SEQRES alignment",
@@ -30,8 +29,8 @@ def print_help():
     print("Commands:")
     for cmd, desc in COMMANDS.items():
         print(f"  {cmd:<12s}  {desc}")
-    print(f"\n  --version     Show version")
-    print(f"\nRun 'dvbfixer <command> --help' for command-specific options.")
+    print("\n  --version     Show version")
+    print("\nRun 'dvbfixer <command> --help' for command-specific options.")
 
 
 def main():

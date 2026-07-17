@@ -27,10 +27,6 @@ positions for residues that actually align.
 
 from __future__ import annotations
 
-import sys
-from typing import Optional
-
-
 # ---------------------------------------------------------------------------
 # EU-numbered reference sequences (human germline)
 # ---------------------------------------------------------------------------
@@ -87,7 +83,7 @@ def _have_anarci() -> bool:
 # Needleman-Wunsch alignment (lightweight; constant-region sized inputs only)
 # ---------------------------------------------------------------------------
 
-def _nw_align(query: str, ref: str) -> Optional[list[int]]:
+def _nw_align(query: str, ref: str) -> list[int] | None:
     """Semi-global NW alignment of `query` against `ref` (both AA strings).
 
     Returns a list of length `len(query)` where `result[i]` is the 0-based
@@ -149,7 +145,7 @@ def _nw_align(query: str, ref: str) -> Optional[list[int]]:
     if best_score == NEG or best_score <= 0:
         return None
 
-    result: list[Optional[int]] = [None] * Q
+    result: list[int | None] = [None] * Q
     i, j = Q, best_j
     state = "M"
     while i > 0 and j > 0:

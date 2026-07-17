@@ -16,11 +16,11 @@ import tempfile
 from pathlib import Path
 
 from dvbfixer.model import (
-    AA3TO1, WATER_RESNAMES, write_target_pir, parse_pir_sequence,
-    restore_chain_ids_and_read, build_resnum_mapping, renumber_model_output,
-    build_model_dat, remove_water_lines, get_template_mask,
+    AA3TO1,
+    WATER_RESNAMES,
+    parse_pir_sequence,
+    remove_water_lines,
 )
-
 
 # ---------------------------------------------------------------------------
 # FASTA parsing
@@ -149,7 +149,7 @@ def run_antibody_analysis(target_chains, verbose=False):
     Returns dict with domain info per chain.
     """
     try:
-        from anarci import anarci, run_anarci
+        from anarci import anarci
     except ImportError:
         print("ERROR: ANARCI not installed. Install with: pip install anarci",
               file=sys.stderr)
@@ -388,9 +388,9 @@ def run_homology_modeller(target_chains, template_paths, chain_mapping,
 
     Returns path to best model PDB.
     """
-    from modeller import Environ, Alignment, Model, log
-    from modeller.automodel import automodel, LoopModel
+    from modeller import Alignment, Environ, Model, log
     from modeller import automodel as am
+    from modeller.automodel import LoopModel, automodel
 
     if args.verbose:
         log.verbose()
@@ -745,7 +745,7 @@ def main(argv=None):
 
     # 9. Optional pipeline
     if args.prepare or args.minimize:
-        print(f"\nRunning prepare...")
+        print("\nRunning prepare...")
         from dvbfixer.prepare import main as prepare_main
         prepare_args = [output_pdb, '--ph', str(args.ph)]
         if args.verbose:
@@ -754,7 +754,7 @@ def main(argv=None):
 
         prepared_pdb = output_pdb.replace('.pdb', '_prepared.pdb')
         if args.minimize and Path(prepared_pdb).exists():
-            print(f"\nRunning minimize...")
+            print("\nRunning minimize...")
             from dvbfixer.minimize import main as minimize_main
             minimize_args = [prepared_pdb, '--ph', str(args.ph)]
             if args.verbose:

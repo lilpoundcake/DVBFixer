@@ -18,11 +18,12 @@ from pathlib import Path
 
 import numpy as np
 
-from dvbfixer.ffutils import PROTEIN_RESIDUES
 from dvbfixer.acpype_export import (
-    detect_ss_bonds, prepare_for_openmm,
-    add_glycam_bonds, export_gromacs,
+    add_glycam_bonds,
+    export_gromacs,
+    prepare_for_openmm,
 )
+from dvbfixer.ffutils import PROTEIN_RESIDUES
 
 
 def _parse_pdb(path):
@@ -459,13 +460,12 @@ def _relax_structure(path, output_path, stages, verbose=False):
     Protein heavy atoms are restrained; glycan atoms move freely.
     Stages define progressively reducing restraint strength.
     """
-    from openmm import unit, CustomExternalForce, LangevinMiddleIntegrator
-    from openmm.app import ForceField, Modeller, PDBFile, Simulation, NoCutoff, HBonds
+    from openmm import CustomExternalForce, LangevinMiddleIntegrator, unit
+    from openmm.app import ForceField, HBonds, Modeller, NoCutoff, PDBFile, Simulation
 
     print("\nRelaxing structure with AMBER + GLYCAM...")
 
     # Preprocess: CYS→CYX for SS bonds
-    import tempfile
     temp_dir = path.parent
     temp_pdb = temp_dir / '_relax_temp.pdb'
     _, _ = prepare_for_openmm(path, temp_pdb)
