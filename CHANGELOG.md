@@ -32,11 +32,23 @@ best-effort summaries; consult `git log` for exact provenance.
     perception + domain overrides) and `io.py` (line-level serial
     remap / append-before-end helpers).
 - **God-module splits (Phase 2)** — `minimize`, `model`, `prepare`,
-  `top` converted from flat modules to packages. `minimize` was
-  fully carved into `cli.py` / `pipeline.py` / `refine.py`; the other
-  three did the mechanical argparse extraction and left the rest of
-  the pipeline in one file, with follow-up boundaries documented in
-  each `__init__.py`.
+  `top` converted from flat modules to packages. The follow-up wave
+  after the initial argparse extraction cleaned the rest along the
+  boundaries the plan called out:
+  - `minimize/` → `cli.py` / `pipeline.py` / `refine.py`.
+  - `model/` → `cli.py` / `pipeline.py` / `renumber.py` (the
+    three-tier residue-numbering strategy) / `modeller_run.py`
+    (`_PinnedLoopModel` + `run_modeller` + PIR helpers +
+    `_fix_terminal_alignment` + `_explain_modeller_error`).
+  - `prepare/` → `cli.py` / `pipeline.py` / `mutations.py`
+    (`parse_mutations` + `apply_deletions_to_pdb_text` + SSBOND
+    repair + glycan-walk BFS) / `glycan.py` (glycosylation detection,
+    NLN/OLS/OLT rename, RDKit/OpenBabel heterogen-H).
+  - `top/` → `cli.py` / `pipeline.py` / `ff_data.py` (data-only
+    constants: PDB_TO_*, ION_PARAMS, `_GLYCAN_LINKAGE_PARAMS`) /
+    `writers.py` (moleculetype/PDB/posre + FF-content splicing).
+    Remaining `TopologyBuilder` + `--acpype` extractions
+    documented as follow-ups in the package `__init__.py`.
 - **Types + hardening (Phase 3)** — annotated the API-surface modules
   (`cli.py`, `ffutils/`, `pdbutils/`, `align.py`); flipped mypy CI
   gate from advisory to required for those paths.
@@ -47,7 +59,11 @@ best-effort summaries; consult `git log` for exact provenance.
     reference pages never drift from the actual `--help`.
   - `CLAUDE.md` shrunk from ~85 KB to ~3.6 KB (pure index of the
     docs tree + hard rules). Historical design notes moved verbatim
-    to `docs/DESIGN_NOTES.md`.
+    to `docs/DESIGN_NOTES.md`, then split into their targeted homes:
+    the 4 architecture-adjacent Notes sections went to
+    `ARCHITECTURE.md`; the 17 per-subcommand "algorithm" sections
+    went to `docs/commands/{cmd}.md` under a `## How it works`
+    heading. `DESIGN_NOTES.md` now a ~20-line stub pointer.
   - `CHANGELOG.md` (this file) created and backfilled.
 
 ## [0.3.0] — 2026-07
