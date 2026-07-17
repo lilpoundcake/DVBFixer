@@ -10,6 +10,8 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-07
+
 ### Refactor
 - **Guardrails (Phase 0)** — added `tests/` with pytest scaffolding,
   22 seed regression tests for the lightweight subcommands, `[tool.ruff]`
