@@ -2039,23 +2039,10 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                                'amber14/GLYCAM_06j-1.xml',
                                'amber14/tip3pfb.xml']
         try:
-            from dvbfixer.ffutils import create_forcefield_with_openff
-            ff = create_forcefield_with_openff(
-                _ff_xmls, modeller.topology, verbose=verbose,
+            from dvbfixer.ffutils import build_glycam_system
+            ff = build_glycam_system(
+                _ff_xmls, modeller.topology, modeller.positions, verbose=verbose,
             )
-            Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')
-            # OpenMM's PDBFile does not infer intra-residue bonds for GLYCAM
-            # residues (NLN/OLS/OLT + sugars) — without these bonds and the
-            # peptide bonds to NLN's neighbors, addHydrogens fails template
-            # matching on the residue ADJACENT to NLN (e.g. "TYR is missing
-            # 1 externally bonded C atom").
-            try:
-                from dvbfixer.acpype_export import add_glycam_bonds
-                add_glycam_bonds(modeller.topology, ff, verbose,
-                                  positions=modeller.positions)
-            except Exception as _e:
-                if verbose:
-                    print(f"  add_glycam_bonds skipped: {_e}")
             _saved = _rename_variants_to_parent(modeller.topology)
             try:
                 modeller.addHydrogens(ff, pH=ph, variants=variants)

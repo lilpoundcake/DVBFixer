@@ -355,7 +355,6 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     from dvbfixer.ffutils import (
         PROTEIN_RESIDUES,
         SOLVENT_IONS,
-        create_forcefield_with_openff,
         detect_glycam_input,
         fix_atom_hetatm_records,
     )
@@ -424,29 +423,14 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     modeller = Modeller(stripped_top, stripped_pos)
 
     if glycam_present:
-        # Build GLYCAM-aware FF. create_forcefield_with_openff loads the
-        # provided XMLs (caller upgraded args.ff to amber14+GLYCAM) and
-        # suppresses GLYCAM sugar templates that would fuzzy-match PDB
-        # sugar residues to the wrong entry.
-        forcefield = create_forcefield_with_openff(
-            args.ff, modeller.topology, verbose=args.verbose,
+        # Build GLYCAM-aware FF via the shared 3-step wrapper: FF
+        # construction with GLYCAM template suppression, glycam-hydrogens.xml
+        # loading, and add_glycam_bonds for intra-residue + protein-glycan
+        # + sugar-sugar bond population.
+        from dvbfixer.ffutils import build_glycam_system
+        forcefield = build_glycam_system(
+            args.ff, modeller.topology, modeller.positions, verbose=args.verbose,
         )
-        # Load GLYCAM-specific H definitions so addHydrogens knows where to
-        # place H atoms on UYB/4YB/VMB/NLN/OLS/OLT/etc.
-        try:
-            Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')
-        except Exception:
-            pass
-        # Add intra-residue bonds for GLYCAM residues — OpenMM's PDBFile
-        # doesn't infer them for non-standard residues, but addHydrogens
-        # needs them to place H correctly.
-        try:
-            from dvbfixer.acpype_export import add_glycam_bonds
-            add_glycam_bonds(modeller.topology, forcefield, args.verbose,
-                              positions=modeller.positions)
-        except Exception as e:
-            if args.verbose:
-                print(f"  add_glycam_bonds skipped: {e}")
     else:
         forcefield = ForceField(*args.ff)
 

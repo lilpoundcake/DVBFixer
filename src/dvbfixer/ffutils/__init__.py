@@ -599,3 +599,81 @@ def create_forcefield_with_openff(ff_xmls, topology,
         ff.registerTemplateGenerator(hook)
 
     return ff
+
+
+def build_glycam_system(
+    ff_xmls,
+    topology,
+    positions=None,
+    *,
+    extra_generators=None,
+    load_hydrogen_definitions=True,
+    add_bonds=True,
+    verbose=False,
+):
+    """Package the three-step GLYCAM setup ritual as one call.
+
+    Every GLYCAM-aware tool (``prepare``, ``minimize``, ``protonate``) needs
+    the same sequence:
+
+    1. Build the ForceField with GLYCAM template suppression via
+       :func:`create_forcefield_with_openff`.
+    2. Load ``glycam-hydrogens.xml`` on ``Modeller`` so ``addHydrogens``
+       knows where to place H on NLN/OLS/OLT and the GLYCAM sugars.
+    3. Call ``acpype_export.add_glycam_bonds(topology, ff, positions=...)``
+       to populate intra-residue bonds + protein-glycan peptide bonds +
+       sugar-sugar glycosidic bonds. Without these, template matching on
+       residues ADJACENT to NLN fails ("TYR missing 1 externally bonded C
+       atom") — see the prepare docstring for the gnarly detail.
+
+    Each caller was re-writing the same try/except-wrapped boilerplate.
+    This wrapper puts it in one place.
+
+    Args:
+        ff_xmls: OpenMM FF XML paths — same shape as
+            :func:`create_forcefield_with_openff` accepts.
+        topology: OpenMM Topology.
+        positions: OpenMM positions. Optional but strongly recommended for
+            ``add_glycam_bonds`` — the distance-based glycosidic-bond
+            detection needs coords.
+        extra_generators: Passed through to
+            :func:`create_forcefield_with_openff` — used by
+            ``minimize --parametrize-ligands`` to plug GAFF2 templates in.
+        load_hydrogen_definitions: When True, call
+            ``Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')``.
+            Turn off if the caller has already loaded them or is running a
+            protein-only path.
+        add_bonds: When True, run ``add_glycam_bonds``. Failures are logged
+            (in ``verbose`` mode) but non-fatal — matches the historical
+            defensive behaviour at all three call sites.
+        verbose: Extra logging.
+
+    Returns:
+        The built OpenMM ``ForceField``.
+    """
+    from openmm.app import Modeller
+
+    ff = create_forcefield_with_openff(
+        ff_xmls, topology, extra_generators=extra_generators, verbose=verbose,
+    )
+
+    if load_hydrogen_definitions:
+        try:
+            Modeller.loadHydrogenDefinitions("glycam-hydrogens.xml")
+        except Exception:
+            # No-op if already loaded or if the shipped xml is absent.
+            pass
+
+    if add_bonds:
+        try:
+            # Import lazily — acpype_export pulls in ParmEd, which is
+            # heavy and irrelevant to protein-only paths that never call
+            # build_glycam_system with add_bonds=False.
+            from dvbfixer.acpype_export import add_glycam_bonds
+
+            add_glycam_bonds(topology, ff, verbose, positions=positions)
+        except Exception as exc:  # noqa: BLE001 — matches legacy defensive behaviour
+            if verbose:
+                print(f"  add_glycam_bonds skipped: {exc}")
+
+    return ff
