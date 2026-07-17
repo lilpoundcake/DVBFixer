@@ -71,3 +71,11 @@ jobs:
       - name: pytest (full lane)
         shell: bash -el {0}
         run: pytest tests/ -q
+
+      # Enforce that docs/reference/{cmd}.md matches every subcommand's
+      # current --help output. If a flag was added / renamed / removed and
+      # the committed reference wasn't regenerated, this fails with the
+      # exact command to run locally.
+      - name: docs reference in sync with argparse
+        shell: bash -el {0}
+        run: python scripts/gen_cli_reference.py --check
