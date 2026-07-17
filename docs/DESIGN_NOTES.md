@@ -2,8 +2,15 @@
 
 > Historical record of the design decisions, algorithms, and gotchas
 > behind every dvbfixer subcommand. Was `CLAUDE.md` until Phase 4b of
-> the revision plan — moved here so this ~85 KB of prose stops being
-> auto-loaded into every Claude Code session.
+> the revision plan — moved here so this prose stops being auto-loaded
+> into every Claude Code session.
+>
+> The four "Notes" sections (CLI dispatcher, GROMACS topology, GLYCAM
+> integration, PDB format) that used to live here have moved into
+> [`../ARCHITECTURE.md`](../ARCHITECTURE.md). This file retains the
+> per-subcommand algorithm prose in the `## Subcommands` section
+> — a follow-up will migrate those into
+> `docs/commands/{cmd}.md` under a new "How it works" heading.
 >
 > If you're looking for:
 >
@@ -314,83 +321,3 @@ Full pipeline in 6 steps: renumber → model → prepare → minimize (pass 1) �
 
 **`--align-to-input` / `--no-align-to-input`** (default ON): after every pipeline step, `_maybe_align(out)` runs `dvbfixer.align.kabsch_align_pdb(out, original_input, out, selection='backbone')` in-place. Kabsch rotation + translation is computed on backbone atoms (N/CA/C/O of standard AAs) matched by `(chain, resseq, icode, atomname)` and applied to EVERY atom in the file — protein + heterogens stay in a consistent relative frame with the user's original input, no accumulated rigid-body drift from successive OpenMM minimizations. Alignment is pure numpy (~30 lines in `align.py`), no extra deps. Legacy behaviour (each step's output in its own frame) via `--no-align-to-input`. No standalone `dvbfixer align` subcommand — kept as a pipeline-internal helper per user preference.
 
-## Architecture Notes
-
-- Each subcommand module has `parse_args(argv=None)` and `main(argv=None)` — the `argv` parameter allows the CLI dispatcher to pass subcommand arguments.
-- `cli.py` dispatches `sys.argv[2:]` to the appropriate module's `main()`.
-- Entry point defined in `pyproject.toml`: `dvbfixer = "dvbfixer.cli:main"`.
-
-## GROMACS Topology Notes
-
-- `top.py` parses RTP files directly — no dependency on `pdb2gmx` or GROMACS installation.
-- FF files bundled in `FF/amber99sb-ildn-lipid21.ff/` and `FF/charmm36_ljpme-jul2022.ff/`. Used at build time for RTP parsing; output is modular `.itp` files — no external FF directory needed at runtime.
-- Output is modular: `topol.top` has only `#include` directives + `[ system ]` + `[ molecules ]`. FF params in `ffparams.itp`, each chain in `{name}.itp`, water in `water.itp`, ions in `ions.itp`, position restraints in `posre_*.itp`, inter-chain SS in `interchain_ss.itp`.
-- `_dedup_atomtypes()` removes duplicate atom type entries (e.g. HT, OT with heavy/real mass variants from #ifdef blocks).
-- `_GLYCAN_LINKAGE_PARAMS` adds extra bond/angle/dihedral parameters for glycosidic linkage sites where OC311→OC3C61 creates atom type combos not in the standard CHARMM36 distribution (by analogy with CC321D/CC321C variants). Also includes sialic acid C2 linkage params (CC3062-OC3C61). Does NOT include ceramide-sugar CTO2-OC301 params (already in ffbonded.itp with proper multi-term dihedrals).
-- `_read_ff_content(path)` strips all preprocessor directives (#include, #define, #ifdef, etc.) for clean inlining.
-- `_write_water_topology(f, path)` extracts only the rigid (settles) version from water .itp files that have `#ifndef FLEXIBLE` / `#else` blocks.
-- RTP `[ bondedtypes ]` header defines function types for bonds/angles/dihedrals/impropers.
-- Bond entries with `-C` mean previous residue's C atom, `+N` means next residue's N atom.
-- AMBER has explicit NXXX/CXXX terminal entries in RTP; CHARMM uses TDB patch files.
-- CHARMM FF has ~2400+ residues across 9 RTP files: aminoacids (protein), carb (363 sugars), lipid (401), na (79 nucleic acids), cgenff (924 small molecules), ethers (25), metals (8), silicates (6), solvent/ions (77). All loaded at startup.
-- Glycosidic linkages handled by removing HO + charge redistribution + atom type change. Linked O atoms not in PDB have their combined charge (O + HO) redistributed to the anomeric carbon (C1 or C2 for sialic acid). O1/O2 from RTP not in PDB always skipped (defensive — even if link detection missed the bond).
-- Glycolipids (ceramide + sugar tree) built as single moleculetype by `build_glycolipid_chain()`. Ceramide from `lipid.rtp`, sugars from `carb.rtp`. Ceramide-sugar bond: C1S—O1 (sugar O1 bridges). Ceramide O1+HO1 charge → C1S. Sugar O1 type: OC301 (not OC3C61). CTO2-OC301 params already in ffbonded.itp (multi-term dihedrals — must not be redefined). CHARMM-GUI 4-char resnames (CER1, BGLC, etc.) detected via `read_pdb_chains()` extended column parsing.
-- `interchain_ss.itp` with `[ intermolecular_interactions ]` is auto-included in `topol.top` after `[ molecules ]` (GROMACS requires this directive after the molecules section). Contains both inter-chain SS bonds and protein-glycan bonds (ASN ND2 - NAG C1, r0=0.143 nm).
-- Ions and buffer particles (BUF) are auto-detected in PDB by matching residue names against moleculetypes in `ions.itp`. Counted and added to `[ molecules ]` section. Not built as chain topologies — their moleculetypes are defined in `ions.itp`. BUF atomtype (dummy, no LJ) added to `ffnonbonded.itp`.
-- Water molecules (SOL/HOH/WAT/TIP3) counted by atom count / 3 (not resseq dedup) to handle PDB resseq overflow in large systems (>10k residues wrap at 9999).
-- Small CGenFF molecules (ACET, ACEH, ACEM, etc.) detected by distance-based chain splitting (`_split_chain_by_distance`, gap > 4 Å). Single-residue chains of known RTP types are counted and built as separate moleculetypes. Terminal patches are NOT applied to non-protein residues.
-- GRO file support: auto-detected by `.gro` extension, converted to temp PDB via MDAnalysis (`_gro_to_pdb`). Original input path preserved for output directory and system name.
-- 4-char resnames from GROMACS output (ACET, ACEH, TIP3) handled via `_KNOWN_4CHAR_RESNAMES` set in `read_pdb_chains()`.
-- PDB serial numbers wrap at 100000 (`serial % 100000`) for large systems. Resseq in extra molecule lines renumbered sequentially.
-- PDB atom name format: columns 13-16 = atom name (4 chars), column 17 = altLoc (space), columns 18-20 = residue name. 4-char atom names (HE21) start at column 13; shorter names start at column 14 with leading space.
-
-## GLYCAM Integration Notes
-
-- GLYCAM uses 3-character residue codes encoding linkage position + sugar identity + anomeric config (e.g. 4YB = beta-GlcNAc linked at O4, VMB = beta-Man linked at O3+O6).
-- GLYCAM protein residues: NLN (glycosylated ASN), OLS (glycosylated SER), OLT (glycosylated THR).
-- OpenMM's PDBFile does NOT infer intra-residue bonds for GLYCAM residues — must be added from FF templates.
-- OpenMM's PDBFile does NOT add peptide bonds involving GLYCAM protein residues — must be added explicitly.
-- OpenMM's PDBFile does NOT add sugar-sugar glycosidic bonds either — `add_glycam_bonds(positions=...)` detects them by distance (anomeric C1, or C2 for sialic, within 2.0 Å of a linkage O2/O3/O4/O6 on another sugar). Without these, GLYCAM templates like 6LB that declare an external O bond fail to match ("missing 1 externally bonded O atom").
-- NLN template expects only HD21 (not HD22) — ND2's other bond goes to sugar (external bond).
-- GLYCAM fragments from GLYCAM-Web include terminal atoms (OXT, H2, H3) that must be stripped when fragment is mid-chain.
-- `Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')` required before `addHydrogens()` for GLYCAM residues.
-- CYS involved in disulfide bonds must be renamed to CYX before OpenMM parametrization (detected from CONECT SG-SG bonds AND distance fallback within 2.5 Å).
-
-### Shared GLYCAM helpers in `ffutils.py`
-
-All three tools (prepare/minimize/protonate) share these:
-
-- `is_glycam_sugar(name)` — True for GLYCAM 3-char codes (linkage + sugar + anomer, e.g. UYB, 4YB, VMB, 0YA, 0fA, 2MA) or caps (ROH, OME, TBT, CMET).
-- `is_glycam_residue(name)` — True for any GLYCAM sugar OR glycoprotein residue (NLN/OLS/OLT).
-- `detect_glycam_input(topology)` — returns `{'glycam_proteins': set, 'glycam_sugars': set, 'pdb_sugars': set, 'unknown_hets': set}` keyed by (chain_id, res_id). Used by protonate.py and minimize.py to trigger the GLYCAM-aware path vs the PDB-sugar fallback.
-- `fix_atom_hetatm_records(pdb_path)` — post-processes the output PDB to rewrite `HETATM` → `ATOM` for protein residues (incl. AMBER protonation variants HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN and GLYCAM glycoprotein residues NLN/OLS/OLT). OpenMM's `PDBFile.writeFile` defaults non-standard residue names to HETATM; this helper restores them to ATOM. Called after every PDB write in prepare/minimize/protonate. Idempotent.
-- Constants: `PROTEIN_RESIDUES` (includes NLN/OLS/OLT + AMBER variants), `GLYCAM_PROTEIN_RESIDUES = {'NLN', 'OLS', 'OLT'}`, `GLYCAM_CAPS = {'ROH', 'OME', 'TBT', 'CMET'}`, `FORCE_ATOM_RESIDUES = frozenset(PROTEIN_RESIDUES)`.
-
-### Shared FF selection (`ffutils.resolve_ff`)
-
-Every OpenMM-using tool (`prepare`, `minimize`, `protonate`, `pull`, `zbs`) accepts `--ff` as either a short-name alias (`auto`, `amber`, `amber+glycam`, `amber+lipid`, `amber+nucleic`, `charmm`, `charmm2024`, …) or an explicit list of OpenMM XML paths (backward compat). Default: `auto`. Wired at the top of each tool's `main()`:
-
-```python
-from dvbfixer.ffutils import resolve_ff, print_ff_selection
-args.ff, alias, reason = resolve_ff(args.ff, args.input, verbose=args.verbose)
-print_ff_selection(alias, reason, args.ff)
-```
-
-`FF_ALIASES` dict in `ffutils.py` maps short names → XML lists. `detect_ff_from_pdb(pdb_path)` scans residue names for **unambiguous** markers:
-- **CHARMM** (any hit → `charmm`): protonation names `HSD/HSE/HSP/ASPP/GLUP/LSN`; CHARMM-GUI 4-char sugar names `BGLC/AGLC/BMAN/AMAN/BGAL/AGAL/BFUC/AFUC/BGLCNA/AGLCNA/BGALNA/AGALNA/ANE5/BNE5/ANE5AC/BNE5AC/AIDO/BIDO`; ceramides `CER1/CER160/CER180/…`.
-- **GLYCAM** (any hit → `amber+glycam`): protein `NLN/OLS/OLT`; caps `ROH/OME/TBT/CMET`; 3-char sugar codes matching `[linkage][sugar][anomer]` via `is_glycam_sugar`.
-- **Ambiguous PDB sugars** (`NAG/BMA/MAN/GAL/FUC/…`): NEVER auto-select an FF. Neither `amber+glycam` (needs GLYCAM 3-char codes) nor `charmm36.xml` (needs 4-char names) has templates for bare PDB names. Falls through to `amber` default with a warning telling the user to `dvbfixer convert --to-amber` or `--to-charmm` first.
-
-Precedence: CHARMM markers win over GLYCAM (protonation names are full-file FF-prep signals). If the user asked for `amber`/`amber19`/`amber14` but the input clearly has CHARMM or GLYCAM markers, `resolve_ff` *upgrades* the choice and logs why. If the user asked for `charmm` on a plain-protein input, no downgrade — user's explicit choice wins.
-
-`top.py` uses a separate `--ff` namespace (`amber` or `charmm` mapping to bundled GROMACS FF directories in `FF/`, parsed via `rtp_parser.py`) — different format (RTP not XML), different set of supported FFs, different alias-to-file mapping. See `docs/force-fields.md` for the side-by-side.
-
-## PDB Format Notes
-
-- Residue identity = `(resSeq, iCode)` not just resSeq. Column 26 (0-based) is the insertion code.
-- `set_resid()` must write both the 4-char resSeq (cols 22-25) AND clear the iCode (col 26).
-- Antibody structures use Kabat/Chothia numbering: insertion codes at CDR loops (52A, 82A-C, 100A-J). These are NOT chain breaks.
-- GROMACS PDB output often has blank chain IDs and continuous numbering across chains.
-- `PDBFile.writeFile(..., keepIds=True)` is required to preserve chain IDs when writing through OpenMM.
-- Glycan residues (BGL, BMA, NAG, etc.) have C and N atoms but NOT peptide bonds — `split_chains.py` detects breaks by backbone C/N atom presence (not residue name filtering).
-- CONECT serial remapping between PDB sources (acceptor vs graft) must use atom identity (chain, resseq, atomname) not serial numbers, since serials from different sources collide.
