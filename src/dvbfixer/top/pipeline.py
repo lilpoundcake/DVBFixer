@@ -2229,63 +2229,11 @@ def main(argv=None):
         input_path = Path(_materialise_inferred_pdb(
             input_path, verbose=args.verbose))
 
-    # ACPYPE mode: OpenMM + ParmEd + ACPYPE pipeline
+    # ACPYPE mode: OpenMM + ParmEd + ACPYPE pipeline (delegated to
+    # top.acpype so the RTP-based `--ff amber|charmm` path stays clean).
     if args.acpype:
-        from dvbfixer.acpype_export import export_gromacs
-
-        if args.ff == 'charmm':
-            print("WARNING: --acpype always uses AMBER14+GLYCAM, ignoring --ff charmm",
-                  file=sys.stderr)
-
-        # Parse --ss flags into extra_ss set
-        extra_ss = set()
-        for ss_spec in args.ss:
-            parts = ss_spec.split(':')
-            if len(parts) == 4:
-                extra_ss.add((parts[0], int(parts[1])))
-                extra_ss.add((parts[2], int(parts[3])))
-
-        # Parse --protonate flags into prot_overrides dict
-        # AMBER variant names that addHydrogens understands
-        _AMBER_VARIANTS = {'ASH', 'GLH', 'HIE', 'HID', 'HIP', 'CYX', 'LYN'}
-        # Map common alternative names to AMBER form
-        _NAME_TO_AMBER = {
-            'ASPP': 'ASH', 'ASPH': 'ASH', 'GLUP': 'GLH', 'GLUH': 'GLH',
-            'HSP': 'HIP', 'HSE': 'HIE', 'HSD': 'HID',
-        }
-        prot_overrides = {}
-        if args.protonate and args.protonate != 'all':
-            if ':' not in args.protonate:
-                print(f"ERROR: Invalid --protonate value '{args.protonate}'.",
-                      file=sys.stderr)
-                sys.exit(1)
-            for spec in args.protonate.split(','):
-                parts = spec.split(':')
-                if len(parts) == 3:
-                    state = parts[2].upper()
-                    state = _NAME_TO_AMBER.get(state, state)
-                    if state in _AMBER_VARIANTS:
-                        prot_overrides[(parts[0], int(parts[1]))] = state
-        for his_spec in args.his:
-            parts = his_spec.split(':')
-            if len(parts) == 3:
-                state = parts[2].upper()
-                state = _NAME_TO_AMBER.get(state, state)
-                if state in _AMBER_VARIANTS:
-                    prot_overrides[(parts[0], int(parts[1]))] = state
-
-        if args.output:
-            out_dir = Path(args.output).parent or Path('.')
-            basename = Path(args.output).stem
-        else:
-            out_dir = input_path.parent or Path('.')
-            basename = input_path.stem
-
-        export_gromacs(input_path, out_dir, basename=basename,
-                       extra_ss=extra_ss or None,
-                       prot_overrides=prot_overrides or None,
-                       verbose=args.verbose,
-                       keep_all_hydrogens=args.keep_all_hydrogens)
+        from dvbfixer.top.acpype import run_acpype_mode
+        run_acpype_mode(input_path, args)
         return
 
     # Determine FF directory
