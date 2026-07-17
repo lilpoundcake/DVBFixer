@@ -67,3 +67,32 @@ Same ACPYPE pipeline as `dvbfixer top --acpype`: OpenMM parametrization -> ParmE
 - [`top`](top.md) — `--acpype` provides the same GROMACS export pipeline for stand-alone structures
 - [`prepare`](prepare.md) — run before `transplant` to clean up the acceptor
 - [BEST_PRACTICES.md](../../BEST_PRACTICES.md) — full GLYCAM-Web glycoprotein workflow recipe
+
+## How it works
+Transplants molecules from a graft PDB into an acceptor PDB, with optional AMBER+GLYCAM energy minimization. Designed for the GLYCAM glycoprotein workflow: extract glycosylation site residues → submit to GLYCAM-Web → transplant back with glycans attached. Also works with CHARMM-GUI output via simple transplant mode (`--donor` + `--select`) to copy glycan chains or other molecules.
+
+**Graft workflow** (`--donor` + `--graft`):
+1. `--donor`: original protein residues extracted from acceptor (e.g. ASN307/SER308/THR309). Identifies which residues to replace and provides CA atoms for alignment.
+2. `--graft`: GLYCAM output with renamed protein residues (NLN/OLS/OLT) + glycan trees (UYB/4YB/VMB etc.)
+3. Kabsch superposition aligns donor→acceptor; same transform applied to graft
+4. Donor residues removed from acceptor, graft protein residues inserted at correct positions, glycans appended
+5. CONECT records remapped via (chain, resseq, atomname) identity matching (not serial numbers, which collide between sources)
+6. `_renumber_graft()` detects resseq backward jumps in non-protein residues and assigns different chain IDs per segment (prevents duplicate residue numbers when multiple glycan trees share a graft chain)
+
+**Simple transplant** (`--donor` + `--select`, no `--graft`): copies selected chains/residues from donor to acceptor with alignment. Auto-remaps chain IDs on collision.
+
+**`--relax` minimization** with AMBER14 + GLYCAM_06j-1 force fields:
+- Preprocessing: CYS→CYX for disulfide bonds (detected from CONECT), strip H from GLYCAM protein residues (NLN/OLS/OLT), remove spurious terminal atoms (OXT/H2/H3) from mid-chain graft residues
+- Adds intra-residue bonds for GLYCAM residues from FF templates (OpenMM PDBFile doesn't infer bonds for non-standard residues)
+- Adds peptide bonds for GLYCAM protein residues (NLN-to-neighbor)
+- Loads `glycam-hydrogens.xml`, calls `Modeller.addHydrogens()` to restore stripped H
+- 4-stage minimization: k=1000→100→10→0 kJ/mol/nm² restraints on protein heavy atoms; glycans move freely
+- Configurable via `--relax-stages k1:iter1,k2:iter2,...`
+
+**GLYCAM protein residues:** NLN (glycosylated ASN, ND2 bonds to sugar), OLS (glycosylated SER), OLT (glycosylated THR). These have peptide backbone but OpenMM doesn't recognize them as amino acids — bonds must be added explicitly.
+
+**`--gromacs DIR`** exports GROMACS topology via ACPYPE pipeline:
+1. OpenMM parametrizes with AMBER14 + GLYCAM_06j-1 → System (no constraints, so ParmEd gets all bond types)
+2. ParmEd `load_topology()` → Structure → saves AMBER prmtop/inpcrd
+3. ACPYPE converts to GROMACS `.top`/`.gro` with per-pair 1-4 parameters via `[ pairs_nb ]` directive (solves mixed AMBER fudgeLJ=0.5 / GLYCAM fudgeLJ=1.0 scaling)
+4. Output: `topol.top`, `{stem}.gro`, `posre_{stem}.itp` in target directory. `topol.top` includes `#ifdef POSRES` / `#include "posre_{stem}.itp"` / `#endif` and water/ion moleculetypes.

@@ -30,3 +30,6 @@ dvbfixer puppet input.pdb -o backbone.pdb
 ## See also
 
 - [Command index](index.md)
+
+## How it works
+Strips PDB to backbone-only polyglycine model. Removes all non-ATOM lines, keeps only backbone atoms (N, CA, C, O, OXT), renames all residues to GLY. `--keep CHAIN:NUM` preserves specific residues intact (all atoms, original name) — accepts single, range (`A:100-110`), list (`A:100,105`), or mixed, repeatable. No dependencies beyond stdlib.

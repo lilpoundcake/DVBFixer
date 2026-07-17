@@ -54,3 +54,13 @@ dvbfixer split input.pdb --no-renumber
 - [`renumber`](renumber.md) — SEQRES-based residue renumbering after chain splitting
 - [`model`](model.md) — rebuild missing loops in the split structure
 - [`zbs`](zbs.md) — full pipeline that includes splitting + renumbering + modeling
+
+## How it works
+Splits chains in PDB or GRO files lacking chain IDs (e.g. GROMACS output). GRO files are converted to PDB via MDAnalysis (preserves all residue names including protonation variants like GLUP, ASPP). Water, ions, and buffer particles (BUF/BUFF) are stripped before chain detection to prevent false breaks (`--keep-water` re-appends them). Three detection criteria:
+1. Residue number backward jump (insertion codes handled — equal resSeq with different iCode is NOT a break)
+2. C->N peptide bond distance > 2.5 A (any residue with backbone C/N atoms — no name-based filtering)
+3. Nearest-atom gap > 15 A (fallback for residues lacking C/N backbone atoms: sugars, ligands)
+
+**Multi-MODEL handling** (`find_model_blocks` + `_process_multi_model`): when the input contains multiple MODEL/ENDMDL records (multi-state PDB, NMR ensemble, GROMACS trajectory dumped with MODEL records), each MODEL is the SAME complex sampled at different states. Per-MODEL chain signatures (atom count + residue count + first/last resname per chain) are compared across MODELs; when all match, every MODEL is rewritten with the SAME chain IDs (A B C in MODEL 1, A B C in MODEL 2, …) instead of cascading (A B C / D E F / G H I). If MODELs differ structurally the tool falls back to per-MODEL independent chain IDs with a warning. Atom serials reset within each MODEL (standard PDB convention); TER records inserted between chains in every MODEL.
+
+**Small-molecule threshold** (`--max-chains`, default 26): when total detected chains > threshold, only PROTEIN chains get chain IDs from `CHAIN_IDS`; small-molecule chains (ions, ligands, lipids, single-residue HETATMs, glycan trees) keep blank chain ID. Classification via `_classify_chains` (per-chain ≥ 50% standard-AA residues = protein; STANDARD_RESIDUES now also includes AMBER protonation variants HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN, GLYCAM NLN/OLS/OLT, and MSE). `_assign_chain_ids` returns the per-chain ID list honouring the threshold. Applies to both single-block and multi-MODEL paths. Protein-chain count above `len(CHAIN_IDS)` (62) still aborts with an error.
