@@ -231,7 +231,13 @@ def restore_variants_post_addhydrogens(
             res.name = saved[key_text]  # type: ignore[index]
             continue
         # Match on chain+resseq ignoring icode as a last-resort fallback.
-        for (c, r, _i), name in saved.items():  # type: ignore[misc]
+        # Callers routinely merge text-shape (3-tuple) keys into
+        # topology-shape (2-tuple) dicts, so skip 2-tuples here — those
+        # were already covered by the direct lookup on line 226.
+        for key, name in saved.items():
+            if not (isinstance(key, tuple) and len(key) == 3):
+                continue
+            c, r, _i = key
             if isinstance(r, str) and c == res.chain.id and r == str(res.id):
                 res.name = name
                 break
