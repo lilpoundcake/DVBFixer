@@ -1,0 +1,921 @@
+"""Energy-minimize a PDB structure with OpenMM using selective restraints.
+
+Reads a .dat file (from 'dvbfixer prepare') to determine which atoms were
+added by PDBFixer. Original atoms get strong positional restraints while
+newly added atoms are free to relax into physically reasonable positions.
+
+Three-tier restraint system:
+  - Original heavy atoms: strong restraint (default 100 kcal/mol/A^2)
+  - New backbone (N, CA, C, O, CB): weak restraint (default 5 kcal/mol/A^2)
+  - New sidechain + all hydrogens: free (no restraint)
+
+Minimization runs in two phases:
+  1. Full restraints (default 1000 iterations)
+  2. Restraints reduced 10x (default 1000 iterations)
+"""
+
+import sys
+from pathlib import Path
+
+from openmm import CustomExternalForce, LangevinMiddleIntegrator
+from openmm.app import PME, ForceField, Modeller, PDBFile, Simulation
+from openmm.unit import kelvin, nanometer, picosecond
+
+from dvbfixer.ffutils.variants import AMBER_VARIANTS, scan_variant_names
+from dvbfixer.minimize.cli import BACKBONE_NAMES, parse_args
+from dvbfixer.minimize.refine import (
+    _rigid_track_glycan_trees,
+    refine_with_obminimize,
+    refine_with_xtb,
+)
+
+# ---------------------------------------------------------------------------
+# .dat file loading
+# ---------------------------------------------------------------------------
+
+def load_dat(path):
+    """Load a ``.dat`` file, return set of (chain, resid, icode, atom_name).
+
+    Delegates to :func:`dvbfixer.ffutils.dat.load_added_keys` — schema
+    lives there.
+    """
+    from dvbfixer.ffutils.dat import load_added_keys
+    return load_added_keys(path)
+
+
+def resolve_new_atom_indices(topology, added_keys, verbose=False):
+    """Match (chain, resid, icode, atom_name) keys from .dat against a topology.
+    Returns set of atom indices that are 'new' (added by PDBFixer).
+    """
+    normalized_keys = {(c, r, ic.strip(), a) for c, r, ic, a in added_keys}
+
+    indices = set()
+    matched_keys = set()
+    for atom in topology.atoms():
+        res = atom.residue
+        key = (res.chain.id, res.id, res.insertionCode.strip(), atom.name)
+        if key in normalized_keys:
+            indices.add(atom.index)
+            matched_keys.add(key)
+
+    unmatched = normalized_keys - matched_keys
+    if unmatched and verbose:
+        print(f"  {len(unmatched)} atoms from .dat not in topology "
+              f"(hydrogens are re-added during minimization)")
+
+    return indices
+
+
+# ---------------------------------------------------------------------------
+# Restraints & minimization
+# ---------------------------------------------------------------------------
+
+def build_restraint_force(topology, positions, new_atom_indices, strong_k, weak_k):
+    """Build a CustomExternalForce with positional restraints.
+
+    - Protein original heavy atoms: strong restraint to initial position
+    - Newly added backbone atoms: weak restraint (keeps loop shape reasonable)
+    - Newly added sidechain atoms & all hydrogens: no restraint (free to move)
+    - Heterogen heavy atoms (sugars, ligands): NO restraint — free to refine
+      (BioLuminate-style: protein is fixed-ish, ligands relax)
+    """
+    from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
+    known = PROTEIN_RESIDUES | SOLVENT_IONS
+
+    # 1 kcal/mol/A^2 = 418.4 kJ/mol/nm^2
+    conv = 418.4
+
+    force = CustomExternalForce("0.5*k*((x-x0)^2+(y-y0)^2+(z-z0)^2)")
+    force.addPerParticleParameter("k")
+    force.addPerParticleParameter("x0")
+    force.addPerParticleParameter("y0")
+    force.addPerParticleParameter("z0")
+
+    n_strong = 0
+    n_weak = 0
+    n_free = 0
+
+    for atom in topology.atoms():
+        pos = positions[atom.index]
+        x0 = pos[0].value_in_unit(nanometer)
+        y0 = pos[1].value_in_unit(nanometer)
+        z0 = pos[2].value_in_unit(nanometer)
+
+        is_hydrogen = atom.element.symbol == 'H'
+        is_new = atom.index in new_atom_indices
+        is_heterogen = atom.residue.name not in known
+
+        if is_hydrogen or is_heterogen:
+            # All H atoms and all heterogen heavy atoms are free
+            n_free += 1
+            continue
+        elif not is_new:
+            k = strong_k * conv
+            force.addParticle(atom.index, [k, x0, y0, z0])
+            n_strong += 1
+        elif atom.name in BACKBONE_NAMES:
+            k = weak_k * conv
+            force.addParticle(atom.index, [k, x0, y0, z0])
+            n_weak += 1
+        else:
+            n_free += 1
+
+    return force, n_strong, n_weak, n_free
+
+
+def _has_hydrogens(topology):
+    """Check if topology already contains hydrogen atoms."""
+    return any(a.element.symbol == 'H' for a in topology.atoms())
+
+
+def _read_amber_renames(pdb_path):
+    """Read PDB text to find AMBER protonation names before OpenMM normalizes them.
+
+    Wraps the shared ``ffutils.variants.scan_variant_names`` scanner and
+    projects its ``(chain, resseq, icode)`` keys down to the legacy
+    ``(chain, resseq)`` shape that this module's callers use. Filters out
+    CHARMM-only variants (HSD/HSE/HSP/ASPP/GLUP/LSN) — minimize's
+    downstream ``addHydrogens`` path only knows AMBER variant names.
+    """
+    saved = scan_variant_names(pdb_path)
+    renames = {}
+    for (chain, resseq, _icode), name in saved.items():
+        if name in AMBER_VARIANTS:
+            renames[(chain, resseq)] = name
+    return renames
+
+
+def _build_variants(topology, amber_renames):
+    """Build variants list from AMBER renames dict.
+
+    Returns list of variant names (or None) for each residue, suitable for
+    Modeller.addHydrogens(variants=...).
+    """
+    if not amber_renames:
+        return None
+    variants = []
+    has_any = False
+    for res in topology.residues():
+        key = (res.chain.id, res.id)
+        if key in amber_renames:
+            variants.append(amber_renames[key])
+            has_any = True
+        else:
+            variants.append(None)
+    return variants if has_any else None
+
+
+def _get_known_residues():
+    from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
+    return PROTEIN_RESIDUES | SOLVENT_IONS
+
+
+def _strip_hetatm(topology, positions):
+    """Remove non-protein/solvent/ion residues. Returns (new_top, new_pos).
+
+    Also renames GLYCAM glycoprotein residues (NLN/OLS/OLT) back to their
+    standard parents (ASN/SER/THR) — they have no template in the standard
+    AMBER19 protein FF. The protein-glycan bond would be missing afterward
+    but the residue stays mid-chain; addHydrogens/PDBFixer will add the
+    missing HD22/HG/HG1 to make the standard template match.
+    """
+    from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
+    _GLYCAM_BACK = {'NLN': 'ASN', 'OLS': 'SER', 'OLT': 'THR'}
+    known = PROTEIN_RESIDUES | SOLVENT_IONS
+    to_delete = [res for res in topology.residues() if res.name not in known]
+
+    # Rename NLN/OLS/OLT in topology so the standard AMBER template matches.
+    for res in topology.residues():
+        if res.name in _GLYCAM_BACK:
+            res.name = _GLYCAM_BACK[res.name]
+
+    if not to_delete:
+        return topology, positions
+
+    modeller = Modeller(topology, positions)
+    modeller.delete(to_delete)
+    return modeller.topology, modeller.positions
+
+
+def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
+    """Set up system with solvent, apply selective restraints, minimize.
+
+    Two modes:
+    - keep_heterogens (default): minimize the whole system (protein + sugars +
+      ligands) using the resolved --ff (AMBER + GLYCAM for glycoproteins,
+      CHARMM36 for CHARMM inputs, plus any per-ligand GAFF2 templates
+      registered via --parametrize-ligands). Heterogens not in .dat get no
+      restraint (free to relax).
+    - strip-heterogens (legacy): strip non-protein/non-solvent residues
+      before parametrization and restore with original coordinates
+      afterward.
+    """
+    from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
+
+    if args.keep_heterogens:
+        stripped_top = topology
+        stripped_pos = positions
+        n_stripped = 0
+        stripped_new_indices = set(new_atom_indices)
+    else:
+        # Legacy: strip non-protein HETATM
+        stripped_top, stripped_pos = _strip_hetatm(topology, positions)
+        n_stripped = sum(1 for _ in topology.residues()) - sum(1 for _ in stripped_top.residues())
+        if n_stripped > 0:
+            print(f"Stripped {n_stripped} non-protein residues for minimization")
+            # The stripped heterogens will be spliced back at their ORIGINAL
+            # coords after the protein-only minimize. Warn about the
+            # inevitable interface strain and point at the higher-fidelity
+            # path (--parametrize-ligands) so users don't take the artifact
+            # for a real signal.
+            print(
+                "WARNING: heterogens will be restored at their INPUT "
+                "coordinates while the protein has moved during minimization. "
+                "Protein-ligand interface geometry (H-bonds, contacts) may "
+                "be strained. For proper interface geometry re-run with "
+                "`dvbfixer minimize --parametrize-ligands` instead (real "
+                "GAFF2 templates for the ligand; whole system optimised "
+                "together)."
+            )
+        # Remap new_atom_indices to stripped topology
+        known = PROTEIN_RESIDUES | SOLVENT_IONS
+        old_to_new = {}
+        new_idx = 0
+        for atom in topology.atoms():
+            if atom.residue.name in known:
+                old_to_new[atom.index] = new_idx
+                new_idx += 1
+        stripped_new_indices = {old_to_new[i] for i in new_atom_indices if i in old_to_new}
+
+    print("Loading force field...")
+    # Check if there are heterogens — if so and keep_heterogens, use glycan-aware FF
+    has_heterogens = args.keep_heterogens and any(
+        res.name not in (PROTEIN_RESIDUES | SOLVENT_IONS)
+        for res in stripped_top.residues()
+    )
+
+    # --parametrize-ligands: build GAFF2 templates for unknown ligands and
+    # register them on the ForceField below via extra_generators. Strict mode:
+    # any failure raises LigandParamError (propagated to main); we do NOT
+    # silently fall back to strip-heterogens when the user explicitly asked
+    # for parametrisation.
+    if has_heterogens and getattr(args, 'parametrize_ligands', False):
+        from openmm.app import ForceField as _FF
+        base_templates = set(_FF(*args.ff)._templates)
+        from dvbfixer.lig_params import build_ligand_generator
+        _lig_gen = build_ligand_generator(
+            stripped_top, stripped_pos, base_templates,
+            strict=True, verbose=args.verbose,
+        )
+        args._ligand_generators = [_lig_gen] if _lig_gen else None
+
+    if has_heterogens:
+        from dvbfixer.ffutils import create_forcefield_with_openff
+        # Loads the resolved --ff XMLs and prunes GLYCAM sugar/NA templates
+        # that would fuzzy-match PDB-named sugars to the wrong entry. Any
+        # GAFF2 ligand templates from --parametrize-ligands are appended
+        # via extra_generators (see below).
+        forcefield = create_forcefield_with_openff(
+            args.ff, stripped_top,
+            extra_generators=getattr(args, '_ligand_generators', None),
+            verbose=args.verbose,
+        )
+    else:
+        forcefield = ForceField(*args.ff)
+
+    modeller = Modeller(stripped_top, stripped_pos)
+
+    # Detect SS bonds from CONECT in input PDB and force CYX template for
+    # those residues. Without this, GLYCAM FF triggers CYS/CYX/CYM ambiguity
+    # since CYS in SS bonds has no HG (looks like CYM).
+    ss_cys = set()
+    if has_heterogens:
+        try:
+            from dvbfixer.acpype_export import detect_ss_bonds
+            # We need the input PDB path for CONECT inspection.
+            ss_cys = detect_ss_bonds(args.input)
+            if ss_cys and args.verbose:
+                print(f"  Detected {len(ss_cys)} CYS in SS bonds → CYX")
+        except Exception as e:
+            if args.verbose:
+                print(f"  SS detection skipped: {e}")
+    for res in modeller.topology.residues():
+        if res.name == 'CYS' and (res.chain.id, int(res.id)) in ss_cys:
+            res.name = 'CYX'
+
+    # Rename all HIS to explicit variants before any OpenMM operation.
+    # OpenMM's template matching and auto-detection crash on ambiguous HIS.
+    for res in modeller.topology.residues():
+        if res.name == 'HIS':
+            atom_names = {a.name for a in res.atoms()}
+            if 'HD1' in atom_names and 'HE2' in atom_names:
+                res.name = 'HIP'
+            elif 'HD1' in atom_names:
+                res.name = 'HID'
+            elif 'HE2' in atom_names:
+                res.name = 'HIE'
+            elif 'ND1' in atom_names and 'NE2' not in atom_names:
+                res.name = 'HID'
+            elif 'NE2' in atom_names and 'ND1' not in atom_names:
+                res.name = 'HIE'
+            else:
+                res.name = 'HIE'  # default
+
+    # OpenMM's Modeller.addHydrogens looks up `res.name` in its internal
+    # `_residueHydrogens` dict — keyed by the standard residue name ("LYS",
+    # "HIS", "CYS"), not by AMBER variant names ("LYN", "HID", "HIE", ...).
+    # A topology residue with `res.name = "LYN"` is silently SKIPPED by
+    # addHydrogens — no H atoms get added — and the next createSystem then
+    # fails with "No template found for residue (LYN). ... missing N H atoms".
+    # Rename variant residues to their parent names before addHydrogens and
+    # restore the original names afterwards.
+    _VARIANT_TO_PARENT = {
+        'LYN': 'LYS', 'CYX': 'CYS', 'CYM': 'CYS',
+        'HID': 'HIS', 'HIE': 'HIS', 'HIP': 'HIS',
+        'ASH': 'ASP', 'GLH': 'GLU',
+    }
+
+    def _rename_variants_to_parent(top):
+        """Rename variant residues to parent so addHydrogens recognises them.
+        Returns dict {(chain_id, res_id): original_name} for the post-pass —
+        residue refs in the OLD topology are stale after addHydrogens (which
+        rebuilds the topology entirely).
+        """
+        saved = {}
+        for res in top.residues():
+            if res.name in _VARIANT_TO_PARENT:
+                saved[(res.chain.id, res.id)] = res.name
+                res.name = _VARIANT_TO_PARENT[res.name]
+        return saved
+
+    def _restore_variants_in_topology(top, saved):
+        for res in top.residues():
+            key = (res.chain.id, res.id)
+            if key in saved:
+                res.name = saved[key]
+
+    def _fix_lyn_hz_naming(top, saved):
+        """OpenMM's hydrogens.xml gates HZ3 by variant="LYS", so addHydrogens
+        with variant=LYN produces HZ1+HZ2 — but the AMBER LYN template expects
+        HZ2+HZ3. Rename HZ1 → HZ3 on every LYN residue (chemically equivalent).
+        Uses `saved` to identify which residues started life as LYN, since
+        `res.name` may still be "LYS" at call time.
+        """
+        for res in top.residues():
+            key = (res.chain.id, res.id)
+            if saved.get(key) != 'LYN':
+                continue
+            for atom in res.atoms():
+                if atom.name == 'HZ1':
+                    atom.name = 'HZ3'
+                    break
+
+    # Default: keep existing hydrogens. --rebuild-h strips and re-adds via OpenMM.
+    keep_h = not args.rebuild_h
+    if keep_h:
+        # Always run PDBFixer to detect and fix missing atoms (heavy + H).
+        # Even in keep_h mode, mutated residues may have incomplete sidechains
+        # (e.g. LYS from VAL mutation missing CE + H atoms).
+        import tempfile as _tf
+
+        from pdbfixer import PDBFixer as _PDBFixer
+        with _tf.NamedTemporaryFile(mode='w', suffix='.pdb',
+                                    delete=False) as _tmp:
+            PDBFile.writeFile(modeller.topology, modeller.positions,
+                              _tmp, keepIds=True)
+            _tmp_path = _tmp.name
+        try:
+            with open(_tmp_path) as _f:
+                _fixer = _PDBFixer(pdbfile=_f)
+        finally:
+            Path(_tmp_path).unlink()
+        _fixer.findMissingResidues()
+        _fixer.findMissingAtoms()
+        n_missing = sum(len(v) for v in _fixer.missingAtoms.values())
+        n_terminals = sum(len(v) for v in _fixer.missingTerminals.values())
+        if n_missing or n_terminals:
+            print(f"Fixing {n_missing} missing atom(s), {n_terminals} terminal(s)...")
+            _fixer.addMissingAtoms()
+            _fixer.addMissingHydrogens(args.ph)
+            modeller = Modeller(_fixer.topology, _fixer.positions)
+        elif not _has_hydrogens(modeller.topology):
+            print("No hydrogens found, adding them...")
+            variants = _build_variants(modeller.topology, amber_renames)
+            _saved = _rename_variants_to_parent(modeller.topology)
+            try:
+                if variants:
+                    modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+                else:
+                    modeller.addHydrogens(forcefield, pH=args.ph)
+            finally:
+                _fix_lyn_hz_naming(modeller.topology, _saved)
+                _restore_variants_in_topology(modeller.topology, _saved)
+        else:
+            # Per-residue H check: PDBFixer's findMissingAtoms only counts
+            # heavy atoms, so a protein residue with all its heavy atoms but
+            # zero H (e.g. a user-edited LYN with no hydrogens; common after
+            # text-level renaming tools like `dvbfixer glycam` or after a
+            # mutation that didn't run addHydrogens) won't trigger the
+            # branch above. createSystem then fails with a "template X does
+            # not match residue Y" error. Detect this case and run
+            # addHydrogens with variants — OpenMM only adds missing H, so
+            # existing H on other residues are untouched.
+            from dvbfixer.ffutils import PROTEIN_RESIDUES as _PR
+            no_h_residues = []
+            for res in modeller.topology.residues():
+                if res.name not in _PR:
+                    continue
+                if res.name == 'PRO':
+                    # Proline has no backbone H — skip
+                    expected_min = 1   # at least HA / HB
+                else:
+                    expected_min = 1
+                h_count = sum(1 for a in res.atoms() if a.element.symbol == 'H')
+                heavy_count = sum(1 for a in res.atoms() if a.element.symbol != 'H')
+                # A protein residue with heavy atoms but ZERO hydrogens is
+                # clearly de-protonated by accident; addHydrogens will fix
+                # only those (preserves H on already-protonated residues).
+                if heavy_count > 1 and h_count < expected_min:
+                    no_h_residues.append(res)
+            if no_h_residues:
+                print(f"  {len(no_h_residues)} protein residue(s) missing all "
+                      f"H atoms (e.g. {no_h_residues[0].chain.id}:"
+                      f"{no_h_residues[0].name}{no_h_residues[0].id}) — "
+                      f"running addHydrogens to fill them in")
+                variants = _build_variants(modeller.topology, amber_renames)
+                _saved = _rename_variants_to_parent(modeller.topology)
+                try:
+                    if variants:
+                        modeller.addHydrogens(forcefield, pH=args.ph,
+                                              variants=variants)
+                    else:
+                        modeller.addHydrogens(forcefield, pH=args.ph)
+                finally:
+                    _fix_lyn_hz_naming(modeller.topology, _saved)
+                    _restore_variants_in_topology(modeller.topology, _saved)
+            else:
+                print("Keeping existing hydrogens from input")
+    else:
+        # Strip H, fix any missing heavy atoms via PDBFixer, then re-add correct H.
+        # addHydrogens adds correct H for every residue, so stripping is safe.
+        h_to_delete = [a for a in modeller.topology.atoms() if a.element.symbol == 'H']
+        if h_to_delete:
+            modeller.delete(h_to_delete)
+
+        # Use PDBFixer to detect and add any missing heavy atoms
+        import tempfile as _tf
+
+        from pdbfixer import PDBFixer as _PDBFixer
+        with _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False) as _tmp:
+            PDBFile.writeFile(modeller.topology, modeller.positions, _tmp, keepIds=True)
+            _tmp_path = _tmp.name
+        try:
+            with open(_tmp_path) as _f:
+                _fixer = _PDBFixer(pdbfile=_f)
+        finally:
+            Path(_tmp_path).unlink()
+        _fixer.findMissingResidues()
+        _fixer.findMissingAtoms()
+        n_missing = sum(len(v) for v in _fixer.missingAtoms.values())
+        n_terminals = sum(len(v) for v in _fixer.missingTerminals.values())
+        if n_missing or n_terminals:
+            print(f"Fixing {n_missing} missing atom(s), {n_terminals} terminal(s)")
+        _fixer.addMissingAtoms()
+        modeller = Modeller(_fixer.topology, _fixer.positions)
+
+        print(f"Adding hydrogens (pH {args.ph})...")
+        variants = _build_variants(modeller.topology, amber_renames)
+        if variants:
+            n_var = sum(1 for v in variants if v is not None)
+            print(f"  {n_var} AMBER protonation variants detected")
+        _saved = _rename_variants_to_parent(modeller.topology)
+        try:
+            if variants:
+                modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+            else:
+                modeller.addHydrogens(forcefield, pH=args.ph)
+        finally:
+            _fix_lyn_hz_naming(modeller.topology, _saved)
+            _restore_variants_in_topology(modeller.topology, _saved)
+
+    # When keeping heterogens with GLYCAM, OpenMM's PDBFile doesn't infer
+    # intra-residue bonds for GLYCAM residues (NLN/OLS/OLT + sugars).
+    # add_glycam_bonds populates them from FF templates.
+    if has_heterogens:
+        try:
+            from dvbfixer.acpype_export import add_glycam_bonds
+            add_glycam_bonds(modeller.topology, forcefield, args.verbose,
+                              positions=modeller.positions)
+        except Exception as e:
+            if args.verbose:
+                print(f"  add_glycam_bonds skipped: {e}")
+
+    # Build residueTemplates for protein variants only (CYX, HIE/HID/HIP, LYN).
+    # Avoids GLYCAM FF template ambiguity (e.g. CYS without HG matches both
+    # CYM and CYX). Sugars are left to auto-match — forcing them is too risky
+    # since PDB sugar names like BGL may exist in GLYCAM with different atoms.
+    # Built before pre-solvent check so the check uses the same disambiguation
+    # as the real createSystem (otherwise pre-check fails on CYX/CYM and
+    # triggers an unnecessary fallback to legacy strip-and-splice).
+    res_templates = {}
+    if has_heterogens:
+        n_term_keys = set()
+        c_term_keys = set()
+        for chain in modeller.topology.chains():
+            rl = list(chain.residues())
+            if rl:
+                n_term_keys.add((chain.id, int(rl[0].id)))
+                c_term_keys.add((chain.id, int(rl[-1].id)))
+        for res in modeller.topology.residues():
+            if res.name not in ('CYX', 'HIE', 'HID', 'HIP', 'LYN'):
+                continue
+            try:
+                key = (res.chain.id, int(res.id))
+            except (ValueError, TypeError):
+                continue
+            is_terminal = key in n_term_keys or key in c_term_keys
+            if is_terminal:
+                term_name = ('N' if key in n_term_keys else 'C') + res.name
+                if term_name in forcefield._templates:
+                    res_templates[res] = term_name
+                    continue
+            if res.name in forcefield._templates:
+                res_templates[res] = res.name
+
+    # If heterogens are present, pre-validate they can be parametrized
+    # before addSolvent (which internally calls createSystem and would
+    # propagate an uncaught NAG-template error). On failure, fall through
+    # to the legacy strip-and-splice path before any solvent is placed.
+    if has_heterogens and not args.no_solvent:
+        try:
+            from openmm.app import NoCutoff
+            forcefield.createSystem(modeller.topology, nonbondedMethod=NoCutoff,
+                                    ignoreExternalBonds=True,
+                                    residueTemplates=res_templates)
+        except Exception as e:
+            from dvbfixer.ffutils import explain_template_error
+            diag = explain_template_error(e, modeller.topology, forcefield)
+            print(f"\nWARNING: pre-solvent parametrization failed:\n  {e}\n")
+            if diag:
+                for line in diag.split('\n'):
+                    print(f"  {line}")
+                print()
+            print("  → falling back to --strip-heterogens flow.")
+            print("    NOTE: heterogens will be restored at their INPUT "
+                  "coords while the protein moves during minimize, so the "
+                  "interface geometry may be strained. For proper interface "
+                  "geometry re-run with `--parametrize-ligands` (real GAFF2 "
+                  "templates for the ligand; whole system optimised "
+                  "together).\n")
+            import argparse as _ap
+            legacy_args = _ap.Namespace(**vars(args))
+            legacy_args.keep_heterogens = False
+            legacy_args.rebuild_h = True
+            out_top, out_pos = minimize(topology, positions, new_atom_indices,
+                                         legacy_args, amber_renames=amber_renames)
+            # Rigid-tracking inside the inner minimize already aligned the
+            # glycan tree to the post-min anchor and snapped the linkage atom
+            # to its ideal trigonal-planar position. Calling
+            # _restore_glycosylated_h here would overwrite the post-min amide
+            # with stale prep coords and break that alignment.
+            return out_top, out_pos
+
+    if not args.no_solvent:
+        print("Adding solvent...")
+        modeller.addSolvent(forcefield, model='tip3p',
+                            padding=args.padding * nanometer)
+
+    print("Creating system...")
+    from openmm.app import NoCutoff
+    nbm = NoCutoff if args.no_solvent else PME
+    try:
+        if has_heterogens:
+            system = forcefield.createSystem(modeller.topology, nonbondedMethod=nbm,
+                                             ignoreExternalBonds=True,
+                                             residueTemplates=res_templates)
+        else:
+            system = forcefield.createSystem(modeller.topology, nonbondedMethod=nbm)
+    except (ValueError, Exception) as e:
+        if not has_heterogens:
+            # Protein-only path — no auto-fallback available. Surface
+            # `explain_template_error` so the user sees the specific
+            # chain/resseq/atom-set (OpenMM's raw message uses topology
+            # index which is useless for debugging), plus a hint about
+            # the two most common causes on this path.
+            from dvbfixer.ffutils import explain_template_error
+            diag = explain_template_error(e, modeller.topology, forcefield)
+            print(f"\nERROR: minimize createSystem failed:\n  {e}\n",
+                  file=sys.stderr)
+            if diag:
+                for line in diag.split('\n'):
+                    print(f"  {line}", file=sys.stderr)
+            print(
+                "\n  Common causes on the protein-only path:\n"
+                "    - CONECT record (in the input PDB or added by\n"
+                "      dvbfixer's auto-inference) linked an unrelated\n"
+                "      atom into the residue's external bonds.\n"
+                "    - An upstream tool changed the topology so a\n"
+                "      standard AA now has an unexpected neighbour.\n"
+                "  Re-run with --no-infer-conect to bypass the\n"
+                "  CONECT-inference layer and confirm which side is\n"
+                "  at fault.\n",
+                file=sys.stderr)
+            raise
+        # Heterogen parametrization failed (e.g. PDB-named sugars without H).
+        # Auto-fall back to legacy strip-and-restore flow with --rebuild-h
+        # forced so addHydrogens fills in any missing H on renamed NLN→ASN etc.
+        from dvbfixer.ffutils import explain_template_error
+        diag = explain_template_error(e, modeller.topology, forcefield)
+        print(f"\nWARNING: whole-system parametrization failed:\n  {e}\n")
+        if diag:
+            for line in diag.split('\n'):
+                print(f"  {line}")
+            print()
+        print("  → falling back to --strip-heterogens flow "
+              "(heterogens kept in output with original coords).")
+        print("    NOTE: heterogens will be restored at their INPUT coords "
+              "while the protein moves during minimize, so the interface "
+              "geometry may be strained. For proper interface geometry "
+              "re-run with `--parametrize-ligands` (real GAFF2 templates "
+              "for the ligand; whole system optimised together).\n")
+        import argparse as _ap
+        legacy_args = _ap.Namespace(**vars(args))
+        legacy_args.keep_heterogens = False
+        legacy_args.rebuild_h = True
+        out_top, out_pos = minimize(topology, positions, new_atom_indices, legacy_args,
+                                     amber_renames=amber_renames)
+        # Rigid-tracking inside the inner minimize already aligned the
+        # glycan tree to the post-min anchor and snapped the linkage atom
+        # to its ideal trigonal-planar position. Calling
+        # _restore_glycosylated_h here would overwrite the post-min amide
+        # (CG/OD1/ND2/HD21) with stale prep coords, breaking the bond
+        # to the rigid-tracked glycan. Skip it.
+        return out_top, out_pos
+
+    restraint, n_strong, n_weak, n_free = build_restraint_force(
+        modeller.topology, modeller.positions,
+        stripped_new_indices, args.restraint_k, args.weak_k
+    )
+    system.addForce(restraint)
+    print(f"Restraints: {n_strong} strong (original), {n_weak} weak (new backbone), {n_free} free")
+
+    integrator = LangevinMiddleIntegrator(300 * kelvin, 1.0 / picosecond, 0.002 * picosecond)
+
+    if args.platform:
+        from openmm import Platform
+        platform = Platform.getPlatformByName(args.platform)
+        simulation = Simulation(modeller.topology, system, integrator, platform)
+    else:
+        simulation = Simulation(modeller.topology, system, integrator)
+
+    simulation.context.setPositions(modeller.positions)
+
+    state = simulation.context.getState(getEnergy=True)
+    print(f"Energy before minimization: {state.getPotentialEnergy()}")
+
+    # Phase 1: full restraints
+    print(f"Minimizing (phase 1: {args.max_iter} iterations, original atoms restrained)...")
+    simulation.minimizeEnergy(maxIterations=args.max_iter)
+
+    state = simulation.context.getState(getEnergy=True)
+    print(f"Energy after phase 1: {state.getPotentialEnergy()}")
+
+    # Phase 2: 10x reduced restraints
+    print("Minimizing (phase 2: reduced restraints)...")
+    for i in range(restraint.getNumParticles()):
+        idx, params = restraint.getParticleParameters(i)
+        restraint.setParticleParameters(i, idx, [params[0] / 10.0, params[1], params[2], params[3]])
+    restraint.updateParametersInContext(simulation.context)
+
+    simulation.minimizeEnergy(maxIterations=args.max_iter)
+
+    state = simulation.context.getState(getEnergy=True, getPositions=True)
+    print(f"Energy after phase 2: {state.getPotentialEnergy()}")
+
+    min_topology = simulation.topology
+    min_positions = state.getPositions()
+
+    # Restore non-protein residues with original coordinates (legacy path only).
+    # When keep_heterogens is on, n_stripped==0 and we write the minimized topology directly.
+    if n_stripped > 0:
+        # Strip solvent from minimized result first
+        if not args.no_solvent:
+            min_topology, min_positions = strip_solvent(min_topology, min_positions)
+
+        # Merge: use minimized positions for protein atoms, original for HETATM
+        # Match by (chain, resid, atomname) since addHydrogens may have changed indices
+        import numpy as np
+        from openmm.unit import nanometer as nm_unit
+
+        # Build position lookup from minimized protein
+        min_pos_map = {}
+        for atom in min_topology.atoms():
+            res = atom.residue
+            key = (res.chain.id, res.id, atom.name)
+            min_pos_map[key] = min_positions[atom.index].value_in_unit(nm_unit)
+
+        # Build result: original positions, overwritten by minimized where available
+        n_atoms = len(positions)
+        result = np.zeros((n_atoms, 3))
+        for i in range(n_atoms):
+            result[i] = positions[i].value_in_unit(nm_unit)
+
+        n_updated = 0
+        for atom in topology.atoms():
+            res = atom.residue
+            key = (res.chain.id, res.id, atom.name)
+            if key in min_pos_map:
+                result[atom.index] = min_pos_map[key]
+                n_updated += 1
+
+        if args.verbose:
+            print(f"Restored: {n_updated} protein atoms updated, "
+                  f"{n_atoms - n_updated} HETATM atoms kept original")
+
+        # Rigid-body transform each glycan tree to follow its protein anchor.
+        # Without this, the protein ASN/SER/THR moves during minimization but
+        # the glycan stays at prep coordinates → ND2-C1 bond stretches and
+        # clashes appear between glycan and moved protein. We compute the
+        # Kabsch transform from prep→post-min anchor residue coords and apply
+        # it to every atom in the bonded glycan tree.
+        result = _rigid_track_glycan_trees(
+            topology, positions, result, min_pos_map, verbose=args.verbose,
+        )
+
+        return topology, result * nm_unit
+
+    return min_topology, min_positions
+
+
+def strip_solvent(topology, positions):
+    """Remove water and ions from the final structure."""
+    modeller = Modeller(topology, positions)
+    modeller.deleteWater()
+
+    ions_to_delete = []
+    for res in modeller.topology.residues():
+        if res.name.upper() in ('NA', 'CL', 'NA+', 'CL-', 'K', 'K+', 'MG', 'MG2+', 'CA2+'):
+            ions_to_delete.append(res)
+    if ions_to_delete:
+        modeller.delete(ions_to_delete)
+
+    return modeller.topology, modeller.positions
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main(argv=None):
+    args = parse_args(argv)
+    input_path = Path(args.input)
+    if not input_path.exists():
+        print(f"File not found: {input_path}", file=sys.stderr)
+        sys.exit(1)
+
+    output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_minimized")
+
+    if not args.no_infer_conect:
+        from dvbfixer.pdbutils import _materialise_inferred_pdb
+        input_path = Path(_materialise_inferred_pdb(
+            input_path, verbose=args.verbose))
+
+    # Resolve --ff short-name / auto-detect from input residue names.
+    from dvbfixer.ffutils import print_ff_selection, resolve_ff
+    args.ff, _ff_alias, _ff_reason = resolve_ff(
+        args.ff, args.input, verbose=args.verbose)
+    print_ff_selection(_ff_alias, _ff_reason, args.ff)
+
+    # .dat is optional: if --dat given, use it; otherwise auto-detect next
+    # to the USER'S input (args.input) — not the mutated `input_path`,
+    # which by now points at a /tmp/dvbfixer_conect_*.pdb temp file that
+    # obviously has no .dat sibling.
+    if args.dat:
+        dat_path = Path(args.dat)
+    else:
+        dat_path = Path(args.input).with_suffix(".dat")
+
+    if args.rename:
+        import tempfile as _tf
+
+        from dvbfixer.rename import canonicalize_pdb
+        _tmp = Path(_tf.mktemp(suffix='.pdb'))
+        n = canonicalize_pdb(input_path, _tmp, args.verbose)
+        if n > 0:
+            print(f"Canonicalized {n} non-canonical residue(s)")
+            input_path = _tmp
+        elif _tmp.exists():
+            _tmp.unlink()
+
+    print(f"=== Minimization: {input_path} ===")
+
+    # Read AMBER protonation names before OpenMM normalizes them
+    amber_renames = _read_amber_renames(str(input_path))
+    if amber_renames:
+        print(f"Detected {len(amber_renames)} AMBER protonation variants in input")
+
+    # Snapshot original GLYCAM residue names from the input PDB text. If the
+    # legacy strip-and-splice fallback fires inside minimize(), it renames
+    # NLN→ASN/OLS→SER/OLT→THR in place on the topology. Restore these on
+    # the final output so the GLYCAM input names survive end-to-end.
+    _glycam_orig_names = {}
+    try:
+        with open(input_path) as _gf:
+            for _line in _gf:
+                if not _line.startswith(('ATOM', 'HETATM')):
+                    continue
+                _rn = _line[17:20].strip()
+                if _rn in ('NLN', 'OLS', 'OLT'):
+                    _ch = _line[21]
+                    _seq = _line[22:26].strip()
+                    if _seq and _seq.lstrip('-').isdigit():
+                        _ic = _line[26].strip() if len(_line) > 26 else ''
+                        # Topology Residue.id is a string of the resSeq
+                        _glycam_orig_names[(_ch, _seq, _ic)] = _rn
+    except Exception:
+        pass
+
+    pdb = PDBFile(str(input_path))
+    topology = pdb.topology
+    positions = pdb.positions
+
+    # Load restraint data from .dat if available
+    if args.dat and not dat_path.exists():
+        print(f"Error: .dat file not found: {dat_path}", file=sys.stderr)
+        sys.exit(1)
+
+    if dat_path.exists():
+        added_keys = load_dat(dat_path)
+        new_atom_indices = resolve_new_atom_indices(topology, added_keys, args.verbose)
+
+        # Also load variant overrides from .dat (saved by prepare) — use the
+        # shared DatRecord to avoid re-parsing.
+        from dvbfixer.ffutils.dat import DatRecord
+
+        _dat = DatRecord.load(dat_path)
+        for key_str, var_name in (_dat.variant_overrides or {}).items():
+            ch, rn = key_str.split(':', 1)
+            if (ch, rn) not in amber_renames:
+                amber_renames[(ch, rn)] = var_name
+        if amber_renames:
+            print(f"  Total protonation variants (PDB + .dat): {len(amber_renames)}")
+    else:
+        print("No .dat file — all atoms get uniform strong restraints")
+        new_atom_indices = set()
+
+    final_topology, final_positions = minimize(
+        topology, positions, new_atom_indices, args,
+        amber_renames=amber_renames,
+    )
+
+    # Strip solvent from output. When keep_heterogens is on, the splice-back
+    # inside minimize was skipped, so solvent is still in the topology and
+    # must be stripped here. In legacy strip mode, solvent stripping happened
+    # in the splice path only when n_stripped > 0; we redo it here as a
+    # safety net for purely protein inputs.
+    if not args.no_solvent:
+        final_topology, final_positions = strip_solvent(final_topology, final_positions)
+
+    # Optional refinement passes — auto-parametrize any heterogen via xtb
+    # GFN-FF or OpenBabel MMFF94. These don't need user-provided FF params.
+    if args.xtb_refine:
+        final_positions = refine_with_xtb(
+            final_topology, final_positions,
+            cycles=args.xtb_cycles,
+            heterogens_only=args.refine_heterogens_only,
+            verbose=args.verbose,
+        )
+    if args.obminimize_refine:
+        final_positions = refine_with_obminimize(
+            final_topology, final_positions,
+            ff=args.obminimize_ff,
+            steps=args.obminimize_steps,
+            heterogens_only=args.refine_heterogens_only,
+            verbose=args.verbose,
+        )
+
+    # Restore GLYCAM glycoprotein residue names that the legacy strip path
+    # may have renamed in-place (NLN→ASN, OLS→SER, OLT→THR). Keyed by the
+    # (chain_id, res_id_str, icode) tuple captured from the raw input PDB.
+    if _glycam_orig_names:
+        _restored = 0
+        for _res in final_topology.residues():
+            _key = (_res.chain.id, str(_res.id),
+                    _res.insertionCode.strip()
+                    if hasattr(_res, 'insertionCode') else '')
+            _orig = _glycam_orig_names.get(_key)
+            if _orig and _res.name != _orig:
+                _res.name = _orig
+                _restored += 1
+        if _restored and args.verbose:
+            print(f"  Restored {_restored} GLYCAM residue names "
+                  f"(NLN/OLS/OLT) renamed during legacy fallback")
+
+    with open(output_path, 'w') as f:
+        PDBFile.writeFile(final_topology, final_positions, f, keepIds=True)
+    # Rewrite HETATM→ATOM for AMBER protonation variants (HID/HIE/HIP/ASH/
+    # GLH/CYX/CYM/LYN) and GLYCAM glycoprotein residues (NLN/OLS/OLT) that
+    # PDBFile.writeFile emits as HETATM.
+    from dvbfixer.ffutils import fix_atom_hetatm_records
+    fix_atom_hetatm_records(output_path)
+    print(f"\nSaved minimized structure: {output_path}")

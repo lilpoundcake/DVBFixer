@@ -20,6 +20,19 @@ import io
 import sys
 from pathlib import Path
 
+from dvbfixer.ffutils.variants import (
+    fix_lyn_hz_naming as _fix_lyn_hz_naming_shared,
+)
+from dvbfixer.ffutils.variants import (
+    rename_variants_to_parent_in_topology as _rename_variants_to_parent,
+)
+from dvbfixer.ffutils.variants import (
+    restore_variants_post_addhydrogens as _restore_variants_post_addhydrogens_shared,
+)
+from dvbfixer.ffutils.variants import (
+    text_rename_variants_to_parent as _text_rename_variants_to_parent_shared,
+)
+
 WATER_RESNAMES = {'HOH', 'WAT', 'TIP3', 'TIP', 'SOL', 'T3P', 'T4P', 'T5P'}
 
 
@@ -30,41 +43,38 @@ def parse_args(argv=None):
         "state names in a PDB file for a given pH. Uses AMBER residue naming "
         "(HID/HIE/HIP, ASH, GLH, CYM, CYX, LYN)."
     )
-    p.add_argument("input", help="Input PDB file")
-    p.add_argument("-o", "--output", help="Output PDB file (default: <input>_prot.pdb)")
-    p.add_argument(
+
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB file")
+    io.add_argument("-o", "--output", help="Output PDB file (default: <input>_prot.pdb)")
+
+    ph = p.add_argument_group("pH-driven decisions")
+    ph.add_argument(
         "--ph", type=float, default=7.0,
         help="Target pH for protonation assignment (default: 7.0)"
     )
-    p.add_argument(
+    ph.add_argument(
         "--his-default", choices=["HIE", "HID"], default="HIE",
         help="Default neutral HIS tautomer when pKa < pH (default: HIE = Ne2 protonated)"
     )
-    p.add_argument(
+    ph.add_argument(
         "--cys-disulfide-pka", type=float, default=90.0,
         help="PROPKA pKa threshold above which CYS is assumed to be in a disulfide "
-             "bond and renamed to CYX (default: 90.0)"
+             "bond and renamed to CYX (default: 90.0). No-op under --no-propka."
     )
-    p.add_argument(
-        "--summary", action="store_true",
-        help="Print pKa summary table for all titratable residues"
+
+    engines = p.add_argument_group("Protonation engines")
+    engines.add_argument(
+        "--propka", action=argparse.BooleanOptionalAction, default=True,
+        help="Run PROPKA3 for pKa-driven protonation-state decisions "
+             "(ASH/GLH/HIP/CYM/LYN). **Default ON.** Pass --no-propka "
+             "to skip PROPKA entirely and rely only on --protassign "
+             "(MolProbity Reduce) for HIS tautomers and ASN/GLN flip "
+             "detection. Passing both --no-propka and --no-protassign "
+             "is an error — protonate would have nothing to decide "
+             "protonation from."
     )
-    p.add_argument(
-        "--no-hydrogens", action="store_true",
-        help="Only rename residues, do not add/fix hydrogen atoms"
-    )
-    p.add_argument(
-        "--ff", nargs='+', default=['auto'],
-        help="Force field for hydrogen addition. Accepts a short name "
-             "(auto, amber, amber+glycam, charmm, ...) or an explicit list "
-             "of OpenMM XML paths. Default: 'auto' — detect from residue "
-             "names in the input. See docs/force-fields.md."
-    )
-    p.add_argument(
-        "--keep-water", action="store_true",
-        help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
-    )
-    p.add_argument(
+    engines.add_argument(
         "--protassign", action=argparse.BooleanOptionalAction, default=True,
         help="Run MolProbity Reduce to optimise HIS tautomers (HID/HIE/HIP) "
              "and detect ASN/GLN side-chain flips based on local H-bond "
@@ -74,15 +84,41 @@ def parse_args(argv=None):
              "Requires the `reduce` binary (bundled with AmberTools in the "
              "dvbfixer env)."
     )
-    p.add_argument(
+    engines.add_argument(
         "--protassign-binary", dest="protassign_binary", default=None,
         help="Override the `reduce` binary path (default: search PATH, then "
              "the dvbfixer env's bin dir)."
     )
-    p.add_argument(
+
+    ff = p.add_argument_group("Force field")
+    ff.add_argument(
+        "--ff", nargs='+', default=['auto'],
+        help="Force field for hydrogen addition. Accepts a short name "
+             "(auto, amber, amber+glycam, charmm, ...) or an explicit list "
+             "of OpenMM XML paths. Default: 'auto' — detect from residue "
+             "names in the input. See docs/force-fields.md."
+    )
+
+    content = p.add_argument_group("Content selection")
+    content.add_argument(
+        "--keep-water", action="store_true",
+        help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
+    )
+    content.add_argument(
+        "--no-hydrogens", action="store_true",
+        help="Only rename residues, do not add/fix hydrogen atoms"
+    )
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument(
+        "--summary", action="store_true",
+        help="Print pKa summary table for all titratable residues"
+    )
+    diag.add_argument(
         "-v", "--verbose", action="store_true",
         help="Print only residues that get non-standard protonation"
     )
+
     return p.parse_args(argv)
 
 
@@ -99,6 +135,7 @@ def _sanitize_for_propka(input_path):
     Returns the temp file path (caller must delete).
     """
     import tempfile
+
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
     keep_resnames = PROTEIN_RESIDUES | SOLVENT_IONS
 
@@ -310,132 +347,40 @@ def _strip_hydrogens(topology, positions):
     return modeller.topology, modeller.positions
 
 
-_VARIANT_TO_PARENT_FOR_ADDHYDROGENS = {
-    'LYN': 'LYS', 'CYX': 'CYS', 'CYM': 'CYS',
-    'HID': 'HIS', 'HIE': 'HIS', 'HIP': 'HIS',
-    'ASH': 'ASP', 'GLH': 'GLU',
-}
-
-
-# CHARMM variant → parent (mirror of _VARIANT_TO_PARENT_FOR_ADDHYDROGENS
-# but for CHARMM-style names that show up in CHARMM-GUI outputs).
-_CHARMM_VARIANT_TO_PARENT = {
-    'HSD': 'HIS', 'HSE': 'HIS', 'HSP': 'HIS',
-    'ASPP': 'ASP', 'GLUP': 'GLU', 'LSN': 'LYS',
-}
-
-
 def _text_rename_variants_to_parent(pdb_path, verbose=False):
-    """Rewrite AMBER and CHARMM protonation-variant residue names to their
-    standard parent (LYS/HIS/ASP/GLU/CYS) in the raw PDB text.
+    """Delegate to ``ffutils.variants.text_rename_variants_to_parent``.
 
-    Returns (out_path, saved_map) where `saved_map` is
-    `{(chain, resid, icode): original_variant_name}` for every residue
-    that was rewritten. Caller uses `saved_map` to restore the variant
-    name on the topology after `addHydrogens` succeeds.
-
-    Needed because OpenMM's PDBFile parser only recognises standard AA
-    residue names when inferring peptide bonds — a mid-chain LYN (or
-    HSE, LSN, ...) blocks the peptide bond from its previous residue's
-    C to its own N, making downstream addHydrogens fail with a confusing
-    "missing external C atom" error on the previous residue.
+    Kept as a thin wrapper so the module-level call sites and any external
+    tests importing this name remain valid.
     """
-    import tempfile as _tf
-    # Combined lookup: AMBER + CHARMM variants → parent.
-    combined = dict(_VARIANT_TO_PARENT_FOR_ADDHYDROGENS)
-    combined.update(_CHARMM_VARIANT_TO_PARENT)
-
-    with open(pdb_path) as f:
-        lines = f.readlines()
-    n_rewrite = 0
-    saved = {}
-    out = []
-    for line in lines:
-        if line.startswith(('ATOM', 'HETATM')) and len(line) >= 20:
-            rn = line[17:20].strip()
-            parent = combined.get(rn)
-            if parent is not None and parent != rn:
-                # Track the (chain, resid, icode) → original name so the
-                # caller can restore it after addHydrogens.
-                ch = line[21] if len(line) > 21 else ' '
-                try:
-                    rs = int(line[22:26])
-                except ValueError:
-                    rs = 0
-                ic = line[26] if len(line) > 26 else ' '
-                saved[(ch, str(rs), ic.strip())] = rn
-                # All parent names are 3-char (HIS/ASP/GLU/CYS/LYS); write
-                # as a fixed 3-char field so column alignment is preserved
-                # even when the source resname was 4-char (ASPP/GLUP/LSN).
-                line = line[:17] + f"{parent:<3s}" + line[20:]
-                n_rewrite += 1
-        out.append(line)
-    if n_rewrite == 0:
-        return str(pdb_path), {}
-    tmp = _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False).name
-    with open(tmp, 'w') as f:
-        f.writelines(out)
-    if verbose:
-        print(f"  [protonate] pre-renamed {n_rewrite} variant lines to "
-              f"standard parents (AMBER/CHARMM) so OpenMM can infer "
-              f"peptide bonds; original names restored after addHydrogens")
-    return tmp, saved
-
-
-def _rename_variants_to_parent(top):
-    """Rename variant residues (LYN/HID/HIE/CYX/...) to their standard parent
-    names so OpenMM's addHydrogens can find them in hydrogens.xml (keyed by
-    parent name only). Returns dict {(chain_id, res_id): original_name}.
-    Residue references in the OLD topology are stale after addHydrogens
-    rebuilds the topology — use this dict for the post-pass lookup.
-    """
-    saved = {}
-    for res in top.residues():
-        if res.name in _VARIANT_TO_PARENT_FOR_ADDHYDROGENS:
-            saved[(res.chain.id, res.id)] = res.name
-            res.name = _VARIANT_TO_PARENT_FOR_ADDHYDROGENS[res.name]
-    return saved
+    return _text_rename_variants_to_parent_shared(pdb_path, verbose=verbose)
 
 
 def _restore_variants_post_addhydrogens(top, saved):
-    """Walk the NEW topology after addHydrogens and restore variant names."""
-    for res in top.residues():
-        key = (res.chain.id, res.id)
-        if key in saved:
-            res.name = saved[key]
+    """Delegate to ``ffutils.variants.restore_variants_post_addhydrogens``."""
+    _restore_variants_post_addhydrogens_shared(top, saved)
 
 
 def _fix_lyn_hz_naming(top, saved, renames):
-    """Rename HZ1 → HZ3 on every LYN residue (chemically equivalent — HZ2
-    and HZ3 in the AMBER LYN template share the same charge and bond
-    topology). hydrogens.xml gates HZ3 by variant="LYS" so addHydrogens with
-    variant=LYN produces HZ1+HZ2 — the OPPOSITE of what the AMBER LYN
-    template expects (HZ2+HZ3).
+    """Delegate to ``ffutils.variants.fix_lyn_hz_naming``.
 
-    LYN identification merges two sources: residues whose pre-addHydrogens
-    name was LYN (from `saved`), and residues whose PROPKA-assigned variant
-    is LYN (from `renames`).
+    ``renames`` here is protonate.py's PROPKA-produced
+    ``{(chain, resseq, icode): variant}`` map — pass it through as the
+    ``extra_lyn_keys`` argument.
     """
-    lyn_keys = {k for k, v in saved.items() if v == 'LYN'}
-    for (ch, rs, ic), variant in renames.items():
-        if variant == 'LYN':
-            lyn_keys.add((ch, str(rs)))
-    for res in top.residues():
-        if (res.chain.id, res.id) not in lyn_keys:
-            continue
-        for atom in res.atoms():
-            if atom.name == 'HZ1':
-                atom.name = 'HZ3'
-                break
+    _fix_lyn_hz_naming_shared(top, saved, extra_lyn_keys=renames)
 
 
 def _add_hydrogens_to_output(input_path, output_path, args, renames):
     """Load original PDB, strip H, add H with correct protonation variants, write output."""
     from openmm.app import ForceField, Modeller, PDBFile
-    from dvbfixer.ffutils import (PROTEIN_RESIDUES, SOLVENT_IONS,
-                                   detect_glycam_input,
-                                   create_forcefield_with_openff,
-                                   fix_atom_hetatm_records)
+
+    from dvbfixer.ffutils import (
+        PROTEIN_RESIDUES,
+        SOLVENT_IONS,
+        detect_glycam_input,
+        fix_atom_hetatm_records,
+    )
 
     # Rename AMBER + CHARMM variant residues (LYN/HID/HIE/HIP/ASH/GLH/
     # CYX/CYM/HSD/HSE/HSP/ASPP/GLUP/LSN) to their standard parent in the
@@ -501,35 +446,21 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     modeller = Modeller(stripped_top, stripped_pos)
 
     if glycam_present:
-        # Build GLYCAM-aware FF. create_forcefield_with_openff loads the
-        # provided XMLs (caller upgraded args.ff to amber14+GLYCAM) and
-        # suppresses GLYCAM sugar templates that would fuzzy-match PDB
-        # sugar residues to the wrong entry.
-        forcefield = create_forcefield_with_openff(
-            args.ff, modeller.topology, verbose=args.verbose,
+        # Build GLYCAM-aware FF via the shared 3-step wrapper: FF
+        # construction with GLYCAM template suppression, glycam-hydrogens.xml
+        # loading, and add_glycam_bonds for intra-residue + protein-glycan
+        # + sugar-sugar bond population.
+        from dvbfixer.ffutils import build_glycam_system
+        forcefield = build_glycam_system(
+            args.ff, modeller.topology, modeller.positions, verbose=args.verbose,
         )
-        # Load GLYCAM-specific H definitions so addHydrogens knows where to
-        # place H atoms on UYB/4YB/VMB/NLN/OLS/OLT/etc.
-        try:
-            Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')
-        except Exception:
-            pass
-        # Add intra-residue bonds for GLYCAM residues — OpenMM's PDBFile
-        # doesn't infer them for non-standard residues, but addHydrogens
-        # needs them to place H correctly.
-        try:
-            from dvbfixer.acpype_export import add_glycam_bonds
-            add_glycam_bonds(modeller.topology, forcefield, args.verbose,
-                              positions=modeller.positions)
-        except Exception as e:
-            if args.verbose:
-                print(f"  add_glycam_bonds skipped: {e}")
     else:
         forcefield = ForceField(*args.ff)
 
     # Use PDBFixer to add any missing heavy atoms first
-    from pdbfixer import PDBFixer
     import tempfile as _tempfile
+
+    from pdbfixer import PDBFixer
     with _tempfile.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False) as _tmp:
         PDBFile.writeFile(modeller.topology, modeller.positions, _tmp, keepIds=True)
         _tmp_path = _tmp.name
@@ -541,7 +472,6 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         # In GLYCAM mode, prevent PDBFixer from "fixing" NLN/OLS/OLT (it
         # doesn't recognize them as standard residues and may strip/replace).
         if glycam_present:
-            from dvbfixer.ffutils import GLYCAM_PROTEIN_RESIDUES
             # PDBFixer's substitutions[chain_idx] is a list of (res_idx, new_name).
             # Just clear it — we don't want any substitutions.
             try:
@@ -843,7 +773,9 @@ def _read_atom_positions(pdb_path):
             resseq = int(ss)
             icode = line[26].strip() if len(line) > 26 else ''
             try:
-                x = float(line[30:38]); y = float(line[38:46]); z = float(line[46:54])
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
             except ValueError:
                 continue
             key = (chain, resseq, icode, atom)
@@ -1022,35 +954,62 @@ def main(argv=None):
     # out of PROPKA-driven renames). FF selection now goes through the
     # shared resolver so short-names like --ff amber / charmm work.
     glycam_positions, has_glycam = _scan_glycam_residues(input_path)
-    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    from dvbfixer.ffutils import print_ff_selection, resolve_ff
     args.ff, _ff_alias, _ff_reason = resolve_ff(
         args.ff, input_path, verbose=args.verbose)
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
-    print(f"Running PROPKA3 on {input_path} at pH {args.ph}...")
-    mc = run_propka(input_path)
-    pka_results = get_pka_results(mc)
-
-    if not pka_results:
-        print("No titratable residues found.", file=sys.stderr)
+    # Both engines off is a hard error — nothing decides protonation.
+    if not args.propka and not args.protassign:
+        print(
+            "ERROR: both --no-propka and --no-protassign disable the two "
+            "protonation engines. Nothing left to decide states from. "
+            "Enable at least one, or use `dvbfixer rename` if you just want "
+            "to strip AMBER variants without predicting protonation.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
-    if args.summary:
-        print(f"\n{'Type':<4s} {'Chain':<5s} {'ResNum':<8s} {'pKa':>6s}  {'Model':>6s}  State at pH {args.ph}")
-        print("-" * 55)
-        for r in sorted(pka_results, key=lambda x: (x["chain"], x["resnum"])):
-            icode_str = r["icode"] if r["icode"] else " "
-            resid_str = f"{r['resnum']}{icode_str.strip()}"
-            # Determine state label
-            state = "standard"
-            key = (r["chain"], r["resnum"], r["icode"])
-            renames = decide_protonation(pka_results, args.ph, args.his_default, args.cys_disulfide_pka)
-            if key in renames:
-                state = renames[key]
-            print(f"{r['restype']:<4s} {r['chain']:<5s} {resid_str:<8s} {r['pka']:6.2f}  {r['model_pka']:6.2f}  {state}")
-        print()
+    pka_results: list = []
+    renames: dict = {}
 
-    renames = decide_protonation(pka_results, args.ph, args.his_default, args.cys_disulfide_pka)
+    if args.propka:
+        print(f"Running PROPKA3 on {input_path} at pH {args.ph}...")
+        mc = run_propka(input_path)
+        pka_results = get_pka_results(mc)
+
+        if not pka_results:
+            print("No titratable residues found.", file=sys.stderr)
+            sys.exit(1)
+
+        if args.summary:
+            print(f"\n{'Type':<4s} {'Chain':<5s} {'ResNum':<8s} {'pKa':>6s}  {'Model':>6s}  State at pH {args.ph}")
+            print("-" * 55)
+            for r in sorted(pka_results, key=lambda x: (x["chain"], x["resnum"])):
+                icode_str = r["icode"] if r["icode"] else " "
+                resid_str = f"{r['resnum']}{icode_str.strip()}"
+                # Determine state label
+                state = "standard"
+                key = (r["chain"], r["resnum"], r["icode"])
+                renames = decide_protonation(pka_results, args.ph, args.his_default, args.cys_disulfide_pka)
+                if key in renames:
+                    state = renames[key]
+                print(f"{r['restype']:<4s} {r['chain']:<5s} {resid_str:<8s} {r['pka']:6.2f}  {r['model_pka']:6.2f}  {state}")
+            print()
+
+        renames = decide_protonation(pka_results, args.ph, args.his_default, args.cys_disulfide_pka)
+    else:
+        # --no-propka: PROPKA-driven decisions are disabled. `renames` stays
+        # empty; Reduce (when --protassign is on) becomes the only source of
+        # HIS-tautomer picks. `--cys-disulfide-pka` is a no-op in this mode
+        # (input CYS/CYX names carry through via the input_variants carry-
+        # forward below).
+        print(
+            "Skipping PROPKA3 (--no-propka). "
+            "MolProbity Reduce will be the only protonation-decision engine."
+            if args.protassign
+            else "Skipping PROPKA3 (--no-propka)."
+        )
 
     # PROPKA saw the GLYCAM glycoprotein residues as ASN/SER/THR (after our
     # temp-PDB rename). Don't apply those protonation renames to the actual

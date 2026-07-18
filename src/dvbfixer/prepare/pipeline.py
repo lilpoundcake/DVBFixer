@@ -1,0 +1,771 @@
+"""Fix missing atoms and residues in a PDB structure using PDBFixer.
+
+Adds missing residues, missing heavy atoms, and hydrogens. Writes a .dat file
+recording which atoms were added, for use by 'dvbfixer minimize' to apply
+selective restraints.
+"""
+
+import sys
+from pathlib import Path
+
+from openmm.app import Modeller, PDBFile
+from pdbfixer import PDBFixer
+
+from dvbfixer.prepare.cli import parse_args
+from dvbfixer.prepare.glycan import (
+    _write_heterogen_conects,
+    add_heterogen_h_via_openbabel,
+    add_heterogen_h_via_rdkit,
+    find_glycosylated_atoms_with_sugar,
+    remove_extra_glycan_hydrogens,
+    rename_glycosylated_protein_residues,
+)
+from dvbfixer.prepare.mutations import (
+    apply_deletions_to_pdb_text,
+    apply_mutations,
+    parse_mutations,
+)
+
+# ---------------------------------------------------------------------------
+# .dat file: records what PDBFixer added
+# ---------------------------------------------------------------------------
+
+def build_dat(fixer, new_atom_indices):
+    """Build a dict describing what PDBFixer added, suitable for JSON export."""
+    atoms_list = list(fixer.topology.atoms())
+
+    added_atoms = []
+    added_residues_summary = {}
+    for idx in sorted(new_atom_indices):
+        atom = atoms_list[idx]
+        res = atom.residue
+        entry = {
+            "chain": res.chain.id,
+            "resid": res.id,
+            "icode": res.insertionCode,
+            "resname": res.name,
+            "atom": atom.name,
+            "element": atom.element.symbol,
+        }
+        added_atoms.append(entry)
+
+        rkey = f"{res.chain.id}/{res.name}{res.id}"
+        if rkey not in added_residues_summary:
+            added_residues_summary[rkey] = {"heavy": 0, "hydrogen": 0}
+        if atom.element.symbol == 'H':
+            added_residues_summary[rkey]["hydrogen"] += 1
+        else:
+            added_residues_summary[rkey]["heavy"] += 1
+
+    return {
+        "description": "PDBFixer restraint data. Added atoms get weak/no restraints during minimization. "
+                       "Edit 'added_atoms' list to change which atoms are treated as 'new'.",
+        "total_added": len(added_atoms),
+        "residue_summary": added_residues_summary,
+        "added_atoms": added_atoms,
+    }
+
+
+def write_dat(dat, path):
+    """Serialise a ``.dat`` dict to disk. Delegates to ``ffutils.dat`` so
+    the schema (fields, total_added invariant, JSON layout) lives in one
+    place.
+
+    ``dat`` here is the dict shape returned by ``build_dat`` (plus optional
+    ``variant_overrides`` / ``removed_residues`` added by the caller);
+    :class:`DatRecord` accepts it via ``**dat`` decomposition.
+    """
+    from dvbfixer.ffutils.dat import DatRecord
+
+    known = {
+        "description", "total_added", "residue_summary", "added_atoms",
+        "variant_overrides", "removed_residues", "templates", "target_chains",
+    }
+    kwargs = {k: v for k, v in dat.items() if k in known and k != "total_added"}
+    DatRecord(**kwargs).save(path)
+
+
+
+# ---------------------------------------------------------------------------
+# PDBFixer
+# ---------------------------------------------------------------------------
+
+# Map AMBER/CHARMM protonation variant names to standard PDB names
+# (PDBFixer only accepts standard 3-letter codes for mutations)
+_VARIANT_TO_STANDARD = {
+    'HID': 'HIS', 'HIE': 'HIS', 'HIP': 'HIS',
+    'HSD': 'HIS', 'HSE': 'HIS', 'HSP': 'HIS',
+    'ASH': 'ASP', 'ASPP': 'ASP',
+    'GLH': 'GLU', 'GLUP': 'GLU',
+    'CYX': 'CYS', 'CYM': 'CYS',
+    'LYN': 'LYS',
+}
+
+
+
+
+def _preprocess_glycoprotein_input(input_path, verbose=False):
+    """Backward-compat wrapper around `ffutils.sanitize_protein_hetatm`.
+
+    Retained for callers within this module; new callers should use
+    `sanitize_protein_hetatm` from ffutils directly.
+    """
+    from dvbfixer.ffutils import sanitize_protein_hetatm
+    return sanitize_protein_hetatm(input_path, verbose=verbose)
+
+
+
+def _canonicalize_conect_records(input_path, verbose=False):
+    """Rewrite CONECT records with fixed-width (5-char) atom serials.
+
+    Some PDB writers emit space-separated CONECT serials (e.g. ``CONECT 5801 10293``
+    where the 5-digit serial doesn't fit the standard 5-char field with a
+    space separator). OpenMM's PDBFile parses such lines as 3+ atoms instead
+    of 2, creating spurious bonds. Returns a temp path with corrected CONECT.
+    """
+    import tempfile as _tf
+    needs_fix = False
+    fixed_lines = []
+    with open(input_path) as f:
+        for line in f:
+            if line.startswith('CONECT'):
+                serials = line[6:].split()
+                if any(len(s) > 5 for s in serials):
+                    # Should not happen — PDB serials max at 99999
+                    fixed_lines.append(line)
+                    continue
+                # Rewrite as fixed-width 5-char fields
+                fixed = 'CONECT' + ''.join(f'{int(s):5d}' for s in serials) + '\n'
+                if fixed != line:
+                    needs_fix = True
+                fixed_lines.append(fixed)
+            else:
+                fixed_lines.append(line)
+    if not needs_fix:
+        return input_path
+    tmp_path = _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False).name
+    with open(tmp_path, 'w') as f:
+        f.writelines(fixed_lines)
+    if verbose:
+        print(f"Canonicalized CONECT record formatting → {tmp_path}")
+    return tmp_path
+
+
+def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
+                 mutations=None, heterogen_h=True, removed_residues_meta=None,
+                 ff_xmls=None):
+    """Run PDBFixer to add missing atoms/residues. Returns (fixer, new_atom_indices)."""
+    # Glycoprotein-input fixes: rewrite HETATM→ATOM for protein/GLYCAM
+    # glycoprotein residues (NLN/OLS/OLT) and drop spurious TER records
+    # between same-chain protein residues. Both confuse OpenMM's topology
+    # parser into breaking the peptide chain.
+    preprocessed_path = _preprocess_glycoprotein_input(input_path, verbose)
+    preprocess_was_rewritten = preprocessed_path != input_path
+    # Canonicalize CONECT formatting — malformed records cause OpenMM bond
+    # inference bugs (spurious bonds across distant atoms).
+    canon_path = _canonicalize_conect_records(preprocessed_path, verbose)
+    canon_was_rewritten = canon_path != preprocessed_path
+    # If the canonicalize step produced a NEW temp file, the preprocessed
+    # temp file is no longer referenced and can be cleaned up now.
+    if preprocess_was_rewritten and canon_was_rewritten:
+        Path(preprocessed_path).unlink(missing_ok=True)
+
+    # Detect glycosylated atoms before PDBFixer modifies anything. Use the
+    # dict-returning variant so we also know which sugar each anchor is
+    # bonded to — needed to decide whether to rename ASN→NLN (only for
+    # GLYCAM-named sugars).
+    sugar_by_anchor = find_glycosylated_atoms_with_sugar(canon_path)
+    glycosylated_atoms = set(sugar_by_anchor.keys())
+    if glycosylated_atoms and verbose:
+        print(f"Detected {len(glycosylated_atoms)} glycosylated atom(s)")
+
+    with open(canon_path) as f:
+        fixer = PDBFixer(pdbfile=f)
+
+    # Cleanup: delete any temp PDB we wrote. canon_path may be the same
+    # file as preprocessed_path (if canonicalize was a no-op), so only
+    # one unlink covers both cases.
+    if canon_path != input_path:
+        Path(canon_path).unlink(missing_ok=True)
+    if preprocess_was_rewritten and preprocessed_path != canon_path:
+        Path(preprocessed_path).unlink(missing_ok=True)
+
+    # Apply substitution mutations if requested. Deletions were already
+    # applied at the raw-text level upstream (see main()).
+    variant_overrides = {}  # (chain, resnum) -> variant name (HIP, ASH, etc.)
+    if mutations:
+        mutations_by_chain, variant_overrides, _deletions_ignored = parse_mutations(mutations)
+        if mutations_by_chain:
+            print(f"Applying {sum(len(v) for v in mutations_by_chain.values())} mutation(s)...")
+            apply_mutations(fixer, mutations_by_chain, verbose)
+            if variant_overrides and verbose:
+                for (ch, rn), var in variant_overrides.items():
+                    print(f"  Protonation override: {ch}:{rn} → {var}")
+
+    # Capture AMBER/CHARMM protonation variant names from input PDB before
+    # PDBFixer normalizes them. These are re-applied after replaceNonstandardResidues.
+    for res in fixer.topology.residues():
+        key = (res.chain.id, res.id)
+        if key not in variant_overrides and res.name in _VARIANT_TO_STANDARD:
+            variant_overrides[key] = res.name
+
+    # Strip hydrogens from protein residues (incl GLYCAM glycoprotein
+    # residues NLN/OLS/OLT) before findMissingAtoms — clean template matching.
+    # Heterogen H is preserved here: addHydrogens with GLYCAM FF will fill in
+    # any missing H without disturbing existing ones (or rename wrong-cased H).
+    _PROTEIN_AA = {
+        'ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS', 'ILE',
+        'LEU', 'LYS', 'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP', 'TYR', 'VAL',
+        'HID', 'HIE', 'HIP', 'HSD', 'HSE', 'HSP', 'CYX', 'CYM', 'ASH', 'GLH',
+        'LYN', 'MSE', 'ACE', 'NME', 'NHE',
+        'NLN', 'OLS', 'OLT',  # GLYCAM glycosylated protein residues
+    }
+    modeller = Modeller(fixer.topology, fixer.positions)
+    h_atoms = [a for a in modeller.topology.atoms()
+               if a.element.symbol == 'H' and a.residue.name in _PROTEIN_AA]
+    if h_atoms:
+        modeller.delete(h_atoms)
+        if verbose:
+            print(f"Stripped {len(h_atoms)} H for clean template matching (will re-add)")
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False) as _tmp:
+            PDBFile.writeFile(modeller.topology, modeller.positions, _tmp, keepIds=True)
+            _tmp_path = _tmp.name
+        try:
+            with open(_tmp_path) as _f:
+                fixer = PDBFixer(pdbfile=_f)
+        finally:
+            Path(_tmp_path).unlink()
+
+    # Record original atoms before any modifications
+    original_atoms = set()
+    for atom in fixer.topology.atoms():
+        original_atoms.add((atom.residue.chain.id, atom.residue.id,
+                            atom.residue.insertionCode, atom.name))
+
+    fixer.findMissingResidues()
+
+    # Scrub missingResidues entries that correspond to user-requested
+    # deletions, so PDBFixer's SEQRES-driven gap filler doesn't re-add the
+    # residue we just removed. PDBFixer keys missingResidues by
+    # (chain_index, residue_position_within_chain). For each deletion, find
+    # the gap-position that sits between the kept neighbours and pop it.
+    if removed_residues_meta:
+        chains_list = list(fixer.topology.chains())
+        # PDBFixer permits multiple chains to share a chain ID (e.g. when a
+        # HETATM block at the end of the file gets a separate Chain object
+        # with the same letter as a protein chain). Build chain_id → list
+        # of chain indices, then map every deletion to all matching chains.
+        chain_id_to_indices = {}
+        for i, ch in enumerate(chains_list):
+            chain_id_to_indices.setdefault(ch.id, []).append(i)
+        chain_residues = {}
+        for i, ch in enumerate(chains_list):
+            chain_residues[i] = [(r.id, r.insertionCode) for r in ch.residues()]
+
+        deletion_resseqs_by_chain = {}
+        for m in removed_residues_meta:
+            for ch_idx in chain_id_to_indices.get(m["chain"], []):
+                deletion_resseqs_by_chain.setdefault(ch_idx, []).append(
+                    (m["resid"], m.get("icode") or ' ')
+                )
+
+        scrubbed_keys = []
+        for (ch_idx, pos), resnames in list(fixer.missingResidues.items()):
+            if ch_idx not in deletion_resseqs_by_chain:
+                continue
+            # Determine the resseq range this missingResidues entry covers.
+            # `pos` is the insertion index in chain_residues[ch_idx]: the
+            # gap is between residue (pos-1) and residue (pos). For each
+            # deletion in this chain, check whether its resseq falls between
+            # the flanking residues' resseqs.
+            chain_res = chain_residues[ch_idx]
+            prev_resseq = None
+            next_resseq = None
+            if pos > 0 and pos - 1 < len(chain_res):
+                try:
+                    prev_resseq = int(chain_res[pos - 1][0])
+                except ValueError:
+                    prev_resseq = None
+            if pos < len(chain_res):
+                try:
+                    next_resseq = int(chain_res[pos][0])
+                except ValueError:
+                    next_resseq = None
+            # If any deletion in this chain has a resseq strictly between
+            # prev and next, that's our gap — scrub it.
+            for (rs_str, _ic) in deletion_resseqs_by_chain[ch_idx]:
+                try:
+                    rs = int(rs_str)
+                except ValueError:
+                    continue
+                between = (
+                    (prev_resseq is None or rs > prev_resseq)
+                    and (next_resseq is None or rs < next_resseq)
+                )
+                # Also handle the "deletion is the chain terminus" case
+                if between or (next_resseq is None and pos == len(chain_res)):
+                    scrubbed_keys.append((ch_idx, pos))
+                    break
+        for k in scrubbed_keys:
+            fixer.missingResidues.pop(k, None)
+        if verbose and scrubbed_keys:
+            print(f"  Scrubbed {len(scrubbed_keys)} missingResidues gap(s) "
+                  f"for user-deleted residues")
+
+    fixer.findMissingAtoms()
+    fixer.findNonstandardResidues()
+
+    # Filter out GLYCAM glycoprotein residues BEFORE printing/replacing —
+    # NLN/OLS/OLT look "non-standard" to PDBFixer but they're deliberate
+    # (they carry the glycan attachment via sidechain N/O). Showing "NLN
+    # -> LEU" misleads users; doing the replacement would destroy the
+    # glycosylation site. Strip them up-front.
+    _GLYCAM_PROTEIN = {'NLN', 'OLS', 'OLT'}
+    fixer.nonstandardResidues = [
+        (res, std) for (res, std) in fixer.nonstandardResidues
+        if res.name not in _GLYCAM_PROTEIN
+    ]
+
+    if verbose:
+        if fixer.missingResidues:
+            print("Missing residues:")
+            for (chain_idx, res_idx), resnames in sorted(fixer.missingResidues.items()):
+                chain_id = list(fixer.topology.chains())[chain_idx].id
+                print(f"  Chain {chain_id} position {res_idx}: {' '.join(resnames)}")
+        if fixer.missingAtoms:
+            print("Missing atoms:")
+            for res, atoms in fixer.missingAtoms.items():
+                print(f"  {res.chain.id}/{res.name}{res.id}: {', '.join(a.name for a in atoms)}")
+        if fixer.missingTerminals:
+            print("Missing terminals:")
+            for res, atoms in fixer.missingTerminals.items():
+                print(f"  {res.chain.id}/{res.name}{res.id}: {', '.join(a if isinstance(a, str) else a.name for a in atoms)}")
+        if fixer.nonstandardResidues:
+            print("Nonstandard residues:")
+            for res, std in fixer.nonstandardResidues:
+                print(f"  {res.chain.id}/{res.name}{res.id} -> {std}")
+
+    n_missing_res = sum(len(v) for v in fixer.missingResidues.values())
+    n_missing_atoms = sum(len(v) for v in fixer.missingAtoms.items())
+    print(f"PDBFixer: {n_missing_res} missing residues, {n_missing_atoms} residues with missing atoms")
+
+    if not keep_heterogens:
+        fixer.removeHeterogens(keepWater=keep_water)
+
+    fixer.replaceNonstandardResidues()
+    fixer.addMissingAtoms()
+
+    # Build explicit variants list for addHydrogens.
+    # PDBFixer's addMissingHydrogens ignores our topology renames — it uses
+    # its own _describeVariant which only understands standard names.
+    # We call Modeller.addHydrogens directly with our variants list.
+    #
+    # OpenMM variant names: 'HIE', 'HID', 'HIP' for HIS; 'ASH' for ASP;
+    # 'GLH' for GLU; 'CYX' for CYS (disulfide). None = auto-detect by pH.
+    _OPENMM_VARIANTS = {'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYX', 'LYN'}
+    variants = []
+    for res in fixer.topology.residues():
+        key = (res.chain.id, res.id)
+        if key in variant_overrides and variant_overrides[key] in _OPENMM_VARIANTS:
+            variants.append(variant_overrides[key])
+            if verbose:
+                print(f"  {res.name} {res.chain.id}:{res.id} → variant {variant_overrides[key]}")
+        elif res.name == 'HIS':
+            # Detect from existing H atoms (if any survived stripping)
+            atom_names = {a.name for a in res.atoms()}
+            if 'HD1' in atom_names and 'HE2' in atom_names:
+                variants.append('HIP')
+            elif 'HD1' in atom_names:
+                variants.append('HID')
+            elif 'HE2' in atom_names:
+                variants.append('HIE')
+            else:
+                variants.append(None)  # let OpenMM auto-detect by pH
+        else:
+            variants.append(None)
+
+    modeller = Modeller(fixer.topology, fixer.positions)
+    # Rename glycosylated ASN/SER/THR → NLN/OLS/OLT — but ONLY for those
+    # bonded to GLYCAM-named sugars (UYB/4YB/...). For PDB-named sugars
+    # (NAG/NDG/BMA/...) we keep ASN; HD22 is still removed downstream by
+    # remove_extra_glycan_hydrogens.
+    if heterogen_h and glycosylated_atoms:
+        new_top, new_pos, _renamed = rename_glycosylated_protein_residues(
+            modeller.topology, modeller.positions, glycosylated_atoms, verbose,
+            sugar_by_anchor=sugar_by_anchor,
+        )
+        modeller = Modeller(new_top, new_pos)
+    # OpenMM's Modeller.addHydrogens looks up `res.name` in its internal
+    # `_residueHydrogens` dict — which is keyed by the standard residue name
+    # ("LYS", "HIS", "CYS"), not by AMBER variant names ("LYN", "HID", "HIE",
+    # ...). When a topology has a residue with `res.name = "LYN"`, addHydrogens
+    # SKIPS it entirely (residue.name not in _residueHydrogens) — no H atoms
+    # get added — and the next createSystem call then fails with
+    # "No template found for residue (LYN). The set of heavy atoms matches
+    # LYN, but the residue is missing N H atoms."
+    #
+    # Fix: rename topology residues from AMBER variant names back to their
+    # standard parents BEFORE calling addHydrogens, pass the variants list
+    # so addHydrogens applies the variant rules (gates HZ3 for LYS-only,
+    # skips HE2 for HID, etc.), then restore the variant names after.
+    from dvbfixer.ffutils.variants import (
+        fix_lyn_hz_naming as _fix_lyn_hz_naming_shared,
+    )
+    from dvbfixer.ffutils.variants import (
+        rename_variants_to_parent_in_topology as _rename_variants_to_parent,
+    )
+    from dvbfixer.ffutils.variants import (
+        restore_variants_post_addhydrogens as _restore_variants_post_addhydrogens,
+    )
+
+    def _fix_lyn_hz_naming(top, saved):
+        renamed = _fix_lyn_hz_naming_shared(top, saved)
+        if verbose and renamed:
+            print(f"  Renamed HZ1→HZ3 on {renamed} LYN residue(s) to match "
+                  f"AMBER ff14SB/ff19SB LYN template (HZ2 + HZ3)")
+
+    if heterogen_h:
+        # BioLuminate-style: add H to protein AND heterogens (sugars, ligands).
+        # ff_xmls comes from the caller (resolved via ffutils.resolve_ff).
+        # Fall back to amber14+GLYCAM if caller didn't pass one. The
+        # water-model XML is included for ion templates (Ca2+, Mg2+, Zn2+,
+        # Na+, Cl-, K+, etc.) which AMBER ships inside the water XML. For
+        # arbitrary unknown ligands without an FF template, run `minimize
+        # --parametrize-ligands` (GAFF2 + AM1-BCC) rather than relying on
+        # this step (prepare only needs enough templates to place H).
+        _ff_xmls = ff_xmls or ['amber14-all.xml',
+                               'amber14/GLYCAM_06j-1.xml',
+                               'amber14/tip3pfb.xml']
+        try:
+            from dvbfixer.ffutils import build_glycam_system
+            ff = build_glycam_system(
+                _ff_xmls, modeller.topology, modeller.positions, verbose=verbose,
+            )
+            _saved = _rename_variants_to_parent(modeller.topology)
+            try:
+                modeller.addHydrogens(ff, pH=ph, variants=variants)
+            finally:
+                _fix_lyn_hz_naming(modeller.topology, _saved)
+                _restore_variants_post_addhydrogens(modeller.topology, _saved)
+        except (ValueError, KeyError, Exception) as e:
+            from dvbfixer.ffutils import (
+                PROTEIN_RESIDUES,
+                SOLVENT_IONS,
+                explain_template_error,
+            )
+            diag = explain_template_error(e, modeller.topology, ff)
+            # Classify: was the failed residue an unknown ligand (expected —
+            # OpenBabel/RDKit will place its H below) or something else
+            # (real problem)?
+            known = PROTEIN_RESIDUES | SOLVENT_IONS
+            failed_name = None
+            try:
+                import re as _re
+                m = _re.search(r'residue\s+(\d+)\s+\(([A-Za-z0-9_]+)\)',
+                               str(e))
+                if m:
+                    failed_name = m.group(2)
+            except Exception:
+                failed_name = None
+            is_unknown_ligand = (failed_name is not None
+                                 and failed_name not in known)
+
+            if is_unknown_ligand:
+                print(f"  INFO: {failed_name} has no FF template — its H "
+                      f"atoms will be placed by OpenBabel/RDKit (universal). "
+                      f"Pass `dvbfixer minimize --parametrize-ligands` for "
+                      f"real GAFF2 parameters downstream.")
+                if verbose and diag:
+                    for line in diag.split('\n'):
+                        print(f"    {line}")
+            else:
+                print(f"  WARNING: whole-topology addHydrogens failed "
+                      f"({type(e).__name__}: {e}); falling back to "
+                      f"protein-only.")
+                if diag:
+                    for line in diag.split('\n'):
+                        print(f"    {line}")
+            # Rebuild modeller since addHydrogens may have left it half-modified
+            modeller = Modeller(fixer.topology, fixer.positions)
+            _saved = _rename_variants_to_parent(modeller.topology)
+            try:
+                modeller.addHydrogens(pH=ph, variants=variants)
+            finally:
+                _fix_lyn_hz_naming(modeller.topology, _saved)
+                _restore_variants_post_addhydrogens(modeller.topology, _saved)
+    else:
+        # Legacy: protein-only H addition
+        _saved = _rename_variants_to_parent(modeller.topology)
+        try:
+            modeller.addHydrogens(pH=ph, variants=variants)
+        finally:
+            _fix_lyn_hz_naming(modeller.topology, _saved)
+            _restore_variants_post_addhydrogens(modeller.topology, _saved)
+    fixer.topology = modeller.topology
+    fixer.positions = modeller.positions
+
+    # Polish step: use OpenBabel to add H atoms to any heterogens (sugars,
+    # ligands) that the AMBER/GLYCAM addHydrogens pass couldn't handle.
+    # OpenBabel uses valence rules + connectivity and works for arbitrary
+    # organic molecules without needing templates or SMILES.
+    # Heterogen H is now added by add_heterogen_h_via_rdkit in main(), after
+    # the PDB is written with CONECTs. RDKit sees the full molecular graph
+    # (CONECT + distance perception) and places H atoms with proper geometry.
+
+    # Remove extra hydrogens from glycosylated residues
+    if glycosylated_atoms:
+        remove_extra_glycan_hydrogens(fixer, glycosylated_atoms, verbose)
+
+    # Identify which atoms in the new topology are newly added
+    new_atom_indices = set()
+    added_residue_ids = set()
+    for atom in fixer.topology.atoms():
+        key = (atom.residue.chain.id, atom.residue.id,
+               atom.residue.insertionCode, atom.name)
+        if key not in original_atoms:
+            new_atom_indices.add(atom.index)
+            added_residue_ids.add((atom.residue.chain.id, atom.residue.id))
+
+    if verbose:
+        n_new_heavy = sum(1 for idx in new_atom_indices
+                          for atom in [list(fixer.topology.atoms())[idx]]
+                          if atom.element.symbol != 'H')
+        print(f"Added {len(new_atom_indices)} atoms ({n_new_heavy} heavy), "
+              f"across {len(added_residue_ids)} residues")
+
+    return fixer, new_atom_indices, variant_overrides
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main(argv=None):
+    args = parse_args(argv)
+    input_path = Path(args.input)
+    if not input_path.exists():
+        print(f"File not found: {input_path}", file=sys.stderr)
+        sys.exit(1)
+
+    output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prepared")
+    dat_path = Path(args.dat) if args.dat else output_path.with_suffix(".dat")
+
+    # Auto-infer CONECT records into a temp PDB copy so downstream flows
+    # (glycosylation detection, mutation glycan walk, SS detection) work on
+    # inputs that lack explicit CONECT.
+    if not args.no_infer_conect:
+        from dvbfixer.pdbutils import _materialise_inferred_pdb
+        input_path = Path(_materialise_inferred_pdb(
+            input_path, verbose=args.verbose))
+
+    # Resolve --ff for the heterogen-H step. Only prints when heterogen-H
+    # actually runs; auto-detects from residue names.
+    from dvbfixer.ffutils import print_ff_selection, resolve_ff
+    _ff_xmls, _ff_alias, _ff_reason = resolve_ff(
+        args.ff, input_path, verbose=args.verbose)
+    if args.heterogen_h:
+        print_ff_selection(_ff_alias, _ff_reason, _ff_xmls)
+
+    if args.rename:
+        import tempfile as _tf
+
+        from dvbfixer.rename import canonicalize_pdb
+        _tmp = Path(_tf.mktemp(suffix='.pdb'))
+        n = canonicalize_pdb(input_path, _tmp, args.verbose)
+        if n > 0:
+            print(f"Canonicalized {n} non-canonical residue(s)")
+            input_path = _tmp
+        elif _tmp.exists():
+            _tmp.unlink()
+
+    # Apply --mutate ...:del deletions AND substitution-cleanup at the raw-
+    # text level BEFORE PDBFixer. Substitution cleanup removes dependent
+    # atoms/records (attached glycan tree, SS partner repair, LINK records)
+    # for substitution mutations where the new AA can't carry the old AA's
+    # sidechain-mediated bonds — e.g. --mutate H:297:ALA on a glycosylated
+    # ASN removes the entire NAG-NAG-BMA-... tree along with the substitution.
+    removed_residues_meta = []
+    deletion_path = input_path
+    if args.mutate:
+        subs_by_chain, _vars, deletions = parse_mutations(args.mutate)
+        # Build substitution-cleanup list: read old residue name from raw PDB
+        # so we can decide whether the cleanup is needed (skip CYS→CYX style
+        # protonation-variant renames where the parent residue is unchanged).
+        substitution_cleanups = []
+        if subs_by_chain:
+            old_resname = {}  # (chain, int(resseq)) → resname
+            with open(input_path) as _f:
+                for _line in _f:
+                    if not _line.startswith(('ATOM  ', 'HETATM')):
+                        continue
+                    try:
+                        _rs = int(_line[22:26].strip())
+                    except ValueError:
+                        continue
+                    _ch = _line[21]
+                    _rn = _line[17:20].strip()
+                    old_resname.setdefault((_ch, _rs), _rn)
+            for ch, muts in subs_by_chain.items():
+                for (resnum_str, new_aa) in muts:
+                    try:
+                        rs = int(resnum_str)
+                    except ValueError:
+                        continue
+                    orn = old_resname.get((ch, rs))
+                    if orn is None:
+                        continue
+                    substitution_cleanups.append((ch, rs, ' ', orn, new_aa))
+        if deletions or substitution_cleanups:
+            if deletions:
+                print(f"Applying {len(deletions)} deletion mutation(s)...")
+            deletion_path, removed_residues_meta = apply_deletions_to_pdb_text(
+                input_path, deletions, verbose=args.verbose,
+                substitution_cleanups=substitution_cleanups,
+            )
+            input_path = deletion_path
+
+    print(f"=== PDBFixer: {input_path} ===")
+    fixer, new_atom_indices, variant_overrides = run_pdbfixer(
+        input_path, args.ph, args.keep_water, args.keep_heterogens, args.verbose,
+        mutations=args.mutate, heterogen_h=args.heterogen_h,
+        removed_residues_meta=removed_residues_meta,
+        ff_xmls=_ff_xmls,
+    )
+
+    # Write PDB with standard names first (OpenMM writes HETATM for non-standard)
+    with open(output_path, 'w') as f:
+        PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)
+
+    # Build var_lookup for variant name restoration (applied after each PDB write)
+    var_lookup = {}
+    for (ch, rn), var_name in variant_overrides.items():
+        var_lookup[(ch, rn)] = var_name
+
+    def _restore_variants(path):
+        if not var_lookup:
+            return
+        with open(path) as f:
+            pdb_lines = f.readlines()
+        with open(path, 'w') as f:
+            for line in pdb_lines:
+                if line.startswith(('ATOM  ', 'HETATM', 'TER   ')):
+                    ch = line[21]
+                    rs = line[22:26].strip()
+                    var = var_lookup.get((ch, rs))
+                    if var:
+                        line = f"ATOM  {line[6:17]}{var:>3s}{line[20:]}"
+                f.write(line)
+
+    _restore_variants(output_path)
+
+    # Emit CONECT records for inter/intra heterogen bonds. OpenMM's
+    # PDBFile.writeFile doesn't write CONECTs by default, so PyMOL/VMD can't
+    # show the protein-glycan and sugar-sugar bonds. minimize.py also needs
+    # them to reconstruct topology bonds.
+    _write_heterogen_conects(output_path, fixer.topology)
+
+    # BioLuminate-style polish: pipe through RDKit so it sees the full
+    # molecular graph (CONECT-derived bonds + distance perception) and adds H
+    # to any heterogens that still need them, with proper 3D geometry.
+    # RDKit honors all bonds (protein-glycan, sugar-sugar, intra-sugar) so it
+    # won't add spurious H at linkage positions.
+    # Skip the RDKit/OpenBabel polish passes when every heterogen is already
+    # GLYCAM-named (UYB/4YB/VMB/NLN/...) — the AMBER14+GLYCAM addHydrogens
+    # step inside run_pdbfixer already placed all H atoms correctly using
+    # the GLYCAM templates + glycam-hydrogens.xml definitions. Running the
+    # polish on top would strip and re-add H via valence rules, breaking
+    # GLYCAM atom names (C2N/O2N/CME/etc.) that OpenBabel doesn't recognize.
+    from dvbfixer.ffutils import PROTEIN_RESIDUES as _PR
+    from dvbfixer.ffutils import SOLVENT_IONS as _SI
+    from dvbfixer.ffutils import is_glycam_residue
+    _known = _PR | _SI
+    needs_polish = any(
+        not is_glycam_residue(r.name) and r.name not in _known
+        for r in fixer.topology.residues()
+    )
+    if args.heterogen_h and not needs_polish and args.verbose:
+        print("All heterogens are GLYCAM-named — skipping RDKit/OpenBabel polish")
+
+    if args.heterogen_h and needs_polish:
+        # Two-pass heterogen H addition:
+        #   1. RDKit AddHs(addCoords=True) — full-graph, fast for fully-perceived
+        #      sugars. Often miscounts H on ring carbons when proximityBonding
+        #      adds spurious cross-residue bonds (over-coordinated → no H).
+        #   2. OpenBabel per-residue fallback — strips stale H from residues
+        #      that came out under-protonated, regenerates from valence rules.
+        for h_pass in (add_heterogen_h_via_rdkit, add_heterogen_h_via_openbabel):
+            if h_pass is add_heterogen_h_via_rdkit:
+                new_top, new_pos = h_pass(
+                    fixer.topology, fixer.positions, output_path, args.verbose,
+                )
+            else:
+                new_top, new_pos = h_pass(
+                    fixer.topology, fixer.positions, args.verbose,
+                )
+            if new_top is not fixer.topology:
+                old_atom_keys = {
+                    (a.residue.chain.id, a.residue.id, a.residue.insertionCode, a.name)
+                    for a in fixer.topology.atoms()
+                }
+                fixer.topology = new_top
+                fixer.positions = new_pos
+                with open(output_path, 'w') as f:
+                    PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)
+                _restore_variants(output_path)
+                _write_heterogen_conects(output_path, fixer.topology)
+                for atom in fixer.topology.atoms():
+                    key = (atom.residue.chain.id, atom.residue.id,
+                           atom.residue.insertionCode, atom.name)
+                    if key not in old_atom_keys:
+                        new_atom_indices.add(atom.index)
+
+    # Rewrite HETATM→ATOM for AMBER protonation variants and GLYCAM
+    # glycoprotein residues (NLN/OLS/OLT). PDBFile.writeFile defaults these
+    # to HETATM. _restore_variants already covers user-mutated variants;
+    # this catches any residue that slipped through (e.g. NLN coming in
+    # from the input file).
+    from dvbfixer.ffutils import fix_atom_hetatm_records as _fix_records
+    _fix_records(output_path)
+
+    print(f"Saved prepared structure: {output_path}")
+
+    dat = build_dat(fixer, new_atom_indices)
+
+    # Save variant overrides in .dat so minimize can restore them
+    if variant_overrides:
+        dat['variant_overrides'] = {
+            f"{ch}:{rn}": var for (ch, rn), var in variant_overrides.items()
+        }
+
+    # Record any --mutate ...:del removals so downstream minimize / model
+    # tools know which residues are intentionally absent.
+    if removed_residues_meta:
+        dat['removed_residues'] = removed_residues_meta
+
+    # Merge with upstream .dat (e.g. from model step) if it exists.
+    # Delegate to ffutils.dat's merge logic so the "downstream wins on
+    # optional-field collision" semantics stay in one place.
+    upstream_dat = input_path.with_suffix('.dat')
+    if upstream_dat.exists():
+        from dvbfixer.ffutils.dat import DatRecord
+
+        known = {
+            "description", "residue_summary", "added_atoms",
+            "variant_overrides", "removed_residues", "templates", "target_chains",
+        }
+        downstream = DatRecord(**{k: v for k, v in dat.items() if k in known})
+        upstream = DatRecord.load(upstream_dat)
+        carried = downstream.merge(upstream)
+        dat = downstream.to_dict()
+        if carried > 0:
+            print(f"Merged {carried} atoms from upstream {upstream_dat.name}")
+
+    write_dat(dat, dat_path)
+
+    # Clean up the deletion-cleaned temp file (if one was created)
+    if deletion_path != Path(args.input).resolve() and deletion_path != Path(args.input):
+        try:
+            Path(deletion_path).unlink(missing_ok=True)
+        except (OSError, TypeError):
+            pass

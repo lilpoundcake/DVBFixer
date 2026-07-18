@@ -27,16 +27,22 @@ def parse_args(argv=None):
         prog='dvbfixer conect',
         description='Infer and write CONECT records for a PDB file.',
     )
-    parser.add_argument('input', help='Input PDB file')
-    parser.add_argument('-o', '--output',
-                        help='Output PDB file (default: <input>_conect.pdb)')
-    parser.add_argument('--force', action='store_true',
-                        help='Allow in-place overwrite (when --output equals input)')
-    parser.add_argument('--include-protein-backbone', action='store_true',
-                        help='Also emit CONECT for standard amino-acid backbone '
-                             'bonds. Off by default (FF templates own those).')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='Print bond counts and source breakdown')
+    io = parser.add_argument_group('Input / output')
+    io.add_argument('input', help='Input PDB file')
+    io.add_argument('-o', '--output',
+                    help='Output PDB file (default: <input>_conect.pdb)')
+    io.add_argument('--force', action='store_true',
+                    help='Allow in-place overwrite (when --output equals input)')
+
+    content = parser.add_argument_group('Content selection')
+    content.add_argument('--include-protein-backbone', action='store_true',
+                         help='Also emit CONECT for standard amino-acid backbone '
+                              'bonds. Off by default (FF templates own those).')
+
+    diag = parser.add_argument_group('Diagnostics')
+    diag.add_argument('-v', '--verbose', action='store_true',
+                      help='Print bond counts and source breakdown')
+
     return parser.parse_args(argv)
 
 
@@ -53,7 +59,7 @@ def main(argv=None):
         out_path = in_path.with_name(in_path.stem + '_conect.pdb')
 
     if out_path.resolve() == in_path.resolve() and not args.force:
-        print(f"Error: --output equals input. Pass --force to overwrite.",
+        print("Error: --output equals input. Pass --force to overwrite.",
               file=sys.stderr)
         sys.exit(1)
 

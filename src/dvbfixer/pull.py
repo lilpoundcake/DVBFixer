@@ -16,10 +16,9 @@ from pathlib import Path
 import numpy as np
 from openmm import CustomBondForce, CustomExternalForce, LangevinMiddleIntegrator
 from openmm.app import Modeller, NoCutoff, PDBFile, Simulation
-from openmm.unit import angstrom, kilocalorie_per_mole, kelvin, nanometer, picosecond
+from openmm.unit import angstrom, kelvin, nanometer, picosecond
 
 from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
-
 
 # Default force field (protein only)
 DEFAULT_FF = 'auto'
@@ -57,29 +56,41 @@ def parse_args(argv=None):
         "minimization. Selected atoms near the bond are free, rest are frozen "
         "(mass=0). Works with any residue type (glycans auto-parametrized via OpenFF).",
     )
-    p.add_argument("input", help="Input PDB file")
-    p.add_argument("--bond", nargs=2, required=True, action="append", metavar="SPEC",
-                   help="Two atom specs: chain:resnum:atomname (e.g. --bond H:239:SG K:239:SG). "
-                   "Can be specified multiple times for multiple bonds.")
-    p.add_argument("-o", "--output", help="Output PDB (default: <input>_pulled.pdb)")
-    p.add_argument("--target-distance", type=float,
-                   help="Target bond distance in angstroms (default: auto by bond type)")
-    p.add_argument("--radius", type=float, default=10.0,
-                   help="Radius of free region around bond endpoints in angstroms (default: 10.0)")
-    p.add_argument("--anchor", metavar="SPEC",
-                   help="Anchor one endpoint (freeze its side, only move the other)")
-    p.add_argument("--max-iter", type=int, default=1000,
-                   help="Max minimization iterations (default: 1000)")
-    p.add_argument("--ff", nargs='+', default=[DEFAULT_FF],
-                   help="Force field selection. Accepts a short name "
-                        "(auto, amber, amber+glycam, charmm, ...) or an "
-                        "explicit list of OpenMM XML paths. Default: 'auto' — "
-                        "detect from residue names in the input. "
-                        "See docs/force-fields.md.")
-    p.add_argument("--rename", action="store_true",
-                   help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing")
-    p.add_argument("-v", "--verbose", action="store_true",
-                   help="Print detailed progress")
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB file")
+    io.add_argument("-o", "--output", help="Output PDB (default: <input>_pulled.pdb)")
+
+    bonds = p.add_argument_group("Bond specification")
+    bonds.add_argument("--bond", nargs=2, required=True, action="append", metavar="SPEC",
+                       help="Two atom specs: chain:resnum:atomname (e.g. --bond H:239:SG K:239:SG). "
+                            "Can be specified multiple times for multiple bonds.")
+    bonds.add_argument("--target-distance", type=float,
+                       help="Target bond distance in angstroms (default: auto by bond type)")
+    bonds.add_argument("--anchor", metavar="SPEC",
+                       help="Anchor one endpoint (freeze its side, only move the other)")
+
+    physics = p.add_argument_group("Physics / restraints")
+    physics.add_argument("--radius", type=float, default=10.0,
+                         help="Radius of free region around bond endpoints in angstroms (default: 10.0)")
+    physics.add_argument("--max-iter", type=int, default=1000,
+                         help="Max minimization iterations (default: 1000)")
+
+    ff = p.add_argument_group("Force field")
+    ff.add_argument("--ff", nargs='+', default=[DEFAULT_FF],
+                    help="Force field selection. Accepts a short name "
+                         "(auto, amber, amber+glycam, charmm, ...) or an "
+                         "explicit list of OpenMM XML paths. Default: 'auto' — "
+                         "detect from residue names in the input. "
+                         "See docs/force-fields.md.")
+
+    content = p.add_argument_group("Content selection")
+    content.add_argument("--rename", action="store_true",
+                         help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing")
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument("-v", "--verbose", action="store_true",
+                      help="Print detailed progress")
+
     return p.parse_args(argv)
 
 
@@ -312,7 +323,7 @@ def strip_hetatm(topology, positions):
 
     removed_info is a list of (chain_id, res_id, res_name, atom_data) for restoration.
     """
-    from openmm.app import Topology, Modeller
+    from openmm.app import Modeller
 
     known = PROTEIN_RESIDUES | SOLVENT_IONS
     to_delete = []
@@ -477,7 +488,7 @@ def write_output(topology, positions, output_path, bond_info_list, input_path=No
 
     bond_info_list: list of (idx_a, idx_b) tuples for new bonds.
     """
-    from dvbfixer.pdbutils import build_serial_map, append_before_end
+    from dvbfixer.pdbutils import append_before_end, build_serial_map
 
     with open(output_path, 'w') as f:
         PDBFile.writeFile(topology, positions, f, keepIds=True)
@@ -555,14 +566,15 @@ def main(argv=None):
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_pulled")
 
-    from dvbfixer.ffutils import resolve_ff, print_ff_selection
+    from dvbfixer.ffutils import print_ff_selection, resolve_ff
     args.ff, _ff_alias, _ff_reason = resolve_ff(
         args.ff, input_path, verbose=args.verbose)
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
     if args.rename:
-        from dvbfixer.rename import canonicalize_pdb
         import tempfile as _tf
+
+        from dvbfixer.rename import canonicalize_pdb
         _tmp = Path(_tf.mktemp(suffix='.pdb'))
         n = canonicalize_pdb(input_path, _tmp, args.verbose)
         if n > 0:
@@ -616,7 +628,7 @@ def main(argv=None):
                 topology, positions, idx_a, idx_b, args.radius, anchor_idx
             )
             if idx_a not in fi or idx_b not in fi:
-                print(f"Error: bond endpoints outside free region. Increase --radius.",
+                print("Error: bond endpoints outside free region. Increase --radius.",
                       file=sys.stderr)
                 sys.exit(1)
             free_indices |= fi

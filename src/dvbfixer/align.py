@@ -25,9 +25,12 @@ plain SVD on the matched-atom coord pairs — that's the structural part.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
+import numpy as np
+from numpy.typing import NDArray
 
-_BACKBONE_ATOMS = ('N', 'CA', 'C', 'O')
+_BACKBONE_ATOMS = ("N", "CA", "C", "O")
 
 # AMBER + CHARMM protonation-variant → canonical parent, so
 # `.residues.sequence()` returns matching letters across renames.
@@ -42,7 +45,7 @@ _CANONICAL = {
 }
 
 
-def _canonical_sequence(mda_residues):
+def _canonical_sequence(mda_residues: Any) -> tuple[str, list[Any]]:
     """Return one-letter sequence + list of matching MDA Residue objects.
 
     Non-protein residues are skipped. AMBER/CHARMM protonation variants
@@ -64,9 +67,10 @@ def _canonical_sequence(mda_residues):
     return ''.join(seq), res_list
 
 
-def _kabsch(P, Q):
+def _kabsch(
+    P: NDArray[np.float64], Q: NDArray[np.float64]
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
     """Return (R, t) that best superposes P onto Q. P, Q: (N, 3) arrays."""
-    import numpy as np
     P = np.asarray(P, dtype=float)
     Q = np.asarray(Q, dtype=float)
     Pc = P.mean(axis=0)
@@ -80,12 +84,13 @@ def _kabsch(P, Q):
     return R, t
 
 
-def _fit_atoms_for_selection(res_pairs, selection):
+def _fit_atoms_for_selection(
+    res_pairs: list[tuple[Any, Any]], selection: str
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
     """From matched residue pairs, harvest coord pairs for the Kabsch fit.
 
     Returns two (N, 3) numpy arrays P, Q (mobile then reference).
     """
-    import numpy as np
     sel = selection.lower()
     if sel == 'ca':
         want = {'CA'}
@@ -116,8 +121,14 @@ def _fit_atoms_for_selection(res_pairs, selection):
     return np.asarray(P), np.asarray(Q)
 
 
-def kabsch_align_pdb(input_pdb, reference_pdb, output_pdb, *,
-                     selection='backbone', verbose=False):
+def kabsch_align_pdb(
+    input_pdb: str | Path,
+    reference_pdb: str | Path,
+    output_pdb: str | Path,
+    *,
+    selection: str = "backbone",
+    verbose: bool = False,
+) -> tuple[float | None, float | None, int]:
     """Kabsch-superpose `input_pdb` onto `reference_pdb`, write `output_pdb`.
 
     Correspondences are established by per-chain protein-sequence
@@ -133,7 +144,6 @@ def kabsch_align_pdb(input_pdb, reference_pdb, output_pdb, *,
         (None, None, 0).
     """
     try:
-        import numpy as np
         import MDAnalysis as mda
         from Bio.Align import PairwiseAligner
     except ImportError as e:
@@ -223,14 +233,19 @@ def kabsch_align_pdb(input_pdb, reference_pdb, output_pdb, *,
     return rmsd_before, rmsd_after, len(P)
 
 
-def _copy_file(src, dst):
+def _copy_file(src: str | Path, dst: str | Path) -> None:
     if str(Path(src).resolve()) == str(Path(dst).resolve()):
         return
-    with open(src) as f_in, open(dst, 'w') as f_out:
+    with open(src) as f_in, open(dst, "w") as f_out:
         f_out.writelines(f_in)
 
 
-def _apply_transform_preserving_headers(input_pdb, output_pdb, R, t):
+def _apply_transform_preserving_headers(
+    input_pdb: str | Path,
+    output_pdb: str | Path,
+    R: NDArray[np.float64],
+    t: NDArray[np.float64],
+) -> None:
     """Apply the Kabsch (R, t) to every ATOM/HETATM line in `input_pdb`;
     write to `output_pdb`. Every other line (SEQRES, HELIX, SHEET, SSBOND,
     LINK, CISPEP, HET, DBREF, SEQADV, CONECT, REMARK, HEADER, TITLE,

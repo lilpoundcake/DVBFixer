@@ -10,8 +10,6 @@ using [ pairs_nb ] directive with per-pair LJ/Coulomb parameters.
 
 from pathlib import Path
 
-from dvbfixer.ffutils import PROTEIN_RESIDUES
-
 
 def detect_ss_bonds(pdb_path):
     """Detect disulfide bonds from CONECT records between SG atoms, with
@@ -154,12 +152,14 @@ def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True,
         if residue_order[i-1][0] == residue_order[i][0] == residue_order[i+1][0]:
             midchain.add(residue_order[i])
 
-    # AMBER protonation variants → standard names (OpenMM needs standard names
-    # in topology, variants passed separately to addHydrogens)
+    # AMBER protonation variants → standard names. Pull from the shared
+    # ``ffutils.variants`` table so this and prepare/minimize/protonate stay
+    # in sync. The acpype flow only strips HG explicitly for CYX/CYM (see
+    # below), so we intentionally omit CYX/CYM from the rename map here —
+    # they get handled by the dedicated ``elif resname == 'CYX'`` branch.
+    from dvbfixer.ffutils.variants import AMBER_VARIANT_TO_PARENT
     _AMBER_TO_STD = {
-        'ASH': 'ASP', 'GLH': 'GLU',
-        'HIE': 'HIS', 'HID': 'HIS', 'HIP': 'HIS',
-        'LYN': 'LYS',
+        k: v for k, v in AMBER_VARIANT_TO_PARENT.items() if k not in {'CYX', 'CYM'}
     }
     # OpenMM variant names for addHydrogens
     _OPENMM_VARIANTS = {'ASH', 'GLH', 'HIE', 'HID', 'HIP', 'CYX', 'LYN'}
@@ -456,9 +456,11 @@ def add_glycam_bonds(topology, forcefield, verbose=False, positions=None):
     if positions is not None:
         try:
             from openmm.unit import nanometer
-            from dvbfixer.ffutils import is_glycam_sugar, KNOWN_GLYCAN_SMILES
+
+            from dvbfixer.ffutils import KNOWN_GLYCAN_SMILES, is_glycam_sugar
         except Exception:
-            is_glycam_sugar = lambda n: False
+            def is_glycam_sugar(n):
+                return False
             KNOWN_GLYCAN_SMILES = {}
             nanometer = None
 
@@ -688,10 +690,11 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
                             in prepare_for_openmm — every input H atom passes
                             through even if not on the KEEP list.
     """
-    from openmm.app import ForceField, Modeller, PDBFile, NoCutoff
+    import shutil
+
     import parmed
     from acpype.topol import MolTopol
-    import shutil
+    from openmm.app import ForceField, Modeller, NoCutoff, PDBFile
 
     pdb_path = Path(pdb_path)
     output_dir = Path(output_dir)
@@ -740,7 +743,7 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
                     warnings.warn(
                         f"Terminal {orig} {res.chain.id}:{res.id} → {res.name}: "
                         f"AMBER14 has no N/C-terminal protonated template "
-                        f"(NASH/NGLH). Using standard {res.name} (stripped {h_name})."
+                        f"(NASH/NGLH). Using standard {res.name} (stripped {h_name}).", stacklevel=2
                     )
             # NOTE: Do NOT rename to AMBER variant here — addHydrogens uses
             # hydrogens.xml which only has standard residue names (HIS, ASP,
@@ -765,9 +768,11 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
         for i in range(len(res_list) - 1):
             c_atom = n_atom = None
             for a in res_list[i].atoms():
-                if a.name == 'C': c_atom = a
+                if a.name == 'C':
+                    c_atom = a
             for a in res_list[i+1].atoms():
-                if a.name == 'N': n_atom = a
+                if a.name == 'N':
+                    n_atom = a
             if c_atom and n_atom and (c_atom.index, n_atom.index) not in existing_bonds:
                 topology.addBond(c_atom, n_atom)
                 if verbose:

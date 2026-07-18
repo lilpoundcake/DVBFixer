@@ -12,7 +12,17 @@ template in the resolved FF, use `--parametrize-ligands` on `minimize` /
 real OpenMM template per ligand. See `docs/force-fields.md`.
 """
 
-from openmm.app import ForceField
+from __future__ import annotations
+
+from collections.abc import Iterable
+from pathlib import Path
+from typing import Any
+
+# NOTE: openmm.app.ForceField is imported lazily inside
+# `create_forcefield_with_openff` and `build_glycam_system` (the only two
+# functions that use it). Keeping the top-level import laziness means
+# `from dvbfixer.ffutils.variants import ...` and `... .dat import ...`
+# work in the CI fast lane without OpenMM installed.
 
 # PDB-standard sugar residue names — the ambiguous set from the auto-detect
 # path (a hit alone does not identify an FF; user is warned to convert first).
@@ -98,7 +108,7 @@ _CHARMM_MARKERS = (_CHARMM_PROTONATION_MARKERS
 _AMBIGUOUS_SUGAR_MARKERS = frozenset(_PDB_SUGAR_NAMES)
 
 
-def _scan_resnames(pdb_path):
+def _scan_resnames(pdb_path: str | Path) -> set[str]:
     """Return set of resnames present in a PDB file (ATOM/HETATM lines).
 
     Reads both 3-char (cols 18-20) and CHARMM 4-char (cols 18-21) forms
@@ -125,7 +135,7 @@ def _scan_resnames(pdb_path):
     return names
 
 
-def detect_ff_from_pdb(pdb_path):
+def detect_ff_from_pdb(pdb_path: str | Path) -> tuple[str, str]:
     """Scan a PDB file and return (alias, reason).
 
     - `('charmm', reason)` if any CHARMM-specific marker is found.
@@ -165,12 +175,17 @@ def detect_ff_from_pdb(pdb_path):
     return 'amber', 'no non-standard residues detected'
 
 
-def _looks_like_xml_path(item):
+def _looks_like_xml_path(item: str) -> bool:
     """True if `item` looks like an OpenMM FF XML path, not a short-name alias."""
     return item.endswith('.xml') or '/' in item or '\\' in item
 
 
-def resolve_ff(user_ff, pdb_path, *, verbose=False):
+def resolve_ff(
+    user_ff: str | list[str] | None,
+    pdb_path: str | Path,
+    *,
+    verbose: bool = False,
+) -> tuple[list[str], str, str | None]:
     """Resolve a user's --ff argument into (xml_list, alias_name, reason).
 
     Accepts:
@@ -236,7 +251,9 @@ def resolve_ff(user_ff, pdb_path, *, verbose=False):
     return FF_ALIASES[tok], tok, None
 
 
-def print_ff_selection(alias, reason, xml_list, prefix=""):
+def print_ff_selection(
+    alias: str, reason: str | None, xml_list: list[str], prefix: str = ""
+) -> None:
     """Emit the standard two-line FF selection banner used by every tool."""
     tag = f"{prefix}FF: {alias}"
     if reason:
@@ -245,7 +262,7 @@ def print_ff_selection(alias, reason, xml_list, prefix=""):
     print(f"{prefix}  → {' '.join(xml_list)}")
 
 
-def is_glycam_sugar(name):
+def is_glycam_sugar(name: str) -> bool:
     """True if `name` is a GLYCAM sugar code (3-char linkage+sugar+anomer or cap)."""
     if name in GLYCAM_CAPS:
         return True
@@ -254,12 +271,12 @@ def is_glycam_sugar(name):
             and name[2] in _GLYCAM_ANOMER_CHARS)
 
 
-def is_glycam_residue(name):
+def is_glycam_residue(name: str) -> bool:
     """True if `name` is any GLYCAM-named residue (sugar OR glycoprotein)."""
     return name in GLYCAM_PROTEIN_RESIDUES or is_glycam_sugar(name)
 
 
-def detect_glycam_input(topology):
+def detect_glycam_input(topology: Any) -> dict[str, set[tuple[str, str]]]:
     """Scan topology for GLYCAM and PDB sugar residues.
 
     Returns dict with keys:
@@ -271,7 +288,7 @@ def detect_glycam_input(topology):
                           non-solvent that's not in the above
     """
     known_prot_solv = PROTEIN_RESIDUES | SOLVENT_IONS
-    info = {
+    info: dict[str, set[tuple[str, str]]] = {
         'glycam_proteins': set(),
         'glycam_sugars': set(),
         'pdb_sugars': set(),
@@ -291,7 +308,7 @@ def detect_glycam_input(topology):
     return info
 
 
-def sanitize_protein_hetatm(pdb_path, verbose=False):
+def sanitize_protein_hetatm(pdb_path: str | Path, verbose: bool = False) -> str:
     """Rewrite `pdb_path` so protein/GLYCAM-glycoprotein residues are
     guaranteed to be `ATOM` and any spurious mid-chain `TER` records are
     dropped. Both issues break OpenMM's peptide-bond inference.
@@ -318,7 +335,7 @@ def sanitize_protein_hetatm(pdb_path, verbose=False):
     with open(pdb_path) as f:
         lines = f.readlines()
 
-    res_at_pos = {}
+    res_at_pos: dict[tuple[str, int, str], str] = {}
     for line in lines:
         if line.startswith(('ATOM', 'HETATM')) and len(line) >= 27:
             ch = line[21]
@@ -332,11 +349,11 @@ def sanitize_protein_hetatm(pdb_path, verbose=False):
 
     n_hetatm_fix = 0
     n_ter_drop = 0
-    out_lines = []
+    out_lines: list[str] = []
     last_res_key = None
     pending_ter = None
 
-    def _flush_pending(flush_list):
+    def _flush_pending(flush_list: list[str]) -> None:
         nonlocal pending_ter
         if pending_ter is not None:
             flush_list.append(pending_ter)
@@ -401,7 +418,7 @@ def sanitize_protein_hetatm(pdb_path, verbose=False):
     return tmp_path
 
 
-def fix_atom_hetatm_records(pdb_path):
+def fix_atom_hetatm_records(pdb_path: str | Path) -> None:
     """Rewrite HETATM→ATOM for protein residues that OpenMM's PDBFile.writeFile
     incorrectly emitted as HETATM (AMBER protonation variants HID/HIE/HIP/
     ASH/GLH/CYX/CYM/LYN and GLYCAM glycoprotein residues NLN/OLS/OLT).
@@ -427,7 +444,7 @@ def fix_atom_hetatm_records(pdb_path):
             f.writelines(out)
 
 
-def _find_unknown_residue_names(topology):
+def _find_unknown_residue_names(topology: Any) -> set[str]:
     """Find residue names in topology that aren't protein/water/ions."""
     known = PROTEIN_RESIDUES | SOLVENT_IONS
     unknown = set()
@@ -437,7 +454,9 @@ def _find_unknown_residue_names(topology):
     return unknown
 
 
-def explain_template_error(exc, topology, forcefield=None):
+def explain_template_error(
+    exc: Exception, topology: Any, forcefield: Any = None
+) -> str | None:
     """Turn an opaque OpenMM template-match error into a useful diagnostic.
 
     OpenMM's `_matchAllResiduesToTemplates` reports failures by TOPOLOGY
@@ -541,9 +560,13 @@ def explain_template_error(exc, topology, forcefield=None):
     return '\n'.join(lines)
 
 
-def create_forcefield_with_openff(ff_xmls, topology,
-                                  extra_generators=None, verbose=False,
-                                  **_legacy_kwargs):
+def create_forcefield_with_openff(
+    ff_xmls: list[str],
+    topology: Any,
+    extra_generators: Iterable[Any] | None = None,
+    verbose: bool = False,
+    **_legacy_kwargs: Any,
+) -> Any:
     """Build an OpenMM ForceField with GLYCAM template suppression.
 
     When `GLYCAM_06j-1.xml` is loaded AND the input topology carries
@@ -571,6 +594,8 @@ def create_forcefield_with_openff(ff_xmls, topology,
         _legacy_kwargs: Silently swallowed (was `small_mol_ff`,
             `extra_molecules`); kept for callers that hadn't been updated.
     """
+    from openmm.app import ForceField
+
     ff = ForceField(*ff_xmls)
 
     # Suppress GLYCAM sugar/NA templates when PDB-named sugars are present.
@@ -597,5 +622,83 @@ def create_forcefield_with_openff(ff_xmls, topology,
         # unchanged so callers can also hand in raw functions.
         hook = getattr(gen, 'generator', gen)
         ff.registerTemplateGenerator(hook)
+
+    return ff
+
+
+def build_glycam_system(
+    ff_xmls: list[str],
+    topology: Any,
+    positions: Any = None,
+    *,
+    extra_generators: Iterable[Any] | None = None,
+    load_hydrogen_definitions: bool = True,
+    add_bonds: bool = True,
+    verbose: bool = False,
+) -> Any:
+    """Package the three-step GLYCAM setup ritual as one call.
+
+    Every GLYCAM-aware tool (``prepare``, ``minimize``, ``protonate``) needs
+    the same sequence:
+
+    1. Build the ForceField with GLYCAM template suppression via
+       :func:`create_forcefield_with_openff`.
+    2. Load ``glycam-hydrogens.xml`` on ``Modeller`` so ``addHydrogens``
+       knows where to place H on NLN/OLS/OLT and the GLYCAM sugars.
+    3. Call ``acpype_export.add_glycam_bonds(topology, ff, positions=...)``
+       to populate intra-residue bonds + protein-glycan peptide bonds +
+       sugar-sugar glycosidic bonds. Without these, template matching on
+       residues ADJACENT to NLN fails ("TYR missing 1 externally bonded C
+       atom") — see the prepare docstring for the gnarly detail.
+
+    Each caller was re-writing the same try/except-wrapped boilerplate.
+    This wrapper puts it in one place.
+
+    Args:
+        ff_xmls: OpenMM FF XML paths — same shape as
+            :func:`create_forcefield_with_openff` accepts.
+        topology: OpenMM Topology.
+        positions: OpenMM positions. Optional but strongly recommended for
+            ``add_glycam_bonds`` — the distance-based glycosidic-bond
+            detection needs coords.
+        extra_generators: Passed through to
+            :func:`create_forcefield_with_openff` — used by
+            ``minimize --parametrize-ligands`` to plug GAFF2 templates in.
+        load_hydrogen_definitions: When True, call
+            ``Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')``.
+            Turn off if the caller has already loaded them or is running a
+            protein-only path.
+        add_bonds: When True, run ``add_glycam_bonds``. Failures are logged
+            (in ``verbose`` mode) but non-fatal — matches the historical
+            defensive behaviour at all three call sites.
+        verbose: Extra logging.
+
+    Returns:
+        The built OpenMM ``ForceField``.
+    """
+    from openmm.app import Modeller
+
+    ff = create_forcefield_with_openff(
+        ff_xmls, topology, extra_generators=extra_generators, verbose=verbose,
+    )
+
+    if load_hydrogen_definitions:
+        try:
+            Modeller.loadHydrogenDefinitions("glycam-hydrogens.xml")
+        except Exception:
+            # No-op if already loaded or if the shipped xml is absent.
+            pass
+
+    if add_bonds:
+        try:
+            # Import lazily — acpype_export pulls in ParmEd, which is
+            # heavy and irrelevant to protein-only paths that never call
+            # build_glycam_system with add_bonds=False.
+            from dvbfixer.acpype_export import add_glycam_bonds
+
+            add_glycam_bonds(topology, ff, verbose, positions=positions)
+        except Exception as exc:  # noqa: BLE001 — matches legacy defensive behaviour
+            if verbose:
+                print(f"  add_glycam_bonds skipped: {exc}")
 
     return ff

@@ -18,11 +18,12 @@ from pathlib import Path
 
 import numpy as np
 
-from dvbfixer.ffutils import PROTEIN_RESIDUES
 from dvbfixer.acpype_export import (
-    detect_ss_bonds, prepare_for_openmm,
-    add_glycam_bonds, export_gromacs,
+    add_glycam_bonds,
+    export_gromacs,
+    prepare_for_openmm,
 )
+from dvbfixer.ffutils import PROTEIN_RESIDUES
 
 
 def _parse_pdb(path):
@@ -459,13 +460,12 @@ def _relax_structure(path, output_path, stages, verbose=False):
     Protein heavy atoms are restrained; glycan atoms move freely.
     Stages define progressively reducing restraint strength.
     """
-    from openmm import unit, CustomExternalForce, LangevinMiddleIntegrator
-    from openmm.app import ForceField, Modeller, PDBFile, Simulation, NoCutoff, HBonds
+    from openmm import CustomExternalForce, LangevinMiddleIntegrator, unit
+    from openmm.app import ForceField, HBonds, Modeller, NoCutoff, PDBFile, Simulation
 
     print("\nRelaxing structure with AMBER + GLYCAM...")
 
     # Preprocess: CYS→CYX for SS bonds
-    import tempfile
     temp_dir = path.parent
     temp_pdb = temp_dir / '_relax_temp.pdb'
     _, _ = prepare_for_openmm(path, temp_pdb)
@@ -569,37 +569,51 @@ def parse_args(argv=None):
                     "Supports GLYCAM-Web and CHARMM-GUI output. "
                     "Aligns via Kabsch superposition on donor CA atoms.",
     )
-    p.add_argument("acceptor", help="Acceptor PDB file (receives molecules)")
-    p.add_argument("--donor", required=True,
-                   help="Donor PDB: original residues extracted from acceptor "
-                        "(used for alignment and identifying replacement sites)")
-    p.add_argument("--graft",
-                   help="Graft PDB: modified donor + added molecules "
-                        "(e.g. GLYCAM output). If omitted, donor is used as graft.")
-    p.add_argument("--select",
-                   help="What to transplant (if no --graft): chain IDs, "
-                        "'A,B' or 'A:NAG' or 'A:301-310'")
-    p.add_argument("--align", action='append', default=[],
-                   help="Enable Kabsch superposition and specify chain mapping: "
-                        "DONOR:ACCEPTOR (e.g. H:H). Repeatable. "
-                        "If given without value, auto-detects matching chains.")
-    p.add_argument("--superpose", action='store_true',
-                   help="Enable Kabsch superposition (auto-detect chain mapping)")
-    p.add_argument("--relax", action='store_true',
-                   help="Run OpenMM minimization with AMBER+GLYCAM after transplant")
-    p.add_argument("--relax-stages", default='1000:5000,100:5000,10:5000,0:5000',
-                   help="Relaxation stages as k1:iter1,k2:iter2,... "
-                        "k in kJ/mol/nm2 (default: 1000:5000,100:5000,10:5000,0:5000)")
-    p.add_argument("--gromacs", metavar="DIR",
-                   help="Export GROMACS topology via ACPYPE to DIR. "
-                        "Uses AMBER+GLYCAM with per-pair 1-4 scaling ([ pairs_nb ]).")
-    p.add_argument("-o", "--output",
-                   help="Output PDB (default: <acceptor>_transplant.pdb)")
-    p.add_argument("--no-infer-conect", dest="no_infer_conect",
-                   action="store_true",
-                   help="Skip automatic CONECT inference on acceptor/donor/graft "
-                        "(default: infer missing bonds before transplant).")
-    p.add_argument("-v", "--verbose", action='store_true')
+    io = p.add_argument_group("Input / output")
+    io.add_argument("acceptor", help="Acceptor PDB file (receives molecules)")
+    io.add_argument("--donor", required=True,
+                    help="Donor PDB: original residues extracted from acceptor "
+                         "(used for alignment and identifying replacement sites)")
+    io.add_argument("--graft",
+                    help="Graft PDB: modified donor + added molecules "
+                         "(e.g. GLYCAM output). If omitted, donor is used as graft.")
+    io.add_argument("-o", "--output",
+                    help="Output PDB (default: <acceptor>_transplant.pdb)")
+
+    selection = p.add_argument_group("Molecule selection")
+    selection.add_argument("--select",
+                           help="What to transplant (if no --graft): chain IDs, "
+                                "'A,B' or 'A:NAG' or 'A:301-310'")
+
+    alignment = p.add_argument_group("Alignment")
+    alignment.add_argument("--align", action='append', default=[],
+                           help="Enable Kabsch superposition and specify chain mapping: "
+                                "DONOR:ACCEPTOR (e.g. H:H). Repeatable. "
+                                "If given without value, auto-detects matching chains.")
+    alignment.add_argument("--superpose", action='store_true',
+                           help="Enable Kabsch superposition (auto-detect chain mapping)")
+
+    relax = p.add_argument_group("Relaxation (OpenMM)")
+    relax.add_argument("--relax", action='store_true',
+                       help="Run OpenMM minimization with AMBER+GLYCAM after transplant")
+    relax.add_argument("--relax-stages", default='1000:5000,100:5000,10:5000,0:5000',
+                       help="Relaxation stages as k1:iter1,k2:iter2,... "
+                            "k in kJ/mol/nm2 (default: 1000:5000,100:5000,10:5000,0:5000)")
+
+    export = p.add_argument_group("GROMACS export")
+    export.add_argument("--gromacs", metavar="DIR",
+                        help="Export GROMACS topology via ACPYPE to DIR. "
+                             "Uses AMBER+GLYCAM with per-pair 1-4 scaling ([ pairs_nb ]).")
+
+    content = p.add_argument_group("Content selection")
+    content.add_argument("--no-infer-conect", dest="no_infer_conect",
+                         action="store_true",
+                         help="Skip automatic CONECT inference on acceptor/donor/graft "
+                              "(default: infer missing bonds before transplant).")
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument("-v", "--verbose", action='store_true')
+
     return p.parse_args(argv)
 
 

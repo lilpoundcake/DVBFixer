@@ -8,7 +8,6 @@ Antibody mode (--antibody): uses ANARCI for numbering/CDR detection.
 """
 
 import argparse
-import json
 import os
 import shutil
 import sys
@@ -16,11 +15,11 @@ import tempfile
 from pathlib import Path
 
 from dvbfixer.model import (
-    AA3TO1, WATER_RESNAMES, write_target_pir, parse_pir_sequence,
-    restore_chain_ids_and_read, build_resnum_mapping, renumber_model_output,
-    build_model_dat, remove_water_lines, get_template_mask,
+    AA3TO1,
+    WATER_RESNAMES,
+    parse_pir_sequence,
+    remove_water_lines,
 )
-
 
 # ---------------------------------------------------------------------------
 # FASTA parsing
@@ -149,7 +148,7 @@ def run_antibody_analysis(target_chains, verbose=False):
     Returns dict with domain info per chain.
     """
     try:
-        from anarci import anarci, run_anarci
+        from anarci import anarci
     except ImportError:
         print("ERROR: ANARCI not installed. Install with: pip install anarci",
               file=sys.stderr)
@@ -388,9 +387,9 @@ def run_homology_modeller(target_chains, template_paths, chain_mapping,
 
     Returns path to best model PDB.
     """
-    from modeller import Environ, Alignment, Model, log
-    from modeller.automodel import automodel, LoopModel
+    from modeller import Alignment, Environ, Model, log
     from modeller import automodel as am
+    from modeller.automodel import LoopModel, automodel
 
     if args.verbose:
         log.verbose()
@@ -602,36 +601,46 @@ def parse_args(argv=None):
         description='Multi-template homology modeling with Modeller. '
                     'Builds a composite model from multiple template structures.',
     )
-    p.add_argument('fasta',
-                   help='Target sequence FASTA (multi-chain, one >header per chain)')
-    p.add_argument('--template', action='append', required=True,
-                   help='Template PDB file (repeatable, at least 1)')
-    p.add_argument('--alignment', default=None,
-                   help='Pre-built PIR alignment file (skip auto-alignment)')
-    p.add_argument('--salign', action='store_true',
-                   help='Use structure-based alignment instead of align2d')
-    p.add_argument('-n', '--num-models', type=int, default=5,
-                   help='Number of models to generate (default: 5)')
-    p.add_argument('--md-level',
-                   choices=['none', 'fast', 'slow', 'very_slow', 'slow_large'],
-                   default='fast',
-                   help='MD refinement level (default: fast)')
-    p.add_argument('--no-loop-refine', action='store_true',
-                   help='Use automodel instead of LoopModel (faster, no loop refinement)')
-    p.add_argument('--antibody', action='store_true',
-                   help='Antibody-aware mode: ANARCI numbering, CDR detection')
-    p.add_argument('--prepare', action='store_true',
-                   help='Run dvbfixer prepare on output')
-    p.add_argument('--minimize', action='store_true',
-                   help='Run dvbfixer prepare + minimize on output')
-    p.add_argument('--ph', type=float, default=7.0,
-                   help='pH for hydrogen addition (default: 7.0)')
-    p.add_argument('-o', '--output', default=None,
-                   help='Output prefix (default: FASTA stem)')
-    p.add_argument('--keep-workdir', action='store_true',
-                   help='Keep Modeller working directory')
-    p.add_argument('-v', '--verbose', action='store_true',
-                   help='Verbose output')
+    io = p.add_argument_group('Input / output')
+    io.add_argument('fasta',
+                    help='Target sequence FASTA (multi-chain, one >header per chain)')
+    io.add_argument('--template', action='append', required=True,
+                    help='Template PDB file (repeatable, at least 1)')
+    io.add_argument('-o', '--output', default=None,
+                    help='Output prefix (default: FASTA stem)')
+
+    alignment = p.add_argument_group('Alignment')
+    alignment.add_argument('--alignment', default=None,
+                           help='Pre-built PIR alignment file (skip auto-alignment)')
+    alignment.add_argument('--salign', action='store_true',
+                           help='Use structure-based alignment instead of align2d')
+
+    modelling = p.add_argument_group('Modelling parameters')
+    modelling.add_argument('-n', '--num-models', type=int, default=5,
+                           help='Number of models to generate (default: 5)')
+    modelling.add_argument('--md-level',
+                           choices=['none', 'fast', 'slow', 'very_slow', 'slow_large'],
+                           default='fast',
+                           help='MD refinement level (default: fast)')
+    modelling.add_argument('--no-loop-refine', action='store_true',
+                           help='Use automodel instead of LoopModel (faster, no loop refinement)')
+    modelling.add_argument('--antibody', action='store_true',
+                           help='Antibody-aware mode: ANARCI numbering, CDR detection')
+
+    pipeline = p.add_argument_group('Post-processing pipeline')
+    pipeline.add_argument('--prepare', action='store_true',
+                          help='Run dvbfixer prepare on output')
+    pipeline.add_argument('--minimize', action='store_true',
+                          help='Run dvbfixer prepare + minimize on output')
+    pipeline.add_argument('--ph', type=float, default=7.0,
+                          help='pH for hydrogen addition (default: 7.0)')
+
+    diag = p.add_argument_group('Diagnostics')
+    diag.add_argument('--keep-workdir', action='store_true',
+                      help='Keep Modeller working directory')
+    diag.add_argument('-v', '--verbose', action='store_true',
+                      help='Verbose output')
+
     return p.parse_args(argv)
 
 
@@ -724,16 +733,14 @@ def main(argv=None):
         # For homology modeling, all atoms are "new" since the entire structure
         # is built. But we mark template-covered regions as "original" and
         # gap regions as "new" for restraint purposes.
+        from dvbfixer.ffutils.dat import DatRecord
+
         dat_path = f"{output_prefix}_homology.dat"
-        dat_info = {
-            'description': 'Homology model built by dvbfixer homology',
-            'templates': [Path(t).name for t in template_paths],
-            'target_chains': {ch: len(seq) for ch, seq in target_chains},
-            'total_added': 0,  # all atoms are modeled
-            'added_atoms': [],
-        }
-        with open(dat_path, 'w') as f:
-            json.dump(dat_info, f, indent=2)
+        DatRecord(
+            description="Homology model built by dvbfixer homology",
+            templates=[Path(t).name for t in template_paths],
+            target_chains={ch: len(seq) for ch, seq in target_chains},
+        ).save(dat_path, verbose=False)
         print(f"Wrote {dat_path}")
 
     finally:
@@ -745,7 +752,7 @@ def main(argv=None):
 
     # 9. Optional pipeline
     if args.prepare or args.minimize:
-        print(f"\nRunning prepare...")
+        print("\nRunning prepare...")
         from dvbfixer.prepare import main as prepare_main
         prepare_args = [output_pdb, '--ph', str(args.ph)]
         if args.verbose:
@@ -754,7 +761,7 @@ def main(argv=None):
 
         prepared_pdb = output_pdb.replace('.pdb', '_prepared.pdb')
         if args.minimize and Path(prepared_pdb).exists():
-            print(f"\nRunning minimize...")
+            print("\nRunning minimize...")
             from dvbfixer.minimize import main as minimize_main
             minimize_args = [prepared_pdb, '--ph', str(args.ph)]
             if args.verbose:

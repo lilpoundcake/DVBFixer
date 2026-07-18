@@ -5,7 +5,6 @@ correct topology with proper atom types, charges, bonds, angles,
 dihedrals, impropers, and CMAP (CHARMM).
 """
 
-import argparse
 import math
 import sys
 from collections import defaultdict
@@ -19,249 +18,26 @@ from dvbfixer.rtp_parser import (
     parse_rtp,
     parse_tdb,
 )
-
-# ---------------------------------------------------------------------------
-# Force field directories bundled with dvbfixer
-# ---------------------------------------------------------------------------
-FF_DIR = Path(__file__).parent.parent.parent / 'FF'
-FF_CHOICES = {
-    'amber': 'amber99sb-ildn-lipid21.ff',
-    'charmm': 'charmm36_ljpme-jul2022.ff',
-}
-
-# Map standard PDB residue names to the GMX names used in .r2b
-# (these are the "GMX" column in aminoacids.r2b)
-PDB_TO_GMX = {
-    'HIS': 'HISE',    # default HIS → HIE/HSE
-    'CYS': 'CYS',
-    'ASP': 'ASP',
-    'GLU': 'GLU',
-    'LYS': 'LYS',
-    # AMBER protonation names
-    'HIE': 'HISE', 'HID': 'HISD', 'HIP': 'HISH',
-    'ASH': 'ASPH', 'GLH': 'GLUH',
-    'CYX': 'CYS2', 'CYM': 'CYS',
-    'LYN': 'LYSN',
-    # CHARMM protonation names
-    'HSE': 'HISE', 'HSD': 'HISD', 'HSP': 'HISH',
-    'ASPP': 'ASPH', 'GLUP': 'GLUH',
-    'LSN': 'LYSN',
-    # Non-canonical → canonical
-    'MSE': 'MET',
-    # GLYCAM glycosylated protein residues (no NLN/OLS/OLT in AMBER99SB-ILDN
-    # or CHARMM36 RTP — map to standard parent; protein-glycan bond detection
-    # adds the cross-residue bond to interchain_ss.itp)
-    'NLN': 'ASN', 'OLS': 'SER', 'OLT': 'THR',
-}
-
-# Standard amino acids that can appear in PDB
-STANDARD_AA = {
-    'ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS',
-    'ILE', 'LEU', 'LYS', 'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP',
-    'TYR', 'VAL',
-}
-
-# PDB→CHARMM atom name mapping for sugars
-# PDB uses different naming for NAG acetyl group and some other atoms
-CARB_ATOM_MAP = {
-    'NAG': {
-        'N2': 'N', 'C7': 'C', 'O7': 'O', 'C8': 'CT',
-        'H81': 'HT1', 'H82': 'HT2', 'H83': 'HT3',
-        'HN2': 'HN',
-    },
-    'NDG': {
-        'N2': 'N', 'C7': 'C', 'O7': 'O', 'C8': 'CT',
-        'H81': 'HT1', 'H82': 'HT2', 'H83': 'HT3',
-        'HN2': 'HN',
-    },
-    'NGA': {
-        'N2': 'N', 'C7': 'C', 'O7': 'O', 'C8': 'CT',
-        'H81': 'HT1', 'H82': 'HT2', 'H83': 'HT3',
-        'HN2': 'HN',
-    },
-    'A2G': {
-        'N2': 'N', 'C7': 'C', 'O7': 'O', 'C8': 'CT',
-        'H81': 'HT1', 'H82': 'HT2', 'H83': 'HT3',
-        'HN2': 'HN',
-    },
-    # Mannose: PDB may use H11/H12 for C1 hydrogens
-    'MAN': {'H11': 'H1'},
-    'BMA': {'H11': 'H1'},
-    # Galactose/Glucose: similar
-    'GAL': {'H11': 'H1'},
-    'GLC': {'H11': 'H1'},
-}
-
-# PDB sugar names -> CHARMM carb.rtp names
-PDB_TO_CARB = {
-    'NAG': 'BGLCNA',   # N-acetylglucosamine (beta)
-    'NDG': 'BGLCNA',   # 2-(acetylamino)-2-deoxy-alpha-D-glucopyranose
-    'BMA': 'BMAN',     # beta-mannose
-    'MAN': 'AMAN',     # alpha-mannose
-    'GAL': 'BGAL',     # beta-galactose
-    'GLC': 'BGLC',     # beta-glucose
-    'FUC': 'AFUC',     # alpha-fucose
-    'FUL': 'BFUC',     # beta-fucose
-    'SIA': 'ANE5AC',   # sialic acid (Neu5Ac)
-    'NGA': 'BGALNA',   # N-acetylgalactosamine (beta)
-    'A2G': 'AGALNA',   # N-acetylgalactosamine (alpha)
-    'BGC': 'BGLC',     # beta-glucose
-    'XYS': 'BXYL',     # beta-xylose
-    'AFU': 'AFUC',     # alpha-L-fucose (alternate PDB code)
-    'AMA': 'AMAN',     # alpha-mannose (alternate PDB code)
-    'BGA': 'BGAL',     # beta-galactose (alternate PDB code)
-    'BGL': 'BGLCNA',   # beta-N-acetylglucosamine (alternate PDB code)
-    # CHARMM-GUI native names (already CHARMM RTP names, pass through)
-    'BGLC': 'BGLC',
-    'BGAL': 'BGAL',
-    'AFUC': 'AFUC',
-    'AMAN': 'AMAN',
-    'BMAN': 'BMAN',
-    'BGLCNA': 'BGLCNA',
-    'BGALNA': 'BGALNA',
-    'AGALNA': 'AGALNA',
-    'ANE5AC': 'ANE5AC',
-    'ANE5': 'ANE5AC',
-    # Non-standard PDB names (from transplant/GLYCAM workflows)
-    'AGL': 'AGAL',     # alpha-galactose (_resolve_sugar_rtp auto-detects AGALNA if N-acetyl)  # CHARMM-GUI short name for sialic acid
-}
-
-# PDB lipid names -> CHARMM lipid.rtp names (ceramides)
-PDB_TO_LIPID = {
-    'CER1': 'CER160',   # CHARMM-GUI: CER1 = d18:1/16:0
-    'CER2': 'CER2',     # generic ceramide
-    'CER3': 'CER3E',    # ceramide variant
-}
-
-# CHARMM lipid.rtp ceramide residue names
-CERAMIDE_RTP = {
-    'CER160', 'CER180', 'CER181', 'CER2', 'CER200',
-    'CER220', 'CER240', 'CER241', 'CER3E',
-}
-
-# 4-char resnames from CGenFF/solvent that GROMACS writes into PDB cols 17-20
-# (standard PDB uses 3-char in cols 18-20, but GROMACS left-justifies from col 17)
-_KNOWN_4CHAR_RESNAMES = {
-    'ACET', 'ACEH', 'ACEM',  # acetate/acetic acid/acetamide (CGenFF)
-    'TIP3', 'SPC', 'SPCE',   # water models
-}
-
-# Water residue names (for counting SOL molecules in PDB)
-_WATER_RESNAMES = {'SOL', 'HOH', 'WAT', 'TIP3', 'SPC', 'SPCE', 'TIP4', 'TIP5'}
-
-# ---------------------------------------------------------------------------
-# Water-model-matched ion Lennard-Jones parameters (AMBER side)
-#
-# Sources:
-#   JC = Joung & Cheatham, J Phys Chem B 112, 9020 (2008) — monovalents for
-#        TIP3P, SPC/E, TIP4P-Ew.
-#   LM = Li, Roberts, Chakravorty, Merz, JCTC 9, 2733 (2013) — 12-6 divalents
-#        (Ca/Mg/Zn) for the same three water models.
-#   LSM = Li, Song, Merz, JCTC 16, 4429 (2020) [PMC8173364] — 12-6 divalents
-#        for OPC/OPC3/TIP3P-FB/TIP4P-FB.
-#   SLM = Sengupta, Li, Wynn, Merz, JCIM 61, 869 (2021) [PMC8173365] — 12-6
-#        monovalents for the same OPC family.
-#
-# σ_nm = R*_Å × 0.17818; ε_kJ = ε_kcal × 4.184.
-# Atom-type names match the bundled FF/amber99sb-ildn-lipid21.ff/ions.itp
-# moleculetype references: Na, K, Cl, C0 (Ca²⁺), MG, Zn.
-#
-# Format: {ion_set: {atomtype: (atnum, mass, sigma_nm, eps_kj, charge,
-#                                  moleculetype_resname)}}
-# ---------------------------------------------------------------------------
-ION_PARAMS = {
-    'jc-tip3p': {
-        # JC TIP3P monovalent: Na 1.369/0.0874, K 1.705/0.19368, Cl 2.513/0.03559
-        'Na': (11, 22.990, 0.24393, 0.36586, +1.0, 'NA'),
-        'K':  (19, 39.098, 0.30380, 0.81036, +1.0, 'K'),
-        'Cl': (17, 35.453, 0.44786, 0.14887, -1.0, 'CL'),
-        # LM 12-6 HFE TIP3P divalent: Ca 1.649/0.10593, Mg 1.360/0.01020, Zn 1.271/0.00330
-        'C0': (20, 40.078, 0.29381, 0.44317, +2.0, 'CA'),
-        'MG': (12, 24.305, 0.24232, 0.04269, +2.0, 'MG'),
-        'Zn': (30, 65.380, 0.22647, 0.01382, +2.0, 'ZN'),
-    },
-    'jc-spce': {
-        # JC SPC/E monovalent: Na 1.212/0.35264, K 1.593/0.42971, Cl 2.711/0.01279
-        'Na': (11, 22.990, 0.21595, 1.47545, +1.0, 'NA'),
-        'K':  (19, 39.098, 0.28384, 1.79789, +1.0, 'K'),
-        'Cl': (17, 35.453, 0.48309, 0.05349, -1.0, 'CL'),
-        # LM 12-6 HFE SPC/E divalent: Ca 1.635/0.09788, Mg 1.360/0.01020, Zn 1.276/0.00354
-        'C0': (20, 40.078, 0.29132, 0.40955, +2.0, 'CA'),
-        'MG': (12, 24.305, 0.24232, 0.04269, +2.0, 'MG'),
-        'Zn': (30, 65.380, 0.22736, 0.01482, +2.0, 'ZN'),
-    },
-    'jc-tip4pew': {
-        # JC TIP4P-Ew monovalent: Na 1.226/0.16844, K 1.590/0.27947, Cl 2.760/0.01166
-        'Na': (11, 22.990, 0.21845, 0.70474, +1.0, 'NA'),
-        'K':  (19, 39.098, 0.28332, 1.16928, +1.0, 'K'),
-        'Cl': (17, 35.453, 0.49179, 0.04880, -1.0, 'CL'),
-        # LM 12-6 HFE TIP4P-Ew divalent: Ca 1.657/0.11069, Mg 1.353/0.00942, Zn 1.252/0.00251
-        'C0': (20, 40.078, 0.29524, 0.46312, +2.0, 'CA'),
-        'MG': (12, 24.305, 0.24108, 0.03941, +2.0, 'MG'),
-        'Zn': (30, 65.380, 0.22308, 0.01051, +2.0, 'ZN'),
-    },
-    'lm-hfe-opc': {
-        # SLM 2021 HFE-OPC monovalent: Na 1.4670/0.02960, K 1.7020/0.13954, Cl 2.3600/0.67879
-        'Na': (11, 22.990, 0.26139, 0.12385, +1.0, 'NA'),
-        'K':  (19, 39.098, 0.30336, 0.58385, +1.0, 'K'),
-        'Cl': (17, 35.453, 0.42050, 2.84010, -1.0, 'CL'),
-        # LSM 2020 HFE-OPC divalent: Ca 1.4930/0.03685, Mg 1.2390/0.00206, Zn 1.1510/0.00046
-        'C0': (20, 40.078, 0.26602, 0.15419, +2.0, 'CA'),
-        'MG': (12, 24.305, 0.22076, 0.00864, +2.0, 'MG'),
-        'Zn': (30, 65.380, 0.20509, 0.00192, +2.0, 'ZN'),
-    },
-    'lm-iod-opc': {
-        # SLM 2021 IOD-OPC monovalent: Na 1.4400/0.02322, K 1.7380/0.16500, Cl 2.1500/0.52153
-        'Na': (11, 22.990, 0.25658, 0.09715, +1.0, 'NA'),
-        'K':  (19, 39.098, 0.30978, 0.69036, +1.0, 'K'),
-        'Cl': (17, 35.453, 0.38308, 2.18207, -1.0, 'CL'),
-        # LSM 2020 IOD-OPC divalent: Ca 1.5900/0.07447, Mg 1.3730/0.01179, Zn 1.3730/0.01179
-        'C0': (20, 40.078, 0.28331, 0.31159, +2.0, 'CA'),
-        'MG': (12, 24.305, 0.24464, 0.04935, +2.0, 'MG'),
-        'Zn': (30, 65.380, 0.24464, 0.04935, +2.0, 'ZN'),
-    },
-    'dang-legacy': {
-        # Bundled FF/amber99sb-ildn-lipid21.ff/ffnonbonded.itp (Aqvist Na, Dang Cl,
-        # Aqvist K + Allnér Mg + Hoops Zn + Bradbrook Ca). Kept for backward
-        # compatibility with topologies generated before water-matched ions.
-        'Na': (11, 22.990, 0.33284, 0.01159, +1.0, 'NA'),
-        'K':  (19, 39.098, 0.47360, 0.00137, +1.0, 'K'),
-        'Cl': (17, 35.453, 0.44010, 0.41840, -1.0, 'CL'),
-        'C0': (20, 40.078, 0.30524, 1.92376, +2.0, 'CA'),
-        'MG': (12, 24.305, 0.14123, 3.74342, +2.0, 'MG'),
-        'Zn': (30, 65.380, 0.19600, 0.05230, +2.0, 'ZN'),
-    },
-}
-
-# Default ion set for each water model (used when --ion-set auto)
-_WATER_DEFAULT_ION_SET = {
-    'tip3p':   'jc-tip3p',
-    'spc':     'jc-spce',     # plain SPC not parametrized by JC — use SPC/E
-    'spce':    'jc-spce',
-    'tip4p':   'jc-tip4pew',  # plain TIP4P not parametrized by JC — use TIP4P-Ew
-    'tip4pew': 'jc-tip4pew',
-    'opc':     'lm-hfe-opc',
-}
-
-# Water choices that trigger an alias warning (silent substitute)
-_WATER_ION_ALIAS = {
-    'spc':   'spce',
-    'tip4p': 'tip4pew',
-}
-
-# Atom-type names in ffnonbonded.itp that ION_PARAMS replaces
-_ION_ATOMTYPE_NAMES = {'Na', 'K', 'Cl', 'C0', 'MG', 'Zn'}
-
-# Known atom name differences between AMBER RTP and PDB/IUPAC naming.
-# Key = RTP name, value = PDB name.
-# Applied per-residue after detecting which convention the PDB uses.
-_EXPLICIT_RENAMES = {
-    # ILE: AMBER uses CD, PDB/IUPAC uses CD1
-    'CD': 'CD1',
-    'HD1': 'HD11', 'HD2': 'HD12', 'HD3': 'HD13',
-    # C-terminal: AMBER RTP uses OC1/OC2, PDB uses OXT/O
-    'OC1': 'OXT', 'OC2': 'O',
-}
+from dvbfixer.top.cli import FF_CHOICES, FF_DIR, parse_args
+from dvbfixer.top.ff_data import (
+    _EXPLICIT_RENAMES,
+    _KNOWN_4CHAR_RESNAMES,
+    _WATER_DEFAULT_ION_SET,
+    _WATER_ION_ALIAS,
+    _WATER_RESNAMES,
+    CARB_ATOM_MAP,
+    CERAMIDE_RTP,
+    PDB_TO_CARB,
+    PDB_TO_GMX,
+    PDB_TO_LIPID,
+    STANDARD_AA,
+)
+from dvbfixer.top.writers import (
+    _write_moleculetype,
+    write_pdb,
+    write_posre,
+    write_top,
+)
 
 
 def _match_atom_names(rtp_names, pdb_names, arn_rtp_to_pdb=None):
@@ -589,6 +365,7 @@ def _gro_to_pdb(gro_path):
     """Convert a GROMACS .gro file to a temporary PDB via MDAnalysis."""
     import tempfile
     import warnings
+
     import MDAnalysis as mda
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -671,8 +448,8 @@ def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False)
     OpenMM variant names (ASH, GLH, HIP, HID, HIE) work with both
     charmm36.xml and amber14-all.xml force fields.
     """
-    import tempfile
     import os
+    import tempfile
 
     # Map protonated names to OpenMM variant names
     _PROT_TO_VARIANT = {
@@ -711,11 +488,12 @@ def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False)
             print(f"  Need H for {pn} {cid}:{rseq}: "
                   f"{', '.join(sorted(mh))}")
 
-    from openmm.app import ForceField, Modeller, PDBFile
     from openmm import unit
+    from openmm.app import ForceField, Modeller, PDBFile
     from pdbfixer import PDBFixer
-    from dvbfixer.protonate import _strip_hydrogens
+
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
+    from dvbfixer.protonate import _strip_hydrogens
 
     # Build variant lookup: (chain_id, resseq) -> OpenMM variant name
     variant_lookup = {}
@@ -791,7 +569,7 @@ def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False)
                 warnings.warn(
                     f"Terminal {var} {cid}:{rseq} → {std}: AMBER14 has no "
                     f"terminal protonated template (NASH/NGLH/CASH/CGLH). "
-                    f"Using standard {std} (no HD2/HE2 added)."
+                    f"Using standard {std} (no HD2/HE2 added).", stacklevel=2
                 )
         return vlist
 
@@ -2403,662 +2181,6 @@ class TopologyBuilder:
         return chain_top
 
 
-# ---------------------------------------------------------------------------
-# Writers
-# ---------------------------------------------------------------------------
-def _write_moleculetype(f, chain_top, bonded_types):
-    """Write a chain moleculetype section to an open file handle."""
-    bt = bonded_types
-
-    # [ moleculetype ]
-    f.write("[ moleculetype ]\n")
-    f.write("; Name            nrexcl\n")
-    f.write(f"{chain_top.name:<18s}{chain_top.nrexcl}\n\n")
-
-    # [ atoms ]
-    f.write("[ atoms ]\n")
-    f.write(";   nr       type  resnr residue  atom   cgnr     charge       mass\n")
-    for a in chain_top.atoms:
-        f.write(f"{a.index:6d} {a.atom_type:>10s} {a.resnr:6d} {a.resname:>6s} "
-                f"{a.atomname:>6s} {a.cgnr:6d} {a.charge:11.4f} {a.mass:11.4f}\n")
-    f.write("\n")
-
-    # [ bonds ]
-    if chain_top.bonds:
-        f.write("[ bonds ]\n")
-        f.write(";  ai    aj funct\n")
-        for i, j in chain_top.bonds:
-            f.write(f"{i:5d} {j:5d} {bt.bond_type:5d}\n")
-        f.write("\n")
-
-    # [ pairs ]
-    if chain_top.pairs:
-        f.write("[ pairs ]\n")
-        f.write(";  ai    aj funct\n")
-        for i, j in chain_top.pairs:
-            f.write(f"{i:5d} {j:5d}     1\n")
-        f.write("\n")
-
-    # [ angles ]
-    if chain_top.angles:
-        f.write("[ angles ]\n")
-        f.write(";  ai    aj    ak funct\n")
-        for angle in chain_top.angles:
-            if len(angle) == 4:
-                i, j, k, ftype = angle
-                f.write(f"{i:5d} {j:5d} {k:5d} {ftype:5d}\n")
-            else:
-                i, j, k = angle
-                f.write(f"{i:5d} {j:5d} {k:5d} {bt.angle_type:5d}\n")
-        f.write("\n")
-
-    # [ dihedrals ] — proper
-    if chain_top.dihedrals:
-        f.write("[ dihedrals ]\n")
-        f.write(";  ai    aj    ak    al funct\n")
-        for dih in chain_top.dihedrals:
-            if len(dih) == 5:
-                # Named dihedral type (AMBER ILDN)
-                i, j, k, l, dtype = dih
-                f.write(f"{i:5d} {j:5d} {k:5d} {l:5d} {bt.dihedral_type:5d}  ; {dtype}\n")
-            else:
-                i, j, k, l = dih
-                f.write(f"{i:5d} {j:5d} {k:5d} {l:5d} {bt.dihedral_type:5d}\n")
-        f.write("\n")
-
-    # [ dihedrals ] — improper
-    if chain_top.impropers:
-        f.write("[ dihedrals ] ; impropers\n")
-        f.write(";  ai    aj    ak    al funct\n")
-        for i, j, k, l in chain_top.impropers:
-            f.write(f"{i:5d} {j:5d} {k:5d} {l:5d} {bt.improper_type:5d}\n")
-        f.write("\n")
-
-    # [ cmap ]
-    if chain_top.cmap:
-        f.write("[ cmap ]\n")
-        f.write(";  ai    aj    ak    al    am funct\n")
-        for i, j, k, l, m in chain_top.cmap:
-            f.write(f"{i:5d} {j:5d} {k:5d} {l:5d} {m:5d}     1\n")
-        f.write("\n")
-
-    # Position restraints include (stays as separate file with #ifdef)
-    posre_name = f"posre_{chain_top.name}.itp"
-    f.write("; Include Position restraint file\n")
-    f.write("#ifdef POSRES\n")
-    f.write(f'#include "{posre_name}"\n')
-    f.write("#endif\n\n")
-
-
-def write_pdb(chain_tops, path, extra_pdb_lines=None, cryst1=None):
-    """Write a PDB file with atom names matching the topology.
-
-    extra_pdb_lines: list of raw PDB ATOM/HETATM lines to append
-    (for ions/BUF particles not built as chain topologies).
-    """
-    serial = 0
-    with open(path, 'w') as f:
-        f.write("REMARK    Generated by dvbfixer top\n")
-        if cryst1:
-            f.write(cryst1 if cryst1.endswith('\n') else cryst1 + '\n')
-        for ct in chain_tops:
-            for atom in ct.atoms:
-                serial += 1
-                # PDB columns: 13-16 atom name, 17 altLoc, 18-20 resName
-                name = atom.atomname
-                if len(name) < 4:
-                    name_field = f" {name:<3s}"
-                else:
-                    name_field = f"{name:<4s}"
-
-                # Determine element from atom name
-                elem = name[0] if name[0].isalpha() else name[1]
-
-                # Use orig_resname (PDB name, includes protonation renames)
-                # atom.resname is the RTP name (e.g. BGLCNA for glycans)
-                resname = atom.orig_resname
-                # PDB cols: 17=altLoc, 18-20=resName, 21=space, 22=chainID
-                # 4-char resnames (ASPP, GLUP): cols 18-21, no space before chainID
-                if len(resname) <= 3:
-                    res_chain = f" {resname:>3s} {atom.chain_id}"  # " ASP A"
-                else:
-                    res_chain = f" {resname:<4s}{atom.chain_id}"   # " ASPP A" (no gap)
-
-                f.write(
-                    f"ATOM  {serial % 100000:5d} {name_field}"
-                    f"{res_chain}"
-                    f"{atom.orig_resseq:4d}"
-                    f"    "
-                    f"{atom.x:8.3f}{atom.y:8.3f}{atom.z:8.3f}"
-                    f"  1.00  0.00"
-                    f"          "
-                    f"{elem:>2s}\n"
-                )
-            # TER record after each chain
-            if ct.atoms:
-                last = ct.atoms[-1]
-                serial += 1
-                resname = last.orig_resname
-                if len(resname) <= 3:
-                    res_chain = f" {resname:>3s} {last.chain_id}"
-                else:
-                    res_chain = f" {resname:<4s}{last.chain_id}"
-                f.write(
-                    f"TER   {serial % 100000:5d}      "
-                    f"{res_chain}"
-                    f"{last.orig_resseq:4d}\n"
-                )
-        # Append extra molecules (ions/water/small molecules) with renumbered serials
-        if extra_pdb_lines:
-            resseq = 0
-            prev_resid = None
-            for line in extra_pdb_lines:
-                serial += 1
-                # Track residue changes for resseq renumbering
-                orig_resid = line[17:26]  # resname + chain + resseq
-                if orig_resid != prev_resid:
-                    resseq += 1
-                    prev_resid = orig_resid
-                # Rewrite serial (cols 7-11), clear chain ID (col 22),
-                # and renumber resseq (cols 23-26)
-                f.write(f"{line[:6]}{serial % 100000:5d}{line[11:21]} "
-                        f"{resseq % 10000:4d}{line[26:]}")
-        f.write("END\n")
-
-
-def write_posre(chain_top, path, fc=1000.0):
-    """Write position restraint file for heavy atoms."""
-    with open(path, 'w') as f:
-        f.write("; Position restraints for heavy atoms\n")
-        f.write("; Generated by dvbfixer top\n\n")
-        f.write("[ position_restraints ]\n")
-        f.write(";  ai  funct    fcx      fcy      fcz\n")
-        for atom in chain_top.atoms:
-            # Restrain heavy atoms only (not hydrogen)
-            if not atom.atomname.startswith('H') and atom.atomname not in ('HN',):
-                f.write(f"{atom.index:5d}     1  {fc:.1f}  {fc:.1f}  {fc:.1f}\n")
-
-
-def _read_ff_content(path, keep_posres_ifdef=False):
-    """Read a force field file, stripping preprocessor directives.
-
-    Removes #include, #define, #ifdef, #ifndef, #else, #endif lines
-    so the content can be inlined directly into the .top file.
-
-    If keep_posres_ifdef=True, preserves #ifdef POSRES_* blocks
-    (used for ions.itp which may have position restraint sections).
-    """
-    lines = []
-    in_posres_ifdef = False
-    with open(path) as f:
-        for line in f:
-            stripped = line.strip()
-            if keep_posres_ifdef:
-                if stripped.startswith('#ifdef POSRES'):
-                    in_posres_ifdef = True
-                    lines.append(line)
-                    continue
-                if in_posres_ifdef and stripped == '#endif':
-                    in_posres_ifdef = False
-                    lines.append(line)
-                    continue
-                if in_posres_ifdef:
-                    lines.append(line)
-                    continue
-            if stripped.startswith(('#include', '#define', '#ifdef', '#ifndef',
-                                    '#else', '#endif', '#error')):
-                continue
-            lines.append(line)
-    return ''.join(lines)
-
-
-def _parse_defaults(ff_dir):
-    """Extract [ defaults ] section from forcefield.itp."""
-    ff_itp = ff_dir / 'forcefield.itp'
-    in_defaults = False
-    defaults_lines = []
-    with open(ff_itp) as f:
-        for line in f:
-            stripped = line.strip()
-            if stripped.startswith('[ defaults ]'):
-                in_defaults = True
-                defaults_lines.append(line)
-                continue
-            if in_defaults:
-                if stripped.startswith('[') or stripped.startswith('#include'):
-                    break
-                defaults_lines.append(line)
-    return ''.join(defaults_lines)
-
-
-def _dedup_atomtypes(content):
-    """Remove duplicate atomtype entries, keeping the last definition.
-
-    CHARMM ffnonbonded.itp has duplicate entries (e.g. HT, OT) from
-    #ifdef HEAVY_H blocks — one with heavy mass, one with real mass.
-    After stripping preprocessor directives, both remain. We keep the
-    last definition for each atomtype name.
-    """
-    lines = content.split('\n')
-    in_atomtypes = False
-    atomtype_lines = []   # (line_idx, atomtype_name, line)
-    other_lines = []      # (line_idx, line)
-
-    for idx, line in enumerate(lines):
-        stripped = line.strip()
-        if stripped.startswith('[ atomtypes ]'):
-            in_atomtypes = True
-            other_lines.append((idx, line))
-            continue
-        if in_atomtypes and stripped.startswith('['):
-            in_atomtypes = False
-            other_lines.append((idx, line))
-            continue
-        if in_atomtypes and stripped and not stripped.startswith(';'):
-            parts = stripped.split()
-            if parts:
-                atomtype_lines.append((idx, parts[0], line))
-            continue
-        other_lines.append((idx, line))
-
-    # Keep only last occurrence of each atomtype
-    seen = {}
-    for idx, name, line in atomtype_lines:
-        seen[name] = (idx, line)
-
-    # Reconstruct
-    all_entries = other_lines + [(idx, line) for idx, line in seen.values()]
-    all_entries.sort(key=lambda x: x[0])
-    return '\n'.join(line for _, line in all_entries)
-
-
-# Extra bonded parameters for CHARMM glycosidic linkage sites.
-# When OC311->OC3C61 at linkages, some atom type combos (CC321-OC3C61,
-# CC3161-OC3C61-CC3162, etc.) are not in the standard FF distribution.
-# Parameters by analogy with existing CC321D/CC321C/CC311D variants.
-_GLYCAN_LINKAGE_PARAMS = """\
-; ======================================================================
-; Extra parameters for glycosidic linkage sites (by analogy)
-; ======================================================================
-
-; --- Extra bondtypes ---
-[ bondtypes ]
-; i       j     func    b0          kb
-  CC321   OC3C61     1   0.14150000    301248.00 ; from CC321D OC3C61
-
-; --- Extra angletypes ---
-[ angletypes ]
-; i       j       k     func    theta0      ktheta      rub         kub
-  HCA2    CC321   OC3C61     5   109.500000   376.560000   0.00000000         0.00 ; from HCA2 CC321D OC3C61
-  CC3163  CC321   OC3C61     5   111.500000   376.560000   0.00000000         0.00 ; from OC3C61 CC321D CC311C
-  CC3161  OC3C61  CC3162     5   109.700000   794.960000   0.00000000         0.00 ; from CC3163 OC3C61 CC3162
-  CC3162  CC3161  OC3C61     5   106.000000   376.560000   0.00000000         0.00 ; from CC3161 CC3162 OC3C61
-  CC321   OC3C61  CC3162     5   109.700000   794.960000   0.00000000         0.00 ; from CC321D OC3C61 CC321C
-  OC3C61  CC3162  OC3C61     5   112.000000   753.120000   0.00000000         0.00 ; from OC301 CC3162 OC3C61
-
-; --- Extra dihedraltypes ---
-[ dihedraltypes ]
-; i       j       k       l     func    phi0        kphi        mult
-; C-C-O-C glycosidic torsions (from CC3161 CC3162 OC3C61 CC3163)
-  CC3161  CC3163  CC321   OC3C61     9     0.000000     0.836800     3 ; from par27 X CT1 CT2 X
-  CC3161  OC3C61  CC3162  HCA1       9     0.000000     0.836800     3 ; from HCA1 CC3161 CC3162 OC3C61
-  CC3161  OC3C61  CC3162  OC3C61     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
-  CC3162  CC3161  CC3161  OC3C61     9   180.000000     1.297040     3 ; from CC3161 CC3161 CC3162 OC3C61
-  CC3162  CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
-  CC3163  CC321   OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC321 CC3163 OC3C61 CC3162
-  CC321   CC3163  CC3161  OC3C61     9     0.000000     0.836800     3 ; from par27 X CT1 CT2 X
-  CC321   OC3C61  CC3162  CC3161     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3162
-  CC321   OC3C61  CC3162  HCA1       9     0.000000     0.836800     3 ; from HCA1 CC3161 CC3162 OC3C61
-  CC321   OC3C61  CC3162  OC3C61     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
-  HCA1    CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from HCA1 CC3161 CC3162 OC3C61
-  HCA1    CC3162  CC3161  OC3C61     9     0.000000     0.836800     3 ; from HCA1 CC3161 CC3162 OC3C61
-  HCA1    CC3163  CC321   OC3C61     9     0.000000     0.836800     3 ; from HCA2 CC321 CC3163 OC3C61
-  HCA2    CC321   OC3C61  CC3162     9     0.000000     0.836800     3 ; from par27 X CT2 OC30A X
-  OC3C61  CC3161  CC3161  CC3163     9   180.000000     1.297040     3 ; from CC3161 CC3161 CC3162 OC3C61
-  OC3C61  CC3162  CC3161  OC3C61     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
-  OC3C61  CC3162  OC3C61  CC3163     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
-  OC3C61  CC3163  CC321   OC3C61     9     0.000000     0.836800     3 ; from par27 X CT2 CT1 X
-; Additional C-C-O-C and C-O-C-C linkage torsions
-  CC3161  CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC3161 CC3162 OC3C61 CC3163
-  CC3161  OC3C61  CC3162  CC3161     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3162
-  CC3163  CC3161  OC3C61  CC3162     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3162
-
-; ======================================================================
-; Extra parameters for sialic acid (C2) glycosidic linkage sites
-; ANE5AC C2 (type CC3062) links to parent sugar O (type OC3C61)
-; ======================================================================
-
-; --- Extra angletypes (sialic acid linkage) ---
-[ angletypes ]
-; i       j       k     func    theta0      ktheta      rub         kub
-  CC3161  OC3C61  CC3062     5   109.700000   794.960000   0.00000000         0.00 ; from CC3163 OC3C61 CC3062 (sugar C-O-sialic C2)
-  OC3C61  CC3062  OC3C61     5   112.000000   753.120000   0.00000000         0.00 ; from OC301 CC3062 OC3C61 (ring O - C2 - linked O)
-
-; --- Extra dihedraltypes (sialic acid linkage) ---
-[ dihedraltypes ]
-; i       j       k       l     func    phi0        kphi        mult
-; Torsions around CC3161-OC3C61-CC3062 sialic acid linkage
-  CC3161  CC3161  OC3C61  CC3062     9     0.000000     0.836800     3 ; from CC3161 CC3163 OC3C61 CC3062
-  CC3161  OC3C61  CC3062  CC2O2      9     0.000000     0.836800     3 ; from CC3163 OC3C61 CC3062 CC2O2
-  CC3161  OC3C61  CC3062  OC3C61     9     0.000000     0.836800     3 ; from CC3163 OC3C61 CC3062 OC3C61
-  CC3161  OC3C61  CC3062  CC3261     9     0.000000     0.836800     3 ; from CC3163 OC3C61 CC3062 CC3261
-  HCA1    CC3161  OC3C61  CC3062     9     0.000000     1.188256     3 ; from HCA1 CC3163 OC3C61 CC3062
-  OC3C61  CC3161  CC3161  OC3C61     9     0.000000     0.836800     3 ; from OC3C61 CC3162 CC3161 OC3C61
-  OC3C61  CC3062  OC3C61  CC3163     9     0.000000     0.836800     3 ; from OC3C61 CC3162 OC3C61 CC3163
-  OC3C61  CC3161  OC3C61  CC3062     9     0.000000     0.836800     3 ; from OC3C61 CC3161 OC3C61 CC3162
-  NC2D1   CC3161  CC3161  OC3C61     9     0.000000     0.836800     3 ; from OC3C61 CC3261 CC3161 NC2D1
-
-"""
-
-
-def _strip_ion_atomtypes(nb_content):
-    """Remove ion atom-type lines from ffnonbonded.itp content.
-
-    Lines matched by atom-type name in column 1 against _ION_ATOMTYPE_NAMES.
-    Used so the water-matched ion set can replace them.
-    """
-    lines = nb_content.split('\n')
-    kept = []
-    for line in lines:
-        s = line.strip()
-        if not s or s.startswith(';') or s.startswith('['):
-            kept.append(line)
-            continue
-        first = s.split()[0]
-        if first in _ION_ATOMTYPE_NAMES:
-            continue
-        kept.append(line)
-    return '\n'.join(kept)
-
-
-def _emit_ion_atomtypes(ion_set):
-    """Return [ atomtypes ]-formatted lines for the chosen ion parameter set."""
-    if ion_set not in ION_PARAMS:
-        return ''
-    table = ION_PARAMS[ion_set]
-    lines = [f"; Ion atom types: {ion_set}"]
-    for atname, (atnum, mass, sigma, eps, _q, _rn) in table.items():
-        lines.append(f"{atname:<8s} {atnum:>5d}  {mass:>9.4f}   0.0000  A "
-                     f"  {sigma:.5e}  {eps:.5e}")
-    return '\n'.join(lines) + '\n'
-
-
-def _emit_ions_itp(ion_set, out_path):
-    """Write a fresh ions.itp with moleculetypes referencing the ion-set's atom types."""
-    if ion_set not in ION_PARAMS:
-        # No ion set known — emit empty file with a comment.
-        with open(out_path, 'w') as f:
-            f.write(f"; No ion parameter set selected (ion_set={ion_set})\n")
-        return
-    table = ION_PARAMS[ion_set]
-    with open(out_path, 'w') as f:
-        f.write(f"; Ion moleculetypes — generated by dvbfixer top\n")
-        f.write(f"; Ion parameter set: {ion_set}\n\n")
-        for atname, (_atnum, _mass, _sigma, _eps, charge, resname) in table.items():
-            f.write("[ moleculetype ]\n")
-            f.write("; molname       nrexcl\n")
-            f.write(f"{resname:<14s}  1\n\n")
-            f.write("[ atoms ]\n")
-            f.write("; id    at type         res nr  residu name     at name  cg nr  charge\n")
-            f.write(f"1       {atname:<14s}  1       {resname:<14s}  {resname:<6s}  1      {charge:>.5f}\n\n\n")
-
-
-def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
-              water_model='tip3p', system_name='Protein',
-              has_interchain_ss=False, extra_molecules=None,
-              small_mol_itps=None, ion_set=None):
-    """Write topology: FF params in ffparams.itp, rest in topol.top.
-
-    extra_molecules: list of (name, count) for ions/BUF/small molecules/water.
-    small_mol_itps: list of small molecule .itp filenames to include.
-    ion_set: ion LJ parameter set key (one of ION_PARAMS keys, or None to keep
-             the bundled FF ions verbatim — used for CHARMM).
-    """
-    ff_dir = Path(ff_dir)
-    ff_name = ff_dir.name
-    out_dir = Path(path).parent
-
-    water_files = {
-        'tip3p': 'tip3p.itp',
-        'spc': 'spc.itp',
-        'spce': 'spce.itp',
-        'tip4p': 'tip4p.itp',
-        'tip4pew': 'tip4pew.itp',
-        'opc': 'opc.itp',
-    }
-
-    # --- Write ffparams.itp with all FF parameters ---
-    ffparams_path = out_dir / 'ffparams.itp'
-    with open(ffparams_path, 'w') as f:
-        f.write("; Force field parameters — generated by dvbfixer top\n")
-        f.write(f"; Force field: {ff_name}\n\n")
-
-        # [ defaults ]
-        f.write(_parse_defaults(ff_dir))
-        f.write("\n")
-
-        # [ atomtypes ] from ffnonbonded.itp (deduplicated)
-        f.write("; Non-bonded parameters (from ffnonbonded.itp)\n")
-        nb_content = _read_ff_content(ff_dir / 'ffnonbonded.itp')
-        if ion_set is not None:
-            # Replace bundled ion atom types with the water-matched set
-            nb_content = _strip_ion_atomtypes(nb_content)
-        f.write(_dedup_atomtypes(nb_content))
-        if ion_set is not None:
-            f.write(_emit_ion_atomtypes(ion_set))
-        f.write("\n")
-
-        # [ bondtypes ], [ angletypes ], [ dihedraltypes ] from ffbonded.itp
-        f.write("; Bonded parameters (from ffbonded.itp)\n")
-        f.write(_read_ff_content(ff_dir / 'ffbonded.itp'))
-        f.write("\n")
-
-        # CHARMM extras: cmap.itp, nbfix.itp
-        if ff_type == 'charmm':
-            cmap_path = ff_dir / 'cmap.itp'
-            if cmap_path.exists():
-                f.write("; CMAP parameters (from cmap.itp)\n")
-                f.write(_read_ff_content(cmap_path))
-                f.write("\n")
-
-            nbfix_path = ff_dir / 'nbfix.itp'
-            if nbfix_path.exists():
-                f.write("; NBFIX parameters (from nbfix.itp)\n")
-                f.write(_read_ff_content(nbfix_path))
-                f.write("\n")
-
-            # Extra parameters for glycosidic linkage sites.
-            # At linkage sites OC311->OC3C61, creating atom type combos
-            # not in the standard FF. Parameters by analogy with existing
-            # glycosidic linkage params (CC321D/CC311D/CC321C variants).
-            f.write(_GLYCAN_LINKAGE_PARAMS)
-
-    # --- Write topol.top ---
-    with open(path, 'w') as f:
-        f.write("; Generated by dvbfixer top\n")
-        f.write(f"; Force field: {ff_name}\n")
-        f.write(f"; Water model: {water_model}\n")
-        doc_path = ff_dir / 'forcefield.doc'
-        if doc_path.exists():
-            with open(doc_path) as doc:
-                for doc_line in doc:
-                    doc_line = doc_line.strip()
-                    if doc_line and not all(c == '*' for c in doc_line):
-                        f.write(f"; {doc_line}\n")
-                        break
-        f.write("\n")
-
-        # Include FF parameters
-        f.write('#include "ffparams.itp"\n\n')
-
-        # Chain moleculetypes (separate .itp files)
-        for ct, bt in zip(chain_tops, bonded_types_list):
-            chain_itp = out_dir / f"{ct.name}.itp"
-            with open(chain_itp, 'w') as cf:
-                cf.write(f"; Moleculetype: {ct.name}\n")
-                cf.write(f"; Generated by dvbfixer top\n\n")
-                _write_moleculetype(cf, ct, bt)
-            f.write(f'#include "{ct.name}.itp"\n')
-
-        # Small molecule .itp includes (ACET, ACEH, etc.)
-        if small_mol_itps:
-            for mol_name in small_mol_itps:
-                f.write(f'#include "{mol_name}.itp"\n')
-
-        f.write("\n")
-
-        # Water moleculetype (separate .itp)
-        water_itp = water_files.get(water_model, 'tip3p.itp')
-        water_src = ff_dir / water_itp
-        if water_src.exists():
-            water_out = out_dir / 'water.itp'
-            with open(water_out, 'w') as wf:
-                wf.write("; Water topology\n")
-                wf.write("; Generated by dvbfixer top\n\n")
-                _write_water_topology(wf, water_src)
-            f.write('#include "water.itp"\n')
-
-        # Ion moleculetypes (separate .itp)
-        ions_out = out_dir / 'ions.itp'
-        if ion_set is not None:
-            # AMBER path: emit fresh ions.itp matched to the chosen ion set.
-            _emit_ions_itp(ion_set, ions_out)
-            f.write('#include "ions.itp"\n')
-        else:
-            # CHARMM path: copy bundled ions.itp verbatim.
-            ions_path = ff_dir / 'ions.itp'
-            if ions_path.exists():
-                with open(ions_out, 'w') as ionf:
-                    ionf.write("; Ion topology\n")
-                    ionf.write("; Generated by dvbfixer top\n\n")
-                    ionf.write(_read_ff_content(ions_path, keep_posres_ifdef=True))
-                f.write('#include "ions.itp"\n')
-        f.write("\n")
-
-        # [ system ]
-        f.write("[ system ]\n")
-        f.write(f"; Name\n")
-        f.write(f"{system_name}\n\n")
-
-        # [ molecules ]
-        f.write("[ molecules ]\n")
-        f.write("; Compound        #mols\n")
-        for ct in chain_tops:
-            f.write(f"{ct.name:<18s}1\n")
-        if extra_molecules:
-            for mol_name, mol_count in extra_molecules:
-                f.write(f"{mol_name:<18s}{mol_count}\n")
-
-        # Inter-chain SS bonds (must come after [ molecules ])
-        if has_interchain_ss:
-            f.write('\n; WARNING: The interchain_ss.itp include MUST remain at the end of this file,\n')
-            f.write('; after [ molecules ] and after any SOL/ion entries added by gmx solvate/genion.\n')
-            f.write('; If you add solvent, move this line below the SOL and ion molecule entries.\n')
-            f.write('#include "interchain_ss.itp"\n')
-
-
-def _write_water_topology(f, water_path):
-    """Write water moleculetype from .itp file, using rigid (settles) version.
-
-    Water .itp files have #ifndef FLEXIBLE / #else blocks. We extract only
-    the rigid (settles) section since that's the standard for MD.
-    """
-    lines = []
-    in_flexible = False
-    skip_block = False
-
-    with open(water_path) as wf:
-        for line in wf:
-            stripped = line.strip()
-
-            # Track preprocessor blocks
-            if stripped == '#ifndef FLEXIBLE' or stripped == '#ifdef FLEXIBLE':
-                # #ifndef FLEXIBLE → rigid section follows (keep it)
-                # #ifdef FLEXIBLE → flexible section follows (skip it)
-                in_flexible = stripped == '#ifdef FLEXIBLE'
-                skip_block = in_flexible
-                continue
-            elif stripped == '#else':
-                # Toggle: if we were in rigid, now flexible (skip); vice versa
-                skip_block = not skip_block
-                continue
-            elif stripped == '#endif':
-                skip_block = False
-                in_flexible = False
-                continue
-            elif stripped.startswith('#'):
-                continue
-
-            if not skip_block:
-                lines.append(line)
-
-    f.write(''.join(lines))
-
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
-def parse_args(argv=None):
-    parser = argparse.ArgumentParser(
-        prog='dvbfixer top',
-        description='Generate GROMACS topology files from PDB',
-    )
-    parser.add_argument('input', help='Input PDB file')
-    parser.add_argument('-o', '--output', help='Output .top file (default: topol.top)')
-    parser.add_argument('--ff', choices=['amber', 'charmm'], default='amber',
-                        help='Force field (default: amber)')
-    parser.add_argument('--ff-dir', help='Custom force field directory')
-    parser.add_argument('--water', default='tip3p',
-                        choices=['tip3p', 'spc', 'spce', 'tip4p', 'tip4pew', 'opc'],
-                        help='Water model (default: tip3p). With --ff charmm only '
-                             'tip3p/spc/spce are accepted; OPC/TIP4P/TIP4P-Ew are '
-                             'not parametrized for CHARMM36 ions.')
-    parser.add_argument('--ion-set', default='auto', dest='ion_set',
-                        choices=['auto', 'jc-tip3p', 'jc-spce', 'jc-tip4pew',
-                                 'lm-hfe-opc', 'lm-iod-opc', 'dang-legacy'],
-                        help='Ion LJ parameter set (default: auto, picks the set '
-                             'matched to the water model). Ignored with --ff charmm.')
-    parser.add_argument('--ignh', action='store_true',
-                        help='Ignore hydrogens in input PDB')
-    parser.add_argument('--keep-all-hydrogens', dest='keep_all_hydrogens',
-                        action='store_true',
-                        help='Do not remove any hydrogen atoms from the '
-                             'input (default OFF: HO1/HO2/HO3/HO4/HO6 at '
-                             'glycosidic linkage sites are stripped and '
-                             'their charge is redistributed onto the linked '
-                             'O — matches the CHARMM RTP template for a '
-                             'formed glycosidic bond). Use when the input '
-                             'has a free reducing end that must keep its H, '
-                             'or when charges must round-trip untouched. '
-                             'WARNING: at a real glycosidic linkage this '
-                             'produces an over-valent O (H + neighbour C '
-                             'bonded to the same O); grompp may complain '
-                             'and the resulting energy is chemically wrong. '
-                             'Use only when you know why.')
-    parser.add_argument('--no-infer-conect', dest='no_infer_conect',
-                        action='store_true',
-                        help='Skip automatic CONECT inference. By default '
-                             'missing SS/glycosidic/glycosylation bonds are '
-                             'perceived from coordinates before topology build.')
-    parser.add_argument('--ss', action='append', default=[],
-                        help='Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable)')
-    parser.add_argument('--his', action='append', default=[],
-                        help='HIS protonation: CHAIN:NUM:STATE (HIE/HID/HIP, repeatable)')
-    parser.add_argument('--protonate', default=None,
-                        help='Protonate residues. "all" protonates every ASP->ASPP, '
-                             'GLU->GLUP, HIS->HSP. Comma-separated list protonates '
-                             'specific residues: CHAIN:NUM[:STATE],... '
-                             '(e.g. --protonate all, --protonate H:66,K:50:GLUP).')
-    parser.add_argument('--merge', action='store_true',
-                        help='Merge all chains into single moleculetype')
-    parser.add_argument('--pdb', help='Output PDB file with topology-matched atom names')
-    parser.add_argument('--acpype', action='store_true',
-                        help='Use ACPYPE pipeline (AMBER14+GLYCAM -> ParmEd -> GROMACS). '
-                             'Handles mixed 1-4 scaling via [ pairs_nb ].')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='Verbose output')
-    return parser.parse_args(argv)
-
 
 def main(argv=None):
     args = parse_args(argv)
@@ -3079,8 +2201,8 @@ def main(argv=None):
                   file=sys.stderr)
             sys.exit(1)
         if args.ion_set != 'auto':
-            print(f"INFO: --ion-set is ignored with --ff charmm "
-                  f"(CHARMM ions come from the bundled ions.itp).",
+            print("INFO: --ion-set is ignored with --ff charmm "
+                  "(CHARMM ions come from the bundled ions.itp).",
                   file=sys.stderr)
     else:  # AMBER
         if args.ion_set == 'auto':
@@ -3096,7 +2218,7 @@ def main(argv=None):
     tmp_pdb = None
     orig_input_path = input_path  # preserve for output path defaults
     if input_path.suffix.lower() == '.gro':
-        print(f"Converting GRO to PDB via MDAnalysis...")
+        print("Converting GRO to PDB via MDAnalysis...")
         tmp_pdb = _gro_to_pdb(input_path)
         input_path = tmp_pdb
 
@@ -3107,63 +2229,11 @@ def main(argv=None):
         input_path = Path(_materialise_inferred_pdb(
             input_path, verbose=args.verbose))
 
-    # ACPYPE mode: OpenMM + ParmEd + ACPYPE pipeline
+    # ACPYPE mode: OpenMM + ParmEd + ACPYPE pipeline (delegated to
+    # top.acpype so the RTP-based `--ff amber|charmm` path stays clean).
     if args.acpype:
-        from dvbfixer.acpype_export import export_gromacs
-
-        if args.ff == 'charmm':
-            print("WARNING: --acpype always uses AMBER14+GLYCAM, ignoring --ff charmm",
-                  file=sys.stderr)
-
-        # Parse --ss flags into extra_ss set
-        extra_ss = set()
-        for ss_spec in args.ss:
-            parts = ss_spec.split(':')
-            if len(parts) == 4:
-                extra_ss.add((parts[0], int(parts[1])))
-                extra_ss.add((parts[2], int(parts[3])))
-
-        # Parse --protonate flags into prot_overrides dict
-        # AMBER variant names that addHydrogens understands
-        _AMBER_VARIANTS = {'ASH', 'GLH', 'HIE', 'HID', 'HIP', 'CYX', 'LYN'}
-        # Map common alternative names to AMBER form
-        _NAME_TO_AMBER = {
-            'ASPP': 'ASH', 'ASPH': 'ASH', 'GLUP': 'GLH', 'GLUH': 'GLH',
-            'HSP': 'HIP', 'HSE': 'HIE', 'HSD': 'HID',
-        }
-        prot_overrides = {}
-        if args.protonate and args.protonate != 'all':
-            if ':' not in args.protonate:
-                print(f"ERROR: Invalid --protonate value '{args.protonate}'.",
-                      file=sys.stderr)
-                sys.exit(1)
-            for spec in args.protonate.split(','):
-                parts = spec.split(':')
-                if len(parts) == 3:
-                    state = parts[2].upper()
-                    state = _NAME_TO_AMBER.get(state, state)
-                    if state in _AMBER_VARIANTS:
-                        prot_overrides[(parts[0], int(parts[1]))] = state
-        for his_spec in args.his:
-            parts = his_spec.split(':')
-            if len(parts) == 3:
-                state = parts[2].upper()
-                state = _NAME_TO_AMBER.get(state, state)
-                if state in _AMBER_VARIANTS:
-                    prot_overrides[(parts[0], int(parts[1]))] = state
-
-        if args.output:
-            out_dir = Path(args.output).parent or Path('.')
-            basename = Path(args.output).stem
-        else:
-            out_dir = input_path.parent or Path('.')
-            basename = input_path.stem
-
-        export_gromacs(input_path, out_dir, basename=basename,
-                       extra_ss=extra_ss or None,
-                       prot_overrides=prot_overrides or None,
-                       verbose=args.verbose,
-                       keep_all_hydrogens=args.keep_all_hydrogens)
+        from dvbfixer.top.acpype import run_acpype_mode
+        run_acpype_mode(input_path, args)
         return
 
     # Determine FF directory
@@ -3174,7 +2244,7 @@ def main(argv=None):
         ff_dir = FF_DIR / ff_name
         if not ff_dir.exists():
             print(f"Error: Force field directory not found: {ff_dir}", file=sys.stderr)
-            print(f"Use --ff-dir to specify the path", file=sys.stderr)
+            print("Use --ff-dir to specify the path", file=sys.stderr)
             sys.exit(1)
 
     ff_name = ff_dir.name
@@ -3406,9 +2476,9 @@ def main(argv=None):
                 print(f"  {cid}:{rseq}:{state}  →  residue at that position is "
                       f"{actual}, but {state} is only valid for {expected}.{hint}",
                       file=sys.stderr)
-        print(f"Check that the chain IDs and residue numbers match your input "
-              f"PDB. Use `grep '^ATOM' input.pdb | awk '{{print $5,$6,$4}}' | "
-              f"sort -u` to list (chain, resnum, resname) triples.",
+        print("Check that the chain IDs and residue numbers match your input "
+              "PDB. Use `grep '^ATOM' input.pdb | awk '{print $5,$6,$4}' | "
+              "sort -u` to list (chain, resnum, resname) triples.",
               file=sys.stderr)
         sys.exit(1)
 
@@ -3569,7 +2639,7 @@ def main(argv=None):
                         print(f"Glycolipid {ct.name}: {len(ct.atoms)} atoms, "
                               f"{len(ct.bonds)} bonds")
                     else:
-                        print(f"WARNING: Failed to build glycolipid topology",
+                        print("WARNING: Failed to build glycolipid topology",
                               file=sys.stderr)
             else:
                 # Pure glycan tree
@@ -3668,7 +2738,7 @@ def main(argv=None):
             bt = builder.carb_bonded_types
         with open(itp_path, 'w') as f:
             f.write(f"; Moleculetype: {ct.name}\n")
-            f.write(f"; Generated by dvbfixer top\n\n")
+            f.write("; Generated by dvbfixer top\n\n")
             _write_moleculetype(f, ct, bt)
         print(f"Wrote {itp_path}")
 

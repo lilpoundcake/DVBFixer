@@ -30,117 +30,130 @@ def parse_args(argv=None):
         description="Run the full preparation pipeline: "
         "renumber -> model -> prepare -> minimize -> protonate -> minimize.",
     )
-    p.add_argument("input", help="Input PDB file (must contain SEQRES)")
-    p.add_argument("-o", "--output", help="Final output PDB file (default: <input>_zbs.pdb)")
-    p.add_argument("--ph", type=float, default=7.0,
-                   help="pH for protonation and hydrogen addition (default: 7.0)")
-    p.add_argument("--ff", nargs='+', default=['auto'],
-                   help="Force field selection forwarded to prepare / "
-                        "minimize / protonate. Accepts a short name (auto, "
-                        "amber, amber+glycam, charmm, ...) or an explicit "
-                        "list of OpenMM XML paths. Default: 'auto'. "
-                        "See docs/force-fields.md.")
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB file (must contain SEQRES)")
+    io.add_argument("-o", "--output", help="Final output PDB file (default: <input>_zbs.pdb)")
 
-    # renumber
-    p.add_argument("--skip-renumber", action="store_true",
-                   help="Skip the renumber step")
+    ff = p.add_argument_group("Force field")
+    ff.add_argument("--ph", type=float, default=7.0,
+                    help="pH for protonation and hydrogen addition (default: 7.0)")
+    ff.add_argument("--ff", nargs='+', default=['auto'],
+                    help="Force field selection forwarded to prepare / "
+                         "minimize / protonate. Accepts a short name (auto, "
+                         "amber, amber+glycam, charmm, ...) or an explicit "
+                         "list of OpenMM XML paths. Default: 'auto'. "
+                         "See docs/force-fields.md.")
+    ff.add_argument("--parametrize-ligands", action="store_true",
+                    help="Forward --parametrize-ligands to both minimize "
+                         "passes (GAFF2 + AM1-BCC for unknown ligands via "
+                         "antechamber). See docs/force-fields.md.")
 
-    # model
-    p.add_argument("--skip-model", action="store_true",
-                   help="Skip the model step")
-    p.add_argument("--no-terminal", action="store_true",
-                   help="Do not model missing N/C terminal residues")
-    p.add_argument("--num-loops", type=int, default=2,
-                   help="Number of loop models (default: 2)")
-    p.add_argument("--md-level", choices=["none", "fast", "slow", "very_slow", "slow_large"],
-                   default="fast", help="Modeller MD refinement level (default: fast)")
-    p.add_argument("--fasta", help="FASTA file with complete sequence(s) for model step")
-    p.add_argument("--num-output", type=int, default=1, dest="num_output",
-                   help="Save top-N candidate models from Modeller (default: 1). "
-                        "With N>1, the model step writes <stem>_model_1.pdb, "
-                        "..._2.pdb, ... zbs picks _1 (best) for downstream.")
-    p.add_argument("--pin-input", dest="pin_input",
-                   action=argparse.BooleanOptionalAction, default=True,
-                   help="During Modeller's loop refinement MD, allow only "
-                        "the gap residues to move (no ±flank margin). "
-                        "Default ON — pass --no-pin-input to restore the "
-                        "legacy LoopModel behaviour (gap ±~3 residue flank "
-                        "mobile).")
+    skip = p.add_argument_group("Pipeline skip flags")
+    skip.add_argument("--skip-renumber", action="store_true",
+                      help="Skip the renumber step")
+    skip.add_argument("--skip-model", action="store_true",
+                      help="Skip the model step")
+    skip.add_argument("--skip-prepare", action="store_true",
+                      help="Skip the prepare step")
+    skip.add_argument("--skip-minimize", action="store_true",
+                      help="Skip the minimize step")
+    skip.add_argument("--skip-protonate", action="store_true",
+                      help="Skip the protonate step")
 
-    # prepare
-    p.add_argument("--skip-prepare", action="store_true",
-                   help="Skip the prepare step")
-    p.add_argument("--strip-heterogens", dest="keep_heterogens",
-                   action="store_false", default=True,
-                   help="Strip heterogens before processing (protein-only pipeline). "
-                        "Default: keep heterogens through prepare and minimize the whole system.")
-    p.add_argument("--no-heterogen-h", dest="heterogen_h",
-                   action="store_false", default=True,
-                   help="Skip hydrogen addition for heterogens in prepare "
-                        "(default: add H to heterogens BioLuminate-style).")
-    p.add_argument("--mutate", action="append", default=[],
-                   metavar="CHAIN:RESNUM:NEW_AA",
-                   help="Mutate a residue during prepare step (can be used multiple times)")
-    p.add_argument("--rename", action="store_true",
-                   help="Canonicalise non-standard residue names before prepare/minimize.")
+    model_grp = p.add_argument_group("Model step (Modeller)")
+    model_grp.add_argument("--fasta", help="FASTA file with complete sequence(s) for model step")
+    model_grp.add_argument("--no-terminal", action="store_true",
+                           help="Do not model missing N/C terminal residues")
+    model_grp.add_argument("--num-loops", type=int, default=2,
+                           help="Number of loop models (default: 2)")
+    model_grp.add_argument("--md-level", choices=["none", "fast", "slow", "very_slow", "slow_large"],
+                           default="fast", help="Modeller MD refinement level (default: fast)")
+    model_grp.add_argument("--num-output", type=int, default=1, dest="num_output",
+                           help="Save top-N candidate models from Modeller (default: 1). "
+                                "With N>1, the model step writes <stem>_model_1.pdb, "
+                                "..._2.pdb, ... zbs picks _1 (best) for downstream.")
+    model_grp.add_argument("--pin-input", dest="pin_input",
+                           action=argparse.BooleanOptionalAction, default=True,
+                           help="During Modeller's loop refinement MD, allow only "
+                                "the gap residues to move (no ±flank margin). "
+                                "Default ON — pass --no-pin-input to restore the "
+                                "legacy LoopModel behaviour (gap ±~3 residue flank "
+                                "mobile).")
 
-    # minimize
-    p.add_argument("--skip-minimize", action="store_true",
-                   help="Skip the minimize step")
-    p.add_argument("--no-solvent", action="store_true",
-                   help="Minimize in vacuum (no solvent box)")
-    p.add_argument("--rebuild-h", action="store_true",
-                   help="Force --rebuild-h on both minimize passes (default: off; "
-                        "pass 2 already has correct H from protonate)")
-    p.add_argument("--restraint-k", type=float, default=100.0,
-                   help="Restraint force constant for original atoms (default: 100)")
-    p.add_argument("--max-iter", type=int, default=1000,
-                   help="Max minimization iterations per phase (default: 1000)")
-    p.add_argument("--platform", choices=["CPU", "CUDA", "OpenCL", "Reference"],
-                   help="OpenMM platform (default: auto)")
-    p.add_argument("--refine", choices=["none", "xtb", "obminimize"], default="none",
-                   help="Post-minimize refinement pass in minimize step 2 "
-                        "(default: none). 'xtb' uses GFN-FF, 'obminimize' uses "
-                        "OpenBabel UFF.")
-    p.add_argument("--refine-heterogens-only", action="store_true",
-                   help="Restrict --refine pass to heterogen residues "
-                        "(protein backbone frozen). Only meaningful with "
-                        "--refine != none.")
-    p.add_argument("--parametrize-ligands", action="store_true",
-                   help="Forward --parametrize-ligands to both minimize "
-                        "passes (GAFF2 + AM1-BCC for unknown ligands via "
-                        "antechamber). See docs/force-fields.md.")
+    prep = p.add_argument_group("Prepare step")
+    prep.add_argument("--strip-heterogens", dest="keep_heterogens",
+                      action="store_false", default=True,
+                      help="Strip heterogens before processing (protein-only pipeline). "
+                           "Default: keep heterogens through prepare and minimize the whole system.")
+    prep.add_argument("--no-heterogen-h", dest="heterogen_h",
+                      action="store_false", default=True,
+                      help="Skip hydrogen addition for heterogens in prepare "
+                           "(default: add H to heterogens BioLuminate-style).")
+    prep.add_argument("--mutate", action="append", default=[],
+                      metavar="CHAIN:RESNUM:NEW_AA",
+                      help="Mutate a residue during prepare step (can be used multiple times)")
+    prep.add_argument("--rename", action="store_true",
+                      help="Canonicalise non-standard residue names before prepare/minimize.")
 
-    # protonate
-    p.add_argument("--skip-protonate", action="store_true",
-                   help="Skip the protonate step")
-    p.add_argument("--no-protassign", dest="protassign",
-                   action="store_false", default=True,
-                   help="Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip "
-                        "detection) in protonate. Default: run Reduce, matches "
-                        "standalone `dvbfixer protonate` default since Jun 2026.")
+    minz = p.add_argument_group("Minimize step (OpenMM)")
+    minz.add_argument("--no-solvent", action="store_true",
+                      help="Minimize in vacuum (no solvent box)")
+    minz.add_argument("--rebuild-h", action="store_true",
+                      help="Force --rebuild-h on both minimize passes (default: off; "
+                           "pass 2 already has correct H from protonate)")
+    minz.add_argument("--restraint-k", type=float, default=100.0,
+                      help="Restraint force constant for original atoms (default: 100)")
+    minz.add_argument("--max-iter", type=int, default=1000,
+                      help="Max minimization iterations per phase (default: 1000)")
+    minz.add_argument("--refine", choices=["none", "xtb", "obminimize"], default="none",
+                      help="Post-minimize refinement pass in minimize step 2 "
+                           "(default: none). 'xtb' uses GFN-FF, 'obminimize' uses "
+                           "OpenBabel UFF.")
+    minz.add_argument("--refine-heterogens-only", action="store_true",
+                      help="Restrict --refine pass to heterogen residues "
+                           "(protein backbone frozen). Only meaningful with "
+                           "--refine != none.")
 
-    # general
-    p.add_argument("--keep-water", action="store_true",
-                   help="Keep water molecules in output (default: remove)")
-    p.add_argument("--no-infer-conect", dest="no_infer_conect",
-                   action="store_true",
-                   help="Skip automatic CONECT inference in prepare/minimize/"
-                        "protonate. Default: infer missing CONECT bonds "
-                        "(SS/glycosidic/glycosylation) from coordinates.")
-    p.add_argument("--keep-interim", action="store_true",
-                   help="Keep all intermediate files (default: only final output)")
-    p.add_argument("--align-to-input", dest="align_to_input",
-                   action=argparse.BooleanOptionalAction, default=True,
-                   help="After every pipeline step, Kabsch-align the output "
-                        "back to the ORIGINAL input on protein backbone "
-                        "atoms. Prevents accumulated rigid-body drift so "
-                        "residue-by-residue comparisons in a viewer line up. "
-                        "Default ON — pass --no-align-to-input for the "
-                        "legacy behaviour (each step's output in its own "
-                        "frame).")
-    p.add_argument("-v", "--verbose", action="store_true",
-                   help="Print detailed progress for all steps")
+    prot = p.add_argument_group("Protonate step")
+    prot.add_argument("--no-propka", dest="propka",
+                      action="store_false", default=True,
+                      help="Skip PROPKA3 in the protonate step. Reduce "
+                           "(--protassign) becomes the only source of HIS "
+                           "tautomer picks and ASN/GLN flip detection. "
+                           "Combining --no-propka with --no-protassign is an "
+                           "error.")
+    prot.add_argument("--no-protassign", dest="protassign",
+                      action="store_false", default=True,
+                      help="Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip "
+                           "detection) in protonate. Default: run Reduce, matches "
+                           "standalone `dvbfixer protonate` default since Jun 2026.")
+
+    general = p.add_argument_group("Pipeline behaviour")
+    general.add_argument("--keep-water", action="store_true",
+                         help="Keep water molecules in output (default: remove)")
+    general.add_argument("--no-infer-conect", dest="no_infer_conect",
+                         action="store_true",
+                         help="Skip automatic CONECT inference in prepare/minimize/"
+                              "protonate. Default: infer missing CONECT bonds "
+                              "(SS/glycosidic/glycosylation) from coordinates.")
+    general.add_argument("--keep-interim", action="store_true",
+                         help="Keep all intermediate files (default: only final output)")
+    general.add_argument("--align-to-input", dest="align_to_input",
+                         action=argparse.BooleanOptionalAction, default=True,
+                         help="After every pipeline step, Kabsch-align the output "
+                              "back to the ORIGINAL input on protein backbone "
+                              "atoms. Prevents accumulated rigid-body drift so "
+                              "residue-by-residue comparisons in a viewer line up. "
+                              "Default ON — pass --no-align-to-input for the "
+                              "legacy behaviour (each step's output in its own "
+                              "frame).")
+
+    runtime = p.add_argument_group("Runtime")
+    runtime.add_argument("--platform", choices=["CPU", "CUDA", "OpenCL", "Reference"],
+                         help="OpenMM platform (default: auto)")
+    runtime.add_argument("-v", "--verbose", action="store_true",
+                         help="Print detailed progress for all steps")
+
     return p.parse_args(argv)
 
 
@@ -297,14 +310,23 @@ def main(argv=None):
     # to the new HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN residue names.
     if not args.skip_protonate:
         step_num += 1
+        # Header reflects which engines are actually going to run.
+        _engines = []
+        if args.propka:
+            _engines.append("PROPKA")
+        if args.protassign:
+            _engines.append("Reduce")
+        _engines.append("addHydrogens")
         print(f"\n{'='*60}")
-        print(f"Step {step_num}: PROTONATE (PROPKA + Reduce + addHydrogens)")
+        print(f"Step {step_num}: PROTONATE ({' + '.join(_engines)})")
         print(f"{'='*60}")
         from dvbfixer.protonate import main as protonate_main
         out = step_output("prot")
         protonate_argv = [current, "-o", out,
                           "--ph", str(args.ph),
                           "--ff"] + args.ff
+        if not args.propka:
+            protonate_argv.append("--no-propka")
         if not args.protassign:
             protonate_argv.append("--no-protassign")
         if args.no_infer_conect:

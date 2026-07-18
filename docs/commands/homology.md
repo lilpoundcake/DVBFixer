@@ -22,3 +22,6 @@ dvbfixer homology target.fasta --template fab.pdb --template igg.pdb --antibody 
 - [`model`](model.md) — single-template loop rebuilding
 - [`prepare`](prepare.md) — post-modeling structure preparation
 - [BEST_PRACTICES.md](../../BEST_PRACTICES.md) — antibody workflow recipe
+
+## How it works
+Multi-template homology modeling with Modeller. Takes a target FASTA (multi-chain) and one or more template PDB files. Auto-aligns target to templates via Modeller's `align2d` (or `salign` with `--salign`). Builds model with `automodel` or `LoopModel` using multiple `knowns`. Point mutations handled naturally by differing target sequence from templates. Post-processing restores chain IDs and residue numbering. Writes `.dat` file for downstream `prepare`/`minimize` restraints. `--prepare` and `--minimize` flags run the full pipeline automatically. Antibody mode (`--antibody`): uses ANARCI for Kabat/IMGT numbering, CDR detection, VH/VL/CH/CL domain classification, and auto-mapping of Fv from one template + constant domains from another. Dependencies: Modeller (required), ANARCI (for `--antibody` mode).

@@ -16,7 +16,6 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-
 # PDB residue name -> (GLYCAM sugar code, GLYCAM anomer code)
 # Lowercase sugar code = L-sugar
 PDB_TO_GLYCAM = {
@@ -983,15 +982,15 @@ def parse_args(argv=None):
         "(consumable by `top --ff charmm`). Both directions are idempotent — "
         "running the tool on already-correct input is a no-op.",
     )
-    p.add_argument("input", help="Input PDB file")
-    p.add_argument("-o", "--output",
-                   help="Output PDB file (default: <input>_amber.pdb in "
-                        "the default direction, <input>_charmm.pdb with "
-                        "--to-charmm)")
-    p.add_argument("--no-roh", action="store_true",
-                   help="Do not add ROH cap at the reducing end (forward / "
-                        "--to-amber direction only)")
-    direction = p.add_mutually_exclusive_group()
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB file")
+    io.add_argument("-o", "--output",
+                    help="Output PDB file (default: <input>_amber.pdb in "
+                         "the default direction, <input>_charmm.pdb with "
+                         "--to-charmm)")
+
+    direction_grp = p.add_argument_group("Conversion direction")
+    direction = direction_grp.add_mutually_exclusive_group()
     direction.add_argument("--to-amber", action="store_true",
                            help="PDB/CHARMM → GLYCAM (sugars) + AMBER "
                                 "(protonation variants HID/HIE/HIP/ASH/GLH/LYN/"
@@ -1006,13 +1005,21 @@ def parse_args(argv=None):
                                 "NLN/OLS/OLT revert to ASN/SER/THR; ROH/OME "
                                 "caps are dropped. Linkage info preserved via "
                                 "CONECT records.")
-    p.add_argument("--no-infer-conect", dest="no_infer_conect",
-                   action="store_true",
-                   help="Skip automatic CONECT inference (default: infer "
-                        "missing glycosidic / glycosylation bonds so linkage "
-                        "detection works on CONECT-less inputs).")
-    p.add_argument("-v", "--verbose", action="store_true",
-                   help="Print conversion details")
+
+    content = p.add_argument_group("Content selection")
+    content.add_argument("--no-roh", action="store_true",
+                         help="Do not add ROH cap at the reducing end (forward / "
+                              "--to-amber direction only)")
+    content.add_argument("--no-infer-conect", dest="no_infer_conect",
+                         action="store_true",
+                         help="Skip automatic CONECT inference (default: infer "
+                              "missing glycosidic / glycosylation bonds so linkage "
+                              "detection works on CONECT-less inputs).")
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument("-v", "--verbose", action="store_true",
+                      help="Print conversion details")
+
     return p.parse_args(argv)
 
 
