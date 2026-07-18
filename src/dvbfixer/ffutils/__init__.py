@@ -18,7 +18,11 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-from openmm.app import ForceField
+# NOTE: openmm.app.ForceField is imported lazily inside
+# `create_forcefield_with_openff` and `build_glycam_system` (the only two
+# functions that use it). Keeping the top-level import laziness means
+# `from dvbfixer.ffutils.variants import ...` and `... .dat import ...`
+# work in the CI fast lane without OpenMM installed.
 
 # PDB-standard sugar residue names — the ambiguous set from the auto-detect
 # path (a hit alone does not identify an FF; user is warned to convert first).
@@ -590,6 +594,8 @@ def create_forcefield_with_openff(
         _legacy_kwargs: Silently swallowed (was `small_mol_ff`,
             `extra_molecules`); kept for callers that hadn't been updated.
     """
+    from openmm.app import ForceField
+
     ff = ForceField(*ff_xmls)
 
     # Suppress GLYCAM sugar/NA templates when PDB-named sugars are present.

@@ -26,40 +26,53 @@ def golden_root() -> Path:
     return GOLDEN_ROOT
 
 
+def _fixture_or_skip(path: Path) -> Path:
+    """Return ``path`` if it exists, else skip the calling test.
+
+    The ``test/`` directory is intentionally untracked (large binary
+    fixtures live outside git). On CI where the fixtures aren't
+    provisioned, tests that need them skip cleanly instead of ERROR-ing.
+    Locally the tests run against the developer's own ``test/`` tree.
+    """
+    if not path.exists():
+        pytest.skip(f"fixture missing: {path}")
+    return path
+
+
 @pytest.fixture(scope="session")
 def small_pdb() -> Path:
     """Single-residue ASN — smallest input we ship."""
-    return FIXTURES_ROOT / "ASN.pdb"
+    return _fixture_or_skip(FIXTURES_ROOT / "ASN.pdb")
 
 
 @pytest.fixture(scope="session")
 def default_pdb() -> Path:
     """Small default PDB used across smoke tests."""
-    return FIXTURES_ROOT / "default.pdb"
+    return _fixture_or_skip(FIXTURES_ROOT / "default.pdb")
 
 
 @pytest.fixture(scope="session")
 def multistate_pdb() -> Path:
     """Multi-MODEL PDB — 11 states × 3 chains, exercises split's MODEL path."""
-    return FIXTURES_ROOT / "multistate" / "test_multistate.pdb"
+    return _fixture_or_skip(FIXTURES_ROOT / "multistate" / "test_multistate.pdb")
 
 
 @pytest.fixture(scope="session")
 def glycam_dir() -> Path:
     """GLYCAM-named glycoprotein fixture."""
-    return FIXTURES_ROOT / "glycosilated_mAb_Amber_Glycam"
+    return _fixture_or_skip(FIXTURES_ROOT / "glycosilated_mAb_Amber_Glycam")
 
 
 @pytest.fixture(scope="session")
 def charmm_glycan_dir() -> Path:
     """CHARMM-GUI-named glycoprotein fixture (mirror of glycam_dir)."""
-    return FIXTURES_ROOT / "glycosilated_mAb_Charmm-GUI"
+    return _fixture_or_skip(FIXTURES_ROOT / "glycosilated_mAb_Charmm-GUI")
 
 
 @pytest.fixture(scope="session")
 def trastuzumab_dir() -> Path:
     """Antibody fixture — templates + target FASTA for homology tests."""
-    return FIXTURES_ROOT / "trastuzumab"
+    return _fixture_or_skip(FIXTURES_ROOT / "trastuzumab")
 
 
 @pytest.fixture()
