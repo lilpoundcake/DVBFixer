@@ -601,36 +601,46 @@ def parse_args(argv=None):
         description='Multi-template homology modeling with Modeller. '
                     'Builds a composite model from multiple template structures.',
     )
-    p.add_argument('fasta',
-                   help='Target sequence FASTA (multi-chain, one >header per chain)')
-    p.add_argument('--template', action='append', required=True,
-                   help='Template PDB file (repeatable, at least 1)')
-    p.add_argument('--alignment', default=None,
-                   help='Pre-built PIR alignment file (skip auto-alignment)')
-    p.add_argument('--salign', action='store_true',
-                   help='Use structure-based alignment instead of align2d')
-    p.add_argument('-n', '--num-models', type=int, default=5,
-                   help='Number of models to generate (default: 5)')
-    p.add_argument('--md-level',
-                   choices=['none', 'fast', 'slow', 'very_slow', 'slow_large'],
-                   default='fast',
-                   help='MD refinement level (default: fast)')
-    p.add_argument('--no-loop-refine', action='store_true',
-                   help='Use automodel instead of LoopModel (faster, no loop refinement)')
-    p.add_argument('--antibody', action='store_true',
-                   help='Antibody-aware mode: ANARCI numbering, CDR detection')
-    p.add_argument('--prepare', action='store_true',
-                   help='Run dvbfixer prepare on output')
-    p.add_argument('--minimize', action='store_true',
-                   help='Run dvbfixer prepare + minimize on output')
-    p.add_argument('--ph', type=float, default=7.0,
-                   help='pH for hydrogen addition (default: 7.0)')
-    p.add_argument('-o', '--output', default=None,
-                   help='Output prefix (default: FASTA stem)')
-    p.add_argument('--keep-workdir', action='store_true',
-                   help='Keep Modeller working directory')
-    p.add_argument('-v', '--verbose', action='store_true',
-                   help='Verbose output')
+    io = p.add_argument_group('Input / output')
+    io.add_argument('fasta',
+                    help='Target sequence FASTA (multi-chain, one >header per chain)')
+    io.add_argument('--template', action='append', required=True,
+                    help='Template PDB file (repeatable, at least 1)')
+    io.add_argument('-o', '--output', default=None,
+                    help='Output prefix (default: FASTA stem)')
+
+    alignment = p.add_argument_group('Alignment')
+    alignment.add_argument('--alignment', default=None,
+                           help='Pre-built PIR alignment file (skip auto-alignment)')
+    alignment.add_argument('--salign', action='store_true',
+                           help='Use structure-based alignment instead of align2d')
+
+    modelling = p.add_argument_group('Modelling parameters')
+    modelling.add_argument('-n', '--num-models', type=int, default=5,
+                           help='Number of models to generate (default: 5)')
+    modelling.add_argument('--md-level',
+                           choices=['none', 'fast', 'slow', 'very_slow', 'slow_large'],
+                           default='fast',
+                           help='MD refinement level (default: fast)')
+    modelling.add_argument('--no-loop-refine', action='store_true',
+                           help='Use automodel instead of LoopModel (faster, no loop refinement)')
+    modelling.add_argument('--antibody', action='store_true',
+                           help='Antibody-aware mode: ANARCI numbering, CDR detection')
+
+    pipeline = p.add_argument_group('Post-processing pipeline')
+    pipeline.add_argument('--prepare', action='store_true',
+                          help='Run dvbfixer prepare on output')
+    pipeline.add_argument('--minimize', action='store_true',
+                          help='Run dvbfixer prepare + minimize on output')
+    pipeline.add_argument('--ph', type=float, default=7.0,
+                          help='pH for hydrogen addition (default: 7.0)')
+
+    diag = p.add_argument_group('Diagnostics')
+    diag.add_argument('--keep-workdir', action='store_true',
+                      help='Keep Modeller working directory')
+    diag.add_argument('-v', '--verbose', action='store_true',
+                      help='Verbose output')
+
     return p.parse_args(argv)
 
 

@@ -6,21 +6,23 @@
 
 ```
 usage: dvbfixer split [-h] [-o OUTPUT] [-d DISTANCE_CUTOFF] [-g GAP_CUTOFF]
-                      [--no-distance] [--no-renumber] [--keep-water]
-                      [--max-chains MAX_CHAINS] [-v]
+                      [--no-distance] [--max-chains MAX_CHAINS]
+                      [--no-renumber] [--keep-water] [-v]
                       input
 
 Empirically split chains in a PDB or GRO file. Detects chain breaks by residue
 number resets and/or C-N inter-residue distance, assigns unique chain IDs, and
 inserts TER records.
 
-positional arguments:
-  input                 Input PDB or GRO file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB or GRO file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_split.pdb)
+
+Chain-break detection:
   -d DISTANCE_CUTOFF, --distance-cutoff DISTANCE_CUTOFF
                         C->N peptide bond cutoff in angstroms (default: 2.5)
   -g GAP_CUTOFF, --gap-cutoff GAP_CUTOFF
@@ -29,10 +31,6 @@ options:
                         15.0 A)
   --no-distance         Disable all distance-based detection, use only residue
                         numbering
-  --no-renumber         Keep original residue numbers (default: renumber per
-                        chain starting from 1)
-  --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
-                        (default: remove)
   --max-chains MAX_CHAINS
                         When more than this many chains are detected, do NOT
                         assign chain IDs to small-molecule chains (ions,
@@ -40,5 +38,13 @@ options:
                         with blank chain ID. Protein chains always get chain
                         IDs. Default: 26. Set higher to keep the original
                         assign-all behaviour (max 52 via lowercase fallback).
+
+Content / renumbering:
+  --no-renumber         Keep original residue numbers (default: renumber per
+                        chain starting from 1)
+  --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
+                        (default: remove)
+
+Diagnostics:
   -v, --verbose         Print detected chain info
 ```

@@ -5,30 +5,26 @@
 > For prose about how to use `prepare`, see [`docs/commands/prepare.md`](../commands/prepare.md).
 
 ```
-usage: dvbfixer prepare [-h] [-o OUTPUT] [--dat DAT] [--ph PH] [--keep-water]
-                        [--strip-heterogens] [--no-heterogen-h]
-                        [--ff FF [FF ...]] [--mutate CHAIN:RESNUM:NEW_AA]
-                        [--rename] [--no-infer-conect] [-v]
+usage: dvbfixer prepare [-h] [-o OUTPUT] [--dat DAT] [--ph PH]
+                        [--ff FF [FF ...]] [--keep-water] [--strip-heterogens]
+                        [--no-heterogen-h] [--rename] [--no-infer-conect]
+                        [--mutate CHAIN:RESNUM:NEW_AA] [-v]
                         input
 
 Fix missing atoms and residues in a PDB structure using PDBFixer. Writes a
 .dat file recording added atoms for selective restraints during minimization.
 
-positional arguments:
-  input                 Input PDB file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_prepared.pdb)
   --dat DAT             Restraint data file path (default: <output>.dat)
+
+Force field / pH:
   --ph PH               pH for adding hydrogens (default: 7.0)
-  --keep-water          Keep crystallographic waters
-  --strip-heterogens    Remove heterogens (sugars, ligands, ions) before
-                        processing (protein-only mode). Default: keep
-                        heterogens.
-  --no-heterogen-h      Skip hydrogen addition for heterogens
-                        (sugars/ligands).
   --ff FF [FF ...]      Force field selection for heterogen-H addition.
                         Accepts a short name (auto, amber, amber+glycam,
                         charmm, ...) or an explicit list of OpenMM XML paths.
@@ -36,16 +32,28 @@ options:
                         input. See docs/force-fields.md. Only consulted when
                         heterogen-H addition runs; the protein-only PDBFixer
                         path is unaffected.
-  --mutate CHAIN:RESNUM:NEW_AA
-                        Mutate a residue (e.g. A:39:ALA, A:83:HIP). Use
-                        CHAIN:RESNUM:del to DELETE a residue (e.g. H:446:del).
-                        Insertion codes are supported in RESNUM (e.g.
-                        H:100A:del). Can be used multiple times.
+
+Content selection:
+  --keep-water          Keep crystallographic waters
+  --strip-heterogens    Remove heterogens (sugars, ligands, ions) before
+                        processing (protein-only mode). Default: keep
+                        heterogens.
+  --no-heterogen-h      Skip hydrogen addition for heterogens
+                        (sugars/ligands).
   --rename              Rename non-canonical residues (AMBER/CHARMM) to
                         standard names before processing
   --no-infer-conect     Skip automatic CONECT inference. By default dvbfixer
                         perceives missing CONECT records (SS, glycosidic,
                         glycosylation) so glycoprotein flows work even on
                         inputs without CONECT.
+
+Mutations:
+  --mutate CHAIN:RESNUM:NEW_AA
+                        Mutate a residue (e.g. A:39:ALA, A:83:HIP). Use
+                        CHAIN:RESNUM:del to DELETE a residue (e.g. H:446:del).
+                        Insertion codes are supported in RESNUM (e.g.
+                        H:100A:del). Can be used multiple times.
+
+Diagnostics:
   -v, --verbose         Print detailed progress
 ```

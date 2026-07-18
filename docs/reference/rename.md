@@ -11,12 +11,14 @@ Rename non-canonical residue names to standard PDB names. Converts AMBER
 (HIE/HID/HIP, ASH, GLH, CYX, CYM, LYN), CHARMM (HSD/HSE/HSP), and MSE to their
 canonical forms.
 
-positional arguments:
-  input                 Input PDB file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_canon.pdb)
+
+Diagnostics:
   -v, --verbose         Print each rename
 ```

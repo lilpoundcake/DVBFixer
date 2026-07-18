@@ -6,49 +6,72 @@
 
 ```
 usage: dvbfixer minimize [-h] [-o OUTPUT] [--dat DAT] [--ph PH]
-                         [--ff FF [FF ...]] [--padding PADDING]
+                         [--ff FF [FF ...]] [--parametrize-ligands]
+                         [--padding PADDING] [--no-solvent]
                          [--restraint-k RESTRAINT_K] [--weak-k WEAK_K]
-                         [--max-iter MAX_ITER] [--rebuild-h]
-                         [--strip-heterogens] [--no-solvent] [--xtb-refine]
-                         [--xtb-cycles XTB_CYCLES] [--obminimize-refine]
+                         [--max-iter MAX_ITER] [--strip-heterogens]
+                         [--rebuild-h] [--rename] [--no-infer-conect]
+                         [--xtb-refine] [--xtb-cycles XTB_CYCLES]
+                         [--obminimize-refine]
                          [--obminimize-ff {MMFF94,MMFF94s,UFF,GAFF,Ghemical}]
                          [--obminimize-steps OBMINIMIZE_STEPS]
                          [--refine-heterogens-only]
-                         [--platform {CPU,CUDA,OpenCL,Reference}] [--rename]
-                         [--no-infer-conect] [--parametrize-ligands] [-v]
+                         [--platform {CPU,CUDA,OpenCL,Reference}] [-v]
                          input
 
 Energy-minimize a PDB structure with OpenMM. Uses selective restraints:
 original atoms are restrained, newly added atoms (from PDBFixer .dat file) are
 free to relax.
 
-positional arguments:
-  input                 Input PDB file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file
   -o OUTPUT, --output OUTPUT
                         Output minimized PDB (default: <input>_minimized.pdb)
   --dat DAT             Restraint data file from 'dvbfixer prepare' (default:
                         <input>.dat)
+
+Force field:
   --ph PH               pH for hydrogen addition if needed (default: 7.0)
   --ff FF [FF ...]      Force field selection. Accepts a short name (auto,
                         amber, amber+glycam, charmm, ...) or an explicit list
                         of OpenMM XML paths. Default: 'auto' — detect from
                         residue names in the input. See docs/force-fields.md.
+  --parametrize-ligands
+                        For each heterogen residue that lacks a template in
+                        the resolved --ff, run GAFF2 + AM1-BCC parametrisation
+                        via antechamber/parmchk2 and register the resulting
+                        GAFF template with OpenMM before createSystem.
+                        Requires openmmforcefields + openff-toolkit +
+                        AmberTools (antechamber, parmchk2). Cached to
+                        ~/.cache/dvbfixer/lig_params/ (override with
+                        $DVBFIXER_LIG_CACHE). See docs/force-fields.md.
+
+Physics / restraints:
   --padding PADDING     Solvent padding in nm (default: 1.0)
+  --no-solvent          Minimize in vacuum (no solvent box)
   --restraint-k RESTRAINT_K
                         Restraint force constant for original atoms in
                         kcal/mol/A^2 (default: 100.0)
   --weak-k WEAK_K       Restraint force constant for added backbone atoms in
                         kcal/mol/A^2 (default: 5.0)
   --max-iter MAX_ITER   Max minimization iterations per phase (default: 1000)
-  --rebuild-h           Strip and re-add hydrogens via OpenMM (default: keep
-                        existing)
+
+Content selection:
   --strip-heterogens    Strip heterogens before minimization, restore coords
                         after (protein-only mode). Default: minimize the whole
                         system.
-  --no-solvent          Minimize in vacuum (no solvent box)
+  --rebuild-h           Strip and re-add hydrogens via OpenMM (default: keep
+                        existing)
+  --rename              Rename non-canonical residues (AMBER/CHARMM) to
+                        standard names before processing
+  --no-infer-conect     Skip automatic CONECT inference (default: infer
+                        missing SS / glycosidic / glycosylation bonds before
+                        minimize).
+
+Refinement (post-OpenMM):
   --xtb-refine          After OpenMM minimization, run xtb GFN-FF universal
                         force field as a refinement pass. Auto-parametrizes
                         any organic molecule (sugars, ligands) without
@@ -75,21 +98,9 @@ options:
                         this flag for whole-system refinement when the
                         interface matters (whole-system xtb auto-switches to
                         heterogens-only above ~5000 atoms for performance).
+
+Runtime:
   --platform {CPU,CUDA,OpenCL,Reference}
                         OpenMM platform (default: auto-select fastest)
-  --rename              Rename non-canonical residues (AMBER/CHARMM) to
-                        standard names before processing
-  --no-infer-conect     Skip automatic CONECT inference (default: infer
-                        missing SS / glycosidic / glycosylation bonds before
-                        minimize).
-  --parametrize-ligands
-                        For each heterogen residue that lacks a template in
-                        the resolved --ff, run GAFF2 + AM1-BCC parametrisation
-                        via antechamber/parmchk2 and register the resulting
-                        GAFF template with OpenMM before createSystem.
-                        Requires openmmforcefields + openff-toolkit +
-                        AmberTools (antechamber, parmchk2). Cached to
-                        ~/.cache/dvbfixer/lig_params/ (override with
-                        $DVBFIXER_LIG_CACHE). See docs/force-fields.md.
   -v, --verbose         Print detailed progress
 ```

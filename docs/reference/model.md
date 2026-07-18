@@ -16,17 +16,19 @@ Rebuild missing loops and gaps in a PDB structure using Modeller. Identifies
 gaps from SEQRES vs ATOM records (or a provided FASTA), then uses Modeller's
 loop modeling to fill them.
 
-positional arguments:
-  input                 Input PDB file (must contain SEQRES or use --fasta)
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file (must contain SEQRES or use --fasta)
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_model.pdb)
   --fasta FASTA         FASTA file with complete sequence(s). Headers must
                         encode chain IDs: '>chain_X', '>PDBID_X', or '>X'.
                         Mapping is by chain ID, not file order. Use instead of
                         SEQRES.
+
+Modelling parameters:
   -n NUM_MODELS, --num-models NUM_MODELS
                         Number of initial models to generate (default: 1)
   --num-loops NUM_LOOPS
@@ -52,8 +54,12 @@ options:
                         residue flank mobile).
   --no-terminal         Do not model missing N/C terminal residues (only
                         rebuild internal gaps)
+
+Content selection:
   --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
                         (default: remove)
+
+Diagnostics:
   --keep-workdir        Keep the Modeller working directory (for debugging)
   -v, --verbose         Print Modeller progress
 ```

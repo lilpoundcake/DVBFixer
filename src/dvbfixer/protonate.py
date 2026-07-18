@@ -43,41 +43,28 @@ def parse_args(argv=None):
         "state names in a PDB file for a given pH. Uses AMBER residue naming "
         "(HID/HIE/HIP, ASH, GLH, CYM, CYX, LYN)."
     )
-    p.add_argument("input", help="Input PDB file")
-    p.add_argument("-o", "--output", help="Output PDB file (default: <input>_prot.pdb)")
-    p.add_argument(
+
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB file")
+    io.add_argument("-o", "--output", help="Output PDB file (default: <input>_prot.pdb)")
+
+    ph = p.add_argument_group("pH-driven decisions")
+    ph.add_argument(
         "--ph", type=float, default=7.0,
         help="Target pH for protonation assignment (default: 7.0)"
     )
-    p.add_argument(
+    ph.add_argument(
         "--his-default", choices=["HIE", "HID"], default="HIE",
         help="Default neutral HIS tautomer when pKa < pH (default: HIE = Ne2 protonated)"
     )
-    p.add_argument(
+    ph.add_argument(
         "--cys-disulfide-pka", type=float, default=90.0,
         help="PROPKA pKa threshold above which CYS is assumed to be in a disulfide "
-             "bond and renamed to CYX (default: 90.0)"
+             "bond and renamed to CYX (default: 90.0). No-op under --no-propka."
     )
-    p.add_argument(
-        "--summary", action="store_true",
-        help="Print pKa summary table for all titratable residues"
-    )
-    p.add_argument(
-        "--no-hydrogens", action="store_true",
-        help="Only rename residues, do not add/fix hydrogen atoms"
-    )
-    p.add_argument(
-        "--ff", nargs='+', default=['auto'],
-        help="Force field for hydrogen addition. Accepts a short name "
-             "(auto, amber, amber+glycam, charmm, ...) or an explicit list "
-             "of OpenMM XML paths. Default: 'auto' — detect from residue "
-             "names in the input. See docs/force-fields.md."
-    )
-    p.add_argument(
-        "--keep-water", action="store_true",
-        help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
-    )
-    p.add_argument(
+
+    engines = p.add_argument_group("Protonation engines")
+    engines.add_argument(
         "--propka", action=argparse.BooleanOptionalAction, default=True,
         help="Run PROPKA3 for pKa-driven protonation-state decisions "
              "(ASH/GLH/HIP/CYM/LYN). **Default ON.** Pass --no-propka "
@@ -87,7 +74,7 @@ def parse_args(argv=None):
              "is an error — protonate would have nothing to decide "
              "protonation from."
     )
-    p.add_argument(
+    engines.add_argument(
         "--protassign", action=argparse.BooleanOptionalAction, default=True,
         help="Run MolProbity Reduce to optimise HIS tautomers (HID/HIE/HIP) "
              "and detect ASN/GLN side-chain flips based on local H-bond "
@@ -97,15 +84,41 @@ def parse_args(argv=None):
              "Requires the `reduce` binary (bundled with AmberTools in the "
              "dvbfixer env)."
     )
-    p.add_argument(
+    engines.add_argument(
         "--protassign-binary", dest="protassign_binary", default=None,
         help="Override the `reduce` binary path (default: search PATH, then "
              "the dvbfixer env's bin dir)."
     )
-    p.add_argument(
+
+    ff = p.add_argument_group("Force field")
+    ff.add_argument(
+        "--ff", nargs='+', default=['auto'],
+        help="Force field for hydrogen addition. Accepts a short name "
+             "(auto, amber, amber+glycam, charmm, ...) or an explicit list "
+             "of OpenMM XML paths. Default: 'auto' — detect from residue "
+             "names in the input. See docs/force-fields.md."
+    )
+
+    content = p.add_argument_group("Content selection")
+    content.add_argument(
+        "--keep-water", action="store_true",
+        help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
+    )
+    content.add_argument(
+        "--no-hydrogens", action="store_true",
+        help="Only rename residues, do not add/fix hydrogen atoms"
+    )
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument(
+        "--summary", action="store_true",
+        help="Print pKa summary table for all titratable residues"
+    )
+    diag.add_argument(
         "-v", "--verbose", action="store_true",
         help="Print only residues that get non-standard protonation"
     )
+
     return p.parse_args(argv)
 
 

@@ -34,10 +34,14 @@ def parse_args(argv=None):
         "Converts AMBER (HIE/HID/HIP, ASH, GLH, CYX, CYM, LYN), "
         "CHARMM (HSD/HSE/HSP), and MSE to their canonical forms.",
     )
-    p.add_argument("input", help="Input PDB file")
-    p.add_argument("-o", "--output", help="Output PDB file (default: <input>_canon.pdb)")
-    p.add_argument("-v", "--verbose", action="store_true",
-                   help="Print each rename")
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB file")
+    io.add_argument("-o", "--output", help="Output PDB file (default: <input>_canon.pdb)")
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument("-v", "--verbose", action="store_true",
+                      help="Print each rename")
+
     return p.parse_args(argv)
 
 

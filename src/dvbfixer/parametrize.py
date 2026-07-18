@@ -874,88 +874,87 @@ def parse_args(argv=None):
                     'Uses antechamber + parmchk2 + tleap + ParmEd pipeline.',
     )
 
-    # === Input / output ===
-    p.add_argument('input',
-                   help='Input structure file (.pdb, .mol2, .sdf)')
-    p.add_argument('-o', '--output', default=None,
-                   help='Output prefix (default: input stem)')
-    p.add_argument('-n', '--name', default=None,
-                   help='Molecule name for [ moleculetype ] '
-                        '(default: from input filename, uppercased)')
+    io = p.add_argument_group('Input / output')
+    io.add_argument('input', help='Input structure file (.pdb, .mol2, .sdf)')
+    io.add_argument('-o', '--output', default=None,
+                    help='Output prefix (default: input stem)')
+    io.add_argument('-n', '--name', default=None,
+                    help='Molecule name for [ moleculetype ] '
+                         '(default: from input filename, uppercased)')
 
-    # === Chemistry ===
-    p.add_argument('-c', '--charge-method', default='bcc',
-                   choices=['bcc', 'resp'],
-                   help='Charge method: bcc (AM1-BCC, default — fast, '
-                        '~95%% RESP accuracy) or resp (slower, requires '
-                        '--qm-engine to pick a QM backend).')
-    p.add_argument('--net-charge', type=int, default=0,
-                   help='Net charge of the molecule (default: 0)')
-    p.add_argument('--multiplicity', type=int, default=1,
-                   help='Spin multiplicity (default: 1)')
+    chem = p.add_argument_group('Chemistry')
+    chem.add_argument('-c', '--charge-method', default='bcc',
+                      choices=['bcc', 'resp'],
+                      help='Charge method: bcc (AM1-BCC, default — fast, '
+                           '~95%% RESP accuracy) or resp (slower, requires '
+                           '--qm-engine to pick a QM backend).')
+    chem.add_argument('--net-charge', type=int, default=0,
+                      help='Net charge of the molecule (default: 0)')
+    chem.add_argument('--multiplicity', type=int, default=1,
+                      help='Spin multiplicity (default: 1)')
 
-    # === RESP backend (only when -c resp) ===
-    p.add_argument('--qm-engine', dest='qm_engine', default=None,
-                   choices=['pyscf', 'gaussian', 'psi4'],
-                   help='QM backend for -c resp. All opt-in (no default — '
-                        'pick explicitly). `pyscf` = `pip install pyscf`, '
-                        'pure-Python, RECOMMENDED. `gaussian` = commercial '
-                        'license, two-step --gen-gaussian / --gaussian-log '
-                        'workflow. `psi4` = free, separate conda env via '
-                        '`micromamba create -n psi4 -c conda-forge psi4 '
-                        'psiresp`.')
-
+    qm = p.add_argument_group('RESP backend (only when -c resp)')
+    qm.add_argument('--qm-engine', dest='qm_engine', default=None,
+                    choices=['pyscf', 'gaussian', 'psi4'],
+                    help='QM backend for -c resp. All opt-in (no default — '
+                         'pick explicitly). `pyscf` = `pip install pyscf`, '
+                         'pure-Python, RECOMMENDED. `gaussian` = commercial '
+                         'license, two-step --gen-gaussian / --gaussian-log '
+                         'workflow. `psi4` = free, separate conda env via '
+                         '`micromamba create -n psi4 -c conda-forge psi4 '
+                         'psiresp`.')
     # PySCF / PSI4 shared knobs (the QM job's compute parameters).
     # --psi4-* names kept as aliases for backwards compatibility with
     # invocations from older scripts.
-    p.add_argument('--qm-method', '--psi4-method',
-                   dest='qm_method', default='HF/6-31G*',
-                   help='QM method for --qm-engine pyscf / psi4 '
-                        '(default: HF/6-31G*, the AMBER-standard RESP '
-                        'recipe). Override only if you know why.')
-    p.add_argument('--qm-nthreads', '--psi4-nthreads',
-                   dest='qm_nthreads', type=int, default=4,
-                   help='OpenMP threads for the QM job (default: 4). '
-                        'PySCF/PSI4 scale modestly (~30%% at 4 cores).')
-    p.add_argument('--qm-memory', '--psi4-memory',
-                   dest='qm_memory', default='4GB',
-                   help='Memory cap for the QM job (default: 4GB). '
-                        'PSI4 errors out if too low for the basis set; '
-                        'PySCF reads PYSCF_MAX_MEMORY env var if set.')
-    p.add_argument('--psi4-env', dest='psi4_env', default='psi4',
-                   help='Name of the conda env containing psi4 + psiresp, '
-                        'only used by --qm-engine psi4 (default: psi4). '
-                        'dvbfixer invokes that env via `micromamba run -n '
-                        '<name> python ...` so the BLAS/MKL conflict with '
-                        'OpenMM is avoided. Create it once with '
-                        '`micromamba create -n psi4 -c conda-forge psi4 '
-                        'psiresp`.')
+    qm.add_argument('--qm-method', '--psi4-method',
+                    dest='qm_method', default='HF/6-31G*',
+                    help='QM method for --qm-engine pyscf / psi4 '
+                         '(default: HF/6-31G*, the AMBER-standard RESP '
+                         'recipe). Override only if you know why.')
+    qm.add_argument('--qm-nthreads', '--psi4-nthreads',
+                    dest='qm_nthreads', type=int, default=4,
+                    help='OpenMP threads for the QM job (default: 4). '
+                         'PySCF/PSI4 scale modestly (~30%% at 4 cores).')
+    qm.add_argument('--qm-memory', '--psi4-memory',
+                    dest='qm_memory', default='4GB',
+                    help='Memory cap for the QM job (default: 4GB). '
+                         'PSI4 errors out if too low for the basis set; '
+                         'PySCF reads PYSCF_MAX_MEMORY env var if set.')
+    qm.add_argument('--psi4-env', dest='psi4_env', default='psi4',
+                    help='Name of the conda env containing psi4 + psiresp, '
+                         'only used by --qm-engine psi4 (default: psi4). '
+                         'dvbfixer invokes that env via `micromamba run -n '
+                         '<name> python ...` so the BLAS/MKL conflict with '
+                         'OpenMM is avoided. Create it once with '
+                         '`micromamba create -n psi4 -c conda-forge psi4 '
+                         'psiresp`.')
 
-    # Gaussian-specific flags (only used by --qm-engine gaussian)
-    p.add_argument('--gen-gaussian', action='store_true',
-                   help='Generate a Gaussian .com input file for RESP '
-                        'charges and exit. Implies --qm-engine gaussian. '
-                        'Run Gaussian on the .com, then re-invoke this '
-                        'command with --gaussian-log.')
-    p.add_argument('--gaussian-log', default=None,
-                   help='Gaussian log file for RESP charges (output of '
-                        'running Gaussian on the .com file). Implies '
-                        '--qm-engine gaussian.')
-    p.add_argument('--gaussian-method', default='HF/6-31G*',
-                   help='QM method written into the generated Gaussian '
-                        '.com (default: HF/6-31G*).')
-    p.add_argument('--gaussian-mem', default='4GB',
-                   help='%%mem= directive in the generated .com '
-                        '(default: 4GB).')
-    p.add_argument('--gaussian-nproc', type=int, default=4,
-                   help='%%nproc= directive in the generated .com '
-                        '(default: 4).')
+    gaussian = p.add_argument_group('Gaussian backend (only when --qm-engine gaussian)')
+    gaussian.add_argument('--gen-gaussian', action='store_true',
+                          help='Generate a Gaussian .com input file for RESP '
+                               'charges and exit. Implies --qm-engine gaussian. '
+                               'Run Gaussian on the .com, then re-invoke this '
+                               'command with --gaussian-log.')
+    gaussian.add_argument('--gaussian-log', default=None,
+                          help='Gaussian log file for RESP charges (output of '
+                               'running Gaussian on the .com file). Implies '
+                               '--qm-engine gaussian.')
+    gaussian.add_argument('--gaussian-method', default='HF/6-31G*',
+                          help='QM method written into the generated Gaussian '
+                               '.com (default: HF/6-31G*).')
+    gaussian.add_argument('--gaussian-mem', default='4GB',
+                          help='%%mem= directive in the generated .com '
+                               '(default: 4GB).')
+    gaussian.add_argument('--gaussian-nproc', type=int, default=4,
+                          help='%%nproc= directive in the generated .com '
+                               '(default: 4).')
 
-    # === Housekeeping ===
-    p.add_argument('--keep-intermediate', action='store_true',
-                   help='Keep antechamber/tleap intermediate files')
-    p.add_argument('-v', '--verbose', action='store_true',
-                   help='Verbose output')
+    diag = p.add_argument_group('Diagnostics')
+    diag.add_argument('--keep-intermediate', action='store_true',
+                      help='Keep antechamber/tleap intermediate files')
+    diag.add_argument('-v', '--verbose', action='store_true',
+                      help='Verbose output')
+
     return p.parse_args(argv)
 
 

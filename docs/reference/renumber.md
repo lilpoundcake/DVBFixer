@@ -5,26 +5,25 @@
 > For prose about how to use `renumber`, see [`docs/commands/renumber.md`](../commands/renumber.md).
 
 ```
-usage: dvbfixer renumber [-h] [-o OUTPUT] [--keep-water] [--rename]
+usage: dvbfixer renumber [-h] [-o OUTPUT]
                          [--scheme {seqres,kabat,chothia,imgt,martin,eu,aho}]
-                         [--chain-scheme CHAIN:SCHEME] [-v]
+                         [--chain-scheme CHAIN:SCHEME] [--keep-water]
+                         [--rename] [-v]
                          input
 
 Read SEQRES from a PDB file, align ATOM residues to the full sequence, and
 renumber to remove insertion codes while preserving gap positions. Updates all
 PDB sections referencing residue numbers.
 
-positional arguments:
-  input                 Input PDB file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_renum.pdb)
-  --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
-                        (default: remove)
-  --rename              Rename non-canonical residues (AMBER/CHARMM) to
-                        standard names before processing
+
+Numbering scheme:
   --scheme {seqres,kabat,chothia,imgt,martin,eu,aho}
                         Antibody numbering scheme. Default 'seqres' uses
                         SEQRES-based sequential numbering (the original
@@ -38,5 +37,13 @@ options:
   --chain-scheme CHAIN:SCHEME
                         Per-chain scheme override (e.g. H:kabat). Repeatable.
                         Wins over --scheme.
+
+Content selection:
+  --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
+                        (default: remove)
+  --rename              Rename non-canonical residues (AMBER/CHARMM) to
+                        standard names before processing
+
+Diagnostics:
   -v, --verbose         Print alignment details and gap positions
 ```

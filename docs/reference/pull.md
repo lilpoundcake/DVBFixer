@@ -5,39 +5,49 @@
 > For prose about how to use `pull`, see [`docs/commands/pull.md`](../commands/pull.md).
 
 ```
-usage: dvbfixer pull [-h] --bond SPEC SPEC [-o OUTPUT]
-                     [--target-distance TARGET_DISTANCE] [--radius RADIUS]
-                     [--anchor SPEC] [--max-iter MAX_ITER] [--ff FF [FF ...]]
-                     [--rename] [-v]
+usage: dvbfixer pull [-h] [-o OUTPUT] --bond SPEC SPEC
+                     [--target-distance TARGET_DISTANCE] [--anchor SPEC]
+                     [--radius RADIUS] [--max-iter MAX_ITER]
+                     [--ff FF [FF ...]] [--rename] [-v]
                      input
 
 Pull two atoms together to form a bond using OpenMM partial minimization.
 Selected atoms near the bond are free, rest are frozen (mass=0). Works with
 any residue type (glycans auto-parametrized via OpenFF).
 
-positional arguments:
-  input                 Input PDB file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file
+  -o OUTPUT, --output OUTPUT
+                        Output PDB (default: <input>_pulled.pdb)
+
+Bond specification:
   --bond SPEC SPEC      Two atom specs: chain:resnum:atomname (e.g. --bond
                         H:239:SG K:239:SG). Can be specified multiple times
                         for multiple bonds.
-  -o OUTPUT, --output OUTPUT
-                        Output PDB (default: <input>_pulled.pdb)
   --target-distance TARGET_DISTANCE
                         Target bond distance in angstroms (default: auto by
                         bond type)
-  --radius RADIUS       Radius of free region around bond endpoints in
-                        angstroms (default: 10.0)
   --anchor SPEC         Anchor one endpoint (freeze its side, only move the
                         other)
+
+Physics / restraints:
+  --radius RADIUS       Radius of free region around bond endpoints in
+                        angstroms (default: 10.0)
   --max-iter MAX_ITER   Max minimization iterations (default: 1000)
+
+Force field:
   --ff FF [FF ...]      Force field selection. Accepts a short name (auto,
                         amber, amber+glycam, charmm, ...) or an explicit list
                         of OpenMM XML paths. Default: 'auto' — detect from
                         residue names in the input. See docs/force-fields.md.
+
+Content selection:
   --rename              Rename non-canonical residues (AMBER/CHARMM) to
                         standard names before processing
+
+Diagnostics:
   -v, --verbose         Print detailed progress
 ```

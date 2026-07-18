@@ -1025,38 +1025,48 @@ def parse_args(argv=None):
         description='Cluster glycan conformations from MD trajectory '
                     'using glycosidic torsion angle RMSD (GFDB method).',
     )
-    p.add_argument('topology',
-                   help='Topology file (.tpr, .pdb, .gro)')
-    p.add_argument('trajectory',
-                   help='Trajectory file (.xtc, .trr, .dcd)')
-    p.add_argument('-o', '--output', default=None,
-                   help='Output prefix (default: trajectory stem)')
-    p.add_argument('--cutoff', type=float, default=30.0,
-                   help='RMSD cutoff in degrees (default: 30.0)')
-    p.add_argument('--mode', choices=['global', 'per-linkage'],
-                   default='per-linkage',
-                   help='Clustering mode: global (all torsions at once) or '
-                        'per-linkage (each linkage independently, then combine)')
-    p.add_argument('--select', default=None,
-                   help='MDAnalysis selection for output PDB atoms')
-    p.add_argument('--stride', type=int, default=1,
-                   help='Read every Nth frame (default: 1)')
-    p.add_argument('--begin', type=int, default=None,
-                   help='First frame (0-based)')
-    p.add_argument('--end', type=int, default=None,
-                   help='Last frame (exclusive)')
-    p.add_argument('--align-resid', type=int, default=None,
-                   help='Residue ID to align representative PDBs on '
-                        '(default: auto-detect protein attachment or root sugar)')
-    p.add_argument('--no-align', action='store_true',
-                   help='Disable alignment of representative PDBs')
-    p.add_argument('--separate-pdb', action='store_true',
-                   help='Write each cluster as separate PDB '
-                        '(default: multi-MODEL PDB)')
-    p.add_argument('--plot', action='store_true',
-                   help='Generate interactive HTML plots (requires plotly)')
-    p.add_argument('-v', '--verbose', action='store_true',
-                   help='Verbose output')
+    io = p.add_argument_group('Input / output')
+    io.add_argument('topology',
+                    help='Topology file (.tpr, .pdb, .gro)')
+    io.add_argument('trajectory',
+                    help='Trajectory file (.xtc, .trr, .dcd)')
+    io.add_argument('-o', '--output', default=None,
+                    help='Output prefix (default: trajectory stem)')
+
+    frames = p.add_argument_group('Frame selection')
+    frames.add_argument('--stride', type=int, default=1,
+                        help='Read every Nth frame (default: 1)')
+    frames.add_argument('--begin', type=int, default=None,
+                        help='First frame (0-based)')
+    frames.add_argument('--end', type=int, default=None,
+                        help='Last frame (exclusive)')
+    frames.add_argument('--select', default=None,
+                        help='MDAnalysis selection for output PDB atoms')
+
+    clustering = p.add_argument_group('Clustering')
+    clustering.add_argument('--cutoff', type=float, default=30.0,
+                            help='RMSD cutoff in degrees (default: 30.0)')
+    clustering.add_argument('--mode', choices=['global', 'per-linkage'],
+                            default='per-linkage',
+                            help='Clustering mode: global (all torsions at once) or '
+                                 'per-linkage (each linkage independently, then combine)')
+
+    representative = p.add_argument_group('Representative PDBs')
+    representative.add_argument('--align-resid', type=int, default=None,
+                                help='Residue ID to align representative PDBs on '
+                                     '(default: auto-detect protein attachment or root sugar)')
+    representative.add_argument('--no-align', action='store_true',
+                                help='Disable alignment of representative PDBs')
+    representative.add_argument('--separate-pdb', action='store_true',
+                                help='Write each cluster as separate PDB '
+                                     '(default: multi-MODEL PDB)')
+
+    diag = p.add_argument_group('Diagnostics')
+    diag.add_argument('--plot', action='store_true',
+                      help='Generate interactive HTML plots (requires plotly)')
+    diag.add_argument('-v', '--verbose', action='store_true',
+                      help='Verbose output')
+
     return p.parse_args(argv)
 
 

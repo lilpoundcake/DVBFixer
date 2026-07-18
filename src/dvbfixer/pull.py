@@ -56,29 +56,41 @@ def parse_args(argv=None):
         "minimization. Selected atoms near the bond are free, rest are frozen "
         "(mass=0). Works with any residue type (glycans auto-parametrized via OpenFF).",
     )
-    p.add_argument("input", help="Input PDB file")
-    p.add_argument("--bond", nargs=2, required=True, action="append", metavar="SPEC",
-                   help="Two atom specs: chain:resnum:atomname (e.g. --bond H:239:SG K:239:SG). "
-                   "Can be specified multiple times for multiple bonds.")
-    p.add_argument("-o", "--output", help="Output PDB (default: <input>_pulled.pdb)")
-    p.add_argument("--target-distance", type=float,
-                   help="Target bond distance in angstroms (default: auto by bond type)")
-    p.add_argument("--radius", type=float, default=10.0,
-                   help="Radius of free region around bond endpoints in angstroms (default: 10.0)")
-    p.add_argument("--anchor", metavar="SPEC",
-                   help="Anchor one endpoint (freeze its side, only move the other)")
-    p.add_argument("--max-iter", type=int, default=1000,
-                   help="Max minimization iterations (default: 1000)")
-    p.add_argument("--ff", nargs='+', default=[DEFAULT_FF],
-                   help="Force field selection. Accepts a short name "
-                        "(auto, amber, amber+glycam, charmm, ...) or an "
-                        "explicit list of OpenMM XML paths. Default: 'auto' — "
-                        "detect from residue names in the input. "
-                        "See docs/force-fields.md.")
-    p.add_argument("--rename", action="store_true",
-                   help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing")
-    p.add_argument("-v", "--verbose", action="store_true",
-                   help="Print detailed progress")
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB file")
+    io.add_argument("-o", "--output", help="Output PDB (default: <input>_pulled.pdb)")
+
+    bonds = p.add_argument_group("Bond specification")
+    bonds.add_argument("--bond", nargs=2, required=True, action="append", metavar="SPEC",
+                       help="Two atom specs: chain:resnum:atomname (e.g. --bond H:239:SG K:239:SG). "
+                            "Can be specified multiple times for multiple bonds.")
+    bonds.add_argument("--target-distance", type=float,
+                       help="Target bond distance in angstroms (default: auto by bond type)")
+    bonds.add_argument("--anchor", metavar="SPEC",
+                       help="Anchor one endpoint (freeze its side, only move the other)")
+
+    physics = p.add_argument_group("Physics / restraints")
+    physics.add_argument("--radius", type=float, default=10.0,
+                         help="Radius of free region around bond endpoints in angstroms (default: 10.0)")
+    physics.add_argument("--max-iter", type=int, default=1000,
+                         help="Max minimization iterations (default: 1000)")
+
+    ff = p.add_argument_group("Force field")
+    ff.add_argument("--ff", nargs='+', default=[DEFAULT_FF],
+                    help="Force field selection. Accepts a short name "
+                         "(auto, amber, amber+glycam, charmm, ...) or an "
+                         "explicit list of OpenMM XML paths. Default: 'auto' — "
+                         "detect from residue names in the input. "
+                         "See docs/force-fields.md.")
+
+    content = p.add_argument_group("Content selection")
+    content.add_argument("--rename", action="store_true",
+                         help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing")
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument("-v", "--verbose", action="store_true",
+                      help="Print detailed progress")
+
     return p.parse_args(argv)
 
 

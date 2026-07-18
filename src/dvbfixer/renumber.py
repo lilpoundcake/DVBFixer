@@ -31,17 +31,12 @@ def parse_args(argv=None):
         "sequence, and renumber to remove insertion codes while preserving "
         "gap positions. Updates all PDB sections referencing residue numbers."
     )
-    p.add_argument("input", help="Input PDB file")
-    p.add_argument("-o", "--output", help="Output PDB file (default: <input>_renum.pdb)")
-    p.add_argument(
-        "--keep-water", action="store_true",
-        help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
-    )
-    p.add_argument(
-        "--rename", action="store_true",
-        help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing"
-    )
-    p.add_argument(
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB file")
+    io.add_argument("-o", "--output", help="Output PDB file (default: <input>_renum.pdb)")
+
+    scheme = p.add_argument_group("Numbering scheme")
+    scheme.add_argument(
         "--scheme", choices=["seqres", "kabat", "chothia", "imgt", "martin", "eu", "aho"],
         default="seqres",
         help="Antibody numbering scheme. Default 'seqres' uses SEQRES-based "
@@ -52,15 +47,28 @@ def parse_args(argv=None):
              "of the V-scheme — Kabat/Chothia/Martin don't define C-domain "
              "positions. Non-antibody chains fall back to SEQRES."
     )
-    p.add_argument(
+    scheme.add_argument(
         "--chain-scheme", action="append", default=[],
         metavar="CHAIN:SCHEME",
         help="Per-chain scheme override (e.g. H:kabat). Repeatable. Wins over --scheme."
     )
-    p.add_argument(
+
+    content = p.add_argument_group("Content selection")
+    content.add_argument(
+        "--keep-water", action="store_true",
+        help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
+    )
+    content.add_argument(
+        "--rename", action="store_true",
+        help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing"
+    )
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument(
         "-v", "--verbose", action="store_true",
         help="Print alignment details and gap positions"
     )
+
     return p.parse_args(argv)
 
 

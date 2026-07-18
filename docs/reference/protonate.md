@@ -6,40 +6,37 @@
 
 ```
 usage: dvbfixer protonate [-h] [-o OUTPUT] [--ph PH] [--his-default {HIE,HID}]
-                          [--cys-disulfide-pka CYS_DISULFIDE_PKA] [--summary]
-                          [--no-hydrogens] [--ff FF [FF ...]] [--keep-water]
+                          [--cys-disulfide-pka CYS_DISULFIDE_PKA]
                           [--propka | --no-propka]
                           [--protassign | --no-protassign]
-                          [--protassign-binary PROTASSIGN_BINARY] [-v]
+                          [--protassign-binary PROTASSIGN_BINARY]
+                          [--ff FF [FF ...]] [--keep-water] [--no-hydrogens]
+                          [--summary] [-v]
                           input
 
 Predict pKa values with PROPKA3 and set correct protonation state names in a
 PDB file for a given pH. Uses AMBER residue naming (HID/HIE/HIP, ASH, GLH,
 CYM, CYX, LYN).
 
-positional arguments:
-  input                 Input PDB file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_prot.pdb)
+
+pH-driven decisions:
   --ph PH               Target pH for protonation assignment (default: 7.0)
   --his-default {HIE,HID}
                         Default neutral HIS tautomer when pKa < pH (default:
                         HIE = Ne2 protonated)
   --cys-disulfide-pka CYS_DISULFIDE_PKA
                         PROPKA pKa threshold above which CYS is assumed to be
-                        in a disulfide bond and renamed to CYX (default: 90.0)
-  --summary             Print pKa summary table for all titratable residues
-  --no-hydrogens        Only rename residues, do not add/fix hydrogen atoms
-  --ff FF [FF ...]      Force field for hydrogen addition. Accepts a short
-                        name (auto, amber, amber+glycam, charmm, ...) or an
-                        explicit list of OpenMM XML paths. Default: 'auto' —
-                        detect from residue names in the input. See
-                        docs/force-fields.md.
-  --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
-                        (default: remove)
+                        in a disulfide bond and renamed to CYX (default:
+                        90.0). No-op under --no-propka.
+
+Protonation engines:
   --propka, --no-propka
                         Run PROPKA3 for pKa-driven protonation-state decisions
                         (ASH/GLH/HIP/CYM/LYN). **Default ON.** Pass --no-
@@ -60,5 +57,20 @@ options:
   --protassign-binary PROTASSIGN_BINARY
                         Override the `reduce` binary path (default: search
                         PATH, then the dvbfixer env's bin dir).
+
+Force field:
+  --ff FF [FF ...]      Force field for hydrogen addition. Accepts a short
+                        name (auto, amber, amber+glycam, charmm, ...) or an
+                        explicit list of OpenMM XML paths. Default: 'auto' —
+                        detect from residue names in the input. See
+                        docs/force-fields.md.
+
+Content selection:
+  --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
+                        (default: remove)
+  --no-hydrogens        Only rename residues, do not add/fix hydrogen atoms
+
+Diagnostics:
+  --summary             Print pKa summary table for all titratable residues
   -v, --verbose         Print only residues that get non-standard protonation
 ```

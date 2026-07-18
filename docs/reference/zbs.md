@@ -6,33 +6,33 @@
 
 ```
 usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
-                    [--skip-renumber] [--skip-model] [--no-terminal]
-                    [--num-loops NUM_LOOPS]
+                    [--parametrize-ligands] [--skip-renumber] [--skip-model]
+                    [--skip-prepare] [--skip-minimize] [--skip-protonate]
+                    [--fasta FASTA] [--no-terminal] [--num-loops NUM_LOOPS]
                     [--md-level {none,fast,slow,very_slow,slow_large}]
-                    [--fasta FASTA] [--num-output NUM_OUTPUT]
-                    [--pin-input | --no-pin-input] [--skip-prepare]
+                    [--num-output NUM_OUTPUT] [--pin-input | --no-pin-input]
                     [--strip-heterogens] [--no-heterogen-h]
-                    [--mutate CHAIN:RESNUM:NEW_AA] [--rename]
-                    [--skip-minimize] [--no-solvent] [--rebuild-h]
-                    [--restraint-k RESTRAINT_K] [--max-iter MAX_ITER]
-                    [--platform {CPU,CUDA,OpenCL,Reference}]
-                    [--refine {none,xtb,obminimize}]
-                    [--refine-heterogens-only] [--parametrize-ligands]
-                    [--skip-protonate] [--no-propka] [--no-protassign]
+                    [--mutate CHAIN:RESNUM:NEW_AA] [--rename] [--no-solvent]
+                    [--rebuild-h] [--restraint-k RESTRAINT_K]
+                    [--max-iter MAX_ITER] [--refine {none,xtb,obminimize}]
+                    [--refine-heterogens-only] [--no-propka] [--no-protassign]
                     [--keep-water] [--no-infer-conect] [--keep-interim]
-                    [--align-to-input | --no-align-to-input] [-v]
+                    [--align-to-input | --no-align-to-input]
+                    [--platform {CPU,CUDA,OpenCL,Reference}] [-v]
                     input
 
 Run the full preparation pipeline: renumber -> model -> prepare -> minimize ->
 protonate -> minimize.
 
-positional arguments:
-  input                 Input PDB file (must contain SEQRES)
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file (must contain SEQRES)
   -o OUTPUT, --output OUTPUT
                         Final output PDB file (default: <input>_zbs.pdb)
+
+Force field:
   --ph PH               pH for protonation and hydrogen addition (default:
                         7.0)
   --ff FF [FF ...]      Force field selection forwarded to prepare / minimize
@@ -40,14 +40,25 @@ options:
                         amber+glycam, charmm, ...) or an explicit list of
                         OpenMM XML paths. Default: 'auto'. See docs/force-
                         fields.md.
+  --parametrize-ligands
+                        Forward --parametrize-ligands to both minimize passes
+                        (GAFF2 + AM1-BCC for unknown ligands via antechamber).
+                        See docs/force-fields.md.
+
+Pipeline skip flags:
   --skip-renumber       Skip the renumber step
   --skip-model          Skip the model step
+  --skip-prepare        Skip the prepare step
+  --skip-minimize       Skip the minimize step
+  --skip-protonate      Skip the protonate step
+
+Model step (Modeller):
+  --fasta FASTA         FASTA file with complete sequence(s) for model step
   --no-terminal         Do not model missing N/C terminal residues
   --num-loops NUM_LOOPS
                         Number of loop models (default: 2)
   --md-level {none,fast,slow,very_slow,slow_large}
                         Modeller MD refinement level (default: fast)
-  --fasta FASTA         FASTA file with complete sequence(s) for model step
   --num-output NUM_OUTPUT
                         Save top-N candidate models from Modeller (default:
                         1). With N>1, the model step writes
@@ -58,7 +69,8 @@ options:
                         gap residues to move (no ±flank margin). Default ON —
                         pass --no-pin-input to restore the legacy LoopModel
                         behaviour (gap ±~3 residue flank mobile).
-  --skip-prepare        Skip the prepare step
+
+Prepare step:
   --strip-heterogens    Strip heterogens before processing (protein-only
                         pipeline). Default: keep heterogens through prepare
                         and minimize the whole system.
@@ -69,7 +81,8 @@ options:
                         multiple times)
   --rename              Canonicalise non-standard residue names before
                         prepare/minimize.
-  --skip-minimize       Skip the minimize step
+
+Minimize step (OpenMM):
   --no-solvent          Minimize in vacuum (no solvent box)
   --rebuild-h           Force --rebuild-h on both minimize passes (default:
                         off; pass 2 already has correct H from protonate)
@@ -77,8 +90,6 @@ options:
                         Restraint force constant for original atoms (default:
                         100)
   --max-iter MAX_ITER   Max minimization iterations per phase (default: 1000)
-  --platform {CPU,CUDA,OpenCL,Reference}
-                        OpenMM platform (default: auto)
   --refine {none,xtb,obminimize}
                         Post-minimize refinement pass in minimize step 2
                         (default: none). 'xtb' uses GFN-FF, 'obminimize' uses
@@ -87,11 +98,8 @@ options:
                         Restrict --refine pass to heterogen residues (protein
                         backbone frozen). Only meaningful with --refine !=
                         none.
-  --parametrize-ligands
-                        Forward --parametrize-ligands to both minimize passes
-                        (GAFF2 + AM1-BCC for unknown ligands via antechamber).
-                        See docs/force-fields.md.
-  --skip-protonate      Skip the protonate step
+
+Protonate step:
   --no-propka           Skip PROPKA3 in the protonate step. Reduce
                         (--protassign) becomes the only source of HIS tautomer
                         picks and ASN/GLN flip detection. Combining --no-
@@ -100,6 +108,8 @@ options:
                         detection) in protonate. Default: run Reduce, matches
                         standalone `dvbfixer protonate` default since Jun
                         2026.
+
+Pipeline behaviour:
   --keep-water          Keep water molecules in output (default: remove)
   --no-infer-conect     Skip automatic CONECT inference in
                         prepare/minimize/protonate. Default: infer missing
@@ -114,5 +124,9 @@ options:
                         residue comparisons in a viewer line up. Default ON —
                         pass --no-align-to-input for the legacy behaviour
                         (each step's output in its own frame).
+
+Runtime:
+  --platform {CPU,CUDA,OpenCL,Reference}
+                        OpenMM platform (default: auto)
   -v, --verbose         Print detailed progress for all steps
 ```

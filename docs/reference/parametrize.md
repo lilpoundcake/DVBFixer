@@ -22,15 +22,17 @@ usage: dvbfixer parametrize [-h] [-o OUTPUT] [-n NAME] [-c {bcc,resp}]
 Parametrize small molecules with GAFF2 for GROMACS MD. Uses antechamber +
 parmchk2 + tleap + ParmEd pipeline.
 
-positional arguments:
-  input                 Input structure file (.pdb, .mol2, .sdf)
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input structure file (.pdb, .mol2, .sdf)
   -o OUTPUT, --output OUTPUT
                         Output prefix (default: input stem)
   -n NAME, --name NAME  Molecule name for [ moleculetype ] (default: from
                         input filename, uppercased)
+
+Chemistry:
   -c {bcc,resp}, --charge-method {bcc,resp}
                         Charge method: bcc (AM1-BCC, default — fast, ~95% RESP
                         accuracy) or resp (slower, requires --qm-engine to
@@ -39,6 +41,8 @@ options:
                         Net charge of the molecule (default: 0)
   --multiplicity MULTIPLICITY
                         Spin multiplicity (default: 1)
+
+RESP backend (only when -c resp):
   --qm-engine {pyscf,gaussian,psi4}
                         QM backend for -c resp. All opt-in (no default — pick
                         explicitly). `pyscf` = `pip install pyscf`, pure-
@@ -63,6 +67,8 @@ options:
                         ...` so the BLAS/MKL conflict with OpenMM is avoided.
                         Create it once with `micromamba create -n psi4 -c
                         conda-forge psi4 psiresp`.
+
+Gaussian backend (only when --qm-engine gaussian):
   --gen-gaussian        Generate a Gaussian .com input file for RESP charges
                         and exit. Implies --qm-engine gaussian. Run Gaussian
                         on the .com, then re-invoke this command with
@@ -78,6 +84,8 @@ options:
                         %mem= directive in the generated .com (default: 4GB).
   --gaussian-nproc GAUSSIAN_NPROC
                         %nproc= directive in the generated .com (default: 4).
+
+Diagnostics:
   --keep-intermediate   Keep antechamber/tleap intermediate files
   -v, --verbose         Verbose output
 ```

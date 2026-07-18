@@ -31,22 +31,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "Identifies gaps from SEQRES vs ATOM records (or a provided FASTA), "
         "then uses Modeller's loop modeling to fill them."
     )
-    p.add_argument("input", help="Input PDB file (must contain SEQRES or use --fasta)")
-    p.add_argument("-o", "--output", help="Output PDB file (default: <input>_model.pdb)")
-    p.add_argument(
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB file (must contain SEQRES or use --fasta)")
+    io.add_argument("-o", "--output", help="Output PDB file (default: <input>_model.pdb)")
+    io.add_argument(
         "--fasta", help="FASTA file with complete sequence(s). Headers must encode "
         "chain IDs: '>chain_X', '>PDBID_X', or '>X'. Mapping is by chain ID, "
         "not file order. Use instead of SEQRES."
     )
-    p.add_argument(
+
+    modelling = p.add_argument_group("Modelling parameters")
+    modelling.add_argument(
         "-n", "--num-models", type=int, default=1,
         help="Number of initial models to generate (default: 1)"
     )
-    p.add_argument(
+    modelling.add_argument(
         "--num-loops", type=int, default=2,
         help="Number of loop refinement models per initial model (default: 2)"
     )
-    p.add_argument(
+    modelling.add_argument(
         "--num-output", type=int, default=1, dest="num_output",
         help="Number of top-ranked candidate models to save (default: 1; "
              "ceiling: num_models × num_loops). Output PDBs are sorted "
@@ -55,12 +58,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
              "<stem>_model_1.pdb, _model_2.pdb, ... (and matching .dat). "
              "With --num-output 1 the filename is unchanged from today."
     )
-    p.add_argument(
+    modelling.add_argument(
         "--md-level", choices=["none", "fast", "slow", "very_slow", "slow_large"],
         default="fast",
         help="MD refinement level for loop modeling (default: fast)"
     )
-    p.add_argument(
+    modelling.add_argument(
         "--pin-input", dest="pin_input",
         action=argparse.BooleanOptionalAction, default=True,
         help="During Modeller's loop refinement MD, allow only the "
@@ -70,20 +73,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
              "contacts get relaxed normally. Pass --no-pin-input for the "
              "legacy LoopModel behaviour (gap ±~3 residue flank mobile)."
     )
-    p.add_argument(
+    modelling.add_argument(
         "--no-terminal", action="store_true",
         help="Do not model missing N/C terminal residues (only rebuild internal gaps)"
     )
-    p.add_argument(
+
+    content = p.add_argument_group("Content selection")
+    content.add_argument(
         "--keep-water", action="store_true",
         help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
     )
-    p.add_argument(
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument(
         "--keep-workdir", action="store_true",
         help="Keep the Modeller working directory (for debugging)"
     )
-    p.add_argument(
+    diag.add_argument(
         "-v", "--verbose", action="store_true",
         help="Print Modeller progress"
     )
+
     return p.parse_args(argv)

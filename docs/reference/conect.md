@@ -11,16 +11,20 @@ usage: dvbfixer conect [-h] [-o OUTPUT] [--force] [--include-protein-backbone]
 
 Infer and write CONECT records for a PDB file.
 
-positional arguments:
-  input                 Input PDB file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_conect.pdb)
   --force               Allow in-place overwrite (when --output equals input)
+
+Content selection:
   --include-protein-backbone
                         Also emit CONECT for standard amino-acid backbone
                         bonds. Off by default (FF templates own those).
+
+Diagnostics:
   -v, --verbose         Print bond counts and source breakdown
 ```

@@ -5,44 +5,55 @@
 > For prose about how to use `transplant`, see [`docs/commands/transplant.md`](../commands/transplant.md).
 
 ```
-usage: dvbfixer transplant [-h] --donor DONOR [--graft GRAFT]
+usage: dvbfixer transplant [-h] --donor DONOR [--graft GRAFT] [-o OUTPUT]
                            [--select SELECT] [--align ALIGN] [--superpose]
                            [--relax] [--relax-stages RELAX_STAGES]
-                           [--gromacs DIR] [-o OUTPUT] [--no-infer-conect]
-                           [-v]
+                           [--gromacs DIR] [--no-infer-conect] [-v]
                            acceptor
 
 Transplant molecules from graft PDB into acceptor PDB. Supports GLYCAM-Web and
 CHARMM-GUI output. Aligns via Kabsch superposition on donor CA atoms.
 
-positional arguments:
-  acceptor              Acceptor PDB file (receives molecules)
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  acceptor              Acceptor PDB file (receives molecules)
   --donor DONOR         Donor PDB: original residues extracted from acceptor
                         (used for alignment and identifying replacement sites)
   --graft GRAFT         Graft PDB: modified donor + added molecules (e.g.
                         GLYCAM output). If omitted, donor is used as graft.
+  -o OUTPUT, --output OUTPUT
+                        Output PDB (default: <acceptor>_transplant.pdb)
+
+Molecule selection:
   --select SELECT       What to transplant (if no --graft): chain IDs, 'A,B'
                         or 'A:NAG' or 'A:301-310'
+
+Alignment:
   --align ALIGN         Enable Kabsch superposition and specify chain mapping:
                         DONOR:ACCEPTOR (e.g. H:H). Repeatable. If given
                         without value, auto-detects matching chains.
   --superpose           Enable Kabsch superposition (auto-detect chain
                         mapping)
+
+Relaxation (OpenMM):
   --relax               Run OpenMM minimization with AMBER+GLYCAM after
                         transplant
   --relax-stages RELAX_STAGES
                         Relaxation stages as k1:iter1,k2:iter2,... k in
                         kJ/mol/nm2 (default:
                         1000:5000,100:5000,10:5000,0:5000)
+
+GROMACS export:
   --gromacs DIR         Export GROMACS topology via ACPYPE to DIR. Uses
                         AMBER+GLYCAM with per-pair 1-4 scaling ([ pairs_nb ]).
-  -o OUTPUT, --output OUTPUT
-                        Output PDB (default: <acceptor>_transplant.pdb)
+
+Content selection:
   --no-infer-conect     Skip automatic CONECT inference on
                         acceptor/donor/graft (default: infer missing bonds
                         before transplant).
+
+Diagnostics:
   -v, --verbose
 ```

@@ -5,7 +5,7 @@
 > For prose about how to use `convert`, see [`docs/commands/convert.md`](../commands/convert.md).
 
 ```
-usage: dvbfixer convert [-h] [-o OUTPUT] [--no-roh] [--to-amber | --to-charmm]
+usage: dvbfixer convert [-h] [-o OUTPUT] [--to-amber | --to-charmm] [--no-roh]
                         [--no-infer-conect] [-v]
                         input
 
@@ -16,17 +16,17 @@ sugar codes + AMBER protonation variants (consumable by `prepare`, `minimize`,
 CHARMM-compatible names (consumable by `top --ff charmm`). Both directions are
 idempotent — running the tool on already-correct input is a no-op.
 
-positional arguments:
-  input                 Input PDB file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_amber.pdb in the
                         default direction, <input>_charmm.pdb with --to-
                         charmm)
-  --no-roh              Do not add ROH cap at the reducing end (forward /
-                        --to-amber direction only)
+
+Conversion direction:
   --to-amber            PDB/CHARMM → GLYCAM (sugars) + AMBER (protonation
                         variants HID/HIE/HIP/ASH/GLH/LYN/CYX/CYM). This is the
                         default if no direction flag is given.
@@ -36,8 +36,14 @@ options:
                         variants). Glycoprotein residues NLN/OLS/OLT revert to
                         ASN/SER/THR; ROH/OME caps are dropped. Linkage info
                         preserved via CONECT records.
+
+Content selection:
+  --no-roh              Do not add ROH cap at the reducing end (forward /
+                        --to-amber direction only)
   --no-infer-conect     Skip automatic CONECT inference (default: infer
                         missing glycosidic / glycosylation bonds so linkage
                         detection works on CONECT-less inputs).
+
+Diagnostics:
   -v, --verbose         Print conversion details
 ```

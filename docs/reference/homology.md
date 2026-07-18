@@ -5,27 +5,32 @@
 > For prose about how to use `homology`, see [`docs/commands/homology.md`](../commands/homology.md).
 
 ```
-usage: dvbfixer homology [-h] --template TEMPLATE [--alignment ALIGNMENT]
-                         [--salign] [-n NUM_MODELS]
+usage: dvbfixer homology [-h] --template TEMPLATE [-o OUTPUT]
+                         [--alignment ALIGNMENT] [--salign] [-n NUM_MODELS]
                          [--md-level {none,fast,slow,very_slow,slow_large}]
                          [--no-loop-refine] [--antibody] [--prepare]
-                         [--minimize] [--ph PH] [-o OUTPUT] [--keep-workdir]
-                         [-v]
+                         [--minimize] [--ph PH] [--keep-workdir] [-v]
                          fasta
 
 Multi-template homology modeling with Modeller. Builds a composite model from
 multiple template structures.
 
-positional arguments:
-  fasta                 Target sequence FASTA (multi-chain, one >header per
-                        chain)
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  fasta                 Target sequence FASTA (multi-chain, one >header per
+                        chain)
   --template TEMPLATE   Template PDB file (repeatable, at least 1)
+  -o OUTPUT, --output OUTPUT
+                        Output prefix (default: FASTA stem)
+
+Alignment:
   --alignment ALIGNMENT
                         Pre-built PIR alignment file (skip auto-alignment)
   --salign              Use structure-based alignment instead of align2d
+
+Modelling parameters:
   -n NUM_MODELS, --num-models NUM_MODELS
                         Number of models to generate (default: 5)
   --md-level {none,fast,slow,very_slow,slow_large}
@@ -33,11 +38,13 @@ options:
   --no-loop-refine      Use automodel instead of LoopModel (faster, no loop
                         refinement)
   --antibody            Antibody-aware mode: ANARCI numbering, CDR detection
+
+Post-processing pipeline:
   --prepare             Run dvbfixer prepare on output
   --minimize            Run dvbfixer prepare + minimize on output
   --ph PH               pH for hydrogen addition (default: 7.0)
-  -o OUTPUT, --output OUTPUT
-                        Output prefix (default: FASTA stem)
+
+Diagnostics:
   --keep-workdir        Keep Modeller working directory
   -v, --verbose         Verbose output
 ```

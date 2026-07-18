@@ -5,23 +5,27 @@
 > For prose about how to use `top`, see [`docs/commands/top.md`](../commands/top.md).
 
 ```
-usage: dvbfixer top [-h] [-o OUTPUT] [--ff {amber,charmm}] [--ff-dir FF_DIR]
+usage: dvbfixer top [-h] [-o OUTPUT] [--pdb PDB] [--ff {amber,charmm}]
+                    [--ff-dir FF_DIR]
                     [--water {tip3p,spc,spce,tip4p,tip4pew,opc}]
                     [--ion-set {auto,jc-tip3p,jc-spce,jc-tip4pew,lm-hfe-opc,lm-iod-opc,dang-legacy}]
-                    [--ignh] [--keep-all-hydrogens] [--no-infer-conect]
-                    [--ss SS] [--his HIS] [--protonate PROTONATE] [--merge]
-                    [--pdb PDB] [--acpype] [-v]
+                    [--ss SS] [--his HIS] [--protonate PROTONATE] [--ignh]
+                    [--keep-all-hydrogens] [--no-infer-conect] [--merge]
+                    [--acpype] [-v]
                     input
 
 Generate GROMACS topology files from PDB
 
-positional arguments:
-  input                 Input PDB file
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  input                 Input PDB file
   -o OUTPUT, --output OUTPUT
                         Output .top file (default: topol.top)
+  --pdb PDB             Output PDB file with topology-matched atom names
+
+Force field / solvation:
   --ff {amber,charmm}   Force field (default: amber)
   --ff-dir FF_DIR       Custom force field directory
   --water {tip3p,spc,spce,tip4p,tip4pew,opc}
@@ -31,6 +35,18 @@ options:
   --ion-set {auto,jc-tip3p,jc-spce,jc-tip4pew,lm-hfe-opc,lm-iod-opc,dang-legacy}
                         Ion LJ parameter set (default: auto, picks the set
                         matched to the water model). Ignored with --ff charmm.
+
+Protonation / bonds:
+  --ss SS               Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable)
+  --his HIS             HIS protonation: CHAIN:NUM:STATE (HIE/HID/HIP,
+                        repeatable)
+  --protonate PROTONATE
+                        Protonate residues. "all" protonates every ASP->ASPP,
+                        GLU->GLUP, HIS->HSP. Comma-separated list protonates
+                        specific residues: CHAIN:NUM[:STATE],... (e.g.
+                        --protonate all, --protonate H:66,K:50:GLUP).
+
+Content / behaviour:
   --ignh                Ignore hydrogens in input PDB
   --keep-all-hydrogens  Do not remove any hydrogen atoms from the input
                         (default OFF: HO1/HO2/HO3/HO4/HO6 at glycosidic
@@ -46,17 +62,12 @@ options:
   --no-infer-conect     Skip automatic CONECT inference. By default missing
                         SS/glycosidic/glycosylation bonds are perceived from
                         coordinates before topology build.
-  --ss SS               Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable)
-  --his HIS             HIS protonation: CHAIN:NUM:STATE (HIE/HID/HIP,
-                        repeatable)
-  --protonate PROTONATE
-                        Protonate residues. "all" protonates every ASP->ASPP,
-                        GLU->GLUP, HIS->HSP. Comma-separated list protonates
-                        specific residues: CHAIN:NUM[:STATE],... (e.g.
-                        --protonate all, --protonate H:66,K:50:GLUP).
   --merge               Merge all chains into single moleculetype
-  --pdb PDB             Output PDB file with topology-matched atom names
+
+Pipeline mode:
   --acpype              Use ACPYPE pipeline (AMBER14+GLYCAM -> ParmEd ->
                         GROMACS). Handles mixed 1-4 scaling via [ pairs_nb ].
+
+Diagnostics:
   -v, --verbose         Verbose output
 ```

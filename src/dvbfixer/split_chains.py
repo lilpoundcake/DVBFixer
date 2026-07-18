@@ -75,30 +75,25 @@ def parse_args(argv=None):
         "residue number resets and/or C-N inter-residue distance, assigns unique "
         "chain IDs, and inserts TER records."
     )
-    p.add_argument("input", help="Input PDB or GRO file")
-    p.add_argument("-o", "--output", help="Output PDB file (default: <input>_split.pdb)")
-    p.add_argument(
+    io = p.add_argument_group("Input / output")
+    io.add_argument("input", help="Input PDB or GRO file")
+    io.add_argument("-o", "--output", help="Output PDB file (default: <input>_split.pdb)")
+
+    detection = p.add_argument_group("Chain-break detection")
+    detection.add_argument(
         "-d", "--distance-cutoff", type=float, default=DEFAULT_DISTANCE_CUTOFF,
         help=f"C->N peptide bond cutoff in angstroms (default: {DEFAULT_DISTANCE_CUTOFF})"
     )
-    p.add_argument(
+    detection.add_argument(
         "-g", "--gap-cutoff", type=float, default=DEFAULT_GAP_CUTOFF,
         help=f"Min nearest-atom distance between consecutive residues to call a break "
              f"when C/N atoms are missing (default: {DEFAULT_GAP_CUTOFF} A)"
     )
-    p.add_argument(
+    detection.add_argument(
         "--no-distance", action="store_true",
         help="Disable all distance-based detection, use only residue numbering"
     )
-    p.add_argument(
-        "--no-renumber", action="store_true",
-        help="Keep original residue numbers (default: renumber per chain starting from 1)"
-    )
-    p.add_argument(
-        "--keep-water", action="store_true",
-        help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
-    )
-    p.add_argument(
+    detection.add_argument(
         "--max-chains", type=int, default=DEFAULT_MAX_CHAIN_THRESHOLD,
         help=f"When more than this many chains are detected, do NOT assign "
              f"chain IDs to small-molecule chains (ions, ligands, lipids, "
@@ -107,10 +102,23 @@ def parse_args(argv=None):
              f"Default: {DEFAULT_MAX_CHAIN_THRESHOLD}. Set higher to keep "
              f"the original assign-all behaviour (max {52} via lowercase fallback)."
     )
-    p.add_argument(
+
+    content = p.add_argument_group("Content / renumbering")
+    content.add_argument(
+        "--no-renumber", action="store_true",
+        help="Keep original residue numbers (default: renumber per chain starting from 1)"
+    )
+    content.add_argument(
+        "--keep-water", action="store_true",
+        help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
+    )
+
+    diag = p.add_argument_group("Diagnostics")
+    diag.add_argument(
         "-v", "--verbose", action="store_true",
         help="Print detected chain info"
     )
+
     return p.parse_args(argv)
 
 

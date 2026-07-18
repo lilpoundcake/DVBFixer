@@ -39,12 +39,16 @@ def parse_args(argv=None):
         prog='dvbfixer puppet',
         description='Strip PDB to backbone-only polyglycine model.',
     )
-    p.add_argument('input', help='Input PDB file')
-    p.add_argument('-o', '--output', help='Output PDB (default: <input>_puppet.pdb)')
-    p.add_argument('--keep', action='append', default=[],
-                   help='Keep residue(s) intact (all atoms, original name). '
-                        'Format: CHAIN:NUM, CHAIN:START-END, or '
-                        'CHAIN:NUM1,NUM2,START-END (repeatable)')
+    io = p.add_argument_group('Input / output')
+    io.add_argument('input', help='Input PDB file')
+    io.add_argument('-o', '--output', help='Output PDB (default: <input>_puppet.pdb)')
+
+    content = p.add_argument_group('Content selection')
+    content.add_argument('--keep', action='append', default=[],
+                         help='Keep residue(s) intact (all atoms, original name). '
+                              'Format: CHAIN:NUM, CHAIN:START-END, or '
+                              'CHAIN:NUM1,NUM2,START-END (repeatable)')
+
     return p.parse_args(argv)
 
 

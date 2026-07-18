@@ -5,9 +5,9 @@
 > For prose about how to use `cluster`, see [`docs/commands/cluster.md`](../commands/cluster.md).
 
 ```
-usage: dvbfixer cluster [-h] [-o OUTPUT] [--cutoff CUTOFF]
-                        [--mode {global,per-linkage}] [--select SELECT]
-                        [--stride STRIDE] [--begin BEGIN] [--end END]
+usage: dvbfixer cluster [-h] [-o OUTPUT] [--stride STRIDE] [--begin BEGIN]
+                        [--end END] [--select SELECT] [--cutoff CUTOFF]
+                        [--mode {global,per-linkage}]
                         [--align-resid ALIGN_RESID] [--no-align]
                         [--separate-pdb] [--plot] [-v]
                         topology trajectory
@@ -15,28 +15,36 @@ usage: dvbfixer cluster [-h] [-o OUTPUT] [--cutoff CUTOFF]
 Cluster glycan conformations from MD trajectory using glycosidic torsion angle
 RMSD (GFDB method).
 
-positional arguments:
-  topology              Topology file (.tpr, .pdb, .gro)
-  trajectory            Trajectory file (.xtc, .trr, .dcd)
-
 options:
   -h, --help            show this help message and exit
+
+Input / output:
+  topology              Topology file (.tpr, .pdb, .gro)
+  trajectory            Trajectory file (.xtc, .trr, .dcd)
   -o OUTPUT, --output OUTPUT
                         Output prefix (default: trajectory stem)
+
+Frame selection:
+  --stride STRIDE       Read every Nth frame (default: 1)
+  --begin BEGIN         First frame (0-based)
+  --end END             Last frame (exclusive)
+  --select SELECT       MDAnalysis selection for output PDB atoms
+
+Clustering:
   --cutoff CUTOFF       RMSD cutoff in degrees (default: 30.0)
   --mode {global,per-linkage}
                         Clustering mode: global (all torsions at once) or per-
                         linkage (each linkage independently, then combine)
-  --select SELECT       MDAnalysis selection for output PDB atoms
-  --stride STRIDE       Read every Nth frame (default: 1)
-  --begin BEGIN         First frame (0-based)
-  --end END             Last frame (exclusive)
+
+Representative PDBs:
   --align-resid ALIGN_RESID
                         Residue ID to align representative PDBs on (default:
                         auto-detect protein attachment or root sugar)
   --no-align            Disable alignment of representative PDBs
   --separate-pdb        Write each cluster as separate PDB (default: multi-
                         MODEL PDB)
+
+Diagnostics:
   --plot                Generate interactive HTML plots (requires plotly)
   -v, --verbose         Verbose output
 ```
