@@ -18,8 +18,8 @@ usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--platform {CPU,CUDA,OpenCL,Reference}]
                     [--refine {none,xtb,obminimize}]
                     [--refine-heterogens-only] [--parametrize-ligands]
-                    [--skip-protonate] [--no-protassign] [--keep-water]
-                    [--no-infer-conect] [--keep-interim]
+                    [--skip-protonate] [--no-propka] [--no-protassign]
+                    [--keep-water] [--no-infer-conect] [--keep-interim]
                     [--align-to-input | --no-align-to-input] [-v]
                     input
 
@@ -92,6 +92,10 @@ options:
                         (GAFF2 + AM1-BCC for unknown ligands via antechamber).
                         See docs/force-fields.md.
   --skip-protonate      Skip the protonate step
+  --no-propka           Skip PROPKA3 in the protonate step. Reduce
+                        (--protassign) becomes the only source of HIS tautomer
+                        picks and ASN/GLN flip detection. Combining --no-
+                        propka with --no-protassign is an error.
   --no-protassign       Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip
                         detection) in protonate. Default: run Reduce, matches
                         standalone `dvbfixer protonate` default since Jun

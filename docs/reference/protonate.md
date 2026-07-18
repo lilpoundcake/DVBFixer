@@ -8,6 +8,7 @@
 usage: dvbfixer protonate [-h] [-o OUTPUT] [--ph PH] [--his-default {HIE,HID}]
                           [--cys-disulfide-pka CYS_DISULFIDE_PKA] [--summary]
                           [--no-hydrogens] [--ff FF [FF ...]] [--keep-water]
+                          [--propka | --no-propka]
                           [--protassign | --no-protassign]
                           [--protassign-binary PROTASSIGN_BINARY] [-v]
                           input
@@ -39,6 +40,14 @@ options:
                         docs/force-fields.md.
   --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
                         (default: remove)
+  --propka, --no-propka
+                        Run PROPKA3 for pKa-driven protonation-state decisions
+                        (ASH/GLH/HIP/CYM/LYN). **Default ON.** Pass --no-
+                        propka to skip PROPKA entirely and rely only on
+                        --protassign (MolProbity Reduce) for HIS tautomers and
+                        ASN/GLN flip detection. Passing both --no-propka and
+                        --no-protassign is an error — protonate would have
+                        nothing to decide protonation from.
   --protassign, --no-protassign
                         Run MolProbity Reduce to optimise HIS tautomers
                         (HID/HIE/HIP) and detect ASN/GLN side-chain flips

@@ -114,6 +114,13 @@ def parse_args(argv=None):
     # protonate
     p.add_argument("--skip-protonate", action="store_true",
                    help="Skip the protonate step")
+    p.add_argument("--no-propka", dest="propka",
+                   action="store_false", default=True,
+                   help="Skip PROPKA3 in the protonate step. Reduce "
+                        "(--protassign) becomes the only source of HIS "
+                        "tautomer picks and ASN/GLN flip detection. "
+                        "Combining --no-propka with --no-protassign is an "
+                        "error.")
     p.add_argument("--no-protassign", dest="protassign",
                    action="store_false", default=True,
                    help="Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip "
@@ -297,14 +304,23 @@ def main(argv=None):
     # to the new HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN residue names.
     if not args.skip_protonate:
         step_num += 1
+        # Header reflects which engines are actually going to run.
+        _engines = []
+        if args.propka:
+            _engines.append("PROPKA")
+        if args.protassign:
+            _engines.append("Reduce")
+        _engines.append("addHydrogens")
         print(f"\n{'='*60}")
-        print(f"Step {step_num}: PROTONATE (PROPKA + Reduce + addHydrogens)")
+        print(f"Step {step_num}: PROTONATE ({' + '.join(_engines)})")
         print(f"{'='*60}")
         from dvbfixer.protonate import main as protonate_main
         out = step_output("prot")
         protonate_argv = [current, "-o", out,
                           "--ph", str(args.ph),
                           "--ff"] + args.ff
+        if not args.propka:
+            protonate_argv.append("--no-propka")
         if not args.protassign:
             protonate_argv.append("--no-protassign")
         if args.no_infer_conect:

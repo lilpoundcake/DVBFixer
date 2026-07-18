@@ -78,6 +78,16 @@ def parse_args(argv=None):
         help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
     )
     p.add_argument(
+        "--propka", action=argparse.BooleanOptionalAction, default=True,
+        help="Run PROPKA3 for pKa-driven protonation-state decisions "
+             "(ASH/GLH/HIP/CYM/LYN). **Default ON.** Pass --no-propka "
+             "to skip PROPKA entirely and rely only on --protassign "
+             "(MolProbity Reduce) for HIS tautomers and ASN/GLN flip "
+             "detection. Passing both --no-propka and --no-protassign "
+             "is an error — protonate would have nothing to decide "
+             "protonation from."
+    )
+    p.add_argument(
         "--protassign", action=argparse.BooleanOptionalAction, default=True,
         help="Run MolProbity Reduce to optimise HIS tautomers (HID/HIE/HIP) "
              "and detect ASN/GLN side-chain flips based on local H-bond "
@@ -936,30 +946,57 @@ def main(argv=None):
         args.ff, input_path, verbose=args.verbose)
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
-    print(f"Running PROPKA3 on {input_path} at pH {args.ph}...")
-    mc = run_propka(input_path)
-    pka_results = get_pka_results(mc)
-
-    if not pka_results:
-        print("No titratable residues found.", file=sys.stderr)
+    # Both engines off is a hard error — nothing decides protonation.
+    if not args.propka and not args.protassign:
+        print(
+            "ERROR: both --no-propka and --no-protassign disable the two "
+            "protonation engines. Nothing left to decide states from. "
+            "Enable at least one, or use `dvbfixer rename` if you just want "
+            "to strip AMBER variants without predicting protonation.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
-    if args.summary:
-        print(f"\n{'Type':<4s} {'Chain':<5s} {'ResNum':<8s} {'pKa':>6s}  {'Model':>6s}  State at pH {args.ph}")
-        print("-" * 55)
-        for r in sorted(pka_results, key=lambda x: (x["chain"], x["resnum"])):
-            icode_str = r["icode"] if r["icode"] else " "
-            resid_str = f"{r['resnum']}{icode_str.strip()}"
-            # Determine state label
-            state = "standard"
-            key = (r["chain"], r["resnum"], r["icode"])
-            renames = decide_protonation(pka_results, args.ph, args.his_default, args.cys_disulfide_pka)
-            if key in renames:
-                state = renames[key]
-            print(f"{r['restype']:<4s} {r['chain']:<5s} {resid_str:<8s} {r['pka']:6.2f}  {r['model_pka']:6.2f}  {state}")
-        print()
+    pka_results: list = []
+    renames: dict = {}
 
-    renames = decide_protonation(pka_results, args.ph, args.his_default, args.cys_disulfide_pka)
+    if args.propka:
+        print(f"Running PROPKA3 on {input_path} at pH {args.ph}...")
+        mc = run_propka(input_path)
+        pka_results = get_pka_results(mc)
+
+        if not pka_results:
+            print("No titratable residues found.", file=sys.stderr)
+            sys.exit(1)
+
+        if args.summary:
+            print(f"\n{'Type':<4s} {'Chain':<5s} {'ResNum':<8s} {'pKa':>6s}  {'Model':>6s}  State at pH {args.ph}")
+            print("-" * 55)
+            for r in sorted(pka_results, key=lambda x: (x["chain"], x["resnum"])):
+                icode_str = r["icode"] if r["icode"] else " "
+                resid_str = f"{r['resnum']}{icode_str.strip()}"
+                # Determine state label
+                state = "standard"
+                key = (r["chain"], r["resnum"], r["icode"])
+                renames = decide_protonation(pka_results, args.ph, args.his_default, args.cys_disulfide_pka)
+                if key in renames:
+                    state = renames[key]
+                print(f"{r['restype']:<4s} {r['chain']:<5s} {resid_str:<8s} {r['pka']:6.2f}  {r['model_pka']:6.2f}  {state}")
+            print()
+
+        renames = decide_protonation(pka_results, args.ph, args.his_default, args.cys_disulfide_pka)
+    else:
+        # --no-propka: PROPKA-driven decisions are disabled. `renames` stays
+        # empty; Reduce (when --protassign is on) becomes the only source of
+        # HIS-tautomer picks. `--cys-disulfide-pka` is a no-op in this mode
+        # (input CYS/CYX names carry through via the input_variants carry-
+        # forward below).
+        print(
+            "Skipping PROPKA3 (--no-propka). "
+            "MolProbity Reduce will be the only protonation-decision engine."
+            if args.protassign
+            else "Skipping PROPKA3 (--no-propka)."
+        )
 
     # PROPKA saw the GLYCAM glycoprotein residues as ASN/SER/THR (after our
     # temp-PDB rename). Don't apply those protonation renames to the actual
