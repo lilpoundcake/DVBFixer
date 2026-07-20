@@ -530,6 +530,12 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
             else:
                 modeller.addHydrogens(forcefield, pH=args.ph,
                                        variants=variants)
+            # Post-addHydrogens sanity: re-place any H that landed on top of
+            # another atom (OpenMM's CSER template bug with existing OXT).
+            from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
+            repair_misplaced_hydrogens(
+                modeller.topology, modeller.positions, verbose=args.verbose,
+            )
         except Exception as e:
             # OpenMM's raw error uses topology INDEX ("residue 117 (ASN)"),
             # not the PDB resseq the user knows. `explain_template_error`
