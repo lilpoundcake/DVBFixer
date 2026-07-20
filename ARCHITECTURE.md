@@ -591,6 +591,50 @@ existing one:
 Always include `addBond` for new H atoms — see "Heterogen H drift" gotcha
 in BEST_PRACTICES.md.
 
+## Hydrogen placement — Modeller not PDBFixer
+
+`prepare` (and `protonate`, and `minimize` when it needs to add H)
+deliberately routes hydrogen placement through OpenMM's
+`Modeller.addHydrogens(forcefield, pH=..., variants=[...])`, NOT
+through PDBFixer's `addMissingHydrogens(pH)`. Responsibility split:
+
+| Step | Owner |
+|---|---|
+| Missing residues (SEQRES gaps) | `PDBFixer.findMissingResidues` + `addMissingResidues` (or `model`'s Modeller path) |
+| Missing heavy atoms | `PDBFixer.findMissingAtoms` + `addMissingAtoms` |
+| Terminal atoms (OXT) | `PDBFixer.addMissingAtoms` (via `missingTerminals`) |
+| Nonstandard residue mapping | `PDBFixer.replaceNonstandardResidues` |
+| Heterogen removal | `PDBFixer.removeHeterogens` |
+| **Hydrogen placement** | **OpenMM's `Modeller.addHydrogens`** |
+
+Why not PDBFixer's `addMissingHydrogens`? It uses an internal
+`_describeVariant` that only recognises standard PDB names
+(`HIS` / `ASP` / `GLU` / `CYS` / `LYS`). It silently ignores AMBER
+variant labels (`HIE` / `HID` / `HIP` / `ASH` / `GLH` / `CYX` / `CYM`
+/ `LYN`) coming from:
+
+- input PDB atoms already labelled with variant names,
+- `dvbfixer prepare --mutate CHAIN:RESNUM:HIP` etc.,
+- `dvbfixer protonate`'s PROPKA + Reduce decisions.
+
+Only `Modeller.addHydrogens` accepts a per-residue `variants=[...]`
+list, so it's the only entry point that respects user intent about
+protonation state.
+
+The consequence: OpenMM's `addHydrogens`, not PDBFixer's, is the tool
+whose CSER template misplaces `HG` on top of `OXT` (a known bug in
+the CSER path when both HG is missing and OXT is present). Fixed by
+running
+`dvbfixer.ffutils.geometry.repair_misplaced_hydrogens(topology,
+positions)` immediately after every `addHydrogens` call across
+`prepare`, `protonate`, and `minimize`. See
+`src/dvbfixer/ffutils/geometry.py`.
+
+Callers that also need to walk the AMBER variant name back onto the
+topology after `addHydrogens` returns (which rebuilds the topology
+object) use `dvbfixer.ffutils.variants.rename_variants_to_parent_in_topology`
+before + `restore_variants_post_addhydrogens` after.
+
 ## CLI dispatcher notes
 
 - Each subcommand module exposes `parse_args(argv=None)` and

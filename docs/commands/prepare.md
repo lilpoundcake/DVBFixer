@@ -121,6 +121,36 @@ Downstream `minimize` reads this so it knows which residues are intentionally ab
 - [BEST_PRACTICES.md](../../BEST_PRACTICES.md) — glycoprotein preparation workflow
 
 ## How it works
+
+### Who places hydrogens?
+
+The pipeline splits the work between PDBFixer and OpenMM:
+
+- **PDBFixer** does all *heavy*-atom repair — missing residues (via
+  SEQRES gap filling), missing atoms in existing residues, terminal
+  atoms (OXT), heterogen removal, mapping non-standard residues to
+  their standard replacements.
+- **OpenMM's `Modeller.addHydrogens(forcefield, pH=..., variants=[...])`**
+  places every hydrogen.
+
+`prepare` deliberately **does not** call PDBFixer's
+`addMissingHydrogens(pH)`. That method uses PDBFixer's own
+`_describeVariant` internal, which only recognises standard PDB names
+(HIS / ASP / GLU / CYS / LYS). It silently ignores AMBER variant
+labels (HIE / HID / HIP / ASH / GLH / CYX / CYM / LYN) coming from
+the input PDB, from `--mutate`, or from downstream PROPKA / Reduce
+picks. Only `Modeller.addHydrogens` takes an explicit `variants=`
+list, so that's the only entry point that respects user intent about
+protonation state.
+
+The trade-off: it's OpenMM's `addHydrogens` — not PDBFixer's — that
+has the CSER-template misplacement bug (0.4.1 / 0.4.2 fixed by
+`dvbfixer.ffutils.geometry.repair_misplaced_hydrogens`, run
+immediately after every `addHydrogens` call). Since `prepare`,
+`protonate`, and `minimize` all use OpenMM's `addHydrogens` for the
+same reason, the post-check runs after each one.
+
+### Original overview
 Runs PDBFixer to add missing residues, heavy atoms, and hydrogens. **Default: keep heterogens AND add H to them** (BioLuminate-style) via `create_forcefield_with_openff(['amber14-all.xml', 'amber14/GLYCAM_06j-1.xml'], topology)` + `Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')` + `add_glycam_bonds(positions=...)` + `addHydrogens(ff, ...)`. The `add_glycam_bonds` call BEFORE addHydrogens is critical — it populates intra-residue bonds for NLN/OLS/OLT plus peptide bonds (NLN.C → next.N) plus distance-based sugar-sugar glycosidic bonds (anomeric C1/C2 within 2.0 Å of linkage O2/O3/O4/O6). Without these, template matching on the residue ADJACENT to NLN fails ("TYR missing 1 externally bonded C atom"). Wrapped in try/except → on failure (e.g. unknown ligand without SMILES), falls back to protein-only `addHydrogens(pH=ph)` call. Strips H from all non-solvent/non-ion residues before the call so they regenerate with correct GLYCAM atom names. **GLYCAM short-circuit**: when every heterogen is GLYCAM-named (`is_glycam_residue` returns True for all), the post-addHydrogens RDKit/OpenBabel H-polish passes are SKIPPED — they would strip atoms with GLYCAM-specific names (C2N/O2N/CME) that don't match OpenBabel's valence rules. CLI: `--strip-heterogens` (opt-in protein-only mode), `--no-heterogen-h` (keep heterogens but skip H addition). Bypasses PDBFixer's `addMissingHydrogens` (which ignores topology renames) — calls `Modeller.addHydrogens(variants=...)` directly with explicit variants list. User variant overrides (from `--mutate` or input PDB HIE/ASH/GLH) passed as OpenMM variants for correct H placement; standard HIS uses `None` (pH auto-detect). Output PDB written with standard names via `PDBFile.writeFile`, then text-based post-processing restores user variant names, then `fix_atom_hetatm_records` rewrites any remaining HETATM lines for protein/GLYCAM residues to ATOM. NLN/OLS/OLT are filtered OUT of PDBFixer's nonstandardResidues print BEFORE the message emits (avoids misleading "NLN -> LEU" warning that never actually happens because they're also filtered before `replaceNonstandardResidues`). Writes a `.dat` file (JSON) recording added atoms + `variant_overrides` for downstream minimize. Merges upstream `.dat` (from model step) if present. Detects glycosylated residues from CONECT records AND distance fallback and removes extra hydrogens (e.g. ASN HD22 on glycosylated ND2). Supports `--mutate CHAIN:RESNUM:NEW_AA` for point mutations including protonation variants (e.g. `--mutate A:83:HIP`). `--rename` canonicalizes non-standard residue names before processing.
 
 **Mutation cleanup** (`--mutate CHAIN:RESNUM:del` AND `--mutate CHAIN:RESNUM:NEW_AA` when the new AA changes the parent residue): `parse_mutations` returns a third value `deletions`; `apply_deletions_to_pdb_text` runs as a new step BEFORE `_preprocess_glycoprotein_input` and operates on raw PDB text. It accepts both deletion and substitution-cleanup targets. For each target it: (1) for deletions only, marks the residue's atoms for removal; for substitution-cleanup, the residue itself stays — only its dependent atoms/records are cleaned up; (2) **glycan walk**: BFS through `CONECT` from the residue's sidechain anchor (`SIDECHAIN_ANCHORS`: ASN ND2, GLN NE2, SER OG, THR OG1, TYR OH, HYP OD1, CYS/CYX/CYM SG, LYS NZ, ARG NH2), crossing only into HETATM atoms of other residues — every reachable HETATM residue is added to the removal set, so an N-linked NAG-NAG-BMA-... tree disappears with the ASN. Applies equally to substitution (e.g. `--mutate H:297:ALA` removes the glycan because ALA can't carry it) and deletion; (3) **disulfide partner**: if the affected residue is CYS/CYX, find the partner via SSBOND records (or fallback CONECT SG-SG); the partner is renamed `CYX→CYS` and its `HG` is dropped so `addHydrogens` regenerates it; the SSBOND record is dropped. Applies equally to substitution (e.g. `--mutate H:22:ALA`) and deletion; (4) **LINK partners**: any LINK record naming the affected residue is dropped with a warning, the partner is left as-is; (5) **terminal vs internal classification (deletions only)**: by file-order position in the chain (skipping other deletions); for internal gaps, the `prev.C → next.N` distance is computed from the input coordinates and a warning emitted if > 5 Å.
