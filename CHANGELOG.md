@@ -10,6 +10,46 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-07
+
+### Added
+- **`dvbfixer diagnose`** — new standalone subcommand. Inspects a PDB
+  file and emits a plain-text per-residue findings report; **never
+  mutates the input**. Inspired by BioLuminate's Protein Report
+  widget and MolProbity's all-atom validation. Three check families:
+  - **Structural integrity** — missing atoms / residues / terminals
+    (via PDBFixer), coincident atoms + misplaced hydrogens (reusing
+    the 0.4.1 / 0.4.2 detection extracted into shared
+    `ffutils.geometry.detect_coincident_atoms` +
+    `detect_misplaced_hydrogens`), altLoc conflicts, chain breaks,
+    insertion codes.
+  - **Chemistry / bond geometry** — valence violations (reusing
+    `pull.MAX_BONDS`), bond-length outliers (atom-name-aware canonical
+    table distinguishes backbone C=O 1.23 Å from sidechain C-O
+    1.43 Å, backbone C-N 1.33 Å from sidechain C-N 1.47 Å), cis
+    peptides (INFO for cis-PRO, WARNING elsewhere), non-planar
+    amides, Cα chirality via triple-product sign check.
+  - **Steric analysis** — all-atom clash detection. Python engine
+    (scipy cKDTree + MolProbity-standard vdW radii; excludes 1-2,
+    1-3, and 1-4 bonded pairs) by default; shells to MolProbity's
+    `probe` binary if it's on PATH. WARNING for ≥ 0.2 Å overlap,
+    ERROR for ≥ 0.5 Å.
+  - 3-tier ERROR / WARNING / INFO classification; exit-code convention
+    (0 clean, 1 has ERROR, 2 I/O error) makes it usable in shell
+    gates: `dvbfixer diagnose input.pdb --severity ERROR && dvbfixer prepare …`.
+  - `--only {all,structural,chemistry,steric}` restricts categories;
+    `--severity` filters minimum severity; `-o` writes report to file.
+  - Documentation at `docs/commands/diagnose.md`; auto-generated
+    reference at `docs/reference/diagnose.md`.
+
+### Refactor
+- **`ffutils.geometry`** — extracted `detect_misplaced_hydrogens` and
+  `detect_coincident_atoms` as pure detection helpers (return findings
+  as new `MisplacedHydrogen` / `CoincidentAtoms` dataclasses).
+  `repair_misplaced_hydrogens` now composes `detect + place`, and
+  `prepare.pipeline`'s pre-strip and the new `diagnose.structural`
+  share the same detection code.
+
 ## [0.4.2] — 2026-07
 
 ### Fixed

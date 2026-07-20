@@ -39,7 +39,10 @@ src/dvbfixer/
 │   SHARED HELPERS
 ├── pdbutils.py       ~500 lines    — CONECT record remapping + inference (OpenBabel ConnectTheDots + domain overrides for SS/glycosidic/glycosylation); _materialise_inferred_pdb temp-file bridge
 ├── align.py          ~250 lines    — internal Kabsch superposition (sequence-paired via Bio.Align.PairwiseAligner); line-level PDB rewrite preserves SEQRES/CONECT/all non-ATOM records
-└── conect.py         ~100 lines    — standalone `dvbfixer conect` subcommand wrapping the pdbutils inference
+├── conect.py         ~100 lines    — standalone `dvbfixer conect` subcommand wrapping the pdbutils inference
+│
+│   DIAGNOSTIC / QA
+└── diagnose/         ~800 lines    — `dvbfixer diagnose` structure-quality report; three check families (structural / chemistry / steric); report-only. See docs/commands/diagnose.md.
 ```
 
 ## Data flow

@@ -64,6 +64,7 @@ COMMANDS: list[tuple[str, str]] = [
     ("cluster", "dvbfixer.cluster"),
     ("parametrize", "dvbfixer.parametrize"),
     ("homology", "dvbfixer.homology"),
+    ("diagnose", "dvbfixer.diagnose"),
     ("zbs", "dvbfixer.zbs"),
 ]
 
