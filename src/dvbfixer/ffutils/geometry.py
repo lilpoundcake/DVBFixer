@@ -32,6 +32,7 @@ repairs any violations in place.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 # Bond-length targets (nm). Matches AMBER14-standard covalent bond
@@ -88,28 +89,173 @@ def _parents_other_heavy_neighbor(topology: Any, parent: Any, h_atom: Any) -> An
     return None
 
 
+@dataclass
+class MisplacedHydrogen:
+    """Detection record for a hydrogen at a physically impossible position.
+
+    Returned by :func:`detect_misplaced_hydrogens`. Consumed by
+    :func:`repair_misplaced_hydrogens` (which re-places the H) and by
+    :mod:`dvbfixer.diagnose.structural` (which reports without
+    repairing).
+    """
+
+    h_atom: Any                 # OpenMM Atom
+    parent: Any                 # OpenMM Atom — the H's bonded heavy neighbor
+    parent_distance_nm: float   # actual d(H, parent) in nm
+    expected_bond_nm: float     # canonical covalent bond length in nm
+    reason: str                 # 'parent_distance' or 'coincident'
+    coincident_with: Any | None  # OpenMM Atom, only set when reason == 'coincident'
+
+
+@dataclass
+class CoincidentAtoms:
+    """Detection record for two atoms placed at the same position in the
+    same residue.
+
+    Returned by :func:`detect_coincident_atoms`. Consumed by
+    :mod:`dvbfixer.prepare.pipeline` (which strips both atoms so
+    PDBFixer's ``addMissingAtoms`` can re-place them cleanly) and by
+    :mod:`dvbfixer.diagnose.structural` (report-only).
+    """
+
+    residue: Any                # OpenMM Residue
+    hydrogen: Any               # OpenMM Atom, H-symbol
+    heavy_atom: Any             # OpenMM Atom, coincident with the H
+    distance_nm: float          # d(hydrogen, heavy_atom) in nm
+
+
+def _pos(positions: Any, atom: Any) -> tuple[float, float, float]:
+    """Extract atom coordinates in nm as a plain 3-tuple."""
+    from openmm.unit import nanometer
+    p = positions[atom.index].value_in_unit(nanometer)
+    return float(p[0]), float(p[1]), float(p[2])
+
+
+def _dist2(a: tuple[float, float, float], b: tuple[float, float, float]) -> float:
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2
+
+
+def detect_coincident_atoms(
+    topology: Any,
+    positions: Any,
+    tol_nm: float = _COINCIDENT_TOL_NM,
+) -> list[CoincidentAtoms]:
+    """Return every (H, non-H atom) pair in the same residue placed
+    within ``tol_nm`` of each other.
+
+    Pure detection — no mutation. Used by:
+    - ``dvbfixer.prepare.pipeline`` (before H-strip: strip the heavy
+      partner too so PDBFixer's ``addMissingAtoms`` re-places it).
+    - ``dvbfixer.diagnose.structural`` (report an ERROR finding).
+    """
+    findings: list[CoincidentAtoms] = []
+    for res in topology.residues():
+        atoms = list(res.atoms())
+        for h_atom in atoms:
+            if h_atom.element is None or h_atom.element.symbol != "H":
+                continue
+            pa = _pos(positions, h_atom)
+            for other in atoms:
+                if other.index == h_atom.index or other.element is None:
+                    continue
+                if other.element.symbol == "H":
+                    continue
+                pb = _pos(positions, other)
+                d2 = _dist2(pa, pb)
+                if d2 < tol_nm * tol_nm:
+                    findings.append(
+                        CoincidentAtoms(
+                            residue=res,
+                            hydrogen=h_atom,
+                            heavy_atom=other,
+                            distance_nm=d2 ** 0.5,
+                        )
+                    )
+                    break
+    return findings
+
+
+def detect_misplaced_hydrogens(
+    topology: Any,
+    positions: Any,
+) -> list[MisplacedHydrogen]:
+    """Return every hydrogen whose position is chemically impossible.
+
+    A hydrogen is misplaced when EITHER:
+    - distance to its bonded heavy-atom parent exceeds
+      ``_PARENT_DIST_FACTOR`` * canonical covalent bond length, OR
+    - it sits within ``_COINCIDENT_TOL_NM`` of any other atom in the
+      same residue.
+
+    Pure detection — no mutation. Used by:
+    - :func:`repair_misplaced_hydrogens` (repairs each finding).
+    - :mod:`dvbfixer.diagnose.structural` (report-only).
+    """
+    findings: list[MisplacedHydrogen] = []
+    for res in topology.residues():
+        atoms = list(res.atoms())
+        for h_atom in atoms:
+            if h_atom.element is None or h_atom.element.symbol != "H":
+                continue
+
+            parent = _bonded_heavy_parent(topology, h_atom)
+            if parent is None:
+                continue
+
+            bond_len = _BOND_LEN_NM.get(parent.element.symbol, _DEFAULT_BOND_LEN_NM)
+            parent_pos = _pos(positions, parent)
+            h_pos = _pos(positions, h_atom)
+            d2_parent = _dist2(h_pos, parent_pos)
+            parent_distance_nm = d2_parent ** 0.5
+
+            if d2_parent > (bond_len * _PARENT_DIST_FACTOR) ** 2:
+                findings.append(
+                    MisplacedHydrogen(
+                        h_atom=h_atom,
+                        parent=parent,
+                        parent_distance_nm=parent_distance_nm,
+                        expected_bond_nm=bond_len,
+                        reason="parent_distance",
+                        coincident_with=None,
+                    )
+                )
+                continue
+
+            for other in atoms:
+                if other.index == h_atom.index or other.element is None:
+                    continue
+                d2 = _dist2(h_pos, _pos(positions, other))
+                if d2 < _COINCIDENT_TOL_NM * _COINCIDENT_TOL_NM:
+                    findings.append(
+                        MisplacedHydrogen(
+                            h_atom=h_atom,
+                            parent=parent,
+                            parent_distance_nm=parent_distance_nm,
+                            expected_bond_nm=bond_len,
+                            reason="coincident",
+                            coincident_with=other,
+                        )
+                    )
+                    break
+
+    return findings
+
+
 def repair_misplaced_hydrogens(
     topology: Any,
     positions: Any,
     verbose: bool = False,
 ) -> int:
-    """Detect and repair hydrogens that ``addHydrogens`` placed badly.
+    """Detect misplaced hydrogens (via :func:`detect_misplaced_hydrogens`)
+    and re-place each one at ``bond_length`` from its parent in the
+    linear-anti direction from the parent's other heavy neighbor.
 
-    A hydrogen is considered misplaced when EITHER:
-
-    - its distance to its bonded heavy-atom parent exceeds
-      ``_PARENT_DIST_FACTOR`` * expected covalent bond length, OR
-    - it sits within ``_COINCIDENT_TOL_NM`` of any other atom in the
-      same residue.
-
-    Each misplaced H is re-placed at ``bond_length`` from its parent,
-    in the direction opposite the parent's other heavy neighbor
-    (linear-anti). This is a chemically coarse but topologically sane
-    placement — downstream minimize relaxes it to proper sp3 geometry.
+    Chemically coarse but topologically sane — downstream ``minimize``
+    relaxes the anti placement to proper sp3.
 
     Args:
         topology: OpenMM ``Topology``.
-        positions: Modeller / Simulation positions (a list-like of
+        positions: Modeller / Simulation positions (list-like of
             ``Vec3`` in nanometers). Mutated in place.
         verbose: Print each repair.
 
@@ -119,86 +265,52 @@ def repair_misplaced_hydrogens(
     from openmm import Vec3
     from openmm.unit import nanometer
 
-    def _pos(atom: Any) -> tuple[float, float, float]:
-        p = positions[atom.index].value_in_unit(nanometer)
-        return float(p[0]), float(p[1]), float(p[2])
-
-    def _dist2(a: tuple[float, float, float], b: tuple[float, float, float]) -> float:
-        return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2
-
     repairs = 0
-    residues = list(topology.residues())
-    for res in residues:
-        atoms = list(res.atoms())
-        for h_atom in atoms:
-            if h_atom.element is None or h_atom.element.symbol != "H":
-                continue
+    for finding in detect_misplaced_hydrogens(topology, positions):
+        h_atom = finding.h_atom
+        parent = finding.parent
+        res = h_atom.residue
 
-            parent = _bonded_heavy_parent(topology, h_atom)
-            if parent is None:
-                # Unbonded H — nothing we can do sensibly. Skip.
-                continue
-
-            bond_len = _BOND_LEN_NM.get(parent.element.symbol, _DEFAULT_BOND_LEN_NM)
-            parent_pos = _pos(parent)
-            h_pos = _pos(h_atom)
-            d2_parent = _dist2(h_pos, parent_pos)
-
-            # Detection: too far from parent OR coincident with any other
-            # atom in the same residue.
-            misplaced = d2_parent > (bond_len * _PARENT_DIST_FACTOR) ** 2
-            coincident_with: Any | None = None
-            if not misplaced:
-                for other in atoms:
-                    if other.index == h_atom.index:
-                        continue
-                    d2 = _dist2(h_pos, _pos(other))
-                    if d2 < _COINCIDENT_TOL_NM * _COINCIDENT_TOL_NM:
-                        coincident_with = other
-                        misplaced = True
-                        break
-
-            if not misplaced:
-                continue
-
-            # Repair: place H at bond_len from parent, anti to the
-            # parent's other heavy neighbor.
-            neighbor = _parents_other_heavy_neighbor(topology, parent, h_atom)
-            if neighbor is None:
-                if verbose:
-                    print(f"  [geom] {res.chain.id}/{res.name}{res.id}/{h_atom.name}: "
-                          f"misplaced but parent {parent.name} has no other heavy "
-                          f"neighbor — leaving as-is")
-                continue
-
-            nx, ny, nz = _pos(neighbor)
-            dx = parent_pos[0] - nx
-            dy = parent_pos[1] - ny
-            dz = parent_pos[2] - nz
-            norm = (dx * dx + dy * dy + dz * dz) ** 0.5
-            if norm < 1e-9:
-                if verbose:
-                    print(f"  [geom] {res.chain.id}/{res.name}{res.id}/{h_atom.name}: "
-                          f"parent and neighbor coincident — leaving as-is")
-                continue
-
-            scale = bond_len / norm
-            new_h = (
-                parent_pos[0] + dx * scale,
-                parent_pos[1] + dy * scale,
-                parent_pos[2] + dz * scale,
-            )
-            positions[h_atom.index] = Vec3(*new_h) * nanometer
-            repairs += 1
+        # Place H at bond_len from parent, anti to the parent's other
+        # heavy neighbor.
+        neighbor = _parents_other_heavy_neighbor(topology, parent, h_atom)
+        if neighbor is None:
             if verbose:
-                reason = (
-                    f"coincident with {coincident_with.name}"
-                    if coincident_with is not None
-                    else f"parent {parent.name} distance {d2_parent ** 0.5 * 10:.2f} Å > "
-                         f"{bond_len * _PARENT_DIST_FACTOR * 10:.2f} Å"
-                )
-                print(f"  [geom] repaired {res.chain.id}/{res.name}{res.id}/{h_atom.name} "
-                      f"({reason}) → linear-anti from {neighbor.name} at "
-                      f"{bond_len * 10:.2f} Å from {parent.name}")
+                print(f"  [geom] {res.chain.id}/{res.name}{res.id}/{h_atom.name}: "
+                      f"misplaced but parent {parent.name} has no other heavy "
+                      f"neighbor — leaving as-is")
+            continue
+
+        parent_pos = _pos(positions, parent)
+        nx, ny, nz = _pos(positions, neighbor)
+        dx = parent_pos[0] - nx
+        dy = parent_pos[1] - ny
+        dz = parent_pos[2] - nz
+        norm = (dx * dx + dy * dy + dz * dz) ** 0.5
+        if norm < 1e-9:
+            if verbose:
+                print(f"  [geom] {res.chain.id}/{res.name}{res.id}/{h_atom.name}: "
+                      f"parent and neighbor coincident — leaving as-is")
+            continue
+
+        scale = finding.expected_bond_nm / norm
+        new_h = (
+            parent_pos[0] + dx * scale,
+            parent_pos[1] + dy * scale,
+            parent_pos[2] + dz * scale,
+        )
+        positions[h_atom.index] = Vec3(*new_h) * nanometer
+        repairs += 1
+        if verbose:
+            reason = (
+                f"coincident with {finding.coincident_with.name}"
+                if finding.coincident_with is not None
+                else f"parent {parent.name} distance "
+                     f"{finding.parent_distance_nm * 10:.2f} Å > "
+                     f"{finding.expected_bond_nm * _PARENT_DIST_FACTOR * 10:.2f} Å"
+            )
+            print(f"  [geom] repaired {res.chain.id}/{res.name}{res.id}/{h_atom.name} "
+                  f"({reason}) → linear-anti from {neighbor.name} at "
+                  f"{finding.expected_bond_nm * 10:.2f} Å from {parent.name}")
 
     return repairs

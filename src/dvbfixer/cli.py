@@ -21,6 +21,7 @@ COMMANDS: dict[str, str] = {
     "cluster": "Cluster glycan conformations from MD trajectory",
     "parametrize": "Parametrize small molecules with GAFF2 + AM1-BCC/RESP",
     "homology": "Multi-template homology modeling with Modeller",
+    "diagnose": "Report structure-quality issues (missing atoms, clashes, valence, ...)",
     "zbs": "Full pipeline: renumber -> model -> prepare -> minimize -> protonate",
 }
 
@@ -86,6 +87,8 @@ def main() -> None:
         from dvbfixer.parametrize import main as cmd_main
     elif command == "homology":
         from dvbfixer.homology import main as cmd_main
+    elif command == "diagnose":
+        from dvbfixer.diagnose import main as cmd_main
     elif command == "zbs":
         from dvbfixer.zbs import main as cmd_main
     else:
