@@ -10,6 +10,23 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-07
+
+### Fixed
+- **`prepare`** — coincident-atom detection before hydrogen strip. When
+  an input file placed a hydrogen at exactly another atom's position
+  (reported against `test/broken_SER/SER.pdb`: SER 126's `HG` sitting
+  0.001 Å from `OXT`), `Modeller.addHydrogens` was re-placing `HG` at
+  the same coincident position, leaving it 1.7 Å from its own `OG`
+  after prepare — a broken sp3 hydroxyl geometry that then corrupted
+  the downstream `zbs` protonate step. Prepare now scans every protein
+  residue for `(H, heavy_atom)` pairs within 0.5 Å and, when found,
+  strips BOTH atoms so PDBFixer's `addMissingAtoms` re-adds the heavy
+  atom in its correct position (typically the OXT terminal-atom slot)
+  and `addHydrogens` places `H` without the interfering coincident
+  atom. Verified by a new regression test at
+  `tests/test_prepare_broken_geom.py` that runs on the reported fixture.
+
 ## [0.4.0] — 2026-07
 
 ### Refactor
