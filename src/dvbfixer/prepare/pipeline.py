@@ -223,10 +223,46 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     modeller = Modeller(fixer.topology, fixer.positions)
     h_atoms = [a for a in modeller.topology.atoms()
                if a.element.symbol == 'H' and a.residue.name in _PROTEIN_AA]
-    if h_atoms:
-        modeller.delete(h_atoms)
+
+    # Coincident-atom detection: if an input H is placed on top of another
+    # atom in the same protein residue (e.g. HG dumped at OXT position by
+    # an upstream tool — reported against test/broken_SER/SER.pdb), stripping
+    # only the H isn't enough. OpenMM's `Modeller.addHydrogens` then re-
+    # places that H at the OTHER atom's position again (it inherits OXT's
+    # index during template matching for CSER). Fix by also stripping the
+    # non-H partner — PDBFixer's `addMissingAtoms` re-adds it at the right
+    # position (based on the C-terminal backbone), and `addHydrogens` places
+    # H correctly without the interfering atom.
+    from openmm.unit import nanometer as _nm
+    _COINCIDENT_TOL_NM = 0.05  # 0.5 Å — well below any real bond
+    extra_to_strip = []
+    pos = modeller.positions
+    for res in modeller.topology.residues():
+        if res.name not in _PROTEIN_AA:
+            continue
+        res_atoms = list(res.atoms())
+        for a in res_atoms:
+            if a.element.symbol != 'H':
+                continue
+            pa = pos[a.index].value_in_unit(_nm)
+            for b in res_atoms:
+                if b.index == a.index or b.element.symbol == 'H':
+                    continue
+                pb = pos[b.index].value_in_unit(_nm)
+                d2 = ((pa[0]-pb[0])**2 + (pa[1]-pb[1])**2 + (pa[2]-pb[2])**2)
+                if d2 < _COINCIDENT_TOL_NM * _COINCIDENT_TOL_NM:
+                    extra_to_strip.append(b)
+                    if verbose:
+                        print(f"  Coincident atom: {res.chain.id}/{res.name}{res.id}/"
+                              f"{a.name} overlaps {b.name} — stripping {b.name} so "
+                              f"PDBFixer re-places it correctly")
+                    break
+
+    strip_list = h_atoms + extra_to_strip
+    if strip_list:
+        modeller.delete(strip_list)
         if verbose:
-            print(f"Stripped {len(h_atoms)} H for clean template matching (will re-add)")
+            print(f"Stripped {len(h_atoms)} H + {len(extra_to_strip)} coincident heavy atom(s) for clean template matching (will re-add)")
         import tempfile as _tf
         with _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False) as _tmp:
             PDBFile.writeFile(modeller.topology, modeller.positions, _tmp, keepIds=True)
