@@ -10,6 +10,29 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.4.2] — 2026-07
+
+### Fixed
+- **`prepare` / `protonate` / `minimize`** — post-`addHydrogens` geometry
+  sanity check. The 0.4.1 pre-strip only caught inputs where the (H,
+  heavy-atom) pair was already coincident. The real failure mode — HG
+  MISSING and OXT PRESENT on a C-terminal SER — bypassed it because the
+  input had no coincident pair to detect; OpenMM's `Modeller.addHydrogens`
+  then placed the newly-added HG right on top of the existing OXT via
+  its CSER template path. dvbfixer now runs
+  `dvbfixer.ffutils.geometry.repair_misplaced_hydrogens` immediately after
+  every `addHydrogens` invocation across `prepare`, `protonate`, and
+  `minimize`. The helper walks every hydrogen, verifies distance to its
+  bonded heavy-atom parent, and repairs any H that landed > 1.5 Å from
+  its parent OR within 0.5 Å of another atom in the same residue by
+  re-placing it in linear-anti direction at the canonical O-H / N-H /
+  C-H bond length. Verified on the reported reproducer: `HG` moves from
+  0.001 Å apart from `OXT` (broken) to 0.97 Å from `OG` (canonical).
+
+### Added
+- `src/dvbfixer/ffutils/geometry.py` — new module hosting
+  `repair_misplaced_hydrogens(topology, positions, verbose=False)`.
+
 ## [0.4.1] — 2026-07
 
 ### Fixed

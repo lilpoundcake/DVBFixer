@@ -407,6 +407,10 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                     modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
                 else:
                     modeller.addHydrogens(forcefield, pH=args.ph)
+                from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
+                repair_misplaced_hydrogens(
+                    modeller.topology, modeller.positions, verbose=args.verbose,
+                )
             finally:
                 _fix_lyn_hz_naming(modeller.topology, _saved)
                 _restore_variants_in_topology(modeller.topology, _saved)
@@ -450,6 +454,10 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                                               variants=variants)
                     else:
                         modeller.addHydrogens(forcefield, pH=args.ph)
+                    from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
+                    repair_misplaced_hydrogens(
+                        modeller.topology, modeller.positions, verbose=args.verbose,
+                    )
                 finally:
                     _fix_lyn_hz_naming(modeller.topology, _saved)
                     _restore_variants_in_topology(modeller.topology, _saved)
@@ -494,6 +502,10 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                 modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
             else:
                 modeller.addHydrogens(forcefield, pH=args.ph)
+            from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
+            repair_misplaced_hydrogens(
+                modeller.topology, modeller.positions, verbose=args.verbose,
+            )
         finally:
             _fix_lyn_hz_naming(modeller.topology, _saved)
             _restore_variants_in_topology(modeller.topology, _saved)

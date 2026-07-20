@@ -481,6 +481,8 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
             _saved = _rename_variants_to_parent(modeller.topology)
             try:
                 modeller.addHydrogens(ff, pH=ph, variants=variants)
+                from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
+                repair_misplaced_hydrogens(modeller.topology, modeller.positions, verbose=verbose)
             finally:
                 _fix_lyn_hz_naming(modeller.topology, _saved)
                 _restore_variants_post_addhydrogens(modeller.topology, _saved)
@@ -527,6 +529,8 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
             _saved = _rename_variants_to_parent(modeller.topology)
             try:
                 modeller.addHydrogens(pH=ph, variants=variants)
+                from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
+                repair_misplaced_hydrogens(modeller.topology, modeller.positions, verbose=verbose)
             finally:
                 _fix_lyn_hz_naming(modeller.topology, _saved)
                 _restore_variants_post_addhydrogens(modeller.topology, _saved)
@@ -535,6 +539,8 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
         _saved = _rename_variants_to_parent(modeller.topology)
         try:
             modeller.addHydrogens(pH=ph, variants=variants)
+            from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
+            repair_misplaced_hydrogens(modeller.topology, modeller.positions, verbose=verbose)
         finally:
             _fix_lyn_hz_naming(modeller.topology, _saved)
             _restore_variants_post_addhydrogens(modeller.topology, _saved)
