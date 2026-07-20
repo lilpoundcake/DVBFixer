@@ -41,6 +41,20 @@ Modeller needs a free academic license from
 - **Do not remove `keepIds=True`** from any `PDBFile.writeFile` call.
   Losing chain IDs mid-pipeline breaks the `.dat` handoff that
   `minimize` uses for tiered restraints.
+- **Do not call `PDBFixer.addMissingHydrogens(pH)`.** Call
+  `modeller.addHydrogens(forcefield, pH=..., variants=[...])` instead.
+  PDBFixer's `addMissingHydrogens` uses its own `_describeVariant`
+  that only recognises standard PDB names (HIS / ASP / GLU / CYS /
+  LYS) — it ignores AMBER variant labels (HIE / HID / HIP / ASH /
+  GLH / CYX / CYM / LYN) coming from the input PDB, from `--mutate`,
+  or from PROPKA/Reduce. Only OpenMM's `Modeller.addHydrogens` takes
+  an explicit `variants=` list. In `prepare`, PDBFixer handles all
+  *heavy*-atom repair (missing residues, missing atoms, terminals,
+  heterogen strip); `Modeller` owns H placement. Follow every
+  `addHydrogens` call with
+  `dvbfixer.ffutils.geometry.repair_misplaced_hydrogens(topology,
+  positions)` to catch OpenMM's CSER-template HG-on-OXT
+  misplacement (0.4.2).
 - **Do not read a `.dat` file with hand-rolled `json.load`.** Use
   `dvbfixer.ffutils.dat.DatRecord` — the schema (added_atoms,
   variant_overrides, removed_residues, residue_summary,
