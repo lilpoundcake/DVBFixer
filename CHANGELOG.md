@@ -10,6 +10,31 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-07
+
+### Fixed
+- **`diagnose`: bond exclusion now covers HETATMs and non-standard
+  residues.** `steric._build_bond_exclusion` previously used only
+  `topology.bonds()`, which is empty for every glycan, ligand,
+  AMBER protonation variant (HIE / CYX / LYN / ASH / GLH), and
+  CHARMM variant (HSD / HSE / HSP) that OpenMM's PDBFile can't
+  match to a standard template. Their real covalent bonds were
+  reported as ERROR clashes (bonded C-C at 1.53 Å read as 1.87 Å
+  overlap). Fixed by augmenting the topology bond set with a
+  distance-inferred graph (heavy-heavy ≤ 1.9 Å, X-H ≤ 1.3 Å,
+  S-S ≤ 2.25 Å) built from the same cKDTree used for clash search.
+
+### Changed
+- **`diagnose`: thresholds recalibrated for lower false-positive
+  rate.** Matches BioLuminate's Protein Report and MolProbity's
+  official clashscore floor.
+  - Bond-length WARNING at 20 % deviation (was 10 %); ERROR at 50 %
+    (was 30 %). The SER HG-on-OXT bug case sits at 75 %, so genuine
+    breakage is still caught.
+  - Steric clash WARNING at 0.4 Å overlap (was 0.2 Å) — matches
+    MolProbity's official clashscore threshold. ERROR unchanged at
+    0.5 Å.
+
 ## [0.5.0] — 2026-07
 
 ### Added
