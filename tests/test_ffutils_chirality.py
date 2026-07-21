@@ -125,6 +125,67 @@ def test_glycine_skipped() -> None:
     assert repairs == 0
 
 
+def test_d_serine_reflects_whole_sidechain() -> None:
+    """A D-configured SER with N/CA/C/O/CB/OG must have BOTH CB AND OG
+    reflected (whole sidechain), not just CB. The CB-OG bond length
+    must survive the reflection."""
+    import math
+    top, pos, ix = _make_residue(
+        "SER",
+        n_pos=(-0.87, 1.21, 0.00),
+        ca_pos=(0.00, 0.00, 0.00),
+        c_pos=(1.44, 0.00, -0.20),
+        cb_pos=(-0.86, -0.87, 0.87),   # D config (z flipped)
+    )
+    # Add O and OG so the test exercises the whole-sidechain path.
+    top_chain = next(iter(top.chains()))
+    res = next(iter(top_chain.residues()))
+    top.addAtom("O", Element.getBySymbol("O"), res)
+    top.addAtom("OG", Element.getBySymbol("O"), res)
+
+    # Rebuild positions with O (backbone) and OG (sidechain).
+    o_pos = (1.6, 1.2, -0.3)
+    og_pos = (-1.5, -1.4, 1.5)   # 1.42 Å from D-CB
+    # Reconstruct nm-scaled positions from existing (nm) + new (Å→nm).
+    from openmm.unit import Quantity as _Q
+    existing_nm = [tuple(pos[i].value_in_unit(nanometer))
+                   for i in range(4)]  # N, CA, C, CB
+    new_positions_nm = existing_nm + [
+        tuple(x / 10.0 for x in o_pos),
+        tuple(x / 10.0 for x in og_pos),
+    ]
+    pos = _Q(new_positions_nm, nanometer)
+    ix["O"] = 4
+    ix["OG"] = 5
+
+    # Distance between CB and OG BEFORE the flip.
+    def _get(idx):
+        p = pos[idx].value_in_unit(nanometer)
+        return float(p[0]), float(p[1]), float(p[2])
+    cb_before = _get(ix["CB"])
+    og_before = _get(ix["OG"])
+    d_before = math.sqrt(sum((a - b) ** 2 for a, b in zip(cb_before, og_before)))
+
+    triple_before = _triple(pos, ix)
+    assert triple_before < 0, "test fixture is not D"
+
+    fix_ca_chirality(top, pos)
+
+    triple_after = _triple(pos, ix)
+    assert triple_after > 0, "chirality was not flipped"
+
+    # CB-OG bond length preserved (both were reflected together).
+    cb_after = _get(ix["CB"])
+    og_after = _get(ix["OG"])
+    d_after = math.sqrt(sum((a - b) ** 2 for a, b in zip(cb_after, og_after)))
+    assert abs(d_after - d_before) < 1e-6, (
+        f"CB-OG bond length changed: {d_before:.4f} → {d_after:.4f}"
+    )
+
+    # Backbone O unchanged.
+    assert _get(ix["O"]) == tuple(x / 10.0 for x in o_pos)
+
+
 def test_residue_missing_cb_skipped() -> None:
     """Non-GLY residue that happens to have no CB — should skip
     silently (defensive, since PDBFixer may not have finished yet)."""
