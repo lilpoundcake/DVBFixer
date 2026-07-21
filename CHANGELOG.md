@@ -10,6 +10,58 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-07
+
+Follow-up on a cross-validated assessment (two independent agents: one
+code-review, one functional test on real PDB fixtures). Addresses the
+noisiest failure modes plus adds test coverage for previously
+untested code paths.
+
+### Added
+- **Multi-MODEL detection.** Multi-model PDBs used to silently produce
+  meaningless reports (chain breaks across MODEL boundaries, spurious
+  valence violations from CONECT superposition). Now diagnose extracts
+  MODEL 1 to a temp file, emits a WARNING banner, and reports on
+  MODEL 1 only.
+- **SEQRES-vs-ATOM check.** Terminal truncations (e.g. Fab His-tag in
+  SEQRES but not resolved in ATOM) are now flagged as WARNING. PDBFixer's
+  `findMissingResidues` only catches internal gaps.
+- **Disulfide-geometry check.** SS bond length (2.05 ± 0.10 Å),
+  Cα-Cα distance (5.5 – 7.0 Å), CB-SG-SG-CB dihedral (χ_ss = 60 – 120°)
+  reported as `disulfide_geometry` findings.
+- **`--format json` output.** Machine-readable findings + summary
+  for CI gating and scripting.
+- **`-v/--verbose` implementation.** Prints per-check-family timing
+  and finding counts to stderr.
+
+### Fixed
+- **Waters no longer generate massive chain-break noise.** Every
+  crystallographic water used to trigger a "chain break after HOH..."
+  WARNING. Waters (HOH/WAT/SOL/TIP3/TIP4/TIP5/SPC/SPCE/DOD/H2O) are
+  now excluded from chain-break AND steric checks by default. Add
+  `--include-water` to keep the old behaviour.
+- **Heavy-atom H-bonds no longer flagged as clashes.** Structures
+  without explicit hydrogens (unprotonated inputs) had every salt
+  bridge and backbone amide interaction reported as an ERROR clash
+  ("LYS:NZ clashes with GLU:OE1 — overlap 0.4 Å"). Any pair of
+  H-bond-capable heavy atoms (N/O/S/F ↔ N/O/S/F) at 2.5 – 3.4 Å is
+  now skipped as a heavy-atom H-bond, matching CCP4's envelope.
+- **Intra-residue vdW pairs skipped from clash detection.** Anything
+  within the same residue is FF-template geometry — 1-4 exclusion
+  already covered most cases, but glycan / non-standard-AA close
+  contacts within a single residue no longer surface as clashes.
+
+### Test coverage
+Added 16 new tests covering previously-untested paths:
+- Dihedral computation (trans-peptide → 180°, cis → 0°)
+- Cα chirality (L-Ala pass, D-Ala flagged)
+- Valence (5-bond C flagged, 4-bond OK)
+- Bond length (canonical, sub-WARN stretched, above-ERROR stretched)
+- Disulfide geometry (canonical, stretched, non-bonded pair)
+- Multi-model input handling
+- Water suppression (both directions of `--include-water`)
+- JSON output format
+
 ## [0.5.2] — 2026-07
 
 ### Fixed

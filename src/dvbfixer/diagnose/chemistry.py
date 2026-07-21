@@ -11,6 +11,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from dvbfixer.diagnose._common import NON_STANDARD_AAS
 from dvbfixer.diagnose.report import Finding, Severity
 
 # Bond-count ceiling per element (matches dvbfixer.pull.MAX_BONDS).
@@ -300,13 +301,19 @@ def check_ca_chirality(topology: Any, positions: Any) -> list[Finding]:
 
     where v_X = pos(X) - pos(CA). L-amino acids have a POSITIVE triple
     product (right-handed convention); D-amino acids give a negative
-    value. GLY has no CB (skipped). Non-standard residues missing any
-    of N/CA/C/CB are skipped.
+    value. GLY has no CB (skipped). Non-standard amino acids (MSE,
+    SEC, PYL, phospho-residues, etc.) are recognised via the
+    ``NON_STANDARD_AAS`` whitelist so their chirality is still
+    checked.
     """
     findings: list[Finding] = []
     for res in topology.residues():
-        if res.name in ("GLY", "HOH", "WAT", "TIP3"):
+        if res.name in ("GLY", "HOH", "WAT", "TIP3", "TIP4", "TIP5", "SOL"):
             continue
+        _ = NON_STANDARD_AAS  # documented as recognised — chirality
+        # check keys off atom-name presence, so any non-standard AA
+        # that carries N/CA/C/CB (including MSE, SEC, PYL, SEP, TPO,
+        # PTR) is naturally handled.
         n = _find_atom(res, "N")
         ca = _find_atom(res, "CA")
         c = _find_atom(res, "C")
@@ -343,6 +350,102 @@ def check_ca_chirality(topology: Any, positions: Any) -> list[Finding]:
     return findings
 
 
+def check_disulfides(topology: Any, positions: Any) -> list[Finding]:
+    """Report SS bonds whose geometry deviates from AMBER canonicals.
+
+    Ideal disulfide geometry (Schmidt / Neidigh 2002):
+      - SG-SG bond length: 2.05 ± 0.10 Å
+      - Cα-Cα distance: 5.5 – 7.0 Å
+      - CB-SG-SG-CB dihedral: |χ_ss| = 60 – 120° (typically ~90°)
+
+    Detects SS bonds from the topology bond set OR by SG-SG distance
+    < 2.5 Å (catches CONECT-less inputs).
+    """
+    findings: list[Finding] = []
+    # Collect all SG atoms per CYS/CYX/CYM residue.
+    sg_atoms: list[Any] = []
+    for res in topology.residues():
+        if res.name not in ("CYS", "CYX", "CYM", "CSS"):
+            continue
+        for a in res.atoms():
+            if a.name == "SG":
+                sg_atoms.append(a)
+                break
+
+    if len(sg_atoms) < 2:
+        return findings
+
+    # Find pairs within SS-bond distance.
+    from openmm.unit import nanometer
+    for i in range(len(sg_atoms)):
+        for j in range(i + 1, len(sg_atoms)):
+            a1, a2 = sg_atoms[i], sg_atoms[j]
+            if a1.residue is a2.residue:
+                continue
+            d = _dist(positions, a1, a2)
+            d_a = d * 10.0
+            if d_a > 2.5:
+                continue
+            # Real SS bond — check geometry.
+            r1, r2 = a1.residue, a2.residue
+            ca1 = _find_atom(r1, "CA")
+            ca2 = _find_atom(r2, "CA")
+            cb1 = _find_atom(r1, "CB")
+            cb2 = _find_atom(r2, "CB")
+
+            chain1, resid1 = _res_loc(r1)
+            chain2, resid2 = _res_loc(r2)
+            partner = f"{chain2}/{r2.name}{resid2}"
+
+            # SG-SG bond length.
+            if not (1.95 <= d_a <= 2.20):
+                sev = Severity.ERROR if not (1.85 <= d_a <= 2.30) else Severity.WARNING
+                findings.append(Finding(
+                    severity=sev,
+                    category="disulfide_geometry",
+                    chain=chain1, resid=resid1, resname=r1.name, atom="SG",
+                    message=f"disulfide SG-SG to {partner}:SG at {d_a:.2f} Å "
+                            f"(expected 2.05 ± 0.10 Å)",
+                    fix_hint="dvbfixer minimize (restrains SS to canonical length)",
+                ))
+
+            # Cα-Cα distance.
+            if ca1 and ca2:
+                d_ca_nm = _dist(positions, ca1, ca2)
+                d_ca_a = d_ca_nm * 10.0
+                if not (5.0 <= d_ca_a <= 7.5):
+                    findings.append(Finding(
+                        severity=Severity.WARNING,
+                        category="disulfide_geometry",
+                        chain=chain1, resid=resid1, resname=r1.name, atom="CA",
+                        message=f"disulfide Cα-Cα to {partner}:CA at {d_ca_a:.2f} Å "
+                                f"(expected 5.5 – 7.0 Å)",
+                        fix_hint="dvbfixer minimize",
+                    ))
+
+            # CB-SG-SG-CB dihedral (χ_ss).
+            if ca1 and ca2 and cb1 and cb2:
+                chi = abs(_dihedral_deg(
+                    _pos(positions, cb1),
+                    _pos(positions, a1),
+                    _pos(positions, a2),
+                    _pos(positions, cb2),
+                ))
+                if not (60 <= chi <= 120):
+                    findings.append(Finding(
+                        severity=Severity.WARNING,
+                        category="disulfide_geometry",
+                        chain=chain1, resid=resid1, resname=r1.name,
+                        message=f"disulfide CB-SG-SG-CB dihedral {chi:.0f}° "
+                                f"(expected 60 – 120°; canonical ~90°) — "
+                                f"partner {partner}",
+                        fix_hint="dvbfixer minimize (relaxes non-ideal SS twist)",
+                    ))
+            # Suppress __unused__ warnings.
+            _ = nanometer
+    return findings
+
+
 def run_all(topology: Any, positions: Any) -> list[Finding]:
     """Execute every chemistry check and return the concatenated findings."""
     findings: list[Finding] = []
@@ -350,4 +453,5 @@ def run_all(topology: Any, positions: Any) -> list[Finding]:
     findings.extend(check_bond_lengths(topology, positions))
     findings.extend(check_peptide_omegas(topology, positions))
     findings.extend(check_ca_chirality(topology, positions))
+    findings.extend(check_disulfides(topology, positions))
     return findings

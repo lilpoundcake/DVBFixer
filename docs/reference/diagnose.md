@@ -7,7 +7,8 @@
 ```
 usage: dvbfixer diagnose [-h] [-o OUTPUT]
                          [--only {all,structural,chemistry,steric}]
-                         [--severity {ERROR,WARNING,INFO}] [-v]
+                         [--severity {ERROR,WARNING,INFO}] [--include-water]
+                         [--format {text,json}] [-v]
                          input
 
 Inspect a PDB file and report structure-quality issues (missing atoms,
@@ -29,7 +30,15 @@ Check selection:
   --severity {ERROR,WARNING,INFO}
                         Minimum severity to include in the report (default:
                         INFO). Set to ERROR for pre-commit / CI usage.
+  --include-water       Include water residues (HOH/WAT/TIP3/SOL) in checks.
+                        Off by default — crystallographic waters generate
+                        massive chain-break and steric noise.
+
+Output format:
+  --format {text,json}  Output format. `text` is the plain-text report; `json`
+                        emits a machine-readable list of findings (usable for
+                        CI).
 
 Diagnostics:
-  -v, --verbose         Include per-check timing and expanded per-atom detail.
+  -v, --verbose         Include per-check timing on stderr.
 ```

@@ -38,11 +38,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Minimum severity to include in the report (default: INFO). "
              "Set to ERROR for pre-commit / CI usage.",
     )
+    checks.add_argument(
+        "--include-water", action="store_true",
+        help="Include water residues (HOH/WAT/TIP3/SOL) in checks. "
+             "Off by default — crystallographic waters generate massive "
+             "chain-break and steric noise.",
+    )
+
+    fmt = p.add_argument_group("Output format")
+    fmt.add_argument(
+        "--format", choices=["text", "json"], default="text",
+        dest="output_format",
+        help="Output format. `text` is the plain-text report; `json` "
+             "emits a machine-readable list of findings (usable for CI).",
+    )
 
     diag = p.add_argument_group("Diagnostics")
     diag.add_argument(
         "-v", "--verbose", action="store_true",
-        help="Include per-check timing and expanded per-atom detail.",
+        help="Include per-check timing on stderr.",
     )
 
     return p.parse_args(argv)
