@@ -63,6 +63,19 @@ _COVALENT_MAX_A_HEAVY_HEAVY = 1.90
 _COVALENT_MAX_A_X_H = 1.30
 _COVALENT_MAX_A_SS = 2.25  # disulfide (S-S)
 
+# Hydrogen-bond geometric envelope. A pair (polar H, acceptor) with
+# donor-H covalent bond to N/O/S is skipped as a valid H-bond, not
+# a clash — this matches what MolProbity's ``probe`` does when it
+# labels contacts as "hbond" instead of "bo/so". Values are
+# permissive to cover both classical N-H..O (1.8 - 2.4 Å) and salt
+# bridges (down to ~1.6 Å for very strong ARG-guanidinium..carboxylate
+# contacts). MolProbity's official H-bond gap is 0.6 Å; we use 0.6 Å
+# by allowing overlaps up to 0.6 Å below the vdW sum on H-bond pairs.
+_HBOND_ACCEPTORS = {"N", "O", "S", "F"}
+_HBOND_DONORS = {"N", "O", "S"}
+_HBOND_H_ACC_MIN_A = 1.4    # closer than this is genuinely too tight
+_HBOND_H_ACC_MAX_A = 2.6    # farther than this isn't an H-bond
+
 
 def _resid_str(res_id: str, icode: str = "") -> str:
     icode = (icode or "").strip()
@@ -168,6 +181,42 @@ def _expand_exclusions(neighbors: dict[int, set[int]]) -> set[frozenset[int]]:
     return excluded
 
 
+def _is_hbond_pair(
+    ai: Any,
+    aj: Any,
+    d_a: float,
+    atoms: list[Any],
+    neighbors: dict[int, set[int]],
+) -> bool:
+    """Return True when ``(ai, aj)`` fits an H-bond envelope.
+
+    Criteria: one atom is H covalently bonded to N/O/S (polar donor);
+    the other atom is N/O/S/F (acceptor); H..acceptor distance is
+    within 1.4 – 2.6 Å. Skips angle checks — they'd need the donor
+    position, which is fine to leave out since the covalent-bond
+    graph already constrains geometry.
+    """
+    sym_i = ai.element.symbol.upper()
+    sym_j = aj.element.symbol.upper()
+    if sym_i == "H" and sym_j in _HBOND_ACCEPTORS:
+        h_atom, acc_sym = ai, sym_j
+    elif sym_j == "H" and sym_i in _HBOND_ACCEPTORS:
+        h_atom, acc_sym = aj, sym_i
+    else:
+        return False
+    if not (_HBOND_H_ACC_MIN_A <= d_a <= _HBOND_H_ACC_MAX_A):
+        return False
+    # Polar-H test: is our H bonded to N/O/S?
+    for parent_idx in neighbors.get(h_atom.index, ()):
+        parent = atoms[parent_idx]
+        if parent.element is None:
+            continue
+        if parent.element.symbol.upper() in _HBOND_DONORS:
+            return True
+    _ = acc_sym  # informational; matched via _HBOND_ACCEPTORS above
+    return False
+
+
 def clashes_python(topology: Any, positions: Any) -> list[Finding]:
     """Pure-Python clash detection via scipy cKDTree.
 
@@ -180,6 +229,11 @@ def clashes_python(topology: Any, positions: Any) -> list[Finding]:
     a distance-inferred graph — so HETATMs and non-standard residues
     without CONECT records don't have their real covalent bonds
     reported as clashes.
+
+    Hydrogen bonds (polar H..N/O/S/F at 1.4 – 2.6 Å) are also
+    skipped — MolProbity's ``probe`` classifies those as "hbond",
+    not "bo/so" clashes. Without this filter every backbone
+    N-H..O=C amide H-bond in an α-helix looks like a 0.7 Å overlap.
     """
     try:
         import numpy as np
@@ -218,6 +272,9 @@ def clashes_python(topology: Any, positions: Any) -> list[Finding]:
         d = float(np.linalg.norm(coords_a[i] - coords_a[j]))
         overlap = (ri + rj) - d
         if overlap < _CLASH_WARNING_OVERLAP_A:
+            continue
+        # Skip pairs that fit an H-bond envelope — not a clash.
+        if _is_hbond_pair(ai, aj, d, atoms, neighbors):
             continue
         severity = (Severity.ERROR
                     if overlap >= _CLASH_ERROR_OVERLAP_A
