@@ -392,6 +392,15 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     fixer.replaceNonstandardResidues()
     fixer.addMissingAtoms()
 
+    # PDBFixer's addMissingAtoms rebuilds sidechain heavy atoms from
+    # ideal AMBER templates; on branched-Cβ residues (VAL/ILE/THR)
+    # the template alignment sometimes picks the D configuration.
+    # Reflect any inversions back to L before H addition.
+    from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chirality
+    _chir_fixed = _fix_chirality(fixer.topology, fixer.positions, verbose=verbose)
+    if verbose and _chir_fixed:
+        print(f"  [prepare] flipped {_chir_fixed} Cα chirality inversion(s)")
+
     # Build explicit variants list for addHydrogens.
     # PDBFixer's addMissingHydrogens ignores our topology renames — it uses
     # its own _describeVariant which only understands standard names.

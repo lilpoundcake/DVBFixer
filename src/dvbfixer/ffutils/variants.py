@@ -250,11 +250,15 @@ def fix_lyn_hz_naming(
 ) -> int:
     """Rename ``HZ1 -> HZ3`` on every LYN residue in ``topology``.
 
-    OpenMM's ``hydrogens.xml`` gates HZ3 by ``variant="LYS"``, so
-    ``addHydrogens`` with ``variant=LYN`` produces HZ1+HZ2 — the OPPOSITE
-    of what the AMBER ff14SB/ff19SB LYN template expects (HZ2+HZ3). HZ1
-    and HZ3 are chemically equivalent (same charge, same bond topology)
-    so we rename in place.
+    OpenMM's ``hydrogens.xml`` (used by ``Modeller.addHydrogens``) gates
+    HZ3 by ``variant="LYS"``, so calling addHydrogens with the LYN
+    variant produces ``HZ1 + HZ2``. But the authoritative reference —
+    the AMBER14 ff14SB LYN residue template in
+    ``openmm/app/data/amber14/protein.ff14SB.xml`` — defines the two
+    NZ hydrogens as ``HZ2 + HZ3`` (HZ1 absent). HZ1 and HZ3 are
+    chemically equivalent (same charge, same bond topology) so we
+    rename in place. See ``docs/known-issues.md`` for the full
+    reasoning.
 
     Identifies LYN residues from ``saved`` (any shape supported by
     :func:`restore_variants_post_addhydrogens`) plus optional

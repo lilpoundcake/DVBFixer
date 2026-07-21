@@ -314,3 +314,93 @@ def repair_misplaced_hydrogens(
                   f"{finding.expected_bond_nm * 10:.2f} Å from {parent.name}")
 
     return repairs
+
+
+# ---------------------------------------------------------------------------
+# Cα chirality repair
+# ---------------------------------------------------------------------------
+#
+# ``PDBFixer.addMissingAtoms`` rebuilds missing sidechain heavy atoms
+# via ideal AMBER template alignment. For residues where only the
+# backbone (N, CA, C, O) was present in the input, the template
+# alignment can pick the D configuration — placing CB on the wrong
+# side of the Cα-N-C plane. Branched-Cβ residues (VAL, ILE, THR) are
+# most vulnerable because their CB carries a chiral centre once the
+# rest of the sidechain lands. Nothing in the pipeline detects this
+# without ``fix_ca_chirality``.
+#
+# Detection: scalar triple product (N - CA) × (C - CA) · (CB - CA).
+# Positive → L-amino acid (right-handed). Negative → D. GLY (no CB)
+# is skipped.
+#
+# Repair: reflect CB through the plane spanned by (N - CA) and
+# (C - CA). No other atoms are moved.
+
+def fix_ca_chirality(
+    topology: Any,
+    positions: Any,
+    verbose: bool = False,
+) -> int:
+    """Detect D-amino acid Cα stereochemistry and reflect CB back to L.
+
+    Returns the number of residues repaired.
+    """
+    from openmm import Vec3
+    from openmm.unit import nanometer
+
+    _skip_names = frozenset({"GLY", "HOH", "WAT", "TIP3", "TIP4", "TIP5",
+                             "SOL", "SPC", "SPCE"})
+
+    def _find(res: Any, name: str) -> Any | None:
+        for a in res.atoms():
+            if a.name == name:
+                return a
+        return None
+
+    repairs = 0
+    for res in topology.residues():
+        if res.name in _skip_names:
+            continue
+        n = _find(res, "N")
+        ca = _find(res, "CA")
+        c = _find(res, "C")
+        cb = _find(res, "CB")
+        if not (n and ca and c and cb):
+            continue
+
+        ca_p = _pos(positions, ca)
+        vn = tuple(a - b for a, b in zip(_pos(positions, n), ca_p))
+        vc = tuple(a - b for a, b in zip(_pos(positions, c), ca_p))
+        vcb = tuple(a - b for a, b in zip(_pos(positions, cb), ca_p))
+
+        # Plane normal n̂ = (N-CA) × (C-CA) / |...|
+        cross = (
+            vn[1] * vc[2] - vn[2] * vc[1],
+            vn[2] * vc[0] - vn[0] * vc[2],
+            vn[0] * vc[1] - vn[1] * vc[0],
+        )
+        triple = cross[0] * vcb[0] + cross[1] * vcb[1] + cross[2] * vcb[2]
+        # Deadband around zero avoids false positives on marginal
+        # geometry (mirrors ``check_ca_chirality``'s threshold).
+        if triple >= -1e-4:
+            continue
+
+        norm2 = cross[0] ** 2 + cross[1] ** 2 + cross[2] ** 2
+        if norm2 < 1e-18:
+            # Degenerate — N, CA, C colinear. Nothing sensible to do.
+            continue
+        # CB_new = CB - 2 · ((CB - CA) · n̂) · n̂ where n̂ = cross / |cross|
+        # dot(vcb, n̂) · n̂ = (dot(vcb, cross) / norm2) · cross
+        proj = triple / norm2  # = dot(vcb, cross) / |cross|²
+        new_cb = (
+            ca_p[0] + vcb[0] - 2.0 * proj * cross[0],
+            ca_p[1] + vcb[1] - 2.0 * proj * cross[1],
+            ca_p[2] + vcb[2] - 2.0 * proj * cross[2],
+        )
+        positions[cb.index] = Vec3(*new_cb) * nanometer
+        repairs += 1
+        if verbose:
+            print(f"  [geom] flipped Cα chirality on "
+                  f"{res.chain.id}/{res.name}{res.id} "
+                  f"(triple {triple:.5f} nm³ → reflected CB)")
+    return repairs
