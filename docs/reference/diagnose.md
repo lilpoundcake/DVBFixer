@@ -8,7 +8,9 @@
 usage: dvbfixer diagnose [-h] [-o OUTPUT]
                          [--only {all,structural,chemistry,steric}]
                          [--severity {ERROR,WARNING,INFO}] [--include-water]
-                         [--format {text,json}] [-v]
+                         [--clash-mode {bioluminate,chimerax,molprobity}]
+                         [--clash-cutoff WARN,ERROR] [--format {text,json}]
+                         [-v]
                          input
 
 Inspect a PDB file and report structure-quality issues (missing atoms,
@@ -33,6 +35,14 @@ Check selection:
   --include-water       Include water residues (HOH/WAT/TIP3/SOL) in checks.
                         Off by default — crystallographic waters generate
                         massive chain-break and steric noise.
+  --clash-mode {bioluminate,chimerax,molprobity}
+                        Preset clash overlap thresholds (WARN / ERROR in Å).
+                        Default: chimerax. Available: molprobity (0.4/0.5 Å),
+                        chimerax (0.6/0.9 Å), bioluminate (0.75/1.0 Å).
+  --clash-cutoff WARN,ERROR
+                        Explicit clash overlap cutoffs in Å (overrides
+                        --clash-mode). Example: --clash-cutoff 0.35,0.45 for
+                        extra-strict validation.
 
 Output format:
   --format {text,json}  Output format. `text` is the plain-text report; `json`

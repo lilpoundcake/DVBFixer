@@ -10,6 +10,24 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.6.1] — 2026-07
+
+### Changed
+- **`diagnose`: default clash overlap thresholds now match ChimeraX**
+  (WARN 0.6 Å / ERROR 0.9 Å), not MolProbity (0.4 / 0.5 Å). User
+  reported that BioLuminate and ChimeraX report no clashes on inputs
+  where diagnose reported many — MolProbity's clashscore floor is a
+  strict-validation setting, not a "does this look OK" setting.
+
+### Added
+- **`--clash-mode {chimerax,molprobity,bioluminate}`** preset flag.
+  - `chimerax` — 0.6 / 0.9 Å (new default; matches ChimeraX `clashes`)
+  - `molprobity` — 0.4 / 0.5 Å (restores pre-0.6.1 strict floor)
+  - `bioluminate` — 0.75 / 1.0 Å (matches BioLuminate "Bad" / "Ugly")
+- **`--clash-cutoff WARN,ERROR`** escape hatch for explicit tuning
+  (overrides `--clash-mode`). E.g. `--clash-cutoff 0.35,0.45` for
+  extra-strict validation.
+
 ## [0.6.0] — 2026-07
 
 Follow-up on a cross-validated assessment (two independent agents: one

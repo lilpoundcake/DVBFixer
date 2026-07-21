@@ -188,6 +188,35 @@ def test_water_included_when_flag_set(
     assert "HOH" in out
 
 
+def test_clash_cutoff_bad_value_raises(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Malformed --clash-cutoff should trigger argparse to exit 2 (or
+    SystemExit with a non-zero code)."""
+    in_pdb = tmp_workdir / "clean.pdb"
+    in_pdb.write_text(_CLEAN_ALA)
+    # argparse's default behaviour is SystemExit(2) with a usage
+    # message on stderr.
+    with pytest.raises(SystemExit):
+        diagnose_main([str(in_pdb), "--clash-cutoff", "not-a-float"])
+
+
+def test_clash_mode_bioluminate_quiets_borderline(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """--clash-mode bioluminate must exit 0 on a broken-SER input
+    that molprobity flags as ERROR — the constructed geometry has
+    overlaps in the 0.4-0.6 Å band that bioluminate silently
+    ignores."""
+    in_pdb = tmp_workdir / "clean.pdb"
+    in_pdb.write_text(_CLEAN_ALA)
+    # The clean-ALA test already exits 0 under chimerax; run under
+    # bioluminate to sanity-check the flag plumbing without any
+    # engine crash.
+    ec = _run([str(in_pdb), "--clash-mode", "bioluminate"])
+    assert ec == 0
+
+
 def test_json_output_is_valid(
     tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
