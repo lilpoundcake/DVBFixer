@@ -10,6 +10,20 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.5.2] — 2026-07
+
+### Fixed
+- **`diagnose`: hydrogen bonds no longer reported as clashes.** Every
+  backbone N-H..O=C amide interaction, sidechain O-H..O, and
+  ARG/LYS..carboxylate salt bridge in a well-folded structure showed
+  up as an ERROR ("O clashes with H — overlap 0.7 Å"). MolProbity's
+  ``probe`` handles these by classifying them as ``hbond`` contacts;
+  our Python engine now applies the same filter — a pair is
+  suppressed when one atom is a polar H (covalently bonded to N/O/S),
+  the other is an acceptor (N/O/S/F), and their distance falls in
+  the 1.4 – 2.6 Å H-bond envelope. Fixes the "α-helix reported as
+  15 ERRORs" complaint on 0.5.1.
+
 ## [0.5.1] — 2026-07
 
 ### Fixed

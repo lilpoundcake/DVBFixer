@@ -121,7 +121,11 @@ Two engines with the same output shape:
   is built from BOTH the OpenMM topology bond set AND distance-based
   inference (heavy-heavy ≤ 1.9 Å, X-H ≤ 1.3 Å, S-S ≤ 2.25 Å) — this
   catches HETATMs, glycans, and AMBER/CHARMM protonation variants
-  whose real bonds OpenMM's PDBFile parser doesn't infer.
+  whose real bonds OpenMM's PDBFile parser doesn't infer. Pairs that
+  fit a hydrogen-bond envelope (polar H covalently bonded to N/O/S,
+  paired with an N/O/S/F acceptor at 1.4 – 2.6 Å) are also skipped
+  — MolProbity's `probe` classifies those as `hbond` contacts, not
+  clashes.
 - **MolProbity `probe`** — used automatically when the `probe` binary
   is on `PATH` (bundled with Phenix / MolProbity). Higher fidelity
   matching MolProbity's own reports. Falls back to the Python engine

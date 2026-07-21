@@ -110,6 +110,103 @@ def test_true_cc_clash_still_error() -> None:
     assert findings[0].category == "clash"
 
 
+def _make_two_residue_topology(
+    r1_atoms: list[tuple[str, str]],
+    r2_atoms: list[tuple[str, str]],
+    positions_a: list[tuple[float, float, float]],
+    r1_bonds: list[tuple[int, int]] | None = None,
+    r2_bonds: list[tuple[int, int]] | None = None,
+    r1_name: str = "AAA",
+    r2_name: str = "BBB",
+) -> tuple[Topology, Quantity]:
+    """Two-residue topology with explicit intra-residue bonds. Indices
+    in ``r1_bonds`` / ``r2_bonds`` are 0-based within each residue's
+    ``atoms`` list. Positions in ångström."""
+    top = Topology()
+    chain = top.addChain("A")
+    r1 = top.addResidue(r1_name, chain)
+    r2 = top.addResidue(r2_name, chain)
+    atoms_r1 = [top.addAtom(name, Element.getBySymbol(sym), r1)
+                for name, sym in r1_atoms]
+    atoms_r2 = [top.addAtom(name, Element.getBySymbol(sym), r2)
+                for name, sym in r2_atoms]
+    for i, j in (r1_bonds or []):
+        top.addBond(atoms_r1[i], atoms_r1[j])
+    for i, j in (r2_bonds or []):
+        top.addBond(atoms_r2[i], atoms_r2[j])
+    positions_nm = [tuple(x / 10.0 for x in p) for p in positions_a]
+    return top, Quantity(positions_nm, nanometer)
+
+
+def test_backbone_amide_hbond_not_reported_as_clash() -> None:
+    """Classic backbone N-H..O=C hydrogen bond at 2.06 Å (α-helix i,i+4
+    interaction distance) must be recognised as an H-bond and skipped,
+    not reported as an ERROR clash. This is the primary 0.5.2
+    regression case."""
+    # Residue 1: carbonyl (C=O). Residue 2: amide (N-H) with the H
+    # positioned 2.06 Å from the residue-1 O.
+    top, pos = _make_two_residue_topology(
+        r1_atoms=[("C", "C"), ("O", "O")],
+        r2_atoms=[("N", "N"), ("H", "H")],
+        positions_a=[
+            (0.00, 0.00, 0.00),   # C
+            (1.23, 0.00, 0.00),   # O (bonded to C)
+            (3.29, 0.00, 0.00),   # N (2.06 Å from O)
+            (2.20, 0.00, 0.00),   # H (bonded to N, 2.06 Å from O — H-bond!)
+        ],
+        r1_bonds=[(0, 1)],  # C=O
+        r2_bonds=[(0, 1)],  # N-H
+    )
+    findings = clashes_python(top, pos)
+    assert findings == [], (
+        f"Expected zero findings (backbone amide H-bond), got: "
+        f"{[str(f) for f in findings]}"
+    )
+
+
+def test_salt_bridge_arg_h_to_asp_o_not_reported() -> None:
+    """ARG-guanidinium HH..carboxylate O at 1.79 Å (a strong salt
+    bridge) must not be reported as a clash."""
+    top, pos = _make_two_residue_topology(
+        r1_atoms=[("NH1", "N"), ("HH11", "H")],   # ARG guanidinium
+        r2_atoms=[("CG", "C"), ("OD1", "O")],      # ASP carboxylate
+        positions_a=[
+            (0.00, 0.00, 0.00),   # NH1
+            (1.00, 0.00, 0.00),   # HH11 (bonded to NH1)
+            (3.53, 0.00, 0.00),   # CG
+            (2.79, 0.00, 0.00),   # OD1 (bonded to CG; 1.79 Å from HH11)
+        ],
+        r1_bonds=[(0, 1)],
+        r2_bonds=[(0, 1)],
+        r1_name="ARG",
+        r2_name="ASP",
+    )
+    findings = clashes_python(top, pos)
+    assert findings == []
+
+
+def test_non_polar_h_close_to_o_still_flagged() -> None:
+    """A non-polar H (bonded to C) close to an O must NOT be treated
+    as an H-bond — polar-donor test protects genuine C-H..O clashes.
+    Places the C-bonded H at 1.85 Å from a separate residue's O."""
+    top, pos = _make_two_residue_topology(
+        r1_atoms=[("C", "C"), ("H", "H")],       # C-H (aliphatic)
+        r2_atoms=[("C", "C"), ("O", "O")],       # C=O
+        positions_a=[
+            (0.00, 0.00, 0.00),   # C
+            (1.09, 0.00, 0.00),   # H (bonded to C, non-polar)
+            (4.00, 0.00, 0.00),   # C
+            (2.94, 0.00, 0.00),   # O (bonded to C; 1.85 Å from non-polar H)
+        ],
+        r1_bonds=[(0, 1)],
+        r2_bonds=[(0, 1)],
+    )
+    findings = clashes_python(top, pos)
+    # H..O overlap = 2.72 - 1.85 = 0.87 Å → still ERROR.
+    assert len(findings) == 1
+    assert findings[0].severity == Severity.ERROR
+
+
 def test_mild_rotamer_hh_below_new_warning_floor() -> None:
     """H-H at 2.05 Å between two separate residues — overlap =
     2.40 - 2.05 = 0.35 Å, below the new 0.4 Å MolProbity floor.
