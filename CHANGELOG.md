@@ -10,6 +10,50 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.6.4] — 2026-07
+
+Three bugs surfaced by a `dvbfixer zbs test/stereo_bug/1TM1.pdb
+--no-solvent --strip-heterogens` reproduction.
+
+### Fixed
+- **GLH/ASH/HIE/HID/HIP/CYX STILL canonicalized after 0.6.3.**
+  The 0.6.3 fix wired `amber_renames` into Branches 2 and 3 of
+  minimize's `keep_h=True` path but missed **Branch 1** (the
+  `if n_missing or n_terminals:` branch, which fires on virtually
+  every real input). Branch 1 called `PDBFixer.addMissingHydrogens`
+  — a hard-rule violation from CLAUDE.md, because PDBFixer's
+  `_describeVariant` only recognises standard PDB names and
+  rewrites variant residues to canonical HIS/ASP/GLU/CYS before
+  placing H. Fixed by making Branch 1 follow the same
+  `_rename → Modeller.addHydrogens(variants=...) → _restore`
+  pattern as Branches 2/3.
+- **`fix_ca_chirality` didn't run on inputs with all atoms
+  present.** SER224 in 1TM1 came out as D-chirality after zbs.
+  Root cause: `fix_ca_chirality` was gated by
+  `if n_missing or n_terminals:` — if PDBFixer detected no missing
+  atoms, chirality was never checked. Also: reflecting only CB
+  (leaving OG/CG/etc on the wrong side) broke sidechain geometry.
+  Fixed: `fix_ca_chirality` now reflects EVERY sidechain atom
+  through the CA-N-C plane (not just CB), and runs unconditionally
+  at the end of minimize before `createSystem`.
+- **"1 C-O bond too many" createSystem failure.** Over-eager
+  CONECT inference wired backbone amide H atoms to CA/HA/O
+  simultaneously, exceeding hydrogen valence and making residue
+  templates fail to match. Added
+  `minimize.pipeline._drop_spurious_inter_aa_bonds` which:
+  (1) drops non-peptide inter-residue bonds between two standard
+  AAs, and (2) enforces H valence = 1 by dropping every second
+  bond involving each H atom. Called after every `Modeller(...)`
+  reconstruction and before every `createSystem`.
+
+### Known limitation
+`dvbfixer zbs --parametrize-ligands` on inputs with badly
+corrupted CONECT records (like 1TM1) still fails downstream
+because OpenMM's `Modeller.addHydrogens` hits a zero-division on
+degenerate geometry after the H-valence filter reshapes the bond
+graph. Investigation continues; use `--strip-heterogens` in the
+meantime.
+
 ## [0.6.3] — 2026-07
 
 ### Fixed

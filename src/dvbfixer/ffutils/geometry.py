@@ -336,12 +336,32 @@ def repair_misplaced_hydrogens(
 # Repair: reflect CB through the plane spanned by (N - CA) and
 # (C - CA). No other atoms are moved.
 
+# Fixed backbone atom names that never move during chirality repair.
+# Everything else in the residue is a sidechain atom and gets reflected
+# alongside CB.
+_BACKBONE_ATOM_NAMES = frozenset({
+    "N", "CA", "C", "O",
+    "H", "HA", "HA2", "HA3",   # amide H + Cα H (GLY has HA2/HA3)
+    "H1", "H2", "H3",           # N-terminal H
+    "OXT",                       # C-terminal OXT
+})
+
+
 def fix_ca_chirality(
     topology: Any,
     positions: Any,
     verbose: bool = False,
 ) -> int:
-    """Detect D-amino acid Cα stereochemistry and reflect CB back to L.
+    """Detect D-amino acid Cα stereochemistry and reflect the sidechain
+    back to L.
+
+    Reflects every non-backbone atom in the residue (CB, CG, OG, ND1,
+    etc.) through the plane spanned by (N - CA) and (C - CA). The
+    backbone (N, CA, C, O, HA, H, terminal H1/H2/H3, OXT) is left in
+    place. Reflecting the whole sidechain (rather than only CB)
+    preserves the sidechain's internal geometry after the flip —
+    crucial when the input already has SER OG, VAL CG1/CG2, etc.
+    placed on the wrong face.
 
     Returns the number of residues repaired.
     """
@@ -389,18 +409,30 @@ def fix_ca_chirality(
         if norm2 < 1e-18:
             # Degenerate — N, CA, C colinear. Nothing sensible to do.
             continue
-        # CB_new = CB - 2 · ((CB - CA) · n̂) · n̂ where n̂ = cross / |cross|
-        # dot(vcb, n̂) · n̂ = (dot(vcb, cross) / norm2) · cross
-        proj = triple / norm2  # = dot(vcb, cross) / |cross|²
-        new_cb = (
-            ca_p[0] + vcb[0] - 2.0 * proj * cross[0],
-            ca_p[1] + vcb[1] - 2.0 * proj * cross[1],
-            ca_p[2] + vcb[2] - 2.0 * proj * cross[2],
-        )
-        positions[cb.index] = Vec3(*new_cb) * nanometer
+
+        # Reflect every sidechain atom (anything not in the fixed
+        # backbone set) through the CA-N-C plane.
+        # For a point P, P_new = P - 2 · ((P - CA) · n̂) · n̂
+        #                     = P - (2 · dot(P-CA, cross) / |cross|²) · cross
+        n_moved = 0
+        for atom in res.atoms():
+            if atom.name in _BACKBONE_ATOM_NAMES:
+                continue
+            p = _pos(positions, atom)
+            vp = (p[0] - ca_p[0], p[1] - ca_p[1], p[2] - ca_p[2])
+            dot_vp_cross = vp[0] * cross[0] + vp[1] * cross[1] + vp[2] * cross[2]
+            proj = dot_vp_cross / norm2
+            new_p = (
+                p[0] - 2.0 * proj * cross[0],
+                p[1] - 2.0 * proj * cross[1],
+                p[2] - 2.0 * proj * cross[2],
+            )
+            positions[atom.index] = Vec3(*new_p) * nanometer
+            n_moved += 1
+
         repairs += 1
         if verbose:
             print(f"  [geom] flipped Cα chirality on "
                   f"{res.chain.id}/{res.name}{res.id} "
-                  f"(triple {triple:.5f} nm³ → reflected CB)")
+                  f"(triple {triple:.5f} nm³ → reflected {n_moved} sidechain atoms)")
     return repairs

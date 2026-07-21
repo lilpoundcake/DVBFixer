@@ -128,6 +128,85 @@ def _has_hydrogens(topology):
     return any(a.element.symbol == 'H' for a in topology.atoms())
 
 
+def _drop_spurious_inter_aa_bonds(topology, verbose=False):
+    """Remove spurious bonds that break FF template matching.
+
+    Two classes of spurious bond both stem from over-eager CONECT
+    inference (OpenBabel guessing bonds by distance on real X-ray
+    coordinates):
+
+    1. **Inter-residue non-peptide bonds** between two standard
+       protein residues. Mirrors the filter in
+       :func:`dvbfixer.pdbutils.inference._apply_filter`; the
+       canonical C(prev) - N(next) peptide bond is kept, everything
+       else is dropped.
+    2. **Hydrogens with more than one heavy-atom partner**. Every
+       H can bond to exactly one atom; extra bonds violate valence
+       and create the "1 C-O bond too many" template error.
+
+    Returns the number of bonds dropped.
+    """
+    from dvbfixer.ffutils import PROTEIN_RESIDUES
+
+    # Pass 1: classify inter-residue bonds.
+    all_bonds = list(topology.bonds())
+    survivors = []
+    dropped = []
+    for bond in all_bonds:
+        b1 = bond[0]
+        b2 = bond[1]
+        # Rule 2: H with a partner keeps its FIRST partner only.
+        # (Deferred to Pass 2 for correct counting.)
+        if b1.residue is b2.residue:
+            survivors.append(bond)
+            continue
+        if (b1.residue.name not in PROTEIN_RESIDUES
+                or b2.residue.name not in PROTEIN_RESIDUES):
+            survivors.append(bond)
+            continue
+        # Canonical peptide bond between adjacent residues: C of prev
+        # residue to N of next. Anything else between two protein
+        # residues is spurious.
+        if {b1.name, b2.name} == {"C", "N"}:
+            survivors.append(bond)
+            continue
+        dropped.append(bond)
+
+    # Pass 2: hydrogen valence check. An H atom can bond to exactly
+    # one heavy atom; extra bonds break residue-template matching
+    # ("1 C-O bond too many" and similar errors from over-eager
+    # CONECT inference). Keep the FIRST heavy-atom partner seen for
+    # each H; drop any subsequent partners.
+    h_seen: dict[int, bool] = {}
+    survivors_after_h = []
+    for bond in survivors:
+        b1, b2 = bond[0], bond[1]
+        h_atom = None
+        if b1.element is not None and b1.element.symbol == "H":
+            h_atom = b1
+        elif b2.element is not None and b2.element.symbol == "H":
+            h_atom = b2
+        if h_atom is not None:
+            if h_seen.get(h_atom.index):
+                dropped.append(bond)
+                continue
+            h_seen[h_atom.index] = True
+        survivors_after_h.append(bond)
+
+    if not dropped:
+        return 0
+
+    topology._bonds = survivors_after_h  # noqa: SLF001
+
+    if verbose:
+        for bond in dropped:
+            b1, b2 = bond[0], bond[1]
+            print(f"  [minimize] dropped spurious bond "
+                  f"{b1.residue.chain.id}/{b1.residue.name}{b1.residue.id}:{b1.name} "
+                  f"- {b2.residue.chain.id}/{b2.residue.name}{b2.residue.id}:{b2.name}")
+    return len(dropped)
+
+
 def _read_amber_renames(pdb_path):
     """Read PDB text to find AMBER protonation names before OpenMM normalizes them.
 
@@ -285,6 +364,16 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
 
     modeller = Modeller(stripped_top, stripped_pos)
 
+    # Filter spurious inter-residue bonds BEFORE any addHydrogens call.
+    # OpenMM's addHydrogens internally invokes createSystem, so we must
+    # drop the "1 C-O bond too many"-style edges from CONECT inference
+    # here to avoid template mismatches inside addHydrogens itself.
+    _dropped_early = _drop_spurious_inter_aa_bonds(modeller.topology,
+                                                    verbose=args.verbose)
+    if _dropped_early:
+        print(f"  Dropped {_dropped_early} spurious inter-residue bond(s) "
+              f"before H placement")
+
     # Detect SS bonds from CONECT in input PDB and force CYX template for
     # those residues. Without this, GLYCAM FF triggers CYS/CYX/CYM ambiguity
     # since CYS in SS bonds has no HG (looks like CYM).
@@ -417,8 +506,29 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             _fixer.addMissingAtoms()
             from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir
             _fix_chir(_fixer.topology, _fixer.positions, verbose=args.verbose)
-            _fixer.addMissingHydrogens(args.ph)
             modeller = Modeller(_fixer.topology, _fixer.positions)
+            # PDBFixer rebuilds bonds — re-drop spurious bonds before addHydrogens.
+            _drop_spurious_inter_aa_bonds(modeller.topology, verbose=args.verbose)
+            # PDBFixer's addMissingHydrogens ignores AMBER variant names
+            # (its _describeVariant only recognises standard PDB names) and
+            # canonicalises HIE/HID/HIP/ASH/GLH/CYX/CYM back to HIS/ASP/
+            # GLU/CYS before placing H — violates the CLAUDE.md hard rule.
+            # Follow the same variant-aware pattern as the branches below:
+            # rename → Modeller.addHydrogens(variants=...) → restore.
+            variants = _build_variants(modeller.topology, amber_renames)
+            _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
+            try:
+                if variants:
+                    modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+                else:
+                    modeller.addHydrogens(forcefield, pH=args.ph)
+                from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
+                repair_misplaced_hydrogens(
+                    modeller.topology, modeller.positions, verbose=args.verbose,
+                )
+            finally:
+                _fix_lyn_hz_naming(modeller.topology, _saved)
+                _restore_variants_in_topology(modeller.topology, _saved)
         elif not _has_hydrogens(modeller.topology):
             print("No hydrogens found, adding them...")
             variants = _build_variants(modeller.topology, amber_renames)
@@ -513,6 +623,8 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir
         _fix_chir(_fixer.topology, _fixer.positions, verbose=args.verbose)
         modeller = Modeller(_fixer.topology, _fixer.positions)
+        # PDBFixer rebuilds bonds — re-drop spurious bonds before addHydrogens.
+        _drop_spurious_inter_aa_bonds(modeller.topology, verbose=args.verbose)
 
         print(f"Adding hydrogens (pH {args.ph})...")
         variants = _build_variants(modeller.topology, amber_renames)
@@ -532,6 +644,31 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         finally:
             _fix_lyn_hz_naming(modeller.topology, _saved)
             _restore_variants_in_topology(modeller.topology, _saved)
+
+    # Unconditional Cα chirality safety net. Every path above may leave
+    # residues in D configuration:
+    # - keep_h Branch 1: rebuilt sidechains via PDBFixer templates
+    # - keep_h Branch 2/3: no chirality fix at all
+    # - rebuild_h: PDBFixer rebuild before H placement
+    # - Input arriving from model/prepare/pull may already carry D
+    # Idempotent: returns 0 when nothing is D.
+    from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir_final
+    _chir_fixed = _fix_chir_final(modeller.topology, modeller.positions,
+                                   verbose=args.verbose)
+    if _chir_fixed and not args.verbose:
+        print(f"  Repaired {_chir_fixed} Cα chirality inversion(s)")
+
+    # Drop any spurious inter-residue bond between two standard AAs that
+    # isn't the canonical peptide C-N. CONECT inference or an upstream
+    # over-eager bond guesser can add e.g. a HID sidechain C bonded to a
+    # neighbouring residue's O — then residueTemplates rejects the
+    # residue because "the set of atoms matches HID, but the residue has
+    # 1 C-O bond too many". Same filter as pdbutils.inference applies
+    # to CONECT records; we replay it at topology level for defence.
+    _dropped = _drop_spurious_inter_aa_bonds(modeller.topology, verbose=args.verbose)
+    if _dropped:
+        print(f"  Dropped {_dropped} spurious inter-residue bond(s) "
+              f"before createSystem")
 
     # When keeping heterogens with GLYCAM, OpenMM's PDBFile doesn't infer
     # intra-residue bonds for GLYCAM residues (NLN/OLS/OLT + sugars).
