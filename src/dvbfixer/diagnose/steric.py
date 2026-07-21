@@ -41,13 +41,27 @@ _VDW_A: dict[str, float] = {
     "FE": 2.00,
 }
 
-# MolProbity-standard clash cutoffs (Å of vdW overlap).
+# MolProbity-standard clash cutoffs (Å of vdW overlap). WARNING floor
+# matches MolProbity's official clashscore threshold (0.4 Å); below
+# that is noise (tight rotamers, weak H-bonds).
 _CLASH_ERROR_OVERLAP_A = 0.5
-_CLASH_WARNING_OVERLAP_A = 0.2
+_CLASH_WARNING_OVERLAP_A = 0.4
 
 # Neighbor-list cutoff (Å). Should be > 2 * max vdW radius to catch all
 # possible overlaps. 3.0 Å covers everything up to S-S contact.
 _NEIGHBOR_CUTOFF_A = 3.0
+
+# Distance-based covalent-bond inference for the exclusion set. Any
+# atom pair closer than these cutoffs is treated as bonded regardless
+# of what ``topology.bonds()`` says — this catches HETATMs (glycans,
+# ligands, ions), AMBER/CHARMM protonation variants, and other
+# non-standard residues that OpenMM's PDBFile can't infer bonds for.
+# Narrow enough to avoid confusing short H-bonds (~1.8 Å heavy-heavy)
+# with covalent bonds; wide enough to catch stretched CONECT-less
+# HETATM bonds. Element-pair keys.
+_COVALENT_MAX_A_HEAVY_HEAVY = 1.90
+_COVALENT_MAX_A_X_H = 1.30
+_COVALENT_MAX_A_SS = 2.25  # disulfide (S-S)
 
 
 def _resid_str(res_id: str, icode: str = "") -> str:
@@ -75,21 +89,60 @@ def _find_binary(name: str) -> str | None:
     return None
 
 
-def _build_bond_exclusion(topology: Any) -> set[frozenset[int]]:
+def _covalent_cutoff_a(sym_i: str, sym_j: str) -> float:
+    """Element-pair covalent cutoff for distance-based bond inference."""
+    a, b = sym_i.upper(), sym_j.upper()
+    if a == "H" or b == "H":
+        return _COVALENT_MAX_A_X_H
+    if a == "S" and b == "S":
+        return _COVALENT_MAX_A_SS
+    return _COVALENT_MAX_A_HEAVY_HEAVY
+
+
+def _build_neighbor_graph(
+    topology: Any,
+    atoms: list[Any],
+    coords_a: Any,
+    pairs_within_cutoff: set[tuple[int, int]],
+) -> dict[int, set[int]]:
+    """Merge topology bonds with distance-inferred bonds.
+
+    OpenMM's ``PDBFile`` only auto-infers bonds for STANDARD residue
+    templates — HETATMs (glycans, ligands, ions), AMBER protonation
+    variants (HIE, CYX, LYN, ASH, GLH), CHARMM variants (HSD, HSE,
+    HSP), and sugar residues get NO bonds from ``topology.bonds()``.
+    Without this augmentation, their real covalent bonds appear as
+    clashes (a bonded C-C at 1.53 Å reads as 1.87 Å overlap against
+    vdW sum 3.40 Å).
+    """
+    import numpy as np
+
+    neighbors: dict[int, set[int]] = {}
+    for b1, b2 in topology.bonds():
+        neighbors.setdefault(b1.index, set()).add(b2.index)
+        neighbors.setdefault(b2.index, set()).add(b1.index)
+
+    for i, j in pairs_within_cutoff:
+        ai, aj = atoms[i], atoms[j]
+        if ai.element is None or aj.element is None:
+            continue
+        cutoff = _covalent_cutoff_a(ai.element.symbol, aj.element.symbol)
+        d = float(np.linalg.norm(coords_a[i] - coords_a[j]))
+        if d <= cutoff:
+            neighbors.setdefault(i, set()).add(j)
+            neighbors.setdefault(j, set()).add(i)
+    return neighbors
+
+
+def _expand_exclusions(neighbors: dict[int, set[int]]) -> set[frozenset[int]]:
     """Return {frozenset({i, j})} for every 1-2, 1-3, and 1-4 pair in
-    the topology — pairs we must EXCLUDE from clash detection because
-    they aren't sterically independent.
+    the neighbor graph — pairs we must EXCLUDE from clash detection.
 
     1-4 exclusion matches AMBER's default fudgeLJ=0.5 treatment (which
     already discounts 1-4 interactions) and prevents false-positive
     clashes on tight but chemically-valid rotamers (e.g. SER CB-HB2
     vs OG-HG at ~2.1 Å).
     """
-    neighbors: dict[int, set[int]] = {}
-    for b1, b2 in topology.bonds():
-        neighbors.setdefault(b1.index, set()).add(b2.index)
-        neighbors.setdefault(b2.index, set()).add(b1.index)
-
     excluded: set[frozenset[int]] = set()
     # 1-2 (direct bonds)
     for i, js in neighbors.items():
@@ -118,10 +171,15 @@ def _build_bond_exclusion(topology: Any) -> set[frozenset[int]]:
 def clashes_python(topology: Any, positions: Any) -> list[Finding]:
     """Pure-Python clash detection via scipy cKDTree.
 
-    For every non-bonded, non-1-3 pair within ``_NEIGHBOR_CUTOFF_A``,
-    computes vdW overlap = (r_i + r_j) - d. Overlap ≥ 0.5 Å → ERROR;
-    0.2 ≤ overlap < 0.5 → WARNING; below 0.2 Å → not reported (below
-    MolProbity's noise floor).
+    For every non-bonded, non-1-3, non-1-4 pair within
+    ``_NEIGHBOR_CUTOFF_A``, computes vdW overlap = (r_i + r_j) - d.
+    Overlap ≥ 0.5 Å → ERROR; 0.4 ≤ overlap < 0.5 → WARNING; below
+    0.4 Å (MolProbity's official clashscore floor) → not reported.
+
+    Bond exclusion includes both the OpenMM topology bond set AND
+    a distance-inferred graph — so HETATMs and non-standard residues
+    without CONECT records don't have their real covalent bonds
+    reported as clashes.
     """
     try:
         import numpy as np
@@ -144,7 +202,8 @@ def clashes_python(topology: Any, positions: Any) -> list[Finding]:
     if not pairs:
         return []
 
-    excluded = _build_bond_exclusion(topology)
+    neighbors = _build_neighbor_graph(topology, atoms, coords_a, pairs)
+    excluded = _expand_exclusions(neighbors)
 
     findings: list[Finding] = []
     for i, j in pairs:

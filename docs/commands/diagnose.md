@@ -57,8 +57,9 @@ dvbfixer diagnose input.pdb -v
 - **ERROR** — would break downstream tools if left as-is (missing
   atoms, coincident atoms, valence violations, hard clashes with
   ≥ 0.5 Å vdW overlap).
-- **WARNING** — tolerated by the pipeline but suspect (mild clashes,
-  altLoc conflicts, chain breaks, near-cis peptides).
+- **WARNING** — tolerated by the pipeline but suspect (moderate
+  clashes 0.4 – 0.5 Å overlap, altLoc conflicts, chain breaks,
+  near-cis peptides).
 - **INFO** — noted for user review (insertion codes on antibody
   CDRs, cis-PRO — natural but worth flagging).
 
@@ -116,17 +117,22 @@ Two engines with the same output shape:
   neighbor search, then a vdW-overlap test against the standard
   MolProbity radius table (H=1.20 Å, C=1.70 Å, N=1.55 Å, O=1.52 Å,
   S=1.80 Å, P=1.80 Å). Excludes 1-2, 1-3, and 1-4 bonded pairs so
-  tight but chemically-valid rotamers aren't flagged.
+  tight but chemically-valid rotamers aren't flagged. The bond graph
+  is built from BOTH the OpenMM topology bond set AND distance-based
+  inference (heavy-heavy ≤ 1.9 Å, X-H ≤ 1.3 Å, S-S ≤ 2.25 Å) — this
+  catches HETATMs, glycans, and AMBER/CHARMM protonation variants
+  whose real bonds OpenMM's PDBFile parser doesn't infer.
 - **MolProbity `probe`** — used automatically when the `probe` binary
   is on `PATH` (bundled with Phenix / MolProbity). Higher fidelity
   matching MolProbity's own reports. Falls back to the Python engine
   on any probe failure.
 
-Both use the same clash thresholds:
+Both use the same clash thresholds — calibrated to MolProbity:
 
 - **ERROR** — vdW overlap ≥ 0.5 Å.
-- **WARNING** — vdW overlap 0.2 – 0.5 Å.
-- Overlaps < 0.2 Å are below MolProbity's noise floor and skipped.
+- **WARNING** — vdW overlap 0.4 – 0.5 Å.
+- Overlaps < 0.4 Å are below MolProbity's official clashscore floor
+  and skipped.
 
 ## When to run this
 

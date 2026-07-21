@@ -59,11 +59,14 @@ _CANONICAL_BOND_NM: dict[tuple[str, str], float] = {
     ("S", "S"): 0.204,
 }
 
-# Fractional tolerance for bond-length outlier detection. AMBER FF
-# springs allow ~10% deviation before large forces kick in; > 30%
-# indicates a broken input.
-_BOND_LEN_WARN_FRAC = 0.10   # WARNING
-_BOND_LEN_ERROR_FRAC = 0.30  # ERROR
+# Fractional tolerance for bond-length outlier detection. Our
+# hardcoded canonicals don't carry Engh-Huber σ, so we can't do
+# proper 4σ MolProbity-style checks — we lean permissive to avoid
+# noise on pre-minimisation and crystal inputs. WARNING at 20%
+# deviation, ERROR at 50% (the SER HG-on-OXT bug case sits at 75%,
+# so this still catches genuinely broken geometry).
+_BOND_LEN_WARN_FRAC = 0.20   # WARNING
+_BOND_LEN_ERROR_FRAC = 0.50  # ERROR
 
 
 def _resid_str(res_id: str, icode: str = "") -> str:
@@ -147,7 +150,7 @@ def check_valences(topology: Any) -> list[Finding]:
 
 def check_bond_lengths(topology: Any, positions: Any) -> list[Finding]:
     """For every bond in the topology, check that its length is within
-    ±10% of the canonical AMBER value (WARNING; > 30% → ERROR).
+    ±20% of the canonical AMBER value (WARNING; > 50% → ERROR).
     """
     findings: list[Finding] = []
     for b1, b2 in topology.bonds():
