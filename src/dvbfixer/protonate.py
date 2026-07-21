@@ -578,6 +578,9 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         if key in renames:
             res.name = renames[key]
 
+    # GROMACS amber99sb-ildn compat: rename LYN HZ3 → HZ1 before write.
+    from dvbfixer.ffutils.variants import rename_lyn_hz_for_gromacs
+    rename_lyn_hz_for_gromacs(modeller.topology)
     if has_hetatm:
         with open(output_path, 'w') as f:
             PDBFile.writeFile(modeller.topology, modeller.positions, f, keepIds=True)
@@ -1202,6 +1205,9 @@ def main(argv=None):
     else:
         with open(output_path, 'w') as f:
             f.writelines(output_lines)
+        # GROMACS amber99sb-ildn compat: rename LYN HZ3 → HZ1.
+        from dvbfixer.ffutils.variants import rename_lyn_hz_for_gromacs_in_pdb_text
+        rename_lyn_hz_for_gromacs_in_pdb_text(output_path)
 
     n_his = sum(1 for v in renames.values() if v in ("HIP", "HIE", "HID"))
     n_other = len(renames) - n_his

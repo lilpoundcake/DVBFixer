@@ -10,6 +10,38 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.6.3] — 2026-07
+
+### Fixed
+- **zbs canonicalized all AMBER variants except LYN.** User reported
+  that after `dvbfixer zbs`, output PDB had GLU (was GLH), ASP (was
+  ASH), HIS (was HIE/HID/HIP), CYS (was CYX) — only LYN survived.
+  Root cause: `minimize/pipeline.py:_rename_variants_to_parent`
+  walked the topology, but OpenMM's intermediate
+  `PDBFile.writeFile` normalizes HID/HIE/HIP/ASH/GLH/CYX/CYM to
+  canonical names (LYN is the only variant OpenMM doesn't
+  normalize). The `_saved` dict therefore captured only LYN, and
+  the restore step only put LYN back. Fixed by making
+  `_rename_variants_to_parent` consult `amber_renames` (the
+  raw-text-derived variant dict populated by `_read_amber_renames`
+  before any OpenMM parsing) as the ground truth.
+
+### Changed
+- **LYN output PDBs now use GROMACS-compatible `HZ1` + `HZ2`.** User
+  reported that feeding dvbfixer's PDB into `pdb2gmx -ff amber99sb-ildn`
+  failed on LYN residues because ff14SB's LYN template names its two
+  NZ hydrogens `HZ2 + HZ3`, but GROMACS amber99sb-ildn's
+  `aminoacids.hdb` H-add rule expects `HZ1 + HZ2`. Sub-agent survey
+  (Jul 2026) confirmed LYN is the ONLY protein atom-name difference
+  between ff14SB and GROMACS amber99sb-ildn for standard residues +
+  HID/HIE/HIP/CYX/CYM/ASH/GLH/LYN. Added
+  `ffutils.variants.rename_lyn_hz_for_gromacs` (topology-level) and
+  `rename_lyn_hz_for_gromacs_in_pdb_text` (file-level) helpers.
+  Wired into the final user-visible PDB write step of `prepare`,
+  `minimize`, and `protonate` (both H-adding and text-rename paths).
+  Intermediate temp writes remain ff14SB so OpenMM's `createSystem`
+  still matches the LYN template.
+
 ## [0.6.2] — 2026-07
 
 ### Fixed

@@ -684,6 +684,9 @@ def main(argv=None):
         ff_xmls=_ff_xmls,
     )
 
+    # GROMACS amber99sb-ildn compatibility: rename LYN HZ3 → HZ1 before write.
+    from dvbfixer.ffutils.variants import rename_lyn_hz_for_gromacs
+    rename_lyn_hz_for_gromacs(fixer.topology)
     # Write PDB with standard names first (OpenMM writes HETATM for non-standard)
     with open(output_path, 'w') as f:
         PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)

@@ -243,6 +243,72 @@ def restore_variants_post_addhydrogens(
                 break
 
 
+def rename_lyn_hz_for_gromacs(topology: Any) -> int:
+    """Rename LYN ``HZ3 -> HZ1`` for GROMACS amber99sb-ildn compatibility.
+
+    OpenMM's ff14SB LYN template uses ``HZ2 + HZ3`` on NZ. GROMACS's
+    ``amber99sb-ildn`` port RTP uses ``HZ1 + HZ2`` — its
+    ``aminoacids.hdb`` H-add rule fails on inputs with HZ3. The two
+    NZ hydrogens are chemically equivalent (same charge, same bond
+    topology); renaming HZ3 → HZ1 preserves chemistry and satisfies
+    both pdb2gmx and grompp.
+
+    Sub-agent survey (Jul 2026) verified LYN is the ONLY protein
+    atom-name difference between ff14SB and GROMACS amber99sb-ildn
+    for standard residues plus HID/HIE/HIP/CYX/CYM/ASH/GLH/LYN.
+
+    Called at the FINAL user-visible PDB write step (never on
+    intermediate temp writes — those must stay ff14SB so OpenMM's
+    ``createSystem`` matches the LYN template). Idempotent.
+
+    Returns the number of atoms renamed.
+    """
+    renamed = 0
+    for res in topology.residues():
+        if res.name != "LYN":
+            continue
+        for atom in res.atoms():
+            if atom.name == "HZ3":
+                atom.name = "HZ1"
+                renamed += 1
+                break
+    return renamed
+
+
+def rename_lyn_hz_for_gromacs_in_pdb_text(pdb_path: Any) -> int:
+    """Text-level counterpart of :func:`rename_lyn_hz_for_gromacs` for
+    output PDBs that were written without going through an OpenMM
+    ``Topology`` (e.g. protonate's ``--no-hydrogens`` text-rename path).
+
+    Rewrites the file in place: on every ATOM/HETATM line whose
+    residue name is LYN and whose atom name is HZ3, changes the atom
+    name to HZ1. Returns the number of atoms renamed. Idempotent.
+    """
+    from pathlib import Path as _Path
+    path = _Path(pdb_path)
+    lines = path.read_text().splitlines(keepends=True)
+    renamed = 0
+    out: list[str] = []
+    for line in lines:
+        if len(line) >= 20 and line.startswith(("ATOM  ", "HETATM")):
+            resname = line[17:20].strip()
+            atomname = line[12:16].strip()
+            if resname == "LYN" and atomname == "HZ3":
+                # PDB atom-name field is columns 13-16 (0-indexed 12:16),
+                # right-justified for 3-letter names. HZ3 sits at 13-15
+                # (' HZ3'); HZ1 uses the same layout.
+                new_atomname = "HZ1"
+                # Preserve original justification: field is 4 chars.
+                field = line[12:16]
+                new_field = field.replace("HZ3", "HZ1")
+                line = line[:12] + new_field + line[16:]
+                renamed += 1
+        out.append(line)
+    if renamed:
+        path.write_text("".join(out))
+    return renamed
+
+
 def fix_lyn_hz_naming(
     topology: Any,
     saved: dict[tuple[str, str], str] | SavedMap,

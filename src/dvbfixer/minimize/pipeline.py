@@ -335,17 +335,36 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         'ASH': 'ASP', 'GLH': 'GLU',
     }
 
-    def _rename_variants_to_parent(top):
+    def _rename_variants_to_parent(top, amber_renames=None):
         """Rename variant residues to parent so addHydrogens recognises them.
         Returns dict {(chain_id, res_id): original_name} for the post-pass —
         residue refs in the OLD topology are stale after addHydrogens (which
         rebuilds the topology entirely).
+
+        Ground truth for the variant name is ``amber_renames`` (populated
+        by ``_read_amber_renames`` from raw PDB text before any OpenMM
+        parsing). Falling back to the current topology name misses
+        HID/HIE/HIP/ASH/GLH/CYX/CYM because OpenMM's intermediate
+        ``PDBFile.writeFile`` normalizes them to canonical HIS/ASP/GLU/CYS
+        — only LYN survives that normalization (not in OpenMM's standard
+        residue map). That asymmetry is why zbs pre-0.6.3 preserved LYN
+        but canonicalized every other variant.
         """
         saved = {}
         for res in top.residues():
-            if res.name in _VARIANT_TO_PARENT:
-                saved[(res.chain.id, res.id)] = res.name
-                res.name = _VARIANT_TO_PARENT[res.name]
+            key = (res.chain.id, res.id)
+            # Prefer the raw-text-derived variant name; fall back to the
+            # topology name (only reliable for LYN).
+            variant = None
+            if amber_renames and key in amber_renames:
+                candidate = amber_renames[key]
+                if candidate in _VARIANT_TO_PARENT:
+                    variant = candidate
+            elif res.name in _VARIANT_TO_PARENT:
+                variant = res.name
+            if variant:
+                saved[key] = variant
+                res.name = _VARIANT_TO_PARENT[variant]
         return saved
 
     def _restore_variants_in_topology(top, saved):
@@ -403,7 +422,7 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         elif not _has_hydrogens(modeller.topology):
             print("No hydrogens found, adding them...")
             variants = _build_variants(modeller.topology, amber_renames)
-            _saved = _rename_variants_to_parent(modeller.topology)
+            _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
             try:
                 if variants:
                     modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
@@ -449,7 +468,7 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                       f"{no_h_residues[0].name}{no_h_residues[0].id}) — "
                       f"running addHydrogens to fill them in")
                 variants = _build_variants(modeller.topology, amber_renames)
-                _saved = _rename_variants_to_parent(modeller.topology)
+                _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
                 try:
                     if variants:
                         modeller.addHydrogens(forcefield, pH=args.ph,
@@ -500,7 +519,7 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         if variants:
             n_var = sum(1 for v in variants if v is not None)
             print(f"  {n_var} AMBER protonation variants detected")
-        _saved = _rename_variants_to_parent(modeller.topology)
+        _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
         try:
             if variants:
                 modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
@@ -927,6 +946,11 @@ def main(argv=None):
             print(f"  Restored {_restored} GLYCAM residue names "
                   f"(NLN/OLS/OLT) renamed during legacy fallback")
 
+    # GROMACS amber99sb-ildn compatibility: rename LYN HZ3 → HZ1 on
+    # the final topology BEFORE writeFile. See
+    # `ffutils.variants.rename_lyn_hz_for_gromacs`.
+    from dvbfixer.ffutils.variants import rename_lyn_hz_for_gromacs
+    rename_lyn_hz_for_gromacs(final_topology)
     with open(output_path, 'w') as f:
         PDBFile.writeFile(final_topology, final_positions, f, keepIds=True)
     # Rewrite HETATM→ATOM for AMBER protonation variants (HID/HIE/HIP/ASH/
