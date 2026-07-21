@@ -10,6 +10,29 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.6.2] — 2026-07
+
+### Fixed
+- **Cα chirality inversion on PDBFixer sidechain rebuild.** User
+  reported `dvbfixer zbs` producing `B/VAL98:CA` as a D-amino acid
+  (triple product (N×C)·CB = -0.0017 nm³). Root cause:
+  `PDBFixer.addMissingAtoms()` rebuilds missing sidechain heavy
+  atoms from ideal AMBER templates; on branched-Cβ residues
+  (VAL/ILE/THR) the template alignment can pick the D face.
+  Nothing in the pipeline detected this. Added
+  `dvbfixer.ffutils.geometry.fix_ca_chirality` which reflects any
+  D-configured CB through the CA-N-C plane. Wired into `prepare`
+  and `minimize` immediately after `addMissingAtoms`. Diagnose
+  now reports 0 chirality findings after zbs.
+
+### Docs
+- `docs/known-issues.md` — new sections documenting the PDBFixer
+  chirality behaviour and the LYN hydrogen naming FF-vs-hydrogens.xml
+  quirk (the latter is not a bug — ff14SB template ground truth is
+  `HZ2 + HZ3`, dvbfixer output already matches).
+- `ffutils.variants.fix_lyn_hz_naming` docstring polish making it
+  explicit that ff14SB is authoritative.
+
 ## [0.6.1] — 2026-07
 
 ### Changed

@@ -396,6 +396,8 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         if n_missing or n_terminals:
             print(f"Fixing {n_missing} missing atom(s), {n_terminals} terminal(s)...")
             _fixer.addMissingAtoms()
+            from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir
+            _fix_chir(_fixer.topology, _fixer.positions, verbose=args.verbose)
             _fixer.addMissingHydrogens(args.ph)
             modeller = Modeller(_fixer.topology, _fixer.positions)
         elif not _has_hydrogens(modeller.topology):
@@ -489,6 +491,8 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         if n_missing or n_terminals:
             print(f"Fixing {n_missing} missing atom(s), {n_terminals} terminal(s)")
         _fixer.addMissingAtoms()
+        from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir
+        _fix_chir(_fixer.topology, _fixer.positions, verbose=args.verbose)
         modeller = Modeller(_fixer.topology, _fixer.positions)
 
         print(f"Adding hydrogens (pH {args.ph})...")
