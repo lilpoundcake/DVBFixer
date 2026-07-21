@@ -146,12 +146,19 @@ Two engines with the same output shape:
   matching MolProbity's own reports. Falls back to the Python engine
   on any probe failure.
 
-Both use the same clash thresholds — calibrated to MolProbity:
+Clash thresholds are selectable via `--clash-mode`. The default
+`chimerax` preset matches what you'd see in ChimeraX's `clashes`
+report. `molprobity` is our pre-0.6.1 strict-validation floor;
+`bioluminate` matches BioLuminate's "Bad" / "Ugly" split.
 
-- **ERROR** — vdW overlap ≥ 0.5 Å.
-- **WARNING** — vdW overlap 0.4 – 0.5 Å.
-- Overlaps < 0.4 Å are below MolProbity's official clashscore floor
-  and skipped.
+| Mode | WARN | ERROR |
+|---|---|---|
+| `chimerax` (default) | 0.6 Å | 0.9 Å |
+| `molprobity` | 0.4 Å | 0.5 Å |
+| `bioluminate` | 0.75 Å | 1.0 Å |
+
+For explicit tuning, `--clash-cutoff WARN,ERROR` overrides the
+preset — e.g. `dvbfixer diagnose --clash-cutoff 0.35,0.45 in.pdb`.
 
 ## When to run this
 

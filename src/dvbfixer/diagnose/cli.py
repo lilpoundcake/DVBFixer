@@ -7,6 +7,37 @@ from __future__ import annotations
 
 import argparse
 
+from dvbfixer.diagnose.steric import CLASH_MODE_PRESETS, DEFAULT_CLASH_MODE
+
+
+def _parse_clash_cutoff(s: str) -> tuple[float, float]:
+    """Parse ``--clash-cutoff WARN,ERROR`` into a (warn_a, error_a) pair.
+
+    Raises ``argparse.ArgumentTypeError`` on malformed input or when
+    the warn threshold isn't ≤ the error threshold.
+    """
+    parts = s.split(",")
+    if len(parts) != 2:
+        raise argparse.ArgumentTypeError(
+            f"expected 'WARN,ERROR' in Å (e.g. '0.4,0.5'), got {s!r}"
+        )
+    try:
+        warn = float(parts[0])
+        err = float(parts[1])
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            f"could not parse floats from {s!r}: {exc}"
+        ) from exc
+    if warn <= 0 or err <= 0:
+        raise argparse.ArgumentTypeError(
+            f"cutoffs must be positive (got warn={warn}, err={err})"
+        )
+    if warn > err:
+        raise argparse.ArgumentTypeError(
+            f"WARN cutoff ({warn}) must be ≤ ERROR cutoff ({err})"
+        )
+    return (warn, err)
+
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
@@ -43,6 +74,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Include water residues (HOH/WAT/TIP3/SOL) in checks. "
              "Off by default — crystallographic waters generate massive "
              "chain-break and steric noise.",
+    )
+    _presets = ", ".join(
+        f"{name} ({warn}/{err} Å)"
+        for name, (warn, err) in CLASH_MODE_PRESETS.items()
+    )
+    checks.add_argument(
+        "--clash-mode",
+        choices=sorted(CLASH_MODE_PRESETS.keys()),
+        default=DEFAULT_CLASH_MODE,
+        help=f"Preset clash overlap thresholds (WARN / ERROR in Å). "
+             f"Default: {DEFAULT_CLASH_MODE}. Available: {_presets}.",
+    )
+    checks.add_argument(
+        "--clash-cutoff", type=_parse_clash_cutoff, default=None,
+        metavar="WARN,ERROR",
+        help="Explicit clash overlap cutoffs in Å (overrides --clash-mode). "
+             "Example: --clash-cutoff 0.35,0.45 for extra-strict validation.",
     )
 
     fmt = p.add_argument_group("Output format")

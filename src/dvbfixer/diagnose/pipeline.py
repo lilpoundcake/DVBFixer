@@ -142,6 +142,14 @@ def main(argv: list[str] | None = None) -> None:
     include_water: bool = args.include_water
     verbose: bool = args.verbose
 
+    # Clash cutoffs: --clash-cutoff wins over --clash-mode; if neither
+    # is set, fall through to the preset default.
+    from dvbfixer.diagnose.steric import CLASH_MODE_PRESETS
+    if args.clash_cutoff is not None:
+        clash_warn_a, clash_error_a = args.clash_cutoff
+    else:
+        clash_warn_a, clash_error_a = CLASH_MODE_PRESETS[args.clash_mode]
+
     findings: list[Finding] = list(prelim)
     if args.only in ("all", "structural"):
         findings.extend(_run_family(
@@ -164,6 +172,8 @@ def main(argv: list[str] | None = None) -> None:
             lambda: steric.run_all(
                 topology, positions, working_input,
                 include_water=include_water,
+                clash_warn_a=clash_warn_a,
+                clash_error_a=clash_error_a,
             ),
             verbose,
         ))

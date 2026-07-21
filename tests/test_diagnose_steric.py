@@ -17,7 +17,10 @@ from openmm.app import Element, Topology  # noqa: E402
 from openmm.unit import Quantity, nanometer  # noqa: E402
 
 from dvbfixer.diagnose.report import Severity  # noqa: E402
-from dvbfixer.diagnose.steric import clashes_python  # noqa: E402
+from dvbfixer.diagnose.steric import (  # noqa: E402
+    CLASH_MODE_PRESETS,
+    clashes_python,
+)
 
 
 def _make_topology(
@@ -202,7 +205,60 @@ def test_non_polar_h_close_to_o_still_flagged() -> None:
         r2_bonds=[(0, 1)],
     )
     findings = clashes_python(top, pos)
-    # H..O overlap = 2.72 - 1.85 = 0.87 Å → still ERROR.
+    # H..O overlap = 2.72 - 1.85 = 0.87 Å. The point of this test is
+    # that the H-bond filter does NOT leak to non-polar H — the pair
+    # must produce a finding regardless of preset. Under the chimerax
+    # default (WARN 0.6 / ERROR 0.9) this is WARNING; under molprobity
+    # (0.4 / 0.5) it would be ERROR.
+    assert len(findings) == 1
+    assert findings[0].severity in (Severity.WARNING, Severity.ERROR)
+
+
+def test_clash_mode_presets_change_severity() -> None:
+    """A C-C pair at 2.60 Å has vdW overlap = 3.40 - 2.60 = 0.80 Å.
+
+    Same overlap, different severity depending on the preset:
+    - molprobity  (0.4 / 0.5): overlap ≥ 0.5 → ERROR
+    - chimerax    (0.6 / 0.9): 0.6 ≤ overlap < 0.9 → WARNING
+    - bioluminate (0.75 / 1.0): 0.75 ≤ overlap < 1.0 → WARNING
+    """
+    top = Topology()
+    chain = top.addChain("A")
+    r1 = top.addResidue("LG1", chain)
+    r2 = top.addResidue("LG2", chain)
+    top.addAtom("C1", Element.getBySymbol("C"), r1)
+    top.addAtom("C1", Element.getBySymbol("C"), r2)
+    positions_nm = [(0.0, 0.0, 0.0), (0.260, 0.0, 0.0)]  # 2.60 Å
+    pos = Quantity(positions_nm, nanometer)
+
+    for mode, expected in [
+        ("molprobity", Severity.ERROR),
+        ("chimerax", Severity.WARNING),
+        ("bioluminate", Severity.WARNING),
+    ]:
+        warn_a, err_a = CLASH_MODE_PRESETS[mode]
+        findings = clashes_python(
+            top, pos,
+            clash_warn_a=warn_a, clash_error_a=err_a,
+        )
+        assert len(findings) == 1, f"{mode}: {findings}"
+        assert findings[0].severity == expected, (
+            f"{mode}: expected {expected}, got {findings[0].severity}"
+        )
+
+
+def test_clash_cutoff_explicit_override() -> None:
+    """Passing explicit (warn=0.4, err=0.5) recovers molprobity-strict
+    behaviour on a 2.5 Å C-C pair (overlap 0.9 Å → ERROR)."""
+    top = Topology()
+    chain = top.addChain("A")
+    r1 = top.addResidue("LG1", chain)
+    r2 = top.addResidue("LG2", chain)
+    top.addAtom("C1", Element.getBySymbol("C"), r1)
+    top.addAtom("C1", Element.getBySymbol("C"), r2)
+    positions_nm = [(0.0, 0.0, 0.0), (0.250, 0.0, 0.0)]
+    pos = Quantity(positions_nm, nanometer)
+    findings = clashes_python(top, pos, clash_warn_a=0.4, clash_error_a=0.5)
     assert len(findings) == 1
     assert findings[0].severity == Severity.ERROR
 

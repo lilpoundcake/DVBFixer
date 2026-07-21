@@ -42,11 +42,20 @@ _VDW_A: dict[str, float] = {
     "FE": 2.00,
 }
 
-# MolProbity-standard clash cutoffs (Å of vdW overlap). WARNING floor
-# matches MolProbity's official clashscore threshold (0.4 Å); below
-# that is noise (tight rotamers, weak H-bonds).
-_CLASH_ERROR_OVERLAP_A = 0.5
-_CLASH_WARNING_OVERLAP_A = 0.4
+# Preset clash cutoffs (WARN, ERROR) in Å of vdW overlap. Selectable
+# at the CLI via ``--clash-mode``.
+#   - molprobity  : strict validation floor (published MolProbity value)
+#   - chimerax    : ChimeraX ``clashes`` default (matches its GUI report)
+#   - bioluminate : BioLuminate ``find_clashes`` "Bad"/"Ugly" split
+CLASH_MODE_PRESETS: dict[str, tuple[float, float]] = {
+    "molprobity":  (0.4, 0.5),
+    "chimerax":    (0.6, 0.9),
+    "bioluminate": (0.75, 1.0),
+}
+DEFAULT_CLASH_MODE = "chimerax"
+
+# Module-level defaults (used only when the caller passes ``None``).
+_CLASH_WARNING_OVERLAP_A, _CLASH_ERROR_OVERLAP_A = CLASH_MODE_PRESETS[DEFAULT_CLASH_MODE]
 
 # Neighbor-list cutoff (Å). Should be > 2 * max vdW radius to catch all
 # possible overlaps. 3.0 Å covers everything up to S-S contact.
@@ -250,6 +259,8 @@ def clashes_python(
     topology: Any,
     positions: Any,
     include_water: bool = False,
+    clash_warn_a: float | None = None,
+    clash_error_a: float | None = None,
 ) -> list[Finding]:
     """Pure-Python clash detection via scipy cKDTree.
 
@@ -274,6 +285,9 @@ def clashes_python(
     except ImportError:
         return []
     from openmm.unit import nanometer
+
+    warn_a = _CLASH_WARNING_OVERLAP_A if clash_warn_a is None else clash_warn_a
+    err_a = _CLASH_ERROR_OVERLAP_A if clash_error_a is None else clash_error_a
 
     atoms = list(topology.atoms())
     n = len(atoms)
@@ -315,7 +329,7 @@ def clashes_python(
         rj = _VDW_A.get(aj.element.symbol.upper(), 1.7)
         d = float(np.linalg.norm(coords_a[i] - coords_a[j]))
         overlap = (ri + rj) - d
-        if overlap < _CLASH_WARNING_OVERLAP_A:
+        if overlap < warn_a:
             continue
         # Skip pairs that fit an H-bond envelope — not a clash.
         if _is_hbond_pair(ai, aj, d, atoms, neighbors):
@@ -324,7 +338,7 @@ def clashes_python(
         if _is_heavy_hbond_pair(ai, aj, d):
             continue
         severity = (Severity.ERROR
-                    if overlap >= _CLASH_ERROR_OVERLAP_A
+                    if overlap >= err_a
                     else Severity.WARNING)
         chain_i, resid_i = _res_loc(ai.residue)
         chain_j, resid_j = _res_loc(aj.residue)
@@ -358,7 +372,12 @@ def _run_probe(pdb_path: str | Path, binary: str) -> str | None:
     return result.stdout
 
 
-def clashes_probe(pdb_path: str | Path, binary: str) -> list[Finding] | None:
+def clashes_probe(
+    pdb_path: str | Path,
+    binary: str,
+    clash_warn_a: float | None = None,
+    clash_error_a: float | None = None,
+) -> list[Finding] | None:
     """MolProbity ``probe`` clash detection.
 
     Parses probe's condensed output (one line per contact). Only "bad
@@ -373,6 +392,9 @@ def clashes_probe(pdb_path: str | Path, binary: str) -> list[Finding] | None:
     raw = _run_probe(pdb_path, binary)
     if raw is None:
         return None
+
+    warn_a = _CLASH_WARNING_OVERLAP_A if clash_warn_a is None else clash_warn_a
+    err_a = _CLASH_ERROR_OVERLAP_A if clash_error_a is None else clash_error_a
 
     findings: list[Finding] = []
     for line in raw.splitlines():
@@ -394,10 +416,10 @@ def clashes_probe(pdb_path: str | Path, binary: str) -> list[Finding] | None:
             overlap = -float(mingap_str)  # probe reports gap (negative on overlap)
         except (IndexError, ValueError):
             continue
-        if overlap < _CLASH_WARNING_OVERLAP_A:
+        if overlap < warn_a:
             continue
         severity = (Severity.ERROR
-                    if overlap >= _CLASH_ERROR_OVERLAP_A
+                    if overlap >= err_a
                     else Severity.WARNING)
 
         def _parse(field: str) -> tuple[str, str, str, str]:
@@ -428,6 +450,8 @@ def run_all(
     pdb_path: str | Path,
     prefer_probe: bool = True,
     include_water: bool = False,
+    clash_warn_a: float | None = None,
+    clash_error_a: float | None = None,
 ) -> list[Finding]:
     """Run clash detection. Prefers ``probe`` when the binary is
     available; falls back to the Python engine otherwise.
@@ -435,7 +459,14 @@ def run_all(
     if prefer_probe:
         binary = _find_binary("probe")
         if binary is not None:
-            findings = clashes_probe(pdb_path, binary)
+            findings = clashes_probe(
+                pdb_path, binary,
+                clash_warn_a=clash_warn_a, clash_error_a=clash_error_a,
+            )
             if findings is not None:  # None signals probe run failure
                 return findings
-    return clashes_python(topology, positions, include_water=include_water)
+    return clashes_python(
+        topology, positions,
+        include_water=include_water,
+        clash_warn_a=clash_warn_a, clash_error_a=clash_error_a,
+    )
