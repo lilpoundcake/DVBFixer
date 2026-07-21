@@ -17,6 +17,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from dvbfixer.diagnose._common import HBOND_HEAVY_ELEMENTS, is_water
 from dvbfixer.diagnose.report import Finding, Severity
 
 # van der Waals radii (Å). Standard values from the MolProbity dataset
@@ -75,6 +76,15 @@ _HBOND_ACCEPTORS = {"N", "O", "S", "F"}
 _HBOND_DONORS = {"N", "O", "S"}
 _HBOND_H_ACC_MIN_A = 1.4    # closer than this is genuinely too tight
 _HBOND_H_ACC_MAX_A = 2.6    # farther than this isn't an H-bond
+
+# Heavy-atom H-bond envelope (for structures without explicit H).
+# Donor..acceptor at 2.5 – 3.4 Å between H-bond-capable elements
+# (N/O/S/F) is a genuine H-bond even when we can't see the H —
+# common in X-ray structures that omit hydrogens entirely, or in
+# LYS/ARG side chains where the charged NH3+/guanidinium H is
+# missing. Matches CCP4's H-bond envelope.
+_HBOND_HEAVY_MIN_A = 2.5
+_HBOND_HEAVY_MAX_A = 3.4
 
 
 def _resid_str(res_id: str, icode: str = "") -> str:
@@ -217,7 +227,30 @@ def _is_hbond_pair(
     return False
 
 
-def clashes_python(topology: Any, positions: Any) -> list[Finding]:
+def _is_heavy_hbond_pair(
+    ai: Any,
+    aj: Any,
+    d_a: float,
+) -> bool:
+    """Heavy-atom H-bond envelope (used when the H may be missing).
+
+    Skips pairs of two H-bond-capable elements (N/O/S/F) at
+    2.5 – 3.4 Å. This catches LYS-NZ..GLU-OE1 salt bridges,
+    backbone O..O interactions in tight β-turns, and every other
+    donor..acceptor pair in structures that lack explicit hydrogens.
+    """
+    sym_i = ai.element.symbol.upper()
+    sym_j = aj.element.symbol.upper()
+    if sym_i not in HBOND_HEAVY_ELEMENTS or sym_j not in HBOND_HEAVY_ELEMENTS:
+        return False
+    return _HBOND_HEAVY_MIN_A <= d_a <= _HBOND_HEAVY_MAX_A
+
+
+def clashes_python(
+    topology: Any,
+    positions: Any,
+    include_water: bool = False,
+) -> list[Finding]:
     """Pure-Python clash detection via scipy cKDTree.
 
     For every non-bonded, non-1-3, non-1-4 pair within
@@ -267,6 +300,17 @@ def clashes_python(topology: Any, positions: Any) -> list[Finding]:
             continue
         if frozenset({ai.index, aj.index}) in excluded:
             continue
+        # Skip pairs within the same residue — intra-residue vdW is
+        # baked into the FF template and any close contact is either
+        # already handled (1-2/1-3/1-4 above) or a template-defined
+        # tight geometry (e.g. sugar ring puckers).
+        if ai.residue is aj.residue:
+            continue
+        # Skip water (unless the user opted in).
+        if not include_water and (
+            is_water(ai.residue.name) or is_water(aj.residue.name)
+        ):
+            continue
         ri = _VDW_A.get(ai.element.symbol.upper(), 1.7)
         rj = _VDW_A.get(aj.element.symbol.upper(), 1.7)
         d = float(np.linalg.norm(coords_a[i] - coords_a[j]))
@@ -275,6 +319,9 @@ def clashes_python(topology: Any, positions: Any) -> list[Finding]:
             continue
         # Skip pairs that fit an H-bond envelope — not a clash.
         if _is_hbond_pair(ai, aj, d, atoms, neighbors):
+            continue
+        # Heavy-atom H-bond envelope (for structures missing explicit H).
+        if _is_heavy_hbond_pair(ai, aj, d):
             continue
         severity = (Severity.ERROR
                     if overlap >= _CLASH_ERROR_OVERLAP_A
@@ -380,6 +427,7 @@ def run_all(
     positions: Any,
     pdb_path: str | Path,
     prefer_probe: bool = True,
+    include_water: bool = False,
 ) -> list[Finding]:
     """Run clash detection. Prefers ``probe`` when the binary is
     available; falls back to the Python engine otherwise.
@@ -390,4 +438,4 @@ def run_all(
             findings = clashes_probe(pdb_path, binary)
             if findings is not None:  # None signals probe run failure
                 return findings
-    return clashes_python(topology, positions)
+    return clashes_python(topology, positions, include_water=include_water)

@@ -124,3 +124,89 @@ def test_missing_input_exits_2(
 ) -> None:
     exit_code = _run([str(tmp_workdir / "does-not-exist.pdb")])
     assert exit_code == 2
+
+
+# Multi-MODEL PDB (3 identical frames of the clean ALA).
+_MULTI_MODEL_ALA = (
+    "MODEL        1\n"
+    + _CLEAN_ALA.replace("END\n", "ENDMDL\n")
+    + "MODEL        2\n"
+    + _CLEAN_ALA.replace("END\n", "ENDMDL\n")
+    + "MODEL        3\n"
+    + _CLEAN_ALA.replace("END\n", "ENDMDL\n")
+    + "END\n"
+)
+
+
+def test_multi_model_input_reports_warning_and_uses_model1(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A 3-MODEL file must produce a WARNING banner and not spam
+    inter-MODEL chain-break errors."""
+    in_pdb = tmp_workdir / "multi.pdb"
+    in_pdb.write_text(_MULTI_MODEL_ALA)
+    _run([str(in_pdb)])
+    out = capsys.readouterr().out
+    assert "3 MODEL records" in out
+    assert "MODEL 1 only" in out
+    # No inter-MODEL chain-break flooding — chain break count should
+    # be at most 1 (from the terminal ALA), not 3.
+    n_chain_break = out.count("chain break")
+    assert n_chain_break <= 1, f"multi-MODEL flooded chain breaks: {out}"
+
+
+# Small solvent-only input — a plain protein residue plus a couple
+# of waters. Chain-break check without --include-water must not
+# flag the water-water resSeq jump.
+_ALA_PLUS_WATERS = _CLEAN_ALA.replace("END\n", "") + """\
+HETATM   14  O   HOH A 100      10.000  10.000  10.000  1.00  0.00           O
+HETATM   15  O   HOH A 200      15.000  10.000  10.000  1.00  0.00           O
+END
+"""
+
+
+def test_water_chain_breaks_suppressed_by_default(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    in_pdb = tmp_workdir / "ala_plus_waters.pdb"
+    in_pdb.write_text(_ALA_PLUS_WATERS)
+    _run([str(in_pdb)])
+    out = capsys.readouterr().out
+    # No 'chain break after A/HOH100' — waters are filtered.
+    assert "HOH100" not in out
+    assert "HOH200" not in out
+
+
+def test_water_included_when_flag_set(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    in_pdb = tmp_workdir / "ala_plus_waters.pdb"
+    in_pdb.write_text(_ALA_PLUS_WATERS)
+    _run([str(in_pdb), "--include-water"])
+    out = capsys.readouterr().out
+    # With --include-water, the water-vs-water resSeq jump surfaces.
+    assert "HOH" in out
+
+
+def test_json_output_is_valid(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """--format json should emit a parseable JSON document with the
+    documented keys."""
+    import json as _json
+    in_pdb = tmp_workdir / "broken.pdb"
+    in_pdb.write_text(_BROKEN_HG_ON_OXT)
+    _run([str(in_pdb), "--format", "json"])
+    out = capsys.readouterr().out
+    payload = _json.loads(out)
+    assert set(payload.keys()) >= {
+        "input", "n_atoms", "n_residues", "n_chains", "findings", "summary",
+    }
+    # At least one ERROR finding on this known-broken input.
+    assert payload["summary"]["ERROR"] >= 1
+    # Every finding has the documented shape.
+    for f in payload["findings"]:
+        assert set(f.keys()) >= {
+            "severity", "category", "chain", "resid", "resname",
+            "atom", "message", "fix_hint",
+        }

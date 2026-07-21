@@ -68,12 +68,27 @@ dvbfixer diagnose input.pdb -v
 ```
 usage: dvbfixer diagnose [-h] [-o OUTPUT]
                          [--only {all,structural,chemistry,steric}]
-                         [--severity {ERROR,WARNING,INFO}] [-v]
+                         [--severity {ERROR,WARNING,INFO}]
+                         [--include-water]
+                         [--format {text,json}] [-v]
                          input
 ```
 
 See the auto-generated [reference page](../reference/diagnose.md) for
 the full `--help` output.
+
+Notable non-default behaviours:
+
+- **Waters are excluded from chain-break AND steric checks by default.**
+  Crystallographic waters generate massive noise (every ordered water
+  triggers a chain break vs its neighbour). Pass `--include-water` to
+  restore the old behaviour.
+- **Multi-MODEL PDBs are analysed on MODEL 1 only.** A WARNING banner
+  is emitted at the top of the report noting how many MODELs were
+  detected. Use `dvbfixer split` if you need per-frame analysis.
+- **JSON output** is available via `--format json` — a
+  machine-readable list of findings suitable for CI gating or
+  scripted post-processing.
 
 ## Sample output
 

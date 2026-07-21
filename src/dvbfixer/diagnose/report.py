@@ -53,6 +53,8 @@ class Finding:
 # Category → human-readable heading
 # ---------------------------------------------------------------------------
 _CATEGORY_HEADINGS: dict[str, str] = {
+    # Meta
+    "multi_model": "Input",
     # Structural
     "missing_residues": "Structural integrity",
     "missing_atoms": "Structural integrity",
@@ -62,6 +64,7 @@ _CATEGORY_HEADINGS: dict[str, str] = {
     "altloc_conflict": "Structural integrity",
     "chain_break": "Structural integrity",
     "insertion_codes": "Structural integrity",
+    "seqres_gap": "Structural integrity",
     # Chemistry
     "valence": "Chemistry / bond geometry",
     "bond_length": "Chemistry / bond geometry",
@@ -69,6 +72,7 @@ _CATEGORY_HEADINGS: dict[str, str] = {
     "cis_peptide": "Chemistry / bond geometry",
     "non_planar_amide": "Chemistry / bond geometry",
     "chirality": "Chemistry / bond geometry",
+    "disulfide_geometry": "Chemistry / bond geometry",
     # Steric
     "clash": "Steric analysis",
 }
@@ -81,6 +85,7 @@ def _heading_for(category: str) -> str:
 # Which dvbfixer subcommand fixes each category, used to synthesize the
 # "Suggested next step" hint at the bottom of the report.
 _FIX_TOOL: dict[str, str] = {
+    "multi_model": "dvbfixer split",
     "missing_residues": "dvbfixer model",
     "missing_atoms": "dvbfixer prepare",
     "missing_terminals": "dvbfixer prepare",
@@ -89,12 +94,14 @@ _FIX_TOOL: dict[str, str] = {
     "altloc_conflict": "manual: pick one altLoc",
     "chain_break": "dvbfixer model  (if it's a real gap)",
     "insertion_codes": "dvbfixer renumber  (if renumbering is desired)",
+    "seqres_gap": "dvbfixer model",
     "valence": "manual: inspect input; may need CONECT cleanup",
     "bond_length": "dvbfixer minimize",
     "bond_angle": "dvbfixer minimize",
     "cis_peptide": "manual: verify against reference structure",
     "non_planar_amide": "dvbfixer minimize",
     "chirality": "manual: rebuild the residue",
+    "disulfide_geometry": "dvbfixer minimize",
     "clash": "dvbfixer minimize",
 }
 
@@ -102,6 +109,28 @@ _FIX_TOOL: dict[str, str] = {
 def sev_at_least(sev: Severity, threshold: Severity) -> bool:
     """True if ``sev`` should be included under a ``threshold`` filter."""
     return _SEV_ORDER[sev] <= _SEV_ORDER[threshold]
+
+
+def findings_to_dict_list(findings: list[Finding]) -> list[dict[str, Any]]:
+    """Serialise findings for the ``--format json`` output.
+
+    Sorted by severity → chain → resid → atom so the JSON output
+    mirrors the text report's ordering.
+    """
+    ordered = sorted(findings, key=Finding.sort_key)
+    out: list[dict[str, Any]] = []
+    for f in ordered:
+        out.append({
+            "severity": f.severity.value,
+            "category": f.category,
+            "chain": f.chain,
+            "resid": f.resid,
+            "resname": f.resname,
+            "atom": f.atom,
+            "message": f.message,
+            "fix_hint": f.fix_hint,
+        })
+    return out
 
 
 def format_report(
@@ -133,7 +162,7 @@ def format_report(
         by_heading.setdefault(_heading_for(f.category), []).append(f)
 
     # Preserve a deterministic heading order.
-    for heading in ["Structural integrity", "Chemistry / bond geometry",
+    for heading in ["Input", "Structural integrity", "Chemistry / bond geometry",
                     "Steric analysis", "Other findings"]:
         group = by_heading.get(heading)
         if not group:

@@ -16,6 +16,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from dvbfixer.diagnose._common import is_water
 from dvbfixer.diagnose.report import Finding, Severity
 
 
@@ -185,11 +186,16 @@ def check_altloc_conflicts(pdb_path: str | Path) -> list[Finding]:
     return findings
 
 
-def check_chain_breaks(pdb_path: str | Path) -> list[Finding]:
+def check_chain_breaks(
+    pdb_path: str | Path,
+    include_water: bool = False,
+) -> list[Finding]:
     """Report inter-residue distance jumps that split a chain.
 
     Uses :func:`dvbfixer.split_chains.find_chain_breaks` heuristics
-    (C→N > 2.5 Å, resSeq backwards, nearest-atom > 15 Å).
+    (C→N > 2.5 Å, resSeq backwards, nearest-atom > 15 Å). Water
+    residues generate massive noise (every ordered water is a chain
+    break vs its neighbour) and are excluded unless ``include_water``.
     """
     findings: list[Finding] = []
     try:
@@ -201,8 +207,15 @@ def check_chain_breaks(pdb_path: str | Path) -> list[Finding]:
     except Exception:
         return findings
 
+    def _keep(line: str) -> bool:
+        if not line.startswith(("ATOM  ", "HETATM")):
+            return False
+        if not include_water and is_water(line[17:20]):
+            return False
+        return True
+
     with open(pdb_path) as f:
-        lines = [ln for ln in f if ln.startswith(("ATOM  ", "HETATM"))]
+        lines = [ln for ln in f if _keep(ln)]
 
     try:
         breaks = find_chain_breaks(
@@ -284,11 +297,63 @@ def check_insertion_codes(pdb_path: str | Path) -> list[Finding]:
     return findings
 
 
+def check_seqres_vs_atom(pdb_path: str | Path) -> list[Finding]:
+    """Report residues present in SEQRES but absent from ATOM records.
+
+    PDBFixer's ``findMissingResidues`` catches INTERNAL gaps only —
+    terminal truncations (a Fab His-tag in SEQRES but not resolved in
+    the ATOM section) are silently ignored. This check reads SEQRES
+    directly, computes each chain's SEQRES length, compares to the
+    number of unique ATOM residues on that chain, and flags the
+    difference.
+    """
+    findings: list[Finding] = []
+    seqres_counts: dict[str, int] = {}
+    atom_resids: dict[str, set[str]] = {}
+
+    for line in Path(pdb_path).read_text().splitlines():
+        if line.startswith("SEQRES"):
+            if len(line) < 20:
+                continue
+            chain = line[11]
+            # Column 13-17 = total residues on this chain (per PDB spec).
+            try:
+                total = int(line[13:17].strip())
+            except ValueError:
+                continue
+            seqres_counts[chain] = total
+            continue
+        if line.startswith(("ATOM  ", "HETATM")) and len(line) >= 27:
+            chain = line[21]
+            resid = line[22:27]  # includes iCode
+            atom_resids.setdefault(chain, set()).add(resid)
+
+    for chain, total in seqres_counts.items():
+        observed = len(atom_resids.get(chain, ()))
+        if observed >= total:
+            continue
+        missing = total - observed
+        findings.append(Finding(
+            severity=Severity.WARNING,
+            category="seqres_gap",
+            chain=chain,
+            resid="*",
+            resname="*",
+            message=f"SEQRES declares {total} residues on chain {chain}; "
+                    f"ATOM records cover {observed}. {missing} residue(s) "
+                    f"missing — likely truncated terminal(s) (e.g. His-tag, "
+                    f"disordered N/C-terminus).",
+            fix_hint="dvbfixer model (LoopModel can rebuild terminal gaps)",
+        ))
+    return findings
+
+
 def run_all(
     topology: Any,
     positions: Any,
     pdb_path: str | Path,
     fixer: Any | None = None,
+    include_water: bool = False,
 ) -> list[Finding]:
     """Execute every structural check and return the concatenated findings.
 
@@ -305,6 +370,7 @@ def run_all(
     findings.extend(check_coincident_atoms(topology, positions))
     findings.extend(check_misplaced_hydrogens(topology, positions))
     findings.extend(check_altloc_conflicts(pdb_path))
-    findings.extend(check_chain_breaks(pdb_path))
+    findings.extend(check_chain_breaks(pdb_path, include_water=include_water))
     findings.extend(check_insertion_codes(pdb_path))
+    findings.extend(check_seqres_vs_atom(pdb_path))
     return findings
