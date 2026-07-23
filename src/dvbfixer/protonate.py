@@ -578,9 +578,6 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         if key in renames:
             res.name = renames[key]
 
-    # GROMACS amber99sb-ildn compat: rename LYN HZ3 → HZ1 before write.
-    from dvbfixer.ffutils.variants import rename_lyn_hz_for_gromacs
-    rename_lyn_hz_for_gromacs(modeller.topology)
     if has_hetatm:
         with open(output_path, 'w') as f:
             PDBFile.writeFile(modeller.topology, modeller.positions, f, keepIds=True)
@@ -608,6 +605,19 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     # GLH/CYX/CYM/LYN) and GLYCAM glycoprotein residues (NLN/OLS/OLT).
     # PDBFile.writeFile defaults non-standard names to HETATM.
     fix_atom_hetatm_records(output_path)
+    # Text-level restore of AMBER variant names + GROMACS LYN HZ shift.
+    # OpenMM's PDBFile.writeFile canonicalises HIE/HID/HIP/ASH/GLH/CYX
+    # to HIS/ASP/GLU/CYS on save; apply_variants_to_pdb_text uses the
+    # `renames` map (built from PROPKA + Reduce) as ground truth and
+    # rewrites the file in place.
+    from dvbfixer.ffutils.ff_names import apply_variants_to_pdb_text
+    _ff_target = 'charmm' if any('charmm' in x.lower() for x in args.ff) else 'amber'
+    _renames_for_text = {(ch, str(rs)) if not ic else (ch, str(rs), ic): var
+                          for (ch, rs, ic), var in renames.items()}
+    _n_var = apply_variants_to_pdb_text(
+        output_path, _renames_for_text,
+        target_ff=_ff_target, verbose=args.verbose,
+    )
 
     # FF-aware output naming: if the resolved FF is CHARMM, remap the
     # AMBER-style variant names we wrote (HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN)
@@ -1205,9 +1215,13 @@ def main(argv=None):
     else:
         with open(output_path, 'w') as f:
             f.writelines(output_lines)
-        # GROMACS amber99sb-ildn compat: rename LYN HZ3 → HZ1.
-        from dvbfixer.ffutils.variants import rename_lyn_hz_for_gromacs_in_pdb_text
-        rename_lyn_hz_for_gromacs_in_pdb_text(output_path)
+        # AMBER variant name restore + GROMACS LYN HZ3→HZ1 shift.
+        from dvbfixer.ffutils.ff_names import apply_variants_to_pdb_text
+        _ff_target = 'charmm' if any('charmm' in x.lower() for x in args.ff) else 'amber'
+        _renames_for_text = {(ch, str(rs)) if not ic else (ch, str(rs), ic): var
+                             for (ch, rs, ic), var in renames.items()}
+        apply_variants_to_pdb_text(output_path, _renames_for_text,
+                                    target_ff=_ff_target, verbose=args.verbose)
 
     n_his = sum(1 for v in renames.values() if v in ("HIP", "HIE", "HID"))
     n_other = len(renames) - n_his
