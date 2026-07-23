@@ -131,10 +131,15 @@ def test_prepare_repairs_missing_hg_when_oxt_present(tmp_workdir: Path) -> None:
 
     atoms = _atoms(out, "B", "126")
     assert "HG" in atoms, "HG missing from repaired output"
-    assert "OG" in atoms and "OXT" in atoms
+    assert "OG" in atoms
+    # C-terminal OXT is renamed to OC1 (GROMACS convention) on output
+    # by ffutils.ff_names.apply_variants_to_pdb_text (0.7.0). Accept
+    # either name so the test is stable regardless of that rename.
+    oxt_key = "OXT" if "OXT" in atoms else "OC1"
+    assert oxt_key in atoms, f"neither OXT nor OC1 in repaired output: {sorted(atoms)}"
 
     d_og_hg = _dist(atoms["OG"], atoms["HG"])
-    d_hg_oxt = _dist(atoms["HG"], atoms["OXT"])
+    d_hg_oxt = _dist(atoms["HG"], atoms[oxt_key])
 
     assert d_og_hg < 1.2, (
         f"HG-OG distance {d_og_hg:.3f} Å is too large; post-check "

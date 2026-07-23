@@ -10,6 +10,48 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-07
+
+### Fixed
+- **Full GROMACS-canonical atom naming on every user-visible PDB
+  output.** Prior 0.6.5 fix only handled LYN NZ hydrogens. Full
+  sub-agent survey (Jul 2026) identified pervasive naming
+  differences OpenMM ff14SB (IUPAC) vs GROMACS amber99sb-ildn
+  (older AMBER numbering) that GROMACS's own `aminoacids.arn`
+  does NOT rewrite at `pdb2gmx` read time. User reported
+  `pdb2gmx -ff amber99sb-ildn` errors on dvbfixer output for
+  many residues. Now handled by `apply_variants_to_pdb_text`:
+  - **Methylene H shift** on all β/γ/δ/ε methylenes: `HB3 → HB1`
+    (HB2 stays; result `{HB1, HB2}` matches GROMACS). Same for
+    HG, HD, HE. Applied to every AA that has the corresponding
+    methylene (LYS/ARG/PRO get all four; SER/CYS/etc get just
+    HB; GLN/GLU/MET get β+γ; etc.).
+  - **GLY α-methylene**: `HA3 → HA1`
+  - **ILE γ-methylene**: `HG13 → HG11`
+  - **LYN NZ H**: `HZ3 → HZ1` (already in 0.6.5, kept)
+  - **ACE/NME cap H**: `HH31/HH32/HH33 → H1/H2/H3` (amber14→amber19/GROMACS)
+  - **N-terminal residues**: `H → H1` on first residue of each
+    protein chain (only if a bare H exists; skip if Modeller
+    already placed H1/H2/H3 for a charged terminus).
+  - **N-terminal proline (NPRO)**: `H3 → H1` on the ring N.
+  - **C-terminal residues**: `O → OC2`, `OXT → OC1` on last
+    residue of each protein chain. Applied atomically.
+  - **CHARMM output**: universal backbone `H → HN` on every
+    protein residue when `target_ff='charmm'`.
+  - **DNA / RNA**: `H2' / H2'' → H2'1 / H2'2`, `H5' / H5'' →
+    H5'1 / H5'2`, `HO'2 → HO2'` (RNA). Map exposed but
+    end-to-end testing deferred pending column-perfect
+    fixture handling.
+
+  All renames are single-source (no shift-pair) so they're
+  naturally idempotent — running `apply_variants_to_pdb_text`
+  twice produces the same output.
+
+### Renamed
+- `apply_variants_to_pdb_text` parameter `include_gromacs_lyn` →
+  `include_gromacs_shifts`. Old name kept as a deprecated alias
+  for one release.
+
 ## [0.6.6] — 2026-07
 
 ### Added
