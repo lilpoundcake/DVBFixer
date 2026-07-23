@@ -83,6 +83,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--keep-water", action="store_true",
         help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
     )
+    content.add_argument(
+        "--strip-heterogens", dest="keep_heterogens",
+        action="store_false", default=True,
+        help="Remove all HETATM records (ligands, sugars, ions, cofactors) "
+             "before Modeller runs. Waters are also removed unless "
+             "--keep-water is passed. Off by default — Modeller usually "
+             "benefits from heterogen context for loop refinement, but "
+             "in some cases (bad ligand geometry, ambiguous CONECT) they "
+             "cause artifacts.",
+    )
 
     diag = p.add_argument_group("Diagnostics")
     diag.add_argument(

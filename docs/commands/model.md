@@ -52,6 +52,7 @@ dvbfixer model input.pdb --keep-workdir -v
 | `--pin-input` / `--no-pin-input` | **on** | Freeze every input-structure residue during MD refinement — only gap residues move. Prevents flanking-residue drift; the downstream `minimize` step refines the whole system properly. Pass `--no-pin-input` for the legacy LoopModel behaviour (gap ±~3 residue flank mobile). |
 | `--no-terminal` | off | Do not model missing N/C terminal residues (only rebuild internal gaps) |
 | `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |
+| `--strip-heterogens` | off | Remove all HETATM records (ligands, sugars, ions, cofactors) before Modeller runs. Useful when heterogen geometry causes loop-refinement artifacts. Waters preserved only if `--keep-water` is also set. |
 | `--keep-workdir` | off | Keep Modeller temp directory |
 | `-v`, `--verbose` | off | Print Modeller progress |
 

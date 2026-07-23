@@ -83,6 +83,47 @@ def parse_fasta(fasta_path):
 
 
 
+def _strip_hetatm_lines(lines, keep_water=False, verbose=False):
+    """Drop HETATM records from ``lines``. Waters (HOH/WAT/TIP3/TIP4/
+    TIP5/SOL/T3P/T4P/T5P) are kept when ``keep_water=True``. CONECT
+    records that reference dropped atom serials are also removed so
+    downstream serial renumbering doesn't emit orphan bonds.
+
+    Returns the filtered line list. Pure text pass — safe to run
+    before any structural parsing.
+    """
+    n_before = len(lines)
+    kept_water_set = WATER_RESNAMES if keep_water else frozenset()
+    dropped_serials = set()
+    kept = []
+    for ln in lines:
+        if ln.startswith("HETATM") and len(ln) >= 20:
+            resname = ln[17:20].strip()
+            if resname in kept_water_set:
+                kept.append(ln)
+                continue
+            try:
+                dropped_serials.add(int(ln[6:11]))
+            except ValueError:
+                pass
+            continue
+        if ln.startswith("CONECT") and dropped_serials:
+            try:
+                # CONECT record columns: 7-11, 12-16, 17-21, 22-26, 27-31
+                # (each is a 5-char right-justified serial). Grab them.
+                parts = [ln[i:i + 5].strip() for i in range(6, min(len(ln), 31), 5)]
+                serials = [int(p) for p in parts if p]
+                if any(s in dropped_serials for s in serials):
+                    continue
+            except ValueError:
+                pass
+        kept.append(ln)
+    if verbose and len(kept) != n_before:
+        print(f"  [model] --strip-heterogens: dropped "
+              f"{n_before - len(kept)} HETATM/CONECT line(s)")
+    return kept
+
+
 def get_chain_order(lines, seqres_only=None):
     """Get chain IDs from ATOM/HETATM records in order of appearance.
 
@@ -755,6 +796,17 @@ def main(argv=None):
 
     with open(input_path) as f:
         lines = f.readlines()
+
+    # --strip-heterogens: remove HETATM records before Modeller sees
+    # the input. In some cases (bad ligand geometry, ambiguous CONECT
+    # references) heterogens cause artifacts in the loop refinement.
+    # Waters are also removed unless --keep-water is passed. CONECT
+    # records referencing dropped serials are removed too so the
+    # downstream serial renumberer doesn't emit orphan bonds.
+    if not args.keep_heterogens:
+        lines = _strip_hetatm_lines(
+            lines, keep_water=args.keep_water, verbose=args.verbose,
+        )
 
     # Determine protein chains (those with SEQRES)
     seqres = parse_seqres(lines)

@@ -9,7 +9,8 @@ usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA] [-n NUM_MODELS]
                       [--num-loops NUM_LOOPS] [--num-output NUM_OUTPUT]
                       [--md-level {none,fast,slow,very_slow,slow_large}]
                       [--pin-input | --no-pin-input] [--no-terminal]
-                      [--keep-water] [--keep-workdir] [-v]
+                      [--keep-water] [--strip-heterogens] [--keep-workdir]
+                      [-v]
                       input
 
 Rebuild missing loops and gaps in a PDB structure using Modeller. Identifies
@@ -58,6 +59,12 @@ Modelling parameters:
 Content selection:
   --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
                         (default: remove)
+  --strip-heterogens    Remove all HETATM records (ligands, sugars, ions,
+                        cofactors) before Modeller runs. Waters are also
+                        removed unless --keep-water is passed. Off by default
+                        — Modeller usually benefits from heterogen context for
+                        loop refinement, but in some cases (bad ligand
+                        geometry, ambiguous CONECT) they cause artifacts.
 
 Diagnostics:
   --keep-workdir        Keep the Modeller working directory (for debugging)

@@ -231,6 +231,13 @@ def main(argv=None):
             model_argv.extend(["--fasta", args.fasta])
         if not args.pin_input:
             model_argv.append("--no-pin-input")
+        # Propagate the same heterogen policy zbs was invoked with, so
+        # Modeller doesn't refine a loop against ligand/glycan context
+        # the user has explicitly asked to strip downstream.
+        if not args.keep_heterogens:
+            model_argv.append("--strip-heterogens")
+        if args.keep_water:
+            model_argv.append("--keep-water")
         if args.verbose:
             model_argv.append("-v")
         model_main(model_argv)

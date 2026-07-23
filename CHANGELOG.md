@@ -10,6 +10,22 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.6.6] — 2026-07
+
+### Added
+- **`dvbfixer model --strip-heterogens`** — remove HETATM records
+  (ligands, sugars, ions, cofactors) before Modeller runs. Off by
+  default (Modeller usually benefits from heterogen context for
+  loop refinement) but useful when heterogen geometry causes loop
+  artifacts. Waters are preserved when `--keep-water` is also
+  passed. Orphan CONECT records referencing dropped serials are
+  filtered too.
+- **zbs propagation**: when `dvbfixer zbs --strip-heterogens` is
+  invoked, the flag is now forwarded to the model step (previously
+  it was only forwarded to prepare and both minimize passes, so
+  Modeller saw all heterogens even when the user had explicitly
+  asked to strip them for the pipeline).
+
 ## [0.6.5] — 2026-07
 
 ### Fixed
