@@ -10,6 +10,37 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.6.5] — 2026-07
+
+### Fixed
+- **AMBER protonation variants (GLH/ASH/HID/HIE/HIP/CYX/CYM)
+  finally survive `dvbfixer zbs`.** User verified failure across
+  0.6.3 and 0.6.4 with multiple fixtures (2VLP, 1TM7). Empirical
+  test on OpenMM 8.5.1 showed `PDBFile` canonicalises variant
+  residue names on both read AND write — the topology-level
+  `_rename_variants_to_parent → addHydrogens → _restore_variants_in_topology`
+  dance was a no-op because the "restore" walked a topology that
+  only ever had canonical names.
+  Fix: text-level rewrite of every user-visible output PDB using
+  `amber_renames` (populated from the RAW input text via
+  `scan_variant_names`, which OpenMM never sees). Verified on
+  2VLP at pH 5: GLH=48, ASH=13, HIP=126 all in final output.
+- **`dvbfixer zbs --rename` no longer destroys protonate's work.**
+  The flag was being propagated to minimize step 2 (which runs
+  AFTER protonate); canonicalising there threw away every AMBER
+  variant PROPKA assigned. Removed the propagation — `--rename`
+  now only applies to prepare + minimize step 1 (both run BEFORE
+  protonate), where its "strip non-canonical names" behaviour is
+  actually useful.
+
+### Added
+- **New shared FF-name module `dvbfixer.ffutils.ff_names`** —
+  central place for AMBER↔CHARMM protonation-variant residue
+  and atom-name maps + a text-level PDB rewrite primitive
+  (`apply_variants_to_pdb_text`). Reused by `prepare`,
+  `minimize`, `protonate`. `convert` (glycam.py) is unchanged;
+  a future PR will migrate it to use the shared module too.
+
 ## [0.6.4] — 2026-07
 
 Three bugs surfaced by a `dvbfixer zbs test/stereo_bug/1TM1.pdb

@@ -684,9 +684,6 @@ def main(argv=None):
         ff_xmls=_ff_xmls,
     )
 
-    # GROMACS amber99sb-ildn compatibility: rename LYN HZ3 → HZ1 before write.
-    from dvbfixer.ffutils.variants import rename_lyn_hz_for_gromacs
-    rename_lyn_hz_for_gromacs(fixer.topology)
     # Write PDB with standard names first (OpenMM writes HETATM for non-standard)
     with open(output_path, 'w') as f:
         PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)
@@ -781,6 +778,32 @@ def main(argv=None):
     # from the input file).
     from dvbfixer.ffutils import fix_atom_hetatm_records as _fix_records
     _fix_records(output_path)
+    # Restore AMBER variant residue names + GROMACS LYN atom names.
+    # OpenMM's PDBFile.writeFile canonicalised them; recover from
+    # user-mutated variants (`variant_overrides`) plus any variants
+    # already in the raw input text (`scan_variant_names` output).
+    from dvbfixer.ffutils.ff_names import (
+        AMBER_VARIANTS,
+        apply_variants_to_pdb_text,
+    )
+    from dvbfixer.ffutils.variants import scan_variant_names
+    _ff_target = 'charmm' if 'charmm' in (_ff_alias or '').lower() else 'amber'
+    _merged_variants = {}
+    try:
+        _input_scan = scan_variant_names(str(args.input))
+        for (ch, resid, icode), v in _input_scan.items():
+            if v in AMBER_VARIANTS:
+                _merged_variants[(ch, resid, icode)] = v
+    except Exception:
+        pass
+    for (ch, rn), var_name in variant_overrides.items():
+        _merged_variants[(ch, str(rn))] = var_name
+    _n_var = apply_variants_to_pdb_text(
+        output_path, _merged_variants,
+        target_ff=_ff_target, verbose=args.verbose,
+    )
+    if _n_var and args.verbose:
+        print(f"  Applied {_n_var} variant name/atom rewrites to output")
 
     print(f"Saved prepared structure: {output_path}")
 

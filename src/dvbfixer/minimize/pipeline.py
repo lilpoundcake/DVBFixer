@@ -1083,11 +1083,6 @@ def main(argv=None):
             print(f"  Restored {_restored} GLYCAM residue names "
                   f"(NLN/OLS/OLT) renamed during legacy fallback")
 
-    # GROMACS amber99sb-ildn compatibility: rename LYN HZ3 → HZ1 on
-    # the final topology BEFORE writeFile. See
-    # `ffutils.variants.rename_lyn_hz_for_gromacs`.
-    from dvbfixer.ffutils.variants import rename_lyn_hz_for_gromacs
-    rename_lyn_hz_for_gromacs(final_topology)
     with open(output_path, 'w') as f:
         PDBFile.writeFile(final_topology, final_positions, f, keepIds=True)
     # Rewrite HETATM→ATOM for AMBER protonation variants (HID/HIE/HIP/ASH/
@@ -1095,4 +1090,18 @@ def main(argv=None):
     # PDBFile.writeFile emits as HETATM.
     from dvbfixer.ffutils import fix_atom_hetatm_records
     fix_atom_hetatm_records(output_path)
+    # OpenMM's PDBFile canonicalises HIE/HID/HIP → HIS, ASH → ASP,
+    # GLH → GLU, CYX → CYS on write (empirically verified on 8.5.1).
+    # amber_renames holds the ground truth from raw input text; apply
+    # it as a text-level rewrite so the final output carries the
+    # variant names the FF actually needs. Also folds in the
+    # GROMACS amber99sb-ildn LYN HZ3→HZ1 shift.
+    _target_ff = 'charmm' if any('charmm' in x for x in args.ff) else 'amber'
+    from dvbfixer.ffutils.ff_names import apply_variants_to_pdb_text
+    _n_var = apply_variants_to_pdb_text(
+        output_path, amber_renames or {},
+        target_ff=_target_ff, verbose=args.verbose,
+    )
+    if _n_var and args.verbose:
+        print(f"  Applied {_n_var} variant name/atom rewrites to output")
     print(f"\nSaved minimized structure: {output_path}")

@@ -360,8 +360,11 @@ def main(argv=None):
             minimize_argv.append("--no-solvent")
         if not args.keep_heterogens:
             minimize_argv.append("--strip-heterogens")
-        if args.rename:
-            minimize_argv.append("--rename")
+        # NOTE: DO NOT propagate --rename to minimize step 2. This
+        # runs AFTER protonate, which just wrote the AMBER variant
+        # names based on PROPKA. Canonicalising them here throws
+        # away the pKa work. --rename belongs only on the input-facing
+        # steps (prepare + minimize step 1).
         if args.no_infer_conect:
             minimize_argv.append("--no-infer-conect")
         if args.parametrize_ligands:
