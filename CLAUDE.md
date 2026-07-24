@@ -8,6 +8,21 @@ Guidance for Claude Code (claude.ai/code) working in this repository.
 (Protein Data Bank) structural biology files. Installed as a single
 `dvbfixer` command with 17 subcommands.
 
+## Ongoing work: `feat/tleap-reduce-backend` branch
+
+An in-progress replacement of the H+heavy-atom repair pipeline lives on
+branch `feat/tleap-reduce-backend`. It swaps `PDBFixer.addMissingAtoms`
++ `Modeller.addHydrogens` for **AmberTools `tleap` + MolProbity
+`reduce`** (subprocess-based, deterministic, L-only by construction).
+Fixes the D-Cα (openmm/pdbfixer#145) and coincident-H
+(Modeller.addHydrogens bug) issues that surface on gap-filled model
+outputs. Verified against `test/shit/{1EMV,1FR2,2VLN,2VLQ}_original.pdb`
+— all four yield zero D-Cα, zero coincident atoms.
+
+On main the legacy Modeller+PDBFixer path is still the only backend;
+its known-good boundaries are the hard rules below. If you need a
+D-Cα-free deterministic pipeline for standard proteins, use the branch.
+
 ## Where to look
 
 | For… | Read… |
