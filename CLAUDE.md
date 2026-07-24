@@ -38,23 +38,34 @@ Modeller needs a free academic license from
 
 ## Working in this codebase — hard rules
 
+- **Default prep backend is `tleap-reduce`** (added on this branch
+  `feat/tleap-reduce-backend`). `prepare` and `protonate` route
+  through `dvbfixer.prep_backend.run_prep` which runs
+  `tleap` (heavy atoms) + `reduce -build -nuclear` (H) + PROPKA
+  (AMBER variant renames). Deterministic, L-only by construction,
+  no coincident-H bug. Ships with `ambertools>=23`. The legacy
+  Modeller+PDBFixer path stays behind `--backend legacy` for
+  GLYCAM glycoproteins and exotic heterogens tleap rejects.
 - **Do not remove `keepIds=True`** from any `PDBFile.writeFile` call.
   Losing chain IDs mid-pipeline breaks the `.dat` handoff that
   `minimize` uses for tiered restraints.
-- **Do not call `PDBFixer.addMissingHydrogens(pH)`.** Call
-  `modeller.addHydrogens(forcefield, pH=..., variants=[...])` instead.
+- **Do not call `PDBFixer.addMissingHydrogens(pH)`.** On the new
+  backend, H placement is Reduce's job (subprocess). On the legacy
+  backend, use `modeller.addHydrogens(forcefield, pH=..., variants=[...])`.
   PDBFixer's `addMissingHydrogens` uses its own `_describeVariant`
   that only recognises standard PDB names (HIS / ASP / GLU / CYS /
   LYS) — it ignores AMBER variant labels (HIE / HID / HIP / ASH /
-  GLH / CYX / CYM / LYN) coming from the input PDB, from `--mutate`,
-  or from PROPKA/Reduce. Only OpenMM's `Modeller.addHydrogens` takes
-  an explicit `variants=` list. In `prepare`, PDBFixer handles all
-  *heavy*-atom repair (missing residues, missing atoms, terminals,
-  heterogen strip); `Modeller` owns H placement. Follow every
-  `addHydrogens` call with
+  GLH / CYX / CYM / LYN). On the legacy path, follow every
+  `Modeller.addHydrogens` call with
   `dvbfixer.ffutils.geometry.repair_misplaced_hydrogens(topology,
-  positions)` to catch OpenMM's CSER-template HG-on-OXT
-  misplacement (0.4.2).
+  positions)` (widened 2026-07-24 to also break sibling-H clashes
+  via proper sp3 tetrahedral placement).
+- **Chirality invariant**: `dvbfixer.ffutils.geometry.assert_all_l`
+  must succeed after every heavy-atom repair. `find_d_residues`
+  and `fix_ca_chirality` are the detector and reflector primitives.
+  tleap is L-only by construction so `assert_all_l` should never
+  trip on the new backend — it fires only if a downstream bug
+  regresses.
 - **Do not read a `.dat` file with hand-rolled `json.load`.** Use
   `dvbfixer.ffutils.dat.DatRecord` — the schema (added_atoms,
   variant_overrides, removed_residues, residue_summary,

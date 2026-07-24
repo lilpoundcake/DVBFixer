@@ -2,6 +2,21 @@
 
 [← README](../README.md)
 
+- **NEW: tleap+reduce prep backend (this branch)** — `prepare` and
+  `protonate` default to `--backend tleap-reduce` which runs
+  `tleap` (heavy atoms) + `reduce -build -nuclear` (H) + PROPKA
+  (AMBER variant renames). Fixes the D-Cα (openmm/pdbfixer#145) and
+  coincident-H (Modeller.addHydrogens bug) issues that made the
+  legacy Modeller+PDBFixer path unreliable on gap-filled model
+  outputs. **Trade-offs**: (a) tleap fails on non-canonical residues
+  (GLYCAM sugars, phosphorylated AAs, exotic metals) — rerun with
+  `--backend legacy` for those. (b) zbs skips its downstream
+  `minimize` + `protonate` passes with the new backend because
+  prepare output is already deterministic + clean — run
+  `dvbfixer minimize <output>` manually if energy relaxation is
+  wanted. (c) Requires `ambertools>=23` (already in environment.yml).
+  See `src/dvbfixer/prep_backend.py` docstring for the pipeline.
+
 - **N-terminal ASH/GLH in ACPYPE mode**: AMBER14 has no N/C-terminal protonated ASP/GLU templates (NASH/NGLH — never parameterized via RESP in any AMBER version). When `--acpype` encounters ASH or GLH at chain termini, it strips the protonation hydrogen (HD2/HE2) and uses the standard deprotonated template (NASP/NGLU). A `UserWarning` is emitted. Internal (non-terminal) ASH/GLH residues are preserved correctly.
 
 - **Chain ID mismatch in .dat workflow**: The `.dat` file stores chain IDs from PDBFixer. If the prepared PDB is saved through a tool that reassigns chain IDs (PyMOL, VMD), the `.dat` entries won't match the new chain letters. Workaround: ensure chain IDs remain consistent between prepare and minimize steps, or manually edit the `.dat` file.
