@@ -46,6 +46,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     io.add_argument("--dat", help="Restraint data file path (default: <output>.dat)")
 
     ff = p.add_argument_group("Force field / pH")
+    ff.add_argument("--backend", choices=["tleap-reduce", "legacy"],
+                    default="tleap-reduce",
+                    help="Prep backend. 'tleap-reduce' (default): deterministic "
+                         "AmberTools+MolProbity pipeline (tleap for heavy "
+                         "atoms, reduce for H). Recommended for all protein "
+                         "inputs — no coincident atoms, no D-Cα. 'legacy': "
+                         "old PDBFixer.addMissingAtoms + Modeller.addHydrogens "
+                         "path. Use for GLYCAM glycoproteins, exotic heterogens, "
+                         "or when tleap fails on a non-canonical residue.")
     ff.add_argument("--ph", type=float, default=DEFAULT_PH,
                     help=f"pH for adding hydrogens (default: {DEFAULT_PH})")
     ff.add_argument("--ff", nargs="+", default=["auto"],

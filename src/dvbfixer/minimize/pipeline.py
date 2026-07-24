@@ -652,11 +652,22 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     # - rebuild_h: PDBFixer rebuild before H placement
     # - Input arriving from model/prepare/pull may already carry D
     # Idempotent: returns 0 when nothing is D.
-    from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir_final
+    from dvbfixer.ffutils.geometry import (
+        assert_all_l,
+    )
+    from dvbfixer.ffutils.geometry import (
+        fix_ca_chirality as _fix_chir_final,
+    )
     _chir_fixed = _fix_chir_final(modeller.topology, modeller.positions,
                                    verbose=args.verbose)
     if _chir_fixed and not args.verbose:
         print(f"  Repaired {_chir_fixed} Cα chirality inversion(s)")
+    # Reflection is deterministic: any non-degenerate D-CA becomes L
+    # after fix_ca_chirality, so assert_all_l here only fires when the
+    # geometry is genuinely degenerate (N-CA-C near-colinear) or when
+    # a new inversion was introduced by an earlier bug. Fail fast
+    # rather than build restraints against unfixable coords.
+    assert_all_l(modeller.topology, modeller.positions)
 
     # Drop any spurious inter-residue bond between two standard AAs that
     # isn't the canonical peptide C-N. CONECT inference or an upstream
@@ -831,6 +842,15 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     system.addForce(restraint)
     print(f"Restraints: {n_strong} strong (original), {n_weak} weak (new backbone), {n_free} free")
 
+    # Chirality is enforced *positionally* — reflect any D residue via
+    # ``fix_ca_chirality`` (already ran above at the safety net and
+    # asserted L via ``assert_all_l``) and re-verify in the iterative
+    # phase-2 loop below. NO CustomTorsionForce is added: field
+    # consensus (VMD/NAMD chirality plugin, pdb4amber, CHARMM-GUI) is
+    # reflect-then-minimize-then-verify; a stiff runtime bias would
+    # produce NaN forces on broken inputs and fight physics on the
+    # rare cases where reflection genuinely needs a second pass.
+
     integrator = LangevinMiddleIntegrator(300 * kelvin, 1.0 / picosecond, 0.002 * picosecond)
 
     if args.platform:
@@ -843,7 +863,20 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     simulation.context.setPositions(modeller.positions)
 
     state = simulation.context.getState(getEnergy=True)
-    print(f"Energy before minimization: {state.getPotentialEnergy()}")
+    _e_pre = state.getPotentialEnergy()
+    print(f"Energy before minimization: {_e_pre}")
+    # Astronomical starting energy = severe atom clashes upstream
+    # (e.g. PDBFixer / addHydrogens put an atom at another's position).
+    # Warn early: no minimize configuration can recover from this and
+    # any additional force term risks NaN via double-precision overflow.
+    if _e_pre.value_in_unit(_e_pre.unit) > 1e10:
+        print(f"WARNING: pre-minimize energy is astronomically high "
+              f"({_e_pre}). The input has severe atom clashes "
+              f"(likely coincident atoms from the prepare step). Run "
+              f"`dvbfixer diagnose {args.input}` to identify the "
+              f"offending residue(s). minimize will attempt to proceed "
+              f"but may crash with an inf/NaN force at the first step.",
+              file=sys.stderr)
 
     # Phase 1: full restraints
     print(f"Minimizing (phase 1: {args.max_iter} iterations, original atoms restrained)...")
@@ -859,10 +892,39 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         restraint.setParticleParameters(i, idx, [params[0] / 10.0, params[1], params[2], params[3]])
     restraint.updateParametersInContext(simulation.context)
 
+    # Phase 2 minimize with weakened restraints. Do NOT wrap this in an
+    # iterative reflect-and-re-minimize loop: reflecting a sidechain
+    # after minimize has equilibrated it swings CB across the CA-N-C
+    # plane by ~2 Å, which the weakened phase-2 restraints cannot
+    # recover from — resulting in CA-CB bonds stretched to 3 Å and
+    # neighbour-residue steric clashes. Reflection is safe only *before*
+    # OpenMM sees the geometry (prepare, and the pre-createSystem safety
+    # net at line 655), where the sidechain hasn't been equilibrated
+    # against its neighbours yet.
     simulation.minimizeEnergy(maxIterations=args.max_iter)
 
     state = simulation.context.getState(getEnergy=True, getPositions=True)
     print(f"Energy after phase 2: {state.getPotentialEnergy()}")
+
+    # Post-minimize chirality check — WARN only, do NOT try to fix. If
+    # the FF's own equilibrium for a residue in its current packing
+    # actually lies on the D side (unusual but possible with exotic
+    # residues or tight sterics), forcing a reflection here would break
+    # more than it fixes. Surface the offenders so the user can decide.
+    from dvbfixer.ffutils.geometry import find_d_residues
+    offenders = find_d_residues(simulation.topology, state.getPositions())
+    if offenders:
+        print(f"WARNING: {len(offenders)} residue(s) settled into D-Cα "
+              f"geometry after minimize. Reflection was applied before "
+              f"minimize; these residues drifted back to D during "
+              f"relaxation, which means the local packing genuinely "
+              f"prefers D. Manual inspection recommended:",
+              file=sys.stderr)
+        for ch, rid, name, tri in offenders[:20]:
+            print(f"  {ch}/{name}{rid}: triple={tri:+.5f} nm³",
+                  file=sys.stderr)
+        if len(offenders) > 20:
+            print(f"  ...and {len(offenders) - 20} more", file=sys.stderr)
 
     min_topology = simulation.topology
     min_positions = state.getPositions()

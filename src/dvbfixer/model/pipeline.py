@@ -1097,6 +1097,41 @@ def main(argv=None):
                 f.writelines(result_lines)
             print(f"Wrote {this_output} (molpdf={molpdf:.1f})")
 
+            # Post-sanitize Cα chirality sweep. modeller_run already
+            # ran fix_ca_chirality on each raw candidate; the sanitize
+            # step above rebuilds the file textually (TER handling,
+            # chain reordering) which does not touch coordinates but
+            # is a good place for the final assert-L invariant. Fails
+            # loudly via ChiralityError → zbs prints the offender and
+            # exits non-zero.
+            import numpy as _np
+            from openmm.app import PDBFile as _PDBFile
+            from openmm.unit import Quantity as _Quantity
+            from openmm.unit import nanometer as _nm
+
+            from dvbfixer.ffutils.geometry import (
+                assert_all_l,
+                fix_ca_chirality,
+            )
+            _mdl = _PDBFile(str(this_output))
+            # Numpy-backed Quantity so PDBFile.writeFile's np.isnan
+            # guard passes on older OpenMM builds too (list-backed
+            # Quantities from PDBFile trip np.isnan on some versions).
+            _pos_arr = _np.array(
+                [list(_mdl.positions[i].value_in_unit(_nm))
+                 for i in range(len(_mdl.positions))],
+                dtype=float,
+            )
+            _pos = _Quantity(_pos_arr, _nm)
+            _n = fix_ca_chirality(_mdl.topology, _pos, verbose=args.verbose)
+            if _n:
+                with open(str(this_output), 'w') as _f:
+                    _PDBFile.writeFile(_mdl.topology, _pos, _f,
+                                        keepIds=True)
+                print(f"  [model] repaired {_n} D-Cα in "
+                      f"{this_output.name}")
+            assert_all_l(_mdl.topology, _pos)
+
             # Write .dat file only if there were actual gaps
             if n_gaps > 0:
                 from dvbfixer.ffutils.dat import DatRecord

@@ -5,7 +5,8 @@
 > For prose about how to use `prepare`, see [`docs/commands/prepare.md`](../commands/prepare.md).
 
 ```
-usage: dvbfixer prepare [-h] [-o OUTPUT] [--dat DAT] [--ph PH]
+usage: dvbfixer prepare [-h] [-o OUTPUT] [--dat DAT]
+                        [--backend {tleap-reduce,legacy}] [--ph PH]
                         [--ff FF [FF ...]] [--keep-water] [--strip-heterogens]
                         [--no-heterogen-h] [--rename] [--no-infer-conect]
                         [--mutate CHAIN:RESNUM:NEW_AA] [-v]
@@ -19,11 +20,18 @@ options:
 
 Input / output:
   input                 Input PDB file
-  -o OUTPUT, --output OUTPUT
-                        Output PDB file (default: <input>_prepared.pdb)
+  -o, --output OUTPUT   Output PDB file (default: <input>_prepared.pdb)
   --dat DAT             Restraint data file path (default: <output>.dat)
 
 Force field / pH:
+  --backend {tleap-reduce,legacy}
+                        Prep backend. 'tleap-reduce' (default): deterministic
+                        AmberTools+MolProbity pipeline (tleap for heavy atoms,
+                        reduce for H). Recommended for all protein inputs — no
+                        coincident atoms, no D-Cα. 'legacy': old
+                        PDBFixer.addMissingAtoms + Modeller.addHydrogens path.
+                        Use for GLYCAM glycoproteins, exotic heterogens, or
+                        when tleap fails on a non-canonical residue.
   --ph PH               pH for adding hydrogens (default: 7.0)
   --ff FF [FF ...]      Force field selection for heterogen-H addition.
                         Accepts a short name (auto, amber, amber+glycam,

@@ -75,6 +75,14 @@ def trastuzumab_dir() -> Path:
     return _fixture_or_skip(FIXTURES_ROOT / "trastuzumab")
 
 
+@pytest.fixture(scope="session")
+def shit_dir() -> Path:
+    """Curated set of raw PDBs that historically broke the zbs pipeline
+    (coincident-atom H's from Modeller, chirality oscillation, etc.).
+    Used by the ``@pytest.mark.slow`` end-to-end regression suite."""
+    return _fixture_or_skip(FIXTURES_ROOT / "shit")
+
+
 @pytest.fixture()
 def tmp_workdir(tmp_path: Path) -> Path:
     """Per-test scratch dir with a stable name inside pytest's tmp_path."""

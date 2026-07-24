@@ -824,6 +824,15 @@ def export_gromacs(pdb_path, output_dir, basename=None, extra_ss=None,
     modeller = Modeller(topology, positions)
     n_before = sum(1 for _ in topology.atoms())
     modeller.addHydrogens(forcefield, variants=variants)
+    # Post-addHydrogens guards: mirror the invariant enforced in
+    # prepare/minimize/protonate — no coincident H, no D-Cα.
+    from dvbfixer.ffutils.geometry import (
+        fix_ca_chirality,
+        repair_misplaced_hydrogens,
+    )
+    repair_misplaced_hydrogens(modeller.topology, modeller.positions,
+                                verbose=verbose)
+    fix_ca_chirality(modeller.topology, modeller.positions, verbose=verbose)
     topology = modeller.topology
     positions = modeller.positions
     n_after = sum(1 for _ in topology.atoms())

@@ -29,8 +29,7 @@ options:
 
 Input / output:
   input                 Input PDB file (must contain SEQRES)
-  -o OUTPUT, --output OUTPUT
-                        Final output PDB file (default: <input>_zbs.pdb)
+  -o, --output OUTPUT   Final output PDB file (default: <input>_zbs.pdb)
 
 Force field:
   --ph PH               pH for protonation and hydrogen addition (default:

@@ -592,6 +592,119 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
 # Main
 # ---------------------------------------------------------------------------
 
+def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
+    """Deterministic prep pipeline via `dvbfixer.prep_backend.run_prep`
+    (tleap + reduce + PROPKA-driven variant renames).
+
+    Handles the simple case: protein + standard AAs + no heterogens.
+    If the input has non-canonical residues tleap rejects, raises
+    ``TleapError`` with the offending residue in the message; user
+    should retry with ``--backend legacy`` or supply the missing
+    leaprc via a future ``--extra-leaprc`` flag.
+    """
+    from dvbfixer.acpype_export import detect_ss_bonds
+    from dvbfixer.ffutils.dat import DatRecord
+    from dvbfixer.ffutils.ff_names import apply_variants_to_pdb_text
+    from dvbfixer.ffutils.geometry import assert_all_l
+    from dvbfixer.prep_backend import TleapError, run_prep
+
+    # SS bond detection from CONECT (drives CYX assignment).
+    try:
+        ss_res = detect_ss_bonds(str(input_path))
+    except Exception:
+        ss_res = set()
+
+    if args.mutate:
+        print("ERROR: --mutate is not yet supported by the tleap-reduce "
+              "backend. Rerun with --backend legacy for mutations.",
+              file=sys.stderr)
+        sys.exit(2)
+
+    print(f"=== prep (tleap + reduce): {input_path} ===")
+    try:
+        result = run_prep(
+            input_path, output_path,
+            ph=args.ph, ff="leaprc.protein.ff19SB",
+            assign_variants=True, ss_pairs=ss_res,
+            verbose=args.verbose,
+        )
+    except TleapError as e:
+        print(f"\nERROR: tleap failed on {input_path}. This usually means "
+              f"a non-canonical residue (GLYCAM sugar, phosphorylated AA, "
+              f"exotic ligand) that ff14SB doesn't know. Rerun with "
+              f"--backend legacy for the PDBFixer+Modeller path which "
+              f"handles more edge cases.\n{e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Verify chirality invariant (should never fire — tleap is L-only).
+    from openmm.app import PDBFile
+    _pdb = PDBFile(str(output_path))
+    assert_all_l(_pdb.topology, _pdb.positions)
+
+    # Note: intentionally NOT calling apply_variants_to_pdb_text here.
+    # That helper renames terminals to GROMACS conventions (OXT→OC1,
+    # O→OC2) which breaks OpenMM's ff19SB CLYS/CGLU/CGLN templates.
+    # Run apply_variants_to_pdb_text later in the pipeline (top / final
+    # export) when GROMACS naming is actually wanted.
+    _ = apply_variants_to_pdb_text  # noqa: F841 — kept import for future GROMACS export
+
+    # Emit .dat file. tleap adds heavy atoms deterministically, but we
+    # don't have a per-atom "was this added" flag from tleap. Simplest
+    # correct approach: consider ALL H atoms + any heavy atoms not
+    # present in the original input as "added" (weak restraint in
+    # minimize). Match by (chain, resseq, icode, atom name).
+    orig_keys: set[tuple[str, str, str, str]] = set()
+    for raw in input_path.read_text().splitlines():
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            continue
+        orig_keys.add((raw[21], raw[22:26].strip(),
+                       raw[26].strip(), raw[12:16].strip()))
+    added_atoms = []
+    residue_summary: dict[str, dict[str, int]] = {}
+    for raw in output_path.read_text().splitlines():
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            continue
+        chain = raw[21]
+        resseq = raw[22:26].strip()
+        icode = raw[26].strip()
+        atom_name = raw[12:16].strip()
+        resname = raw[17:20].strip()
+        elem = raw[76:78].strip() if len(raw) >= 78 else ""
+        key = (chain, resseq, icode, atom_name)
+        # Hydrogens are always "added" (input was pre-existing, tleap
+        # re-placed all H); heavy atoms only added if not in input.
+        is_h = elem == "H" or (not elem and atom_name and atom_name[0] == "H")
+        if is_h or key not in orig_keys:
+            added_atoms.append({
+                "chain": chain, "resid": resseq, "icode": icode,
+                "resname": resname, "atom": atom_name,
+                "element": elem or ("H" if is_h else atom_name[0]),
+            })
+            rkey = f"{chain}/{resname}{resseq}"
+            bucket = residue_summary.setdefault(
+                rkey, {"heavy": 0, "hydrogen": 0}
+            )
+            if is_h:
+                bucket["hydrogen"] += 1
+            else:
+                bucket["heavy"] += 1
+
+    dat = DatRecord(
+        description="Deterministic prep via tleap+reduce. Hydrogens and "
+                    "any tleap-added heavy atoms (OXT, missing sidechain) "
+                    "get weak restraints in minimize; original heavy "
+                    "atoms get strong restraints.",
+        added_atoms=added_atoms,
+        residue_summary=residue_summary,
+        variant_overrides={f"{c}:{r}": v
+                            for (c, r), v in result["renames"].items()},
+    )
+    dat.save(dat_path)
+    print(f"Saved prepared structure: {output_path}")
+    print(f"Saved restraint data: {dat_path} "
+          f"({len(added_atoms)} added atoms)")
+
+
 def main(argv=None):
     args = parse_args(argv)
     input_path = Path(args.input)
@@ -601,6 +714,18 @@ def main(argv=None):
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prepared")
     dat_path = Path(args.dat) if args.dat else output_path.with_suffix(".dat")
+
+    # Deterministic backend: tleap (heavy atoms) + reduce (H). This is the
+    # default. Skips the entire legacy PDBFixer.addMissingAtoms +
+    # Modeller.addHydrogens code path — both had upstream bugs (stochastic
+    # D-Cα from PDBFixer, coincident H atoms from Modeller) that we
+    # exhausted several rounds of workarounds on. See prep_backend.py
+    # docstring for the diagnosis. Legacy backend is still selectable via
+    # --backend legacy for GLYCAM glycoproteins / exotic heterogens tleap
+    # rejects.
+    if getattr(args, "backend", "tleap-reduce") == "tleap-reduce":
+        return _main_tleap_reduce_backend(args, input_path, output_path,
+                                           dat_path)
 
     # Auto-infer CONECT records into a temp PDB copy so downstream flows
     # (glycosylation detection, mutation glycan walk, SS detection) work on

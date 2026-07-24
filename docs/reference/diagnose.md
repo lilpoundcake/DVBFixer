@@ -23,8 +23,7 @@ options:
 
 Input / output:
   input                 Input PDB file
-  -o OUTPUT, --output OUTPUT
-                        Write report to file (default: stdout)
+  -o, --output OUTPUT   Write report to file (default: stdout)
 
 Check selection:
   --only {all,structural,chemistry,steric}

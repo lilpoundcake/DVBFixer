@@ -19,13 +19,12 @@ options:
 
 Input / output:
   input                 Input PDB or GRO file
-  -o OUTPUT, --output OUTPUT
-                        Output PDB file (default: <input>_split.pdb)
+  -o, --output OUTPUT   Output PDB file (default: <input>_split.pdb)
 
 Chain-break detection:
-  -d DISTANCE_CUTOFF, --distance-cutoff DISTANCE_CUTOFF
+  -d, --distance-cutoff DISTANCE_CUTOFF
                         C->N peptide bond cutoff in angstroms (default: 2.5)
-  -g GAP_CUTOFF, --gap-cutoff GAP_CUTOFF
+  -g, --gap-cutoff GAP_CUTOFF
                         Min nearest-atom distance between consecutive residues
                         to call a break when C/N atoms are missing (default:
                         15.0 A)

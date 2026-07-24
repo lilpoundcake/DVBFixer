@@ -65,6 +65,16 @@ def parse_args(argv=None):
 
     engines = p.add_argument_group("Protonation engines")
     engines.add_argument(
+        "--backend", choices=["tleap-reduce", "legacy"],
+        default="tleap-reduce",
+        help="Protonation backend. 'tleap-reduce' (default): use tleap "
+             "for heavy-atom completion + reduce for deterministic H "
+             "placement + PROPKA for pKa-driven AMBER variant renames. "
+             "Deterministic, no coincident atoms, no D-Cα. 'legacy': "
+             "old PROPKA + reduce (tautomer picks) + Modeller.addHydrogens "
+             "with variants. Use for GLYCAM glycoproteins.",
+    )
+    engines.add_argument(
         "--propka", action=argparse.BooleanOptionalAction, default=True,
         help="Run PROPKA3 for pKa-driven protonation-state decisions "
              "(ASH/GLH/HIP/CYM/LYN). **Default ON.** Pass --no-propka "
@@ -532,10 +542,22 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
                                        variants=variants)
             # Post-addHydrogens sanity: re-place any H that landed on top of
             # another atom (OpenMM's CSER template bug with existing OXT).
-            from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
+            from dvbfixer.ffutils.geometry import (
+                fix_ca_chirality,
+                repair_misplaced_hydrogens,
+            )
             repair_misplaced_hydrogens(
                 modeller.topology, modeller.positions, verbose=args.verbose,
             )
+            # PDBFixer's addMissingAtoms (line 483 above) can put CB on
+            # the D face during template alignment; the previous
+            # addHydrogens doesn't move heavy atoms, so this is our
+            # first (and only) chance to catch it before writing.
+            _n_chir = fix_ca_chirality(
+                modeller.topology, modeller.positions, verbose=args.verbose,
+            )
+            if _n_chir and not args.verbose:
+                print(f"  Repaired {_n_chir} Cα chirality inversion(s)")
         except Exception as e:
             # OpenMM's raw error uses topology INDEX ("residue 117 (ASN)"),
             # not the PDB resseq the user knows. `explain_template_error`
@@ -565,6 +587,11 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     finally:
         _fix_lyn_hz_naming(modeller.topology, _saved, renames)
         _restore_variants_post_addhydrogens(modeller.topology, _saved)
+
+    # Fail loudly if any residue is still D after repair — don't emit
+    # a PDB that will silently poison downstream MD.
+    from dvbfixer.ffutils.geometry import assert_all_l
+    assert_all_l(modeller.topology, modeller.positions)
 
     # Rename residues in the final topology to match AMBER names
     for res in modeller.topology.residues():
@@ -947,6 +974,40 @@ def _apply_flips_to_pdb_text(lines, asn_flips, gln_flips):
     return out
 
 
+def _main_tleap_reduce_backend(args, input_path, output_path):
+    """Deterministic protonate via `dvbfixer.prep_backend.run_prep`.
+    Same tool the new `prepare` uses; ensures protonate output has
+    correct AMBER variant names (HID/HIE/HIP + ASH/GLH/LYN/CYM/CYX)
+    without Modeller.addHydrogens.
+    """
+    from dvbfixer.acpype_export import detect_ss_bonds
+    from dvbfixer.ffutils.geometry import assert_all_l
+    from dvbfixer.prep_backend import TleapError, run_prep
+    try:
+        ss_res = detect_ss_bonds(str(input_path))
+    except Exception:
+        ss_res = set()
+
+    print(f"=== protonate (tleap + reduce): {input_path} ===")
+    try:
+        run_prep(
+            input_path, output_path,
+            ph=args.ph, ff="leaprc.protein.ff19SB",
+            assign_variants=args.propka,
+            ss_pairs=ss_res, verbose=args.verbose,
+        )
+    except TleapError as e:
+        print(f"\nERROR: tleap failed. Retry with --backend legacy.\n{e}",
+              file=sys.stderr)
+        sys.exit(1)
+
+    # Chirality invariant (should never trip — tleap is L-only).
+    from openmm.app import PDBFile
+    _pdb = PDBFile(str(output_path))
+    assert_all_l(_pdb.topology, _pdb.positions)
+    print(f"Saved protonated structure: {output_path}")
+
+
 def main(argv=None):
     args = parse_args(argv)
     input_path = Path(args.input)
@@ -955,6 +1016,11 @@ def main(argv=None):
         sys.exit(1)
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prot")
+
+    # Deterministic backend: skip the whole legacy PROPKA+Reduce+Modeller
+    # dance and run the standard AmberTools recipe.
+    if getattr(args, "backend", "tleap-reduce") == "tleap-reduce":
+        return _main_tleap_reduce_backend(args, input_path, output_path)
 
     # Sanitize protein-residue HETATM records + drop spurious mid-chain
     # TER records BEFORE any downstream OpenMM load. If a protein residue

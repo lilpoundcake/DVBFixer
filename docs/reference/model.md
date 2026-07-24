@@ -22,15 +22,14 @@ options:
 
 Input / output:
   input                 Input PDB file (must contain SEQRES or use --fasta)
-  -o OUTPUT, --output OUTPUT
-                        Output PDB file (default: <input>_model.pdb)
+  -o, --output OUTPUT   Output PDB file (default: <input>_model.pdb)
   --fasta FASTA         FASTA file with complete sequence(s). Headers must
                         encode chain IDs: '>chain_X', '>PDBID_X', or '>X'.
                         Mapping is by chain ID, not file order. Use instead of
                         SEQRES.
 
 Modelling parameters:
-  -n NUM_MODELS, --num-models NUM_MODELS
+  -n, --num-models NUM_MODELS
                         Number of initial models to generate (default: 1)
   --num-loops NUM_LOOPS
                         Number of loop refinement models per initial model

@@ -7,6 +7,7 @@
 ```
 usage: dvbfixer protonate [-h] [-o OUTPUT] [--ph PH] [--his-default {HIE,HID}]
                           [--cys-disulfide-pka CYS_DISULFIDE_PKA]
+                          [--backend {tleap-reduce,legacy}]
                           [--propka | --no-propka]
                           [--protassign | --no-protassign]
                           [--protassign-binary PROTASSIGN_BINARY]
@@ -23,8 +24,7 @@ options:
 
 Input / output:
   input                 Input PDB file
-  -o OUTPUT, --output OUTPUT
-                        Output PDB file (default: <input>_prot.pdb)
+  -o, --output OUTPUT   Output PDB file (default: <input>_prot.pdb)
 
 pH-driven decisions:
   --ph PH               Target pH for protonation assignment (default: 7.0)
@@ -37,6 +37,14 @@ pH-driven decisions:
                         90.0). No-op under --no-propka.
 
 Protonation engines:
+  --backend {tleap-reduce,legacy}
+                        Protonation backend. 'tleap-reduce' (default): use
+                        tleap for heavy-atom completion + reduce for
+                        deterministic H placement + PROPKA for pKa-driven
+                        AMBER variant renames. Deterministic, no coincident
+                        atoms, no D-Cα. 'legacy': old PROPKA + reduce
+                        (tautomer picks) + Modeller.addHydrogens with
+                        variants. Use for GLYCAM glycoproteins.
   --propka, --no-propka
                         Run PROPKA3 for pKa-driven protonation-state decisions
                         (ASH/GLH/HIP/CYM/LYN). **Default ON.** Pass --no-

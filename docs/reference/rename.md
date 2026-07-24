@@ -12,13 +12,12 @@ Rename non-canonical residue names to standard PDB names. Converts AMBER
 canonical forms.
 
 options:
-  -h, --help            show this help message and exit
+  -h, --help           show this help message and exit
 
 Input / output:
-  input                 Input PDB file
-  -o OUTPUT, --output OUTPUT
-                        Output PDB file (default: <input>_canon.pdb)
+  input                Input PDB file
+  -o, --output OUTPUT  Output PDB file (default: <input>_canon.pdb)
 
 Diagnostics:
-  -v, --verbose         Print each rename
+  -v, --verbose        Print each rename
 ```

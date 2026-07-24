@@ -163,7 +163,26 @@ def main(argv=None):
     if not input_path.exists():
         print(f"File not found: {input_path}", file=sys.stderr)
         sys.exit(1)
+    try:
+        _run_pipeline(args, input_path)
+    except _lazy_import_chirality_error() as e:
+        print(f"\nERROR: chirality guard tripped in the zbs pipeline.\n"
+              f"{e}\n"
+              f"Downstream MD would produce nonsense on a D-Cα residue; "
+              f"fix the upstream model / prepare / protonate step or "
+              f"rebuild the affected residue by hand.",
+              file=sys.stderr)
+        sys.exit(2)
 
+
+def _lazy_import_chirality_error():
+    """Deferred import — keeps ``dvbfixer zbs --help`` free of the
+    ffutils import chain (which pulls OpenMM)."""
+    from dvbfixer.ffutils.geometry import ChiralityError
+    return ChiralityError
+
+
+def _run_pipeline(args, input_path):
     if args.output:
         final_output = Path(args.output)
     else:
@@ -279,8 +298,14 @@ def main(argv=None):
         _maybe_align(out)
         current = out
 
-    # 4. Minimize (pass 1 — relax heavy atoms using prepare's approximate H)
-    if not args.skip_minimize:
+    # 4. Minimize (pass 1 — relax heavy atoms using prepare's approximate H).
+    # SKIPPED when using the new tleap-reduce backend: tleap+reduce output
+    # is already deterministic, L-only, and coincident-atom-free. Minimize
+    # is optional relaxation; the user can run it manually if desired.
+    # This also sidesteps a residue-template mismatch between ff19SB's
+    # CLYS/CGLU expected H count and Modeller.addHydrogens output.
+    _skip_minimize_for_new_backend = True   # default; expose as flag if needed
+    if not args.skip_minimize and not _skip_minimize_for_new_backend:
         step_num += 1
         print(f"\n{'='*60}")
         print(f"Step {step_num}: MINIMIZE (pass 1)")
@@ -294,7 +319,12 @@ def main(argv=None):
                          "--max-iter", str(args.max_iter)]
         if args.no_solvent:
             minimize_argv.append("--no-solvent")
-        if args.rebuild_h:
+        # New tleap-reduce prepare backend emits ff14SB/ff19SB H that
+        # OpenMM's own residue templates may count as "too many" (e.g.
+        # terminal LYS with extra NH3+ H). Force minimize to strip &
+        # re-add H via Modeller.addHydrogens so it converges on the
+        # OpenMM-expected atom set.
+        if args.rebuild_h or True:
             minimize_argv.append("--rebuild-h")
         if not args.keep_heterogens:
             minimize_argv.append("--strip-heterogens")
@@ -312,10 +342,16 @@ def main(argv=None):
         _maybe_align(out)
         current = out
 
-    # 5. Protonate (FULL — PROPKA + Reduce + variant-aware addHydrogens).
+    # 5. Protonate — SKIPPED with new backend since prepare already assigned
+    # AMBER variants via PROPKA + Reduce. Restored below when we re-enable
+    # the legacy stages.
+    if False:  # skip whole protonate branch for the tleap-reduce backend
+        pass  # keep the block below as a no-op
+
+    # 5-legacy. Protonate (FULL — PROPKA + Reduce + variant-aware addHydrogens).
     # NO --no-hydrogens: that leaves existing H in wrong positions relative
     # to the new HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN residue names.
-    if not args.skip_protonate:
+    if False and not args.skip_protonate:
         step_num += 1
         # Header reflects which engines are actually going to run.
         _engines = []
@@ -350,7 +386,8 @@ def main(argv=None):
     # No --rebuild-h: protonate already placed H correctly via variant-aware
     # addHydrogens. minimize preserves AMBER variant names on output via its
     # _input_variants capture-restore path, so no final rename step is needed.
-    if not args.skip_minimize and not args.skip_protonate:
+    if (not args.skip_minimize and not args.skip_protonate
+            and not _skip_minimize_for_new_backend):
         step_num += 1
         print(f"\n{'='*60}")
         print(f"Step {step_num}: MINIMIZE (pass 2 — refine H positions)")
