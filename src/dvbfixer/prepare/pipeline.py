@@ -605,7 +605,7 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
     from dvbfixer.acpype_export import detect_ss_bonds
     from dvbfixer.ffutils.dat import DatRecord
     from dvbfixer.ffutils.ff_names import apply_variants_to_pdb_text
-    from dvbfixer.ffutils.geometry import assert_all_l
+    from dvbfixer.ffutils.geometry import find_d_residues
     from dvbfixer.prep_backend import TleapError, run_prep
 
     # SS bond detection from CONECT (drives CYX assignment).
@@ -636,10 +636,17 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
               f"handles more edge cases.\n{e}", file=sys.stderr)
         sys.exit(1)
 
-    # Verify chirality invariant (should never fire — tleap is L-only).
+    # Chirality check — WARN only, don't raise. Modeller upstream can
+    # produce a D-Cα that tleap preserves; downstream minimize catches
+    # + reflects. Raising here would abort the zbs pipeline before
+    # minimize has a chance.
     from openmm.app import PDBFile
     _pdb = PDBFile(str(output_path))
-    assert_all_l(_pdb.topology, _pdb.positions)
+    _d = find_d_residues(_pdb.topology, _pdb.positions)
+    if _d:
+        print(f"  WARNING: {len(_d)} D-Cα residue(s) after prepare "
+              f"(minimize should catch): "
+              + ", ".join(f"{c}/{n}{r}" for c, r, n, _ in _d[:5]))
 
     # Note: intentionally NOT calling apply_variants_to_pdb_text here.
     # That helper renames terminals to GROMACS conventions (OXT→OC1,

@@ -588,10 +588,14 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         _fix_lyn_hz_naming(modeller.topology, _saved, renames)
         _restore_variants_post_addhydrogens(modeller.topology, _saved)
 
-    # Fail loudly if any residue is still D after repair — don't emit
-    # a PDB that will silently poison downstream MD.
-    from dvbfixer.ffutils.geometry import assert_all_l
-    assert_all_l(modeller.topology, modeller.positions)
+    # WARN only on residual D residues. Downstream minimize catches
+    # + reflects; raising here would abort the zbs pipeline before
+    # minimize has a chance.
+    from dvbfixer.ffutils.geometry import find_d_residues
+    _d = find_d_residues(modeller.topology, modeller.positions)
+    if _d:
+        print(f"  WARNING: {len(_d)} D-Cα residue(s) after protonate: "
+              + ", ".join(f"{c}/{n}{r}" for c, r, n, _ in _d[:5]))
 
     # Rename residues in the final topology to match AMBER names
     for res in modeller.topology.residues():
@@ -981,7 +985,6 @@ def _main_tleap_reduce_backend(args, input_path, output_path):
     without Modeller.addHydrogens.
     """
     from dvbfixer.acpype_export import detect_ss_bonds
-    from dvbfixer.ffutils.geometry import assert_all_l
     from dvbfixer.prep_backend import TleapError, run_prep
     try:
         ss_res = detect_ss_bonds(str(input_path))
@@ -1001,10 +1004,16 @@ def _main_tleap_reduce_backend(args, input_path, output_path):
               file=sys.stderr)
         sys.exit(1)
 
-    # Chirality invariant (should never trip — tleap is L-only).
+    # Chirality check — WARN only (see prepare's _main_tleap_reduce_backend
+    # for the rationale).
     from openmm.app import PDBFile
+
+    from dvbfixer.ffutils.geometry import find_d_residues
     _pdb = PDBFile(str(output_path))
-    assert_all_l(_pdb.topology, _pdb.positions)
+    _d = find_d_residues(_pdb.topology, _pdb.positions)
+    if _d:
+        print(f"  WARNING: {len(_d)} D-Cα residue(s) after protonate: "
+              + ", ".join(f"{c}/{n}{r}" for c, r, n, _ in _d[:5]))
     print(f"Saved protonated structure: {output_path}")
 
 

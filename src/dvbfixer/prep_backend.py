@@ -379,6 +379,132 @@ def _classify_variant(
     return None
 
 
+def _rename_residues_in_pdb(
+    pdb_path: Path,
+    positions: dict[tuple[str, int], str],
+    target: str,
+) -> int:
+    """Rewrite the resname column (17-20) of every ATOM/HETATM whose
+    ``(chain, resseq)`` is in ``positions`` to ``target`` (3-char).
+
+    Used to temporarily rename CYX/CYM → CYS before the second tleap
+    pass; tleap tolerates CYS but rejects CYX without an explicit
+    ``bond`` declaration.
+    """
+    if not positions:
+        return 0
+    n = 0
+    out: list[str] = []
+    for raw in pdb_path.read_text().splitlines(keepends=True):
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            out.append(raw)
+            continue
+        chain = raw[21]
+        try:
+            resseq = int(raw[22:26].strip())
+        except ValueError:
+            out.append(raw)
+            continue
+        if (chain, resseq) not in positions:
+            out.append(raw)
+            continue
+        out.append(raw[:17] + f"{target:>3s}" + raw[20:])
+        n += 1
+    pdb_path.write_text("".join(out))
+    return n
+
+
+def _rename_residues_and_strip_atoms(
+    pdb_path: Path,
+    positions: dict[tuple[str, int], str],
+    strip_atoms: set[str],
+    verbose: bool = False,
+) -> int:
+    """For each ``(chain, resseq)`` in ``positions``: rewrite the
+    resname column to the mapped value AND drop any ATOM record whose
+    atom name is in ``strip_atoms``.
+
+    Used post-second-tleap to restore CYX/CYM names and remove HG
+    (CYX/CYM have no HG per AMBER template).
+    """
+    if not positions:
+        return 0
+    renamed = 0
+    stripped = 0
+    out: list[str] = []
+    for raw in pdb_path.read_text().splitlines(keepends=True):
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            out.append(raw)
+            continue
+        chain = raw[21]
+        try:
+            resseq = int(raw[22:26].strip())
+        except ValueError:
+            out.append(raw)
+            continue
+        key = (chain, resseq)
+        if key not in positions:
+            out.append(raw)
+            continue
+        atom_name = raw[12:16].strip()
+        if atom_name in strip_atoms:
+            stripped += 1
+            continue
+        new_resname = positions[key]
+        out.append(raw[:17] + f"{new_resname:>3s}" + raw[20:])
+        renamed += 1
+    pdb_path.write_text("".join(out))
+    if verbose and (renamed or stripped):
+        print(f"  [prep] restored {renamed} CYX/CYM residue name(s), "
+              f"stripped {stripped} HG atom(s)")
+    return renamed
+
+
+def _find_terminal_residues(
+    pdb_path: Path,
+) -> set[tuple[str, int]]:
+    """Return the first + last (chain, resseq) tuple of each chain.
+
+    AMBER ff14SB has NRES/CRES templates for standard residues plus
+    HID/HIE/HIP, but NOT for LYN / ASH / GLH / CYX / CYM (no NLYN /
+    CLYN / NASH / CASH / etc.). Assigning those variants to terminals
+    would produce a residue OpenMM's template matcher can't resolve
+    ("matches CLYS but missing 1 H"). Callers of
+    :func:`assign_amber_variants` use this set to skip terminal
+    residues for the four unsupported-terminal variants.
+    """
+    per_chain: dict[str, list[tuple[int, str]]] = {}
+    for raw in pdb_path.read_text().splitlines():
+        if raw.startswith("TER") and len(raw) >= 27:
+            # TER carries the chain of the last residue; nothing to add
+            # (we've already recorded it via ATOM lines above).
+            continue
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            continue
+        chain = raw[21]
+        try:
+            resseq = int(raw[22:26].strip())
+        except ValueError:
+            continue
+        per_chain.setdefault(chain, []).append((resseq, raw[17:20].strip()))
+
+    terminals: set[tuple[str, int]] = set()
+    for chain, entries in per_chain.items():
+        if not entries:
+            continue
+        # De-dup while keeping order (first appearance per resseq).
+        seen_resseqs: list[int] = []
+        seen_set: set[int] = set()
+        for resseq, _resname in entries:
+            if resseq not in seen_set:
+                seen_set.add(resseq)
+                seen_resseqs.append(resseq)
+        if seen_resseqs:
+            terminals.add((chain, seen_resseqs[0]))
+            terminals.add((chain, seen_resseqs[-1]))
+    return terminals
+
+
 def assign_amber_variants(
     pdb_path: Path,
     propka_pkas: dict[tuple[str, int], tuple[str, float]] | None,
@@ -404,9 +530,15 @@ def assign_amber_variants(
     """
     ss = ss_pairs or set()
     pkas = propka_pkas or {}
+    # Terminals have no NLYN/CLYN/NASH/CASH/NGLH/CGLH/etc. templates in
+    # ff14SB — skip variant assignment there and let the residue stay
+    # standard (LYS/ASP/GLU/CYS).
+    terminals = _find_terminal_residues(pdb_path)
+    _NO_TERMINAL_VARIANT = {"LYN", "ASH", "GLH", "CYX", "CYM"}
 
     renames: dict[tuple[str, int], str] = {}
     out: list[str] = []
+    n_terminal_skipped = 0
     for raw in pdb_path.read_text().splitlines(keepends=True):
         if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
             out.append(raw)
@@ -425,10 +557,19 @@ def assign_amber_variants(
         if variant is None or variant == resname:
             out.append(raw)
             continue
+        if variant in _NO_TERMINAL_VARIANT and (chain, resseq) in terminals:
+            # Skip: no ff14SB terminal template for this variant.
+            n_terminal_skipped += 1
+            out.append(raw)
+            continue
         new = raw[:17] + f"{variant:>3s}" + raw[20:]
         out.append(new)
         renames[(chain, resseq)] = variant
     pdb_path.write_text("".join(out))
+    if verbose and n_terminal_skipped:
+        print(f"  [prep] skipped {n_terminal_skipped} terminal variant "
+              f"rename(s) (no NRES/CRES template in ff14SB for "
+              f"LYN/ASH/GLH/CYX/CYM)")
     if verbose and renames:
         by_kind: dict[str, int] = {}
         for name in renames.values():
@@ -503,6 +644,39 @@ def run_prep(
             output_pdb, propka_dict, ph, ss_pairs=ss_pairs,
             verbose=verbose,
         )
+
+        # Second tleap pass — with the variant residue names now in place,
+        # tleap places the CORRECT H per each variant template: ASH gets
+        # HD2, GLH gets HE2, LYN uses HZ2+HZ3 (no HZ1), HID/HIE/HIP get
+        # correct sidechain H. Also re-serializes atoms cleanly (Reduce's
+        # "serial 0 + new" markers are gone).
+        #
+        # CYX/CYM exception: tleap requires explicit `bond mol.X.SG mol.Y.SG`
+        # to accept CYX. Temporarily rename CYX/CYM back to CYS for the
+        # tleap pass, then post-process to restore the name and strip HG
+        # (CYX/CYM have no HG per AMBER template).
+        cyx_like: dict[tuple[str, int], str] = {
+            k: v for k, v in renames.items() if v in ("CYX", "CYM")
+        }
+        if cyx_like:
+            _rename_residues_in_pdb(output_pdb, cyx_like, target="CYS")
+        try:
+            with tempfile.TemporaryDirectory(
+                    prefix="dvbfixer_prep2_") as tmp2:
+                tmpdir2 = Path(tmp2)
+                step5 = tmpdir2 / "5_no_h.pdb"
+                step6 = tmpdir2 / "6_tleap.pdb"
+                _strip_hydrogens(output_pdb, step5)
+                run_tleap(step5, step6, ff=ff, extra_leaprc=extra_leaprc,
+                          verbose=verbose)
+                _restore_metadata(step6, output_pdb, meta)
+        except TleapError as e:
+            if verbose:
+                print(f"  [prep] second tleap pass skipped ({e})")
+        if cyx_like:
+            _rename_residues_and_strip_atoms(
+                output_pdb, cyx_like, strip_atoms={"HG"}, verbose=verbose,
+            )
 
     n_res = 0
     seen: set[tuple[str, str, str]] = set()

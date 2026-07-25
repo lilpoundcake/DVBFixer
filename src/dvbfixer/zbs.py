@@ -299,13 +299,18 @@ def _run_pipeline(args, input_path):
         current = out
 
     # 4. Minimize (pass 1 — relax heavy atoms using prepare's approximate H).
-    # SKIPPED when using the new tleap-reduce backend: tleap+reduce output
-    # is already deterministic, L-only, and coincident-atom-free. Minimize
-    # is optional relaxation; the user can run it manually if desired.
-    # This also sidesteps a residue-template mismatch between ff19SB's
-    # CLYS/CGLU expected H count and Modeller.addHydrogens output.
-    _skip_minimize_for_new_backend = True   # default; expose as flag if needed
-    if not args.skip_minimize and not _skip_minimize_for_new_backend:
+    # Force ff14SB when the auto-detect would otherwise pick ff19SB, because
+    # prepare's tleap backend produces H per ff14SB templates. Mixing them
+    # breaks Modeller.addHydrogens on C-terminal residues ("H count too many").
+    _minimize_ff = list(args.ff)
+    if _minimize_ff == ["auto"]:
+        _minimize_ff = ["amber14-all.xml", "amber14/tip3pfb.xml"]
+    # Force --rebuild-h so minimize strips prep's H and re-adds via
+    # Modeller.addHydrogens, which normalizes atom sets to OpenMM's own
+    # template expectations (avoids "H count too many/missing" errors
+    # on the interface between tleap and OpenMM).
+    _force_rebuild_h = True
+    if not args.skip_minimize:
         step_num += 1
         print(f"\n{'='*60}")
         print(f"Step {step_num}: MINIMIZE (pass 1)")
@@ -314,17 +319,12 @@ def _run_pipeline(args, input_path):
         out = step_output("minimized")
         minimize_argv = [current, "-o", out,
                          "--ph", str(args.ph),
-                         "--ff"] + args.ff + [
+                         "--ff"] + _minimize_ff + [
                          "--restraint-k", str(args.restraint_k),
                          "--max-iter", str(args.max_iter)]
         if args.no_solvent:
             minimize_argv.append("--no-solvent")
-        # New tleap-reduce prepare backend emits ff14SB/ff19SB H that
-        # OpenMM's own residue templates may count as "too many" (e.g.
-        # terminal LYS with extra NH3+ H). Force minimize to strip &
-        # re-add H via Modeller.addHydrogens so it converges on the
-        # OpenMM-expected atom set.
-        if args.rebuild_h or True:
+        if args.rebuild_h or _force_rebuild_h:
             minimize_argv.append("--rebuild-h")
         if not args.keep_heterogens:
             minimize_argv.append("--strip-heterogens")
@@ -342,16 +342,10 @@ def _run_pipeline(args, input_path):
         _maybe_align(out)
         current = out
 
-    # 5. Protonate — SKIPPED with new backend since prepare already assigned
-    # AMBER variants via PROPKA + Reduce. Restored below when we re-enable
-    # the legacy stages.
-    if False:  # skip whole protonate branch for the tleap-reduce backend
-        pass  # keep the block below as a no-op
-
-    # 5-legacy. Protonate (FULL — PROPKA + Reduce + variant-aware addHydrogens).
+    # 5. Protonate (FULL — PROPKA + Reduce + variant-aware addHydrogens).
     # NO --no-hydrogens: that leaves existing H in wrong positions relative
     # to the new HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN residue names.
-    if False and not args.skip_protonate:
+    if not args.skip_protonate:
         step_num += 1
         # Header reflects which engines are actually going to run.
         _engines = []
@@ -386,8 +380,7 @@ def _run_pipeline(args, input_path):
     # No --rebuild-h: protonate already placed H correctly via variant-aware
     # addHydrogens. minimize preserves AMBER variant names on output via its
     # _input_variants capture-restore path, so no final rename step is needed.
-    if (not args.skip_minimize and not args.skip_protonate
-            and not _skip_minimize_for_new_backend):
+    if not args.skip_minimize and not args.skip_protonate:
         step_num += 1
         print(f"\n{'='*60}")
         print(f"Step {step_num}: MINIMIZE (pass 2 — refine H positions)")
@@ -395,10 +388,10 @@ def _run_pipeline(args, input_path):
         out = step_output("minimized2")
         minimize_argv = [current, "-o", out,
                          "--ph", str(args.ph),
-                         "--ff"] + args.ff + [
+                         "--ff"] + _minimize_ff + [
                          "--restraint-k", str(args.restraint_k),
                          "--max-iter", str(args.max_iter)]
-        if args.rebuild_h:
+        if args.rebuild_h or _force_rebuild_h:
             minimize_argv.append("--rebuild-h")
         if args.no_solvent:
             minimize_argv.append("--no-solvent")
