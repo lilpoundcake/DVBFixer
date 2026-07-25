@@ -2,6 +2,8 @@
 
 [← README](../README.md)
 
+- **CONECT records limited to atom serials ≤ 99999** (PDB v3.30 spec). Every dvbfixer CONECT writer uses fixed-width 5-char serial fields (`f"{serial:5d}"`), which is spec-compliant but silently produces malformed CONECT lines for systems with > 99999 atoms — adjacent 6-digit serial fields run together without a separator. Workarounds: (a) split the system, (b) renumber atoms to fit under 99999 (drop water/heterogens before topology export), (c) use mmCIF via an external tool if you need full-system connectivity in a large complex. Hybrid-36 encoding (BIOVIA/Phenix extension) is on the roadmap for a future release once a real user surfaces the need.
+
 - **NEW: tleap+reduce prep backend (this branch)** — `prepare` and
   `protonate` default to `--backend tleap-reduce` which runs
   `tleap` (heavy atoms) + `reduce -build -nuclear` (H) + PROPKA

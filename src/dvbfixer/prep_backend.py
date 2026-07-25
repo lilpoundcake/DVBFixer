@@ -379,85 +379,246 @@ def _classify_variant(
     return None
 
 
-def _rename_residues_in_pdb(
+def _patch_variant_hydrogens(
     pdb_path: Path,
-    positions: dict[tuple[str, int], str],
-    target: str,
-) -> int:
-    """Rewrite the resname column (17-20) of every ATOM/HETATM whose
-    ``(chain, resseq)`` is in ``positions`` to ``target`` (3-char).
-
-    Used to temporarily rename CYX/CYM → CYS before the second tleap
-    pass; tleap tolerates CYS but rejects CYX without an explicit
-    ``bond`` declaration.
-    """
-    if not positions:
-        return 0
-    n = 0
-    out: list[str] = []
-    for raw in pdb_path.read_text().splitlines(keepends=True):
-        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
-            out.append(raw)
-            continue
-        chain = raw[21]
-        try:
-            resseq = int(raw[22:26].strip())
-        except ValueError:
-            out.append(raw)
-            continue
-        if (chain, resseq) not in positions:
-            out.append(raw)
-            continue
-        out.append(raw[:17] + f"{target:>3s}" + raw[20:])
-        n += 1
-    pdb_path.write_text("".join(out))
-    return n
-
-
-def _rename_residues_and_strip_atoms(
-    pdb_path: Path,
-    positions: dict[tuple[str, int], str],
-    strip_atoms: set[str],
+    renames: dict[tuple[str, int], str],
     verbose: bool = False,
-) -> int:
-    """For each ``(chain, resseq)`` in ``positions``: rewrite the
-    resname column to the mapped value AND drop any ATOM record whose
-    atom name is in ``strip_atoms``.
+) -> tuple[int, int]:
+    """Adjust H set per residue after `assign_amber_variants` renamed
+    it — the H that Reduce placed matches the ORIGINAL (standard)
+    residue name, not the variant. Text-level rewrite:
 
-    Used post-second-tleap to restore CYX/CYM names and remove HG
-    (CYX/CYM have no HG per AMBER template).
+    * **CYX / CYM**: drop `HG` (no HG in these templates).
+    * **LYN**: drop `HZ1` (ff14SB LYN uses HZ2 + HZ3 only).
+    * **ASH**: insert `HD2` at OD2 + 0.97 Å pointing away from OD1
+      (protonated carboxyl, sp2 O, in the CG-OD1-OD2 plane).
+    * **GLH**: insert `HE2` at OE2 + 0.97 Å opposite OE1.
+    * **HID/HIE/HIP**: no-op (Reduce already picked the tautomer + placed
+      the correct H).
+
+    Returns ``(added, dropped)``.
     """
-    if not positions:
-        return 0
-    renamed = 0
-    stripped = 0
-    out: list[str] = []
-    for raw in pdb_path.read_text().splitlines(keepends=True):
-        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
-            out.append(raw)
+    import math
+
+    if not renames:
+        return 0, 0
+
+    drops_by_resname: dict[str, set[str]] = {
+        "CYX": {"HG"},
+        "CYM": {"HG"},
+        "LYN": {"HZ1"},
+    }
+    needs_ash = {k for k, v in renames.items() if v == "ASH"}
+    needs_glh = {k for k, v in renames.items() if v == "GLH"}
+
+    # Read positions once so we can compute HD2/HE2 geometry.
+    coords_per_res: dict[tuple[str, int], dict[str, tuple[float, float, float]]] = {}
+    for raw in pdb_path.read_text().splitlines():
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 54:
             continue
         chain = raw[21]
         try:
             resseq = int(raw[22:26].strip())
         except ValueError:
-            out.append(raw)
             continue
         key = (chain, resseq)
-        if key not in positions:
+        if key not in needs_ash and key not in needs_glh:
+            continue
+        atom_name = raw[12:16].strip()
+        try:
+            x = float(raw[30:38])
+            y = float(raw[38:46])
+            z = float(raw[46:54])
+        except ValueError:
+            continue
+        coords_per_res.setdefault(key, {})[atom_name] = (x, y, z)
+
+    def _place_carboxyl_h(cg, od1, od2):
+        """Place a H on OD2 (or OE2) at 0.97 Å, in the plane of the
+        carboxyl group, on the side opposite OD1 (OE1)."""
+        # Vectors from OD2 to its two neighbours in the sp2 plane.
+        v_cg = (cg[0] - od2[0], cg[1] - od2[1], cg[2] - od2[2])
+        v_od1 = (od1[0] - od2[0], od1[1] - od2[1], od1[2] - od2[2])
+        # In-plane bisector of the two neighbours points into the
+        # carboxyl; H goes opposite. Take -(v_cg + v_od1) direction.
+        s = (-(v_cg[0] + v_od1[0]), -(v_cg[1] + v_od1[1]), -(v_cg[2] + v_od1[2]))
+        n = math.sqrt(s[0] ** 2 + s[1] ** 2 + s[2] ** 2)
+        if n < 1e-6:
+            return None
+        return (od2[0] + 0.97 * s[0] / n,
+                od2[1] + 0.97 * s[1] / n,
+                od2[2] + 0.97 * s[2] / n)
+
+    added = 0
+    dropped = 0
+    out: list[str] = []
+    for raw in pdb_path.read_text().splitlines(keepends=True):
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            out.append(raw)
+            continue
+        chain = raw[21]
+        try:
+            resseq = int(raw[22:26].strip())
+        except ValueError:
+            out.append(raw)
+            continue
+        variant = renames.get((chain, resseq))
+        if variant is None:
             out.append(raw)
             continue
         atom_name = raw[12:16].strip()
-        if atom_name in strip_atoms:
-            stripped += 1
+        strip = drops_by_resname.get(variant, set())
+        if atom_name in strip:
+            dropped += 1
             continue
-        new_resname = positions[key]
-        out.append(raw[:17] + f"{new_resname:>3s}" + raw[20:])
-        renamed += 1
+        out.append(raw)
+
+    # Now insert HD2 / HE2 lines just after the corresponding OD2/OE2
+    # atom line for each ASH / GLH residue.
+    to_insert: dict[int, list[str]] = {}
+    for key in needs_ash:
+        cds = coords_per_res.get(key, {})
+        if not {"CG", "OD1", "OD2"}.issubset(cds):
+            continue
+        pos = _place_carboxyl_h(cds["CG"], cds["OD1"], cds["OD2"])
+        if pos is None:
+            continue
+        # Find OD2 line index in `out` for this residue and insert HD2 after it.
+        target_res = key
+        for i, ln in enumerate(out):
+            if not ln.startswith(("ATOM  ", "HETATM")) or len(ln) < 27:
+                continue
+            if ln[21] != target_res[0]:
+                continue
+            try:
+                rs = int(ln[22:26].strip())
+            except ValueError:
+                continue
+            if rs != target_res[1] or ln[12:16].strip() != "OD2":
+                continue
+            new_line = _emit_h_line(ln, "HD2", pos)
+            to_insert.setdefault(i + 1, []).append(new_line)
+            added += 1
+            break
+    for key in needs_glh:
+        cds = coords_per_res.get(key, {})
+        if not {"CD", "OE1", "OE2"}.issubset(cds):
+            continue
+        pos = _place_carboxyl_h(cds["CD"], cds["OE1"], cds["OE2"])
+        if pos is None:
+            continue
+        target_res = key
+        for i, ln in enumerate(out):
+            if not ln.startswith(("ATOM  ", "HETATM")) or len(ln) < 27:
+                continue
+            if ln[21] != target_res[0]:
+                continue
+            try:
+                rs = int(ln[22:26].strip())
+            except ValueError:
+                continue
+            if rs != target_res[1] or ln[12:16].strip() != "OE2":
+                continue
+            new_line = _emit_h_line(ln, "HE2", pos)
+            to_insert.setdefault(i + 1, []).append(new_line)
+            added += 1
+            break
+
+    if to_insert:
+        rebuilt: list[str] = []
+        for i, ln in enumerate(out):
+            rebuilt.append(ln)
+            if i + 1 in to_insert:
+                rebuilt.extend(to_insert[i + 1])
+        out = rebuilt
+
     pdb_path.write_text("".join(out))
-    if verbose and (renamed or stripped):
-        print(f"  [prep] restored {renamed} CYX/CYM residue name(s), "
-              f"stripped {stripped} HG atom(s)")
-    return renamed
+    if verbose and (added or dropped):
+        print(f"  [prep] variant H patch: +{added} (ASH HD2 / GLH HE2), "
+              f"-{dropped} (CYX/CYM HG, LYN HZ1)")
+    return added, dropped
+
+
+def _emit_h_line(template_line: str, atom_name: str,
+                 pos: tuple[float, float, float]) -> str:
+    """Build a new ATOM record for a hydrogen at `pos`, using
+    template_line as the source of chain/resseq/resname/etc."""
+    # PDB ATOM record layout (0-indexed):
+    #  0-5   record name
+    #  6-10  serial
+    #  12-15 atom name
+    #  17-19 residue name
+    #  21    chain
+    #  22-25 resseq
+    #  26    icode
+    #  30-37 x, 38-45 y, 46-53 z
+    #  54-59 occupancy
+    #  60-65 tempFactor
+    #  76-77 element
+    chain = template_line[21] if len(template_line) > 21 else " "
+    resseq = template_line[22:26] if len(template_line) >= 26 else "    "
+    icode = template_line[26] if len(template_line) > 26 else " "
+    resname = template_line[17:20] if len(template_line) >= 20 else "   "
+    # Right-pad atom name field to 4 chars, left-justified for 3-char names
+    # per PDB v3.3 convention.
+    if len(atom_name) < 4:
+        name_field = f" {atom_name:<3s}"
+    else:
+        name_field = f"{atom_name:<4s}"
+    return (
+        f"ATOM  {0:5d} {name_field} {resname:>3s} "
+        f"{chain}{resseq}{icode}   "
+        f"{pos[0]:8.3f}{pos[1]:8.3f}{pos[2]:8.3f}"
+        f"{1.00:6.2f}{0.00:6.2f}          "
+        f" H\n"
+    )
+
+
+def _filter_altlocs(
+    pdb_path: Path,
+    out_path: Path | None = None,
+    keep: str = "A",
+    verbose: bool = False,
+) -> int:
+    """Keep only altloc `' '` and `keep` (default 'A'); drop others.
+
+    Also blanks column 17 on the kept lines so downstream tools don't
+    trip over the altloc marker. Emits one WARN per affected residue.
+
+    Returns the count of dropped atoms. If ``out_path is None`` the
+    file is rewritten in place.
+    """
+    target = out_path if out_path is not None else pdb_path
+    dropped = 0
+    warned: set[tuple[str, str, str]] = set()
+    out: list[str] = []
+    for raw in pdb_path.read_text().splitlines(keepends=True):
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            out.append(raw)
+            continue
+        altloc = raw[16]
+        if altloc not in (" ", keep):
+            resname = raw[17:20].strip()
+            chain = raw[21]
+            resseq = raw[22:26].strip()
+            k = (chain, resseq, resname)
+            if k not in warned:
+                warned.add(k)
+                if verbose:
+                    print(f"  [altloc] {chain}/{resname}{resseq}: keeping "
+                          f"'{keep}', dropping '{altloc}' (and any "
+                          f"further alt-locs)")
+            dropped += 1
+            continue
+        # Blank the altloc column on kept lines.
+        if altloc != " ":
+            raw = raw[:16] + " " + raw[17:]
+        out.append(raw)
+    target.write_text("".join(out))
+    if verbose and dropped and not warned:
+        print(f"  [altloc] dropped {dropped} atom(s) across {len(warned)} "
+              f"residue(s)")
+    return dropped
 
 
 def _find_terminal_residues(
@@ -609,19 +770,24 @@ def run_prep(
 
     with tempfile.TemporaryDirectory(prefix="dvbfixer_prep_") as tmp:
         tmpdir = Path(tmp)
+        step0 = tmpdir / "0_altloc_clean.pdb"
         step1 = tmpdir / "1_no_h.pdb"
         step2 = tmpdir / "2_tleap.pdb"
         step3 = tmpdir / "3_no_h.pdb"
         step4 = tmpdir / "4_reduce.pdb"
 
-        _strip_hydrogens(input_pdb, step1)
+        # Drop non-A altloc atoms up front; tleap otherwise treats each
+        # altloc as a distinct atom and downstream OpenMM warns about
+        # duplicates (or crashes).
+        _filter_altlocs(input_pdb, step0, keep="A", verbose=verbose)
+        _strip_hydrogens(step0, step1)
         run_tleap(step1, step2, ff=ff, extra_leaprc=extra_leaprc,
                   verbose=verbose)
         _strip_hydrogens(step2, step3)
         run_reduce(step3, step4, build=True, nuclear=True, verbose=verbose)
 
-        # Reduce may strip chain IDs; restore from input metadata.
-        meta = _capture_residue_meta(input_pdb)
+        # Reduce may strip chain IDs; restore from altloc-filtered input.
+        meta = _capture_residue_meta(step0)
         _restore_metadata(step4, output_pdb, meta)
 
     renames: dict[tuple[str, int], str] = {}
@@ -645,38 +811,10 @@ def run_prep(
             verbose=verbose,
         )
 
-        # Second tleap pass — with the variant residue names now in place,
-        # tleap places the CORRECT H per each variant template: ASH gets
-        # HD2, GLH gets HE2, LYN uses HZ2+HZ3 (no HZ1), HID/HIE/HIP get
-        # correct sidechain H. Also re-serializes atoms cleanly (Reduce's
-        # "serial 0 + new" markers are gone).
-        #
-        # CYX/CYM exception: tleap requires explicit `bond mol.X.SG mol.Y.SG`
-        # to accept CYX. Temporarily rename CYX/CYM back to CYS for the
-        # tleap pass, then post-process to restore the name and strip HG
-        # (CYX/CYM have no HG per AMBER template).
-        cyx_like: dict[tuple[str, int], str] = {
-            k: v for k, v in renames.items() if v in ("CYX", "CYM")
-        }
-        if cyx_like:
-            _rename_residues_in_pdb(output_pdb, cyx_like, target="CYS")
-        try:
-            with tempfile.TemporaryDirectory(
-                    prefix="dvbfixer_prep2_") as tmp2:
-                tmpdir2 = Path(tmp2)
-                step5 = tmpdir2 / "5_no_h.pdb"
-                step6 = tmpdir2 / "6_tleap.pdb"
-                _strip_hydrogens(output_pdb, step5)
-                run_tleap(step5, step6, ff=ff, extra_leaprc=extra_leaprc,
-                          verbose=verbose)
-                _restore_metadata(step6, output_pdb, meta)
-        except TleapError as e:
-            if verbose:
-                print(f"  [prep] second tleap pass skipped ({e})")
-        if cyx_like:
-            _rename_residues_and_strip_atoms(
-                output_pdb, cyx_like, strip_atoms={"HG"}, verbose=verbose,
-            )
+        # Patch H set per variant template directly (avoids a second
+        # tleap pass that was duplicating C-terminal O/OXT atoms in
+        # 0.7.1).
+        _patch_variant_hydrogens(output_pdb, renames, verbose=verbose)
 
     n_res = 0
     seen: set[tuple[str, str, str]] = set()

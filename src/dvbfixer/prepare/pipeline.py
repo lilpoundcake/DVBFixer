@@ -104,6 +104,60 @@ _VARIANT_TO_STANDARD = {
 
 
 
+def _warn_covalent_heterogen_bonds(pdb_path, verbose=False):
+    """Scan CONECT records for bonds between an ATOM (protein) and a
+    HETATM (heterogen). Emit a WARNING per covalent link so the user
+    sees they're about to break a glycosylation site, ligand attachment,
+    or PTM by using ``--strip-heterogens``.
+    """
+    # Build atom index → (record, chain, resname, resseq, atomname)
+    atom_kind: dict[int, tuple[str, str, str, str, str]] = {}
+    try:
+        text = Path(pdb_path).read_text()
+    except Exception:
+        return
+    for raw in text.splitlines():
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            continue
+        try:
+            serial = int(raw[6:11].strip())
+        except ValueError:
+            continue
+        atom_kind[serial] = (
+            raw[:6].strip(), raw[21], raw[17:20].strip(),
+            raw[22:26].strip(), raw[12:16].strip(),
+        )
+    covalent_hits: list[tuple] = []
+    for raw in text.splitlines():
+        if not raw.startswith("CONECT"):
+            continue
+        try:
+            serials = [int(s) for s in raw[6:].split() if s]
+        except ValueError:
+            continue
+        if len(serials) < 2:
+            continue
+        a = serials[0]
+        rec_a = atom_kind.get(a)
+        if rec_a is None:
+            continue
+        for b in serials[1:]:
+            rec_b = atom_kind.get(b)
+            if rec_b is None:
+                continue
+            if rec_a[0] == rec_b[0]:
+                continue  # same class — ATOM-ATOM or HETATM-HETATM
+            covalent_hits.append((rec_a, rec_b))
+    if covalent_hits:
+        print(f"  [strip-heterogens] WARNING: dropping {len(covalent_hits)} "
+              f"covalent ATOM↔HETATM bond(s). Downstream MD will miss "
+              f"these attachments. Pass --keep-heterogens to preserve.")
+        if verbose:
+            for a, b in covalent_hits[:10]:
+                print(f"    {a[0]} {a[1]}/{a[2]}{a[3]}:{a[4]} → "
+                      f"{b[0]} {b[1]}/{b[2]}{b[3]}:{b[4]}")
+
+
 def _preprocess_glycoprotein_input(input_path, verbose=False):
     """Backward-compat wrapper around `ffutils.sanitize_protein_hetatm`.
 
@@ -387,6 +441,7 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     print(f"PDBFixer: {n_missing_res} missing residues, {n_missing_atoms} residues with missing atoms")
 
     if not keep_heterogens:
+        _warn_covalent_heterogen_bonds(input_path, verbose=verbose)
         fixer.removeHeterogens(keepWater=keep_water)
 
     fixer.replaceNonstandardResidues()

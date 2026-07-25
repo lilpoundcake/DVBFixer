@@ -44,41 +44,76 @@ _CHAIN_PATTERNS = [
     re.compile(r'^([A-Za-z0-9])$'),
 ]
 
+# Multi-chain suffix: `>1abc_A_B` or `>1abc_A_B_C` → chains A, B, C share seq.
+_MULTI_CHAIN_SUFFIX = re.compile(r'_([A-Za-z0-9](?:_[A-Za-z0-9])+)$')
+# RCSB pipe: `>8A67_2|Chains B, C, F, G|Polyubiquitin-B|Homo sapiens`.
+_RCSB_CHAINS = re.compile(r'\|\s*Chains?\s+([^|]+?)\s*\|', re.IGNORECASE)
 
-def _chain_id_from_header(header):
-    """Extract chain ID from a FASTA header. Returns None on failure."""
+
+def _chain_ids_from_header(header, description=None):
+    """Return list of chain IDs from a FASTA header.
+
+    Tries in order: RCSB `|Chains X, Y, Z|` (on the full description),
+    multi-chain suffix `>PDBID_A_B`, then the three single-chain
+    patterns. Empty list on no match.
+    """
+    if description:
+        m = _RCSB_CHAINS.search(description)
+        if m:
+            chains = re.split(r'[,\s]+', m.group(1).strip())
+            return [c.upper() for c in chains if c]
     h = header.strip()
+    m = _MULTI_CHAIN_SUFFIX.search(h)
+    if m:
+        return [c.upper() for c in m.group(1).split('_') if c]
     for pat in _CHAIN_PATTERNS:
         m = pat.search(h)
         if m:
-            return m.group(1).upper()
-    return None
+            return [m.group(1).upper()]
+    return []
+
+
+def _chain_id_from_header(header):
+    """Compatibility wrapper — returns the first chain ID or None."""
+    ids = _chain_ids_from_header(header)
+    return ids[0] if ids else None
 
 
 def parse_fasta(fasta_path):
     """Parse a FASTA file, return dict {chain_id: sequence}.
 
-    Headers are parsed for a chain ID. Supported header formats:
-      >chain_X / >chainX  (explicit prefix, case-insensitive)
-      >XXXX_X             (PDB-style, e.g. '1abc_A')
-      >X                  (single-character header)
+    Header formats supported (priority order):
+      * ``>8A67_2|Chains B, C, F, G|Polyubiquitin-B|Homo sapiens (9606)``
+        (RCSB pipe-delimited) — assigns the sequence to every chain in
+        the ``Chains`` field.
+      * ``>PDBID_A_B`` (multi-chain suffix) — assigns the sequence to
+        chains A and B.
+      * ``>chain_X`` / ``>chainX`` / ``>PDBID_X`` / ``>X`` — single chain.
 
-    Raises ValueError if a chain ID cannot be determined or if duplicate
-    chain IDs are found.
+    When the same chain letter appears in multiple records with
+    IDENTICAL sequences, the second occurrence is silently ignored.
+    Only differing sequences on the same chain raise ValueError.
     """
     from Bio import SeqIO
     records = list(SeqIO.parse(fasta_path, "fasta"))
-    result = {}
+    result: dict[str, str] = {}
     for r in records:
-        ch = _chain_id_from_header(r.id)
-        if ch is None:
+        chain_ids = _chain_ids_from_header(r.id, description=r.description)
+        if not chain_ids:
             raise ValueError(
-                f"Could not extract chain ID from FASTA header '{r.id}'. "
-                "Use '>chain_X', '>PDBID_X', or '>X' format."
+                f"Could not extract chain ID from FASTA header '{r.description}'. "
+                "Supported formats: '>chain_X', '>PDBID_X', '>PDBID_A_B', "
+                "'>X', or RCSB-style '>PDBID_N|Chains A, B, C|Name|Organism'."
             )
-        if ch in result:
-            raise ValueError(f"Duplicate chain ID '{ch}' in FASTA file.")
-        result[ch] = str(r.seq)
+        seq = str(r.seq)
+        for ch in chain_ids:
+            if ch in result:
+                if result[ch] == seq:
+                    continue   # idempotent
+                raise ValueError(
+                    f"Chain '{ch}' has two different sequences in FASTA."
+                )
+            result[ch] = seq
     return result
 
 
@@ -829,10 +864,37 @@ def main(argv=None):
                 file=sys.stderr,
             )
             sys.exit(1)
+        # FASTA chains not in the input PDB — skip them (don't try to
+        # model a chain we have no ATOM records to align to). Always
+        # warn (not just verbose) so users don't silently miss a chain.
         extra = [c for c in fasta_map if c not in protein_chains]
-        if extra and args.verbose:
-            print(f"Note: FASTA has extra chain(s) not in PDB (ignored): "
-                  f"{', '.join(extra)}")
+        if extra:
+            print(f"  [fasta] WARNING: chain(s) {', '.join(extra)} in "
+                  f"FASTA but not in input PDB; skipping (no ATOM records "
+                  f"to align to). Pass --force-fasta-chains to attempt "
+                  f"modeling from scratch (not implemented in 0.7.2).")
+        # SEQRES vs FASTA consistency check — WARN on divergence, but
+        # use FASTA (SEQRES is often incomplete on legacy PDBs).
+        if seqres:
+            for ch in protein_chains:
+                if ch not in seqres:
+                    continue
+                seqres_letters = ''.join(
+                    AA3TO1.get(r, 'X') for r in seqres[ch]
+                )
+                fasta_letters = fasta_map[ch]
+                if seqres_letters != fasta_letters:
+                    # Find first divergence position.
+                    diff_i = next(
+                        (i for i, (a, b) in enumerate(
+                            zip(seqres_letters, fasta_letters))
+                         if a != b),
+                        min(len(seqres_letters), len(fasta_letters)),
+                    )
+                    print(f"  [fasta] WARNING: chain {ch} SEQRES differs "
+                          f"from FASTA at position {diff_i + 1} "
+                          f"(SEQRES len={len(seqres_letters)}, FASTA len="
+                          f"{len(fasta_letters)}); using FASTA.")
         protein_seq_map = {ch: fasta_map[ch] for ch in protein_chains}
     else:
         if not seqres:
@@ -1006,6 +1068,7 @@ def main(argv=None):
         resnum_mapping = build_resnum_mapping(
             per_chain_masks, all_chains, protein_chains, lines,
             protein_seq_map=protein_seq_map,
+            renumber_from_1=getattr(args, "renumber_from_1", False),
         )
         n_gaps = sum(
             not m for ci, chain in enumerate(all_chains)

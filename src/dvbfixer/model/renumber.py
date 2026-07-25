@@ -227,7 +227,7 @@ def _align_atoms_to_seqres(orig_residues, seqres_seq):
     return result
 
 
-def _interpolate_gaps(full_resids, region_len):
+def _interpolate_gaps(full_resids, region_len, renumber_from_1=False):
     """Fill `None` entries in `full_resids[:region_len]` by interpolating
     between flanking non-None entries.
 
@@ -235,9 +235,16 @@ def _interpolate_gaps(full_resids, region_len):
     - internal gap (left and right templates present): place sequentially
       from `left + 1` if room, else number backward from `right`.
     - N-terminal gap (no left): number backward from the first template.
+      If that would produce non-positive resseqs (input's first template
+      resseq ≤ gap_len), fall back to shifting the whole chain by
+      ``1 - min_resseq`` so the first residue is 1 (WARN emitted).
     - C-terminal gap (no right within region): number forward from the
       last template.
     - all-None region: number sequentially from 1.
+
+    If ``renumber_from_1=True``, the N-terminal branch unconditionally
+    shifts to start at 1 regardless of whether the preserved numbering
+    would fit.
 
     Operates in-place on `full_resids`. Entries beyond `region_len` are
     left alone (HETATM `.` slots are filled by the trailing sequential
@@ -245,6 +252,7 @@ def _interpolate_gaps(full_resids, region_len):
     """
     region_len = min(region_len, len(full_resids))
     i = 0
+    n_term_shift_warned = False
     while i < region_len:
         if full_resids[i] is not None:
             i += 1
@@ -275,8 +283,32 @@ def _interpolate_gaps(full_resids, region_len):
                 for k in range(gap_len):
                     full_resids[gap_start + k] = (right - gap_len + k, ' ')
         elif left is None and right is not None:
-            for k in range(gap_len):
-                full_resids[gap_start + k] = (right - gap_len + k, ' ')
+            candidates = [right - gap_len + k for k in range(gap_len)]
+            if min(candidates) > 0 and not renumber_from_1:
+                for k in range(gap_len):
+                    full_resids[gap_start + k] = (candidates[k], ' ')
+            else:
+                # Shift the whole chain so the first residue is 1.
+                # Compute shift so min(candidates) becomes 1.
+                shift = 1 - min(candidates)
+                if not n_term_shift_warned:
+                    print(f"  [renumber] N-terminal fill would yield "
+                          f"non-positive resseqs (min={min(candidates)}); "
+                          f"shifting chain by +{shift} so first residue "
+                          f"is 1. Pass --no-renumber-from-1 to preserve "
+                          f"original numbering (currently ignored on "
+                          f"non-positive fill).")
+                    n_term_shift_warned = True
+                for k in range(gap_len):
+                    full_resids[gap_start + k] = (candidates[k] + shift, ' ')
+                # Also shift EVERY already-placed resid in this region.
+                for j in range(region_len):
+                    if j >= gap_start and j < gap_end:
+                        continue
+                    if full_resids[j] is None:
+                        continue
+                    rs, ic = full_resids[j]
+                    full_resids[j] = (rs + shift, ic)
         elif left is not None and right is None:
             for k in range(gap_len):
                 full_resids[gap_start + k] = (left + k + 1, ' ')
@@ -286,7 +318,7 @@ def _interpolate_gaps(full_resids, region_len):
 
 
 def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_lines,
-                          protein_seq_map=None):
+                          protein_seq_map=None, renumber_from_1=False):
     """Build mapping: (model_chain, model_resSeq) -> (original_resSeq, icode).
 
     Strategy (preferred): when input chain numbering is contiguous within the
@@ -382,7 +414,8 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
                 if pos is None or pos < 0 or pos >= len(mask):
                     continue
                 full_resids[pos] = (resseq, icode)
-            _interpolate_gaps(full_resids, seq_len)
+            _interpolate_gaps(full_resids, seq_len,
+                              renumber_from_1=renumber_from_1)
 
             # Place HETATM residues (attached glycans, ligands) at the
             # trailing `.` slots beyond the protein region, preserving

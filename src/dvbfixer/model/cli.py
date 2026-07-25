@@ -77,6 +77,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--no-terminal", action="store_true",
         help="Do not model missing N/C terminal residues (only rebuild internal gaps)"
     )
+    modelling.add_argument(
+        "--renumber-from-1", action="store_true",
+        help="Force the whole chain to start at resseq 1 when Modeller "
+             "adds N-terminal residues. Default OFF: preserve original "
+             "PDB numbering unless it would yield non-positive resseqs "
+             "(e.g. input starts at resseq 3 with 5 added N-term "
+             "residues → would go to -1..3; auto-fallback to shift-to-1 "
+             "with WARN)."
+    )
 
     content = p.add_argument_group("Content selection")
     content.add_argument(

@@ -138,6 +138,10 @@ def parse_args(argv=None):
                               "(SS/glycosidic/glycosylation) from coordinates.")
     general.add_argument("--keep-interim", action="store_true",
                          help="Keep all intermediate files (default: only final output)")
+    general.add_argument("--dry-run", action="store_true",
+                         help="Print the planned pipeline steps + output "
+                              "filenames without running anything. Useful "
+                              "when many skip flags are in play.")
     general.add_argument("--align-to-input", dest="align_to_input",
                          action=argparse.BooleanOptionalAction, default=True,
                          help="After every pipeline step, Kabsch-align the output "
@@ -182,11 +186,63 @@ def _lazy_import_chirality_error():
     return ChiralityError
 
 
+def _print_dry_run(args, input_path, final_output):
+    """Print the planned pipeline steps + outputs without running anything."""
+    print("Planned zbs pipeline:")
+    step = 1
+
+    def _line(name, out_suffix, notes=""):
+        nonlocal step
+        out = str(input_path.with_stem(input_path.stem + out_suffix))
+        line = f"  {step}. {name:12s} → {Path(out).name}"
+        if notes:
+            line += f"   ({notes})"
+        print(line)
+        step += 1
+
+    if not args.skip_renumber:
+        _line("renumber", "_renum",
+              "SEQRES-based residue renumbering"
+              + (", keep water" if args.keep_water else ""))
+    if not args.skip_model:
+        notes = f"Modeller LoopModel, --md-level {args.md_level}"
+        if args.fasta:
+            notes += f", --fasta {args.fasta}"
+        if not args.pin_input:
+            notes += ", --no-pin-input"
+        _line("model", "_model", notes)
+    if not args.skip_prepare:
+        notes = "backend: tleap-reduce (PROPKA + variant H patch)"
+        if not args.keep_heterogens:
+            notes += ", --strip-heterogens"
+        if args.mutate:
+            notes += f", {len(args.mutate)} mutation(s)"
+        _line("prepare", "_prepared", notes)
+    if not args.skip_minimize:
+        notes = "OpenMM ff14SB"
+        if args.no_solvent:
+            notes += ", --no-solvent"
+        if args.rebuild_h:
+            notes += ", --rebuild-h"
+        if args.refine != "none":
+            notes += f", --refine {args.refine}"
+        _line("minimize", "_minimized", notes)
+
+    print(f"  final       → {final_output.name}")
+    if args.verbose:
+        interim_kept = "keep" if args.keep_interim else "delete"
+        print(f"  (interim files: {interim_kept})")
+
+
 def _run_pipeline(args, input_path):
     if args.output:
         final_output = Path(args.output)
     else:
         final_output = input_path.with_stem(input_path.stem + "_zbs")
+
+    if getattr(args, "dry_run", False):
+        _print_dry_run(args, input_path, final_output)
+        return
 
     current = str(input_path)
     step_num = 0
@@ -298,22 +354,17 @@ def _run_pipeline(args, input_path):
         _maybe_align(out)
         current = out
 
-    # 4. Minimize (pass 1 — relax heavy atoms using prepare's approximate H).
-    # Force ff14SB when the auto-detect would otherwise pick ff19SB, because
-    # prepare's tleap backend produces H per ff14SB templates. Mixing them
-    # breaks Modeller.addHydrogens on C-terminal residues ("H count too many").
+    # 4. Minimize — single pass. The new tleap-reduce prepare backend
+    # already ran PROPKA + Reduce + variant H patching, so there's no
+    # protonate step and no second minimize. Force ff14SB in the
+    # minimize --ff so it matches tleap's ff14SB templates.
     _minimize_ff = list(args.ff)
     if _minimize_ff == ["auto"]:
         _minimize_ff = ["amber14-all.xml", "amber14/tip3pfb.xml"]
-    # Force --rebuild-h so minimize strips prep's H and re-adds via
-    # Modeller.addHydrogens, which normalizes atom sets to OpenMM's own
-    # template expectations (avoids "H count too many/missing" errors
-    # on the interface between tleap and OpenMM).
-    _force_rebuild_h = True
     if not args.skip_minimize:
         step_num += 1
         print(f"\n{'='*60}")
-        print(f"Step {step_num}: MINIMIZE (pass 1)")
+        print(f"Step {step_num}: MINIMIZE")
         print(f"{'='*60}")
         from dvbfixer.minimize import main as minimize_main
         out = step_output("minimized")
@@ -324,84 +375,12 @@ def _run_pipeline(args, input_path):
                          "--max-iter", str(args.max_iter)]
         if args.no_solvent:
             minimize_argv.append("--no-solvent")
-        if args.rebuild_h or _force_rebuild_h:
+        if args.rebuild_h:
             minimize_argv.append("--rebuild-h")
         if not args.keep_heterogens:
             minimize_argv.append("--strip-heterogens")
         if args.rename:
             minimize_argv.append("--rename")
-        if args.no_infer_conect:
-            minimize_argv.append("--no-infer-conect")
-        if args.parametrize_ligands:
-            minimize_argv.append("--parametrize-ligands")
-        if args.platform:
-            minimize_argv.extend(["--platform", args.platform])
-        if args.verbose:
-            minimize_argv.append("-v")
-        minimize_main(minimize_argv)
-        _maybe_align(out)
-        current = out
-
-    # 5. Protonate (FULL — PROPKA + Reduce + variant-aware addHydrogens).
-    # NO --no-hydrogens: that leaves existing H in wrong positions relative
-    # to the new HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN residue names.
-    if not args.skip_protonate:
-        step_num += 1
-        # Header reflects which engines are actually going to run.
-        _engines = []
-        if args.propka:
-            _engines.append("PROPKA")
-        if args.protassign:
-            _engines.append("Reduce")
-        _engines.append("addHydrogens")
-        print(f"\n{'='*60}")
-        print(f"Step {step_num}: PROTONATE ({' + '.join(_engines)})")
-        print(f"{'='*60}")
-        from dvbfixer.protonate import main as protonate_main
-        out = step_output("prot")
-        protonate_argv = [current, "-o", out,
-                          "--ph", str(args.ph),
-                          "--ff"] + args.ff
-        if not args.propka:
-            protonate_argv.append("--no-propka")
-        if not args.protassign:
-            protonate_argv.append("--no-protassign")
-        if args.no_infer_conect:
-            protonate_argv.append("--no-infer-conect")
-        if args.keep_water:
-            protonate_argv.append("--keep-water")
-        if args.verbose:
-            protonate_argv.extend(["-v", "--summary"])
-        protonate_main(protonate_argv)
-        _maybe_align(out)
-        current = out
-
-    # 6. Minimize (pass 2 — refine the fresh H positions).
-    # No --rebuild-h: protonate already placed H correctly via variant-aware
-    # addHydrogens. minimize preserves AMBER variant names on output via its
-    # _input_variants capture-restore path, so no final rename step is needed.
-    if not args.skip_minimize and not args.skip_protonate:
-        step_num += 1
-        print(f"\n{'='*60}")
-        print(f"Step {step_num}: MINIMIZE (pass 2 — refine H positions)")
-        print(f"{'='*60}")
-        out = step_output("minimized2")
-        minimize_argv = [current, "-o", out,
-                         "--ph", str(args.ph),
-                         "--ff"] + _minimize_ff + [
-                         "--restraint-k", str(args.restraint_k),
-                         "--max-iter", str(args.max_iter)]
-        if args.rebuild_h or _force_rebuild_h:
-            minimize_argv.append("--rebuild-h")
-        if args.no_solvent:
-            minimize_argv.append("--no-solvent")
-        if not args.keep_heterogens:
-            minimize_argv.append("--strip-heterogens")
-        # NOTE: DO NOT propagate --rename to minimize step 2. This
-        # runs AFTER protonate, which just wrote the AMBER variant
-        # names based on PROPKA. Canonicalising them here throws
-        # away the pKa work. --rename belongs only on the input-facing
-        # steps (prepare + minimize step 1).
         if args.no_infer_conect:
             minimize_argv.append("--no-infer-conect")
         if args.parametrize_ligands:
