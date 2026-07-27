@@ -621,6 +621,151 @@ def _filter_altlocs(
     return dropped
 
 
+def _rename_all_his_variants_to_his(pdb_path: Path) -> int:
+    """Rewrite HID/HIE/HIP → HIS in every ATOM/HETATM line so Reduce's
+    ``-build`` tautomer decision fires. Reduce treats HID/HIE/HIP as
+    fixed and won't touch them; it only performs the network optimisation
+    on residues labelled ``HIS``. Called between tleap (which defaults
+    HIS→HIE) and reduce so Reduce sees a clean HIS input.
+    """
+    n = 0
+    out: list[str] = []
+    for raw in pdb_path.read_text().splitlines(keepends=True):
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 20:
+            out.append(raw)
+            continue
+        resname = raw[17:20].strip()
+        if resname in ("HID", "HIE", "HIP"):
+            out.append(raw[:17] + "HIS" + raw[20:])
+            n += 1
+        else:
+            out.append(raw)
+    pdb_path.write_text("".join(out))
+    return n
+
+
+def _infer_his_tautomers_from_atoms(
+    pdb_path: Path,
+) -> dict[tuple[str, int], str]:
+    """Return ``{(chain, resseq): HID/HIE/HIP}`` for each HIS/HID/HIE/HIP
+    residue based on which imidazole H atoms are present.
+
+    ``reduce -build -nuclear`` picks the tautomer per residue but leaves
+    the residue name as ``HIS``. We inspect the placed H atoms:
+
+    * HD1 present, HE2 absent  → ``HID`` (proton on δ-nitrogen)
+    * HE2 present, HD1 absent  → ``HIE`` (proton on ε-nitrogen)
+    * Both present             → ``HIP`` (doubly protonated, +1 charge)
+    * Neither                  → keep ``HIS`` (deprotonated; unusual —
+      logged as a warning by the caller if verbose)
+    """
+    hd1_seen: set[tuple[str, int]] = set()
+    he2_seen: set[tuple[str, int]] = set()
+    his_residues: set[tuple[str, int]] = set()
+    for raw in pdb_path.read_text().splitlines():
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            continue
+        resname = raw[17:20].strip()
+        if resname not in ("HIS", "HID", "HIE", "HIP"):
+            continue
+        chain = raw[21]
+        try:
+            resseq = int(raw[22:26].strip())
+        except ValueError:
+            continue
+        key = (chain, resseq)
+        his_residues.add(key)
+        name = raw[12:16].strip()
+        if name == "HD1":
+            hd1_seen.add(key)
+        elif name == "HE2":
+            he2_seen.add(key)
+
+    result: dict[tuple[str, int], str] = {}
+    for key in his_residues:
+        has_hd1 = key in hd1_seen
+        has_he2 = key in he2_seen
+        if has_hd1 and has_he2:
+            result[key] = "HIP"
+        elif has_hd1:
+            result[key] = "HID"
+        elif has_he2:
+            result[key] = "HIE"
+        else:
+            # Deprotonated HIS — leave as HIS, unusual.
+            result[key] = "HIS"
+    return result
+
+
+def _rename_residues_in_pdb(
+    pdb_path: Path,
+    renames: dict[tuple[str, int], str],
+) -> int:
+    """Rewrite the resname column (17-20) of ATOM/HETATM lines for each
+    (chain, resseq) in ``renames``. Returns count of lines rewritten."""
+    if not renames:
+        return 0
+    n = 0
+    out: list[str] = []
+    for raw in pdb_path.read_text().splitlines(keepends=True):
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            out.append(raw)
+            continue
+        chain = raw[21]
+        try:
+            resseq = int(raw[22:26].strip())
+        except ValueError:
+            out.append(raw)
+            continue
+        new_name = renames.get((chain, resseq))
+        if not new_name:
+            out.append(raw)
+            continue
+        out.append(raw[:17] + f"{new_name:>3s}" + raw[20:])
+        n += 1
+    pdb_path.write_text("".join(out))
+    return n
+
+
+def _detect_ss_bonds_from_distance(
+    pdb_path: Path, cutoff_a: float = 2.5,
+) -> set[tuple[str, int]]:
+    """Fallback SS-bond detector when CONECT records are missing.
+
+    Returns a set of ``(chain, resseq)`` for every CYS SG within
+    ``cutoff_a`` Å of another CYS SG. Distance is Angstroms (PDB units).
+    """
+    import math
+
+    sg_positions: list[tuple[str, int, float, float, float]] = []
+    for raw in pdb_path.read_text().splitlines():
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 54:
+            continue
+        resname = raw[17:20].strip()
+        if resname not in ("CYS", "CYX", "CYM"):
+            continue
+        if raw[12:16].strip() != "SG":
+            continue
+        chain = raw[21]
+        try:
+            resseq = int(raw[22:26].strip())
+            x = float(raw[30:38])
+            y = float(raw[38:46])
+            z = float(raw[46:54])
+        except ValueError:
+            continue
+        sg_positions.append((chain, resseq, x, y, z))
+
+    result: set[tuple[str, int]] = set()
+    for i, (c1, r1, x1, y1, z1) in enumerate(sg_positions):
+        for c2, r2, x2, y2, z2 in sg_positions[i + 1:]:
+            d = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2)
+            if d <= cutoff_a:
+                result.add((c1, r1))
+                result.add((c2, r2))
+    return result
+
+
 def _find_terminal_residues(
     pdb_path: Path,
 ) -> set[tuple[str, int]]:
@@ -691,15 +836,16 @@ def assign_amber_variants(
     """
     ss = ss_pairs or set()
     pkas = propka_pkas or {}
-    # Terminals have no NLYN/CLYN/NASH/CASH/NGLH/CGLH/etc. templates in
-    # ff14SB — skip variant assignment there and let the residue stay
-    # standard (LYS/ASP/GLU/CYS).
+    # Terminals: ff14SB has NHID/NHIE/NHIP/CHID/CHIE/CHIP + NCYX/CCYX,
+    # so those variants ARE safe at termini. Only LYN/ASH/GLH/CYM lack
+    # NRES/CRES templates (no RESP charges were ever computed for
+    # terminal deprotonated/protonated variants of those).
     terminals = _find_terminal_residues(pdb_path)
-    _NO_TERMINAL_VARIANT = {"LYN", "ASH", "GLH", "CYX", "CYM"}
+    _NO_TERMINAL_VARIANT = {"LYN", "ASH", "GLH", "CYM"}
 
     renames: dict[tuple[str, int], str] = {}
     out: list[str] = []
-    n_terminal_skipped = 0
+    terminal_skipped: set[tuple[str, int, str]] = set()
     for raw in pdb_path.read_text().splitlines(keepends=True):
         if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
             out.append(raw)
@@ -719,18 +865,21 @@ def assign_amber_variants(
             out.append(raw)
             continue
         if variant in _NO_TERMINAL_VARIANT and (chain, resseq) in terminals:
-            # Skip: no ff14SB terminal template for this variant.
-            n_terminal_skipped += 1
+            terminal_skipped.add((chain, resseq, variant))
             out.append(raw)
             continue
         new = raw[:17] + f"{variant:>3s}" + raw[20:]
         out.append(new)
         renames[(chain, resseq)] = variant
     pdb_path.write_text("".join(out))
-    if verbose and n_terminal_skipped:
-        print(f"  [prep] skipped {n_terminal_skipped} terminal variant "
-              f"rename(s) (no NRES/CRES template in ff14SB for "
-              f"LYN/ASH/GLH/CYX/CYM)")
+    if terminal_skipped:
+        n = len(terminal_skipped)
+        detail = ", ".join(f"{c}/{r}→{v}"
+                           for (c, r, v) in sorted(terminal_skipped)[:5])
+        more = "" if n <= 5 else f", ... and {n - 5} more"
+        print(f"  [prep] skipped {n} terminal residue variant rename(s) "
+              f"({detail}{more}) — ff14SB has no NRES/CRES template for "
+              f"LYN/ASH/GLH/CYM.")
     if verbose and renames:
         by_kind: dict[str, int] = {}
         for name in renames.values():
@@ -784,6 +933,11 @@ def run_prep(
         run_tleap(step1, step2, ff=ff, extra_leaprc=extra_leaprc,
                   verbose=verbose)
         _strip_hydrogens(step2, step3)
+        # tleap converts HIS → HIE (its default); Reduce treats HIE as
+        # fixed and won't decide the tautomer per residue. Rename all
+        # HIS-variants back to HIS so Reduce actually runs its H-bond
+        # network optimisation and picks the tautomer for each residue.
+        _rename_all_his_variants_to_his(step3)
         run_reduce(step3, step4, build=True, nuclear=True, verbose=verbose)
 
         # Reduce may strip chain IDs; restore from altloc-filtered input.
@@ -803,13 +957,45 @@ def run_prep(
                     continue
                 propka_dict[(r["chain"], resnum)] = (r["restype"], r["pka"])
         except Exception as e:
-            if verbose:
-                print(f"  [prep] PROPKA skipped ({e}); "
-                      f"variant assignment limited to CYX from SS bonds.")
+            print(f"  [prep] PROPKA skipped ({e}); variant assignment "
+                  f"limited to CYX from SS bonds + HIS tautomers from "
+                  f"Reduce.")
+
+        # HIS tautomer inference from Reduce's H atoms (HD1/HE2 presence).
+        # reduce -build picks the tautomer per residue but keeps the
+        # residue name as "HIS"; we rewrite HIS → HID/HIE/HIP here.
+        his_map = _infer_his_tautomers_from_atoms(output_pdb)
+        _rename_residues_in_pdb(output_pdb, his_map)
+
+        # Fallback SS-bond detection by distance if the caller didn't
+        # supply any pairs (e.g. input CONECT stripped by upstream tools).
+        effective_ss = set(ss_pairs) if ss_pairs else set()
+        if not effective_ss:
+            distance_ss = _detect_ss_bonds_from_distance(output_pdb)
+            if distance_ss:
+                effective_ss = distance_ss
+                if verbose:
+                    print(f"  [prep] detected {len(distance_ss)} SS-bonded "
+                          f"CYS via distance (input had no CONECT)")
+
         renames = assign_amber_variants(
-            output_pdb, propka_dict, ph, ss_pairs=ss_pairs,
+            output_pdb, propka_dict, ph, ss_pairs=effective_ss,
             verbose=verbose,
         )
+        # Merge HIS decisions into the renames dict so the caller (dat
+        # + downstream) sees the full set.
+        for k, v in his_map.items():
+            renames.setdefault(k, v)
+
+        # Always-on PROPKA activity summary.
+        by_kind: dict[str, int] = {}
+        for name in renames.values():
+            by_kind[name] = by_kind.get(name, 0) + 1
+        by_kind_str = (", ".join(f"{k}={v}" for k, v in sorted(by_kind.items()))
+                       if by_kind else "none")
+        print(f"  [prep] PROPKA + Reduce: {len(propka_dict)} titratable "
+              f"pKas scanned, {len(renames)} residues renamed "
+              f"({by_kind_str}); {len(effective_ss)} SS-bonded CYS.")
 
         # Patch H set per variant template directly (avoids a second
         # tleap pass that was duplicating C-terminal O/OXT atoms in
