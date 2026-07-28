@@ -36,6 +36,29 @@ Modeller needs a free academic license from
 <https://salilab.org/modeller/registration.html>. Set the key in
 `<env>/lib/modeller-10.8/modlib/modeller/config.py`.
 
+**Python is pinned `>=3.11,<3.14`** in `environment.yml`. Do not loosen
+this. propka 3.5.1 reads `self.__annotations__` (instance-level) inside
+its `Parameters` dataclass; Python 3.14's PEP 649/749 annotation change
+makes instance `__annotations__` raise `AttributeError`, which crashes
+`dvbfixer protonate` / `prepare` at the PROPKA step. Repro:
+`python -c "from propka.parameters import Parameters; Parameters().__annotations__"`
+returns a dict on <3.14, raises on 3.14.
+
+**On macOS Docker / VirtioFS, create the env on the container's native
+overlay filesystem, not on a host bind mount.** `/home/agent` here is a
+`fakeowner` (macOS `/Users`) bind mount that is case-insensitive and
+rejects libmamba's `copy_symlink` on ncurses's case-variant terminfo
+pairs (`share/terminfo/32/2621A` vs `2621a`), failing the install with
+`filesystem error: cannot copy symlink: Invalid argument`. `always_copy`
+/ `--copy` do NOT help — copy mode still recreates symlinks rather than
+dereferencing them, and there is no micromamba flag to skip/deref them.
+Fix: point the root at an overlay path, e.g.
+`sudo mkdir -p /opt/mamba && sudo chown -R agent:agent /opt/mamba`,
+then `export MAMBA_ROOT_PREFIX=/opt/mamba` before `micromamba create`,
+and keep `/opt/mamba/envs/dvbfixer/bin` on `PATH` so subprocesses that
+call bare `dvbfixer` resolve it. See
+[docs/known-issues.md](docs/known-issues.md) for the full write-up.
+
 ## Working in this codebase — hard rules
 
 - **Default prep backend is `legacy`** (Modeller+PDBFixer). Handles

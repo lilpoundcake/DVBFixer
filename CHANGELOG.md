@@ -10,6 +10,35 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+### Documented
+
+- **propka 3.5.1 × Python 3.14 incompatibility.** propka reads
+  `self.__annotations__` (instance-level) inside its `Parameters`
+  dataclass; Python 3.14's PEP 649/749 lazy-annotations change makes
+  instance `__annotations__` raise `AttributeError` instead of falling
+  through to the class dict, crashing `dvbfixer protonate` (and the
+  PROPKA step inside `prepare` / `zbs`) at
+  `propka.parameters.parse_line` with
+  `AttributeError: 'Parameters' object has no attribute '__annotations__'`.
+  `environment.yml` already pins `python >=3.11,<3.14` to keep the env
+  on 3.12/3.13 where propka works — do not loosen it. Documented in
+  [CLAUDE.md](../CLAUDE.md) and [docs/known-issues.md](known-issues.md).
+
+- **micromamba env creation fails on macOS Docker host bind mounts.**
+  When `MAMBA_ROOT_PREFIX` lives under a host bind mount such as
+  `/home/agent` (a `fakeowner` / VirtioFS bind of macOS `/Users`),
+  `micromamba create` aborts during `Linking 'ncurses'` with
+  `filesystem error: cannot copy symlink: Invalid argument` on the
+  case-variant terminfo pair `share/terminfo/32/2621A` vs `2621a`.
+  The mount is case-insensitive and rejects libmamba's `copy_symlink`
+  for these case-colliding entries; `always_copy` / `--copy` do not
+  help (copy mode still recreates in-package symlinks rather than
+  dereferencing them), and no micromamba flag dereferences or skips
+  them. Workaround: create the env + package cache on the container's
+  native overlay filesystem (`export MAMBA_ROOT_PREFIX=/opt/mamba`).
+  Documented in [docs/known-issues.md](known-issues.md) and
+  [docs/installation.md](installation.md).
+
 ## [0.7.7] — 2026-07
 
 ### Added

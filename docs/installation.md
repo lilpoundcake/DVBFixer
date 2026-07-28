@@ -10,6 +10,56 @@ micromamba activate dvbfixer
 pip install -e .
 ```
 
+`environment.yml` pins `python >=3.11,<3.14`. The upper bound is required:
+propka 3.5.1 (used by `protonate` / `prepare`) reads the dataclass attribute
+`self.__annotations__` at the instance level, which Python 3.14's PEP 649/749
+change makes raise `AttributeError`, crashing the PROPKA step. Do not loosen
+the cap.
+
+**macOS Docker (VirtioFS) users:** if your `MAMBA_ROOT_PREFIX` is under a host
+bind mount (e.g. `/home/agent`, a `fakeowner` mount of `/Users`), `micromamba
+create` will abort at `Linking 'ncurses'` with
+`filesystem error: cannot copy symlink: Invalid argument` — the bind mount is
+case-insensitive and rejects ncurses's case-variant terminfo symlinks, and no
+`always_copy`/`--copy` flag fixes it. Create the env on the container's native
+overlay filesystem instead:
+
+```bash
+sudo mkdir -p /opt/mamba && sudo chown -R agent:agent /opt/mamba
+export MAMBA_ROOT_PREFIX=/opt/mamba
+micromamba create -f environment.yml -n dvbfixer -y
+micromamba run -n dvbfixer pip install -e ".[dev]"
+```
+
+Persist `MAMBA_ROOT_PREFIX=/opt/mamba` and keep `/opt/mamba/envs/dvbfixer/bin`
+on `PATH` in your shell rc. See [known issues](known-issues.md) for the full
+diagnosis.
+
+`environment.yml` pins `python >=3.11,<3.14`. The upper bound is required:
+propka 3.5.1 (used by `protonate` / `prepare`) reads the dataclass attribute
+`self.__annotations__` at the instance level, which Python 3.14's PEP 649/749
+change makes raise `AttributeError`, crashing the PROPKA step. Do not loosen
+the cap.
+
+**macOS Docker (VirtioFS) users:** if your `MAMBA_ROOT_PREFIX` is under a host
+bind mount (e.g. `/home/agent`, a `fakeowner` mount of `/Users`), `micromamba
+create` will abort at `Linking 'ncurses'` with
+`filesystem error: cannot copy symlink: Invalid argument` — the bind mount is
+case-insensitive and rejects ncurses's case-variant terminfo symlinks, and no
+`always_copy`/`--copy` flag fixes it. Create the env on the container's native
+overlay filesystem instead:
+
+```bash
+sudo mkdir -p /opt/mamba && sudo chown -R agent:agent /opt/mamba
+export MAMBA_ROOT_PREFIX=/opt/mamba
+micromamba create -f environment.yml -n dvbfixer -y
+micromamba run -n dvbfixer pip install -e ".[dev]"
+```
+
+Persist `MAMBA_ROOT_PREFIX=/opt/mamba` and keep `/opt/mamba/envs/dvbfixer/bin`
+on `PATH` in your shell rc. See [known issues](known-issues.md) for the full
+diagnosis.
+
 **Modeller license:** The `model` command requires Modeller, which needs a free academic license key. Register at https://salilab.org/modeller/registration.html, then set the key in `<env>/lib/modeller-10.8/modlib/modeller/config.py`.
 
 **Free RESP charges (PySCF)** — already included in `environment.yml`:

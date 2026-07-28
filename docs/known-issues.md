@@ -2,6 +2,46 @@
 
 [← README](../README.md)
 
+- **PROPKA 3.5.1 is incompatible with Python 3.14** — `dvbfixer
+  protonate` (and the PROPKA step inside `prepare` / `zbs`) crashes with
+  `AttributeError: 'Parameters' object has no attribute '__annotations__'`
+  at `propka.parameters.parse_line`. propka reads the dataclass attribute
+  `self.__annotations__` at the instance level, which Python 3.14's
+  PEP 649/749 lazy-annotations change makes raise instead of falling
+  through to the class dict. `environment.yml` therefore pins
+  `python >=3.11,<3.14`; do not loosen it. On a working env the repro
+  `python -c "from propka.parameters import Parameters; Parameters().__annotations__"`
+  returns a dict (on <3.14) rather than raising (on 3.14).
+
+- **micromamba env creation fails on macOS Docker host bind mounts
+  (VirtioFS / gRPC-FUSE).** When `MAMBA_ROOT_PREFIX` (and thus the env
+  + package cache) lives under a host bind mount such as `/home/agent`
+  (the container's `fakeowner` mount of macOS `/Users`), the
+  `Linking 'ncurses'` step aborts with
+  `filesystem error: cannot copy symlink: Invalid argument` on the
+  case-variant terminfo symlink pair
+  `share/terminfo/32/2621A` ↔ `.././68/hp2621` vs `2621a`. The bind
+  mount is case-insensitive and rejects libmamba's `copy_symlink` for
+  these case-colliding entries (the colliding inode surfaces as a
+  corrupt orphan with `nlink=0`, `readlink` → `EINVAL`). The
+  `always_copy` / `--copy` / `MAMBA_ALWAYS_COPY` flags and the
+  `always_copy: true` config do **not** fix it — copy mode still
+  recreates in-package symlinks via `copy_symlink` rather than
+  dereferencing them, and no micromamba/conda flag dereferences or
+  skips broken in-package symlinks. The fix is to create the env (and
+  package cache) on the container's **native overlay filesystem**:
+  ```bash
+  sudo mkdir -p /opt/mamba && sudo chown -R agent:agent /opt/mamba
+  export MAMBA_ROOT_PREFIX=/opt/mamba          # env + pkgs now on overlay
+  micromamba create -f environment.yml -n dvbfixer -y
+  micromamba run -n dvbfixer pip install -e ".[dev]"
+  ```
+  Persist `MAMBA_ROOT_PREFIX=/opt/mamba` (and put
+  `/opt/mamba/envs/dvbfixer/bin` on `PATH`) in your shell rc, otherwise
+  `micromamba run -n dvbfixer` defaults back to the broken bind-mount
+  root. The micromamba binary itself runs fine from anywhere; only the
+  prefix/cache location matters.
+
 - **CONECT records limited to atom serials ≤ 99999** (PDB v3.30 spec). Every dvbfixer CONECT writer uses fixed-width 5-char serial fields (`f"{serial:5d}"`), which is spec-compliant but silently produces malformed CONECT lines for systems with > 99999 atoms — adjacent 6-digit serial fields run together without a separator. Workarounds: (a) split the system, (b) renumber atoms to fit under 99999 (drop water/heterogens before topology export), (c) use mmCIF via an external tool if you need full-system connectivity in a large complex. Hybrid-36 encoding (BIOVIA/Phenix extension) is on the roadmap for a future release once a real user surfaces the need.
 
 - **Default prep backend flipped back to `legacy` in 0.7.5** —
