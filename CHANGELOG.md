@@ -10,6 +10,68 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.7.4] — 2026-07
+
+### Fixed
+
+- **PROPKA-driven variant assignment on the tleap+reduce backend was
+  broken end-to-end.** The 0.7.3 code stuffed
+  `propka_dict[(chain, resnum)] = (restype, pka)` and iterated the PDB.
+  PROPKA emits multiple `Group` records per residue (side-chain
+  acid/base + terminal N+/C-), so last-write-wins silently clobbered
+  side-chain pKas with terminal pKas — ASH/GLH/LYN were correct only
+  when PROPKA's iteration order happened to land the right entry
+  last. HIS→HIP was NEVER assigned because HIP was inferred from
+  HD1+HE2 atom presence, but `reduce -build` picks a single tautomer.
+  Rewrote to route through `dvbfixer.protonate.decide_protonation`
+  (group-type-filtered, `(chain, resnum, icode)`-keyed) then overlay
+  Reduce's HID/HIE tautomer for neutral HIS. `_patch_variant_hydrogens`
+  gained an HIP branch that places the missing imidazole H. Deleted
+  dead `_STD_PKA` and `_classify_variant`.
+
+- **AMBER variant residue names silently broke minimize.** OpenMM's
+  `PDBFile._standardResidues` set covers only the 20 canonical AAs;
+  LYN/ASH/GLH/CYX/CYM/HID/HIE/HIP load with zero intra-residue bonds
+  → `createSystem` fails "no bonds between its atoms". Additionally
+  `Modeller.addHydrogens` copies input bonds but does NOT rebuild
+  missing ones from templates, and only ADDS missing H, never
+  REMOVES extras. Fix in `minimize/pipeline.py`:
+  1. `text_rename_variants_to_parent` runs BEFORE `PDBFile.load` so
+     OpenMM infers proper intra-residue bonds from parent templates.
+  2. When `amber_renames` is non-empty, force strip-H + variant-aware
+     addHydrogens rebuild.
+  3. Cap the pH passed to `addHydrogens` at 9.99 to bypass the
+     `hydrogens.xml` `maxph="10.0"` HZ3 gate that broke terminal LYS
+     at high pH.
+  4. `pdbutils/inference.py::_apply_filter` keeps intra-residue
+     bonds for variant-named residues in emitted CONECT.
+
+- **Disulfide bonds dropped during minimize.**
+  `_drop_spurious_inter_aa_bonds` treated every inter-residue bond
+  between two protein residues that wasn't a C-N peptide bond as
+  spurious. After `text_rename_variants_to_parent` folded CYX → CYS,
+  SG-SG disulfides were between two "CYS"-named residues → dropped.
+  Added an SG-SG exception for the CYS family (CYS/CYX/CYM).
+
+- **D-Cα residues occasionally survived minimize.** The prior
+  WARN-only design left D residues in the output when the FF's local
+  minimum for a residue genuinely sat on the D side (rare, exotic
+  packing). Replaced with two-tier enforcement:
+  1. Bounded reflect-and-re-minimize loop (max 3 iterations).
+  2. If any residue is still D after the loop, do a final
+     unconditional `fix_ca_chirality` reflection and skip any
+     follow-up minimize. Since `fix_ca_chirality` mirrors the whole
+     sidechain through the CA-N-C plane, all internal bond lengths
+     and angles are preserved (CA-CB ≈ 0.154 nm, CB-HB ≈ 0.109 nm);
+     only CB's position relative to backbone neighbours changes. The
+     chirality invariant is now non-negotiable: zero D-Cα in output.
+
+### Added
+
+- `tests/test_prep_backend_variants.py` — 16 focused tests for the
+  PROPKA + variant-H paths, covering ASH, GLH, LYN, HIP, HID, HIE,
+  CYX-from-SS, terminal skip.
+
 ## [0.7.0] — 2026-07
 
 ### Fixed
