@@ -43,6 +43,14 @@ def parse_args(argv=None):
                          "amber, amber+glycam, charmm, ...) or an explicit "
                          "list of OpenMM XML paths. Default: 'auto'. "
                          "See docs/force-fields.md.")
+    ff.add_argument("--atom-naming", choices=["gromacs", "standard"],
+                    default="gromacs",
+                    help="Atom-naming convention for the final output PDB. "
+                         "'gromacs' (default): rewrite atom names to "
+                         "GROMACS amber99sb-ildn conventions (HB3→HB1, "
+                         "HZ3→HZ1 on LYN, O→OC2, OXT→OC1). 'standard': "
+                         "keep IUPAC/AMBER-native names. Propagated to "
+                         "prepare + minimize.")
     ff.add_argument("--parametrize-ligands", action="store_true",
                     help="Forward --parametrize-ligands to both minimize "
                          "passes (GAFF2 + AM1-BCC for unknown ligands via "
@@ -338,6 +346,7 @@ def _run_pipeline(args, input_path):
         out = step_output("prepared")
         prepare_argv = [current, "-o", out, "--ph", str(args.ph),
                         "--ff"] + args.ff
+        prepare_argv.extend(["--atom-naming", args.atom_naming])
         if not args.keep_heterogens:
             prepare_argv.append("--strip-heterogens")
         if not args.heterogen_h:
@@ -354,13 +363,15 @@ def _run_pipeline(args, input_path):
         _maybe_align(out)
         current = out
 
-    # 4. Minimize — single pass. The new tleap-reduce prepare backend
-    # already ran PROPKA + Reduce + variant H patching, so there's no
-    # protonate step and no second minimize. Force ff14SB in the
-    # minimize --ff so it matches tleap's ff14SB templates.
+    # 4. Minimize — single pass. Propagate the SAME FF alias that
+    # prepare used, so both steps agree on force field selection. If
+    # the user passed --ff auto, resolve it once here against the
+    # pipeline input and pass the resolved short alias
+    # (e.g. 'amber+glycam') to both prepare and minimize; propagating
+    # the alias rather than expanded XML paths preserves each tool's
+    # ability to run its own upgrade logic if a downstream step
+    # transforms the residue set.
     _minimize_ff = list(args.ff)
-    if _minimize_ff == ["auto"]:
-        _minimize_ff = ["amber14-all.xml", "amber14/tip3pfb.xml"]
     if not args.skip_minimize:
         step_num += 1
         print(f"\n{'='*60}")
@@ -372,7 +383,8 @@ def _run_pipeline(args, input_path):
                          "--ph", str(args.ph),
                          "--ff"] + _minimize_ff + [
                          "--restraint-k", str(args.restraint_k),
-                         "--max-iter", str(args.max_iter)]
+                         "--max-iter", str(args.max_iter),
+                         "--atom-naming", args.atom_naming]
         if args.no_solvent:
             minimize_argv.append("--no-solvent")
         if args.rebuild_h:

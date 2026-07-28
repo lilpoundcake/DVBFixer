@@ -10,6 +10,51 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.7.6] — 2026-07
+
+### Changed
+
+- **`detect_ff_from_pdb` no longer surrenders on PDB-standard sugars.**
+  Previously an input with IUPAC/PDB sugar codes (BGL / BMA / AMA /
+  NAG / …) fell back to `amber` with a WARNING telling the user to
+  run `dvbfixer convert` manually first. Now returns `amber+glycam`
+  with a reason string; downstream prepare + minimize invoke
+  `convert_to_glycam` under the hood so the tool Just Works on
+  downloaded RCSB glycoproteins.
+
+- **`zbs` no longer force-overrides minimize `--ff` to
+  `amber14-all.xml`.** Previously when the user passed `--ff auto`,
+  zbs auto-detected the FF for prepare but forced minimize back to
+  plain `amber14`, breaking glycoprotein pipelines. Now the same
+  `--ff` value flows to both steps; each runs its own auto-detection
+  independently.
+
+### Added
+
+- **CHARMM + PDB-sugars hybrid path.** When `--ff charmm` is
+  requested (or auto-selected) AND the input has PDB-standard sugar
+  names `charmm36.xml` can't parametrise, prepare + minimize
+  process the run under `amber+glycam` (which has sugar templates)
+  and rewrite output residue names to CHARMM convention (`BGLCNA`,
+  `BMAN`, …) via `convert_to_charmm` after the pipeline completes.
+  Coordinates and topology unchanged; only sugar residue names
+  differ between amber and charmm output.
+
+- **`--atom-naming {gromacs,standard}` CLI flag** on `prepare`,
+  `minimize`, `protonate`, and `zbs`. Default `gromacs` preserves
+  the current behaviour (GROMACS amber99sb-ildn shifts: HB3→HB1
+  keeping HB2, HZ3→HZ1 on LYN, O/OXT→OC2/OC1, H→HN for CHARMM).
+  Pass `standard` to keep IUPAC/AMBER-native names (HB2/HB3,
+  HZ1/HZ2/HZ3, O/OXT, plain H) — matches ff14SB / VMD / most PDB
+  downloaders.
+
+- New helper `dvbfixer.ffutils.has_pdb_standard_sugars(pdb_path)`
+  — text-level scan for the auto-convert trigger.
+
+- New tests `tests/test_ff_auto_detect_sugar.py` covering
+  auto-detect on glycoproteins, amber→amber+glycam upgrade, and
+  the has_pdb_standard_sugars helper.
+
 ## [0.7.5] — 2026-07
 
 ### Changed

@@ -63,6 +63,16 @@ def parse_args(argv=None):
              "bond and renamed to CYX (default: 90.0). No-op under --no-propka."
     )
 
+    p.add_argument(
+        "--atom-naming", choices=["gromacs", "standard"],
+        default="gromacs",
+        help="Atom-naming convention for the output PDB. 'gromacs' "
+             "(default): GROMACS amber99sb-ildn shifts (HB3→HB1 "
+             "keeping HB2, HZ3→HZ1 on LYN, O/OXT→OC2/OC1, H→HN for "
+             "CHARMM). 'standard': IUPAC/AMBER-native names "
+             "(HB2/HB3, HZ1/HZ2/HZ3, O/OXT, plain H).",
+    )
+
     engines = p.add_argument_group("Protonation engines")
     engines.add_argument(
         "--backend", choices=["tleap-reduce", "legacy"],
@@ -649,6 +659,8 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
     _n_var = apply_variants_to_pdb_text(
         output_path, _renames_for_text,
         target_ff=_ff_target, verbose=args.verbose,
+        include_gromacs_shifts=(getattr(args, 'atom_naming', 'gromacs')
+                                 == 'gromacs'),
     )
 
     # FF-aware output naming: if the resolved FF is CHARMM, remap the
@@ -1296,8 +1308,12 @@ def main(argv=None):
         _ff_target = 'charmm' if any('charmm' in x.lower() for x in args.ff) else 'amber'
         _renames_for_text = {(ch, str(rs)) if not ic else (ch, str(rs), ic): var
                              for (ch, rs, ic), var in renames.items()}
-        apply_variants_to_pdb_text(output_path, _renames_for_text,
-                                    target_ff=_ff_target, verbose=args.verbose)
+        apply_variants_to_pdb_text(
+            output_path, _renames_for_text,
+            target_ff=_ff_target, verbose=args.verbose,
+            include_gromacs_shifts=(getattr(args, 'atom_naming', 'gromacs')
+                                     == 'gromacs'),
+        )
 
     n_his = sum(1 for v in renames.values() if v in ("HIP", "HIE", "HID"))
     n_other = len(renames) - n_his

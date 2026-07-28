@@ -164,12 +164,10 @@ def detect_ff_from_pdb(pdb_path: str | Path) -> tuple[str, str]:
     ambig_hits = names & _AMBIGUOUS_SUGAR_MARKERS
     if ambig_hits:
         sample = ', '.join(sorted(ambig_hits)[:3])
-        return 'amber', (
-            f'PDB-standard sugar name(s) detected ({sample}) with no '
-            f'FF-specific markers — cannot auto-select. Run '
-            f'`dvbfixer convert --to-amber` (→ GLYCAM UYB/VMB/...) or '
-            f'`dvbfixer convert --to-charmm` (→ BGLCNA/BMAN/...) before '
-            f'this step, or pass --ff explicitly'
+        return 'amber+glycam', (
+            f'PDB-standard sugar name(s) detected ({sample}) — will '
+            f'auto-convert to GLYCAM canonical naming before FF apply. '
+            f'Pass --ff charmm to force CHARMM instead.'
         )
 
     return 'amber', 'no non-standard residues detected'
@@ -178,6 +176,19 @@ def detect_ff_from_pdb(pdb_path: str | Path) -> tuple[str, str]:
 def _looks_like_xml_path(item: str) -> bool:
     """True if `item` looks like an OpenMM FF XML path, not a short-name alias."""
     return item.endswith('.xml') or '/' in item or '\\' in item
+
+
+def has_pdb_standard_sugars(pdb_path: str | Path) -> bool:
+    """True if the PDB file text contains any PDB-standard sugar residue
+    name (BGL / BMA / AMA / NAG / BGC / MAN / GAL / FUC / …).
+
+    Text-level scan; no OpenMM dependency; safe to call before
+    ``PDBFile.load``. Used to decide whether the auto-convert to
+    GLYCAM canonical naming needs to fire when the resolved FF is
+    ``amber+glycam``.
+    """
+    names = _scan_resnames(pdb_path)
+    return bool(names & _PDB_SUGAR_NAMES)
 
 
 def resolve_ff(

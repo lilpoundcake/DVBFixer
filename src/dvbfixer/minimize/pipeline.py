@@ -1100,9 +1100,50 @@ def main(argv=None):
             input_path, verbose=args.verbose))
 
     # Resolve --ff short-name / auto-detect from input residue names.
-    from dvbfixer.ffutils import print_ff_selection, resolve_ff
+    from dvbfixer.ffutils import (
+        FF_ALIASES,
+        has_pdb_standard_sugars,
+        print_ff_selection,
+        resolve_ff,
+    )
     args.ff, _ff_alias, _ff_reason = resolve_ff(
         args.ff, args.input, verbose=args.verbose)
+
+    # CHARMM + PDB-standard sugars: process under amber+glycam
+    # (charmm36.xml has no sugar templates); rewrite sugar residue
+    # names back to CHARMM convention post-run.
+    _charmm_output_requested = False
+    if _ff_alias == 'charmm' and has_pdb_standard_sugars(input_path):
+        print("  [ff] charmm requested but input has PDB-standard "
+              "sugars charmm36.xml can't parametrise; processing "
+              "with amber+glycam and rewriting output residue names "
+              "to CHARMM convention.")
+        _charmm_output_requested = True
+        _ff_alias = 'amber+glycam'
+        args.ff = FF_ALIASES['amber+glycam']
+        _ff_reason = (
+            'auto-switched from charmm (PDB sugars need GLYCAM); '
+            'output residue names will be rewritten back to CHARMM'
+        )
+
+    # amber+glycam + PDB-standard sugars: auto-convert to GLYCAM
+    # canonical naming so templates match.
+    if _ff_alias == 'amber+glycam' and has_pdb_standard_sugars(input_path):
+        import tempfile as _tf
+
+        from dvbfixer.glycam import convert_to_glycam
+        _conv_out = _tf.mktemp(suffix='.pdb', prefix='dvbfixer_glycam_')
+        try:
+            convert_to_glycam(str(input_path), _conv_out,
+                              add_roh=True, verbose=args.verbose)
+            print("  [ff] auto-converted PDB-standard sugar names → "
+                  "GLYCAM canonical for amber+glycam FF matching.")
+            input_path = Path(_conv_out)
+        except Exception as e:
+            print(f"  [ff] convert_to_glycam failed ({e}); continuing "
+                  f"with original names — createSystem may fail on "
+                  f"unrecognised sugar residues.")
+
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
     # .dat is optional: if --dat given, use it; otherwise auto-detect next
@@ -1266,7 +1307,31 @@ def main(argv=None):
     _n_var = apply_variants_to_pdb_text(
         output_path, amber_renames or {},
         target_ff=_target_ff, verbose=args.verbose,
+        include_gromacs_shifts=(getattr(args, 'atom_naming', 'gromacs')
+                                 == 'gromacs'),
     )
     if _n_var and args.verbose:
         print(f"  Applied {_n_var} variant name/atom rewrites to output")
+
+    # CHARMM output was requested but the pipeline ran under
+    # amber+glycam (PDB-standard sugars needed GLYCAM templates).
+    # Rewrite sugar residue names GLYCAM → CHARMM in the output PDB
+    # so the user gets what they asked for at the CLI. Coordinates
+    # and topology unchanged; only sugar residue names change.
+    if _charmm_output_requested:
+        import tempfile as _tf
+
+        from dvbfixer.glycam import convert_to_charmm
+        _tmp = _tf.mktemp(suffix='.pdb', prefix='dvbfixer_charmm_out_')
+        try:
+            convert_to_charmm(str(output_path), _tmp, verbose=args.verbose)
+            import shutil as _sh
+            _sh.move(_tmp, str(output_path))
+            print("  [ff] rewrote sugar residue names GLYCAM → CHARMM "
+                  "for output (user asked for --ff charmm).")
+        except Exception as e:
+            print(f"  [ff] convert_to_charmm on output failed ({e}); "
+                  f"output has GLYCAM sugar names — run "
+                  f"`dvbfixer convert --to-charmm` manually.")
+
     print(f"\nSaved minimized structure: {output_path}")

@@ -46,6 +46,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     io.add_argument("--dat", help="Restraint data file path (default: <output>.dat)")
 
     ff = p.add_argument_group("Force field / pH")
+    ff.add_argument("--atom-naming", choices=["gromacs", "standard"],
+                    default="gromacs",
+                    help="Atom-naming convention for the output PDB. "
+                         "'gromacs' (default): GROMACS amber99sb-ildn "
+                         "shifts (HB3→HB1 keeping HB2, HZ3→HZ1 on LYN, "
+                         "O/OXT→OC2/OC1, H→HN for CHARMM). 'standard': "
+                         "IUPAC/AMBER-native names (HB2/HB3, HZ1/HZ2/HZ3, "
+                         "O/OXT, plain H).")
     ff.add_argument("--backend", choices=["tleap-reduce", "legacy"],
                     default="legacy",
                     help="Prep backend. 'legacy' (default): PDBFixer + "

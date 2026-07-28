@@ -49,6 +49,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                          "AmberTools (antechamber, parmchk2). Cached to "
                          "~/.cache/dvbfixer/lig_params/ (override with "
                          "$DVBFIXER_LIG_CACHE). See docs/force-fields.md.")
+    ff.add_argument("--atom-naming", choices=["gromacs", "standard"],
+                    default="gromacs",
+                    help="Atom-naming convention for the output PDB. "
+                         "'gromacs' (default): rewrite atom names to "
+                         "GROMACS amber99sb-ildn conventions (HB2/HB3 → "
+                         "HB1/HB2, HZ3 → HZ1 on LYN, O → OC2, OXT → OC1, "
+                         "H → HN on CHARMM). Matches `pdb2gmx -ff "
+                         "amber99sb-ildn` expectations. 'standard': keep "
+                         "IUPAC/AMBER-native names (HB2/HB3, HZ1/HZ2/HZ3, "
+                         "O/OXT, plain H) — matches ff14SB / most PDB "
+                         "downloaders / VMD.")
 
     physics = p.add_argument_group("Physics / restraints")
     physics.add_argument("--padding", type=float, default=DEFAULT_PADDING,
