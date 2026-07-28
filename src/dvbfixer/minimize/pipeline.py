@@ -148,6 +148,8 @@ def _drop_spurious_inter_aa_bonds(topology, verbose=False):
     """
     from dvbfixer.ffutils import PROTEIN_RESIDUES
 
+    _CYS_NAMES = {"CYS", "CYX", "CYM"}
+
     # Pass 1: classify inter-residue bonds.
     all_bonds = list(topology.bonds())
     survivors = []
@@ -165,9 +167,18 @@ def _drop_spurious_inter_aa_bonds(topology, verbose=False):
             survivors.append(bond)
             continue
         # Canonical peptide bond between adjacent residues: C of prev
-        # residue to N of next. Anything else between two protein
-        # residues is spurious.
+        # residue to N of next. Keep.
         if {b1.name, b2.name} == {"C", "N"}:
+            survivors.append(bond)
+            continue
+        # Disulfide bond: SG-SG between two CYS-family residues (CYS/
+        # CYX/CYM). Keep — dropping this severs SS bonds and lets the
+        # disulfide relax apart during minimize. text_rename_variants_to_parent
+        # rewrote CYX → CYS before load, so both endpoints are CYS-named
+        # here even for user-annotated CYX pairs.
+        if (b1.name == "SG" and b2.name == "SG"
+                and b1.residue.name in _CYS_NAMES
+                and b2.residue.name in _CYS_NAMES):
             survivors.append(bond)
             continue
         dropped.append(bond)
@@ -479,7 +490,21 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                     break
 
     # Default: keep existing hydrogens. --rebuild-h strips and re-adds via OpenMM.
-    keep_h = not args.rebuild_h
+    #
+    # When the input has AMBER protonation variants (LYN / ASH / GLH / CYX /
+    # CYM / HID / HIE / HIP), the topology loaded through PDBFile has
+    # already been text-renamed to parent names above so OpenMM inferred
+    # proper intra-residue bonds. But the ATOM SET may not match either
+    # the parent or variant template (e.g. LYN input is missing HZ1,
+    # ASH input has an extra HD2 that isn't in the ASP template).
+    # `Modeller.addHydrogens` with ``variants=[...]`` rebuilds each H set
+    # per variant template — but only if we strip existing H first, since
+    # it never REMOVES extra H atoms. Force the strip-and-rebuild path
+    # whenever variants are present.
+    keep_h = not args.rebuild_h and not amber_renames
+    if amber_renames and not args.rebuild_h:
+        print(f"  {len(amber_renames)} AMBER variant residue(s) present — "
+              f"stripping H and re-adding via variant templates")
     if keep_h:
         # Always run PDBFixer to detect and fix missing atoms (heavy + H).
         # Even in keep_h mode, mutated residues may have incomplete sidechains
@@ -519,9 +544,9 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
             try:
                 if variants:
-                    modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99), variants=variants)
                 else:
-                    modeller.addHydrogens(forcefield, pH=args.ph)
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99))
                 from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
                 repair_misplaced_hydrogens(
                     modeller.topology, modeller.positions, verbose=args.verbose,
@@ -535,9 +560,9 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
             try:
                 if variants:
-                    modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99), variants=variants)
                 else:
-                    modeller.addHydrogens(forcefield, pH=args.ph)
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99))
                 from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
                 repair_misplaced_hydrogens(
                     modeller.topology, modeller.positions, verbose=args.verbose,
@@ -581,10 +606,10 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                 _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
                 try:
                     if variants:
-                        modeller.addHydrogens(forcefield, pH=args.ph,
+                        modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99),
                                               variants=variants)
                     else:
-                        modeller.addHydrogens(forcefield, pH=args.ph)
+                        modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99))
                     from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
                     repair_misplaced_hydrogens(
                         modeller.topology, modeller.positions, verbose=args.verbose,
@@ -634,9 +659,9 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
         try:
             if variants:
-                modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+                modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99), variants=variants)
             else:
-                modeller.addHydrogens(forcefield, pH=args.ph)
+                modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99))
             from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
             repair_misplaced_hydrogens(
                 modeller.topology, modeller.positions, verbose=args.verbose,
@@ -906,28 +931,52 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     state = simulation.context.getState(getEnergy=True, getPositions=True)
     print(f"Energy after phase 2: {state.getPotentialEnergy()}")
 
-    # Post-minimize chirality check — WARN only, do NOT try to fix. If
-    # the FF's own equilibrium for a residue in its current packing
-    # actually lies on the D side (unusual but possible with exotic
-    # residues or tight sterics), forcing a reflection here would break
-    # more than it fixes. Surface the offenders so the user can decide.
-    from dvbfixer.ffutils.geometry import find_d_residues
-    offenders = find_d_residues(simulation.topology, state.getPositions())
-    if offenders:
-        print(f"WARNING: {len(offenders)} residue(s) settled into D-Cα "
-              f"geometry after minimize. Reflection was applied before "
-              f"minimize; these residues drifted back to D during "
-              f"relaxation, which means the local packing genuinely "
-              f"prefers D. Manual inspection recommended:",
-              file=sys.stderr)
-        for ch, rid, name, tri in offenders[:20]:
-            print(f"  {ch}/{name}{rid}: triple={tri:+.5f} nm³",
-                  file=sys.stderr)
-        if len(offenders) > 20:
-            print(f"  ...and {len(offenders) - 20} more", file=sys.stderr)
-
+    # Post-minimize chirality check + reflect-and-re-minimize loop.
+    # After phase-2 minimize, some residues may have drifted into D-Cα
+    # geometry (real FF energy minimum for that local packing). We
+    # reflect any D-Cα back to L via fix_ca_chirality and run a short
+    # follow-up minimize under the (already-weakened) phase-2 restraints
+    # so the reflected CB relaxes into a compatible position without
+    # swinging to 2 Å bond lengths. Bounded loop: at most a few
+    # iterations to keep runtime under control.
+    from dvbfixer.ffutils.geometry import find_d_residues, fix_ca_chirality
     min_topology = simulation.topology
     min_positions = state.getPositions()
+    for _reflect_iter in range(3):
+        offenders = find_d_residues(min_topology, min_positions)
+        if not offenders:
+            break
+        print(f"  {len(offenders)} residue(s) drifted into D-Cα during "
+              f"minimize (iter {_reflect_iter + 1}); reflecting and "
+              f"re-minimizing.", file=sys.stderr)
+        # Reflect in-place on a mutable list of Vec3.
+        pos_list = list(min_positions)
+        n_fixed = fix_ca_chirality(min_topology, pos_list,
+                                    verbose=args.verbose)
+        if not n_fixed:
+            # Reflect returned 0 — nothing repairable (all near-degenerate).
+            # Break to avoid an infinite loop.
+            break
+        simulation.context.setPositions(pos_list)
+        simulation.minimizeEnergy(maxIterations=max(200, args.max_iter // 4))
+        state = simulation.context.getState(getEnergy=True, getPositions=True)
+        min_positions = state.getPositions()
+        print(f"  Energy after reflect+re-minimize iter {_reflect_iter + 1}: "
+              f"{state.getPotentialEnergy()}", file=sys.stderr)
+    else:
+        # Loop exhausted without breaking → still D-Cα residues left.
+        final_offenders = find_d_residues(min_topology, min_positions)
+        if final_offenders:
+            print(f"WARNING: {len(final_offenders)} residue(s) remain in "
+                  f"D-Cα geometry after 3 reflect+re-minimize iterations. "
+                  f"Local packing genuinely prefers D; manual inspection "
+                  f"recommended:", file=sys.stderr)
+            for ch, rid, name, tri in final_offenders[:20]:
+                print(f"  {ch}/{name}{rid}: triple={tri:+.5f} nm³",
+                      file=sys.stderr)
+            if len(final_offenders) > 20:
+                print(f"  ...and {len(final_offenders) - 20} more",
+                      file=sys.stderr)
 
     # Restore non-protein residues with original coordinates (legacy path only).
     # When keep_heterogens is on, n_stripped==0 and we write the minimized topology directly.
@@ -1069,7 +1118,25 @@ def main(argv=None):
     except Exception:
         pass
 
-    pdb = PDBFile(str(input_path))
+    # Pre-rename AMBER/CHARMM variant residue names to their standard
+    # parents in a temp copy BEFORE PDBFile parses the file. Rationale:
+    # OpenMM's `PDBFile._standardResidues` set covers only the 20
+    # canonical AAs, so variants (LYN / ASH / GLH / CYX / CYM / HID /
+    # HIE / HIP) get loaded with zero intra-residue bonds — every
+    # downstream template match then fails ("residue has no bonds
+    # between its atoms"). Renaming to parent lets OpenMM infer proper
+    # bonds; ``amber_renames`` (already captured above from the raw
+    # text) drives the eventual restoration to variant names in the
+    # topology and output PDB.
+    from dvbfixer.ffutils.variants import text_rename_variants_to_parent
+    _pdb_load_path, _pre_saved = text_rename_variants_to_parent(
+        str(input_path), verbose=args.verbose,
+    )
+    try:
+        pdb = PDBFile(_pdb_load_path)
+    finally:
+        if _pdb_load_path != str(input_path):
+            Path(_pdb_load_path).unlink(missing_ok=True)
     topology = pdb.topology
     positions = pdb.positions
 

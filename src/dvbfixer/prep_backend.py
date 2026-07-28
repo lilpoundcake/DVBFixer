@@ -15,8 +15,11 @@ The new pipeline:
 
     strip H → tleap (heavy atoms + all H per L-only templates) →
     strip H from tleap output → reduce -build -nuclear (deterministic
-    H + HIS tautomers + ASN/GLN flips) → PROPKA + ``assign_amber_variants``
-    (rename residues for ASH/GLH/LYN/CYM/CYX) → output
+    H + HIS tautomers + ASN/GLN flips) → PROPKA + ``decide_protonation``
+    (variant map keyed by ``(chain, resseq, icode)``, filtered by
+    PROPKA group type so N+/C- pKas don't overwrite side-chain pKas)
+    → overlay Reduce's HID/HIE tautomer choice for neutral HIS →
+    overlay SS bonds → CYX → apply variants → output
 
 ``tleap`` is deterministic and L-only by construction. ``reduce`` is
 deterministic; it picks HIS tautomers based on H-bond environment and
@@ -337,51 +340,9 @@ def run_reduce(
 # ---------------------------------------------------------------------------
 
 
-# pKa thresholds — protonate ↔ deprotonate transition point per residue.
-# Standard values from PROPKA papers; used only to decide the variant
-# label. Actual H placement is by reduce.
-_STD_PKA = {
-    "ASP": 3.86,   # ASH if PROPKA > pH (protonated)
-    "GLU": 4.34,   # GLH if PROPKA > pH
-    "LYS": 10.34,  # LYN if PROPKA < pH (deprotonated)
-    "CYS": 8.55,   # CYM if PROPKA < pH (deprotonated)
-}
-
-
-def _classify_variant(
-    resname: str, pka: float | None, ph: float, is_ss: bool,
-) -> str | None:
-    """Return the AMBER variant name for this residue, or None if the
-    residue should stay as its standard name.
-
-    HIS is not handled here (reduce writes HID/HIE/HIP directly into
-    the residue name column). SS-bonded CYS → CYX (highest priority,
-    overrides pKa-based CYM classification).
-    """
-    if resname == "CYS":
-        if is_ss:
-            return "CYX"
-        if pka is not None and pka < ph:
-            return "CYM"
-        return None
-    if resname == "ASP":
-        if pka is not None and pka > ph:
-            return "ASH"
-        return None
-    if resname == "GLU":
-        if pka is not None and pka > ph:
-            return "GLH"
-        return None
-    if resname == "LYS":
-        if pka is not None and pka < ph:
-            return "LYN"
-        return None
-    return None
-
-
 def _patch_variant_hydrogens(
     pdb_path: Path,
-    renames: dict[tuple[str, int], str],
+    renames: dict[tuple[str, int, str], str],
     verbose: bool = False,
 ) -> tuple[int, int]:
     """Adjust H set per residue after `assign_amber_variants` renamed
@@ -393,8 +354,12 @@ def _patch_variant_hydrogens(
     * **ASH**: insert `HD2` at OD2 + 0.97 Å pointing away from OD1
       (protonated carboxyl, sp2 O, in the CG-OD1-OD2 plane).
     * **GLH**: insert `HE2` at OE2 + 0.97 Å opposite OE1.
-    * **HID/HIE/HIP**: no-op (Reduce already picked the tautomer + placed
-      the correct H).
+    * **HIP**: insert whichever of `HD1` / `HE2` Reduce did not place
+      (PROPKA-promoted HIP; ``reduce -build`` picks only a single
+      tautomer H per residue, so the doubly-protonated form needs the
+      second imidazole H patched in). Bond length 1.01 Å, in the
+      imidazole ring plane, outward from the ring center.
+    * **HID/HIE**: no-op (Reduce already picked and placed the H).
 
     Returns ``(added, dropped)``.
     """
@@ -410,9 +375,16 @@ def _patch_variant_hydrogens(
     }
     needs_ash = {k for k, v in renames.items() if v == "ASH"}
     needs_glh = {k for k, v in renames.items() if v == "GLH"}
+    needs_hip = {k for k, v in renames.items() if v == "HIP"}
 
-    # Read positions once so we can compute HD2/HE2 geometry.
-    coords_per_res: dict[tuple[str, int], dict[str, tuple[float, float, float]]] = {}
+    # Read positions once so we can compute geometry for the inserted H.
+    coords_per_res: dict[
+        tuple[str, int, str], dict[str, tuple[float, float, float]]
+    ] = {}
+    # Also record which H atoms Reduce already placed on HIP residues so
+    # we only add the missing one.
+    hip_h_present: dict[tuple[str, int, str], set[str]] = {}
+    interesting = needs_ash | needs_glh | needs_hip
     for raw in pdb_path.read_text().splitlines():
         if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 54:
             continue
@@ -421,8 +393,9 @@ def _patch_variant_hydrogens(
             resseq = int(raw[22:26].strip())
         except ValueError:
             continue
-        key = (chain, resseq)
-        if key not in needs_ash and key not in needs_glh:
+        icode = raw[26].strip()
+        key = (chain, resseq, icode)
+        if key not in interesting:
             continue
         atom_name = raw[12:16].strip()
         try:
@@ -432,22 +405,23 @@ def _patch_variant_hydrogens(
         except ValueError:
             continue
         coords_per_res.setdefault(key, {})[atom_name] = (x, y, z)
+        if key in needs_hip and atom_name in ("HD1", "HE2"):
+            hip_h_present.setdefault(key, set()).add(atom_name)
 
-    def _place_carboxyl_h(cg, od1, od2):
-        """Place a H on OD2 (or OE2) at 0.97 Å, in the plane of the
-        carboxyl group, on the side opposite OD1 (OE1)."""
-        # Vectors from OD2 to its two neighbours in the sp2 plane.
-        v_cg = (cg[0] - od2[0], cg[1] - od2[1], cg[2] - od2[2])
-        v_od1 = (od1[0] - od2[0], od1[1] - od2[1], od1[2] - od2[2])
-        # In-plane bisector of the two neighbours points into the
-        # carboxyl; H goes opposite. Take -(v_cg + v_od1) direction.
-        s = (-(v_cg[0] + v_od1[0]), -(v_cg[1] + v_od1[1]), -(v_cg[2] + v_od1[2]))
+    def _place_bisector_h(center, neigh1, neigh2, bond_len):
+        """Place an H at ``center`` at ``bond_len`` Å, in the plane of
+        the three atoms, on the side opposite the bisector of the two
+        neighbours. Used for sp2 carboxyl-O H and for imidazole ring-N
+        H (both are in-plane, one-neighbour-per-side geometry)."""
+        v1 = (neigh1[0] - center[0], neigh1[1] - center[1], neigh1[2] - center[2])
+        v2 = (neigh2[0] - center[0], neigh2[1] - center[1], neigh2[2] - center[2])
+        s = (-(v1[0] + v2[0]), -(v1[1] + v2[1]), -(v1[2] + v2[2]))
         n = math.sqrt(s[0] ** 2 + s[1] ** 2 + s[2] ** 2)
         if n < 1e-6:
             return None
-        return (od2[0] + 0.97 * s[0] / n,
-                od2[1] + 0.97 * s[1] / n,
-                od2[2] + 0.97 * s[2] / n)
+        return (center[0] + bond_len * s[0] / n,
+                center[1] + bond_len * s[1] / n,
+                center[2] + bond_len * s[2] / n)
 
     added = 0
     dropped = 0
@@ -462,7 +436,8 @@ def _patch_variant_hydrogens(
         except ValueError:
             out.append(raw)
             continue
-        variant = renames.get((chain, resseq))
+        icode = raw[26].strip()
+        variant = renames.get((chain, resseq, icode))
         if variant is None:
             out.append(raw)
             continue
@@ -473,56 +448,63 @@ def _patch_variant_hydrogens(
             continue
         out.append(raw)
 
-    # Now insert HD2 / HE2 lines just after the corresponding OD2/OE2
-    # atom line for each ASH / GLH residue.
+    # Assemble the H atoms we want to insert, keyed by the file-order
+    # index of the anchor atom they should follow.
     to_insert: dict[int, list[str]] = {}
+
+    def _queue_insert(key, anchor_atom, h_name, pos):
+        for i, ln in enumerate(out):
+            if not ln.startswith(("ATOM  ", "HETATM")) or len(ln) < 27:
+                continue
+            if ln[21] != key[0]:
+                continue
+            try:
+                rs = int(ln[22:26].strip())
+            except ValueError:
+                continue
+            if rs != key[1] or ln[26].strip() != key[2]:
+                continue
+            if ln[12:16].strip() != anchor_atom:
+                continue
+            to_insert.setdefault(i + 1, []).append(
+                _emit_h_line(ln, h_name, pos)
+            )
+            return True
+        return False
+
     for key in needs_ash:
         cds = coords_per_res.get(key, {})
         if not {"CG", "OD1", "OD2"}.issubset(cds):
             continue
-        pos = _place_carboxyl_h(cds["CG"], cds["OD1"], cds["OD2"])
+        pos = _place_bisector_h(cds["OD2"], cds["CG"], cds["OD1"], 0.97)
         if pos is None:
             continue
-        # Find OD2 line index in `out` for this residue and insert HD2 after it.
-        target_res = key
-        for i, ln in enumerate(out):
-            if not ln.startswith(("ATOM  ", "HETATM")) or len(ln) < 27:
-                continue
-            if ln[21] != target_res[0]:
-                continue
-            try:
-                rs = int(ln[22:26].strip())
-            except ValueError:
-                continue
-            if rs != target_res[1] or ln[12:16].strip() != "OD2":
-                continue
-            new_line = _emit_h_line(ln, "HD2", pos)
-            to_insert.setdefault(i + 1, []).append(new_line)
+        if _queue_insert(key, "OD2", "HD2", pos):
             added += 1
-            break
+
     for key in needs_glh:
         cds = coords_per_res.get(key, {})
         if not {"CD", "OE1", "OE2"}.issubset(cds):
             continue
-        pos = _place_carboxyl_h(cds["CD"], cds["OE1"], cds["OE2"])
+        pos = _place_bisector_h(cds["OE2"], cds["CD"], cds["OE1"], 0.97)
         if pos is None:
             continue
-        target_res = key
-        for i, ln in enumerate(out):
-            if not ln.startswith(("ATOM  ", "HETATM")) or len(ln) < 27:
-                continue
-            if ln[21] != target_res[0]:
-                continue
-            try:
-                rs = int(ln[22:26].strip())
-            except ValueError:
-                continue
-            if rs != target_res[1] or ln[12:16].strip() != "OE2":
-                continue
-            new_line = _emit_h_line(ln, "HE2", pos)
-            to_insert.setdefault(i + 1, []).append(new_line)
+        if _queue_insert(key, "OE2", "HE2", pos):
             added += 1
-            break
+
+    for key in needs_hip:
+        cds = coords_per_res.get(key, {})
+        present = hip_h_present.get(key, set())
+        # Place whichever of HD1 / HE2 is missing. Both missing → place
+        # both (Reduce couldn't decide; unusual on -build).
+        if "HD1" not in present and {"ND1", "CG", "CE1"}.issubset(cds):
+            pos = _place_bisector_h(cds["ND1"], cds["CG"], cds["CE1"], 1.01)
+            if pos is not None and _queue_insert(key, "ND1", "HD1", pos):
+                added += 1
+        if "HE2" not in present and {"NE2", "CD2", "CE1"}.issubset(cds):
+            pos = _place_bisector_h(cds["NE2"], cds["CD2"], cds["CE1"], 1.01)
+            if pos is not None and _queue_insert(key, "NE2", "HE2", pos):
+                added += 1
 
     if to_insert:
         rebuilt: list[str] = []
@@ -534,7 +516,8 @@ def _patch_variant_hydrogens(
 
     pdb_path.write_text("".join(out))
     if verbose and (added or dropped):
-        print(f"  [prep] variant H patch: +{added} (ASH HD2 / GLH HE2), "
+        print(f"  [prep] variant H patch: +{added} "
+              f"(ASH HD2 / GLH HE2 / HIP HD1|HE2), "
               f"-{dropped} (CYX/CYM HG, LYN HZ1)")
     return added, dropped
 
@@ -646,22 +629,23 @@ def _rename_all_his_variants_to_his(pdb_path: Path) -> int:
 
 def _infer_his_tautomers_from_atoms(
     pdb_path: Path,
-) -> dict[tuple[str, int], str]:
-    """Return ``{(chain, resseq): HID/HIE/HIP}`` for each HIS/HID/HIE/HIP
-    residue based on which imidazole H atoms are present.
+) -> dict[tuple[str, int, str], str]:
+    """Return ``{(chain, resseq, icode): HID/HIE/HIP}`` for each
+    HIS/HID/HIE/HIP residue based on which imidazole H atoms are present.
 
     ``reduce -build -nuclear`` picks the tautomer per residue but leaves
     the residue name as ``HIS``. We inspect the placed H atoms:
 
     * HD1 present, HE2 absent  → ``HID`` (proton on δ-nitrogen)
     * HE2 present, HD1 absent  → ``HIE`` (proton on ε-nitrogen)
-    * Both present             → ``HIP`` (doubly protonated, +1 charge)
-    * Neither                  → keep ``HIS`` (deprotonated; unusual —
-      logged as a warning by the caller if verbose)
+    * Both present             → ``HIP`` (doubly protonated, +1 charge —
+      rare on ``-build`` alone; PROPKA is the primary HIP signal)
+    * Neither                  → key omitted (deprotonated HIS is
+      unusual and downstream should treat the residue as HIS)
     """
-    hd1_seen: set[tuple[str, int]] = set()
-    he2_seen: set[tuple[str, int]] = set()
-    his_residues: set[tuple[str, int]] = set()
+    hd1_seen: set[tuple[str, int, str]] = set()
+    he2_seen: set[tuple[str, int, str]] = set()
+    his_residues: set[tuple[str, int, str]] = set()
     for raw in pdb_path.read_text().splitlines():
         if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
             continue
@@ -673,7 +657,8 @@ def _infer_his_tautomers_from_atoms(
             resseq = int(raw[22:26].strip())
         except ValueError:
             continue
-        key = (chain, resseq)
+        icode = raw[26].strip()
+        key = (chain, resseq, icode)
         his_residues.add(key)
         name = raw[12:16].strip()
         if name == "HD1":
@@ -681,7 +666,7 @@ def _infer_his_tautomers_from_atoms(
         elif name == "HE2":
             he2_seen.add(key)
 
-    result: dict[tuple[str, int], str] = {}
+    result: dict[tuple[str, int, str], str] = {}
     for key in his_residues:
         has_hd1 = key in hd1_seen
         has_he2 = key in he2_seen
@@ -691,40 +676,8 @@ def _infer_his_tautomers_from_atoms(
             result[key] = "HID"
         elif has_he2:
             result[key] = "HIE"
-        else:
-            # Deprotonated HIS — leave as HIS, unusual.
-            result[key] = "HIS"
+        # else: deprotonated HIS — omit from map; caller keeps "HIS".
     return result
-
-
-def _rename_residues_in_pdb(
-    pdb_path: Path,
-    renames: dict[tuple[str, int], str],
-) -> int:
-    """Rewrite the resname column (17-20) of ATOM/HETATM lines for each
-    (chain, resseq) in ``renames``. Returns count of lines rewritten."""
-    if not renames:
-        return 0
-    n = 0
-    out: list[str] = []
-    for raw in pdb_path.read_text().splitlines(keepends=True):
-        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
-            out.append(raw)
-            continue
-        chain = raw[21]
-        try:
-            resseq = int(raw[22:26].strip())
-        except ValueError:
-            out.append(raw)
-            continue
-        new_name = renames.get((chain, resseq))
-        if not new_name:
-            out.append(raw)
-            continue
-        out.append(raw[:17] + f"{new_name:>3s}" + raw[20:])
-        n += 1
-    pdb_path.write_text("".join(out))
-    return n
 
 
 def _detect_ss_bonds_from_distance(
@@ -813,39 +766,44 @@ def _find_terminal_residues(
 
 def assign_amber_variants(
     pdb_path: Path,
-    propka_pkas: dict[tuple[str, int], tuple[str, float]] | None,
-    ph: float,
-    ss_pairs: set[tuple[str, int]] | None = None,
+    variant_map: dict[tuple[str, int, str], str] | None,
     verbose: bool = False,
-) -> dict[tuple[str, int], str]:
+) -> dict[tuple[str, int, str], str]:
     """Rewrite ATOM/HETATM residue names in ``pdb_path`` (in place) to
-    AMBER protonation variants based on PROPKA pKa predictions.
+    AMBER protonation variants using a pre-decided variant map.
 
-    * ``propka_pkas``: dict ``(chain, resseq) → (resname, pka)`` from
-      :mod:`dvbfixer.protonate.run_propka` (or equivalent).
-    * ``ph``: reference pH (protonated when pKa > pH for ASP/GLU,
-      deprotonated when pKa < pH for LYS/CYS).
-    * ``ss_pairs``: set of ``(chain, resseq)`` for CYS residues that
-      are in a disulfide bond; those become CYX regardless of pKa.
+    * ``variant_map``: dict ``(chain, resseq, icode) → new_resname``
+      produced by the caller from PROPKA (``decide_protonation``) plus
+      Reduce (HIS tautomer inference) plus SS-bond overlay.
 
-    HIS variants (HID/HIE/HIP) are already set by reduce and pass
-    through unchanged.
+    The map is applied verbatim except for terminal residues whose
+    target variant is one of ``LYN / ASH / GLH / CYM`` — ff14SB has no
+    NRES/CRES template for those four (no RESP charges were ever
+    computed for terminal deprotonated/protonated variants of them),
+    so we drop the rename for terminal residues to avoid template-match
+    failures in downstream OpenMM. All other variants (HID/HIE/HIP,
+    CYX) have NRES/CRES coverage and pass through at termini.
 
-    Returns a dict of ``(chain, resseq) → new_resname`` for every
-    residue that was renamed; useful for the .dat file.
+    Returns the *applied* variant map ``(chain, resseq, icode) → variant``
+    (with terminal-skipped entries removed).
     """
-    ss = ss_pairs or set()
-    pkas = propka_pkas or {}
-    # Terminals: ff14SB has NHID/NHIE/NHIP/CHID/CHIE/CHIP + NCYX/CCYX,
-    # so those variants ARE safe at termini. Only LYN/ASH/GLH/CYM lack
-    # NRES/CRES templates (no RESP charges were ever computed for
-    # terminal deprotonated/protonated variants of those).
-    terminals = _find_terminal_residues(pdb_path)
+    if not variant_map:
+        return {}
+    terminals = _find_terminal_residues(pdb_path)  # 2-tuple (chain, resseq)
     _NO_TERMINAL_VARIANT = {"LYN", "ASH", "GLH", "CYM"}
 
-    renames: dict[tuple[str, int], str] = {}
+    # Prune terminal-unsupported variants up front so the file rewrite
+    # loop stays a plain dict lookup.
+    applied: dict[tuple[str, int, str], str] = {}
+    terminal_skipped: set[tuple[str, int, str, str]] = set()
+    for (chain, resseq, icode), variant in variant_map.items():
+        if (variant in _NO_TERMINAL_VARIANT
+                and (chain, resseq) in terminals):
+            terminal_skipped.add((chain, resseq, icode, variant))
+            continue
+        applied[(chain, resseq, icode)] = variant
+
     out: list[str] = []
-    terminal_skipped: set[tuple[str, int, str]] = set()
     for raw in pdb_path.read_text().splitlines(keepends=True):
         if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
             out.append(raw)
@@ -856,38 +814,33 @@ def assign_amber_variants(
         except ValueError:
             out.append(raw)
             continue
+        icode = raw[26].strip()
+        target = applied.get((chain, resseq, icode))
+        if target is None:
+            out.append(raw)
+            continue
         resname = raw[17:20].strip()
-        is_ss = (chain, resseq) in ss
-        pk_entry = pkas.get((chain, resseq))
-        pka = pk_entry[1] if pk_entry else None
-        variant = _classify_variant(resname, pka, ph, is_ss)
-        if variant is None or variant == resname:
+        if target == resname:
             out.append(raw)
             continue
-        if variant in _NO_TERMINAL_VARIANT and (chain, resseq) in terminals:
-            terminal_skipped.add((chain, resseq, variant))
-            out.append(raw)
-            continue
-        new = raw[:17] + f"{variant:>3s}" + raw[20:]
-        out.append(new)
-        renames[(chain, resseq)] = variant
+        out.append(raw[:17] + f"{target:>3s}" + raw[20:])
     pdb_path.write_text("".join(out))
     if terminal_skipped:
         n = len(terminal_skipped)
-        detail = ", ".join(f"{c}/{r}→{v}"
-                           for (c, r, v) in sorted(terminal_skipped)[:5])
+        detail = ", ".join(f"{c}/{r}{i}→{v}"
+                           for (c, r, i, v) in sorted(terminal_skipped)[:5])
         more = "" if n <= 5 else f", ... and {n - 5} more"
         print(f"  [prep] skipped {n} terminal residue variant rename(s) "
               f"({detail}{more}) — ff14SB has no NRES/CRES template for "
               f"LYN/ASH/GLH/CYM.")
-    if verbose and renames:
+    if verbose and applied:
         by_kind: dict[str, int] = {}
-        for name in renames.values():
+        for name in applied.values():
             by_kind[name] = by_kind.get(name, 0) + 1
         parts = ", ".join(f"{k}={v}" for k, v in sorted(by_kind.items()))
-        print(f"  [prep] applied {len(renames)} AMBER variant renames "
+        print(f"  [prep] applied {len(applied)} AMBER variant renames "
               f"({parts})")
-    return renames
+    return applied
 
 
 # ---------------------------------------------------------------------------
@@ -908,8 +861,9 @@ def run_prep(
 ) -> dict[str, object]:
     """Full deterministic prep pipeline. Returns a metadata dict:
 
-    * ``renames``: dict ``(chain, resseq) → new_resname`` from
-      :func:`assign_amber_variants`.
+    * ``renames``: dict ``(chain, resseq, icode) → new_resname`` from
+      :func:`assign_amber_variants` (icode is empty string when the
+      input has no insertion code — typical for non-antibody inputs).
     * ``n_residues``: number of residues in the output.
 
     Raises :class:`TleapError` / :class:`ReduceError` on tool failure.
@@ -944,31 +898,65 @@ def run_prep(
         meta = _capture_residue_meta(step0)
         _restore_metadata(step4, output_pdb, meta)
 
-    renames: dict[tuple[str, int], str] = {}
+    renames: dict[tuple[str, int, str], str] = {}
     if assign_variants:
-        propka_dict: dict[tuple[str, int], tuple[str, float]] = {}
+        from dvbfixer.protonate import (
+            decide_protonation,
+            get_pka_results,
+            run_propka,
+        )
+
+        # 1. PROPKA — one call, then decide_protonation filters by group
+        #    type (ASP/GLU/LYS/CYS/HIS side chains only, N+/C- skipped)
+        #    and keys on (chain, resnum, icode). This is the fix for the
+        #    old bug where propka_dict[(chain, resnum)] silently
+        #    overwrote a side-chain pKa with the terminal N+/C- pKa.
+        pka_results: list[dict[str, object]] = []
+        n_pka = 0
         try:
-            from dvbfixer.protonate import get_pka_results, run_propka
             mc = run_propka(str(output_pdb))
-            for r in get_pka_results(mc):
-                try:
-                    resnum = int(r["resnum"])
-                except (TypeError, ValueError):
-                    continue
-                propka_dict[(r["chain"], resnum)] = (r["restype"], r["pka"])
+            pka_results = get_pka_results(mc)
+            n_pka = len(pka_results)
         except Exception as e:
             print(f"  [prep] PROPKA skipped ({e}); variant assignment "
                   f"limited to CYX from SS bonds + HIS tautomers from "
                   f"Reduce.")
 
-        # HIS tautomer inference from Reduce's H atoms (HD1/HE2 presence).
-        # reduce -build picks the tautomer per residue but keeps the
-        # residue name as "HIS"; we rewrite HIS → HID/HIE/HIP here.
-        his_map = _infer_his_tautomers_from_atoms(output_pdb)
-        _rename_residues_in_pdb(output_pdb, his_map)
+        # Note: decide_protonation may over-classify HIS→HIP when a
+        # neighbouring positive charge shifts the pKa; that's the intended
+        # PROPKA signal. For neutral HIS (his_default=HIE) we overlay
+        # Reduce's per-residue HID/HIE tautomer choice below.
+        propka_renames = decide_protonation(
+            pka_results, ph, his_default="HIE", cys_ss_pka=8.0,
+        )
 
-        # Fallback SS-bond detection by distance if the caller didn't
-        # supply any pairs (e.g. input CONECT stripped by upstream tools).
+        # 2. Reduce -build picks the HIS tautomer per H-bond network but
+        #    leaves the residue name as "HIS"; read the placed H atoms.
+        reduce_his = _infer_his_tautomers_from_atoms(output_pdb)
+
+        variant_map: dict[tuple[str, int, str], str] = {}
+        for key, variant in propka_renames.items():
+            if variant == "HIP":
+                # PROPKA-driven HIP wins: reduce -build almost never
+                # places both HD1 and HE2 on its own.
+                variant_map[key] = "HIP"
+            elif variant in ("HIE", "HID"):
+                tautomer = reduce_his.get(key)
+                variant_map[key] = tautomer if tautomer in ("HID", "HIE") else variant
+            else:
+                variant_map[key] = variant
+        # HIS residues that PROPKA didn't rename (e.g. PROPKA failed or
+        # didn't emit a pKa) still get Reduce's tautomer choice.
+        for key, tautomer in reduce_his.items():
+            if key in variant_map:
+                continue
+            if tautomer in ("HID", "HIE", "HIP"):
+                variant_map[key] = tautomer
+
+        # 3. SS-bond overlay — every CYS in an SS pair becomes CYX
+        #    regardless of PROPKA. Matches on (chain, resseq) because
+        #    detect_ss_bonds returns 2-tuples and SS-bonded CYS with
+        #    insertion codes is essentially never seen.
         effective_ss = set(ss_pairs) if ss_pairs else set()
         if not effective_ss:
             distance_ss = _detect_ss_bonds_from_distance(output_pdb)
@@ -977,29 +965,43 @@ def run_prep(
                 if verbose:
                     print(f"  [prep] detected {len(distance_ss)} SS-bonded "
                           f"CYS via distance (input had no CONECT)")
+        if effective_ss:
+            seen_cys: set[tuple[str, int, str]] = set()
+            for raw in output_pdb.read_text().splitlines():
+                if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+                    continue
+                if raw[17:20].strip() not in ("CYS", "CYX", "CYM"):
+                    continue
+                chain = raw[21]
+                try:
+                    resseq = int(raw[22:26].strip())
+                except ValueError:
+                    continue
+                icode = raw[26].strip()
+                key = (chain, resseq, icode)
+                if key in seen_cys:
+                    continue
+                seen_cys.add(key)
+                if (chain, resseq) in effective_ss:
+                    variant_map[key] = "CYX"
 
+        # 4. Apply the map (with terminal-skip for LYN/ASH/GLH/CYM).
         renames = assign_amber_variants(
-            output_pdb, propka_dict, ph, ss_pairs=effective_ss,
-            verbose=verbose,
+            output_pdb, variant_map, verbose=verbose,
         )
-        # Merge HIS decisions into the renames dict so the caller (dat
-        # + downstream) sees the full set.
-        for k, v in his_map.items():
-            renames.setdefault(k, v)
 
-        # Always-on PROPKA activity summary.
+        # 5. Always-on PROPKA activity summary.
         by_kind: dict[str, int] = {}
         for name in renames.values():
             by_kind[name] = by_kind.get(name, 0) + 1
         by_kind_str = (", ".join(f"{k}={v}" for k, v in sorted(by_kind.items()))
                        if by_kind else "none")
-        print(f"  [prep] PROPKA + Reduce: {len(propka_dict)} titratable "
+        print(f"  [prep] PROPKA + Reduce: {n_pka} titratable "
               f"pKas scanned, {len(renames)} residues renamed "
               f"({by_kind_str}); {len(effective_ss)} SS-bonded CYS.")
 
-        # Patch H set per variant template directly (avoids a second
-        # tleap pass that was duplicating C-terminal O/OXT atoms in
-        # 0.7.1).
+        # 6. Patch H set per variant template (avoids a second tleap
+        #    pass that duplicated C-terminal O/OXT atoms in 0.7.1).
         _patch_variant_hydrogens(output_pdb, renames, verbose=verbose)
 
     n_res = 0

@@ -308,9 +308,25 @@ def _apply_filter(bonds, atoms, by_serial):
       - any bond with at least one HETATM in a non-AA residue
       - SS bonds (CYS family SG-SG) regardless of residue classification
       - real peptide backbone C-N bonds between adjacent protein residues
+      - intra-residue bonds when the residue name is an AMBER protonation
+        variant (LYN / ASH / GLH / CYX / CYM / HID / HIE / HIP). OpenMM's
+        ``PDBFile._standardResidues`` set only covers the 20 canonical
+        AAs, so PDBFile does NOT infer intra-residue bonds for these
+        variant names. Without CONECT records, the loaded topology has
+        zero bonds for the variant residues and every downstream
+        template-match step fails ("residue X has no bonds").
     """
     from dvbfixer.ffutils import PROTEIN_RESIDUES
+    from dvbfixer.ffutils.variants import ALL_VARIANTS
     _WATER = {'HOH', 'WAT', 'TIP3', 'TIP4', 'TIP5', 'SOL', 'SPC', 'SPCE'}
+    # OpenMM's PDBFile parser recognises these — no need to emit CONECT
+    # for their intra-residue bonds (FF templates own the chemistry AND
+    # the parser knows the names).
+    _OPENMM_PARSER_STANDARD_AA = {
+        'ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS',
+        'ILE', 'LEU', 'LYS', 'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP',
+        'TYR', 'VAL',
+    }
     out = set()
     for lo, hi in bonds:
         a = by_serial.get(lo)
@@ -326,8 +342,15 @@ def _apply_filter(bonds, atoms, by_serial):
         if is_ss:
             out.add((lo, hi))
             continue
+        # Intra-residue bond: keep it if the residue name is an AMBER
+        # variant OpenMM's PDBFile can't infer bonds for; otherwise drop
+        # (standard AAs are template-owned).
+        if same_res and a['resname'] in _OPENMM_PARSER_STANDARD_AA:
+            continue
+        if same_res and a['resname'] in ALL_VARIANTS:
+            out.add((lo, hi))
+            continue
         if same_res and a['resname'] in PROTEIN_RESIDUES:
-            # Intra standard-AA — FF templates own it
             continue
         # Inter-residue where BOTH are standard-AA: keep ONLY the
         # canonical peptide-backbone C-N bond. Everything else (N-O,

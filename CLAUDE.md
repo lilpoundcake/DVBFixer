@@ -78,7 +78,35 @@ Modeller needs a free academic license from
   `rename_variants_to_parent_in_topology`,
   `restore_variants_post_addhydrogens`) are the canonical dance for
   making OpenMM's peptide-bond inference survive a mid-chain
-  LYN/HIE/HSD.
+  LYN/HIE/HSD. `minimize/pipeline.py` calls
+  `text_rename_variants_to_parent` BEFORE `PDBFile.load` so OpenMM
+  can infer intra-residue bonds — its `_standardResidues` set does
+  not include AMBER variants and topology has zero bonds for them
+  otherwise.
+- **Do not use `_classify_variant` or `_STD_PKA`** (both deleted in
+  0.7.4). PROPKA-driven variant decisions belong in
+  `dvbfixer.protonate.decide_protonation` — it filters by PROPKA
+  group type (so N+/C- pKas don't overwrite side-chain pKas) and
+  keys by `(chain, resnum, icode)`. `prep_backend.run_prep` layers
+  Reduce's HID/HIE tautomer under PROPKA's HIP decision. Do NOT
+  bring back the raw-pka dict path.
+- **Force strip-H + `Modeller.addHydrogens(variants=[...])` when
+  `amber_renames` is non-empty in minimize.** `addHydrogens` copies
+  input bonds but never rebuilds missing ones from templates, and
+  only ADDS missing H (never REMOVES extras). Strip-and-readd is
+  the only path that produces a topology whose atoms AND bonds
+  match the variant template. The keep-H fast path stays for the
+  no-variant common case.
+- **Cap the pH passed to `Modeller.addHydrogens` at 9.99.** OpenMM's
+  `hydrogens.xml` gates HZ3 with `maxph="10.0"` and at pH > 10
+  produces LYS residues that miss HZ3 (template mismatch). Variants
+  from PROPKA already carry the true protonation state, so the
+  auto-selection heuristic driven by pH is redundant.
+- **Do not drop SG-SG bonds in `_drop_spurious_inter_aa_bonds`.**
+  The filter drops non-peptide inter-residue bonds between two
+  standard AAs, but disulfides (SG-SG on CYS-family residues:
+  CYS/CYX/CYM) are explicitly kept. Fixed 0.7.4 — dropping them
+  severs disulfides during minimize and lets them relax apart.
 - **Do not skip the `build_glycam_system` wrapper.** It packages
   the three-step GLYCAM ritual (`create_forcefield_with_openff` +
   `loadHydrogenDefinitions('glycam-hydrogens.xml')` +
@@ -105,7 +133,8 @@ scientific stack from `environment.yml`; it runs in CI's full-lane job.
 
 ## Session preferences
 
-- Default to `--no-solvent` on dev iterations of `minimize` / `zbs` —
-  solvent-box minimize is too slow for the loop. Add solvent back only
-  for real evaluation runs.
+- **Always pass `--no-solvent`** on every dev iteration of `minimize` /
+  `zbs`. Solvent-box minimize is orders of magnitude slower and eats the
+  feedback loop. Add solvent back only for real evaluation runs the user
+  has explicitly asked for.
 - Reply in English even when the user writes in Russian.

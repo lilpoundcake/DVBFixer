@@ -758,8 +758,8 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
                     "atoms get strong restraints.",
         added_atoms=added_atoms,
         residue_summary=residue_summary,
-        variant_overrides={f"{c}:{r}": v
-                            for (c, r), v in result["renames"].items()},
+        variant_overrides={f"{c}:{r}{i}" if i else f"{c}:{r}": v
+                            for (c, r, i), v in result["renames"].items()},
     )
     dat.save(dat_path)
     print(f"Saved prepared structure: {output_path}")

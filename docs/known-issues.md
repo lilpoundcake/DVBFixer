@@ -19,6 +19,62 @@
   wanted. (c) Requires `ambertools>=23` (already in environment.yml).
   See `src/dvbfixer/prep_backend.py` docstring for the pipeline.
 
+- **PROPKA on tleap+reduce backend (fixed 0.7.4)**: The initial
+  `prep_backend` shipped an ad-hoc PROPKA→variant map keyed on
+  `(chain, resnum)`. PROPKA emits multiple `Group` records per residue
+  (side-chain acid/base + terminal `N+` / `C-` on the same
+  `(chain, resnum)`) so the second one silently overwrote the first —
+  ASH/GLH/LYN were only assigned by accident when the collision
+  landed the right way, and HIS→HIP was never assigned because HIP
+  was inferred solely from H atoms and `reduce -build` almost never
+  places both HD1 and HE2. Fixed by routing through the existing
+  `dvbfixer.protonate.decide_protonation` (group-type-filtered,
+  `(chain, resnum, icode)`-keyed) then overlaying Reduce's HID/HIE
+  tautomer for neutral HIS. `_patch_variant_hydrogens` gained an HIP
+  branch that adds whichever imidazole H Reduce didn't place.
+
+- **AMBER variant residue names on the minimize path (fixed 0.7.4)**:
+  OpenMM's `PDBFile._standardResidues` set covers only the 20 canonical
+  amino acids — it does NOT know LYN/ASH/GLH/CYX/CYM/HID/HIE/HIP.
+  Loading a PDB with variant names via `PDBFile` produces a topology
+  with the correct atoms but **zero intra-residue bonds** for the
+  variant residues; every downstream `createSystem` template match
+  then fails with "residue X has no bonds between its atoms". Fixed
+  in `minimize/pipeline.py`:
+  1. Before `PDBFile.load`, `text_rename_variants_to_parent` folds
+     variant names to their standard parents in a temp file — OpenMM
+     infers proper intra-residue bonds from parent templates.
+  2. When any variant is present in the input (via `amber_renames`),
+     force the strip-H + `Modeller.addHydrogens(variants=[...])`
+     rebuild path. Reason: `addHydrogens` copies input bonds but does
+     NOT rebuild missing ones from templates, and it only ADDS
+     missing H — never REMOVES extras. Strip-and-readd sidesteps
+     both limitations.
+  3. Cap the pH passed to `addHydrogens` at 9.99 so OpenMM's
+     `hydrogens.xml` `maxph="10.0"` HZ3 gate doesn't break terminal
+     LYS residues at high pH (variants already carry PROPKA's
+     protonation decisions).
+  4. `pdbutils/inference.py::_apply_filter` now keeps intra-residue
+     bonds for variant-named residues in emitted CONECT (defense in
+     depth for any path that still loads variants directly).
+
+- **SS bonds dropped by `_drop_spurious_inter_aa_bonds` (fixed 0.7.4)**:
+  Minimize's spurious-bond filter treated every inter-residue bond
+  between two protein residues that wasn't a C-N peptide bond as
+  spurious. After `text_rename_variants_to_parent` folded CYX → CYS,
+  SG-SG disulfides were between two "CYS"-named residues → dropped.
+  Fixed by adding an SG-SG exception for the CYS family (CYS/CYX/CYM).
+
+- **D-Cα residues surviving minimize (fixed 0.7.4)**: The prior
+  design was WARN-only when a residue drifted into D-Cα geometry
+  during phase-2 minimize (rationale: reflecting an equilibrated
+  sidechain can stretch CA-CB to ~2 Å). Replaced with a bounded
+  reflect-and-re-minimize loop (max 3 iterations): reflect via
+  `fix_ca_chirality`, run a short follow-up minimize under the
+  already-weakened phase-2 restraints so the reflected CB relaxes
+  compatibly, verify. WARNING emitted only if D-Cα persists after
+  the loop.
+
 - **N-terminal ASH/GLH in ACPYPE mode**: AMBER14 has no N/C-terminal protonated ASP/GLU templates (NASH/NGLH — never parameterized via RESP in any AMBER version). When `--acpype` encounters ASH or GLH at chain termini, it strips the protonation hydrogen (HD2/HE2) and uses the standard deprotonated template (NASP/NGLU). A `UserWarning` is emitted. Internal (non-terminal) ASH/GLH residues are preserved correctly.
 
 - **Chain ID mismatch in .dat workflow**: The `.dat` file stores chain IDs from PDBFixer. If the prepared PDB is saved through a tool that reassigns chain IDs (PyMOL, VMD), the `.dat` entries won't match the new chain letters. Workaround: ensure chain IDs remain consistent between prepare and minimize steps, or manually edit the `.dat` file.
