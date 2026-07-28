@@ -65,7 +65,12 @@ Modeller needs a free academic license from
   and `fix_ca_chirality` are the detector and reflector primitives.
   tleap is L-only by construction so `assert_all_l` should never
   trip on the new backend — it fires only if a downstream bug
-  regresses.
+  regresses. Post-minimize enforcement is bounded reflect+re-minimize
+  (3 iters) then UNCONDITIONAL force-reflect: the output MUST have
+  zero D-Cα, even if it means accepting minor local packing strain
+  on the rare residue whose FF minimum genuinely lies on the D side.
+  Do NOT re-introduce a WARN-only path — the chirality invariant is
+  non-negotiable.
 - **Do not read a `.dat` file with hand-rolled `json.load`.** Use
   `dvbfixer.ffutils.dat.DatRecord` — the schema (added_atoms,
   variant_overrides, removed_residues, residue_summary,

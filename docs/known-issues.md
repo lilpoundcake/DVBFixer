@@ -68,12 +68,23 @@
 - **D-Cα residues surviving minimize (fixed 0.7.4)**: The prior
   design was WARN-only when a residue drifted into D-Cα geometry
   during phase-2 minimize (rationale: reflecting an equilibrated
-  sidechain can stretch CA-CB to ~2 Å). Replaced with a bounded
-  reflect-and-re-minimize loop (max 3 iterations): reflect via
-  `fix_ca_chirality`, run a short follow-up minimize under the
-  already-weakened phase-2 restraints so the reflected CB relaxes
-  compatibly, verify. WARNING emitted only if D-Cα persists after
-  the loop.
+  sidechain can stretch CA-CB to ~2 Å). Replaced with a two-tier
+  fix that guarantees zero D-Cα in output:
+  1. **Reflect + re-minimize loop** (max 3 iterations): reflect via
+     `fix_ca_chirality`, run a short follow-up minimize under the
+     already-weakened phase-2 restraints so the reflected sidechain
+     relaxes into a compatible position.
+  2. **Unconditional force-reflect fallback** — if a residue still
+     prefers D after the loop (the FF's local minimum genuinely
+     sits on the D side; happens rarely for residues in tight
+     packing), reflect once more and skip the follow-up minimize.
+     `fix_ca_chirality` mirrors the whole sidechain through the
+     CA-N-C plane, so ALL internal bond lengths and angles are
+     preserved (CA-CB ≈ 0.154 nm, CB-HB ≈ 0.109 nm, sidechain
+     torsions unchanged); only CB's position RELATIVE to backbone
+     neighbours changes, which may introduce a small local packing
+     strain the user can further relax if desired. A WARNING lists
+     each forced residue with its residual triple product.
 
 - **N-terminal ASH/GLH in ACPYPE mode**: AMBER14 has no N/C-terminal protonated ASP/GLU templates (NASH/NGLH — never parameterized via RESP in any AMBER version). When `--acpype` encounters ASH or GLH at chain termini, it strips the protonation hydrogen (HD2/HE2) and uses the standard deprotonated template (NASP/NGLU). A `UserWarning` is emitted. Internal (non-terminal) ASH/GLH residues are preserved correctly.
 

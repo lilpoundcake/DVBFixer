@@ -964,19 +964,55 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         print(f"  Energy after reflect+re-minimize iter {_reflect_iter + 1}: "
               f"{state.getPotentialEnergy()}", file=sys.stderr)
     else:
-        # Loop exhausted without breaking → still D-Cα residues left.
+        # Loop exhausted without breaking → the FF's local minimum for
+        # these residues genuinely sits on the D side (rare, exotic
+        # packing). Chirality invariant is non-negotiable: reflect
+        # unconditionally and accept the small packing strain. Any
+        # downstream tool that cares can re-relax; we WILL NOT emit a D
+        # residue.
         final_offenders = find_d_residues(min_topology, min_positions)
         if final_offenders:
-            print(f"WARNING: {len(final_offenders)} residue(s) remain in "
+            pos_list = list(min_positions)
+            n_forced = fix_ca_chirality(min_topology, pos_list,
+                                         verbose=args.verbose)
+            print(f"WARNING: {len(final_offenders)} residue(s) preferred "
                   f"D-Cα geometry after 3 reflect+re-minimize iterations. "
-                  f"Local packing genuinely prefers D; manual inspection "
-                  f"recommended:", file=sys.stderr)
+                  f"Forcing L via unconditional reflection (may leave "
+                  f"minor local strain — manual inspection recommended):",
+                  file=sys.stderr)
             for ch, rid, name, tri in final_offenders[:20]:
                 print(f"  {ch}/{name}{rid}: triple={tri:+.5f} nm³",
                       file=sys.stderr)
             if len(final_offenders) > 20:
                 print(f"  ...and {len(final_offenders) - 20} more",
                       file=sys.stderr)
+            if n_forced:
+                # Use the reflected positions AS-IS (no follow-up
+                # minimize). Any additional minimize would pull CB back
+                # to the FF's preferred D minimum, undoing the fix.
+                # Sidechain internal geometry is preserved by
+                # fix_ca_chirality (reflects the whole sidechain, not
+                # just CB), so bond lengths within the sidechain are
+                # unchanged; only CB's position relative to backbone
+                # neighbours changes.
+                # Round-trip through the simulation context so
+                # min_positions is a Quantity(list, unit) — the raw
+                # pos_list is list[Quantity] which trips PDBFile's
+                # np.isnan check downstream.
+                simulation.context.setPositions(pos_list)
+                min_positions = simulation.context.getState(
+                    getPositions=True,
+                ).getPositions()
+                # Verify.
+                still_d = find_d_residues(min_topology, min_positions)
+                if still_d:
+                    print(f"  {len(still_d)} residue(s) STILL D after "
+                          f"forced reflection — geometry near-degenerate "
+                          f"(fix_ca_chirality skipped them):",
+                          file=sys.stderr)
+                    for ch, rid, name, tri in still_d[:5]:
+                        print(f"    {ch}/{name}{rid}: triple={tri:+.5f} nm³",
+                              file=sys.stderr)
 
     # Restore non-protein residues with original coordinates (legacy path only).
     # When keep_heterogens is on, n_stripped==0 and we write the minimized topology directly.
