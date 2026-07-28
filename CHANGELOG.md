@@ -10,6 +10,49 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.7.7] — 2026-07
+
+### Added
+
+- **PROPKA + MolProbity Reduce now run INSIDE legacy prepare.**
+  Prior to 0.7.7 the default pipeline (`dvbfixer prepare` /
+  `dvbfixer zbs`) built its `Modeller.addHydrogens(variants=[...])`
+  list only from user `--mutate` overrides + HIS HD1/HE2 presence.
+  Neither PROPKA nor Reduce was invoked, so pKa-driven ASH / GLH /
+  HIP / LYN / CYM variants and per-residue HIS tautomer picks
+  never appeared in output. Only the opt-in `--backend tleap-reduce`
+  ran them. Fixed via new helper
+  `dvbfixer.prepare.pipeline._run_propka_reduce_variants` which
+  mirrors the tleap-reduce backend's PROPKA-decide + Reduce-tautomer
+  overlay logic (fixed in 0.7.4) and is called by
+  `dvbfixer.prepare` before addHydrogens. PROPKA drives ASP/GLU/
+  LYS/CYS/HIS→HIP; Reduce fills in HID vs HIE for neutral HIS; user
+  `--mutate` overrides win on collision; CONECT-detected SS pairs
+  force CYX regardless of PROPKA's CYS pKa.
+
+- **New CLI flags on `prepare` and `zbs`**:
+  - `--propka / --no-propka` (default: on).
+  - `--protassign / --no-protassign` (default: on).
+  - `--his-default {HIE,HID}` (default: HIE) — fallback tautomer
+    when both PROPKA and Reduce are ambiguous.
+  - `--cys-ss-pka` (default: 8.0) — PROPKA pKa cutoff for CYX.
+
+  zbs propagates the flags to prepare.
+
+- New tests `tests/test_prepare_propka_integration.py` (6 tests).
+
+### Changed
+
+- **`zbs` docstring** updated: "renumber → model → prepare
+  (with PROPKA + Reduce) → minimize". The stale "protonate step"
+  language from pre-0.7.0 finally removed.
+
+- **`--skip-protonate` on zbs is deprecated**. Kept for backward
+  compat: now maps to `--no-propka --no-protassign` on prepare
+  (with a stderr warning). Standalone `dvbfixer protonate` command
+  is unchanged and can still be used as a post-hoc re-protonation
+  tool (e.g. to switch pH on an already-prepared PDB).
+
 ## [0.7.6] — 2026-07
 
 ### Changed

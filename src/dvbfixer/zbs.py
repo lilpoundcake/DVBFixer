@@ -1,22 +1,19 @@
-"""Full pipeline: renumber -> model -> prepare -> minimize -> protonate -> minimize.
+"""Full pipeline: renumber → model → prepare (PROPKA + Reduce) → minimize.
 
 Runs the complete PDB preparation workflow in sequence, passing output
-of each step as input to the next. Two minimize passes:
+of each step as input to the next.
 
-  pass 1: relax heavy atoms using prepare's approximate hydrogens
-  pass 2: refine hydrogens placed by protonate's variant-aware addHydrogens
+As of 0.7.7, PROPKA + MolProbity Reduce run **inside** the prepare
+step: PROPKA drives pKa-dependent variant renames (ASH/GLH/HIP/LYN/
+CYM/CYX) and Reduce picks the HIS tautomer (HID/HIE) + flags ASN/GLN
+amide flips. There is no separate `protonate` step in the pipeline
+anymore. Standalone `dvbfixer protonate` still exists as a post-hoc
+re-protonation tool if the user wants to re-run PROPKA/Reduce on an
+already-prepared PDB (e.g. to switch pH).
 
-Between the two minimize passes, `protonate` runs the FULL pipeline
-(PROPKA + MolProbity Reduce for HIS tautomers + ASN/GLN flip detection +
-variant-aware OpenMM addHydrogens). No `--no-hydrogens` flag is passed to
-protonate — that flag leaves existing H atoms in wrong positions after the
-variant renames.
-
-Pass 2 minimize does NOT force `--rebuild-h`: hydrogens placed by
-protonate are already correct via the variant-aware addHydrogens; the
-minimize just relaxes them. minimize.py preserves AMBER variant names on
-output via its `_input_variants` capture-restore path, so no final "re-apply
-names" step is needed.
+minimize.py preserves AMBER variant names on output via its
+`_input_variants` capture-restore path, so no final "re-apply names"
+step is needed after minimize.
 """
 
 import argparse
@@ -66,7 +63,11 @@ def parse_args(argv=None):
     skip.add_argument("--skip-minimize", action="store_true",
                       help="Skip the minimize step")
     skip.add_argument("--skip-protonate", action="store_true",
-                      help="Skip the protonate step")
+                      help="[deprecated] The protonate step no longer runs "
+                           "as a separate pipeline stage — PROPKA + Reduce "
+                           "are integrated into prepare (0.7.7+). Kept for "
+                           "backward compat: mapped to "
+                           "`--no-propka --no-protassign` on prepare.")
 
     model_grp = p.add_argument_group("Model step (Modeller)")
     model_grp.add_argument("--fasta", help="FASTA file with complete sequence(s) for model step")
@@ -122,19 +123,28 @@ def parse_args(argv=None):
                            "(protein backbone frozen). Only meaningful with "
                            "--refine != none.")
 
-    prot = p.add_argument_group("Protonate step")
+    prot = p.add_argument_group("Protonation (PROPKA + Reduce, inside prepare)")
     prot.add_argument("--no-propka", dest="propka",
                       action="store_false", default=True,
-                      help="Skip PROPKA3 in the protonate step. Reduce "
+                      help="Skip PROPKA3 during prepare. Reduce "
                            "(--protassign) becomes the only source of HIS "
                            "tautomer picks and ASN/GLN flip detection. "
-                           "Combining --no-propka with --no-protassign is an "
-                           "error.")
+                           "Combining --no-propka with --no-protassign "
+                           "leaves variants=[--mutate only] — no pKa-driven "
+                           "ASH/GLH/HIP/LYN/CYM in output.")
     prot.add_argument("--no-protassign", dest="protassign",
                       action="store_false", default=True,
                       help="Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip "
-                           "detection) in protonate. Default: run Reduce, matches "
-                           "standalone `dvbfixer protonate` default since Jun 2026.")
+                           "detection) during prepare. Default: run Reduce.")
+    prot.add_argument("--his-default", choices=["HIE", "HID"], default="HIE",
+                      help="Default HIS tautomer when PROPKA says neutral "
+                           "AND Reduce didn't place either HD1 or HE2. "
+                           "Default: HIE.")
+    prot.add_argument("--cys-ss-pka", type=float, default=8.0,
+                      help="PROPKA pKa threshold above which CYS is "
+                           "assumed to be in a disulfide bond and renamed "
+                           "to CYX (default: 8.0). Explicit CONECT-detected "
+                           "SS pairs override PROPKA regardless.")
 
     general = p.add_argument_group("Pipeline behaviour")
     general.add_argument("--keep-water", action="store_true",
@@ -166,7 +176,18 @@ def parse_args(argv=None):
     runtime.add_argument("-v", "--verbose", action="store_true",
                          help="Print detailed progress for all steps")
 
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+
+    # Deprecated --skip-protonate → forward as --no-propka --no-protassign
+    # to prepare (0.7.7+: there is no separate protonate step).
+    if getattr(args, 'skip_protonate', False):
+        print("  [zbs] --skip-protonate is deprecated (no separate "
+              "protonate step since 0.7.7); mapping to --no-propka "
+              "--no-protassign on prepare.", file=sys.stderr)
+        args.propka = False
+        args.protassign = False
+
+    return args
 
 
 def main(argv=None):
@@ -347,6 +368,16 @@ def _run_pipeline(args, input_path):
         prepare_argv = [current, "-o", out, "--ph", str(args.ph),
                         "--ff"] + args.ff
         prepare_argv.extend(["--atom-naming", args.atom_naming])
+        # Propagate PROPKA + Reduce flags into prepare (0.7.7+: legacy
+        # prepare now runs PROPKA + Reduce internally so the pipeline
+        # emits pKa-driven ASH/GLH/HIP/LYN/CYM variants and per-residue
+        # HIS tautomers).
+        if not args.propka:
+            prepare_argv.append("--no-propka")
+        if not args.protassign:
+            prepare_argv.append("--no-protassign")
+        prepare_argv.extend(["--his-default", args.his_default])
+        prepare_argv.extend(["--cys-ss-pka", str(args.cys_ss_pka)])
         if not args.keep_heterogens:
             prepare_argv.append("--strip-heterogens")
         if not args.heterogen_h:

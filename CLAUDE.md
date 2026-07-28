@@ -51,6 +51,13 @@ Modeller needs a free academic license from
 - **Do not remove `keepIds=True`** from any `PDBFile.writeFile` call.
   Losing chain IDs mid-pipeline breaks the `.dat` handoff that
   `minimize` uses for tiered restraints.
+- **PROPKA + MolProbity Reduce run INSIDE the legacy prepare backend**
+  (since 0.7.7). The helper
+  `dvbfixer.prepare.pipeline._run_propka_reduce_variants` produces
+  the variant map for `Modeller.addHydrogens(variants=[...])`;
+  disable per-flag via `--no-propka` / `--no-protassign`. Standalone
+  `dvbfixer protonate` still exists as a post-hoc re-protonation
+  tool.
 - **Do not call `PDBFixer.addMissingHydrogens(pH)`.** On the new
   backend, H placement is Reduce's job (subprocess). On the legacy
   backend, use `modeller.addHydrogens(forcefield, pH=..., variants=[...])`.

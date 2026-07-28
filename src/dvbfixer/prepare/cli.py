@@ -54,6 +54,27 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                          "O/OXT→OC2/OC1, H→HN for CHARMM). 'standard': "
                          "IUPAC/AMBER-native names (HB2/HB3, HZ1/HZ2/HZ3, "
                          "O/OXT, plain H).")
+    ff.add_argument("--propka", action=argparse.BooleanOptionalAction,
+                    default=True,
+                    help="Run PROPKA3 for pKa-driven AMBER variant "
+                         "renames (ASH/GLH/HIP/CYM/LYN/CYX). Default ON. "
+                         "Pass --no-propka to skip; variants then come "
+                         "from --mutate + input HD1/HE2 atoms only "
+                         "(0.7.5/0.7.6 behaviour).")
+    ff.add_argument("--protassign", action=argparse.BooleanOptionalAction,
+                    default=True,
+                    help="Run MolProbity Reduce for HIS tautomer "
+                         "(HID vs HIE) + ASN/GLN flip detection. "
+                         "Default ON.")
+    ff.add_argument("--his-default", choices=["HIE", "HID"], default="HIE",
+                    help="Default HIS tautomer when PROPKA says neutral "
+                         "AND Reduce didn't place either HD1 or HE2 "
+                         "(rare — deprotonated HIS). Default: HIE.")
+    ff.add_argument("--cys-ss-pka", type=float, default=8.0,
+                    help="PROPKA pKa threshold above which CYS is "
+                         "assumed to be in a disulfide bond and renamed "
+                         "to CYX (default: 8.0). Explicit CONECT-detected "
+                         "SS pairs override PROPKA regardless.")
     ff.add_argument("--backend", choices=["tleap-reduce", "legacy"],
                     default="legacy",
                     help="Prep backend. 'legacy' (default): PDBFixer + "

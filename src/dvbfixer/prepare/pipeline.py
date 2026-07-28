@@ -102,6 +102,134 @@ _VARIANT_TO_STANDARD = {
 }
 
 
+def _run_propka_reduce_variants(
+    pdb_path,
+    ph: float,
+    ss_pairs: set | None,
+    his_default: str = "HIE",
+    cys_ss_pka: float = 8.0,
+    use_propka: bool = True,
+    use_reduce: bool = True,
+    verbose: bool = False,
+) -> dict:
+    """Run PROPKA + MolProbity Reduce on ``pdb_path`` and return a
+    variant map ``{(chain, resid, icode): variant}`` for use by
+    ``Modeller.addHydrogens(variants=[...])``.
+
+    Mirrors the PROPKA-decide + Reduce-tautomer-overlay dance that
+    ``prep_backend.run_prep`` uses for the tleap-reduce backend
+    (fixed in 0.7.4). PROPKA drives ASP/ASH, GLU/GLH, LYS/LYN,
+    CYS/CYM/CYX, and HIS/HIP; Reduce fills in HID vs HIE for the
+    neutral HIS residues PROPKA said were neutral. SS pairs override
+    to CYX (CONECT-detected SS wins over PROPKA's CYM).
+
+    Returns the merged variant map (empty dict if PROPKA and Reduce
+    were both skipped).
+    """
+    from pathlib import Path
+    variant_map: dict[tuple, str] = {}
+
+    # 1. PROPKA → variant map keyed by (chain, resnum, icode).
+    n_pka = 0
+    if use_propka:
+        try:
+            from dvbfixer.protonate import (
+                decide_protonation,
+                get_pka_results,
+                run_propka,
+            )
+            pka_results = get_pka_results(run_propka(str(pdb_path)))
+            n_pka = len(pka_results)
+            propka_map = decide_protonation(
+                pka_results, ph, his_default=his_default,
+                cys_ss_pka=cys_ss_pka,
+            )
+            for key, variant in propka_map.items():
+                variant_map[key] = variant
+        except Exception as e:
+            print(f"  [prep] PROPKA skipped ({e}); variants from Reduce "
+                  f"+ SS only.")
+
+    # 2. Reduce → HID/HIE tautomer per HIS residue.
+    #    Run on a temp copy where all HIS variants are collapsed to HIS
+    #    (Reduce -build only decides tautomer for residues named HIS).
+    reduce_his: dict[tuple, str] = {}
+    if use_reduce:
+        import tempfile as _tf
+
+        from dvbfixer.prep_backend import (
+            _infer_his_tautomers_from_atoms,
+            _rename_all_his_variants_to_his,
+            _strip_hydrogens,
+            run_reduce,
+        )
+        _wd = _tf.mkdtemp(prefix='dvbfixer_reduce_')
+        try:
+            _step1 = Path(_wd) / 'no_h.pdb'
+            _step2 = Path(_wd) / 'his_flat.pdb'
+            _step3 = Path(_wd) / 'reduced.pdb'
+            _strip_hydrogens(Path(pdb_path), _step1)
+            import shutil as _sh
+            _sh.copy(_step1, _step2)
+            _rename_all_his_variants_to_his(_step2)
+            run_reduce(_step2, _step3, build=True, nuclear=True,
+                       verbose=verbose)
+            reduce_his = _infer_his_tautomers_from_atoms(_step3)
+        except Exception as e:
+            print(f"  [prep] Reduce skipped ({e}); HIS tautomers from "
+                  f"input H atoms only.")
+        finally:
+            import shutil as _sh
+            _sh.rmtree(_wd, ignore_errors=True)
+
+    # 3. Overlay Reduce's HID/HIE choice under PROPKA's HIP decision.
+    #    PROPKA HIP wins (charge state) — Reduce only fills in tautomer
+    #    for neutral HIS.
+    for key, tautomer in reduce_his.items():
+        current = variant_map.get(key)
+        if current == "HIP":
+            continue  # PROPKA charged, Reduce can't override.
+        if tautomer in ("HID", "HIE", "HIP"):
+            variant_map[key] = tautomer
+
+    # 4. SS-bond overlay — CONECT-detected pairs force CYX regardless
+    #    of PROPKA's CYS/CYM decision.
+    ss = ss_pairs or set()
+    if ss:
+        # Scan the PDB text to find CYS atoms and pick up their icodes.
+        text = Path(pdb_path).read_text()
+        seen_cys: set = set()
+        for raw in text.splitlines():
+            if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+                continue
+            if raw[17:20].strip() not in ("CYS", "CYX", "CYM"):
+                continue
+            chain = raw[21]
+            try:
+                resseq = int(raw[22:26].strip())
+            except ValueError:
+                continue
+            icode = raw[26].strip()
+            key = (chain, resseq, icode)
+            if key in seen_cys:
+                continue
+            seen_cys.add(key)
+            if (chain, resseq) in ss:
+                variant_map[key] = "CYX"
+
+    # 5. Activity summary.
+    by_kind: dict[str, int] = {}
+    for name in variant_map.values():
+        by_kind[name] = by_kind.get(name, 0) + 1
+    by_kind_str = (", ".join(f"{k}={v}" for k, v in sorted(by_kind.items()))
+                   if by_kind else "none")
+    print(f"  [prep] PROPKA + Reduce: {n_pka} titratable pKas scanned, "
+          f"{len(variant_map)} residues renamed ({by_kind_str}); "
+          f"{len(ss)} SS-bonded CYS.")
+
+    return variant_map
+
+
 
 
 def _warn_covalent_heterogen_bonds(pdb_path, verbose=False):
@@ -207,8 +335,13 @@ def _canonicalize_conect_records(input_path, verbose=False):
 
 def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                  mutations=None, heterogen_h=True, removed_residues_meta=None,
-                 ff_xmls=None):
-    """Run PDBFixer to add missing atoms/residues. Returns (fixer, new_atom_indices)."""
+                 ff_xmls=None, extra_variants=None):
+    """Run PDBFixer to add missing atoms/residues. Returns (fixer, new_atom_indices).
+
+    ``extra_variants`` is an optional ``{(chain, resid_str, icode): variant}``
+    map (typically from PROPKA + Reduce). Merged with user-supplied
+    ``--mutate`` overrides such that user entries win on collision.
+    """
     # Glycoprotein-input fixes: rewrite HETATM→ATOM for protein/GLYCAM
     # glycoprotein residues (NLN/OLS/OLT) and drop spurious TER records
     # between same-chain protein residues. Both confuse OpenMM's topology
@@ -464,13 +597,33 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     # OpenMM variant names: 'HIE', 'HID', 'HIP' for HIS; 'ASH' for ASP;
     # 'GLH' for GLU; 'CYX' for CYS (disulfide). None = auto-detect by pH.
     _OPENMM_VARIANTS = {'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYX', 'LYN'}
+
+    # Merge PROPKA + Reduce output (extra_variants, 3-tuple keys) with
+    # user --mutate overrides (variant_overrides, 2-tuple keys). User
+    # entries win on collision — matches .dat schema "downstream wins".
+    merged_variants: dict[tuple, str] = {}
+    if extra_variants:
+        for (ch, rn, ic), var in extra_variants.items():
+            merged_variants[(ch, str(rn), ic or '')] = var
+    for (ch, rn), var in variant_overrides.items():
+        # Normalise to 3-tuple with empty icode; user overrides win.
+        merged_variants[(ch, str(rn), '')] = var
+    # Also expose a 2-tuple view for downstream code that still uses
+    # ``variant_overrides`` (e.g. .dat variant_overrides serialization).
+    for (ch, rn, ic), var in merged_variants.items():
+        variant_overrides[(ch, rn)] = var
+
     variants = []
     for res in fixer.topology.residues():
-        key = (res.chain.id, res.id)
-        if key in variant_overrides and variant_overrides[key] in _OPENMM_VARIANTS:
-            variants.append(variant_overrides[key])
+        _ic = res.insertionCode.strip() if hasattr(res, 'insertionCode') else ''
+        key3 = (res.chain.id, str(res.id), _ic)
+        key2 = (res.chain.id, str(res.id))
+        _var = merged_variants.get(key3) or merged_variants.get(
+            (res.chain.id, str(res.id), ''))
+        if _var and _var in _OPENMM_VARIANTS:
+            variants.append(_var)
             if verbose:
-                print(f"  {res.name} {res.chain.id}:{res.id} → variant {variant_overrides[key]}")
+                print(f"  {res.name} {res.chain.id}:{res.id} → variant {_var}")
         elif res.name == 'HIS':
             # Detect from existing H atoms (if any survived stripping)
             atom_names = {a.name for a in res.atoms()}
@@ -906,12 +1059,35 @@ def main(argv=None):
             )
             input_path = deletion_path
 
+    # PROPKA + Reduce → variant map. Runs on the (possibly
+    # mutation-cleaned + GLYCAM-converted) input path; result is passed
+    # into run_pdbfixer as extra_variants and merged with any
+    # --mutate-supplied overrides there.
+    _propka_variants: dict = {}
+    if getattr(args, 'propka', True) or getattr(args, 'protassign', True):
+        try:
+            from dvbfixer.acpype_export import detect_ss_bonds
+            _ss = detect_ss_bonds(str(input_path))
+        except Exception:
+            _ss = set()
+        _propka_variants = _run_propka_reduce_variants(
+            input_path,
+            ph=args.ph,
+            ss_pairs=_ss,
+            his_default=getattr(args, 'his_default', 'HIE'),
+            cys_ss_pka=getattr(args, 'cys_ss_pka', 8.0),
+            use_propka=getattr(args, 'propka', True),
+            use_reduce=getattr(args, 'protassign', True),
+            verbose=args.verbose,
+        )
+
     print(f"=== PDBFixer: {input_path} ===")
     fixer, new_atom_indices, variant_overrides = run_pdbfixer(
         input_path, args.ph, args.keep_water, args.keep_heterogens, args.verbose,
         mutations=args.mutate, heterogen_h=args.heterogen_h,
         removed_residues_meta=removed_residues_meta,
         ff_xmls=_ff_xmls,
+        extra_variants=_propka_variants,
     )
 
     # Write PDB with standard names first (OpenMM writes HETATM for non-standard)
