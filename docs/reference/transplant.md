@@ -23,7 +23,8 @@ Input / output:
                         (used for alignment and identifying replacement sites)
   --graft GRAFT         Graft PDB: modified donor + added molecules (e.g.
                         GLYCAM output). If omitted, donor is used as graft.
-  -o, --output OUTPUT   Output PDB (default: <acceptor>_transplant.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB (default: <acceptor>_transplant.pdb)
 
 Molecule selection:
   --select SELECT       What to transplant (if no --graft): chain IDs, 'A,B'

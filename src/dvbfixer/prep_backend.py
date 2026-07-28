@@ -927,7 +927,7 @@ def run_prep(
         # PROPKA signal. For neutral HIS (his_default=HIE) we overlay
         # Reduce's per-residue HID/HIE tautomer choice below.
         propka_renames = decide_protonation(
-            pka_results, ph, his_default="HIE", cys_ss_pka=8.0,
+            pka_results, ph, his_default="HIE", cys_ss_pka=99.99,
         )
 
         # 2. Reduce -build picks the HIS tautomer per H-bond network but

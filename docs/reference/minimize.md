@@ -7,6 +7,7 @@
 ```
 usage: dvbfixer minimize [-h] [-o OUTPUT] [--dat DAT] [--ph PH]
                          [--ff FF [FF ...]] [--parametrize-ligands]
+                         [--atom-naming {gromacs,standard}]
                          [--padding PADDING] [--no-solvent]
                          [--restraint-k RESTRAINT_K] [--weak-k WEAK_K]
                          [--max-iter MAX_ITER] [--strip-heterogens]
@@ -28,7 +29,8 @@ options:
 
 Input / output:
   input                 Input PDB file
-  -o, --output OUTPUT   Output minimized PDB (default: <input>_minimized.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output minimized PDB (default: <input>_minimized.pdb)
   --dat DAT             Restraint data file from 'dvbfixer prepare' (default:
                         <input>.dat)
 
@@ -47,6 +49,15 @@ Force field:
                         AmberTools (antechamber, parmchk2). Cached to
                         ~/.cache/dvbfixer/lig_params/ (override with
                         $DVBFIXER_LIG_CACHE). See docs/force-fields.md.
+  --atom-naming {gromacs,standard}
+                        Atom-naming convention for the output PDB. 'gromacs'
+                        (default): rewrite atom names to GROMACS amber99sb-
+                        ildn conventions (HB2/HB3 → HB1/HB2, HZ3 → HZ1 on LYN,
+                        O → OC2, OXT → OC1, H → HN on CHARMM). Matches
+                        `pdb2gmx -ff amber99sb-ildn` expectations. 'standard':
+                        keep IUPAC/AMBER-native names (HB2/HB3, HZ1/HZ2/HZ3,
+                        O/OXT, plain H) — matches ff14SB / most PDB
+                        downloaders / VMD.
 
 Physics / restraints:
   --padding PADDING     Solvent padding in nm (default: 1.0)

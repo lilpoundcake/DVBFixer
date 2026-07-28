@@ -6,6 +6,10 @@
 
 ```
 usage: dvbfixer prepare [-h] [-o OUTPUT] [--dat DAT]
+                        [--atom-naming {gromacs,standard}]
+                        [--propka | --no-propka]
+                        [--protassign | --no-protassign]
+                        [--his-default {HIE,HID}] [--cys-ss-pka CYS_SS_PKA]
                         [--backend {tleap-reduce,legacy}] [--ph PH]
                         [--ff FF [FF ...]] [--keep-water] [--strip-heterogens]
                         [--no-heterogen-h] [--rename] [--no-infer-conect]
@@ -20,18 +24,46 @@ options:
 
 Input / output:
   input                 Input PDB file
-  -o, --output OUTPUT   Output PDB file (default: <input>_prepared.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_prepared.pdb)
   --dat DAT             Restraint data file path (default: <output>.dat)
 
 Force field / pH:
+  --atom-naming {gromacs,standard}
+                        Atom-naming convention for the output PDB. 'gromacs'
+                        (default): GROMACS amber99sb-ildn shifts (HB3→HB1
+                        keeping HB2, HZ3→HZ1 on LYN, O/OXT→OC2/OC1, H→HN for
+                        CHARMM). 'standard': IUPAC/AMBER-native names
+                        (HB2/HB3, HZ1/HZ2/HZ3, O/OXT, plain H).
+  --propka, --no-propka
+                        Run PROPKA3 for pKa-driven AMBER variant renames
+                        (ASH/GLH/HIP/CYM/LYN/CYX). Default ON. Pass --no-
+                        propka to skip; variants then come from --mutate +
+                        input HD1/HE2 atoms only (0.7.5/0.7.6 behaviour).
+  --protassign, --no-protassign
+                        Run MolProbity Reduce for HIS tautomer (HID vs HIE) +
+                        ASN/GLN flip detection. Default ON.
+  --his-default {HIE,HID}
+                        Default HIS tautomer when PROPKA says neutral AND
+                        Reduce didn't place either HD1 or HE2 (rare —
+                        deprotonated HIS). Default: HIE.
+  --cys-ss-pka CYS_SS_PKA
+                        PROPKA pKa threshold above which CYS is assumed to be
+                        in a disulfide bond and renamed to CYX (default:
+                        99.99, matching PROPKA's sentinel). Explicit CONECT-
+                        detected SS pairs override PROPKA regardless.
   --backend {tleap-reduce,legacy}
-                        Prep backend. 'tleap-reduce' (default): deterministic
-                        AmberTools+MolProbity pipeline (tleap for heavy atoms,
-                        reduce for H). Recommended for all protein inputs — no
-                        coincident atoms, no D-Cα. 'legacy': old
-                        PDBFixer.addMissingAtoms + Modeller.addHydrogens path.
-                        Use for GLYCAM glycoproteins, exotic heterogens, or
-                        when tleap fails on a non-canonical residue.
+                        Prep backend. 'legacy' (default): PDBFixer +
+                        Modeller.addHydrogens; handles glycans, ligands,
+                        heterogens and covalent-HETATM links. The chirality
+                        invariant is enforced by minimize's post-phase-2
+                        unconditional force-reflect (0.7.4+), so legacy prep's
+                        D-Cα risk is neutralised downstream. 'tleap-reduce':
+                        opt-in deterministic AmberTools + MolProbity pipeline
+                        (tleap for heavy atoms, reduce for H). Pure-protein
+                        only — rejects non-canonical residues. Use when you
+                        specifically want L-only heavy atoms produced by tleap
+                        itself.
   --ph PH               pH for adding hydrogens (default: 7.0)
   --ff FF [FF ...]      Force field selection for heterogen-H addition.
                         Accepts a short name (auto, amber, amber+glycam,

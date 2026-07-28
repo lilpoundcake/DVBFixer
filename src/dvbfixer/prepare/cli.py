@@ -70,11 +70,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                     help="Default HIS tautomer when PROPKA says neutral "
                          "AND Reduce didn't place either HD1 or HE2 "
                          "(rare — deprotonated HIS). Default: HIE.")
-    ff.add_argument("--cys-ss-pka", type=float, default=8.0,
+    ff.add_argument("--cys-ss-pka", type=float, default=99.99,
                     help="PROPKA pKa threshold above which CYS is "
                          "assumed to be in a disulfide bond and renamed "
-                         "to CYX (default: 8.0). Explicit CONECT-detected "
-                         "SS pairs override PROPKA regardless.")
+                         "to CYX (default: 99.99, matching PROPKA's sentinel). "
+                         "Explicit CONECT-detected SS pairs override PROPKA regardless.")
     ff.add_argument("--backend", choices=["tleap-reduce", "legacy"],
                     default="legacy",
                     help="Prep backend. 'legacy' (default): PDBFixer + "

@@ -20,7 +20,8 @@ options:
 
 Input / output:
   input                 Input PDB file
-  -o, --output OUTPUT   Output PDB file (default: <input>_renum.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_renum.pdb)
 
 Numbering scheme:
   --scheme {seqres,kabat,chothia,imgt,martin,eu,aho}
