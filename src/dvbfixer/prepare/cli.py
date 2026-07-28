@@ -47,14 +47,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     ff = p.add_argument_group("Force field / pH")
     ff.add_argument("--backend", choices=["tleap-reduce", "legacy"],
-                    default="tleap-reduce",
-                    help="Prep backend. 'tleap-reduce' (default): deterministic "
-                         "AmberTools+MolProbity pipeline (tleap for heavy "
-                         "atoms, reduce for H). Recommended for all protein "
-                         "inputs — no coincident atoms, no D-Cα. 'legacy': "
-                         "old PDBFixer.addMissingAtoms + Modeller.addHydrogens "
-                         "path. Use for GLYCAM glycoproteins, exotic heterogens, "
-                         "or when tleap fails on a non-canonical residue.")
+                    default="legacy",
+                    help="Prep backend. 'legacy' (default): PDBFixer + "
+                         "Modeller.addHydrogens; handles glycans, ligands, "
+                         "heterogens and covalent-HETATM links. The chirality "
+                         "invariant is enforced by minimize's post-phase-2 "
+                         "unconditional force-reflect (0.7.4+), so legacy "
+                         "prep's D-Cα risk is neutralised downstream. "
+                         "'tleap-reduce': opt-in deterministic AmberTools + "
+                         "MolProbity pipeline (tleap for heavy atoms, reduce "
+                         "for H). Pure-protein only — rejects non-canonical "
+                         "residues. Use when you specifically want L-only "
+                         "heavy atoms produced by tleap itself.")
     ff.add_argument("--ph", type=float, default=DEFAULT_PH,
                     help=f"pH for adding hydrogens (default: {DEFAULT_PH})")
     ff.add_argument("--ff", nargs="+", default=["auto"],

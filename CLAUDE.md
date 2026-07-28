@@ -38,14 +38,16 @@ Modeller needs a free academic license from
 
 ## Working in this codebase — hard rules
 
-- **Default prep backend is `tleap-reduce`** (added on this branch
-  `feat/tleap-reduce-backend`). `prepare` and `protonate` route
-  through `dvbfixer.prep_backend.run_prep` which runs
-  `tleap` (heavy atoms) + `reduce -build -nuclear` (H) + PROPKA
-  (AMBER variant renames). Deterministic, L-only by construction,
-  no coincident-H bug. Ships with `ambertools>=23`. The legacy
-  Modeller+PDBFixer path stays behind `--backend legacy` for
-  GLYCAM glycoproteins and exotic heterogens tleap rejects.
+- **Default prep backend is `legacy`** (Modeller+PDBFixer). Handles
+  every input class dvbfixer supports (glycans, ligands, PTMs,
+  covalent HETATM links). The chirality invariant is guaranteed by
+  minimize's post-phase-2 unconditional force-reflect (0.7.4+), so
+  PDBFixer's D-Cα risk is neutralised downstream — legacy is safe
+  by construction now. **`tleap-reduce`** is retained as opt-in
+  (`--backend tleap-reduce`) for pure-protein inputs where the user
+  specifically wants deterministic L-only heavy atoms from tleap
+  itself; it rejects non-canonical residues. When the tleap-reduce
+  backend IS selected, all its rules below still apply.
 - **Do not remove `keepIds=True`** from any `PDBFile.writeFile` call.
   Losing chain IDs mid-pipeline breaks the `.dat` handoff that
   `minimize` uses for tiered restraints.

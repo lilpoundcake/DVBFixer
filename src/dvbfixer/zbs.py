@@ -212,7 +212,7 @@ def _print_dry_run(args, input_path, final_output):
             notes += ", --no-pin-input"
         _line("model", "_model", notes)
     if not args.skip_prepare:
-        notes = "backend: tleap-reduce (PROPKA + variant H patch)"
+        notes = "backend: legacy (PDBFixer + Modeller.addHydrogens)"
         if not args.keep_heterogens:
             notes += ", --strip-heterogens"
         if args.mutate:

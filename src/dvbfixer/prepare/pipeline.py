@@ -785,7 +785,7 @@ def main(argv=None):
     # docstring for the diagnosis. Legacy backend is still selectable via
     # --backend legacy for GLYCAM glycoproteins / exotic heterogens tleap
     # rejects.
-    if getattr(args, "backend", "tleap-reduce") == "tleap-reduce":
+    if getattr(args, "backend", "legacy") == "tleap-reduce":
         return _main_tleap_reduce_backend(args, input_path, output_path,
                                            dat_path)
 

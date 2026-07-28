@@ -10,6 +10,32 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [Unreleased]
 
+## [0.7.5] — 2026-07
+
+### Changed
+
+- **Default prep backend flipped from `tleap-reduce` back to `legacy`
+  (Modeller+PDBFixer).** The tleap-reduce backend hard-fails on
+  glycoproteins, ligands, PTMs, and any covalent-HETATM input
+  (tleap has no template for those). Legacy prep handles them via
+  the existing `build_glycam_system` + `--parametrize-ligands`
+  paths. The chirality invariant that motivated the switch
+  originally is now enforced downstream in
+  `minimize/pipeline.py`'s post-phase-2 unconditional force-reflect
+  fallback (added in 0.7.4), which is prep-backend-agnostic — so
+  legacy prep's PDBFixer.addMissingAtoms D-Cα risk is neutralised
+  where it matters. Applies to `prepare`, `protonate`, and
+  transitively to `zbs`. `tleap-reduce` remains fully functional
+  via explicit `--backend tleap-reduce` for pure-protein inputs.
+
+### Added
+
+- Comprehensive integration test suite covering every subcommand
+  (except `homology`) against real PDB inputs across the input
+  classes dvbfixer supports: pure protein, antibody, glycoprotein,
+  protein+ligand, multi-MODEL, and the curated `test/shit/`
+  regression set.
+
 ## [0.7.4] — 2026-07
 
 ### Fixed

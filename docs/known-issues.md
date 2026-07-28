@@ -4,20 +4,18 @@
 
 - **CONECT records limited to atom serials ≤ 99999** (PDB v3.30 spec). Every dvbfixer CONECT writer uses fixed-width 5-char serial fields (`f"{serial:5d}"`), which is spec-compliant but silently produces malformed CONECT lines for systems with > 99999 atoms — adjacent 6-digit serial fields run together without a separator. Workarounds: (a) split the system, (b) renumber atoms to fit under 99999 (drop water/heterogens before topology export), (c) use mmCIF via an external tool if you need full-system connectivity in a large complex. Hybrid-36 encoding (BIOVIA/Phenix extension) is on the roadmap for a future release once a real user surfaces the need.
 
-- **NEW: tleap+reduce prep backend (this branch)** — `prepare` and
-  `protonate` default to `--backend tleap-reduce` which runs
-  `tleap` (heavy atoms) + `reduce -build -nuclear` (H) + PROPKA
-  (AMBER variant renames). Fixes the D-Cα (openmm/pdbfixer#145) and
-  coincident-H (Modeller.addHydrogens bug) issues that made the
-  legacy Modeller+PDBFixer path unreliable on gap-filled model
-  outputs. **Trade-offs**: (a) tleap fails on non-canonical residues
-  (GLYCAM sugars, phosphorylated AAs, exotic metals) — rerun with
-  `--backend legacy` for those. (b) zbs skips its downstream
-  `minimize` + `protonate` passes with the new backend because
-  prepare output is already deterministic + clean — run
-  `dvbfixer minimize <output>` manually if energy relaxation is
-  wanted. (c) Requires `ambertools>=23` (already in environment.yml).
-  See `src/dvbfixer/prep_backend.py` docstring for the pipeline.
+- **Default prep backend flipped back to `legacy` in 0.7.5** —
+  `prepare` and `protonate` default to `--backend legacy`
+  (Modeller+PDBFixer). Motivation: the tleap-reduce backend
+  introduced in 0.7.0 solved the D-Cα problem but broke coverage
+  for glycans, ligands, PTMs, and any covalent HETATM link
+  (tleap has no template for those). The chirality invariant is
+  now enforced downstream in minimize via the unconditional
+  force-reflect fallback (0.7.4), so legacy prep's PDBFixer.addMissingAtoms
+  D-Cα risk is neutralised there. `tleap-reduce` remains
+  fully functional as opt-in via `--backend tleap-reduce` for
+  pure-protein inputs where deterministic L-only tleap output is
+  wanted.
 
 - **PROPKA on tleap+reduce backend (fixed 0.7.4)**: The initial
   `prep_backend` shipped an ad-hoc PROPKA→variant map keyed on

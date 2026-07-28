@@ -66,13 +66,14 @@ def parse_args(argv=None):
     engines = p.add_argument_group("Protonation engines")
     engines.add_argument(
         "--backend", choices=["tleap-reduce", "legacy"],
-        default="tleap-reduce",
-        help="Protonation backend. 'tleap-reduce' (default): use tleap "
-             "for heavy-atom completion + reduce for deterministic H "
-             "placement + PROPKA for pKa-driven AMBER variant renames. "
-             "Deterministic, no coincident atoms, no D-Cα. 'legacy': "
-             "old PROPKA + reduce (tautomer picks) + Modeller.addHydrogens "
-             "with variants. Use for GLYCAM glycoproteins.",
+        default="legacy",
+        help="Protonation backend. 'legacy' (default): PROPKA + reduce "
+             "(tautomer picks) + Modeller.addHydrogens with variants. "
+             "Handles GLYCAM glycoproteins and covalent-HETATM links. "
+             "'tleap-reduce': opt-in tleap for heavy-atom completion + "
+             "reduce for deterministic H placement + PROPKA for pKa-driven "
+             "AMBER variant renames. Pure-protein only; rejects "
+             "non-canonical residues.",
     )
     engines.add_argument(
         "--propka", action=argparse.BooleanOptionalAction, default=True,
@@ -1028,7 +1029,7 @@ def main(argv=None):
 
     # Deterministic backend: skip the whole legacy PROPKA+Reduce+Modeller
     # dance and run the standard AmberTools recipe.
-    if getattr(args, "backend", "tleap-reduce") == "tleap-reduce":
+    if getattr(args, "backend", "legacy") == "tleap-reduce":
         return _main_tleap_reduce_backend(args, input_path, output_path)
 
     # Sanitize protein-residue HETATM records + drop spurious mid-chain
