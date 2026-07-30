@@ -23,6 +23,7 @@ import pytest
 from tests.conftest import (
     _SUGAR_NAMES,
     count_d_ca_residues,
+    count_nonbonded_clashes,
     count_ss_bonds,
 )
 
@@ -140,11 +141,36 @@ def test_zbs_preserves_undocumented_glycosylation_site(
     bug, model.py's CONECT-inference timing (before vs after
     Modeller), and convert_to_glycam's all-or-nothing CONECT gate all
     had to be fixed together for every site to survive the full
-    pipeline run directly (no `dvbfixer convert` pre-processing)."""
+    pipeline run directly (no `dvbfixer convert` pre-processing).
+
+    Also regression coverage for three further bugs found when real
+    production runs still showed "glycans processed incorrectly,
+    separate from the protein" despite the bond-existence checks above
+    passing: (1) a dangling/stale CONECT record in this exact deposited
+    PDB that `renumber.py` used to pass through unchanged, fabricating
+    a spurious bond once its stale serial number collided with a real
+    atom's new one; (2) `add_glycam_bonds` being dead code since 0.7.8
+    (broken import silently swallowed); (3) heterogen heavy atoms
+    getting zero positional restraint during minimize, letting a
+    multi-residue glycan tree drift 4-10 Å off its covalent anchor into
+    an unrelated, clashing part of the protein surface even with a
+    perfectly correct bond graph."""
     out = _run_zbs(glycoprot_underannotated_conect_pdb, tmp_workdir)
     assert count_d_ca_residues(out) == 0
 
     from openmm.app import PDBFile
+    from dvbfixer.ffutils import is_glycam_sugar
+    glycan_resnames = {r.name for r in PDBFile(str(out)).topology.residues()
+                        if r.name == "NLN" or is_glycam_sugar(r.name)}
+    clashes = count_nonbonded_clashes(
+        out, cutoff_angstrom=1.5, only_residue_names=glycan_resnames,
+    )
+    assert not clashes, (
+        f"{len(clashes)} non-bonded contact(s) < 1.5 Å involving a "
+        f"glycosylation site or glycan residue in zbs output (glycan "
+        f"tree drift/collapse regression): {clashes[:10]}"
+    )
+
     pdb = PDBFile(str(out))
     top = pdb.topology
     nln_residues = [r for r in top.residues() if r.name == "NLN"]
@@ -164,3 +190,31 @@ def test_zbs_preserves_undocumented_glycosylation_site(
             f"{r.chain.id}:{r.name}{r.id}'s ND2 has no bond to a sugar "
             f"tree — glycosylation site renamed but not actually linked"
         )
+
+
+@pytest.mark.slow
+def test_zbs_ligand_no_severe_clash_without_parametrize_flag(
+    protein_ligand_gaps_pdb: Path, tmp_workdir: Path,
+) -> None:
+    """Plain `zbs` (no `--parametrize-ligands`) on a structure with an
+    unknown ligand (DAN) used to silently strip the ligand out for the
+    real minimize, let the pocket residues relax/drift into the
+    now-empty cavity, then splice DAN back in at its ORIGINAL
+    pre-minimize coordinates — producing a severe clash (< 0.5 Å heavy/H
+    overlap) with the pocket that had since moved. Auto-triggering
+    GAFF2 parametrization whenever an unknown heterogen has no FF
+    template (rather than only under the explicit flag) fixes most of
+    this; a real openmmforcefields limitation (GAFFTemplateGenerator
+    can't be invoked from inside `Modeller.addHydrogens`'s own internal
+    template matching) still forces the legacy strip-and-splice
+    fallback here, so this asserts "no SEVERE clash" (< 0.5 Å) rather
+    than zero contacts — the residual is a mild ~1 Å H-H contact, not
+    the original heavy-atom overlap."""
+    out = _run_zbs(protein_ligand_gaps_pdb, tmp_workdir)
+    assert count_d_ca_residues(out) == 0
+
+    clashes = count_nonbonded_clashes(out, cutoff_angstrom=0.5)
+    assert not clashes, (
+        f"{len(clashes)} severe (< 0.5 Å) non-bonded contact(s) in zbs "
+        f"output (ligand splice-back clash regression): {clashes[:10]}"
+    )

@@ -75,9 +75,25 @@ def build_restraint_force(topology, positions, new_atom_indices, strong_k, weak_
 
     - Protein original heavy atoms: strong restraint to initial position
     - Newly added backbone atoms: weak restraint (keeps loop shape reasonable)
-    - Newly added sidechain atoms & all hydrogens: no restraint (free to move)
-    - Heterogen heavy atoms (sugars, ligands): NO restraint — free to refine
-      (BioLuminate-style: protein is fixed-ish, ligands relax)
+    - Newly added sidechain atoms: no restraint (free to move)
+    - Heterogen heavy atoms (sugars, ligands): weak restraint (0.7.9+) — see
+      below for why this is no longer "free"
+    - All hydrogens: no restraint (free to move)
+
+    Heterogens used to get ZERO restraint ("BioLuminate-style: protein is
+    fixed-ish, ligands relax"), which is fine for a small, torsion-poor
+    ligand but was found to let a multi-residue glycan tree (many free
+    glycosidic torsions, no restoring force, worse under `--no-solvent`'s
+    unscreened electrostatics) drift a mean of 4+ Å and up to 10+ Å from its
+    covalent anchor during minimize, collapsing into unrelated, clashing
+    parts of the protein surface. This matches established MD/structure-
+    prep practice (CHARMM-GUI equilibration protocols, published
+    glycoprotein MD setups): protein AND glycan heavy atoms are restrained
+    together during initial minimization, commonly at ~1-10 kcal/mol/Å² —
+    squarely in the range of this restraint scheme's existing `weak_k`
+    tier, reused here rather than inventing a new one. Multiple studies
+    found fully unrestrained minimization "almost always led to worse
+    final structures" with "significant off-pathway sampling."
     """
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
     known = PROTEIN_RESIDUES | SOLVENT_IONS
@@ -105,10 +121,15 @@ def build_restraint_force(topology, positions, new_atom_indices, strong_k, weak_
         is_new = atom.index in new_atom_indices
         is_heterogen = atom.residue.name not in known
 
-        if is_hydrogen or is_heterogen:
-            # All H atoms and all heterogen heavy atoms are free
+        if is_hydrogen:
+            # All H atoms are free — including newly-placed heterogen H,
+            # which needs to relax into proper geometry.
             n_free += 1
             continue
+        elif is_heterogen:
+            k = weak_k * conv
+            force.addParticle(atom.index, [k, x0, y0, z0])
+            n_weak += 1
         elif not is_new:
             k = strong_k * conv
             force.addParticle(atom.index, [k, x0, y0, z0])
@@ -421,18 +442,30 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         for res in stripped_top.residues()
     )
 
-    # --parametrize-ligands: build GAFF2 templates for unknown ligands and
-    # register them on the ForceField below via extra_generators. Strict mode:
-    # any failure raises LigandParamError (propagated to main); we do NOT
-    # silently fall back to strip-heterogens when the user explicitly asked
-    # for parametrisation.
-    if has_heterogens and getattr(args, 'parametrize_ligands', False):
+    # Build GAFF2 templates for any unknown-to-FF ligand and register them
+    # on the ForceField below via extra_generators. `build_ligand_generator`
+    # is a cheap no-op (returns None immediately) when every heterogen
+    # already has a template, so this always runs rather than only under
+    # --parametrize-ligands: without it, an unparametrizable ligand (e.g.
+    # DAN when the user didn't think to pass the flag) silently fails
+    # whole-system createSystem, triggers the legacy strip-and-splice
+    # fallback below, and comes back at its ORIGINAL pre-minimize
+    # coordinates with no tracking mechanism (unlike covalently-bonded
+    # glycans, which _rigid_track_glycan_trees can re-anchor) — producing
+    # exactly the clash reported against 1VCU's DANA. Explicit
+    # --parametrize-ligands keeps strict=True (any failure raises
+    # LigandParamError — the user asked for it, so don't silently
+    # degrade); the auto path uses strict=False so environments without
+    # AmberTools/openff still fall through to today's strip-and-splice
+    # behaviour unchanged, just without a proactive attempt.
+    if has_heterogens:
         from openmm.app import ForceField as _FF
         base_templates = set(_FF(*args.ff)._templates)
         from dvbfixer.lig_params import build_ligand_generator
+        _explicit_parametrize = getattr(args, 'parametrize_ligands', False)
         _lig_gen = build_ligand_generator(
             stripped_top, stripped_pos, base_templates,
-            strict=True, verbose=args.verbose,
+            strict=_explicit_parametrize, verbose=args.verbose,
         )
         args._ligand_generators = [_lig_gen] if _lig_gen else None
 
@@ -710,8 +743,24 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                 print("Keeping existing hydrogens from input")
     else:
         # Strip H, fix any missing heavy atoms via PDBFixer, then re-add correct H.
-        # addHydrogens adds correct H for every residue, so stripping is safe.
-        h_to_delete = [a for a in modeller.topology.atoms() if a.element.symbol == 'H']
+        # addHydrogens adds correct H for every PROTEIN residue, so stripping
+        # those is safe — but scope the strip to protein residues only. This
+        # whole branch exists to fix AMBER protonation VARIANTS (HIE/HID/
+        # ASH/GLH/...), which is a protein-only concept; addHydrogens has no
+        # hydrogens.xml entry for arbitrary heterogens (drug-like ligands
+        # with no GLYCAM/GAFF2-aware placement rule) and stripping their H
+        # here is unrecoverable — it silently produces a heavy-atom-only
+        # residue that then fails createSystem/GAFF2 template matching
+        # downstream (confirmed: DAN in 1VCU lost all 10 H this way even
+        # after a GAFF2 template was built for it, since the strip ran
+        # first). GLYCAM sugars are excluded too — their H is already
+        # correct from `prepare`'s dedicated GLYCAM-aware H-addition pass;
+        # re-running addHydrogens on them here would be unnecessary churn
+        # for an unrelated (protein-side) protonation fix.
+        from dvbfixer.ffutils import PROTEIN_RESIDUES as _PR_STRIP
+        h_to_delete = [a for a in modeller.topology.atoms()
+                       if a.element.symbol == 'H'
+                       and a.residue.name in _PR_STRIP]
         if h_to_delete:
             modeller.delete(h_to_delete)
 
@@ -779,17 +828,27 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                     modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99), variants=variants)
                 else:
                     modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99))
-            except ValueError as e:
+            except (ValueError, KeyError) as e:
                 # Whole-topology addHydrogens can fail on a heterogen whose
                 # forcefield template requires an external bond (e.g. a
                 # glycosylated NLN/OLS/OLT) that geometry doesn't actually
-                # support in this input (no sugar close enough to link to).
-                # Mirrors prepare's identical fallback
-                # (prepare/pipeline.py's "falling back to protein-only"):
-                # retry without a forcefield — addHydrogens then does plain
-                # geometric H placement and skips createSystem/template
-                # matching entirely, so a template mismatch elsewhere can't
-                # abort the whole run.
+                # support in this input (no sugar close enough to link to)
+                # — a ValueError. It can also raise KeyError deep inside
+                # openmmforcefields' GAFFTemplateGenerator: addHydrogens
+                # builds its OWN temporary topology/residueTemplates
+                # internally and invokes the registered GAFF2 generator
+                # callback against that, which can hit an unregistered
+                # GAFF atom type (confirmed: `KeyError: 'c'` for DAN,
+                # even though DAN already has a working GAFF2 template for
+                # the OUTER createSystem call this file makes directly —
+                # addHydrogens's internal matching is a different, more
+                # fragile code path in openmmforcefields/OpenMM). Mirrors
+                # prepare's identical fallback (prepare/pipeline.py's
+                # "falling back to protein-only"): retry without a
+                # forcefield — addHydrogens then does plain geometric H
+                # placement and skips createSystem/template matching
+                # entirely, so a template mismatch elsewhere can't abort
+                # the whole run.
                 print(f"  WARNING: whole-topology addHydrogens failed "
                       f"({type(e).__name__}: {e}); falling back to "
                       f"protein-only.")

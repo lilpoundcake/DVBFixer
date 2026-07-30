@@ -315,10 +315,18 @@ def _apply_filter(bonds, atoms, by_serial):
         variant names. Without CONECT records, the loaded topology has
         zero bonds for the variant residues and every downstream
         template-match step fails ("residue X has no bonds").
+      - same-residue bonds on a sugar (GLYCAM or plain PDB name) ONLY if
+        within a real covalent distance (~1.7 Å). OpenBabel's
+        ``ConnectTheDots`` has no template for GLYCAM/PDB sugar residues
+        (unlike the 20 canonical AAs) and can propose same-residue
+        "bonds" at 2.5-7+ Å (ring/branch atoms that are merely close in
+        3D, not bonded) — these were previously kept unconditionally,
+        producing chemically-impossible CONECT entries in the output.
     """
-    from dvbfixer.ffutils import PROTEIN_RESIDUES
+    from dvbfixer.ffutils import _PDB_SUGAR_NAMES, PROTEIN_RESIDUES, is_glycam_sugar
     from dvbfixer.ffutils.variants import ALL_VARIANTS
     _WATER = {'HOH', 'WAT', 'TIP3', 'TIP4', 'TIP5', 'SOL', 'SPC', 'SPCE'}
+    _SUGAR_COVALENT_CUTOFF2 = 1.7 * 1.7  # Å², same default as the fallback distance-bonder
     # OpenMM's PDBFile parser recognises these — no need to emit CONECT
     # for their intra-residue bonds (FF templates own the chemistry AND
     # the parser knows the names).
@@ -351,6 +359,15 @@ def _apply_filter(bonds, atoms, by_serial):
             out.add((lo, hi))
             continue
         if same_res and a['resname'] in PROTEIN_RESIDUES:
+            continue
+        if same_res and (is_glycam_sugar(a['resname'])
+                          or a['resname'] in _PDB_SUGAR_NAMES):
+            dx = a['x'] - b['x']
+            dy = a['y'] - b['y']
+            dz = a['z'] - b['z']
+            if dx * dx + dy * dy + dz * dz > _SUGAR_COVALENT_CUTOFF2:
+                continue
+            out.add((lo, hi))
             continue
         # Inter-residue where BOTH are standard-AA: keep ONLY the
         # canonical peptide-backbone C-N bond. Everything else (N-O,

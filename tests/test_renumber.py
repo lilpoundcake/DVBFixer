@@ -65,6 +65,56 @@ def test_renumber_preserves_bare_ter_line_atom_count(tmp_workdir: Path) -> None:
         )
 
 
+def test_renumber_drops_stale_conect_instead_of_fabricating_bonds(
+    tmp_workdir: Path,
+) -> None:
+    """Regression: a real deposited PDB (3ry6) had a dangling CONECT
+    record referencing serials with no matching ATOM/HETATM line at all
+    (leftover cruft, not a dvbfixer bug at the source). The old fallback
+    (``serial_map.get(old_serial, old_serial)``) passed such a serial
+    through UNCHANGED — and since dvbfixer renumbers everything to a
+    dense, small range, that stale number can coincide with the NEW
+    serial assigned to a real, unrelated atom, fabricating a spurious
+    bond. Confirmed root cause of "tons of incorrect bonds" reported on
+    a glycan residue whose real CONECT was otherwise entirely correct.
+    `update_conect` must now drop (not partially rewrite) any CONECT
+    record referencing a serial that isn't a real atom in this file.
+    """
+    input_pdb = tmp_workdir / "stale_conect.pdb"
+    input_pdb.write_text(
+        "ATOM      1  N   ALA A   1      11.104  13.207  10.454  1.00  0.00           N\n"
+        "ATOM      2  CA  ALA A   1      11.804  12.500   9.400  1.00  0.00           C\n"
+        "ATOM      3  C   ALA A   1      13.300  12.500   9.400  1.00  0.00           C\n"
+        "ATOM      4  O   ALA A   1      13.900  13.500   9.400  1.00  0.00           O\n"
+        "CONECT    1    2\n"
+        "CONECT    2    1    3\n"
+        # Dangling record: serial 9999 has no matching ATOM/HETATM line.
+        # A naive remap would pass "9999" through unchanged, and if the
+        # renumbered file happens to reuse "9999" for some real atom
+        # elsewhere, this fabricates a bond that was never real.
+        "CONECT 9999    2\n"
+        "END\n"
+    )
+    output = tmp_workdir / "out.pdb"
+    proc = subprocess.run(
+        ["dvbfixer", "renumber", str(input_pdb), "-o", str(output)],
+        capture_output=True, text=True,
+    )
+    assert proc.returncode == 0, (
+        f"renumber failed: stdout={proc.stdout}\nstderr={proc.stderr}"
+    )
+    conect_lines = [line for line in output.read_text().splitlines()
+                    if line.startswith("CONECT")]
+    assert not any("9999" in line for line in conect_lines), (
+        f"stale serial 9999 leaked into output CONECT: {conect_lines}"
+    )
+    # The two genuine bonds (1-2, 2-1/3) must survive, just renumbered.
+    assert len(conect_lines) == 2, (
+        f"expected exactly 2 real CONECT records (dangling one dropped), "
+        f"got {len(conect_lines)}: {conect_lines}"
+    )
+
+
 @pytest.mark.slow
 def test_renumber_preserves_all_atoms_on_real_glycoprotein(
     glycoprot_underannotated_conect_pdb: Path, tmp_workdir: Path,

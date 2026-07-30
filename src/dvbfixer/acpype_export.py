@@ -454,18 +454,14 @@ def add_glycam_bonds(topology, forcefield, verbose=False, positions=None):
     # createSystem fail with "missing externally bonded O atom".
     added_sugar = 0
     if positions is not None:
-        try:
-            from openmm.unit import nanometer
+        from openmm.unit import nanometer
 
-            from dvbfixer.ffutils import KNOWN_GLYCAN_SMILES, is_glycam_sugar
-        except Exception:
-            def is_glycam_sugar(n):
-                return False
-            KNOWN_GLYCAN_SMILES = {}
-            nanometer = None
-
-        def _is_sugar(name):
-            return is_glycam_sugar(name) or name in KNOWN_GLYCAN_SMILES
+        # Reuses the module's own `_is_glycam_sugar` (covers both
+        # GLYCAM-canonical 3-char codes AND plain PDB sugar names like
+        # NAG/BMA/MAN) rather than a second, narrower detector —
+        # `ffutils.is_glycam_sugar` alone only recognises GLYCAM codes,
+        # which silently skipped every plain-PDB-named sugar.
+        _is_sugar = _is_glycam_sugar
 
         def _is_sialic(name):
             # PDB sialic acid + GLYCAM sialic (3-char with sugar code S/s)
@@ -485,7 +481,7 @@ def add_glycam_bonds(topology, forcefield, verbose=False, positions=None):
             allowed_c = {'C2'} if _is_sialic(r.name) else anomeric_names_default
             for a in r.atoms():
                 p = positions[a.index]
-                pv = p.value_in_unit(nanometer) if nanometer is not None else p
+                pv = p.value_in_unit(nanometer)
                 if a.name in allowed_c:
                     anomeric_atoms.append((a, pv))
                 elif a.name in linkage_o_names:
@@ -535,7 +531,7 @@ def add_glycam_bonds(topology, forcefield, verbose=False, positions=None):
             if donor is None:
                 continue
             dp = positions[donor.index]
-            dpv = dp.value_in_unit(nanometer) if nanometer is not None else dp
+            dpv = dp.value_in_unit(nanometer)
             dx, dy, dz = float(dpv[0]), float(dpv[1]), float(dpv[2])
             best = None
             best_d2 = cutoff_nm * cutoff_nm * (2.5 / 2.0) ** 2  # 2.5 Å cutoff

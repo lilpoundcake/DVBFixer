@@ -202,6 +202,64 @@ def count_h_on_atom(pdb_path: Path, resname: str, atom_name: str) -> int:
     return count
 
 
+def count_nonbonded_clashes(
+    pdb_path: Path, cutoff_angstrom: float = 1.5,
+    only_residue_names: set[str] | None = None,
+) -> list[tuple[float, str, str]]:
+    """Whole-structure non-bonded contact scan: any two atoms in
+    DIFFERENT residues closer than ``cutoff_angstrom`` that aren't
+    directly bonded to each other. A real, correctly-minimized
+    structure should have none — this is what caught the glycan-tree
+    drift (a tree could swing 4-10 Å off its covalent anchor into an
+    unrelated, clashing part of the protein surface even though its
+    OWN bond graph was perfectly correct) and the non-covalent-ligand
+    splice-back clash (a ligand pasted back at pre-minimize coordinates
+    into a pocket the protein had since moved into).
+
+    If ``only_residue_names`` is given, only report a pair when at
+    least one atom's residue name is in that set — use this to scope
+    out the SEPARATE, already-accepted "minor local packing strain"
+    tolerance from the chirality invariant's forced-reflect fallback
+    (CLAUDE.md: zero D-Cα is non-negotiable, a small residual clash on
+    the reflected residue is not), which is unrelated to and shouldn't
+    be conflated with a genuine drift/clash regression on a specific
+    residue class (e.g. glycans, ligands).
+    """
+    import numpy as np
+    from openmm.app import PDBFile
+    from openmm.unit import angstrom
+    from scipy.spatial import cKDTree
+
+    pdb = PDBFile(str(pdb_path))
+    pos = np.array([list(pdb.positions[i].value_in_unit(angstrom))
+                    for i in range(len(pdb.positions))])
+    atoms = list(pdb.topology.atoms())
+    bonded = set()
+    for b in pdb.topology.bonds():
+        bonded.add((b[0].index, b[1].index))
+        bonded.add((b[1].index, b[0].index))
+
+    tree = cKDTree(pos)
+    violations = []
+    for i, j in tree.query_pairs(cutoff_angstrom):
+        a1, a2 = atoms[i], atoms[j]
+        if a1.residue == a2.residue or (i, j) in bonded:
+            continue
+        if only_residue_names is not None and not (
+            a1.residue.name in only_residue_names
+            or a2.residue.name in only_residue_names
+        ):
+            continue
+        d = float(np.linalg.norm(pos[i] - pos[j]))
+        violations.append((
+            d,
+            f"{a1.residue.chain.id}/{a1.residue.name}{a1.residue.id}/{a1.name}",
+            f"{a2.residue.chain.id}/{a2.residue.name}{a2.residue.id}/{a2.name}",
+        ))
+    violations.sort()
+    return violations
+
+
 def count_residues_by_name(pdb_path: Path, names: set[str]) -> int:
     """Count residues whose name is in ``names``."""
     from openmm.app import PDBFile

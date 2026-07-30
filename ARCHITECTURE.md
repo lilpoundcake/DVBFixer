@@ -313,6 +313,65 @@ emit CONECT for H atoms, and downstream OpenBabel/xtb proximity bonding
 may miss the bond (especially for H placed >1.9 Å from parent), causing
 H atoms to drift during refinement.
 
+Step 7's "carry over RDKit-perceived intra-sugar bonds" (and the
+equivalent per-residue OpenBabel harvest in `_process_single_residue`,
+used by the `add_heterogen_h_via_openbabel` fallback) both cap
+same-residue bonds at a ~1.7 Å covalent distance (0.7.10) — RDKit's
+`proximityBonding=True` and OpenBabel's `ConnectTheDots` have no
+template for sugar/GLYCAM residues (unlike the 20 canonical AAs) and
+can propose same-residue bonds at 2.5+ Å (ring/branch atoms merely
+close in 3D, not bonded). Same guard, same rationale, as the one in
+`pdbutils/inference.py::_apply_filter` — all three are independent
+code paths that need it separately, fixing one doesn't fix the others.
+
+### `minimize.build_restraint_force` — the restraint tier scheme
+
+`CustomExternalForce` with three tiers, chosen per-atom in
+`minimize()`'s `build_restraint_force`: original protein heavy atoms
+get `strong_k` (100 kcal/mol/Å² default), newly-modeled backbone atoms
+get `weak_k` (5.0), everything else (new sidechain atoms, all
+hydrogens) is free. Heterogen heavy atoms (ligands, glycan trees) were
+originally ALSO free ("BioLuminate-style: protein is fixed-ish,
+ligands relax") — fine for a small, torsion-poor ligand, but a
+multi-residue glycan tree with many free glycosidic torsions and no
+restoring force could drift a mean of 4+ Å (up to 10+ Å) off its
+covalent anchor into an unrelated, clashing part of the protein
+surface (0.7.10). Now routed through the same `weak_k` tier as new
+backbone atoms — matches established glycoprotein MD/structure-prep
+practice (CHARMM-GUI equilibration protocols restrain protein AND
+glycan heavy atoms together, commonly ~1-10 kcal/mol/Å², squarely in
+this scheme's existing `weak_k` range). Only hydrogens stay fully
+free, including newly-placed heterogen H.
+
+### `minimize`'s auto-parametrize-on-template-miss (0.7.10)
+
+`has_heterogens` now always calls `lig_params.build_ligand_generator`
+(not only under `--parametrize-ligands`), with `strict=` toggled by
+whether the user explicitly passed the flag. Rationale: without a FF
+template, whole-system `createSystem` fails and falls back to legacy
+strip-and-splice, which has no tracking mechanism for a non-covalent
+ligand (`_rigid_track_glycan_trees` only follows a covalent anchor
+bond) — the ligand gets spliced back at its ORIGINAL pre-minimize
+coordinates into a pocket the protein has since moved into. Since
+`build_ligand_generator` is a cheap no-op when every heterogen already
+has a template, and `strict=False` degrades gracefully (prints a
+warning, returns `None`) when AmberTools/openff aren't installed, this
+adds no cost/behaviour change for environments that can't run it.
+
+Two related traps found making this work end-to-end:
+`Modeller.addHydrogens()`'s OWN internal `createSystem` call can raise
+`KeyError` (not `ValueError`) when its temporary re-matching invokes
+the registered GAFF2 generator — a real openmmforcefields/OpenMM
+limitation around invoking a dynamic template generator from inside
+`addHydrogens`'s own internal matching, not something dvbfixer can fix
+directly; caught alongside `ValueError` in the existing "fall back to
+protein-only H placement" handler. And minimize's strip-and-readd-H
+path (`amber_renames` non-empty) used to strip H from EVERY residue
+including arbitrary ligands — `addHydrogens` has no hydrogens.xml
+entry to rebuild a stripped ligand's H from, so this is unrecoverable;
+now scoped to `PROTEIN_RESIDUES` only, since the whole mechanism is
+about protein-side AMBER protonation variants, not heterogens.
+
 ### `minimize.refine_with_obminimize` / `refine_with_xtb` — universal-FF post-pass
 
 After OpenMM AMBER minimization, optional refinement using:
@@ -367,6 +426,18 @@ This helper adds three classes of bonds for GLYCAM residues:
    externally bonded) fail to match in `createSystem` ("missing 1
    externally bonded O atom"). All three of prepare/minimize/protonate
    call this with `positions=modeller.positions`.
+
+This function was **dead code for the entire 0.7.8 release** (fixed
+0.7.10): it imported `KNOWN_GLYCAN_SMILES` from `dvbfixer.ffutils` — a
+symbol that never existed anywhere in the codebase — and the resulting
+`ImportError` was caught by a `try/except Exception` that also
+(incidentally) wrapped the unrelated `openmm.unit.nanometer` import,
+so every call silently no-opped instead of raising loudly. Fixed by
+importing `nanometer` directly (a hard dependency, not worth guarding)
+and reusing the module's own `_is_glycam_sugar` (covers both
+GLYCAM-canonical 3-char codes and plain PDB sugar names — closer to
+`KNOWN_GLYCAN_SMILES`'s never-implemented intent than
+`ffutils.is_glycam_sugar` alone, which only recognises GLYCAM codes).
 
 ### `transplant.py` — graft workflow
 
@@ -940,6 +1011,18 @@ supported FFs, different alias-to-file mapping. See
   downstream parser's line-start check then silently dropped that
   atom (and everything else on the merged line). Fixed 0.7.9 by
   explicitly ensuring the constructed TER line ends with `\n`.
+- A deposited PDB can carry a stale/dangling `CONECT` record —
+  referencing a serial number with no matching ATOM/HETATM line at
+  all anywhere in the file (leftover cruft from whatever tool produced
+  it, confirmed on a real structure). `renumber.py`'s `update_conect`
+  previously passed such an unmapped serial through UNCHANGED
+  (`serial_map.get(old_serial, old_serial)`) — and because dvbfixer
+  renumbers everything into a dense, small range, that stale small
+  number can coincide with the NEW serial assigned to a real,
+  unrelated atom elsewhere in the file, fabricating a bond that never
+  existed. Fixed 0.7.10: `update_conect` now returns `None` (whole
+  record dropped) rather than a partially-correct line whenever any
+  referenced serial isn't a real atom.
 
 ## Recommended areas for future work
 

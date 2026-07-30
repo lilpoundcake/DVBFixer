@@ -663,6 +663,19 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
         # Skip protein-only bonds
         if omm_a.residue.name in known and omm_b.residue.name in known:
             continue
+        # RDKit's proximityBonding has no template for sugar/GLYCAM
+        # residues (unlike the 20 canonical AAs) and can propose
+        # same-residue "bonds" at 2.5+ A — geometrically close ring/
+        # branch atoms that aren't actually bonded. Cap same-residue
+        # bonds at a real covalent distance; mirrors the equivalent
+        # guard in pdbutils.inference._apply_filter.
+        if omm_a.residue is omm_b.residue:
+            pa = positions[omm_a.index]
+            pb = positions[omm_b.index]
+            d2 = ((pa.x - pb.x) ** 2 + (pa.y - pb.y) ** 2
+                  + (pa.z - pb.z) ** 2) * 100.0  # nm^2 -> A^2
+            if d2 > 1.7 * 1.7:
+                continue
         _add_bond(omm_to_new.get(omm_a.index), omm_to_new.get(omm_b.index))
 
     new_positions = Quantity(new_pos_list, nanometer)
@@ -710,13 +723,25 @@ def _process_single_residue(res, external_bond_counts, positions, known, ob,
     if n_before == 0:
         return
 
-    # Harvest perceived intra-residue bonds BEFORE addh (read-only access)
+    # Harvest perceived intra-residue bonds BEFORE addh (read-only access).
+    # OpenBabel's ConnectTheDots has no template for sugar/GLYCAM residues
+    # and can propose same-residue "bonds" at 2.5+ A (ring/branch atoms
+    # merely close in 3D, not bonded) — every bond here is same-residue
+    # by construction (single-residue PDB string), so cap at a real
+    # covalent distance; mirrors the equivalent guard in
+    # pdbutils.inference._apply_filter and add_heterogen_h_via_rdkit.
     for bond in ob.OBMolBondIter(mol.OBMol):
         b_idx = bond.GetBeginAtomIdx()
         e_idx = bond.GetEndAtomIdx()
         if 1 <= b_idx <= n_before and 1 <= e_idx <= n_before:
             a1 = res_atoms[b_idx - 1]
             a2 = res_atoms[e_idx - 1]
+            p1 = positions[a1.index]
+            p2 = positions[a2.index]
+            d2 = ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2
+                  + (p1.z - p2.z) ** 2) * 100.0  # nm^2 -> A^2
+            if d2 > 1.7 * 1.7:
+                continue
             perceived_intra_bonds.append((a1, a2))
 
     # Some ligands have a genuine double bond that pure-distance bond

@@ -8,6 +8,109 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.10] — 2026-07-30
+
+### Fixed
+
+Real production `zbs` runs on `test/3ry6/3ry6.pdb` and
+`test/protein_ligand/1VCU.pdb` still showed broken glycan geometry and
+ligand clashes after 0.7.9's connectivity/valence fixes — the pytest
+regressions only checked bond *existence*, not 3D sanity. Root-caused
+via two live Explore-agent investigations plus manual verification;
+five further, independent, compounding causes found and fixed:
+
+- **`renumber.py` fabricated bonds from a stale/dangling CONECT
+  record.** The deposited `3ry6.pdb` itself has a `CONECT` record
+  referencing serial numbers with no matching ATOM/HETATM line at all
+  (leftover cruft, not something dvbfixer produced). `update_conect`'s
+  fallback (`serial_map.get(old_serial, old_serial)`) passed such an
+  unmapped serial through UNCHANGED — and because dvbfixer renumbers
+  everything into a dense, small range, that stale number collided
+  with the NEW serial assigned to a real, unrelated atom (a glycan's
+  own C1/C2/C3), fabricating a chemically-impossible bond
+  (`C1-C3`/`C3-C5`/etc. — the literal "tons of incorrect bonds"
+  reported). This was the true final blocker: with it fixed, the
+  whole-system GLYCAM+GAFF2 minimize path succeeds outright with zero
+  fallback, where before it silently degraded to the ligand-losing
+  legacy strip-and-splice path. `update_conect` now drops the whole
+  CONECT record when any referenced serial isn't a real atom, rather
+  than keeping a partially-wrong one.
+
+- **`add_glycam_bonds` has been dead code since 0.7.8.**
+  `acpype_export.py` imported `KNOWN_GLYCAN_SMILES` from
+  `dvbfixer.ffutils` — a symbol that never existed there. The
+  resulting `ImportError` was caught by a `try/except Exception` that
+  also (incidentally) wrapped the unrelated `openmm.unit.nanometer`
+  import, silently defeating unit conversion too. Every call to
+  `add_glycam_bonds` (from both `prepare` and `minimize`) has therefore
+  never successfully populated sugar-sugar/protein-glycosylation
+  distance-based bonds in production. Fixed by importing
+  `nanometer` directly and reusing the module's own broader
+  `_is_glycam_sugar` (already covers both GLYCAM-canonical codes and
+  plain PDB sugar names — closer to the original, never-implemented
+  `KNOWN_GLYCAN_SMILES` intent than `ffutils.is_glycam_sugar` alone).
+
+- **No spurious-bond filter for sugar/GLYCAM residues in CONECT
+  inference or in `prepare`'s heterogen-H passes.**
+  `pdbutils/inference.py::_apply_filter` already guarded standard
+  amino acids against OpenBabel `ConnectTheDots` same-residue false
+  positives (proximity-based, no actual bond) but had no equivalent
+  guard for sugars; the same unfiltered proximity-bonding also fed
+  `prepare/glycan.py`'s `add_heterogen_h_via_rdkit` (RDKit
+  `proximityBonding=True`) and `_process_single_residue`'s OpenBabel
+  per-residue harvest independently. All three now drop a same-residue
+  bond on a GLYCAM/PDB sugar residue unless it's within a real covalent
+  distance (~1.7 Å).
+
+- **Heterogen heavy atoms got zero positional restraint during
+  minimize by design** (`build_restraint_force`, "BioLuminate-style:
+  protein is fixed-ish, ligands relax") — reasonable for a small,
+  torsion-poor ligand, but a multi-residue glycan tree with many free
+  glycosidic torsions and no restoring force could drift a mean of
+  4+ Å (up to 10+ Å) off its covalent anchor into an unrelated,
+  clashing part of the protein surface, worse under `--no-solvent`'s
+  unscreened electrostatics. Web research on glycoprotein MD/structure-
+  prep best practice (CHARMM-GUI equilibration protocols, published
+  setups) confirmed protein *and* glycan heavy atoms should be
+  restrained together during initial minimization, commonly
+  ~1-10 kcal/mol/Å² — squarely in this restraint scheme's existing
+  `weak_k` tier (5.0), now reused for heterogens instead of leaving
+  them fully free.
+
+- **Plain `zbs` (no `--parametrize-ligands`) silently degraded to a
+  ligand-losing fallback for any unknown heterogen.** `minimize`'s
+  whole-system `createSystem` fails on a ligand with no FF template
+  (e.g. DAN), which used to trigger the legacy strip-and-splice
+  fallback: the ligand is removed entirely before the real minimize
+  runs, nearby pocket residues relax into the now-empty cavity, and
+  the ligand is spliced back at its ORIGINAL pre-minimize coordinates
+  with no tracking mechanism (`_rigid_track_glycan_trees` only follows
+  covalently-bonded trees, not free ligands) — producing a severe
+  clash. `minimize` now auto-attempts GAFF2 parametrization
+  (`lig_params.build_ligand_generator`, non-strict) whenever an
+  unknown heterogen is present, regardless of the flag; environments
+  without AmberTools/openff fall through to today's behaviour
+  unchanged. Two more bugs in the same area, found while making this
+  actually work end-to-end: (1) `Modeller.addHydrogens()`'s internal
+  `createSystem` can raise `KeyError` (not `ValueError`) when its own
+  temporary re-matching invokes the GAFF2 generator — now caught
+  alongside `ValueError` in the existing "fall back to protein-only H
+  placement" handler; (2) minimize's strip-and-readd-H path (for
+  AMBER protonation variants) unconditionally stripped H from EVERY
+  residue including arbitrary ligands, which `addHydrogens` then has
+  no way to restore (no hydrogens.xml entry) — now scoped to protein
+  residues only, since this whole mechanism is about protein-side
+  protonation variants, not heterogens.
+
+Net result: `zbs --no-solvent` on `3ry6.pdb` now reaches the real
+whole-system minimize with zero fallback and zero glycan/protein
+clashes (previously 68-86 non-bonded contacts < 1.5 Å); on `1VCU.pdb`
+(plain `zbs`, no extra flags) clashes dropped from 11 down to a single
+mild ~1 Å H-H contact (a real, but far smaller, remaining
+openmmforcefields/OpenMM limitation around invoking a dynamic
+template generator from inside `addHydrogens`'s own internal
+matching).
+
 ## [0.7.9] — 2026-07-30
 
 ### Fixed
