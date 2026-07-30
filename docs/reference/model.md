@@ -9,8 +9,8 @@ usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA] [-n NUM_MODELS]
                       [--num-loops NUM_LOOPS] [--num-output NUM_OUTPUT]
                       [--md-level {none,fast,slow,very_slow,slow_large}]
                       [--pin-input | --no-pin-input] [--no-terminal]
-                      [--keep-water] [--strip-heterogens] [--keep-workdir]
-                      [-v]
+                      [--renumber-from-1] [--keep-water] [--strip-heterogens]
+                      [--keep-workdir] [-v]
                       input
 
 Rebuild missing loops and gaps in a PDB structure using Modeller. Identifies
@@ -22,15 +22,14 @@ options:
 
 Input / output:
   input                 Input PDB file (must contain SEQRES or use --fasta)
-  -o OUTPUT, --output OUTPUT
-                        Output PDB file (default: <input>_model.pdb)
+  -o, --output OUTPUT   Output PDB file (default: <input>_model.pdb)
   --fasta FASTA         FASTA file with complete sequence(s). Headers must
                         encode chain IDs: '>chain_X', '>PDBID_X', or '>X'.
                         Mapping is by chain ID, not file order. Use instead of
                         SEQRES.
 
 Modelling parameters:
-  -n NUM_MODELS, --num-models NUM_MODELS
+  -n, --num-models NUM_MODELS
                         Number of initial models to generate (default: 1)
   --num-loops NUM_LOOPS
                         Number of loop refinement models per initial model
@@ -55,6 +54,12 @@ Modelling parameters:
                         residue flank mobile).
   --no-terminal         Do not model missing N/C terminal residues (only
                         rebuild internal gaps)
+  --renumber-from-1     Force the whole chain to start at resseq 1 when
+                        Modeller adds N-terminal residues. Default OFF:
+                        preserve original PDB numbering unless it would yield
+                        non-positive resseqs (e.g. input starts at resseq 3
+                        with 5 added N-term residues → would go to -1..3;
+                        auto-fallback to shift-to-1 with WARN).
 
 Content selection:
   --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output

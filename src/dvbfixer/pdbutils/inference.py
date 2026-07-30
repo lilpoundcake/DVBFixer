@@ -308,9 +308,25 @@ def _apply_filter(bonds, atoms, by_serial):
       - any bond with at least one HETATM in a non-AA residue
       - SS bonds (CYS family SG-SG) regardless of residue classification
       - real peptide backbone C-N bonds between adjacent protein residues
+      - intra-residue bonds when the residue name is an AMBER protonation
+        variant (LYN / ASH / GLH / CYX / CYM / HID / HIE / HIP). OpenMM's
+        ``PDBFile._standardResidues`` set only covers the 20 canonical
+        AAs, so PDBFile does NOT infer intra-residue bonds for these
+        variant names. Without CONECT records, the loaded topology has
+        zero bonds for the variant residues and every downstream
+        template-match step fails ("residue X has no bonds").
     """
     from dvbfixer.ffutils import PROTEIN_RESIDUES
+    from dvbfixer.ffutils.variants import ALL_VARIANTS
     _WATER = {'HOH', 'WAT', 'TIP3', 'TIP4', 'TIP5', 'SOL', 'SPC', 'SPCE'}
+    # OpenMM's PDBFile parser recognises these — no need to emit CONECT
+    # for their intra-residue bonds (FF templates own the chemistry AND
+    # the parser knows the names).
+    _OPENMM_PARSER_STANDARD_AA = {
+        'ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS',
+        'ILE', 'LEU', 'LYS', 'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP',
+        'TYR', 'VAL',
+    }
     out = set()
     for lo, hi in bonds:
         a = by_serial.get(lo)
@@ -326,8 +342,15 @@ def _apply_filter(bonds, atoms, by_serial):
         if is_ss:
             out.add((lo, hi))
             continue
+        # Intra-residue bond: keep it if the residue name is an AMBER
+        # variant OpenMM's PDBFile can't infer bonds for; otherwise drop
+        # (standard AAs are template-owned).
+        if same_res and a['resname'] in _OPENMM_PARSER_STANDARD_AA:
+            continue
+        if same_res and a['resname'] in ALL_VARIANTS:
+            out.add((lo, hi))
+            continue
         if same_res and a['resname'] in PROTEIN_RESIDUES:
-            # Intra standard-AA — FF templates own it
             continue
         # Inter-residue where BOTH are standard-AA: keep ONLY the
         # canonical peptide-backbone C-N bond. Everything else (N-O,
@@ -354,16 +377,32 @@ def _domain_overrides(atoms):
         by_res.setdefault(_residue_key(a), []).append(a)
 
     # --- SS bonds ---
+    # Proper 1:1 nearest-neighbor matching, not naive all-pairs-within-
+    # cutoff: when several CYS SG atoms cluster close together (e.g. two
+    # chain copies whose N-termini pack near each other), a plain cutoff
+    # scan force-adds every pair within range, giving one SG atom two or
+    # three "partners". (This is belt-and-suspenders — the final dedup
+    # in infer_conect_records() also enforces this across every bond
+    # source, including OpenBabel's own SG-SG detection.)
     sg_atoms = [a for a in atoms
                 if a['name'] == 'SG' and a['resname'] in _CYS_RESNAMES]
+    candidates = []
     for i, a in enumerate(sg_atoms):
         for b in sg_atoms[i + 1:]:
             if _residue_key(a) == _residue_key(b):
                 continue
             d2 = ((a['x']-b['x'])**2 + (a['y']-b['y'])**2 + (a['z']-b['z'])**2)
             if d2 <= _SS_CUTOFF_A ** 2:
-                lo, hi = (a['serial'], b['serial']) if a['serial'] < b['serial'] else (b['serial'], a['serial'])
-                extras.add((lo, hi))
+                candidates.append((d2, a['serial'], b['serial']))
+    candidates.sort()
+    matched_sg = set()
+    for _d2, s1, s2 in candidates:
+        if s1 in matched_sg or s2 in matched_sg:
+            continue
+        matched_sg.add(s1)
+        matched_sg.add(s2)
+        lo, hi = (s1, s2) if s1 < s2 else (s2, s1)
+        extras.add((lo, hi))
 
     # --- Glycosidic linkages: anomeric C of sugar i → O on sugar j ---
     sugar_residues = {}  # res_key -> (resname, atom_dict_by_name)
@@ -455,15 +494,78 @@ def infer_conect_records(pdb_path, *, preserve_existing=True,
     # Union with existing, drop stale serials.
     union = (existing | inferred)
     valid = {(a, b) for (a, b) in union if a in by_serial and b in by_serial}
+    valid, _n_dropped_ss = _dedupe_ss_bonds(valid, existing, by_serial)
 
     if verbose:
         print(f"  [conect] {pdb_path}: "
               f"existing={len(existing)}, "
               f"inferred={len(inferred)}, "
               f"total={len(valid)}"
-              f"{' (fallback)' if used_fallback else ''}")
+              f"{' (fallback)' if used_fallback else ''}"
+              f"{f', dropped {_n_dropped_ss} spurious SG-SG' if _n_dropped_ss else ''}")
 
     return sorted(valid)
+
+
+def _dedupe_ss_bonds(pairs, existing, by_serial):
+    """Enforce at most one SG-SG partner per CYS-family SG atom.
+
+    Every one of OpenBabel's ConnectTheDots, the element-aware distance
+    fallback, and ``_domain_overrides`` can independently flag an SG-SG
+    contact — none of them is aware of what the *other* two already
+    decided. When several CYS SG atoms sit close together (e.g. two
+    chain copies whose N-termini pack near each other, or a genuinely
+    clashing test structure), the union ends up with one SG bonded to
+    two or three different partners, and OpenMM's forcefield matcher
+    then fails with "N S atom(s) too many" for the CYX template — a
+    disulfide SG must have exactly one external S bond.
+
+    Precedence: pairs already present in the file's own (preserved)
+    CONECT records win outright (trust whatever upstream step —
+    typically ``prepare``'s PROPKA+Reduce pass — already established
+    the correct pairing for). Remaining candidates are resolved by
+    greedy nearest-distance 1:1 matching.
+
+    Returns ``(deduped_pairs, n_dropped)``.
+    """
+    ss_pairs = []
+    other_pairs = []
+    for a, b in pairs:
+        aa = by_serial.get(a)
+        bb = by_serial.get(b)
+        if (aa is not None and bb is not None
+                and aa['name'] == 'SG' and bb['name'] == 'SG'
+                and aa['resname'] in _CYS_RESNAMES and bb['resname'] in _CYS_RESNAMES):
+            ss_pairs.append((a, b))
+        else:
+            other_pairs.append((a, b))
+    if len(ss_pairs) < 2:
+        return pairs, 0
+
+    locked_serial = set()
+    kept_ss = []
+    # Existing (preserved) pairs win outright.
+    for a, b in ss_pairs:
+        if (a, b) in existing or (b, a) in existing:
+            kept_ss.append((a, b))
+            locked_serial.add(a)
+            locked_serial.add(b)
+    # Remaining candidates: greedy nearest-distance 1:1 matching among
+    # SG atoms not already locked by an existing pair.
+    remaining = [(a, b) for (a, b) in ss_pairs if (a, b) not in kept_ss]
+    scored = sorted(
+        (((by_serial[a]['x']-by_serial[b]['x'])**2
+          + (by_serial[a]['y']-by_serial[b]['y'])**2
+          + (by_serial[a]['z']-by_serial[b]['z'])**2), a, b)
+        for a, b in remaining
+    )
+    for _d2, a, b in scored:
+        if a in locked_serial or b in locked_serial:
+            continue
+        kept_ss.append((a, b))
+        locked_serial.add(a)
+        locked_serial.add(b)
+    return set(other_pairs) | set(kept_ss), len(ss_pairs) - len(kept_ss)
 
 
 def write_conect_block(bonds):

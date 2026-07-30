@@ -55,7 +55,7 @@ dvbfixer protonate input.pdb --his-default HID
 | `-o`, `--output` | `<input>_prot.pdb` | Output file path |
 | `--ph` | 7.0 | Target pH |
 | `--his-default` | HIE | Default neutral HIS tautomer (HIE or HID) |
-| `--cys-disulfide-pka` | 90.0 | pKa threshold for CYS -> CYX assignment |
+| `--cys-disulfide-pka` | 99.99 | pKa threshold for CYS -> CYX assignment (matches PROPKA's disulfide sentinel) |
 | `--protassign` / `--no-protassign` | **ON** | Run MolProbity Reduce to optimise HIS tautomers and detect ASN/GLN side-chain flips (see below). Pass `--no-protassign` to disable |
 | `--protassign-binary` | auto | Override path to the `reduce` binary |
 | `--no-hydrogens` | off | Only rename residues, do not add/fix hydrogen atoms |

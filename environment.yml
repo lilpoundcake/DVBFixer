@@ -4,7 +4,7 @@ channels:
   - bioconda
   - salilab
 dependencies:
-  - python >=3.11
+  - python >=3.11,<3.14
   - numpy
   - scipy
   - openmm >=8.1
@@ -21,6 +21,10 @@ dependencies:
   - anarci
   - xtb              # GFN-FF/GFN-xTB universal FF for --xtb-refine
   - openbabel        # obminimize CLI for --obminimize-refine
+  - ambertools >=23  # tleap + reduce + pdb4amber for the deterministic
+                     # prep backend (dvbfixer.prep_backend). Replaces the
+                     # PDBFixer.addMissingAtoms + Modeller.addHydrogens
+                     # pair (both had upstream D-Cα / coincident-H bugs).
   - pip
   - pip:
     - propka >=3.5

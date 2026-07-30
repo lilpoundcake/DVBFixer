@@ -1,22 +1,19 @@
-"""Full pipeline: renumber -> model -> prepare -> minimize -> protonate -> minimize.
+"""Full pipeline: renumber → model → prepare (PROPKA + Reduce) → minimize.
 
 Runs the complete PDB preparation workflow in sequence, passing output
-of each step as input to the next. Two minimize passes:
+of each step as input to the next.
 
-  pass 1: relax heavy atoms using prepare's approximate hydrogens
-  pass 2: refine hydrogens placed by protonate's variant-aware addHydrogens
+As of 0.7.7, PROPKA + MolProbity Reduce run **inside** the prepare
+step: PROPKA drives pKa-dependent variant renames (ASH/GLH/HIP/LYN/
+CYM/CYX) and Reduce picks the HIS tautomer (HID/HIE) + flags ASN/GLN
+amide flips. There is no separate `protonate` step in the pipeline
+anymore. Standalone `dvbfixer protonate` still exists as a post-hoc
+re-protonation tool if the user wants to re-run PROPKA/Reduce on an
+already-prepared PDB (e.g. to switch pH).
 
-Between the two minimize passes, `protonate` runs the FULL pipeline
-(PROPKA + MolProbity Reduce for HIS tautomers + ASN/GLN flip detection +
-variant-aware OpenMM addHydrogens). No `--no-hydrogens` flag is passed to
-protonate — that flag leaves existing H atoms in wrong positions after the
-variant renames.
-
-Pass 2 minimize does NOT force `--rebuild-h`: hydrogens placed by
-protonate are already correct via the variant-aware addHydrogens; the
-minimize just relaxes them. minimize.py preserves AMBER variant names on
-output via its `_input_variants` capture-restore path, so no final "re-apply
-names" step is needed.
+minimize.py preserves AMBER variant names on output via its
+`_input_variants` capture-restore path, so no final "re-apply names"
+step is needed after minimize.
 """
 
 import argparse
@@ -43,6 +40,14 @@ def parse_args(argv=None):
                          "amber, amber+glycam, charmm, ...) or an explicit "
                          "list of OpenMM XML paths. Default: 'auto'. "
                          "See docs/force-fields.md.")
+    ff.add_argument("--atom-naming", choices=["gromacs", "standard"],
+                    default="gromacs",
+                    help="Atom-naming convention for the final output PDB. "
+                         "'gromacs' (default): rewrite atom names to "
+                         "GROMACS amber99sb-ildn conventions (HB3→HB1, "
+                         "HZ3→HZ1 on LYN, O→OC2, OXT→OC1). 'standard': "
+                         "keep IUPAC/AMBER-native names. Propagated to "
+                         "prepare + minimize.")
     ff.add_argument("--parametrize-ligands", action="store_true",
                     help="Forward --parametrize-ligands to both minimize "
                          "passes (GAFF2 + AM1-BCC for unknown ligands via "
@@ -58,7 +63,11 @@ def parse_args(argv=None):
     skip.add_argument("--skip-minimize", action="store_true",
                       help="Skip the minimize step")
     skip.add_argument("--skip-protonate", action="store_true",
-                      help="Skip the protonate step")
+                      help="[deprecated] The protonate step no longer runs "
+                           "as a separate pipeline stage — PROPKA + Reduce "
+                           "are integrated into prepare (0.7.7+). Kept for "
+                           "backward compat: mapped to "
+                           "`--no-propka --no-protassign` on prepare.")
 
     model_grp = p.add_argument_group("Model step (Modeller)")
     model_grp.add_argument("--fasta", help="FASTA file with complete sequence(s) for model step")
@@ -85,6 +94,16 @@ def parse_args(argv=None):
                       action="store_false", default=True,
                       help="Strip heterogens before processing (protein-only pipeline). "
                            "Default: keep heterogens through prepare and minimize the whole system.")
+    prep.add_argument("--backend", choices=["tleap-reduce", "legacy"],
+                      default="legacy",
+                      help="Prep backend, forwarded to prepare. 'legacy' "
+                           "(default): PDBFixer + Modeller.addHydrogens; "
+                           "handles glycans, ligands, heterogens and "
+                           "covalent-HETATM links. 'tleap-reduce': opt-in "
+                           "deterministic AmberTools + MolProbity pipeline "
+                           "(tleap for heavy atoms, reduce for H). "
+                           "Pure-protein only — rejects non-canonical "
+                           "residues and is incompatible with --mutate.")
     prep.add_argument("--no-heterogen-h", dest="heterogen_h",
                       action="store_false", default=True,
                       help="Skip hydrogen addition for heterogens in prepare "
@@ -114,19 +133,28 @@ def parse_args(argv=None):
                            "(protein backbone frozen). Only meaningful with "
                            "--refine != none.")
 
-    prot = p.add_argument_group("Protonate step")
+    prot = p.add_argument_group("Protonation (PROPKA + Reduce, inside prepare)")
     prot.add_argument("--no-propka", dest="propka",
                       action="store_false", default=True,
-                      help="Skip PROPKA3 in the protonate step. Reduce "
+                      help="Skip PROPKA3 during prepare. Reduce "
                            "(--protassign) becomes the only source of HIS "
                            "tautomer picks and ASN/GLN flip detection. "
-                           "Combining --no-propka with --no-protassign is an "
-                           "error.")
+                           "Combining --no-propka with --no-protassign "
+                           "leaves variants=[--mutate only] — no pKa-driven "
+                           "ASH/GLH/HIP/LYN/CYM in output.")
     prot.add_argument("--no-protassign", dest="protassign",
                       action="store_false", default=True,
                       help="Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip "
-                           "detection) in protonate. Default: run Reduce, matches "
-                           "standalone `dvbfixer protonate` default since Jun 2026.")
+                           "detection) during prepare. Default: run Reduce.")
+    prot.add_argument("--his-default", choices=["HIE", "HID"], default="HIE",
+                      help="Default HIS tautomer when PROPKA says neutral "
+                           "AND Reduce didn't place either HD1 or HE2. "
+                           "Default: HIE.")
+    prot.add_argument("--cys-ss-pka", type=float, default=99.99,
+                      help="PROPKA pKa threshold above which CYS is "
+                           "assumed to be in a disulfide bond and renamed "
+                           "to CYX (default: 99.99, matching PROPKA's sentinel). "
+                           "Explicit CONECT-detected SS pairs override PROPKA regardless.")
 
     general = p.add_argument_group("Pipeline behaviour")
     general.add_argument("--keep-water", action="store_true",
@@ -138,6 +166,10 @@ def parse_args(argv=None):
                               "(SS/glycosidic/glycosylation) from coordinates.")
     general.add_argument("--keep-interim", action="store_true",
                          help="Keep all intermediate files (default: only final output)")
+    general.add_argument("--dry-run", action="store_true",
+                         help="Print the planned pipeline steps + output "
+                              "filenames without running anything. Useful "
+                              "when many skip flags are in play.")
     general.add_argument("--align-to-input", dest="align_to_input",
                          action=argparse.BooleanOptionalAction, default=True,
                          help="After every pipeline step, Kabsch-align the output "
@@ -154,7 +186,22 @@ def parse_args(argv=None):
     runtime.add_argument("-v", "--verbose", action="store_true",
                          help="Print detailed progress for all steps")
 
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+
+    if args.backend == "tleap-reduce" and args.mutate:
+        p.error("--mutate is not supported by the tleap-reduce backend; "
+                "rerun with --backend legacy for mutations.")
+
+    # Deprecated --skip-protonate → forward as --no-propka --no-protassign
+    # to prepare (0.7.7+: there is no separate protonate step).
+    if getattr(args, 'skip_protonate', False):
+        print("  [zbs] --skip-protonate is deprecated (no separate "
+              "protonate step since 0.7.7); mapping to --no-propka "
+              "--no-protassign on prepare.", file=sys.stderr)
+        args.propka = False
+        args.protassign = False
+
+    return args
 
 
 def main(argv=None):
@@ -163,11 +210,84 @@ def main(argv=None):
     if not input_path.exists():
         print(f"File not found: {input_path}", file=sys.stderr)
         sys.exit(1)
+    try:
+        _run_pipeline(args, input_path)
+    except _lazy_import_chirality_error() as e:
+        print(f"\nERROR: chirality guard tripped in the zbs pipeline.\n"
+              f"{e}\n"
+              f"Downstream MD would produce nonsense on a D-Cα residue; "
+              f"fix the upstream model / prepare / protonate step or "
+              f"rebuild the affected residue by hand.",
+              file=sys.stderr)
+        sys.exit(2)
 
+
+def _lazy_import_chirality_error():
+    """Deferred import — keeps ``dvbfixer zbs --help`` free of the
+    ffutils import chain (which pulls OpenMM)."""
+    from dvbfixer.ffutils.geometry import ChiralityError
+    return ChiralityError
+
+
+def _print_dry_run(args, input_path, final_output):
+    """Print the planned pipeline steps + outputs without running anything."""
+    print("Planned zbs pipeline:")
+    step = 1
+
+    def _line(name, out_suffix, notes=""):
+        nonlocal step
+        out = str(input_path.with_stem(input_path.stem + out_suffix))
+        line = f"  {step}. {name:12s} → {Path(out).name}"
+        if notes:
+            line += f"   ({notes})"
+        print(line)
+        step += 1
+
+    if not args.skip_renumber:
+        _line("renumber", "_renum",
+              "SEQRES-based residue renumbering"
+              + (", keep water" if args.keep_water else ""))
+    if not args.skip_model:
+        notes = f"Modeller LoopModel, --md-level {args.md_level}"
+        if args.fasta:
+            notes += f", --fasta {args.fasta}"
+        if not args.pin_input:
+            notes += ", --no-pin-input"
+        _line("model", "_model", notes)
+    if not args.skip_prepare:
+        notes = (f"backend: {args.backend} (PDBFixer + Modeller.addHydrogens)"
+                  if args.backend == "legacy" else
+                  f"backend: {args.backend} (AmberTools tleap + MolProbity reduce)")
+        if not args.keep_heterogens:
+            notes += ", --strip-heterogens"
+        if args.mutate:
+            notes += f", {len(args.mutate)} mutation(s)"
+        _line("prepare", "_prepared", notes)
+    if not args.skip_minimize:
+        notes = "OpenMM ff14SB"
+        if args.no_solvent:
+            notes += ", --no-solvent"
+        if args.rebuild_h:
+            notes += ", --rebuild-h"
+        if args.refine != "none":
+            notes += f", --refine {args.refine}"
+        _line("minimize", "_minimized", notes)
+
+    print(f"  final       → {final_output.name}")
+    if args.verbose:
+        interim_kept = "keep" if args.keep_interim else "delete"
+        print(f"  (interim files: {interim_kept})")
+
+
+def _run_pipeline(args, input_path):
     if args.output:
         final_output = Path(args.output)
     else:
         final_output = input_path.with_stem(input_path.stem + "_zbs")
+
+    if getattr(args, "dry_run", False):
+        _print_dry_run(args, input_path, final_output)
+        return
 
     current = str(input_path)
     step_num = 0
@@ -263,6 +383,18 @@ def main(argv=None):
         out = step_output("prepared")
         prepare_argv = [current, "-o", out, "--ph", str(args.ph),
                         "--ff"] + args.ff
+        prepare_argv.extend(["--atom-naming", args.atom_naming])
+        prepare_argv.extend(["--backend", args.backend])
+        # Propagate PROPKA + Reduce flags into prepare (0.7.7+: legacy
+        # prepare now runs PROPKA + Reduce internally so the pipeline
+        # emits pKa-driven ASH/GLH/HIP/LYN/CYM variants and per-residue
+        # HIS tautomers).
+        if not args.propka:
+            prepare_argv.append("--no-propka")
+        if not args.protassign:
+            prepare_argv.append("--no-protassign")
+        prepare_argv.extend(["--his-default", args.his_default])
+        prepare_argv.extend(["--cys-ss-pka", str(args.cys_ss_pka)])
         if not args.keep_heterogens:
             prepare_argv.append("--strip-heterogens")
         if not args.heterogen_h:
@@ -279,19 +411,28 @@ def main(argv=None):
         _maybe_align(out)
         current = out
 
-    # 4. Minimize (pass 1 — relax heavy atoms using prepare's approximate H)
+    # 4. Minimize — single pass. Propagate the SAME FF alias that
+    # prepare used, so both steps agree on force field selection. If
+    # the user passed --ff auto, resolve it once here against the
+    # pipeline input and pass the resolved short alias
+    # (e.g. 'amber+glycam') to both prepare and minimize; propagating
+    # the alias rather than expanded XML paths preserves each tool's
+    # ability to run its own upgrade logic if a downstream step
+    # transforms the residue set.
+    _minimize_ff = list(args.ff)
     if not args.skip_minimize:
         step_num += 1
         print(f"\n{'='*60}")
-        print(f"Step {step_num}: MINIMIZE (pass 1)")
+        print(f"Step {step_num}: MINIMIZE")
         print(f"{'='*60}")
         from dvbfixer.minimize import main as minimize_main
         out = step_output("minimized")
         minimize_argv = [current, "-o", out,
                          "--ph", str(args.ph),
-                         "--ff"] + args.ff + [
+                         "--ff"] + _minimize_ff + [
                          "--restraint-k", str(args.restraint_k),
-                         "--max-iter", str(args.max_iter)]
+                         "--max-iter", str(args.max_iter),
+                         "--atom-naming", args.atom_naming]
         if args.no_solvent:
             minimize_argv.append("--no-solvent")
         if args.rebuild_h:
@@ -300,78 +441,6 @@ def main(argv=None):
             minimize_argv.append("--strip-heterogens")
         if args.rename:
             minimize_argv.append("--rename")
-        if args.no_infer_conect:
-            minimize_argv.append("--no-infer-conect")
-        if args.parametrize_ligands:
-            minimize_argv.append("--parametrize-ligands")
-        if args.platform:
-            minimize_argv.extend(["--platform", args.platform])
-        if args.verbose:
-            minimize_argv.append("-v")
-        minimize_main(minimize_argv)
-        _maybe_align(out)
-        current = out
-
-    # 5. Protonate (FULL — PROPKA + Reduce + variant-aware addHydrogens).
-    # NO --no-hydrogens: that leaves existing H in wrong positions relative
-    # to the new HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN residue names.
-    if not args.skip_protonate:
-        step_num += 1
-        # Header reflects which engines are actually going to run.
-        _engines = []
-        if args.propka:
-            _engines.append("PROPKA")
-        if args.protassign:
-            _engines.append("Reduce")
-        _engines.append("addHydrogens")
-        print(f"\n{'='*60}")
-        print(f"Step {step_num}: PROTONATE ({' + '.join(_engines)})")
-        print(f"{'='*60}")
-        from dvbfixer.protonate import main as protonate_main
-        out = step_output("prot")
-        protonate_argv = [current, "-o", out,
-                          "--ph", str(args.ph),
-                          "--ff"] + args.ff
-        if not args.propka:
-            protonate_argv.append("--no-propka")
-        if not args.protassign:
-            protonate_argv.append("--no-protassign")
-        if args.no_infer_conect:
-            protonate_argv.append("--no-infer-conect")
-        if args.keep_water:
-            protonate_argv.append("--keep-water")
-        if args.verbose:
-            protonate_argv.extend(["-v", "--summary"])
-        protonate_main(protonate_argv)
-        _maybe_align(out)
-        current = out
-
-    # 6. Minimize (pass 2 — refine the fresh H positions).
-    # No --rebuild-h: protonate already placed H correctly via variant-aware
-    # addHydrogens. minimize preserves AMBER variant names on output via its
-    # _input_variants capture-restore path, so no final rename step is needed.
-    if not args.skip_minimize and not args.skip_protonate:
-        step_num += 1
-        print(f"\n{'='*60}")
-        print(f"Step {step_num}: MINIMIZE (pass 2 — refine H positions)")
-        print(f"{'='*60}")
-        out = step_output("minimized2")
-        minimize_argv = [current, "-o", out,
-                         "--ph", str(args.ph),
-                         "--ff"] + args.ff + [
-                         "--restraint-k", str(args.restraint_k),
-                         "--max-iter", str(args.max_iter)]
-        if args.rebuild_h:
-            minimize_argv.append("--rebuild-h")
-        if args.no_solvent:
-            minimize_argv.append("--no-solvent")
-        if not args.keep_heterogens:
-            minimize_argv.append("--strip-heterogens")
-        # NOTE: DO NOT propagate --rename to minimize step 2. This
-        # runs AFTER protonate, which just wrote the AMBER variant
-        # names based on PROPKA. Canonicalising them here throws
-        # away the pKa work. --rename belongs only on the input-facing
-        # steps (prepare + minimize step 1).
         if args.no_infer_conect:
             minimize_argv.append("--no-infer-conect")
         if args.parametrize_ligands:

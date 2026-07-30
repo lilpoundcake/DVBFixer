@@ -35,6 +35,29 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+
+class ChiralityError(RuntimeError):
+    """Raised when D-amino-acid Cα stereochemistry survives all repair
+    attempts.
+
+    ``residues`` is a list of ``(chain_id, resid, resname, triple)``
+    tuples describing every residue that failed the L-configuration
+    check. Consumers (``dvbfixer.zbs``, ``dvbfixer.protonate``,
+    ``dvbfixer.minimize``) print this list and exit with a non-zero
+    status rather than write a PDB that carries D-Cα geometry into
+    downstream MD.
+    """
+
+    def __init__(self, residues: list[tuple[str, str, str, float]]) -> None:
+        self.residues = residues
+        lines = [f"{c}/{name}{rid}: triple={t:+.5f} nm³"
+                 for (c, rid, name, t) in residues]
+        super().__init__(
+            f"D-amino-acid Cα chirality detected on {len(residues)} residue"
+            f"{'s' if len(residues) != 1 else ''} after all repair passes:\n"
+            + "\n".join(f"  {ln}" for ln in lines)
+        )
+
 # Bond-length targets (nm). Matches AMBER14-standard covalent bond
 # lengths for the given parent element. Used as both the tolerance
 # for "misplaced" detection (with a 1.6x safety factor) and the
@@ -51,6 +74,14 @@ _BOND_LEN_NM = {
 # the same residue is considered misplaced regardless of its
 # distance to its bonded parent.
 _COINCIDENT_TOL_NM = 0.05  # 0.5 Å
+
+# Sibling-H clash tolerance (nm). Two H atoms bonded to the same
+# heavy parent should sit at proper sp3 spacing — 2·bond_len·sin(54.75°)
+# ≈ 1.78 Å for methylene/methyl. Anything under 0.15 nm (1.5 Å) is
+# a placement bug that produces astronomical LJ 1/r^12 energies at
+# minimize startup, which minimize then "relieves" by flipping the
+# parent's chirality. Detect and re-place tetrahedrally.
+_SIBLING_H_MIN_NM = 0.15  # 1.5 Å
 
 # Misplaced-parent-distance factor: an H is misplaced if its
 # distance to its bonded parent exceeds this multiple of the
@@ -181,20 +212,29 @@ def detect_misplaced_hydrogens(
 ) -> list[MisplacedHydrogen]:
     """Return every hydrogen whose position is chemically impossible.
 
-    A hydrogen is misplaced when EITHER:
+    A hydrogen is misplaced when ANY of:
     - distance to its bonded heavy-atom parent exceeds
       ``_PARENT_DIST_FACTOR`` * canonical covalent bond length, OR
     - it sits within ``_COINCIDENT_TOL_NM`` of any other atom in the
-      same residue.
+      same residue, OR
+    - it sits within ``_SIBLING_H_MIN_NM`` of a sibling H (same heavy
+      parent). Sibling-H spacing must be ≥ sp3 minimum (~1.78 Å for
+      methylene at 1.09 Å bond); anything closer produces astronomical
+      LJ energies at minimize startup which drives the parent's
+      chirality flip during relaxation.
 
     Pure detection — no mutation. Used by:
     - :func:`repair_misplaced_hydrogens` (repairs each finding).
     - :mod:`dvbfixer.diagnose.structural` (report-only).
     """
     findings: list[MisplacedHydrogen] = []
+    seen: set[int] = set()
+
     for res in topology.residues():
         atoms = list(res.atoms())
         for h_atom in atoms:
+            if h_atom.index in seen:
+                continue
             if h_atom.element is None or h_atom.element.symbol != "H":
                 continue
 
@@ -219,8 +259,10 @@ def detect_misplaced_hydrogens(
                         coincident_with=None,
                     )
                 )
+                seen.add(h_atom.index)
                 continue
 
+            coincident_hit = False
             for other in atoms:
                 if other.index == h_atom.index or other.element is None:
                     continue
@@ -236,9 +278,233 @@ def detect_misplaced_hydrogens(
                             coincident_with=other,
                         )
                     )
+                    seen.add(h_atom.index)
+                    coincident_hit = True
+                    break
+            if coincident_hit:
+                continue
+
+            # Sibling-H clash: too close to another H bonded to the same
+            # heavy parent. Threshold 0.15 nm (1.5 Å) — well below proper
+            # sp3 (1.78 Å) but well above the 0.05 nm coincident-tol.
+            # Flag both siblings so repair rebuilds the parent's H cloud
+            # as one tetrahedral group.
+            siblings = _hydrogens_bonded_to(topology, parent)
+            for sib in siblings:
+                if sib.index == h_atom.index:
+                    continue
+                d2s = _dist2(h_pos, _pos(positions, sib))
+                if d2s < _SIBLING_H_MIN_NM * _SIBLING_H_MIN_NM:
+                    findings.append(
+                        MisplacedHydrogen(
+                            h_atom=h_atom,
+                            parent=parent,
+                            parent_distance_nm=parent_distance_nm,
+                            expected_bond_nm=bond_len,
+                            reason="sibling_clash",
+                            coincident_with=sib,
+                        )
+                    )
+                    seen.add(h_atom.index)
+                    # Also flag the sibling so the group is rebuilt.
+                    if sib.index not in seen:
+                        sib_bond_len = _BOND_LEN_NM.get(
+                            parent.element.symbol, _DEFAULT_BOND_LEN_NM,
+                        )
+                        sib_d = _dist2(_pos(positions, sib), parent_pos) ** 0.5
+                        findings.append(
+                            MisplacedHydrogen(
+                                h_atom=sib,
+                                parent=parent,
+                                parent_distance_nm=sib_d,
+                                expected_bond_nm=sib_bond_len,
+                                reason="sibling_clash",
+                                coincident_with=h_atom,
+                            )
+                        )
+                        seen.add(sib.index)
                     break
 
     return findings
+
+
+def _hydrogens_bonded_to(topology: Any, parent: Any) -> list[Any]:
+    """Return every H atom bonded to ``parent``."""
+    result = []
+    for b1, b2 in topology.bonds():
+        if b1.index == parent.index and b2.element is not None \
+                and b2.element.symbol == "H":
+            result.append(b2)
+        elif b2.index == parent.index and b1.element is not None \
+                and b1.element.symbol == "H":
+            result.append(b1)
+    return result
+
+
+def _heavy_neighbors_of(topology: Any, atom: Any) -> list[Any]:
+    """Return every non-H atom bonded to ``atom``."""
+    result = []
+    for b1, b2 in topology.bonds():
+        if b1.index == atom.index and b2.element is not None \
+                and b2.element.symbol != "H":
+            result.append(b2)
+        elif b2.index == atom.index and b1.element is not None \
+                and b1.element.symbol != "H":
+            result.append(b1)
+    return result
+
+
+def _tetrahedral_h_positions(
+    parent_pos: tuple[float, float, float],
+    heavy_neighbor_positions: list[tuple[float, float, float]],
+    bond_len: float,
+    n_h: int,
+) -> list[tuple[float, float, float]] | None:
+    """Compute ideal H positions on ``parent`` given its heavy neighbours.
+
+    Handles the geometry cases needed by the ``repair_misplaced_hydrogens``
+    caller — every combination that arises in a standard AA:
+
+    * (1 heavy, 3 H): methyl / NH3+ / SH3 — three H at 109.5° from the
+      neighbour direction, 120° apart around it.
+    * (1 heavy, 2 H): amide NH2 / -NH2 — two H at 120° apart in the plane
+      containing parent & neighbour.
+    * (1 heavy, 1 H): OH / SH — one H at 109.5° from the neighbour in an
+      arbitrary perpendicular direction. The old "linear-anti (180°)"
+      choice is chemically strained; 109.5° is sp3-correct.
+    * (2 heavy, 2 H): methylene CH2 — two H symmetric about the plane of
+      the two heavy neighbours (β=54.75° from the bisector to give
+      H-C-H ≈ 109.5°).
+    * (2 heavy, 1 H): aromatic CH — one H at the negative bisector of
+      the two heavy neighbours.
+    * (3 heavy, 1 H): sp3 CH like HA on the backbone Cα — one H at the
+      fourth tetrahedral vertex (negative sum of heavy unit vectors).
+
+    Returns ``None`` for unhandled combinations (caller falls back to the
+    per-H "rotate 60°" heuristic).
+    """
+    import math
+
+    n_heavy = len(heavy_neighbor_positions)
+    if n_heavy == 0 or n_h < 1:
+        return None
+
+    def _unit(vec: tuple[float, float, float]) -> tuple[float, float, float] | None:
+        n = math.sqrt(vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2)
+        if n < 1e-9:
+            return None
+        return (vec[0] / n, vec[1] / n, vec[2] / n)
+
+    heavy_dirs: list[tuple[float, float, float]] = []
+    for h_pos in heavy_neighbor_positions:
+        u = _unit((h_pos[0] - parent_pos[0], h_pos[1] - parent_pos[1],
+                   h_pos[2] - parent_pos[2]))
+        if u is None:
+            return None
+        heavy_dirs.append(u)
+
+    def _perp_to(u: tuple[float, float, float]) -> tuple[float, float, float]:
+        seed = (1.0, 0.0, 0.0) if abs(u[0]) < 0.9 else (0.0, 1.0, 0.0)
+        dot = seed[0] * u[0] + seed[1] * u[1] + seed[2] * u[2]
+        r = (seed[0] - dot * u[0], seed[1] - dot * u[1], seed[2] - dot * u[2])
+        r = _unit(r)
+        # `seed` is not parallel to `u` so `r` is well-defined.
+        assert r is not None
+        return r
+
+    def _cross(a: tuple[float, float, float],
+               b: tuple[float, float, float]) -> tuple[float, float, float]:
+        return (a[1] * b[2] - a[2] * b[1],
+                a[2] * b[0] - a[0] * b[2],
+                a[0] * b[1] - a[1] * b[0])
+
+    if n_heavy == 1 and n_h == 3:
+        u = heavy_dirs[0]
+        p1 = _perp_to(u)
+        p2 = _cross(u, p1)
+        # cos(109.5°) = -0.334 → component along u is negative (away from
+        # the heavy neighbour), which is what we want.
+        ca = math.cos(math.radians(109.5))
+        sa = math.sin(math.radians(109.5))
+        out = []
+        for i in range(3):
+            th = math.radians(120 * i)
+            ct, st = math.cos(th), math.sin(th)
+            hx = parent_pos[0] + bond_len * (ca * u[0] + sa * (ct * p1[0] + st * p2[0]))
+            hy = parent_pos[1] + bond_len * (ca * u[1] + sa * (ct * p1[1] + st * p2[1]))
+            hz = parent_pos[2] + bond_len * (ca * u[2] + sa * (ct * p1[2] + st * p2[2]))
+            out.append((hx, hy, hz))
+        return out
+
+    if n_heavy == 1 and n_h == 2:
+        u = heavy_dirs[0]
+        p1 = _perp_to(u)
+        # Two H's at 120° from the parent-neighbour direction, symmetric
+        # about that axis. cos(120°) = -0.5 gives the -u component,
+        # sin(120°) = √3/2 the perpendicular component.
+        c = -0.5
+        s = math.sqrt(3) / 2
+        out = []
+        for sign in (+1.0, -1.0):
+            hx = parent_pos[0] + bond_len * (c * u[0] + sign * s * p1[0])
+            hy = parent_pos[1] + bond_len * (c * u[1] + sign * s * p1[1])
+            hz = parent_pos[2] + bond_len * (c * u[2] + sign * s * p1[2])
+            out.append((hx, hy, hz))
+        return out
+
+    if n_heavy == 1 and n_h == 1:
+        u = heavy_dirs[0]
+        p1 = _perp_to(u)
+        ca = math.cos(math.radians(109.5))
+        sa = math.sin(math.radians(109.5))
+        return [(parent_pos[0] + bond_len * (ca * u[0] + sa * p1[0]),
+                 parent_pos[1] + bond_len * (ca * u[1] + sa * p1[1]),
+                 parent_pos[2] + bond_len * (ca * u[2] + sa * p1[2]))]
+
+    if n_heavy == 2 and n_h == 2:
+        u1, u2 = heavy_dirs
+        s_vec = (u1[0] + u2[0], u1[1] + u2[1], u1[2] + u2[2])
+        s_n = math.sqrt(s_vec[0] ** 2 + s_vec[1] ** 2 + s_vec[2] ** 2)
+        if s_n < 1e-6:
+            return None
+        bisector = (-s_vec[0] / s_n, -s_vec[1] / s_n, -s_vec[2] / s_n)
+        perp = _cross(u1, u2)
+        perp_u = _unit(perp)
+        if perp_u is None:
+            return None
+        # β = 54.75° gives H-C-H = 109.5°.
+        ca = math.cos(math.radians(54.75))
+        sa = math.sin(math.radians(54.75))
+        out = []
+        for sign in (+1.0, -1.0):
+            hx = parent_pos[0] + bond_len * (ca * bisector[0] + sign * sa * perp_u[0])
+            hy = parent_pos[1] + bond_len * (ca * bisector[1] + sign * sa * perp_u[1])
+            hz = parent_pos[2] + bond_len * (ca * bisector[2] + sign * sa * perp_u[2])
+            out.append((hx, hy, hz))
+        return out
+
+    if n_heavy == 2 and n_h == 1:
+        u1, u2 = heavy_dirs
+        s_vec = (u1[0] + u2[0], u1[1] + u2[1], u1[2] + u2[2])
+        s_n = math.sqrt(s_vec[0] ** 2 + s_vec[1] ** 2 + s_vec[2] ** 2)
+        if s_n < 1e-6:
+            return None
+        return [(parent_pos[0] - bond_len * s_vec[0] / s_n,
+                 parent_pos[1] - bond_len * s_vec[1] / s_n,
+                 parent_pos[2] - bond_len * s_vec[2] / s_n)]
+
+    if n_heavy == 3 and n_h == 1:
+        s_vec = (heavy_dirs[0][0] + heavy_dirs[1][0] + heavy_dirs[2][0],
+                 heavy_dirs[0][1] + heavy_dirs[1][1] + heavy_dirs[2][1],
+                 heavy_dirs[0][2] + heavy_dirs[1][2] + heavy_dirs[2][2])
+        s_n = math.sqrt(s_vec[0] ** 2 + s_vec[1] ** 2 + s_vec[2] ** 2)
+        if s_n < 1e-6:
+            return None
+        return [(parent_pos[0] - bond_len * s_vec[0] / s_n,
+                 parent_pos[1] - bond_len * s_vec[1] / s_n,
+                 parent_pos[2] - bond_len * s_vec[2] / s_n)]
+
+    return None
 
 
 def repair_misplaced_hydrogens(
@@ -247,11 +513,24 @@ def repair_misplaced_hydrogens(
     verbose: bool = False,
 ) -> int:
     """Detect misplaced hydrogens (via :func:`detect_misplaced_hydrogens`)
-    and re-place each one at ``bond_length`` from its parent in the
-    linear-anti direction from the parent's other heavy neighbor.
+    and re-place them at proper sp3 tetrahedral positions.
 
-    Chemically coarse but topologically sane — downstream ``minimize``
-    relaxes the anti placement to proper sp3.
+    When ``Modeller.addHydrogens`` occasionally places two or three H
+    atoms on the same parent (methylene CH2, methyl / NH3+ / SH3) at
+    identical coordinates, we can't repair each H independently to a
+    single "linear-anti" target — they'd end up coincident again. This
+    function groups misplaced findings by parent atom and calls
+    :func:`_tetrahedral_h_positions` to compute a proper set of
+    distinct sp3 positions, then assigns each misplaced H to a slot
+    not already claimed by a well-placed sibling.
+
+    Fallback (unusual heavy-neighbour count): rotate a linear-anti
+    placement 60°·i around the parent-neighbour axis for the i-th
+    misplaced H so at least the coincidence is broken.
+
+    Downstream ``minimize`` relaxes the placements to the FF's own
+    equilibrium — this function only needs to give it a non-degenerate
+    starting point.
 
     Args:
         topology: OpenMM ``Topology``.
@@ -262,56 +541,107 @@ def repair_misplaced_hydrogens(
     Returns:
         Number of hydrogens repaired.
     """
+    import math
+    from collections import defaultdict
+
     from openmm import Vec3
     from openmm.unit import nanometer
 
-    repairs = 0
-    for finding in detect_misplaced_hydrogens(topology, positions):
-        h_atom = finding.h_atom
-        parent = finding.parent
-        res = h_atom.residue
+    findings = detect_misplaced_hydrogens(topology, positions)
+    if not findings:
+        return 0
 
-        # Place H at bond_len from parent, anti to the parent's other
-        # heavy neighbor.
-        neighbor = _parents_other_heavy_neighbor(topology, parent, h_atom)
+    by_parent: dict[int, list[MisplacedHydrogen]] = defaultdict(list)
+    for f in findings:
+        by_parent[f.parent.index].append(f)
+
+    repairs = 0
+    for parent_findings in by_parent.values():
+        parent = parent_findings[0].parent
+        bond_len = parent_findings[0].expected_bond_nm
+        res = parent.residue
+        all_h = _hydrogens_bonded_to(topology, parent)
+        heavy_neighbors = _heavy_neighbors_of(topology, parent)
+        parent_pos = _pos(positions, parent)
+
+        h_targets = _tetrahedral_h_positions(
+            parent_pos,
+            [_pos(positions, hn) for hn in heavy_neighbors],
+            bond_len,
+            n_h=len(all_h),
+        )
+
+        if h_targets is not None:
+            # Mark slots already occupied by well-placed sibling H's.
+            misplaced_ids = {f.h_atom.index for f in parent_findings}
+            used = set()
+            for h in all_h:
+                if h.index in misplaced_ids:
+                    continue
+                h_p = _pos(positions, h)
+                best = min(range(len(h_targets)),
+                           key=lambda i: _dist2(h_p, h_targets[i]))
+                used.add(best)
+            for finding in parent_findings:
+                slot = next((i for i in range(len(h_targets)) if i not in used),
+                            None)
+                if slot is None:
+                    if verbose:
+                        print(f"  [geom] {res.chain.id}/{res.name}{res.id}/"
+                              f"{finding.h_atom.name}: no tetrahedral slot "
+                              f"left, skipping")
+                    continue
+                positions[finding.h_atom.index] = Vec3(*h_targets[slot]) * nanometer
+                used.add(slot)
+                repairs += 1
+                if verbose:
+                    print(f"  [geom] repaired {res.chain.id}/{res.name}{res.id}"
+                          f"/{finding.h_atom.name} → tetrahedral slot "
+                          f"{slot} @ {bond_len * 10:.2f} Å from {parent.name}")
+            continue
+
+        # Fallback: unhandled heavy-neighbour count → rotate a linear-anti
+        # placement 60°·i around the parent-neighbour axis for each
+        # subsequent misplaced H so at least the coincidence is broken.
+        neighbor = _parents_other_heavy_neighbor(topology, parent,
+                                                  parent_findings[0].h_atom)
         if neighbor is None:
             if verbose:
-                print(f"  [geom] {res.chain.id}/{res.name}{res.id}/{h_atom.name}: "
-                      f"misplaced but parent {parent.name} has no other heavy "
-                      f"neighbor — leaving as-is")
+                print(f"  [geom] {res.chain.id}/{res.name}{res.id}/"
+                      f"{parent.name}: no heavy neighbour — leaving H atom(s) "
+                      f"as-is")
             continue
-
-        parent_pos = _pos(positions, parent)
         nx, ny, nz = _pos(positions, neighbor)
-        dx = parent_pos[0] - nx
-        dy = parent_pos[1] - ny
-        dz = parent_pos[2] - nz
-        norm = (dx * dx + dy * dy + dz * dz) ** 0.5
+        dx, dy, dz = parent_pos[0] - nx, parent_pos[1] - ny, parent_pos[2] - nz
+        norm = math.sqrt(dx * dx + dy * dy + dz * dz)
         if norm < 1e-9:
-            if verbose:
-                print(f"  [geom] {res.chain.id}/{res.name}{res.id}/{h_atom.name}: "
-                      f"parent and neighbor coincident — leaving as-is")
             continue
-
-        scale = finding.expected_bond_nm / norm
-        new_h = (
-            parent_pos[0] + dx * scale,
-            parent_pos[1] + dy * scale,
-            parent_pos[2] + dz * scale,
-        )
-        positions[h_atom.index] = Vec3(*new_h) * nanometer
-        repairs += 1
-        if verbose:
-            reason = (
-                f"coincident with {finding.coincident_with.name}"
-                if finding.coincident_with is not None
-                else f"parent {parent.name} distance "
-                     f"{finding.parent_distance_nm * 10:.2f} Å > "
-                     f"{finding.expected_bond_nm * _PARENT_DIST_FACTOR * 10:.2f} Å"
-            )
-            print(f"  [geom] repaired {res.chain.id}/{res.name}{res.id}/{h_atom.name} "
-                  f"({reason}) → linear-anti from {neighbor.name} at "
-                  f"{finding.expected_bond_nm * 10:.2f} Å from {parent.name}")
+        ux, uy, uz = dx / norm, dy / norm, dz / norm
+        # Any perpendicular seed vector.
+        if abs(ux) < 0.9:
+            sx, sy, sz = 1.0, 0.0, 0.0
+        else:
+            sx, sy, sz = 0.0, 1.0, 0.0
+        dot = sx * ux + sy * uy + sz * uz
+        sx, sy, sz = sx - dot * ux, sy - dot * uy, sz - dot * uz
+        sn = math.sqrt(sx * sx + sy * sy + sz * sz)
+        sx, sy, sz = sx / sn, sy / sn, sz / sn
+        for i, finding in enumerate(parent_findings):
+            theta = math.radians(60 * i)
+            # Rodrigues-style rotation of the "linear-anti + small perp"
+            # target around u by theta. For i=0, θ=0 → pure linear-anti.
+            offset_scale = 0.08 if i > 0 else 0.0  # 0.8 Å tangential kick
+            hx = parent_pos[0] + bond_len * ux + offset_scale * (
+                math.cos(theta) * sx)
+            hy = parent_pos[1] + bond_len * uy + offset_scale * (
+                math.cos(theta) * sy)
+            hz = parent_pos[2] + bond_len * uz + offset_scale * (
+                math.cos(theta) * sz)
+            positions[finding.h_atom.index] = Vec3(hx, hy, hz) * nanometer
+            repairs += 1
+            if verbose:
+                print(f"  [geom] repaired {res.chain.id}/{res.name}{res.id}"
+                      f"/{finding.h_atom.name} → fallback rotated {60 * i}°")
 
     return repairs
 
@@ -400,14 +730,22 @@ def fix_ca_chirality(
             vn[0] * vc[1] - vn[1] * vc[0],
         )
         triple = cross[0] * vcb[0] + cross[1] * vcb[1] + cross[2] * vcb[2]
-        # Deadband around zero avoids false positives on marginal
-        # geometry (mirrors ``check_ca_chirality``'s threshold).
-        if triple >= -1e-4:
+        # Deadband -1e-6 nm³ ≈ -1e-3 Å³ — well above float noise for
+        # nm-scale vectors and ~0.3% of a typical L triple (~0.35 Å³),
+        # so marginally D geometries no longer slip.
+        if triple >= -1e-6:
             continue
 
         norm2 = cross[0] ** 2 + cross[1] ** 2 + cross[2] ** 2
         if norm2 < 1e-18:
             # Degenerate — N, CA, C colinear. Nothing sensible to do.
+            continue
+        # Near-degeneracy gate: |cross| / (|vn|·|vc|) is sin(angle
+        # between N-CA and C-CA). If that's < 0.1 the plane is
+        # ill-defined and reflecting would just flip noise. Skip.
+        vn_norm2 = vn[0] ** 2 + vn[1] ** 2 + vn[2] ** 2
+        vc_norm2 = vc[0] ** 2 + vc[1] ** 2 + vc[2] ** 2
+        if norm2 < 0.01 * vn_norm2 * vc_norm2:
             continue
 
         # Reflect every sidechain atom (anything not in the fixed
@@ -436,3 +774,109 @@ def fix_ca_chirality(
                   f"{res.chain.id}/{res.name}{res.id} "
                   f"(triple {triple:.5f} nm³ → reflected {n_moved} sidechain atoms)")
     return repairs
+
+
+# Residue names skipped by both the detector and the restraint builder.
+# Same set as ``fix_ca_chirality``: GLY has no CB; waters/ions have no
+# Cα chirality to defend.
+_CHIRALITY_SKIP_RESNAMES = frozenset({
+    "GLY", "HOH", "WAT", "TIP3", "TIP4", "TIP5", "SOL", "SPC", "SPCE",
+})
+
+
+def _find_ncacb(res: Any) -> tuple[Any, Any, Any, Any] | None:
+    """Return (N, CA, C, CB) atoms from ``res`` or None if any is missing."""
+    n = ca = c = cb = None
+    for a in res.atoms():
+        if a.name == "N":
+            n = a
+        elif a.name == "CA":
+            ca = a
+        elif a.name == "C":
+            c = a
+        elif a.name == "CB":
+            cb = a
+    if not (n and ca and c and cb):
+        return None
+    return n, ca, c, cb
+
+
+def _ca_triple(
+    positions: Any, n: Any, ca: Any, c: Any, cb: Any,
+) -> tuple[float, float, float, float]:
+    """Return (triple, |cross|², |vn|², |vc|²) for the CA chirality test."""
+    ca_p = _pos(positions, ca)
+    vn = tuple(a - b for a, b in zip(_pos(positions, n), ca_p))
+    vc = tuple(a - b for a, b in zip(_pos(positions, c), ca_p))
+    vcb = tuple(a - b for a, b in zip(_pos(positions, cb), ca_p))
+    cross = (
+        vn[1] * vc[2] - vn[2] * vc[1],
+        vn[2] * vc[0] - vn[0] * vc[2],
+        vn[0] * vc[1] - vn[1] * vc[0],
+    )
+    triple = cross[0] * vcb[0] + cross[1] * vcb[1] + cross[2] * vcb[2]
+    norm2 = cross[0] ** 2 + cross[1] ** 2 + cross[2] ** 2
+    vn_norm2 = vn[0] ** 2 + vn[1] ** 2 + vn[2] ** 2
+    vc_norm2 = vc[0] ** 2 + vc[1] ** 2 + vc[2] ** 2
+    return triple, norm2, vn_norm2, vc_norm2
+
+
+def find_d_residues(
+    topology: Any, positions: Any,
+) -> list[tuple[str, str, str, float]]:
+    """Return every D-amino-acid residue in the topology.
+
+    Uses the same triple-product test and deadband as
+    :func:`fix_ca_chirality` plus the near-degeneracy gate, so the
+    detector and the repair function agree on what counts as D.
+
+    Each entry is ``(chain_id, resid, resname, triple_nm3)``.
+    """
+    offenders: list[tuple[str, str, str, float]] = []
+    for res in topology.residues():
+        if res.name in _CHIRALITY_SKIP_RESNAMES:
+            continue
+        found = _find_ncacb(res)
+        if found is None:
+            continue
+        n, ca, c, cb = found
+        triple, norm2, vn2, vc2 = _ca_triple(positions, n, ca, c, cb)
+        if triple >= -1e-6:
+            continue
+        # Skip near-degenerate geometries the repair also skips.
+        if norm2 < 1e-18 or norm2 < 0.01 * vn2 * vc2:
+            continue
+        offenders.append((res.chain.id, str(res.id), res.name, triple))
+    return offenders
+
+
+def assert_all_l(topology: Any, positions: Any) -> None:
+    """Raise :class:`ChiralityError` if any residue is still D.
+
+    Wrapper around :func:`find_d_residues`. Call after
+    :func:`fix_ca_chirality` (and any subsequent OpenMM minimization
+    pass) to guarantee no D geometry survives into the output.
+    """
+    offenders = find_d_residues(topology, positions)
+    if offenders:
+        raise ChiralityError(offenders)
+
+
+# NOTE: An earlier revision added an ``improper_chirality_restraint``
+# (``CustomTorsionForce`` on CA-N-C-CB with θ₀ = +34°, k = 1000 kJ/mol/rad²)
+# to actively bias residues toward L during OpenMM ``minimizeEnergy``.
+# It was removed because:
+#   1. Field consensus (VMD/NAMD chirality plugin, pdb4amber, CHARMM-GUI,
+#      AlphaFold amber-relax) is *reflect → plain minimize → verify* —
+#      nobody drives D→L via a stiff runtime force.
+#   2. L and D have identical FF energies in isolation; packing already
+#      picks L in a folded protein. A stiff bias fights physics on the
+#      rare cases where minimize genuinely prefers D (which is the wrong
+#      moment to force convergence — the input needs fixing).
+#   3. The Cartesian gradient of a dihedral has two singular denominators
+#      (1/|b1×b2|², 1/|b2×b3|²). Any degeneracy in either produces NaN
+#      forces, tripping ``minimizeEnergy``'s startup guard even on
+#      inputs that would otherwise minimize fine.
+# Reflection (``fix_ca_chirality``) plus the iterative post-minimize
+# check-reflect-re-minimize loop in ``minimize/pipeline.py`` covers all
+# realistic cases without the numerical fragility.

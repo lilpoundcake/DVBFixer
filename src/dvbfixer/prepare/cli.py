@@ -46,6 +46,48 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     io.add_argument("--dat", help="Restraint data file path (default: <output>.dat)")
 
     ff = p.add_argument_group("Force field / pH")
+    ff.add_argument("--atom-naming", choices=["gromacs", "standard"],
+                    default="gromacs",
+                    help="Atom-naming convention for the output PDB. "
+                         "'gromacs' (default): GROMACS amber99sb-ildn "
+                         "shifts (HB3→HB1 keeping HB2, HZ3→HZ1 on LYN, "
+                         "O/OXT→OC2/OC1, H→HN for CHARMM). 'standard': "
+                         "IUPAC/AMBER-native names (HB2/HB3, HZ1/HZ2/HZ3, "
+                         "O/OXT, plain H).")
+    ff.add_argument("--propka", action=argparse.BooleanOptionalAction,
+                    default=True,
+                    help="Run PROPKA3 for pKa-driven AMBER variant "
+                         "renames (ASH/GLH/HIP/CYM/LYN/CYX). Default ON. "
+                         "Pass --no-propka to skip; variants then come "
+                         "from --mutate + input HD1/HE2 atoms only "
+                         "(0.7.5/0.7.6 behaviour).")
+    ff.add_argument("--protassign", action=argparse.BooleanOptionalAction,
+                    default=True,
+                    help="Run MolProbity Reduce for HIS tautomer "
+                         "(HID vs HIE) + ASN/GLN flip detection. "
+                         "Default ON.")
+    ff.add_argument("--his-default", choices=["HIE", "HID"], default="HIE",
+                    help="Default HIS tautomer when PROPKA says neutral "
+                         "AND Reduce didn't place either HD1 or HE2 "
+                         "(rare — deprotonated HIS). Default: HIE.")
+    ff.add_argument("--cys-ss-pka", type=float, default=99.99,
+                    help="PROPKA pKa threshold above which CYS is "
+                         "assumed to be in a disulfide bond and renamed "
+                         "to CYX (default: 99.99, matching PROPKA's sentinel). "
+                         "Explicit CONECT-detected SS pairs override PROPKA regardless.")
+    ff.add_argument("--backend", choices=["tleap-reduce", "legacy"],
+                    default="legacy",
+                    help="Prep backend. 'legacy' (default): PDBFixer + "
+                         "Modeller.addHydrogens; handles glycans, ligands, "
+                         "heterogens and covalent-HETATM links. The chirality "
+                         "invariant is enforced by minimize's post-phase-2 "
+                         "unconditional force-reflect (0.7.4+), so legacy "
+                         "prep's D-Cα risk is neutralised downstream. "
+                         "'tleap-reduce': opt-in deterministic AmberTools + "
+                         "MolProbity pipeline (tleap for heavy atoms, reduce "
+                         "for H). Pure-protein only — rejects non-canonical "
+                         "residues. Use when you specifically want L-only "
+                         "heavy atoms produced by tleap itself.")
     ff.add_argument("--ph", type=float, default=DEFAULT_PH,
                     help=f"pH for adding hydrogens (default: {DEFAULT_PH})")
     ff.add_argument("--ff", nargs="+", default=["auto"],

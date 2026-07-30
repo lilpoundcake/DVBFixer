@@ -6,18 +6,21 @@
 
 ```
 usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
-                    [--parametrize-ligands] [--skip-renumber] [--skip-model]
-                    [--skip-prepare] [--skip-minimize] [--skip-protonate]
-                    [--fasta FASTA] [--no-terminal] [--num-loops NUM_LOOPS]
+                    [--atom-naming {gromacs,standard}] [--parametrize-ligands]
+                    [--skip-renumber] [--skip-model] [--skip-prepare]
+                    [--skip-minimize] [--skip-protonate] [--fasta FASTA]
+                    [--no-terminal] [--num-loops NUM_LOOPS]
                     [--md-level {none,fast,slow,very_slow,slow_large}]
                     [--num-output NUM_OUTPUT] [--pin-input | --no-pin-input]
-                    [--strip-heterogens] [--no-heterogen-h]
-                    [--mutate CHAIN:RESNUM:NEW_AA] [--rename] [--no-solvent]
-                    [--rebuild-h] [--restraint-k RESTRAINT_K]
-                    [--max-iter MAX_ITER] [--refine {none,xtb,obminimize}]
+                    [--strip-heterogens] [--backend {tleap-reduce,legacy}]
+                    [--no-heterogen-h] [--mutate CHAIN:RESNUM:NEW_AA]
+                    [--rename] [--no-solvent] [--rebuild-h]
+                    [--restraint-k RESTRAINT_K] [--max-iter MAX_ITER]
+                    [--refine {none,xtb,obminimize}]
                     [--refine-heterogens-only] [--no-propka] [--no-protassign]
+                    [--his-default {HIE,HID}] [--cys-ss-pka CYS_SS_PKA]
                     [--keep-water] [--no-infer-conect] [--keep-interim]
-                    [--align-to-input | --no-align-to-input]
+                    [--dry-run] [--align-to-input | --no-align-to-input]
                     [--platform {CPU,CUDA,OpenCL,Reference}] [-v]
                     input
 
@@ -29,8 +32,7 @@ options:
 
 Input / output:
   input                 Input PDB file (must contain SEQRES)
-  -o OUTPUT, --output OUTPUT
-                        Final output PDB file (default: <input>_zbs.pdb)
+  -o, --output OUTPUT   Final output PDB file (default: <input>_zbs.pdb)
 
 Force field:
   --ph PH               pH for protonation and hydrogen addition (default:
@@ -40,6 +42,12 @@ Force field:
                         amber+glycam, charmm, ...) or an explicit list of
                         OpenMM XML paths. Default: 'auto'. See docs/force-
                         fields.md.
+  --atom-naming {gromacs,standard}
+                        Atom-naming convention for the final output PDB.
+                        'gromacs' (default): rewrite atom names to GROMACS
+                        amber99sb-ildn conventions (HB3→HB1, HZ3→HZ1 on LYN,
+                        O→OC2, OXT→OC1). 'standard': keep IUPAC/AMBER-native
+                        names. Propagated to prepare + minimize.
   --parametrize-ligands
                         Forward --parametrize-ligands to both minimize passes
                         (GAFF2 + AM1-BCC for unknown ligands via antechamber).
@@ -50,7 +58,11 @@ Pipeline skip flags:
   --skip-model          Skip the model step
   --skip-prepare        Skip the prepare step
   --skip-minimize       Skip the minimize step
-  --skip-protonate      Skip the protonate step
+  --skip-protonate      [deprecated] The protonate step no longer runs as a
+                        separate pipeline stage — PROPKA + Reduce are
+                        integrated into prepare (0.7.7+). Kept for backward
+                        compat: mapped to `--no-propka --no-protassign` on
+                        prepare.
 
 Model step (Modeller):
   --fasta FASTA         FASTA file with complete sequence(s) for model step
@@ -74,6 +86,14 @@ Prepare step:
   --strip-heterogens    Strip heterogens before processing (protein-only
                         pipeline). Default: keep heterogens through prepare
                         and minimize the whole system.
+  --backend {tleap-reduce,legacy}
+                        Prep backend, forwarded to prepare. 'legacy'
+                        (default): PDBFixer + Modeller.addHydrogens; handles
+                        glycans, ligands, heterogens and covalent-HETATM
+                        links. 'tleap-reduce': opt-in deterministic AmberTools
+                        + MolProbity pipeline (tleap for heavy atoms, reduce
+                        for H). Pure-protein only — rejects non-canonical
+                        residues and is incompatible with --mutate.
   --no-heterogen-h      Skip hydrogen addition for heterogens in prepare
                         (default: add H to heterogens BioLuminate-style).
   --mutate CHAIN:RESNUM:NEW_AA
@@ -99,15 +119,22 @@ Minimize step (OpenMM):
                         backbone frozen). Only meaningful with --refine !=
                         none.
 
-Protonate step:
-  --no-propka           Skip PROPKA3 in the protonate step. Reduce
-                        (--protassign) becomes the only source of HIS tautomer
-                        picks and ASN/GLN flip detection. Combining --no-
-                        propka with --no-protassign is an error.
+Protonation (PROPKA + Reduce, inside prepare):
+  --no-propka           Skip PROPKA3 during prepare. Reduce (--protassign)
+                        becomes the only source of HIS tautomer picks and
+                        ASN/GLN flip detection. Combining --no-propka with
+                        --no-protassign leaves variants=[--mutate only] — no
+                        pKa-driven ASH/GLH/HIP/LYN/CYM in output.
   --no-protassign       Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip
-                        detection) in protonate. Default: run Reduce, matches
-                        standalone `dvbfixer protonate` default since Jun
-                        2026.
+                        detection) during prepare. Default: run Reduce.
+  --his-default {HIE,HID}
+                        Default HIS tautomer when PROPKA says neutral AND
+                        Reduce didn't place either HD1 or HE2. Default: HIE.
+  --cys-ss-pka CYS_SS_PKA
+                        PROPKA pKa threshold above which CYS is assumed to be
+                        in a disulfide bond and renamed to CYX (default:
+                        99.99, matching PROPKA's sentinel). Explicit CONECT-
+                        detected SS pairs override PROPKA regardless.
 
 Pipeline behaviour:
   --keep-water          Keep water molecules in output (default: remove)
@@ -117,6 +144,9 @@ Pipeline behaviour:
                         coordinates.
   --keep-interim        Keep all intermediate files (default: only final
                         output)
+  --dry-run             Print the planned pipeline steps + output filenames
+                        without running anything. Useful when many skip flags
+                        are in play.
   --align-to-input, --no-align-to-input
                         After every pipeline step, Kabsch-align the output
                         back to the ORIGINAL input on protein backbone atoms.

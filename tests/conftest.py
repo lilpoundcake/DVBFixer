@@ -75,6 +75,116 @@ def trastuzumab_dir() -> Path:
     return _fixture_or_skip(FIXTURES_ROOT / "trastuzumab")
 
 
+@pytest.fixture(scope="session")
+def shit_dir() -> Path:
+    """Curated set of raw PDBs that historically broke the zbs pipeline
+    (coincident-atom H's from Modeller, chirality oscillation, etc.).
+    Used by the ``@pytest.mark.slow`` end-to-end regression suite."""
+    return _fixture_or_skip(FIXTURES_ROOT / "shit")
+
+
+# ---------------------------------------------------------------------------
+# Input-class fixtures for the comprehensive integration matrix (0.7.5+).
+# Each returns a specific PDB or directory representing one input class.
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def pure_protein_small() -> Path:
+    """Small pure-protein PDB — smoke fixture for prepare/minimize/protonate."""
+    return _fixture_or_skip(FIXTURES_ROOT / "default.pdb")
+
+
+@pytest.fixture(scope="session")
+def pure_protein_antibody() -> Path:
+    """Full antibody (heavy + light chains, Kabat numbering)."""
+    return _fixture_or_skip(FIXTURES_ROOT / "1HZH.pdb")
+
+
+@pytest.fixture(scope="session")
+def glycoprot_stress() -> Path:
+    """Glycoprotein stress-test PDB — trastuzumab with N-glycans on
+    the Fc region. Exercises the ASN → NLN + sugar-tree paths."""
+    return _fixture_or_skip(FIXTURES_ROOT / "shit" / "trastuzumab.pdb")
+
+
+@pytest.fixture(scope="session")
+def glycoprot_amber_glycam_dir() -> Path:
+    """Glycoprotein with GLYCAM-canonical residue names (NLN + linkage
+    codes like 0YB/4YB/VMA). Ready-to-load by AMBER+GLYCAM FF."""
+    return _fixture_or_skip(FIXTURES_ROOT / "glycosilated_mAb_Amber_Glycam")
+
+
+@pytest.fixture(scope="session")
+def glycoprot_charmm_gui_dir() -> Path:
+    """Glycoprotein with CHARMM-GUI 4-char residue names (BGLC, BMAN,
+    etc.). Exercises the convert-to-glycam path."""
+    return _fixture_or_skip(FIXTURES_ROOT / "glycosilated_mAb_Charmm-GUI")
+
+
+@pytest.fixture(scope="session")
+def ss_bonded_antibody() -> Path:
+    """1DQJ antibody with 12 disulfide bonds — SS-preservation regression."""
+    return _fixture_or_skip(FIXTURES_ROOT / "shit" / "1DQJ_original.pdb")
+
+
+@pytest.fixture(scope="session")
+def donor_pdb() -> Path:
+    """Transplant donor PDB."""
+    return _fixture_or_skip(FIXTURES_ROOT / "donor.pdb")
+
+
+@pytest.fixture(scope="session")
+def shit_broken_geom_pdbs() -> list[Path]:
+    """The four historically-broken PDBs used by test_zbs_shit_inputs."""
+    names = ("1EMV_original.pdb", "1FR2_original.pdb",
+             "2VLN_original.pdb", "2VLQ_original.pdb")
+    return [_fixture_or_skip(FIXTURES_ROOT / "shit" / n) for n in names]
+
+
+# ---------------------------------------------------------------------------
+# Helpers used by integration tests.
+# ---------------------------------------------------------------------------
+
+
+def count_d_ca_residues(pdb_path: Path) -> int:
+    """Return the number of D-Cα residues in a PDB file. Zero means the
+    chirality invariant is satisfied — this is what every dvbfixer
+    output is REQUIRED to guarantee after minimize's force-reflect."""
+    from openmm.app import PDBFile
+
+    from dvbfixer.ffutils.geometry import find_d_residues
+    pdb = PDBFile(str(pdb_path))
+    return len(find_d_residues(pdb.topology, pdb.positions))
+
+
+def count_ss_bonds(pdb_path: Path) -> int:
+    """Count SG-SG bonds in the loaded topology."""
+    from openmm.app import PDBFile
+    pdb = PDBFile(str(pdb_path))
+    return sum(1 for b in pdb.topology.bonds()
+               if b[0].name == "SG" and b[1].name == "SG")
+
+
+def count_residues_by_name(pdb_path: Path, names: set[str]) -> int:
+    """Count residues whose name is in ``names``."""
+    from openmm.app import PDBFile
+    pdb = PDBFile(str(pdb_path))
+    return sum(1 for r in pdb.topology.residues() if r.name in names)
+
+
+_SUGAR_NAMES = frozenset({
+    "BGL", "BGC", "GLC", "GAL", "BGA", "MAN", "AMA", "BMA",
+    "NAG", "NDG", "NGA", "A2G", "FUC", "FUL", "AFU", "SIA",
+    "BGLC", "AGLC", "BMAN", "AMAN", "BGAL", "AGAL", "BFUC", "AFUC",
+    "BGLCNA", "AGLCNA",
+})
+
+_AMBER_VARIANT_NAMES = frozenset({
+    "HID", "HIE", "HIP", "ASH", "GLH", "CYX", "CYM", "LYN",
+})
+
+
 @pytest.fixture()
 def tmp_workdir(tmp_path: Path) -> Path:
     """Per-test scratch dir with a stable name inside pytest's tmp_path."""

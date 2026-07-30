@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dvbfixer"
-version = "0.7.0"
+version = "0.7.8"
 description = "PDB structure preparation tools: chain splitting, renumbering, loop modeling, fixing, minimization, protonation, topology generation, molecule transplanting"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "numpy",
     "scipy",
@@ -80,6 +80,9 @@ disallow_untyped_defs = true
 minversion = "7.0"
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
+markers = [
+    "slow: end-to-end pipeline tests (minutes each) — opt-in via -m slow",
+]
 filterwarnings = [
     "ignore::DeprecationWarning:MDAnalysis",
     "ignore::DeprecationWarning:Bio",

@@ -8,7 +8,294 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
-## [Unreleased]
+## [0.7.8] — 2026-07-30
+
+### Fixed
+
+- **`environment.yml` / `pyproject.toml` now cap Python at `<3.14`.**
+  Previously only documented (see below) — the actual dependency
+  pins were still unbounded (`python >=3.11`), so a fresh env/install
+  could still resolve Python 3.14 and hit the propka crash. Both now
+  pin `>=3.11,<3.14`.
+
+- **Spurious duplicate disulfide (SG-SG) bonds crashing `minimize`.**
+  OpenMM's own `PDBFile.__init__` unconditionally calls
+  `Topology.createDisulfideBonds()` on every load, and
+  `PDBFixer.addMissingAtoms()` does the same internally on rebuild —
+  both are pure distance-cutoff scans with no 1:1 matching. On
+  structures where several CYS SG atoms sit close together (e.g. two
+  chain copies whose N-termini pack near each other), this gives one
+  SG atom two or three "partners", and `createSystem` then fails with
+  `No template found for residue N (CYS) ... has 1 S atom too many`.
+  Fixed at two levels: `pdbutils.inference.infer_conect_records` now
+  runs a centralized dedup (`_dedupe_ss_bonds`) across every bond
+  source (OpenBabel, the distance fallback, and `_domain_overrides`),
+  preferring pairs already in the file's own CONECT records and
+  resolving the rest by greedy nearest-distance 1:1 matching; and
+  `minimize.pipeline._drop_spurious_inter_aa_bonds` gained the same
+  resolution (a `positions`-driven nearest-match pass right after the
+  initial `PDBFile` load, plus a `valid_ss_pairs` snapshot-and-restore
+  around the strip-and-readd branch's `PDBFixer.addMissingAtoms()`
+  rebuild) so the correct pairing survives every subsequent rebuild.
+
+- **`add_glycam_bonds` never established the protein→sugar
+  glycosylation bond** (ND2 on ASN/NLN, OG on SER/OLS, OG1 on
+  THR/OLT, distance-matched to a sugar's anomeric carbon) — only
+  `pdbutils.inference`'s file-level CONECT inference did, and
+  `prepare`'s own `PDBFixer.addMissingAtoms()` rebuild doesn't trust
+  on-disk CONECT for non-heterogen-only bonds, so the glycosidic
+  linkage silently vanished before `minimize` ever saw it, and
+  NLN/OLS/OLT's forcefield template failed to match
+  ("missing 1 N/O atom. Is the chain missing a terminal capping
+  group?"). `add_glycam_bonds` now also detects and adds this bond.
+
+- **`minimize`'s strip-and-readd `addHydrogens` had no fallback** for
+  a heterogen whose template genuinely can't match the input geometry
+  (e.g. a glycosylation site with no sugar close enough to link to in
+  this specific structure) — it would crash the whole run instead of
+  degrading gracefully. Now mirrors `prepare`'s existing "falling
+  back to protein-only" pattern: on `ValueError`, retry
+  `addHydrogens` without a `forcefield` argument (plain geometric H
+  placement, no `createSystem`/template matching), matching the
+  resilience `prepare` already had.
+
+- **`prepare`'s `_restore_variants` corrupted TER records.** It
+  processes `ATOM `/`HETATM`/`TER   ` lines alike when rewriting a
+  residue's variant name, but unconditionally hardcoded the output
+  record type as `"ATOM  "` — so a TER line whose chain/resid matched
+  a variant override (e.g. a C-terminal CYX) got rewritten into a
+  malformed, coordinate-less `ATOM` line
+  (`ATOM   3251      CYX L 214`, no atom name, no coordinates),
+  which later crashed `minimize`'s strict `PDBFile` parser with
+  `ValueError: could not convert string to float: ''`. Now preserves
+  the original record type.
+
+- **`protonate`'s `--cys-disulfide-pka` was still at the pre-0.7.7
+  default (90.0)** — commit c6cebb0 fixed the equivalent `--cys-ss-pka`
+  default to `99.99` (PROPKA's actual disulfide sentinel) on
+  `prepare`/`zbs`/`prep_backend`, but never touched `protonate`'s own,
+  differently-named flag. Now `99.99` there too.
+
+- **Test fixture (`tests/conftest.py` / `test_zbs_e2e.py`) glycan-count
+  assertion didn't recognise GLYCAM-canonical sugar residue codes**
+  (`0fA`, `2MA`, `4YB`, `VMB`, `UYB`, ...) — only PDB-standard names
+  (`BMA`, `NAG`, ...). `amber+glycam` intentionally renames sugars to
+  GLYCAM canonical form, so the assertion now also checks
+  `ffutils.is_glycam_sugar`.
+
+### Added
+
+- **`zbs --backend {legacy,tleap-reduce}`.** `prepare` and `protonate`
+  already exposed this; `zbs` silently hardcoded `legacy` and had no
+  way to reach `tleap-reduce`. Threaded through to the internal
+  `prepare` invocation, with the same `--mutate` incompatibility
+  guard `prepare` already enforces.
+
+### Documented (carried over from Unreleased)
+
+- **propka 3.5.1 × Python 3.14 incompatibility.** propka reads
+  `self.__annotations__` (instance-level) inside its `Parameters`
+  dataclass; Python 3.14's PEP 649/749 lazy-annotations change makes
+  instance `__annotations__` raise `AttributeError` instead of falling
+  through to the class dict, crashing `dvbfixer protonate` (and the
+  PROPKA step inside `prepare` / `zbs`) at
+  `propka.parameters.parse_line` with
+  `AttributeError: 'Parameters' object has no attribute '__annotations__'`.
+  `environment.yml` / `pyproject.toml` pin `python >=3.11,<3.14` to
+  keep the env on 3.12/3.13 where propka works — do not loosen it.
+  Documented in [CLAUDE.md](../CLAUDE.md) and
+  [docs/known-issues.md](known-issues.md).
+
+- **micromamba env creation fails on macOS Docker host bind mounts.**
+  When `MAMBA_ROOT_PREFIX` lives under a host bind mount such as
+  `/home/agent` (a `fakeowner` / VirtioFS bind of macOS `/Users`),
+  `micromamba create` aborts during `Linking 'ncurses'` with
+  `filesystem error: cannot copy symlink: Invalid argument` on the
+  case-variant terminfo pair `share/terminfo/32/2621A` vs `2621a`.
+  The mount is case-insensitive and rejects libmamba's `copy_symlink`
+  for these case-colliding entries; `always_copy` / `--copy` do not
+  help (copy mode still recreates in-package symlinks rather than
+  dereferencing them), and no micromamba flag dereferences or skips
+  them. Workaround: create the env + package cache on the container's
+  native overlay filesystem (`export MAMBA_ROOT_PREFIX=/opt/mamba`).
+  Documented in [docs/known-issues.md](known-issues.md) and
+  [docs/installation.md](installation.md).
+
+## [0.7.7] — 2026-07
+
+### Added
+
+- **PROPKA + MolProbity Reduce now run INSIDE legacy prepare.**
+  Prior to 0.7.7 the default pipeline (`dvbfixer prepare` /
+  `dvbfixer zbs`) built its `Modeller.addHydrogens(variants=[...])`
+  list only from user `--mutate` overrides + HIS HD1/HE2 presence.
+  Neither PROPKA nor Reduce was invoked, so pKa-driven ASH / GLH /
+  HIP / LYN / CYM variants and per-residue HIS tautomer picks
+  never appeared in output. Only the opt-in `--backend tleap-reduce`
+  ran them. Fixed via new helper
+  `dvbfixer.prepare.pipeline._run_propka_reduce_variants` which
+  mirrors the tleap-reduce backend's PROPKA-decide + Reduce-tautomer
+  overlay logic (fixed in 0.7.4) and is called by
+  `dvbfixer.prepare` before addHydrogens. PROPKA drives ASP/GLU/
+  LYS/CYS/HIS→HIP; Reduce fills in HID vs HIE for neutral HIS; user
+  `--mutate` overrides win on collision; CONECT-detected SS pairs
+  force CYX regardless of PROPKA's CYS pKa.
+
+- **New CLI flags on `prepare` and `zbs`**:
+  - `--propka / --no-propka` (default: on).
+  - `--protassign / --no-protassign` (default: on).
+  - `--his-default {HIE,HID}` (default: HIE) — fallback tautomer
+    when both PROPKA and Reduce are ambiguous.
+  - `--cys-ss-pka` (default: 8.0) — PROPKA pKa cutoff for CYX.
+
+  zbs propagates the flags to prepare.
+
+- New tests `tests/test_prepare_propka_integration.py` (6 tests).
+
+### Changed
+
+- **`zbs` docstring** updated: "renumber → model → prepare
+  (with PROPKA + Reduce) → minimize". The stale "protonate step"
+  language from pre-0.7.0 finally removed.
+
+- **`--skip-protonate` on zbs is deprecated**. Kept for backward
+  compat: now maps to `--no-propka --no-protassign` on prepare
+  (with a stderr warning). Standalone `dvbfixer protonate` command
+  is unchanged and can still be used as a post-hoc re-protonation
+  tool (e.g. to switch pH on an already-prepared PDB).
+
+## [0.7.6] — 2026-07
+
+### Changed
+
+- **`detect_ff_from_pdb` no longer surrenders on PDB-standard sugars.**
+  Previously an input with IUPAC/PDB sugar codes (BGL / BMA / AMA /
+  NAG / …) fell back to `amber` with a WARNING telling the user to
+  run `dvbfixer convert` manually first. Now returns `amber+glycam`
+  with a reason string; downstream prepare + minimize invoke
+  `convert_to_glycam` under the hood so the tool Just Works on
+  downloaded RCSB glycoproteins.
+
+- **`zbs` no longer force-overrides minimize `--ff` to
+  `amber14-all.xml`.** Previously when the user passed `--ff auto`,
+  zbs auto-detected the FF for prepare but forced minimize back to
+  plain `amber14`, breaking glycoprotein pipelines. Now the same
+  `--ff` value flows to both steps; each runs its own auto-detection
+  independently.
+
+### Added
+
+- **CHARMM + PDB-sugars hybrid path.** When `--ff charmm` is
+  requested (or auto-selected) AND the input has PDB-standard sugar
+  names `charmm36.xml` can't parametrise, prepare + minimize
+  process the run under `amber+glycam` (which has sugar templates)
+  and rewrite output residue names to CHARMM convention (`BGLCNA`,
+  `BMAN`, …) via `convert_to_charmm` after the pipeline completes.
+  Coordinates and topology unchanged; only sugar residue names
+  differ between amber and charmm output.
+
+- **`--atom-naming {gromacs,standard}` CLI flag** on `prepare`,
+  `minimize`, `protonate`, and `zbs`. Default `gromacs` preserves
+  the current behaviour (GROMACS amber99sb-ildn shifts: HB3→HB1
+  keeping HB2, HZ3→HZ1 on LYN, O/OXT→OC2/OC1, H→HN for CHARMM).
+  Pass `standard` to keep IUPAC/AMBER-native names (HB2/HB3,
+  HZ1/HZ2/HZ3, O/OXT, plain H) — matches ff14SB / VMD / most PDB
+  downloaders.
+
+- New helper `dvbfixer.ffutils.has_pdb_standard_sugars(pdb_path)`
+  — text-level scan for the auto-convert trigger.
+
+- New tests `tests/test_ff_auto_detect_sugar.py` covering
+  auto-detect on glycoproteins, amber→amber+glycam upgrade, and
+  the has_pdb_standard_sugars helper.
+
+## [0.7.5] — 2026-07
+
+### Changed
+
+- **Default prep backend flipped from `tleap-reduce` back to `legacy`
+  (Modeller+PDBFixer).** The tleap-reduce backend hard-fails on
+  glycoproteins, ligands, PTMs, and any covalent-HETATM input
+  (tleap has no template for those). Legacy prep handles them via
+  the existing `build_glycam_system` + `--parametrize-ligands`
+  paths. The chirality invariant that motivated the switch
+  originally is now enforced downstream in
+  `minimize/pipeline.py`'s post-phase-2 unconditional force-reflect
+  fallback (added in 0.7.4), which is prep-backend-agnostic — so
+  legacy prep's PDBFixer.addMissingAtoms D-Cα risk is neutralised
+  where it matters. Applies to `prepare`, `protonate`, and
+  transitively to `zbs`. `tleap-reduce` remains fully functional
+  via explicit `--backend tleap-reduce` for pure-protein inputs.
+
+### Added
+
+- Comprehensive integration test suite covering every subcommand
+  (except `homology`) against real PDB inputs across the input
+  classes dvbfixer supports: pure protein, antibody, glycoprotein,
+  protein+ligand, multi-MODEL, and the curated `test/shit/`
+  regression set.
+
+## [0.7.4] — 2026-07
+
+### Fixed
+
+- **PROPKA-driven variant assignment on the tleap+reduce backend was
+  broken end-to-end.** The 0.7.3 code stuffed
+  `propka_dict[(chain, resnum)] = (restype, pka)` and iterated the PDB.
+  PROPKA emits multiple `Group` records per residue (side-chain
+  acid/base + terminal N+/C-), so last-write-wins silently clobbered
+  side-chain pKas with terminal pKas — ASH/GLH/LYN were correct only
+  when PROPKA's iteration order happened to land the right entry
+  last. HIS→HIP was NEVER assigned because HIP was inferred from
+  HD1+HE2 atom presence, but `reduce -build` picks a single tautomer.
+  Rewrote to route through `dvbfixer.protonate.decide_protonation`
+  (group-type-filtered, `(chain, resnum, icode)`-keyed) then overlay
+  Reduce's HID/HIE tautomer for neutral HIS. `_patch_variant_hydrogens`
+  gained an HIP branch that places the missing imidazole H. Deleted
+  dead `_STD_PKA` and `_classify_variant`.
+
+- **AMBER variant residue names silently broke minimize.** OpenMM's
+  `PDBFile._standardResidues` set covers only the 20 canonical AAs;
+  LYN/ASH/GLH/CYX/CYM/HID/HIE/HIP load with zero intra-residue bonds
+  → `createSystem` fails "no bonds between its atoms". Additionally
+  `Modeller.addHydrogens` copies input bonds but does NOT rebuild
+  missing ones from templates, and only ADDS missing H, never
+  REMOVES extras. Fix in `minimize/pipeline.py`:
+  1. `text_rename_variants_to_parent` runs BEFORE `PDBFile.load` so
+     OpenMM infers proper intra-residue bonds from parent templates.
+  2. When `amber_renames` is non-empty, force strip-H + variant-aware
+     addHydrogens rebuild.
+  3. Cap the pH passed to `addHydrogens` at 9.99 to bypass the
+     `hydrogens.xml` `maxph="10.0"` HZ3 gate that broke terminal LYS
+     at high pH.
+  4. `pdbutils/inference.py::_apply_filter` keeps intra-residue
+     bonds for variant-named residues in emitted CONECT.
+
+- **Disulfide bonds dropped during minimize.**
+  `_drop_spurious_inter_aa_bonds` treated every inter-residue bond
+  between two protein residues that wasn't a C-N peptide bond as
+  spurious. After `text_rename_variants_to_parent` folded CYX → CYS,
+  SG-SG disulfides were between two "CYS"-named residues → dropped.
+  Added an SG-SG exception for the CYS family (CYS/CYX/CYM).
+
+- **D-Cα residues occasionally survived minimize.** The prior
+  WARN-only design left D residues in the output when the FF's local
+  minimum for a residue genuinely sat on the D side (rare, exotic
+  packing). Replaced with two-tier enforcement:
+  1. Bounded reflect-and-re-minimize loop (max 3 iterations).
+  2. If any residue is still D after the loop, do a final
+     unconditional `fix_ca_chirality` reflection and skip any
+     follow-up minimize. Since `fix_ca_chirality` mirrors the whole
+     sidechain through the CA-N-C plane, all internal bond lengths
+     and angles are preserved (CA-CB ≈ 0.154 nm, CB-HB ≈ 0.109 nm);
+     only CB's position relative to backbone neighbours changes. The
+     chirality invariant is now non-negotiable: zero D-Cα in output.
+
+### Added
+
+- `tests/test_prep_backend_variants.py` — 16 focused tests for the
+  PROPKA + variant-H paths, covering ASH, GLH, LYN, HIP, HID, HIE,
+  CYX-from-SS, terminal skip.
 
 ## [0.7.0] — 2026-07
 

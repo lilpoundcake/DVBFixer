@@ -331,22 +331,30 @@ def check_ca_chirality(topology: Any, positions: Any) -> list[Finding]:
         )
         triple = cross[0] * vcb[0] + cross[1] * vcb[1] + cross[2] * vcb[2]
         # L-amino acid: triple > 0. D-amino acid: triple < 0.
-        # Use a small deadband around zero to avoid false positives on
-        # marginal geometry.
-        if triple < -1e-4:
-            chain, resid = _res_loc(res)
-            findings.append(Finding(
-                severity=Severity.ERROR,
-                category="chirality",
-                chain=chain,
-                resid=resid,
-                resname=res.name,
-                atom="CA",
-                message=f"D-amino acid Cα stereochemistry "
-                        f"(triple product (N×C)·CB = {triple:.4f} nm³; "
-                        f"L requires positive)",
-                fix_hint="manual: rebuild the residue with correct L stereo",
-            ))
+        # Deadband -1e-6 nm³ ≈ -1e-3 Å³ matches ``fix_ca_chirality``.
+        if triple >= -1e-6:
+            continue
+        # Near-degeneracy gate: |cross|² / (|vn|²·|vc|²) is sin²(angle
+        # between N-CA and C-CA). Below 0.01 the plane is ill-defined
+        # and the sign of the triple is dominated by numerical noise.
+        norm2 = cross[0] ** 2 + cross[1] ** 2 + cross[2] ** 2
+        vn_norm2 = vn[0] ** 2 + vn[1] ** 2 + vn[2] ** 2
+        vc_norm2 = vc[0] ** 2 + vc[1] ** 2 + vc[2] ** 2
+        if norm2 < 1e-18 or norm2 < 0.01 * vn_norm2 * vc_norm2:
+            continue
+        chain, resid = _res_loc(res)
+        findings.append(Finding(
+            severity=Severity.ERROR,
+            category="chirality",
+            chain=chain,
+            resid=resid,
+            resname=res.name,
+            atom="CA",
+            message=f"D-amino acid Cα stereochemistry "
+                    f"(triple product (N×C)·CB = {triple:.5f} nm³; "
+                    f"L requires positive)",
+            fix_hint="manual: rebuild the residue with correct L stereo",
+        ))
     return findings
 
 

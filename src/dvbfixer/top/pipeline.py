@@ -600,6 +600,17 @@ def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False)
         else:
             ff = ForceField('amber14-all.xml', 'amber14/tip3pfb.xml')
         modeller.addHydrogens(ff, variants=variants)
+        # Post-addHydrogens guards: PDBFixer's addMissingAtoms just
+        # above can rebuild sidechains with D-Cα; reflect them before
+        # extracting the protonation H set.
+        from dvbfixer.ffutils.geometry import (
+            fix_ca_chirality,
+            repair_misplaced_hydrogens,
+        )
+        repair_misplaced_hydrogens(modeller.topology, modeller.positions,
+                                    verbose=verbose)
+        fix_ca_chirality(modeller.topology, modeller.positions,
+                          verbose=verbose)
 
         # Extract only the specific protonation H atoms we need
         added = 0

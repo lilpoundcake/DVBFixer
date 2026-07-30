@@ -102,6 +102,188 @@ _VARIANT_TO_STANDARD = {
 }
 
 
+def _run_propka_reduce_variants(
+    pdb_path,
+    ph: float,
+    ss_pairs: set | None,
+    his_default: str = "HIE",
+    cys_ss_pka: float = 99.99,
+    use_propka: bool = True,
+    use_reduce: bool = True,
+    verbose: bool = False,
+) -> dict:
+    """Run PROPKA + MolProbity Reduce on ``pdb_path`` and return a
+    variant map ``{(chain, resid, icode): variant}`` for use by
+    ``Modeller.addHydrogens(variants=[...])``.
+
+    Mirrors the PROPKA-decide + Reduce-tautomer-overlay dance that
+    ``prep_backend.run_prep`` uses for the tleap-reduce backend
+    (fixed in 0.7.4). PROPKA drives ASP/ASH, GLU/GLH, LYS/LYN,
+    CYS/CYM/CYX, and HIS/HIP; Reduce fills in HID vs HIE for the
+    neutral HIS residues PROPKA said were neutral. SS pairs override
+    to CYX (CONECT-detected SS wins over PROPKA's CYM).
+
+    Returns the merged variant map (empty dict if PROPKA and Reduce
+    were both skipped).
+    """
+    from pathlib import Path
+    variant_map: dict[tuple, str] = {}
+
+    # 1. PROPKA → variant map keyed by (chain, resnum, icode).
+    n_pka = 0
+    if use_propka:
+        try:
+            from dvbfixer.protonate import (
+                decide_protonation,
+                get_pka_results,
+                run_propka,
+            )
+            pka_results = get_pka_results(run_propka(str(pdb_path)))
+            n_pka = len(pka_results)
+            propka_map = decide_protonation(
+                pka_results, ph, his_default=his_default,
+                cys_ss_pka=cys_ss_pka,
+            )
+            for key, variant in propka_map.items():
+                variant_map[key] = variant
+        except Exception as e:
+            print(f"  [prep] PROPKA skipped ({e}); variants from Reduce "
+                  f"+ SS only.")
+
+    # 2. Reduce → HID/HIE tautomer per HIS residue.
+    #    Run on a temp copy where all HIS variants are collapsed to HIS
+    #    (Reduce -build only decides tautomer for residues named HIS).
+    reduce_his: dict[tuple, str] = {}
+    if use_reduce:
+        import tempfile as _tf
+
+        from dvbfixer.prep_backend import (
+            _infer_his_tautomers_from_atoms,
+            _rename_all_his_variants_to_his,
+            _strip_hydrogens,
+            run_reduce,
+        )
+        _wd = _tf.mkdtemp(prefix='dvbfixer_reduce_')
+        try:
+            _step1 = Path(_wd) / 'no_h.pdb'
+            _step2 = Path(_wd) / 'his_flat.pdb'
+            _step3 = Path(_wd) / 'reduced.pdb'
+            _strip_hydrogens(Path(pdb_path), _step1)
+            import shutil as _sh
+            _sh.copy(_step1, _step2)
+            _rename_all_his_variants_to_his(_step2)
+            run_reduce(_step2, _step3, build=True, nuclear=True,
+                       verbose=verbose)
+            reduce_his = _infer_his_tautomers_from_atoms(_step3)
+        except Exception as e:
+            print(f"  [prep] Reduce skipped ({e}); HIS tautomers from "
+                  f"input H atoms only.")
+        finally:
+            import shutil as _sh
+            _sh.rmtree(_wd, ignore_errors=True)
+
+    # 3. Overlay Reduce's HID/HIE choice under PROPKA's HIP decision.
+    #    PROPKA HIP wins (charge state) — Reduce only fills in tautomer
+    #    for neutral HIS.
+    for key, tautomer in reduce_his.items():
+        current = variant_map.get(key)
+        if current == "HIP":
+            continue  # PROPKA charged, Reduce can't override.
+        if tautomer in ("HID", "HIE", "HIP"):
+            variant_map[key] = tautomer
+
+    # 4. SS-bond overlay — CONECT-detected pairs force CYX regardless
+    #    of PROPKA's CYS/CYM decision.
+    ss = ss_pairs or set()
+    if ss:
+        # Scan the PDB text to find CYS atoms and pick up their icodes.
+        text = Path(pdb_path).read_text()
+        seen_cys: set = set()
+        for raw in text.splitlines():
+            if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+                continue
+            if raw[17:20].strip() not in ("CYS", "CYX", "CYM"):
+                continue
+            chain = raw[21]
+            try:
+                resseq = int(raw[22:26].strip())
+            except ValueError:
+                continue
+            icode = raw[26].strip()
+            key = (chain, resseq, icode)
+            if key in seen_cys:
+                continue
+            seen_cys.add(key)
+            if (chain, resseq) in ss:
+                variant_map[key] = "CYX"
+
+    # 5. Activity summary.
+    by_kind: dict[str, int] = {}
+    for name in variant_map.values():
+        by_kind[name] = by_kind.get(name, 0) + 1
+    by_kind_str = (", ".join(f"{k}={v}" for k, v in sorted(by_kind.items()))
+                   if by_kind else "none")
+    print(f"  [prep] PROPKA + Reduce: {n_pka} titratable pKas scanned, "
+          f"{len(variant_map)} residues renamed ({by_kind_str}); "
+          f"{len(ss)} SS-bonded CYS.")
+
+    return variant_map
+
+
+
+
+def _warn_covalent_heterogen_bonds(pdb_path, verbose=False):
+    """Scan CONECT records for bonds between an ATOM (protein) and a
+    HETATM (heterogen). Emit a WARNING per covalent link so the user
+    sees they're about to break a glycosylation site, ligand attachment,
+    or PTM by using ``--strip-heterogens``.
+    """
+    # Build atom index → (record, chain, resname, resseq, atomname)
+    atom_kind: dict[int, tuple[str, str, str, str, str]] = {}
+    try:
+        text = Path(pdb_path).read_text()
+    except Exception:
+        return
+    for raw in text.splitlines():
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            continue
+        try:
+            serial = int(raw[6:11].strip())
+        except ValueError:
+            continue
+        atom_kind[serial] = (
+            raw[:6].strip(), raw[21], raw[17:20].strip(),
+            raw[22:26].strip(), raw[12:16].strip(),
+        )
+    covalent_hits: list[tuple] = []
+    for raw in text.splitlines():
+        if not raw.startswith("CONECT"):
+            continue
+        try:
+            serials = [int(s) for s in raw[6:].split() if s]
+        except ValueError:
+            continue
+        if len(serials) < 2:
+            continue
+        a = serials[0]
+        rec_a = atom_kind.get(a)
+        if rec_a is None:
+            continue
+        for b in serials[1:]:
+            rec_b = atom_kind.get(b)
+            if rec_b is None:
+                continue
+            if rec_a[0] == rec_b[0]:
+                continue  # same class — ATOM-ATOM or HETATM-HETATM
+            covalent_hits.append((rec_a, rec_b))
+    if covalent_hits:
+        print(f"  [strip-heterogens] WARNING: dropping {len(covalent_hits)} "
+              f"covalent ATOM↔HETATM bond(s). Downstream MD will miss "
+              f"these attachments. Pass --keep-heterogens to preserve.")
+        if verbose:
+            for a, b in covalent_hits[:10]:
+                print(f"    {a[0]} {a[1]}/{a[2]}{a[3]}:{a[4]} → "
+                      f"{b[0]} {b[1]}/{b[2]}{b[3]}:{b[4]}")
 
 
 def _preprocess_glycoprotein_input(input_path, verbose=False):
@@ -153,8 +335,13 @@ def _canonicalize_conect_records(input_path, verbose=False):
 
 def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                  mutations=None, heterogen_h=True, removed_residues_meta=None,
-                 ff_xmls=None):
-    """Run PDBFixer to add missing atoms/residues. Returns (fixer, new_atom_indices)."""
+                 ff_xmls=None, extra_variants=None):
+    """Run PDBFixer to add missing atoms/residues. Returns (fixer, new_atom_indices).
+
+    ``extra_variants`` is an optional ``{(chain, resid_str, icode): variant}``
+    map (typically from PROPKA + Reduce). Merged with user-supplied
+    ``--mutate`` overrides such that user entries win on collision.
+    """
     # Glycoprotein-input fixes: rewrite HETATM→ATOM for protein/GLYCAM
     # glycoprotein residues (NLN/OLS/OLT) and drop spurious TER records
     # between same-chain protein residues. Both confuse OpenMM's topology
@@ -387,6 +574,7 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     print(f"PDBFixer: {n_missing_res} missing residues, {n_missing_atoms} residues with missing atoms")
 
     if not keep_heterogens:
+        _warn_covalent_heterogen_bonds(input_path, verbose=verbose)
         fixer.removeHeterogens(keepWater=keep_water)
 
     fixer.replaceNonstandardResidues()
@@ -409,13 +597,33 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     # OpenMM variant names: 'HIE', 'HID', 'HIP' for HIS; 'ASH' for ASP;
     # 'GLH' for GLU; 'CYX' for CYS (disulfide). None = auto-detect by pH.
     _OPENMM_VARIANTS = {'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYX', 'LYN'}
+
+    # Merge PROPKA + Reduce output (extra_variants, 3-tuple keys) with
+    # user --mutate overrides (variant_overrides, 2-tuple keys). User
+    # entries win on collision — matches .dat schema "downstream wins".
+    merged_variants: dict[tuple, str] = {}
+    if extra_variants:
+        for (ch, rn, ic), var in extra_variants.items():
+            merged_variants[(ch, str(rn), ic or '')] = var
+    for (ch, rn), var in variant_overrides.items():
+        # Normalise to 3-tuple with empty icode; user overrides win.
+        merged_variants[(ch, str(rn), '')] = var
+    # Also expose a 2-tuple view for downstream code that still uses
+    # ``variant_overrides`` (e.g. .dat variant_overrides serialization).
+    for (ch, rn, ic), var in merged_variants.items():
+        variant_overrides[(ch, rn)] = var
+
     variants = []
     for res in fixer.topology.residues():
-        key = (res.chain.id, res.id)
-        if key in variant_overrides and variant_overrides[key] in _OPENMM_VARIANTS:
-            variants.append(variant_overrides[key])
+        _ic = res.insertionCode.strip() if hasattr(res, 'insertionCode') else ''
+        key3 = (res.chain.id, str(res.id), _ic)
+        key2 = (res.chain.id, str(res.id))
+        _var = merged_variants.get(key3) or merged_variants.get(
+            (res.chain.id, str(res.id), ''))
+        if _var and _var in _OPENMM_VARIANTS:
+            variants.append(_var)
             if verbose:
-                print(f"  {res.name} {res.chain.id}:{res.id} → variant {variant_overrides[key]}")
+                print(f"  {res.name} {res.chain.id}:{res.id} → variant {_var}")
         elif res.name == 'HIS':
             # Detect from existing H atoms (if any survived stripping)
             atom_names = {a.name for a in res.atoms()}
@@ -592,6 +800,126 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
 # Main
 # ---------------------------------------------------------------------------
 
+def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
+    """Deterministic prep pipeline via `dvbfixer.prep_backend.run_prep`
+    (tleap + reduce + PROPKA-driven variant renames).
+
+    Handles the simple case: protein + standard AAs + no heterogens.
+    If the input has non-canonical residues tleap rejects, raises
+    ``TleapError`` with the offending residue in the message; user
+    should retry with ``--backend legacy`` or supply the missing
+    leaprc via a future ``--extra-leaprc`` flag.
+    """
+    from dvbfixer.acpype_export import detect_ss_bonds
+    from dvbfixer.ffutils.dat import DatRecord
+    from dvbfixer.ffutils.ff_names import apply_variants_to_pdb_text
+    from dvbfixer.ffutils.geometry import find_d_residues
+    from dvbfixer.prep_backend import TleapError, run_prep
+
+    # SS bond detection from CONECT (drives CYX assignment).
+    try:
+        ss_res = detect_ss_bonds(str(input_path))
+    except Exception:
+        ss_res = set()
+
+    if args.mutate:
+        print("ERROR: --mutate is not yet supported by the tleap-reduce "
+              "backend. Rerun with --backend legacy for mutations.",
+              file=sys.stderr)
+        sys.exit(2)
+
+    print(f"=== prep (tleap + reduce): {input_path} ===")
+    try:
+        result = run_prep(
+            input_path, output_path,
+            ph=args.ph, ff="leaprc.protein.ff19SB",
+            assign_variants=True, ss_pairs=ss_res,
+            verbose=args.verbose,
+        )
+    except TleapError as e:
+        print(f"\nERROR: tleap failed on {input_path}. This usually means "
+              f"a non-canonical residue (GLYCAM sugar, phosphorylated AA, "
+              f"exotic ligand) that ff14SB doesn't know. Rerun with "
+              f"--backend legacy for the PDBFixer+Modeller path which "
+              f"handles more edge cases.\n{e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Chirality check — WARN only, don't raise. Modeller upstream can
+    # produce a D-Cα that tleap preserves; downstream minimize catches
+    # + reflects. Raising here would abort the zbs pipeline before
+    # minimize has a chance.
+    from openmm.app import PDBFile
+    _pdb = PDBFile(str(output_path))
+    _d = find_d_residues(_pdb.topology, _pdb.positions)
+    if _d:
+        print(f"  WARNING: {len(_d)} D-Cα residue(s) after prepare "
+              f"(minimize should catch): "
+              + ", ".join(f"{c}/{n}{r}" for c, r, n, _ in _d[:5]))
+
+    # Note: intentionally NOT calling apply_variants_to_pdb_text here.
+    # That helper renames terminals to GROMACS conventions (OXT→OC1,
+    # O→OC2) which breaks OpenMM's ff19SB CLYS/CGLU/CGLN templates.
+    # Run apply_variants_to_pdb_text later in the pipeline (top / final
+    # export) when GROMACS naming is actually wanted.
+    _ = apply_variants_to_pdb_text  # noqa: F841 — kept import for future GROMACS export
+
+    # Emit .dat file. tleap adds heavy atoms deterministically, but we
+    # don't have a per-atom "was this added" flag from tleap. Simplest
+    # correct approach: consider ALL H atoms + any heavy atoms not
+    # present in the original input as "added" (weak restraint in
+    # minimize). Match by (chain, resseq, icode, atom name).
+    orig_keys: set[tuple[str, str, str, str]] = set()
+    for raw in input_path.read_text().splitlines():
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            continue
+        orig_keys.add((raw[21], raw[22:26].strip(),
+                       raw[26].strip(), raw[12:16].strip()))
+    added_atoms = []
+    residue_summary: dict[str, dict[str, int]] = {}
+    for raw in output_path.read_text().splitlines():
+        if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
+            continue
+        chain = raw[21]
+        resseq = raw[22:26].strip()
+        icode = raw[26].strip()
+        atom_name = raw[12:16].strip()
+        resname = raw[17:20].strip()
+        elem = raw[76:78].strip() if len(raw) >= 78 else ""
+        key = (chain, resseq, icode, atom_name)
+        # Hydrogens are always "added" (input was pre-existing, tleap
+        # re-placed all H); heavy atoms only added if not in input.
+        is_h = elem == "H" or (not elem and atom_name and atom_name[0] == "H")
+        if is_h or key not in orig_keys:
+            added_atoms.append({
+                "chain": chain, "resid": resseq, "icode": icode,
+                "resname": resname, "atom": atom_name,
+                "element": elem or ("H" if is_h else atom_name[0]),
+            })
+            rkey = f"{chain}/{resname}{resseq}"
+            bucket = residue_summary.setdefault(
+                rkey, {"heavy": 0, "hydrogen": 0}
+            )
+            if is_h:
+                bucket["hydrogen"] += 1
+            else:
+                bucket["heavy"] += 1
+
+    dat = DatRecord(
+        description="Deterministic prep via tleap+reduce. Hydrogens and "
+                    "any tleap-added heavy atoms (OXT, missing sidechain) "
+                    "get weak restraints in minimize; original heavy "
+                    "atoms get strong restraints.",
+        added_atoms=added_atoms,
+        residue_summary=residue_summary,
+        variant_overrides={f"{c}:{r}{i}" if i else f"{c}:{r}": v
+                            for (c, r, i), v in result["renames"].items()},
+    )
+    dat.save(dat_path)
+    print(f"Saved prepared structure: {output_path}")
+    print(f"Saved restraint data: {dat_path} "
+          f"({len(added_atoms)} added atoms)")
+
+
 def main(argv=None):
     args = parse_args(argv)
     input_path = Path(args.input)
@@ -601,6 +929,18 @@ def main(argv=None):
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prepared")
     dat_path = Path(args.dat) if args.dat else output_path.with_suffix(".dat")
+
+    # Deterministic backend: tleap (heavy atoms) + reduce (H). This is the
+    # default. Skips the entire legacy PDBFixer.addMissingAtoms +
+    # Modeller.addHydrogens code path — both had upstream bugs (stochastic
+    # D-Cα from PDBFixer, coincident H atoms from Modeller) that we
+    # exhausted several rounds of workarounds on. See prep_backend.py
+    # docstring for the diagnosis. Legacy backend is still selectable via
+    # --backend legacy for GLYCAM glycoproteins / exotic heterogens tleap
+    # rejects.
+    if getattr(args, "backend", "legacy") == "tleap-reduce":
+        return _main_tleap_reduce_backend(args, input_path, output_path,
+                                           dat_path)
 
     # Auto-infer CONECT records into a temp PDB copy so downstream flows
     # (glycosylation detection, mutation glycan walk, SS detection) work on
@@ -612,9 +952,52 @@ def main(argv=None):
 
     # Resolve --ff for the heterogen-H step. Only prints when heterogen-H
     # actually runs; auto-detects from residue names.
-    from dvbfixer.ffutils import print_ff_selection, resolve_ff
+    from dvbfixer.ffutils import (
+        has_pdb_standard_sugars,
+        print_ff_selection,
+        resolve_ff,
+    )
     _ff_xmls, _ff_alias, _ff_reason = resolve_ff(
         args.ff, input_path, verbose=args.verbose)
+
+    # Two coordinated auto-transforms driven by the resolved FF alias:
+    # (a) amber+glycam on a PDB-named glycoprotein → convert PDB sugar
+    #     names to GLYCAM canonical naming so the FF templates match.
+    # (b) charmm on a PDB-named glycoprotein → process the run under
+    #     amber+glycam (which has sugar templates), then rewrite the
+    #     final output to CHARMM sugar names post-hoc. Record the
+    #     original request so the post-run rewrite can find it.
+    _charmm_output_requested = False
+    if _ff_alias == 'charmm' and has_pdb_standard_sugars(input_path):
+        print("  [ff] charmm requested but input has PDB-standard "
+              "sugars charmm36.xml can't parametrise; processing "
+              "with amber+glycam and rewriting output residue names "
+              "to CHARMM convention.")
+        _charmm_output_requested = True
+        from dvbfixer.ffutils import FF_ALIASES
+        _ff_alias = 'amber+glycam'
+        _ff_xmls = FF_ALIASES['amber+glycam']
+        _ff_reason = (
+            'auto-switched from charmm (PDB sugars need GLYCAM); '
+            'output residue names will be rewritten back to CHARMM'
+        )
+
+    if _ff_alias == 'amber+glycam' and has_pdb_standard_sugars(input_path):
+        import tempfile as _tf
+
+        from dvbfixer.glycam import convert_to_glycam
+        _conv_out = _tf.mktemp(suffix='.pdb', prefix='dvbfixer_glycam_')
+        try:
+            convert_to_glycam(str(input_path), _conv_out,
+                              add_roh=True, verbose=args.verbose)
+            print("  [ff] auto-converted PDB-standard sugar names → "
+                  "GLYCAM canonical for amber+glycam FF matching.")
+            input_path = Path(_conv_out)
+        except Exception as e:
+            print(f"  [ff] convert_to_glycam failed ({e}); continuing "
+                  f"with original names — createSystem may fail on "
+                  f"unrecognised sugar residues.")
+
     if args.heterogen_h:
         print_ff_selection(_ff_alias, _ff_reason, _ff_xmls)
 
@@ -676,12 +1059,35 @@ def main(argv=None):
             )
             input_path = deletion_path
 
+    # PROPKA + Reduce → variant map. Runs on the (possibly
+    # mutation-cleaned + GLYCAM-converted) input path; result is passed
+    # into run_pdbfixer as extra_variants and merged with any
+    # --mutate-supplied overrides there.
+    _propka_variants: dict = {}
+    if getattr(args, 'propka', True) or getattr(args, 'protassign', True):
+        try:
+            from dvbfixer.acpype_export import detect_ss_bonds
+            _ss = detect_ss_bonds(str(input_path))
+        except Exception:
+            _ss = set()
+        _propka_variants = _run_propka_reduce_variants(
+            input_path,
+            ph=args.ph,
+            ss_pairs=_ss,
+            his_default=getattr(args, 'his_default', 'HIE'),
+            cys_ss_pka=getattr(args, 'cys_ss_pka', 99.99),
+            use_propka=getattr(args, 'propka', True),
+            use_reduce=getattr(args, 'protassign', True),
+            verbose=args.verbose,
+        )
+
     print(f"=== PDBFixer: {input_path} ===")
     fixer, new_atom_indices, variant_overrides = run_pdbfixer(
         input_path, args.ph, args.keep_water, args.keep_heterogens, args.verbose,
         mutations=args.mutate, heterogen_h=args.heterogen_h,
         removed_residues_meta=removed_residues_meta,
         ff_xmls=_ff_xmls,
+        extra_variants=_propka_variants,
     )
 
     # Write PDB with standard names first (OpenMM writes HETATM for non-standard)
@@ -705,7 +1111,13 @@ def main(argv=None):
                     rs = line[22:26].strip()
                     var = var_lookup.get((ch, rs))
                     if var:
-                        line = f"ATOM  {line[6:17]}{var:>3s}{line[20:]}"
+                        # Preserve the original record type (ATOM/HETATM/TER)
+                        # — hardcoding "ATOM  " here used to corrupt TER
+                        # lines (which have no atom-name or coordinate
+                        # fields) into malformed, coordinate-less ATOM
+                        # records whenever the terminal residue itself had
+                        # a variant override (e.g. a C-terminal CYX).
+                        line = f"{line[:17]}{var:>3s}{line[20:]}"
                 f.write(line)
 
     _restore_variants(output_path)
@@ -801,9 +1213,32 @@ def main(argv=None):
     _n_var = apply_variants_to_pdb_text(
         output_path, _merged_variants,
         target_ff=_ff_target, verbose=args.verbose,
+        include_gromacs_shifts=(getattr(args, 'atom_naming', 'gromacs')
+                                 == 'gromacs'),
     )
     if _n_var and args.verbose:
         print(f"  Applied {_n_var} variant name/atom rewrites to output")
+
+    # CHARMM output was requested but the pipeline ran under
+    # amber+glycam (because the input had PDB-standard sugars).
+    # Rewrite sugar residue names GLYCAM → CHARMM so the output
+    # matches what the user asked for at the CLI. Coordinates and
+    # topology unchanged; only sugar residue names are affected.
+    if _charmm_output_requested:
+        import tempfile as _tf
+
+        from dvbfixer.glycam import convert_to_charmm
+        _tmp = _tf.mktemp(suffix='.pdb', prefix='dvbfixer_charmm_out_')
+        try:
+            convert_to_charmm(str(output_path), _tmp, verbose=args.verbose)
+            import shutil as _sh
+            _sh.move(_tmp, str(output_path))
+            print("  [ff] rewrote sugar residue names GLYCAM → CHARMM "
+                  "for output (user asked for --ff charmm).")
+        except Exception as e:
+            print(f"  [ff] convert_to_charmm on output failed ({e}); "
+                  f"output has GLYCAM sugar names — run "
+                  f"`dvbfixer convert --to-charmm` manually.")
 
     print(f"Saved prepared structure: {output_path}")
 

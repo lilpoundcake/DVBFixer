@@ -420,6 +420,66 @@ def _fix_terminal_alignment(raw_aln_path, fixed_aln_path, pdb_name,
         for i in range(0, len(fixed_tgt_seq), 75):
             f.write(fixed_tgt_seq[i:i + 75] + '\n')
 
+def _add_chirality_restraints(model, verbose: bool = False) -> tuple[int, int]:
+    """Add an improper Gaussian restraint on CA-N-C-CB to every non-GLY
+    residue of a Modeller ``LoopModel``/``AutoModel`` instance.
+
+    Target mean +34° (L configuration), stdev 5°. The dihedral atom
+    order CA-N-C-CB matches the AMBER canonical Cβ chirality improper —
+    L geometry gives θ ≈ +34°, D gives θ ≈ -34°. A previous revision
+    used (N, CA, C, CB) which measures a DIFFERENT dihedral (L ≈ -126°,
+    D ≈ +145°) — with mean=+34° the restraint was actually pulling
+    residues TOWARDS D. Fixed 2026-07-24 after the 1FR2 zbs output
+    surfaced 40+ D residues per chain.
+
+    Returns ``(n_added, n_skipped)``. Missing atoms (e.g. BLK residues
+    or targets without CB in the alignment) are skipped silently.
+    """
+    import math
+
+    from modeller import features, forms, physical
+
+    n_added = 0
+    n_skipped = 0
+    for res in model.residues:
+        try:
+            resname = getattr(res, 'pdb_name', None) or getattr(res, 'name', '')
+        except Exception:
+            resname = ''
+        if resname == 'GLY':
+            n_skipped += 1
+            continue
+        try:
+            n_atom = res.atoms['N']
+            ca = res.atoms['CA']
+            c = res.atoms['C']
+            cb = res.atoms['CB']
+        except (KeyError, IndexError, AttributeError):
+            n_skipped += 1
+            continue
+        try:
+            # Atom order CA-N-C-CB — AMBER canonical Cβ chirality
+            # improper convention (L ≈ +34°, D ≈ -34°).
+            # stdev=2° is tight: energy penalty at ±34° from mean
+            # (i.e. at planar 0°) is (34/2)²/2 = 144 pseudo-kcal/mol,
+            # enough to overwhelm any local packing preference for D.
+            # stdev=5° was insufficient — GLN85 on 2VLQ still flipped
+            # to D in ~1/3 of Modeller runs during 2026-07-24 testing.
+            model.restraints.add(forms.Gaussian(
+                group=physical.improper,
+                feature=features.Dihedral(ca, n_atom, c, cb),
+                mean=math.radians(34.0),
+                stdev=math.radians(2.0),
+            ))
+            n_added += 1
+        except Exception:
+            n_skipped += 1
+    if verbose:
+        print(f"[modeller] chirality restraints: {n_added} added, "
+              f"{n_skipped} skipped")
+    return n_added, n_skipped
+
+
 def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
     """Run Modeller loop modeling. Returns (best_model_path, alignment_path).
 
@@ -433,7 +493,19 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
     from modeller import automodel as am
     from modeller.automodel import LoopModel
 
-    class _PinnedLoopModel(LoopModel):
+    _verbose_restraints = bool(getattr(args, 'verbose', False))
+
+    class _LoopModelWithChirality(LoopModel):
+        """LoopModel with a Gaussian improper restraint on N-CA-C-CB for
+        every non-GLY residue (target +34°, stdev 5°). Prevents loop MD
+        refinement from settling into the D basin — the root cause of the
+        occasional D-Cα that survived to the ``model`` output before.
+        """
+        def special_restraints(self, aln):
+            super().special_restraints(aln)
+            _add_chirality_restraints(self, verbose=_verbose_restraints)
+
+    class _PinnedLoopModel(_LoopModelWithChirality):
         """LoopModel variant that lets ONLY gap residues move during
         loop refinement MD.
 
@@ -555,7 +627,8 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
         "slow_large": am.refine.slow_large,
     }
 
-    LoopModelCls = _PinnedLoopModel if getattr(args, 'pin_input', True) else LoopModel
+    LoopModelCls = (_PinnedLoopModel if getattr(args, 'pin_input', True)
+                    else _LoopModelWithChirality)
     a = LoopModelCls(env,
                      alnfile='alignment.pir',
                      knowns=pdb_name,
@@ -611,6 +684,39 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
         print("Warning: loop refinement failed, using initial model(s)")
     else:
         candidates_sorted = sorted(loop_models, key=lambda x: x['molpdf'])
+
+    # Post-make() Cα chirality sweep: even with the special_restraints
+    # improper term, a candidate can carry a residual D geometry if the
+    # residue was outside the loop-refinement selection (initial CG
+    # can leave marginal D at low weight). Reflect and rewrite each
+    # candidate PDB. Log any repair — with the restraint active this
+    # should be zero.
+    import numpy as _np
+    from openmm.app import PDBFile
+    from openmm.unit import Quantity, nanometer
+
+    from dvbfixer.ffutils.geometry import fix_ca_chirality
+    for c in candidates_sorted:
+        cand_path = c['name']
+        try:
+            _cand = PDBFile(cand_path)
+        except Exception:
+            continue
+        # Numpy-backed Quantity: fix_ca_chirality mutates via item
+        # assignment (supported), and PDBFile.writeFile's np.isnan
+        # guard passes regardless of the OpenMM version (older
+        # builds don't strip units before np.isnan).
+        _pos_arr = _np.array(
+            [list(_cand.positions[i].value_in_unit(nanometer))
+             for i in range(len(_cand.positions))],
+            dtype=float,
+        )
+        _pos = Quantity(_pos_arr, nanometer)
+        _n = fix_ca_chirality(_cand.topology, _pos, verbose=args.verbose)
+        if _n:
+            with open(cand_path, 'w') as _f:
+                PDBFile.writeFile(_cand.topology, _pos, _f, keepIds=True)
+            print(f"  [modeller] repaired {_n} D-Cα in {cand_path}")
 
     # Return a list of (path, molpdf) tuples sorted by molpdf ascending
     # (best first). Caller picks the top-N via --num-output.

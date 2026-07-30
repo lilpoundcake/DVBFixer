@@ -198,3 +198,128 @@ def test_residue_missing_cb_skipped() -> None:
     )
     repairs = fix_ca_chirality(top, pos)
     assert repairs == 0
+
+
+# ---------------------------------------------------------------------------
+# 0.7.1 defense-in-depth: ChiralityError, restraint, iterative loop
+# ---------------------------------------------------------------------------
+
+
+def _perturb_cb_to_target_triple(
+    target_triple_nm3: float,
+) -> tuple[Topology, Quantity, dict[str, int]]:
+    """Build a VAL fixture whose CB gives ``triple ≈ target_triple_nm3``.
+
+    Uses the standard N/CA/C backbone and picks CB on the negative z
+    side (D configuration) with |z| tuned so the triple lands at the
+    requested (typically small-negative) value. Useful for probing the
+    new -1e-6 deadband boundary.
+    """
+    # Backbone identical to the other tests.
+    n_pos = (-0.87, 1.21, 0.00)
+    ca_pos = (0.00, 0.00, 0.00)
+    c_pos = (1.44, 0.00, -0.20)
+    # Compute cross = (N-CA) × (C-CA) in nm³. Backbone in Å here, so
+    # divide by 10 when we go to nm at the end.
+    vn = tuple(a - b for a, b in zip(n_pos, ca_pos))
+    vc = tuple(a - b for a, b in zip(c_pos, ca_pos))
+    cross = (
+        vn[1] * vc[2] - vn[2] * vc[1],
+        vn[2] * vc[0] - vn[0] * vc[2],
+        vn[0] * vc[1] - vn[1] * vc[0],
+    )
+    # Want (cross · CB) in nm³ = target. cross has units of Å²; CB in
+    # Å too, so cross·CB in Å³ → * 1e-3 for nm³. Pick CB = (0,0,z).
+    # target_nm3 = (cross_z * z) * 1e-3 → z = target_nm3 * 1e3 / cross_z.
+    if abs(cross[2]) < 1e-12:
+        raise ValueError("degenerate backbone in fixture")
+    z = target_triple_nm3 * 1e3 / cross[2]
+    cb_pos = (0.0, 0.0, z)
+    return _make_residue("VAL", n_pos=n_pos, ca_pos=ca_pos, c_pos=c_pos,
+                         cb_pos=cb_pos)
+
+
+def test_marginal_d_caught_by_tightened_deadband() -> None:
+    """A CB perturbation that gives triple = -5e-5 nm³ (just past the
+    old -1e-4 threshold but well past the new -1e-6 one) must now be
+    detected and reflected."""
+    top, pos, ix = _perturb_cb_to_target_triple(-5e-5)
+    t_before = _triple(pos, ix)
+    assert -1e-4 < t_before < -1e-6, (
+        f"fixture triple {t_before} outside the marginal band"
+    )
+
+    repairs = fix_ca_chirality(top, pos)
+    assert repairs == 1, "marginal D was not caught by the tightened deadband"
+    assert _triple(pos, ix) > 0
+
+
+def test_assert_all_l_raises_on_d() -> None:
+    """assert_all_l raises ChiralityError with the offender listed."""
+    from dvbfixer.ffutils.geometry import ChiralityError, assert_all_l
+
+    top, pos, _ = _make_residue(
+        "VAL",
+        n_pos=(-0.87, 1.21, 0.00),
+        ca_pos=(0.00, 0.00, 0.00),
+        c_pos=(1.44, 0.00, -0.20),
+        cb_pos=(-0.86, -0.87, 0.87),   # D
+    )
+    with pytest.raises(ChiralityError) as excinfo:
+        assert_all_l(top, pos)
+    assert len(excinfo.value.residues) == 1
+    ch, rid, name, _tri = excinfo.value.residues[0]
+    assert ch == "A"
+    assert name == "VAL"
+
+
+def test_assert_all_l_passes_on_l() -> None:
+    """No exception on canonical L geometry."""
+    from dvbfixer.ffutils.geometry import assert_all_l
+
+    top, pos, _ = _make_residue(
+        "VAL",
+        n_pos=(-0.87, 1.21, 0.00),
+        ca_pos=(0.00, 0.00, 0.00),
+        c_pos=(1.44, 0.00, -0.20),
+        cb_pos=(-0.86, -0.87, -0.87),
+    )
+    assert_all_l(top, pos)  # must not raise
+
+
+def test_find_d_residues_lists_all() -> None:
+    """find_d_residues walks the whole topology, not just the first hit."""
+    from dvbfixer.ffutils.geometry import find_d_residues
+
+    top = Topology()
+    chain = top.addChain("A")
+    positions_nm: list[tuple[float, float, float]] = []
+    # 3 residues: L, D, L.
+    for i, cb_z in enumerate((-0.087, 0.087, -0.087)):
+        r = top.addResidue("VAL", chain)
+        for name, sym, p in (
+            ("N", "N", (-0.087, 0.121, 0.000)),
+            ("CA", "C", (0.000, 0.000, 0.000)),
+            ("C", "C", (0.144, 0.000, -0.020)),
+            ("CB", "C", (-0.086, -0.087, cb_z)),
+        ):
+            top.addAtom(name, Element.getBySymbol(sym), r)
+            # Shift each residue along x so atoms don't overlap
+            # (positional shift affects only presentation; triple is
+            # translation-invariant so the chirality signal survives).
+            positions_nm.append((p[0] + 2.0 * i, p[1], p[2]))
+        r.id = str(i + 1)
+    pos = Quantity(positions_nm, nanometer)
+
+    offenders = find_d_residues(top, pos)
+    assert len(offenders) == 1
+    assert offenders[0][1] == "2"
+
+
+# The three CustomTorsionForce-related tests
+# (test_improper_chirality_restraint_counts_torsions,
+#  test_improper_restraint_skips_degenerate_residues,
+#  test_chirality_restraint_minimize_pulls_d_to_l)
+# were removed alongside `improper_chirality_restraint` itself. Field
+# consensus is reflect-then-verify (no runtime harmonic force), and the
+# existing reflection tests above cover the shipping primitive.

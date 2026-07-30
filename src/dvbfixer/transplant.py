@@ -488,6 +488,16 @@ def _relax_structure(path, output_path, stages, verbose=False):
     Modeller.loadHydrogenDefinitions('glycam-hydrogens.xml')
     modeller = Modeller(topology, positions)
     modeller.addHydrogens(forcefield)
+    # Post-addHydrogens guards: re-place any coincident/misplaced H and
+    # reflect any D-Cα that PDBFixer template alignment might have
+    # produced upstream.
+    from dvbfixer.ffutils.geometry import (
+        fix_ca_chirality,
+        repair_misplaced_hydrogens,
+    )
+    repair_misplaced_hydrogens(modeller.topology, modeller.positions,
+                                verbose=verbose)
+    fix_ca_chirality(modeller.topology, modeller.positions, verbose=verbose)
     topology = modeller.topology
     positions = modeller.positions
     n_after = sum(1 for _ in topology.atoms())

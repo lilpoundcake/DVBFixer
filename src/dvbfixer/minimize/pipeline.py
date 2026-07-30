@@ -128,12 +128,37 @@ def _has_hydrogens(topology):
     return any(a.element.symbol == 'H' for a in topology.atoms())
 
 
-def _drop_spurious_inter_aa_bonds(topology, verbose=False):
+_CYS_NAMES = {"CYS", "CYX", "CYM"}
+
+
+def _collect_ss_pairs(topology):
+    """Return the set of (chain, resid) pairs currently SG-SG bonded.
+
+    Used to snapshot the true disulfide pairing before a PDBFixer
+    rebuild (which re-derives disulfides by distance and can introduce
+    spurious extras — see :func:`_drop_spurious_inter_aa_bonds`) so it
+    can be restored afterward.
+    """
+    pairs = set()
+    for b in topology.bonds():
+        if (b[0].name == "SG" and b[1].name == "SG"
+                and b[0].residue.name in _CYS_NAMES
+                and b[1].residue.name in _CYS_NAMES):
+            key = tuple(sorted([
+                (b[0].residue.chain.id, b[0].residue.id),
+                (b[1].residue.chain.id, b[1].residue.id),
+            ]))
+            pairs.add(key)
+    return pairs
+
+
+def _drop_spurious_inter_aa_bonds(topology, verbose=False, valid_ss_pairs=None,
+                                   positions=None):
     """Remove spurious bonds that break FF template matching.
 
-    Two classes of spurious bond both stem from over-eager CONECT
-    inference (OpenBabel guessing bonds by distance on real X-ray
-    coordinates):
+    Three classes of spurious bond, the first two stemming from
+    over-eager CONECT inference (OpenBabel guessing bonds by distance
+    on real X-ray coordinates):
 
     1. **Inter-residue non-peptide bonds** between two standard
        protein residues. Mirrors the filter in
@@ -143,15 +168,33 @@ def _drop_spurious_inter_aa_bonds(topology, verbose=False):
     2. **Hydrogens with more than one heavy-atom partner**. Every
        H can bond to exactly one atom; extra bonds violate valence
        and create the "1 C-O bond too many" template error.
+    3. **Extra SG-SG bonds beyond the true disulfide pairing.**
+       OpenMM's own ``PDBFile.__init__`` unconditionally calls
+       ``Topology.createDisulfideBonds()`` on every load (and
+       ``PDBFixer.addMissingAtoms()`` does the same internally on
+       rebuild) — a pure distance-cutoff scan with no 1:1 matching, so
+       tightly packed CYS clusters (e.g. two chain copies whose
+       N-termini sit close together) get every pairwise SG-SG contact
+       within cutoff, and template matching then fails with "N S
+       atom(s) too many" (a disulfide SG must have exactly one
+       external S bond). Resolved two ways: if ``valid_ss_pairs`` is
+       given (see :func:`_collect_ss_pairs`, snapshotted before a
+       rebuild that's known to reintroduce this), only pairs in that
+       set survive. Otherwise, if ``positions`` is given, resolve by
+       greedy nearest-distance 1:1 matching.
 
     Returns the number of bonds dropped.
     """
     from dvbfixer.ffutils import PROTEIN_RESIDUES
 
-    # Pass 1: classify inter-residue bonds.
+    # Pass 1: classify inter-residue bonds. SG-SG candidates are
+    # collected separately and resolved after the main pass (Pass 1.5)
+    # since disambiguating them may need to compare across all of them,
+    # not just decide bond-by-bond.
     all_bonds = list(topology.bonds())
     survivors = []
     dropped = []
+    ss_candidates = []
     for bond in all_bonds:
         b1 = bond[0]
         b2 = bond[1]
@@ -165,12 +208,57 @@ def _drop_spurious_inter_aa_bonds(topology, verbose=False):
             survivors.append(bond)
             continue
         # Canonical peptide bond between adjacent residues: C of prev
-        # residue to N of next. Anything else between two protein
-        # residues is spurious.
+        # residue to N of next. Keep.
         if {b1.name, b2.name} == {"C", "N"}:
             survivors.append(bond)
             continue
+        # Disulfide bond: SG-SG between two CYS-family residues (CYS/
+        # CYX/CYM). text_rename_variants_to_parent rewrote CYX → CYS
+        # before load, so both endpoints are CYS-named here even for
+        # user-annotated CYX pairs. Resolved in Pass 1.5 below.
+        if (b1.name == "SG" and b2.name == "SG"
+                and b1.residue.name in _CYS_NAMES
+                and b2.residue.name in _CYS_NAMES):
+            ss_candidates.append(bond)
+            continue
         dropped.append(bond)
+
+    # Pass 1.5: resolve SG-SG candidates to at most one partner per atom.
+    if len(ss_candidates) < 2:
+        survivors.extend(ss_candidates)
+    elif valid_ss_pairs is not None:
+        for bond in ss_candidates:
+            b1, b2 = bond[0], bond[1]
+            key = tuple(sorted([
+                (b1.residue.chain.id, b1.residue.id),
+                (b2.residue.chain.id, b2.residue.id),
+            ]))
+            if key in valid_ss_pairs:
+                survivors.append(bond)
+            else:
+                dropped.append(bond)
+    elif positions is not None:
+        from openmm.unit import nanometer as _nm
+
+        def _pos(atom):
+            return positions[atom.index].value_in_unit(_nm)
+
+        def _dist2(bond):
+            p1, p2 = _pos(bond[0]), _pos(bond[1])
+            return ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 + (p1[2]-p2[2])**2)
+
+        locked = set()
+        for bond in sorted(ss_candidates, key=_dist2):
+            b1, b2 = bond[0], bond[1]
+            if b1.index in locked or b2.index in locked:
+                dropped.append(bond)
+                continue
+            locked.add(b1.index)
+            locked.add(b2.index)
+            survivors.append(bond)
+    else:
+        # No way to disambiguate — keep everything (old behavior).
+        survivors.extend(ss_candidates)
 
     # Pass 2: hydrogen valence check. An H atom can bond to exactly
     # one heavy atom; extra bonds break residue-template matching
@@ -359,6 +447,18 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             extra_generators=getattr(args, '_ligand_generators', None),
             verbose=args.verbose,
         )
+        # Load glycam-hydrogens.xml so Modeller.addHydrogens (called below
+        # to re-place H on variant residues) can also (re)place H on the
+        # GLYCAM sugar + NLN/OLS/OLT residues. Without this, addHydrogens'
+        # internal createSystem fails on every sugar with "missing N H
+        # atoms" because the default hydrogens.xml has no GLYCAM entries.
+        # The build_glycam_system wrapper does this for prepare/protonate;
+        # minimize builds the FF directly so must load it here. Safe to
+        # call repeatedly (no-op if already loaded).
+        try:
+            Modeller.loadHydrogenDefinitions("glycam-hydrogens.xml")
+        except Exception:
+            pass
     else:
         forcefield = ForceField(*args.ff)
 
@@ -479,7 +579,21 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                     break
 
     # Default: keep existing hydrogens. --rebuild-h strips and re-adds via OpenMM.
-    keep_h = not args.rebuild_h
+    #
+    # When the input has AMBER protonation variants (LYN / ASH / GLH / CYX /
+    # CYM / HID / HIE / HIP), the topology loaded through PDBFile has
+    # already been text-renamed to parent names above so OpenMM inferred
+    # proper intra-residue bonds. But the ATOM SET may not match either
+    # the parent or variant template (e.g. LYN input is missing HZ1,
+    # ASH input has an extra HD2 that isn't in the ASP template).
+    # `Modeller.addHydrogens` with ``variants=[...]`` rebuilds each H set
+    # per variant template — but only if we strip existing H first, since
+    # it never REMOVES extra H atoms. Force the strip-and-rebuild path
+    # whenever variants are present.
+    keep_h = not args.rebuild_h and not amber_renames
+    if amber_renames and not args.rebuild_h:
+        print(f"  {len(amber_renames)} AMBER variant residue(s) present — "
+              f"stripping H and re-adding via variant templates")
     if keep_h:
         # Always run PDBFixer to detect and fix missing atoms (heavy + H).
         # Even in keep_h mode, mutated residues may have incomplete sidechains
@@ -519,9 +633,9 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
             try:
                 if variants:
-                    modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99), variants=variants)
                 else:
-                    modeller.addHydrogens(forcefield, pH=args.ph)
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99))
                 from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
                 repair_misplaced_hydrogens(
                     modeller.topology, modeller.positions, verbose=args.verbose,
@@ -535,9 +649,9 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
             try:
                 if variants:
-                    modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99), variants=variants)
                 else:
-                    modeller.addHydrogens(forcefield, pH=args.ph)
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99))
                 from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
                 repair_misplaced_hydrogens(
                     modeller.topology, modeller.positions, verbose=args.verbose,
@@ -581,10 +695,10 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                 _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
                 try:
                     if variants:
-                        modeller.addHydrogens(forcefield, pH=args.ph,
+                        modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99),
                                               variants=variants)
                     else:
-                        modeller.addHydrogens(forcefield, pH=args.ph)
+                        modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99))
                     from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
                     repair_misplaced_hydrogens(
                         modeller.topology, modeller.positions, verbose=args.verbose,
@@ -619,12 +733,39 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         n_terminals = sum(len(v) for v in _fixer.missingTerminals.values())
         if n_missing or n_terminals:
             print(f"Fixing {n_missing} missing atom(s), {n_terminals} terminal(s)")
+        # PDBFixer.addMissingAtoms() rebuilds the topology from scratch and
+        # re-derives disulfides via OpenMM's Topology.createDisulfideBonds()
+        # — a pure distance-cutoff scan with no 1:1 matching. On inputs
+        # where multiple CYS SG atoms sit close together (e.g. two chain
+        # copies whose N-termini pack near each other) this adds spurious
+        # extra SG-SG bonds on top of the real ones, and createSystem then
+        # fails with "N S atom(s) too many" for the CYX template. Capture
+        # the correct pairing (already established upstream by prepare's
+        # PROPKA+Reduce disulfide detection) before the rebuild so it can
+        # be restored after.
+        _true_ss_pairs = _collect_ss_pairs(modeller.topology)
         _fixer.addMissingAtoms()
         from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir
         _fix_chir(_fixer.topology, _fixer.positions, verbose=args.verbose)
         modeller = Modeller(_fixer.topology, _fixer.positions)
         # PDBFixer rebuilds bonds — re-drop spurious bonds before addHydrogens.
-        _drop_spurious_inter_aa_bonds(modeller.topology, verbose=args.verbose)
+        _drop_spurious_inter_aa_bonds(modeller.topology, verbose=args.verbose,
+                                       valid_ss_pairs=_true_ss_pairs)
+
+        # When keeping heterogens with GLYCAM, OpenMM's PDBFile doesn't infer
+        # intra-residue bonds for GLYCAM residues (NLN/OLS/OLT + sugars).
+        # add_glycam_bonds populates them from FF templates. MUST be called
+        # BEFORE addHydrogens so the topology is correct when hydrogens are
+        # placed. Also must be called BEFORE renaming GLYCAM residues, since
+        # add_glycam_bonds expects the original GLYCAM names.
+        if has_heterogens:
+            try:
+                from dvbfixer.acpype_export import add_glycam_bonds
+                add_glycam_bonds(modeller.topology, forcefield, args.verbose,
+                                  positions=modeller.positions)
+            except Exception as e:
+                if args.verbose:
+                    print(f"  add_glycam_bonds skipped: {e}")
 
         print(f"Adding hydrogens (pH {args.ph})...")
         variants = _build_variants(modeller.topology, amber_renames)
@@ -633,10 +774,29 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             print(f"  {n_var} AMBER protonation variants detected")
         _saved = _rename_variants_to_parent(modeller.topology, amber_renames)
         try:
-            if variants:
-                modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
-            else:
-                modeller.addHydrogens(forcefield, pH=args.ph)
+            try:
+                if variants:
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99), variants=variants)
+                else:
+                    modeller.addHydrogens(forcefield, pH=min(args.ph, 9.99))
+            except ValueError as e:
+                # Whole-topology addHydrogens can fail on a heterogen whose
+                # forcefield template requires an external bond (e.g. a
+                # glycosylated NLN/OLS/OLT) that geometry doesn't actually
+                # support in this input (no sugar close enough to link to).
+                # Mirrors prepare's identical fallback
+                # (prepare/pipeline.py's "falling back to protein-only"):
+                # retry without a forcefield — addHydrogens then does plain
+                # geometric H placement and skips createSystem/template
+                # matching entirely, so a template mismatch elsewhere can't
+                # abort the whole run.
+                print(f"  WARNING: whole-topology addHydrogens failed "
+                      f"({type(e).__name__}: {e}); falling back to "
+                      f"protein-only.")
+                if variants:
+                    modeller.addHydrogens(pH=min(args.ph, 9.99), variants=variants)
+                else:
+                    modeller.addHydrogens(pH=min(args.ph, 9.99))
             from dvbfixer.ffutils.geometry import repair_misplaced_hydrogens
             repair_misplaced_hydrogens(
                 modeller.topology, modeller.positions, verbose=args.verbose,
@@ -652,11 +812,22 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     # - rebuild_h: PDBFixer rebuild before H placement
     # - Input arriving from model/prepare/pull may already carry D
     # Idempotent: returns 0 when nothing is D.
-    from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir_final
+    from dvbfixer.ffutils.geometry import (
+        assert_all_l,
+    )
+    from dvbfixer.ffutils.geometry import (
+        fix_ca_chirality as _fix_chir_final,
+    )
     _chir_fixed = _fix_chir_final(modeller.topology, modeller.positions,
                                    verbose=args.verbose)
     if _chir_fixed and not args.verbose:
         print(f"  Repaired {_chir_fixed} Cα chirality inversion(s)")
+    # Reflection is deterministic: any non-degenerate D-CA becomes L
+    # after fix_ca_chirality, so assert_all_l here only fires when the
+    # geometry is genuinely degenerate (N-CA-C near-colinear) or when
+    # a new inversion was introduced by an earlier bug. Fail fast
+    # rather than build restraints against unfixable coords.
+    assert_all_l(modeller.topology, modeller.positions)
 
     # Drop any spurious inter-residue bond between two standard AAs that
     # isn't the canonical peptide C-N. CONECT inference or an upstream
@@ -669,18 +840,6 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     if _dropped:
         print(f"  Dropped {_dropped} spurious inter-residue bond(s) "
               f"before createSystem")
-
-    # When keeping heterogens with GLYCAM, OpenMM's PDBFile doesn't infer
-    # intra-residue bonds for GLYCAM residues (NLN/OLS/OLT + sugars).
-    # add_glycam_bonds populates them from FF templates.
-    if has_heterogens:
-        try:
-            from dvbfixer.acpype_export import add_glycam_bonds
-            add_glycam_bonds(modeller.topology, forcefield, args.verbose,
-                              positions=modeller.positions)
-        except Exception as e:
-            if args.verbose:
-                print(f"  add_glycam_bonds skipped: {e}")
 
     # Build residueTemplates for protein variants only (CYX, HIE/HID/HIP, LYN).
     # Avoids GLYCAM FF template ambiguity (e.g. CYS without HG matches both
@@ -831,6 +990,15 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     system.addForce(restraint)
     print(f"Restraints: {n_strong} strong (original), {n_weak} weak (new backbone), {n_free} free")
 
+    # Chirality is enforced *positionally* — reflect any D residue via
+    # ``fix_ca_chirality`` (already ran above at the safety net and
+    # asserted L via ``assert_all_l``) and re-verify in the iterative
+    # phase-2 loop below. NO CustomTorsionForce is added: field
+    # consensus (VMD/NAMD chirality plugin, pdb4amber, CHARMM-GUI) is
+    # reflect-then-minimize-then-verify; a stiff runtime bias would
+    # produce NaN forces on broken inputs and fight physics on the
+    # rare cases where reflection genuinely needs a second pass.
+
     integrator = LangevinMiddleIntegrator(300 * kelvin, 1.0 / picosecond, 0.002 * picosecond)
 
     if args.platform:
@@ -843,7 +1011,20 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     simulation.context.setPositions(modeller.positions)
 
     state = simulation.context.getState(getEnergy=True)
-    print(f"Energy before minimization: {state.getPotentialEnergy()}")
+    _e_pre = state.getPotentialEnergy()
+    print(f"Energy before minimization: {_e_pre}")
+    # Astronomical starting energy = severe atom clashes upstream
+    # (e.g. PDBFixer / addHydrogens put an atom at another's position).
+    # Warn early: no minimize configuration can recover from this and
+    # any additional force term risks NaN via double-precision overflow.
+    if _e_pre.value_in_unit(_e_pre.unit) > 1e10:
+        print(f"WARNING: pre-minimize energy is astronomically high "
+              f"({_e_pre}). The input has severe atom clashes "
+              f"(likely coincident atoms from the prepare step). Run "
+              f"`dvbfixer diagnose {args.input}` to identify the "
+              f"offending residue(s). minimize will attempt to proceed "
+              f"but may crash with an inf/NaN force at the first step.",
+              file=sys.stderr)
 
     # Phase 1: full restraints
     print(f"Minimizing (phase 1: {args.max_iter} iterations, original atoms restrained)...")
@@ -859,13 +1040,102 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         restraint.setParticleParameters(i, idx, [params[0] / 10.0, params[1], params[2], params[3]])
     restraint.updateParametersInContext(simulation.context)
 
+    # Phase 2 minimize with weakened restraints. Do NOT wrap this in an
+    # iterative reflect-and-re-minimize loop: reflecting a sidechain
+    # after minimize has equilibrated it swings CB across the CA-N-C
+    # plane by ~2 Å, which the weakened phase-2 restraints cannot
+    # recover from — resulting in CA-CB bonds stretched to 3 Å and
+    # neighbour-residue steric clashes. Reflection is safe only *before*
+    # OpenMM sees the geometry (prepare, and the pre-createSystem safety
+    # net at line 655), where the sidechain hasn't been equilibrated
+    # against its neighbours yet.
     simulation.minimizeEnergy(maxIterations=args.max_iter)
 
     state = simulation.context.getState(getEnergy=True, getPositions=True)
     print(f"Energy after phase 2: {state.getPotentialEnergy()}")
 
+    # Post-minimize chirality check + reflect-and-re-minimize loop.
+    # After phase-2 minimize, some residues may have drifted into D-Cα
+    # geometry (real FF energy minimum for that local packing). We
+    # reflect any D-Cα back to L via fix_ca_chirality and run a short
+    # follow-up minimize under the (already-weakened) phase-2 restraints
+    # so the reflected CB relaxes into a compatible position without
+    # swinging to 2 Å bond lengths. Bounded loop: at most a few
+    # iterations to keep runtime under control.
+    from dvbfixer.ffutils.geometry import find_d_residues, fix_ca_chirality
     min_topology = simulation.topology
     min_positions = state.getPositions()
+    for _reflect_iter in range(3):
+        offenders = find_d_residues(min_topology, min_positions)
+        if not offenders:
+            break
+        print(f"  {len(offenders)} residue(s) drifted into D-Cα during "
+              f"minimize (iter {_reflect_iter + 1}); reflecting and "
+              f"re-minimizing.", file=sys.stderr)
+        # Reflect in-place on a mutable list of Vec3.
+        pos_list = list(min_positions)
+        n_fixed = fix_ca_chirality(min_topology, pos_list,
+                                    verbose=args.verbose)
+        if not n_fixed:
+            # Reflect returned 0 — nothing repairable (all near-degenerate).
+            # Break to avoid an infinite loop.
+            break
+        simulation.context.setPositions(pos_list)
+        simulation.minimizeEnergy(maxIterations=max(200, args.max_iter // 4))
+        state = simulation.context.getState(getEnergy=True, getPositions=True)
+        min_positions = state.getPositions()
+        print(f"  Energy after reflect+re-minimize iter {_reflect_iter + 1}: "
+              f"{state.getPotentialEnergy()}", file=sys.stderr)
+    else:
+        # Loop exhausted without breaking → the FF's local minimum for
+        # these residues genuinely sits on the D side (rare, exotic
+        # packing). Chirality invariant is non-negotiable: reflect
+        # unconditionally and accept the small packing strain. Any
+        # downstream tool that cares can re-relax; we WILL NOT emit a D
+        # residue.
+        final_offenders = find_d_residues(min_topology, min_positions)
+        if final_offenders:
+            pos_list = list(min_positions)
+            n_forced = fix_ca_chirality(min_topology, pos_list,
+                                         verbose=args.verbose)
+            print(f"WARNING: {len(final_offenders)} residue(s) preferred "
+                  f"D-Cα geometry after 3 reflect+re-minimize iterations. "
+                  f"Forcing L via unconditional reflection (may leave "
+                  f"minor local strain — manual inspection recommended):",
+                  file=sys.stderr)
+            for ch, rid, name, tri in final_offenders[:20]:
+                print(f"  {ch}/{name}{rid}: triple={tri:+.5f} nm³",
+                      file=sys.stderr)
+            if len(final_offenders) > 20:
+                print(f"  ...and {len(final_offenders) - 20} more",
+                      file=sys.stderr)
+            if n_forced:
+                # Use the reflected positions AS-IS (no follow-up
+                # minimize). Any additional minimize would pull CB back
+                # to the FF's preferred D minimum, undoing the fix.
+                # Sidechain internal geometry is preserved by
+                # fix_ca_chirality (reflects the whole sidechain, not
+                # just CB), so bond lengths within the sidechain are
+                # unchanged; only CB's position relative to backbone
+                # neighbours changes.
+                # Round-trip through the simulation context so
+                # min_positions is a Quantity(list, unit) — the raw
+                # pos_list is list[Quantity] which trips PDBFile's
+                # np.isnan check downstream.
+                simulation.context.setPositions(pos_list)
+                min_positions = simulation.context.getState(
+                    getPositions=True,
+                ).getPositions()
+                # Verify.
+                still_d = find_d_residues(min_topology, min_positions)
+                if still_d:
+                    print(f"  {len(still_d)} residue(s) STILL D after "
+                          f"forced reflection — geometry near-degenerate "
+                          f"(fix_ca_chirality skipped them):",
+                          file=sys.stderr)
+                    for ch, rid, name, tri in still_d[:5]:
+                        print(f"    {ch}/{name}{rid}: triple={tri:+.5f} nm³",
+                              file=sys.stderr)
 
     # Restore non-protein residues with original coordinates (legacy path only).
     # When keep_heterogens is on, n_stripped==0 and we write the minimized topology directly.
@@ -953,9 +1223,50 @@ def main(argv=None):
             input_path, verbose=args.verbose))
 
     # Resolve --ff short-name / auto-detect from input residue names.
-    from dvbfixer.ffutils import print_ff_selection, resolve_ff
+    from dvbfixer.ffutils import (
+        FF_ALIASES,
+        has_pdb_standard_sugars,
+        print_ff_selection,
+        resolve_ff,
+    )
     args.ff, _ff_alias, _ff_reason = resolve_ff(
         args.ff, args.input, verbose=args.verbose)
+
+    # CHARMM + PDB-standard sugars: process under amber+glycam
+    # (charmm36.xml has no sugar templates); rewrite sugar residue
+    # names back to CHARMM convention post-run.
+    _charmm_output_requested = False
+    if _ff_alias == 'charmm' and has_pdb_standard_sugars(input_path):
+        print("  [ff] charmm requested but input has PDB-standard "
+              "sugars charmm36.xml can't parametrise; processing "
+              "with amber+glycam and rewriting output residue names "
+              "to CHARMM convention.")
+        _charmm_output_requested = True
+        _ff_alias = 'amber+glycam'
+        args.ff = FF_ALIASES['amber+glycam']
+        _ff_reason = (
+            'auto-switched from charmm (PDB sugars need GLYCAM); '
+            'output residue names will be rewritten back to CHARMM'
+        )
+
+    # amber+glycam + PDB-standard sugars: auto-convert to GLYCAM
+    # canonical naming so templates match.
+    if _ff_alias == 'amber+glycam' and has_pdb_standard_sugars(input_path):
+        import tempfile as _tf
+
+        from dvbfixer.glycam import convert_to_glycam
+        _conv_out = _tf.mktemp(suffix='.pdb', prefix='dvbfixer_glycam_')
+        try:
+            convert_to_glycam(str(input_path), _conv_out,
+                              add_roh=True, verbose=args.verbose)
+            print("  [ff] auto-converted PDB-standard sugar names → "
+                  "GLYCAM canonical for amber+glycam FF matching.")
+            input_path = Path(_conv_out)
+        except Exception as e:
+            print(f"  [ff] convert_to_glycam failed ({e}); continuing "
+                  f"with original names — createSystem may fail on "
+                  f"unrecognised sugar residues.")
+
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
     # .dat is optional: if --dat given, use it; otherwise auto-detect next
@@ -1007,9 +1318,39 @@ def main(argv=None):
     except Exception:
         pass
 
-    pdb = PDBFile(str(input_path))
+    # Pre-rename AMBER/CHARMM variant residue names to their standard
+    # parents in a temp copy BEFORE PDBFile parses the file. Rationale:
+    # OpenMM's `PDBFile._standardResidues` set covers only the 20
+    # canonical AAs, so variants (LYN / ASH / GLH / CYX / CYM / HID /
+    # HIE / HIP) get loaded with zero intra-residue bonds — every
+    # downstream template match then fails ("residue has no bonds
+    # between its atoms"). Renaming to parent lets OpenMM infer proper
+    # bonds; ``amber_renames`` (already captured above from the raw
+    # text) drives the eventual restoration to variant names in the
+    # topology and output PDB.
+    from dvbfixer.ffutils.variants import text_rename_variants_to_parent
+    _pdb_load_path, _pre_saved = text_rename_variants_to_parent(
+        str(input_path), verbose=args.verbose,
+    )
+    try:
+        pdb = PDBFile(_pdb_load_path)
+    finally:
+        if _pdb_load_path != str(input_path):
+            Path(_pdb_load_path).unlink(missing_ok=True)
     topology = pdb.topology
     positions = pdb.positions
+
+    # OpenMM's PDBFile.__init__ unconditionally calls
+    # Topology.createDisulfideBonds() on every load (pdbfile.py), a pure
+    # distance-cutoff scan with no 1:1 matching — it ignores CONECT
+    # entirely for this, so even a perfectly clean input file's true
+    # disulfide pairing gets discarded and re-derived, potentially with
+    # spurious extra SG-SG bonds when several CYS cluster close together
+    # (e.g. two chain copies whose N-termini sit near each other).
+    # Resolve immediately after load via nearest-distance 1:1 matching so
+    # the rest of the pipeline never sees the contaminated version.
+    _drop_spurious_inter_aa_bonds(topology, verbose=args.verbose,
+                                   positions=positions)
 
     # Load restraint data from .dat if available
     if args.dat and not dat_path.exists():
@@ -1101,7 +1442,31 @@ def main(argv=None):
     _n_var = apply_variants_to_pdb_text(
         output_path, amber_renames or {},
         target_ff=_target_ff, verbose=args.verbose,
+        include_gromacs_shifts=(getattr(args, 'atom_naming', 'gromacs')
+                                 == 'gromacs'),
     )
     if _n_var and args.verbose:
         print(f"  Applied {_n_var} variant name/atom rewrites to output")
+
+    # CHARMM output was requested but the pipeline ran under
+    # amber+glycam (PDB-standard sugars needed GLYCAM templates).
+    # Rewrite sugar residue names GLYCAM → CHARMM in the output PDB
+    # so the user gets what they asked for at the CLI. Coordinates
+    # and topology unchanged; only sugar residue names change.
+    if _charmm_output_requested:
+        import tempfile as _tf
+
+        from dvbfixer.glycam import convert_to_charmm
+        _tmp = _tf.mktemp(suffix='.pdb', prefix='dvbfixer_charmm_out_')
+        try:
+            convert_to_charmm(str(output_path), _tmp, verbose=args.verbose)
+            import shutil as _sh
+            _sh.move(_tmp, str(output_path))
+            print("  [ff] rewrote sugar residue names GLYCAM → CHARMM "
+                  "for output (user asked for --ff charmm).")
+        except Exception as e:
+            print(f"  [ff] convert_to_charmm on output failed ({e}); "
+                  f"output has GLYCAM sugar names — run "
+                  f"`dvbfixer convert --to-charmm` manually.")
+
     print(f"\nSaved minimized structure: {output_path}")

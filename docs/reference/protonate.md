@@ -7,6 +7,8 @@
 ```
 usage: dvbfixer protonate [-h] [-o OUTPUT] [--ph PH] [--his-default {HIE,HID}]
                           [--cys-disulfide-pka CYS_DISULFIDE_PKA]
+                          [--atom-naming {gromacs,standard}]
+                          [--backend {tleap-reduce,legacy}]
                           [--propka | --no-propka]
                           [--protassign | --no-protassign]
                           [--protassign-binary PROTASSIGN_BINARY]
@@ -20,11 +22,16 @@ CYM, CYX, LYN).
 
 options:
   -h, --help            show this help message and exit
+  --atom-naming {gromacs,standard}
+                        Atom-naming convention for the output PDB. 'gromacs'
+                        (default): GROMACS amber99sb-ildn shifts (HB3→HB1
+                        keeping HB2, HZ3→HZ1 on LYN, O/OXT→OC2/OC1, H→HN for
+                        CHARMM). 'standard': IUPAC/AMBER-native names
+                        (HB2/HB3, HZ1/HZ2/HZ3, O/OXT, plain H).
 
 Input / output:
   input                 Input PDB file
-  -o OUTPUT, --output OUTPUT
-                        Output PDB file (default: <input>_prot.pdb)
+  -o, --output OUTPUT   Output PDB file (default: <input>_prot.pdb)
 
 pH-driven decisions:
   --ph PH               Target pH for protonation assignment (default: 7.0)
@@ -34,9 +41,18 @@ pH-driven decisions:
   --cys-disulfide-pka CYS_DISULFIDE_PKA
                         PROPKA pKa threshold above which CYS is assumed to be
                         in a disulfide bond and renamed to CYX (default:
-                        90.0). No-op under --no-propka.
+                        99.99, matching PROPKA's sentinel). No-op under --no-
+                        propka.
 
 Protonation engines:
+  --backend {tleap-reduce,legacy}
+                        Protonation backend. 'legacy' (default): PROPKA +
+                        reduce (tautomer picks) + Modeller.addHydrogens with
+                        variants. Handles GLYCAM glycoproteins and covalent-
+                        HETATM links. 'tleap-reduce': opt-in tleap for heavy-
+                        atom completion + reduce for deterministic H placement
+                        + PROPKA for pKa-driven AMBER variant renames. Pure-
+                        protein only; rejects non-canonical residues.
   --propka, --no-propka
                         Run PROPKA3 for pKa-driven protonation-state decisions
                         (ASH/GLH/HIP/CYM/LYN). **Default ON.** Pass --no-

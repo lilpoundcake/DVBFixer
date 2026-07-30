@@ -2,6 +2,128 @@
 
 [← README](../README.md)
 
+- **PROPKA 3.5.1 is incompatible with Python 3.14** — `dvbfixer
+  protonate` (and the PROPKA step inside `prepare` / `zbs`) crashes with
+  `AttributeError: 'Parameters' object has no attribute '__annotations__'`
+  at `propka.parameters.parse_line`. propka reads the dataclass attribute
+  `self.__annotations__` at the instance level, which Python 3.14's
+  PEP 649/749 lazy-annotations change makes raise instead of falling
+  through to the class dict. `environment.yml` therefore pins
+  `python >=3.11,<3.14`; do not loosen it. On a working env the repro
+  `python -c "from propka.parameters import Parameters; Parameters().__annotations__"`
+  returns a dict (on <3.14) rather than raising (on 3.14).
+
+- **micromamba env creation fails on macOS Docker host bind mounts
+  (VirtioFS / gRPC-FUSE).** When `MAMBA_ROOT_PREFIX` (and thus the env
+  + package cache) lives under a host bind mount such as `/home/agent`
+  (the container's `fakeowner` mount of macOS `/Users`), the
+  `Linking 'ncurses'` step aborts with
+  `filesystem error: cannot copy symlink: Invalid argument` on the
+  case-variant terminfo symlink pair
+  `share/terminfo/32/2621A` ↔ `.././68/hp2621` vs `2621a`. The bind
+  mount is case-insensitive and rejects libmamba's `copy_symlink` for
+  these case-colliding entries (the colliding inode surfaces as a
+  corrupt orphan with `nlink=0`, `readlink` → `EINVAL`). The
+  `always_copy` / `--copy` / `MAMBA_ALWAYS_COPY` flags and the
+  `always_copy: true` config do **not** fix it — copy mode still
+  recreates in-package symlinks via `copy_symlink` rather than
+  dereferencing them, and no micromamba/conda flag dereferences or
+  skips broken in-package symlinks. The fix is to create the env (and
+  package cache) on the container's **native overlay filesystem**:
+  ```bash
+  sudo mkdir -p /opt/mamba && sudo chown -R agent:agent /opt/mamba
+  export MAMBA_ROOT_PREFIX=/opt/mamba          # env + pkgs now on overlay
+  micromamba create -f environment.yml -n dvbfixer -y
+  micromamba run -n dvbfixer pip install -e ".[dev]"
+  ```
+  Persist `MAMBA_ROOT_PREFIX=/opt/mamba` (and put
+  `/opt/mamba/envs/dvbfixer/bin` on `PATH`) in your shell rc, otherwise
+  `micromamba run -n dvbfixer` defaults back to the broken bind-mount
+  root. The micromamba binary itself runs fine from anywhere; only the
+  prefix/cache location matters.
+
+- **CONECT records limited to atom serials ≤ 99999** (PDB v3.30 spec). Every dvbfixer CONECT writer uses fixed-width 5-char serial fields (`f"{serial:5d}"`), which is spec-compliant but silently produces malformed CONECT lines for systems with > 99999 atoms — adjacent 6-digit serial fields run together without a separator. Workarounds: (a) split the system, (b) renumber atoms to fit under 99999 (drop water/heterogens before topology export), (c) use mmCIF via an external tool if you need full-system connectivity in a large complex. Hybrid-36 encoding (BIOVIA/Phenix extension) is on the roadmap for a future release once a real user surfaces the need.
+
+- **Default prep backend flipped back to `legacy` in 0.7.5** —
+  `prepare` and `protonate` default to `--backend legacy`
+  (Modeller+PDBFixer). Motivation: the tleap-reduce backend
+  introduced in 0.7.0 solved the D-Cα problem but broke coverage
+  for glycans, ligands, PTMs, and any covalent HETATM link
+  (tleap has no template for those). The chirality invariant is
+  now enforced downstream in minimize via the unconditional
+  force-reflect fallback (0.7.4), so legacy prep's PDBFixer.addMissingAtoms
+  D-Cα risk is neutralised there. `tleap-reduce` remains
+  fully functional as opt-in via `--backend tleap-reduce` for
+  pure-protein inputs where deterministic L-only tleap output is
+  wanted.
+
+- **PROPKA on tleap+reduce backend (fixed 0.7.4)**: The initial
+  `prep_backend` shipped an ad-hoc PROPKA→variant map keyed on
+  `(chain, resnum)`. PROPKA emits multiple `Group` records per residue
+  (side-chain acid/base + terminal `N+` / `C-` on the same
+  `(chain, resnum)`) so the second one silently overwrote the first —
+  ASH/GLH/LYN were only assigned by accident when the collision
+  landed the right way, and HIS→HIP was never assigned because HIP
+  was inferred solely from H atoms and `reduce -build` almost never
+  places both HD1 and HE2. Fixed by routing through the existing
+  `dvbfixer.protonate.decide_protonation` (group-type-filtered,
+  `(chain, resnum, icode)`-keyed) then overlaying Reduce's HID/HIE
+  tautomer for neutral HIS. `_patch_variant_hydrogens` gained an HIP
+  branch that adds whichever imidazole H Reduce didn't place.
+
+- **AMBER variant residue names on the minimize path (fixed 0.7.4)**:
+  OpenMM's `PDBFile._standardResidues` set covers only the 20 canonical
+  amino acids — it does NOT know LYN/ASH/GLH/CYX/CYM/HID/HIE/HIP.
+  Loading a PDB with variant names via `PDBFile` produces a topology
+  with the correct atoms but **zero intra-residue bonds** for the
+  variant residues; every downstream `createSystem` template match
+  then fails with "residue X has no bonds between its atoms". Fixed
+  in `minimize/pipeline.py`:
+  1. Before `PDBFile.load`, `text_rename_variants_to_parent` folds
+     variant names to their standard parents in a temp file — OpenMM
+     infers proper intra-residue bonds from parent templates.
+  2. When any variant is present in the input (via `amber_renames`),
+     force the strip-H + `Modeller.addHydrogens(variants=[...])`
+     rebuild path. Reason: `addHydrogens` copies input bonds but does
+     NOT rebuild missing ones from templates, and it only ADDS
+     missing H — never REMOVES extras. Strip-and-readd sidesteps
+     both limitations.
+  3. Cap the pH passed to `addHydrogens` at 9.99 so OpenMM's
+     `hydrogens.xml` `maxph="10.0"` HZ3 gate doesn't break terminal
+     LYS residues at high pH (variants already carry PROPKA's
+     protonation decisions).
+  4. `pdbutils/inference.py::_apply_filter` now keeps intra-residue
+     bonds for variant-named residues in emitted CONECT (defense in
+     depth for any path that still loads variants directly).
+
+- **SS bonds dropped by `_drop_spurious_inter_aa_bonds` (fixed 0.7.4)**:
+  Minimize's spurious-bond filter treated every inter-residue bond
+  between two protein residues that wasn't a C-N peptide bond as
+  spurious. After `text_rename_variants_to_parent` folded CYX → CYS,
+  SG-SG disulfides were between two "CYS"-named residues → dropped.
+  Fixed by adding an SG-SG exception for the CYS family (CYS/CYX/CYM).
+
+- **D-Cα residues surviving minimize (fixed 0.7.4)**: The prior
+  design was WARN-only when a residue drifted into D-Cα geometry
+  during phase-2 minimize (rationale: reflecting an equilibrated
+  sidechain can stretch CA-CB to ~2 Å). Replaced with a two-tier
+  fix that guarantees zero D-Cα in output:
+  1. **Reflect + re-minimize loop** (max 3 iterations): reflect via
+     `fix_ca_chirality`, run a short follow-up minimize under the
+     already-weakened phase-2 restraints so the reflected sidechain
+     relaxes into a compatible position.
+  2. **Unconditional force-reflect fallback** — if a residue still
+     prefers D after the loop (the FF's local minimum genuinely
+     sits on the D side; happens rarely for residues in tight
+     packing), reflect once more and skip the follow-up minimize.
+     `fix_ca_chirality` mirrors the whole sidechain through the
+     CA-N-C plane, so ALL internal bond lengths and angles are
+     preserved (CA-CB ≈ 0.154 nm, CB-HB ≈ 0.109 nm, sidechain
+     torsions unchanged); only CB's position RELATIVE to backbone
+     neighbours changes, which may introduce a small local packing
+     strain the user can further relax if desired. A WARNING lists
+     each forced residue with its residual triple product.
+
 - **N-terminal ASH/GLH in ACPYPE mode**: AMBER14 has no N/C-terminal protonated ASP/GLU templates (NASH/NGLH — never parameterized via RESP in any AMBER version). When `--acpype` encounters ASH or GLH at chain termini, it strips the protonation hydrogen (HD2/HE2) and uses the standard deprotonated template (NASP/NGLU). A `UserWarning` is emitted. Internal (non-terminal) ASH/GLH residues are preserved correctly.
 
 - **Chain ID mismatch in .dat workflow**: The `.dat` file stores chain IDs from PDBFixer. If the prepared PDB is saved through a tool that reassigns chain IDs (PyMOL, VMD), the `.dat` entries won't match the new chain letters. Workaround: ensure chain IDs remain consistent between prepare and minimize steps, or manually edit the `.dat` file.
