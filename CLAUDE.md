@@ -6,22 +6,25 @@ Guidance for Claude Code (claude.ai/code) working in this repository.
 
 **dvbfixer** — a Python package providing CLI tools for preparing PDB
 (Protein Data Bank) structural biology files. Installed as a single
-`dvbfixer` command with 17 subcommands.
+`dvbfixer` command with 18 subcommands.
 
-## Ongoing work: `feat/tleap-reduce-backend` branch
+## Prep backends: `legacy` (default) vs `tleap-reduce` (opt-in)
 
-An in-progress replacement of the H+heavy-atom repair pipeline lives on
-branch `feat/tleap-reduce-backend`. It swaps `PDBFixer.addMissingAtoms`
-+ `Modeller.addHydrogens` for **AmberTools `tleap` + MolProbity
-`reduce`** (subprocess-based, deterministic, L-only by construction).
-Fixes the D-Cα (openmm/pdbfixer#145) and coincident-H
-(Modeller.addHydrogens bug) issues that surface on gap-filled model
-outputs. Verified against `test/shit/{1EMV,1FR2,2VLN,2VLQ}_original.pdb`
-— all four yield zero D-Cα, zero coincident atoms.
-
-On main the legacy Modeller+PDBFixer path is still the only backend;
-its known-good boundaries are the hard rules below. If you need a
-D-Cα-free deterministic pipeline for standard proteins, use the branch.
+`feat/tleap-reduce-backend` was merged into `main` (`5ca7e17`) — it is
+**not** a separate in-progress branch anymore; `src/dvbfixer/
+prep_backend.py` and `--backend {legacy,tleap-reduce}` on `prepare`/
+`zbs` ship on `main` today. `tleap-reduce` swaps
+`PDBFixer.addMissingAtoms` + `Modeller.addHydrogens` for **AmberTools
+`tleap` + MolProbity `reduce`** (subprocess-based, deterministic,
+L-only by construction), fixing the D-Cα (openmm/pdbfixer#145) and
+coincident-H (`Modeller.addHydrogens` bug) issues that surface on
+gap-filled model outputs — verified against
+`test/shit/{1EMV,1FR2,2VLN,2VLQ}_original.pdb` (zero D-Cα, zero
+coincident atoms). See the hard rules below for the full behavior
+split: `legacy` remains the default because it's the only backend that
+handles every input class (glycans, ligands, PTMs, covalent HETATM
+links); `tleap-reduce` is opt-in for pure-protein inputs and rejects
+non-canonical residues.
 
 ## Where to look
 

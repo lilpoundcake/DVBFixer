@@ -22,7 +22,7 @@ Every `dvbfixer` subcommand has its own page. The first column is alphabetical; 
 | [`split`](split.md) | Empirical chain splitting for GRO/PDB files without chain IDs (multi-MODEL aware) | Structure prep |
 | [`top`](top.md) | GROMACS topology from PDB/GRO (AMBER, CHARMM, or ACPYPE pipeline) | Topology |
 | [`transplant`](transplant.md) | Transplant molecules between PDB structures (GLYCAM glycoprotein workflow) | Glycoprotein prep |
-| [`zbs`](zbs.md) | Full pipeline: renumber → model → prepare → minimize → protonate → minimize | Pipeline |
+| [`zbs`](zbs.md) | Full pipeline: renumber → model → prepare → minimize (PROPKA + Reduce run inside prepare) | Pipeline |
 
 ## See also
 

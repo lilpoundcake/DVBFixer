@@ -36,7 +36,7 @@ Full install instructions (including the Modeller license step) are in [`docs/in
 | [`parametrize`](docs/commands/parametrize.md) | GAFF2 + AM1-BCC/RESP small-molecule parametrization (GROMACS-ready) |
 | [`puppet`](docs/commands/puppet.md) | Strip a PDB to backbone-only polyglycine (template / visualization) |
 | [`diagnose`](docs/commands/diagnose.md) | Report structure-quality issues (missing atoms, coincident atoms, valence, clashes, chirality) — report-only |
-| [`zbs`](docs/commands/zbs.md) | Full pipeline: renumber → model → prepare → minimize → protonate → minimize |
+| [`zbs`](docs/commands/zbs.md) | Full pipeline: renumber → model → prepare → minimize (PROPKA + Reduce run inside prepare) |
 
 The [command index](docs/commands/index.md) groups the same commands by workflow stage.
 

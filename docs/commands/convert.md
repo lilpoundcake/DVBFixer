@@ -81,6 +81,7 @@ dvbfixer convert input.pdb -o output.pdb -v
 | `--to-amber` | (default) | PDB/CHARMM → GLYCAM (sugars) + AMBER (protonation variants). Mutually exclusive with `--to-charmm`. |
 | `--to-charmm` | off | Reverse direction: GLYCAM/AMBER → CHARMM. |
 | `--no-roh` | off | Do not add ROH cap at the reducing end (default direction only) |
+| `--no-infer-conect` | off | Skip automatic CONECT inference (default: infer missing glycosidic/glycosylation bonds so linkage detection works on CONECT-less inputs) |
 | `-v`, `--verbose` | off | Print conversion details |
 
 ## GLYCAM Naming Convention

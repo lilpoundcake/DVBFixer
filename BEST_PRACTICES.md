@@ -52,9 +52,10 @@ The fastest path for a crystal structure with no glycans / unusual ligands:
 
 ```bash
 dvbfixer zbs input.pdb -v
-# 6 steps: renumber → model → prepare → minimize → protonate → minimize
-# The full protonate step runs MolProbity Reduce (HIS tautomer + ASN/GLN
-# flip detection via --protassign default ON) + variant-aware addHydrogens.
+# 4 steps: renumber → model → prepare → minimize
+# PROPKA + MolProbity Reduce (HIS tautomer + ASN/GLN flip detection via
+# --protassign default ON) run INSIDE the prepare step (0.7.7+) — there
+# is no separate protonate stage.
 # Final output: input_zbs.pdb (AMBER protonation names: HIE/GLH/CYX/...)
 ```
 

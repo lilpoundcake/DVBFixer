@@ -50,15 +50,17 @@ When you say `--ff auto` (the default) or don't pass `--ff`, dvbfixer scans the 
 - **Reducing-end caps**: `ROH`, `OME`, `TBT`, `CMET`
 - **Sugar residues**: any 3-char resname matching the GLYCAM `[linkage][sugar][anomer]` pattern — e.g. `4YB`, `UYB`, `VMB`, `0YA`, `0SA`, `2MA`
 
-**Ambiguous — PDB Chemical Component Dictionary sugar names**: `NAG`, `NDG`, `BMA`, `MAN`, `FUC`, `FUL`, `GAL`, `BGC`, `GLC`, `SIA` (etc.). These appear in raw crystal PDBs, in GLYCAM output *before* renaming, and in CHARMM-GUI output *before* CHARMM renaming — they tell dvbfixer nothing about which FF the rest of the file was prepared for. Neither `amber14+GLYCAM` nor `charmm36.xml` has templates for these bare PDB names. **No auto-selection is made from PDB sugar names alone** — you get the plain `amber` default with a warning to convert first:
+**PDB Chemical Component Dictionary sugar names** (since 0.7.6): `NAG`, `NDG`, `BMA`, `MAN`, `FUC`, `FUL`, `GAL`, `BGC`, `GLC`, `SIA` (etc.). These appear in raw crystal PDBs, in GLYCAM output *before* renaming, and in CHARMM-GUI output *before* CHARMM renaming. Neither `amber14+GLYCAM` nor `charmm36.xml` has templates for these bare PDB names — but rather than surrendering to the plain `amber` default, `detect_ff_from_pdb` now auto-selects `amber+glycam` and the pipeline auto-converts the sugar names to GLYCAM canonical naming (via `dvbfixer convert`'s machinery) before the FF is applied:
 
 ```
-FF: amber  (PDB-standard sugar name(s) detected (FUC, GAL, MAN) with no
-  FF-specific markers — cannot auto-select. Run `dvbfixer convert
-  --to-amber` (→ GLYCAM UYB/VMB/...) or `dvbfixer convert --to-charmm`
-  (→ BGLCNA/BMAN/...) before this step, or pass --ff explicitly)
-  → amber19/protein.ff19SB.xml amber19/tip3p.xml
+FF: amber+glycam  (PDB-standard sugar name(s) detected (FUC, GAL, MAN) —
+  will auto-convert to GLYCAM canonical naming before FF apply. Pass
+  --ff charmm to force CHARMM instead)
+  → amber14-all.xml amber14/GLYCAM_06j-1.xml amber14/tip3pfb.xml
 ```
+
+Pass `--ff charmm` explicitly if you actually want the CHARMM path for
+these ambiguous names (`dvbfixer convert --to-charmm` first).
 
 **Precedence when both CHARMM and GLYCAM markers appear** (rare — hand-assembled structures): CHARMM wins, because CHARMM protonation names are unambiguous full-file-prep signals.
 
@@ -142,7 +144,7 @@ dvbfixer minimize protein_with_ligand.pdb --parametrize-ligands -v
 - Cached on disk between runs (default cache: `~/.cache/dvbfixer/lig_params/`; override with `$DVBFIXER_LIG_CACHE`).
 - Requires `openmmforcefields`, `openff-toolkit`, and AmberTools (`antechamber`, `parmchk2`) in the env.
 - **Limitation**: cross-residue bonds between two ligand residues get no parameters. Same limitation as GLYCAM for glycan-glycan bonds. Works cleanly for **isolated** ligands (a bound small molecule, a cofactor, etc.).
-- Forwarded by `zbs --parametrize-ligands` to both minimize passes.
+- Forwarded by `zbs --parametrize-ligands` to the minimize step. Since 0.7.10, `minimize` also auto-attempts this (non-strict) whenever an unknown heterogen is present, even without the flag.
 
 ### Universal-FF geometry refinement — `--xtb-refine` / `--obminimize-refine`
 

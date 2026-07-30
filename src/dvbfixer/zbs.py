@@ -25,7 +25,9 @@ def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="dvbfixer zbs",
         description="Run the full preparation pipeline: "
-        "renumber -> model -> prepare -> minimize -> protonate -> minimize.",
+        "renumber -> model -> prepare -> minimize. PROPKA + MolProbity "
+        "Reduce run inside the prepare step (0.7.7+); there is no "
+        "separate protonate stage.",
     )
     io = p.add_argument_group("Input / output")
     io.add_argument("input", help="Input PDB file (must contain SEQRES)")
@@ -36,7 +38,7 @@ def parse_args(argv=None):
                     help="pH for protonation and hydrogen addition (default: 7.0)")
     ff.add_argument("--ff", nargs='+', default=['auto'],
                     help="Force field selection forwarded to prepare / "
-                         "minimize / protonate. Accepts a short name (auto, "
+                         "minimize. Accepts a short name (auto, "
                          "amber, amber+glycam, charmm, ...) or an explicit "
                          "list of OpenMM XML paths. Default: 'auto'. "
                          "See docs/force-fields.md.")
@@ -49,8 +51,8 @@ def parse_args(argv=None):
                          "keep IUPAC/AMBER-native names. Propagated to "
                          "prepare + minimize.")
     ff.add_argument("--parametrize-ligands", action="store_true",
-                    help="Forward --parametrize-ligands to both minimize "
-                         "passes (GAFF2 + AM1-BCC for unknown ligands via "
+                    help="Forward --parametrize-ligands to the minimize "
+                         "step (GAFF2 + AM1-BCC for unknown ligands via "
                          "antechamber). See docs/force-fields.md.")
 
     skip = p.add_argument_group("Pipeline skip flags")
@@ -118,14 +120,14 @@ def parse_args(argv=None):
     minz.add_argument("--no-solvent", action="store_true",
                       help="Minimize in vacuum (no solvent box)")
     minz.add_argument("--rebuild-h", action="store_true",
-                      help="Force --rebuild-h on both minimize passes (default: off; "
-                           "pass 2 already has correct H from protonate)")
+                      help="Force --rebuild-h on the minimize step (default: off; "
+                           "prepare already produced correct H via PROPKA/Reduce)")
     minz.add_argument("--restraint-k", type=float, default=100.0,
                       help="Restraint force constant for original atoms (default: 100)")
     minz.add_argument("--max-iter", type=int, default=1000,
                       help="Max minimization iterations per phase (default: 1000)")
     minz.add_argument("--refine", choices=["none", "xtb", "obminimize"], default="none",
-                      help="Post-minimize refinement pass in minimize step 2 "
+                      help="Post-minimize refinement pass in the minimize step "
                            "(default: none). 'xtb' uses GFN-FF, 'obminimize' uses "
                            "OpenBabel UFF.")
     minz.add_argument("--refine-heterogens-only", action="store_true",
@@ -161,8 +163,8 @@ def parse_args(argv=None):
                          help="Keep water molecules in output (default: remove)")
     general.add_argument("--no-infer-conect", dest="no_infer_conect",
                          action="store_true",
-                         help="Skip automatic CONECT inference in prepare/minimize/"
-                              "protonate. Default: infer missing CONECT bonds "
+                         help="Skip automatic CONECT inference in model/prepare/"
+                              "minimize. Default: infer missing CONECT bonds "
                               "(SS/glycosidic/glycosylation) from coordinates.")
     general.add_argument("--keep-interim", action="store_true",
                          help="Keep all intermediate files (default: only final output)")
@@ -216,7 +218,7 @@ def main(argv=None):
         print(f"\nERROR: chirality guard tripped in the zbs pipeline.\n"
               f"{e}\n"
               f"Downstream MD would produce nonsense on a D-Cα residue; "
-              f"fix the upstream model / prepare / protonate step or "
+              f"fix the upstream model / prepare / minimize step or "
               f"rebuild the affected residue by hand.",
               file=sys.stderr)
         sys.exit(2)

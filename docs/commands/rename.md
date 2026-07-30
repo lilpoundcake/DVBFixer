@@ -27,7 +27,7 @@ Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pul
 
 - [`renumber`](renumber.md) — `--rename` integrates rename into the renumber step
 - [`prepare`](prepare.md) — `--rename` integrates rename into the prepare step
-- [`glycam`](glycam.md) — bidirectional PDB↔GLYCAM sugar nomenclature
+- [`convert`](convert.md) — bidirectional PDB↔GLYCAM sugar nomenclature (formerly `glycam`)
 
 ## How it works
 Text-based rename of non-canonical residue names to standard PDB names. Converts AMBER protonation (HIE/HID/HIP→HIS, ASH→ASP, GLH→GLU, CYX/CYM→CYS, LYN→LYS), CHARMM (HSD/HSE/HSP→HIS), and MSE→MET. Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pull` tools. Uses `CANONICAL_MAP` dict in `rename.py`.

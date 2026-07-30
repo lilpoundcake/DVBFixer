@@ -24,8 +24,9 @@ usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--platform {CPU,CUDA,OpenCL,Reference}] [-v]
                     input
 
-Run the full preparation pipeline: renumber -> model -> prepare -> minimize ->
-protonate -> minimize.
+Run the full preparation pipeline: renumber -> model -> prepare -> minimize.
+PROPKA + MolProbity Reduce run inside the prepare step (0.7.7+); there is no
+separate protonate stage.
 
 options:
   -h, --help            show this help message and exit
@@ -37,11 +38,10 @@ Input / output:
 Force field:
   --ph PH               pH for protonation and hydrogen addition (default:
                         7.0)
-  --ff FF [FF ...]      Force field selection forwarded to prepare / minimize
-                        / protonate. Accepts a short name (auto, amber,
-                        amber+glycam, charmm, ...) or an explicit list of
-                        OpenMM XML paths. Default: 'auto'. See docs/force-
-                        fields.md.
+  --ff FF [FF ...]      Force field selection forwarded to prepare / minimize.
+                        Accepts a short name (auto, amber, amber+glycam,
+                        charmm, ...) or an explicit list of OpenMM XML paths.
+                        Default: 'auto'. See docs/force-fields.md.
   --atom-naming {gromacs,standard}
                         Atom-naming convention for the final output PDB.
                         'gromacs' (default): rewrite atom names to GROMACS
@@ -49,7 +49,7 @@ Force field:
                         O→OC2, OXT→OC1). 'standard': keep IUPAC/AMBER-native
                         names. Propagated to prepare + minimize.
   --parametrize-ligands
-                        Forward --parametrize-ligands to both minimize passes
+                        Forward --parametrize-ligands to the minimize step
                         (GAFF2 + AM1-BCC for unknown ligands via antechamber).
                         See docs/force-fields.md.
 
@@ -104,14 +104,14 @@ Prepare step:
 
 Minimize step (OpenMM):
   --no-solvent          Minimize in vacuum (no solvent box)
-  --rebuild-h           Force --rebuild-h on both minimize passes (default:
-                        off; pass 2 already has correct H from protonate)
+  --rebuild-h           Force --rebuild-h on the minimize step (default: off;
+                        prepare already produced correct H via PROPKA/Reduce)
   --restraint-k RESTRAINT_K
                         Restraint force constant for original atoms (default:
                         100)
   --max-iter MAX_ITER   Max minimization iterations per phase (default: 1000)
   --refine {none,xtb,obminimize}
-                        Post-minimize refinement pass in minimize step 2
+                        Post-minimize refinement pass in the minimize step
                         (default: none). 'xtb' uses GFN-FF, 'obminimize' uses
                         OpenBabel UFF.
   --refine-heterogens-only
@@ -139,9 +139,8 @@ Protonation (PROPKA + Reduce, inside prepare):
 Pipeline behaviour:
   --keep-water          Keep water molecules in output (default: remove)
   --no-infer-conect     Skip automatic CONECT inference in
-                        prepare/minimize/protonate. Default: infer missing
-                        CONECT bonds (SS/glycosidic/glycosylation) from
-                        coordinates.
+                        model/prepare/minimize. Default: infer missing CONECT
+                        bonds (SS/glycosidic/glycosylation) from coordinates.
   --keep-interim        Keep all intermediate files (default: only final
                         output)
   --dry-run             Print the planned pipeline steps + output filenames

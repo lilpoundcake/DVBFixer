@@ -63,7 +63,7 @@ Same ACPYPE pipeline as `dvbfixer top --acpype`: OpenMM parametrization -> ParmE
 
 ## See also
 
-- [`glycam`](glycam.md) — convert PDB sugar names to GLYCAM convention before `transplant`
+- [`convert`](convert.md) — convert PDB sugar names to GLYCAM convention before `transplant` (formerly `glycam`)
 - [`top`](top.md) — `--acpype` provides the same GROMACS export pipeline for stand-alone structures
 - [`prepare`](prepare.md) — run before `transplant` to clean up the acceptor
 - [BEST_PRACTICES.md](../../BEST_PRACTICES.md) — full GLYCAM-Web glycoprotein workflow recipe
