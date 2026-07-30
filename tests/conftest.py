@@ -142,6 +142,23 @@ def shit_broken_geom_pdbs() -> list[Path]:
     return [_fixture_or_skip(FIXTURES_ROOT / "shit" / n) for n in names]
 
 
+@pytest.fixture(scope="session")
+def protein_ligand_gaps_pdb() -> Path:
+    """Protein with SEQRES gaps + two real ligands (DAN, EPE) —
+    exercises heterogen H-addition valence correctness."""
+    return _fixture_or_skip(FIXTURES_ROOT / "protein_ligand" / "1VCU.pdb")
+
+
+@pytest.fixture(scope="session")
+def glycoprot_underannotated_conect_pdb() -> Path:
+    """Glycoprotein with IUPAC sugar names, full header records
+    (SEQRES/HELIX/SHEET/LINK/CRYST1), and CONECT/LINK annotation that's
+    genuinely incomplete for one of its three real N-glycosylation
+    sites — exercises `convert`'s header pass-through and its
+    CONECT-vs-distance glycosidic bond detection."""
+    return _fixture_or_skip(FIXTURES_ROOT / "3ry6" / "3ry6.pdb")
+
+
 # ---------------------------------------------------------------------------
 # Helpers used by integration tests.
 # ---------------------------------------------------------------------------
@@ -164,6 +181,25 @@ def count_ss_bonds(pdb_path: Path) -> int:
     pdb = PDBFile(str(pdb_path))
     return sum(1 for b in pdb.topology.bonds()
                if b[0].name == "SG" and b[1].name == "SG")
+
+
+def count_h_on_atom(pdb_path: Path, resname: str, atom_name: str) -> int:
+    """Count H atoms bonded to a specific named heavy atom, summed
+    across every residue instance matching `resname` in the file.
+    Used to check ligand valence correctness (e.g. a sulfonate O
+    should have zero, a ring CH should have exactly one)."""
+    from openmm.app import PDBFile
+    pdb = PDBFile(str(pdb_path))
+    targets = {a.index for r in pdb.topology.residues() if r.name == resname
+               for a in r.atoms() if a.name == atom_name}
+    count = 0
+    for b in pdb.topology.bonds():
+        a1, a2 = b[0], b[1]
+        if a1.index in targets and a2.element.symbol == "H":
+            count += 1
+        elif a2.index in targets and a1.element.symbol == "H":
+            count += 1
+    return count
 
 
 def count_residues_by_name(pdb_path: Path, names: set[str]) -> int:

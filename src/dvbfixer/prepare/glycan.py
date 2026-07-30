@@ -418,6 +418,21 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
             print("  RDKit failed to parse PDB — skipping heterogen H polish")
         return topology, positions
 
+    # Some ligands have a genuine double bond that a pure-distance bond
+    # perception can't recover (e.g. DAN's ring C2=C3 — "2,3-didehydro"
+    # sialic acid analog). Fix known cases before AddHs so it correctly
+    # computes sp2 valence there instead of over-saturating with H.
+    from dvbfixer.ffutils.ligand_valence import (
+        apply_double_bond_overrides_rdkit,
+        find_ionizable_terminal_oxygens_rdkit,
+        get_h_count_override,
+    )
+    apply_double_bond_overrides_rdkit(mol)
+    # Carboxylate/sulfonate/sulfate/phosphate O's are ionized at
+    # physiological pH regardless of what naive valence-filling would
+    # add — detected by connectivity, not hardcoded per ligand.
+    _ionizable_o_indices = find_ionizable_terminal_oxygens_rdkit(mol)
+
     # Atoms in known PDB sugars that should NOT carry hydrogens. These are
     # carbonyl atoms (C=O) and atoms forming external bonds we know about.
     # RDKit's AddHs after MolFromPDBBlock can't perceive double bonds from
@@ -552,8 +567,17 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
         if parent_omm is None or parent_omm.residue.name in known:
             continue
         # Skip H if parent atom is on the no-H list for its residue type
-        # (carbonyl C/O atoms that RDKit can't perceive as double-bonded).
+        # (carbonyl C/O atoms that RDKit can't perceive as double-bonded),
+        # or is a detected ionizable carboxylate/sulfonate/phosphate O.
         if parent_omm.name in _NO_H_ATOM_NAMES.get(parent_omm.residue.name, ()):
+            continue
+        if parent_idx in _ionizable_o_indices:
+            continue
+        # Some ligand atoms need fewer/more H than degree-based valence
+        # filling computes (e.g. DAN's ring alkene C2=C3 — sp2, not
+        # sp3). Cap at the known-correct count if this parent has one.
+        override = get_h_count_override(parent_omm.residue.name, parent_omm.name)
+        if override is not None and h_count_by_parent.get(parent_omm.index, 0) >= override:
             continue
         # Get H position from conformer (in Å)
         pos = conf.GetAtomPosition(ai)
@@ -695,6 +719,21 @@ def _process_single_residue(res, external_bond_counts, positions, known, ob,
             a2 = res_atoms[e_idx - 1]
             perceived_intra_bonds.append((a1, a2))
 
+    # Some ligands have a genuine double bond that pure-distance bond
+    # perception can't recover (e.g. DAN's ring C2=C3), and carboxylate/
+    # sulfonate/sulfate/phosphate O's are ionized at physiological pH
+    # regardless of what naive valence-filling would add. Fix both
+    # before addh() so OpenBabel computes the correct H count.
+    from dvbfixer.ffutils.ligand_valence import (
+        apply_double_bond_override_openbabel,
+        find_ionizable_terminal_oxygens_openbabel,
+        get_h_count_override,
+    )
+    name_to_atom = {res_atoms[i].name: mol.OBMol.GetAtom(i + 1)
+                    for i in range(n_before)}
+    apply_double_bond_override_openbabel(res.name, name_to_atom)
+    ionizable_o_indices = find_ionizable_terminal_oxygens_openbabel(mol.OBMol)
+
     mol.addh()
     pdb_text = mol.write('pdb')
 
@@ -761,7 +800,18 @@ def _process_single_residue(res, external_bond_counts, positions, known, ob,
         # OpenBabel doesn't know about external bonds, so it adds H to satisfy
         # full valence. We drop n_external H atoms to account for the actual
         # external linkages.
-        n_keep = max(0, len(h_positions) - n_external)
+        h_override = get_h_count_override(res.name, parent_omm.name)
+        if parent_serial in ionizable_o_indices:
+            # Detected carboxylate/sulfonate/sulfate/phosphate O — ionized
+            # at physiological pH, never protonated regardless of valence.
+            n_keep = 0
+        elif h_override is not None:
+            # Known atom whose correct H count differs from what
+            # degree-based valence filling computes (e.g. DAN's ring
+            # alkene C2=C3 — sp2, not sp3).
+            n_keep = h_override
+        else:
+            n_keep = max(0, len(h_positions) - n_external)
         for (x_a, y_a, z_a) in h_positions[:n_keep]:
             pname = parent_omm.name
             if pname.startswith(('O', 'N', 'S')):

@@ -123,6 +123,28 @@
      neighbours changes, which may introduce a small local packing
      strain the user can further relax if desired. A WARNING lists
      each forced residue with its residual triple product.
+  3. **Post-reflect local relax (added 0.7.9)** — the rigid mirror
+     in step 2 can swing a sidechain hydrogen into a neighbouring
+     residue's atom (both unrestrained H's — this is what
+     "local packing strain" meant in practice, occasionally bad
+     enough to be a genuine < 0.5 Å clash rather than just strain).
+     Confirmed as the root cause of a flaky `2VLQ_original.pdb`
+     regression failure that only reproduced in the full test-suite
+     run, never in isolation, because Modeller's stochastic loop/MD
+     refinement makes whether *any* residue needs forced reflection
+     nondeterministic between runs. Fix: before any follow-up
+     minimize, re-anchor the reflected residue's restraint targets
+     (`restraint.setParticleParameters`) to their NEW post-reflection
+     position instead of leaving them pointed at the old
+     D-favouring one — backbone atoms are untouched by
+     `fix_ca_chirality` so their anchor update is a no-op, only the
+     reflected sidechain's anchor actually moves. A bounded local
+     `minimizeEnergy` then lets the genuinely unrestrained
+     neighbouring hydrogens relax out of the way, with no energetic
+     or restraint-driven path back to D. A `find_d_residues` sanity
+     check still runs afterward; if a residue ever reverts anyway,
+     it's reflected again unconditionally with no further minimize
+     (same non-negotiable "zero D-Cα in output" guarantee as before).
 
 - **N-terminal ASH/GLH in ACPYPE mode**: AMBER14 has no N/C-terminal protonated ASP/GLU templates (NASH/NGLH — never parameterized via RESP in any AMBER version). When `--acpype` encounters ASH or GLH at chain termini, it strips the protonation hydrogen (HD2/HE2) and uses the standard deprotonated template (NASP/NGLU). A `UserWarning` is emitted. Internal (non-terminal) ASH/GLH residues are preserved correctly.
 

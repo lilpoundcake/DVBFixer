@@ -515,7 +515,20 @@ def main(argv=None):
                             f"TER   {serial:>5d}      {resname} {chain}{new_seq:>4d}{new_icode}\n"
                         )
                         continue
-            output_lines.append(f"TER   {serial:>5d}" + line[11:])
+            # `line[11:]` normally carries the rest of a full-length TER
+            # record through, trailing newline included. But a bare/
+            # minimal "TER\n" (as short as 4 characters) slices to an
+            # empty string here — Python doesn't error on an out-of-
+            # range slice, it just silently drops the newline. Without
+            # it, this line runs directly into the next physical line
+            # in the file (e.g. "TER    4748HETATM 4749  C1  ..."),
+            # which then fails every downstream parser's line-start
+            # check — silently losing that atom (and everything after
+            # it on the merged line) from every subsequent tool.
+            tail = line[11:]
+            if not tail.endswith('\n'):
+                tail += '\n'
+            output_lines.append(f"TER   {serial:>5d}" + tail)
 
         elif rec == "HELIX":
             output_lines.append(update_helix(line, chain_maps))

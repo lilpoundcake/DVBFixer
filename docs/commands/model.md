@@ -15,6 +15,7 @@ Writes a `.dat` file recording all atoms in rebuilt gap residues. This is merged
 - **Plain-language Modeller diagnostics** — common errors (BLK alignment, sequence difference, unknown residue type) get a clear cause + remediation alongside the raw Modeller message.
 - **Input residues pinned by default** — a `_PinnedLoopModel` subclass overrides `select_loop_atoms()` so only the newly-modeled gap residues move during Modeller's loop refinement MD. Prevents the ±~3 residue flank drift produced by stock LoopModel. The initial automodel CG is left untouched (all atoms) so any pre-existing input close contacts get relaxed as usual — otherwise they'd survive into the model output and trip OpenBabel's CONECT inference in the downstream `prepare` step (spurious external bonds → OpenMM template match failures on residues far from any gap). Downstream `minimize` still refines the whole system under a proper force field. Pass `--no-pin-input` to restore the legacy behaviour.
 - **Fast no-gap pre-check** (since v0.3) — before invoking Modeller, model.py compares each protein chain's ATOM sequence to its SEQRES via string equality. If every chain matches, no gaps → copy input verbatim and skip Modeller entirely. Runtime drops from ~2 min (align2d on a 5-chain × 829-residue complex is O(N²)) to ~0.25 s. Falls through to the full Modeller path when any chain has a mismatch (real gaps).
+- **CONECT inference runs BEFORE Modeller, by default** (since 0.7.9) — `_materialise_inferred_pdb` fills in missing SS/glycosidic/glycosylation CONECT records from coordinates on a temp copy of the input, which is what Modeller actually reads. Modeller has no other way to know two chains are covalently linked (e.g. an under-annotated N-glycosylation site with a real bond but no CONECT/LINK in the deposited PDB) and can reposition an undocumented chain arbitrarily far from its anchor during structure-building. Pass `--no-infer-conect` to skip this and use the file's CONECT/LINK records as-is.
 
 ## Usage
 
@@ -54,6 +55,7 @@ dvbfixer model input.pdb --keep-workdir -v
 | `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |
 | `--strip-heterogens` | off | Remove all HETATM records (ligands, sugars, ions, cofactors) before Modeller runs. Useful when heterogen geometry causes loop-refinement artifacts. Waters preserved only if `--keep-water` is also set. |
 | `--keep-workdir` | off | Keep Modeller temp directory |
+| `--no-infer-conect` | off | Skip automatic CONECT inference before Modeller runs (see below) |
 | `-v`, `--verbose` | off | Print Modeller progress |
 
 ## How It Works

@@ -297,6 +297,34 @@ def _rename_atom_reverse(glycam_resname, charmm_resname, atom_name):
     return atom_name
 
 
+_PASSTHROUGH_EXCLUDED_RECORDS = (
+    'ATOM  ', 'HETATM', 'CONECT', 'TER', 'END', 'MODEL', 'ENDMDL',
+)
+
+
+def _extract_passthrough_header_lines(input_path):
+    """Return every line of `input_path` that isn't ATOM/HETATM/CONECT/
+    TER/END/MODEL/ENDMDL — SEQRES, HELIX, SHEET, CRYST1, HEADER, TITLE,
+    LINK, SSBOND, REMARK, etc. — preserving original order.
+
+    Mirrors `align.py`'s `_apply_transform_preserving_headers`: PDB
+    metadata that isn't atom-indexed or residue-name-dependent (SEQRES
+    in particular — `model.py`'s gap-filling needs it) has no reason to
+    be dropped just because atoms got renamed/renumbered. CONECT is
+    excluded here because both `convert_to_glycam`/`convert_to_charmm`
+    already regenerate it correctly with remapped serials — passing
+    through the OLD one too would just duplicate/conflict. LINK is
+    passed through as-is even though its residue names could go stale
+    after a rename (e.g. NAG → a GLYCAM code) — CONECT (regenerated) is
+    the bond source every downstream OpenMM-based tool actually reads;
+    LINK is informational.
+    """
+    with open(input_path) as f:
+        lines = f.readlines()
+    return [line for line in lines
+            if not line.startswith(_PASSTHROUGH_EXCLUDED_RECORDS)]
+
+
 def convert_to_charmm(input_path, output_path, verbose=False):
     """Convert a GLYCAM-named PDB to CHARMM-compatible naming.
 
@@ -436,8 +464,9 @@ def convert_to_charmm(input_path, output_path, verbose=False):
             out_lines.append(line_out)
     out_lines.append('END\n')
 
+    header_lines = _extract_passthrough_header_lines(input_path)
     with open(output_path, 'w') as f:
-        f.writelines(out_lines)
+        f.writelines(header_lines + out_lines)
 
     print(f"Converted {n_sugars} GLYCAM sugar(s) and {n_protein} glycoprotein "
           f"residue(s) → CHARMM naming. Dropped {n_caps_dropped} cap(s).")
@@ -661,6 +690,39 @@ def _detect_glycosidic_bonds_by_distance(atoms, residues):
     return glyco_bonds, protein_links
 
 
+def _merge_glycosidic_bonds(conect_result, distance_result):
+    """Merge CONECT-derived and distance-derived glycosidic bond
+    detection.
+
+    CONECT-derived bonds win where both agree, but CONECT/LINK
+    annotation in real deposited PDBs is sometimes incomplete for a
+    subset of genuine glycosylation sites — an annotation gap, not
+    evidence the bond doesn't exist. Any bond the distance-based
+    detector finds for a residue not already covered by a CONECT
+    result is added rather than discarded; a residue with ANY CONECT
+    bond record at all is otherwise treated as fully trustworthy and
+    not second-guessed by geometry.
+    """
+    conect_glyco, conect_links = conect_result
+    dist_glyco, dist_links = distance_result
+
+    covered_children = {child for _parent, child, _pos in conect_glyco}
+    merged_glyco = list(conect_glyco)
+    for parent, child, pos in dist_glyco:
+        if child not in covered_children:
+            merged_glyco.append((parent, child, pos))
+            covered_children.add(child)
+
+    covered_sugars = {sugar for _prot, sugar in conect_links}
+    merged_links = list(conect_links)
+    for prot, sugar in dist_links:
+        if sugar not in covered_sugars:
+            merged_links.append((prot, sugar))
+            covered_sugars.add(sugar)
+
+    return merged_glyco, merged_links
+
+
 def _is_anomeric_carbon(atom):
     """Check if atom is an anomeric carbon (C1, or C2 for sialic acid)."""
     if atom['resname'] in SIALIC_ACID_RESIDUES:
@@ -761,15 +823,31 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
     """Convert PDB glycan nomenclature to GLYCAM naming."""
     atoms, residues, bond_graph, link_records = _parse_pdb(input_path)
 
-    # Detect glycosidic bonds
+    # Detect glycosidic bonds. Always run the distance-based detector
+    # too, even when CONECT records exist — CONECT/LINK annotation in
+    # real deposited PDBs is sometimes incomplete for a subset of
+    # genuine glycosylation sites (an annotation gap, not evidence the
+    # bond doesn't exist). Previously trusting "any CONECT present" as
+    # an all-or-nothing gate silently dropped those under-annotated
+    # sites entirely — their sugar tree ended up floating, unbonded to
+    # the protein, in the final output.
+    dist_glyco, dist_links = _detect_glycosidic_bonds_by_distance(atoms, residues)
     if bond_graph:
-        glyco_bonds, protein_links = _detect_glycosidic_bonds(
+        conect_glyco, conect_links = _detect_glycosidic_bonds(
             atoms, residues, bond_graph)
+        glyco_bonds, protein_links = _merge_glycosidic_bonds(
+            (conect_glyco, conect_links), (dist_glyco, dist_links))
         if verbose:
-            print(f"  Detected {len(glyco_bonds)} glycosidic bonds from CONECT")
+            n_extra_glyco = len(glyco_bonds) - len(conect_glyco)
+            n_extra_links = len(protein_links) - len(conect_links)
+            extra = (f" (+{n_extra_glyco} more by distance, filling CONECT gaps)"
+                     if n_extra_glyco > 0 else "")
+            print(f"  Detected {len(conect_glyco)} glycosidic bonds from CONECT{extra}")
+            if n_extra_links > 0:
+                print(f"  +{n_extra_links} protein-sugar link(s) found by "
+                      f"distance, not present in CONECT/LINK")
     else:
-        glyco_bonds, protein_links = _detect_glycosidic_bonds_by_distance(
-            atoms, residues)
+        glyco_bonds, protein_links = dist_glyco, dist_links
         if verbose:
             print(f"  Detected {len(glyco_bonds)} glycosidic bonds by distance")
 
@@ -965,8 +1043,9 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
 
     out_lines.append('END\n')
 
+    header_lines = _extract_passthrough_header_lines(input_path)
     with open(output_path, 'w') as f:
-        f.writelines(out_lines)
+        f.writelines(header_lines + out_lines)
 
     return len(glycam_names), len(protein_renames)
 

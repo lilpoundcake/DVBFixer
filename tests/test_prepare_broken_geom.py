@@ -49,23 +49,63 @@ def _dist(a: tuple[float, float, float], b: tuple[float, float, float]) -> float
     return math.sqrt(sum((ai - bi) ** 2 for ai, bi in zip(a, b)))
 
 
-def test_prepare_fixes_coincident_hg_and_oxt(fixtures_root: Path, tmp_workdir: Path) -> None:
-    """prepare on `broken_SER/SER.pdb` must place HG within 1.2 Å of OG (a
-    reasonable upper bound; correct O-H bond is ~0.97 Å).
+# Synthetic reproducer for the originally reported bug: a C-terminal SER
+# whose input file placed HG at the SAME coordinates as OXT (0 Å apart —
+# clearly a coordinate-corruption bug in some upstream tool), giving an
+# OG-HG distance of ~1.7 Å once OpenMM's CSER template repositions things.
+# Built in-test (rather than depending on a `test/broken_SER/SER.pdb`
+# fixture, which is git-ignored and not guaranteed present in every
+# environment) so this regression always runs instead of silently
+# skipping when the external fixture is absent.
+_SER_INPUT_HG_COINCIDENT_WITH_OXT = """\
+ATOM   4731  N   SER B 125     -17.531  20.605 -24.080  1.00  0.00           N
+ATOM   4732  H   SER B 125     -16.866  20.377 -24.816  1.00  0.00           H
+ATOM   4733  CA  SER B 125     -18.451  21.721 -24.269  1.00  0.00           C
+ATOM   4734  HA  SER B 125     -19.301  21.599 -23.599  1.00  0.00           H
+ATOM   4735  C   SER B 125     -18.969  21.755 -25.702  1.00  0.00           C
+ATOM   4736  O   SER B 125     -18.179  21.679 -26.655  1.00  0.00           O
+ATOM   4737  CB  SER B 125     -17.748  23.028 -23.912  1.00  0.00           C
+ATOM   4738  HB2 SER B 125     -17.280  22.939 -22.932  1.00  0.00           H
+ATOM   4739  HB3 SER B 125     -16.994  23.237 -24.670  1.00  0.00           H
+ATOM   4740  OG  SER B 125     -18.664  24.103 -23.849  1.00  0.00           O
+ATOM   4741  HG  SER B 125     -18.389  24.725 -23.181  1.00  0.00           H
+ATOM   4742  N   SER B 126     -20.246  21.928 -25.860  1.00  0.00           N
+ATOM   4743  H   SER B 126     -20.762  22.238 -25.051  1.00  0.00           H
+ATOM   4744  CA  SER B 126     -20.916  22.100 -27.152  1.00  0.00           C
+ATOM   4745  HA  SER B 126     -20.275  21.751 -27.937  1.00  0.00           H
+ATOM   4746  C   SER B 126     -21.114  23.596 -27.370  1.00  0.00           C
+ATOM   4747  O   SER B 126     -20.149  24.343 -27.634  1.00  0.00           O
+ATOM   4748  CB  SER B 126     -22.268  21.363 -27.174  1.00  0.00           C
+ATOM   4749  HB2 SER B 126     -22.692  21.265 -28.187  1.00  0.00           H
+ATOM   4750  HB3 SER B 126     -22.069  20.334 -26.888  1.00  0.00           H
+ATOM   4751  OG  SER B 126     -23.160  21.914 -26.218  1.00  0.00           O
+ATOM   4752  HG  SER B 126     -22.355  23.104 -27.085  1.00  0.00           H
+ATOM   4753  OXT SER B 126     -22.355  23.104 -27.085  1.00  0.00           O
+TER
+END
+"""
+
+
+def test_prepare_fixes_coincident_hg_and_oxt(tmp_workdir: Path) -> None:
+    """prepare on a coincident-HG/OXT SER must place HG within 1.2 Å of OG
+    (a reasonable upper bound; correct O-H bond is ~0.97 Å).
     """
-    broken = fixtures_root / "broken_SER" / "SER.pdb"
-    if not broken.exists():
-        pytest.skip(f"fixture missing: {broken}")
+    broken = tmp_workdir / "broken_ser.pdb"
+    broken.write_text(_SER_INPUT_HG_COINCIDENT_WITH_OXT)
     out = tmp_workdir / "fixed.pdb"
     prepare_main([str(broken), "-o", str(out)])
 
     atoms = _atoms(out, "B", "126")
     assert "HG" in atoms, f"HG missing from output: {list(atoms)}"
-    assert "OG" in atoms and "OXT" in atoms and "C" in atoms
+    assert "OG" in atoms and "C" in atoms
+    # C-terminal OXT is renamed to OC1 (GROMACS convention) on output by
+    # ffutils.ff_names.apply_variants_to_pdb_text (0.7.0) — accept either.
+    oxt_key = "OXT" if "OXT" in atoms else "OC1"
+    assert oxt_key in atoms, f"neither OXT nor OC1 in output: {sorted(atoms)}"
 
     d_og_hg = _dist(atoms["OG"], atoms["HG"])
-    d_c_oxt = _dist(atoms["C"], atoms["OXT"])
-    d_hg_oxt = _dist(atoms["HG"], atoms["OXT"])
+    d_c_oxt = _dist(atoms["C"], atoms[oxt_key])
+    d_hg_oxt = _dist(atoms["HG"], atoms[oxt_key])
 
     assert d_og_hg < 1.2, (
         f"HG-OG distance {d_og_hg:.3f} Å is too large (broken geometry). "

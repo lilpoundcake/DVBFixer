@@ -194,6 +194,19 @@ separate chains and the PIR alignment fails with a BLK alignment error
 every chain ID's ATOM/HETATM records into a single contiguous block in
 the temp PDB Modeller reads. No-op on already-contiguous inputs.
 
+### `model.main` — CONECT inference runs BEFORE Modeller (0.7.9)
+
+`_materialise_inferred_pdb` (same helper `convert`'s CLI already used)
+now runs early in `model.main()`, before Modeller ever reads the file,
+filling in missing SS/glycosidic/glycosylation CONECT records from
+coordinates. Modeller has no other way to know two chains are
+covalently linked — an under-annotated glycosylation site (real bond,
+no CONECT/LINK in the deposited PDB) previously got repositioned
+arbitrarily far from its anchor during structure-building, because
+fixing CONECT *after* Modeller runs is too late: the damage (arbitrary
+relative chain placement) already happened. `--no-infer-conect` opts
+out. `zbs.py` threads the same flag through to the `model` step.
+
 ### `antibody.number_chain` — antibody-aware residue numbering
 
 Module: `src/dvbfixer/antibody.py`. Used by `renumber` when `--scheme` is
@@ -369,6 +382,28 @@ restraints on protein heavy atoms (k=1000→100→10→0 kJ/mol/nm²).
 `--gromacs DIR` exports GMX topology via the same `acpype_export.py`
 helpers used by `dvbfixer top --acpype`.
 
+### `glycam.convert_to_glycam(input_path, output_path)` — forward direction
+
+`_parse_pdb` only ever reads ATOM/HETATM/CONECT/LINK — everything else
+(SEQRES, HELIX, SHEET, CRYST1, ...) used to be silently dropped from
+the output entirely (fixed 0.7.9: `_extract_passthrough_header_lines`
+reads the raw input file and passes through every line whose record
+type isn't ATOM/HETATM/CONECT/TER/END/MODEL/ENDMDL, mirroring
+`align.py`'s `_apply_transform_preserving_headers` pattern). Losing
+SEQRES specifically broke downstream gap-modeling for anyone piping
+`convert` straight into `model`/`zbs`, since `model.py` needs SEQRES to
+know the full sequence including missing residues.
+
+Glycosidic-bond detection was also an either/or gate: if the input had
+*any* CONECT records, they were trusted *exclusively* for every
+residue, with no distance cross-check — so a real but under-annotated
+glycosylation site (CONECT covers some sites but not all, a genuine
+gap in the deposited PDB, not something dvbfixer caused) silently lost
+its protein-sugar link. `_merge_glycosidic_bonds` (0.7.9) changes this
+to always-supplement: CONECT-derived bonds win, and
+`_detect_glycosidic_bonds_by_distance` fills in any child atom /
+sugar not already covered by a CONECT-derived bond.
+
 ### `glycam.convert_to_charmm(input_path, output_path)` — reverse direction
 
 Mirror of `convert_to_glycam`. Strips GLYCAM linkage characters, looks up
@@ -537,6 +572,47 @@ See "Three force-field paths" section 3 above. Called by
 before `create_forcefield_with_openff` so the resulting
 `GAFFTemplateGenerator` gets registered on the ForceField for
 `createSystem`.
+
+`_extract_residue_sdf` builds each ligand's SDF via a heavy-atom-only
+sub-`OBMol` (`ConnectTheDots()` + `PerceiveBondOrders()` on heavy atoms
+alone, then hydrogens re-attached at their existing positions with
+forced bond order 1) rather than running OpenBabel's whole-molecule
+bond perception directly on the (already-hydrogenated) prepared PDB —
+the latter was badly miscalling bond orders (near-every bond, including
+N-C and C-H, coming back as order 2) once explicit hydrogens were
+present, independent of any ligand-specific fix. `OpenFF`'s
+`Molecule.from_file` trusts the SDF's bond orders/formal charges
+directly with no independent re-derivation, so a wrong SDF means a
+wrong (or radical, unparsable) GAFF2 template.
+
+### `ffutils/ligand_valence.py` — ionizable-group + known-alkene overrides
+
+Shared by both `prepare.glycan`'s heterogen-H passes (RDKit and
+OpenBabel) and `lig_params._extract_residue_sdf`. Two independent
+pieces of chemistry that geometry-only bond perception can't recover:
+- `find_ionizable_terminal_oxygens_{rdkit,openbabel}` — detects
+  carboxylate (C + ≥2 single-bonded terminal O) / sulfonate-or-sulfate
+  (S + ≥3) / phosphate (P + ≥3) groups purely from connectivity (no
+  per-ligand database), since these are never protonated at
+  physiological pH regardless of what a naive degree-based H-filler
+  would add. Generalizes beyond the two ligands (DAN carboxylate, EPE
+  sulfonate) that surfaced the bug — covers any current or future
+  ligand with these common groups.
+- `_KNOWN_DOUBLE_BONDS` / `_H_COUNT_OVERRIDES` — a small per-ligand
+  table for genuine double bonds with no geometric signature at
+  crystallographic resolution (DAN's ring alkene C2=C3, from
+  "2,3-didehydro" sialic acid; its C10=O10 amide carbonyl). Both
+  RDKit's `AddHs` and OpenBabel's `addh()` compute added-H count from
+  atom DEGREE, not bond-order-weighted valence, so setting the bond
+  order alone has zero effect — `_H_COUNT_OVERRIDES` caps the H count
+  directly, the same mechanism `glycan.py`'s pre-existing
+  `_NO_H_ATOM_NAMES` used for amide carbonyls. The
+  `apply_double_bond_override*` functions reset the residue's
+  intra-residue bonds to single FIRST, then apply only the known
+  correct double bond(s) — RDKit's/OpenBabel's own proximity-bonding
+  perception can independently mark a *neighbouring* bond double too
+  (bond-length shortening from conjugation), so patching bonds
+  one-at-a-time risks leaving an over-valent atom.
 
 ## Cross-module patterns
 
@@ -854,6 +930,16 @@ supported FFs, different alias-to-file mapping. See
 - CONECT serial remapping between PDB sources (acceptor vs graft) must
   use atom identity `(chain, resseq, atomname)`, not serial numbers —
   serials from different sources collide.
+- A bare/minimal `TER\n` record (as short as 4 characters, no serial,
+  resname, or padding) is valid PDB — but `line[11:]` on it returns an
+  empty string, not an IndexError (Python doesn't raise on an
+  out-of-range slice). `renumber.py`'s TER-handling previously relied
+  on `line[11:]` carrying the trailing newline through, so a bare TER
+  emitted a line with no newline at all, running directly into the
+  next physical line (`TER    4748HETATM 4749  C1  ...`) — every
+  downstream parser's line-start check then silently dropped that
+  atom (and everything else on the merged line). Fixed 0.7.9 by
+  explicitly ensuring the constructed TER line ends with `\n`.
 
 ## Recommended areas for future work
 

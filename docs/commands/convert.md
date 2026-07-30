@@ -29,6 +29,19 @@ Output is consumable by `top --ff charmm`.
 
 Text-based — no OpenMM dependency. Handles input from PDB, CHARMM-GUI, or `dvbfixer prepare`.
 
+**Header records are preserved** (since 0.7.9): SEQRES, HELIX, SHEET,
+CRYST1, and other non-ATOM/HETATM/CONECT records pass through
+unchanged from input to output. This matters if you pipe `convert`'s
+output straight into `model`/`zbs` — `model` needs SEQRES to know the
+full sequence including missing residues.
+
+**Glycosidic-bond detection combines CONECT and distance** (since
+0.7.9): if the input's CONECT/LINK records document some but not all
+of its glycosylation sites (a real gap in many deposited PDBs — not
+every site was carefully annotated), the distance-based detector now
+fills in whichever sites CONECT doesn't already cover, instead of
+trusting CONECT exclusively the moment any CONECT record is present.
+
 **Stale-H cleanup**: when an input labels a residue with an AMBER variant name but still carries H atoms the AMBER template doesn't have (e.g. a user manually renamed `LYS→LYN` without dropping `HZ1`), `convert` drops the extra H atoms during its rename pass:
 
 | Variant | Atoms dropped | Why |

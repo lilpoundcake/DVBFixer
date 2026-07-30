@@ -10,7 +10,7 @@ usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA] [-n NUM_MODELS]
                       [--md-level {none,fast,slow,very_slow,slow_large}]
                       [--pin-input | --no-pin-input] [--no-terminal]
                       [--renumber-from-1] [--keep-water] [--strip-heterogens]
-                      [--keep-workdir] [-v]
+                      [--no-infer-conect] [--keep-workdir] [-v]
                       input
 
 Rebuild missing loops and gaps in a PDB structure using Modeller. Identifies
@@ -70,6 +70,15 @@ Content selection:
                         — Modeller usually benefits from heterogen context for
                         loop refinement, but in some cases (bad ligand
                         geometry, ambiguous CONECT) they cause artifacts.
+  --no-infer-conect     Skip automatic CONECT inference before Modeller runs.
+                        Default: infer missing CONECT bonds
+                        (SS/glycosidic/glycosylation) from coordinates first,
+                        so an under-annotated glycosylation site (real bond,
+                        but no CONECT/LINK in the deposited PDB) doesn't get
+                        repositioned arbitrarily far from its anchor during
+                        modeling — Modeller has no way to know two chains are
+                        covalently linked unless a bond is already documented
+                        before it runs.
 
 Diagnostics:
   --keep-workdir        Keep the Modeller working directory (for debugging)

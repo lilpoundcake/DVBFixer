@@ -85,3 +85,61 @@ def test_convert_glycam_idempotent(
     assert _resname_set(step1) == _resname_set(step2), (
         "convert not idempotent — residue names changed on second run"
     )
+
+
+def _count_records(pdb_path: Path, record: str) -> int:
+    prefix = f"{record:<6s}"[:6] if record != "CRYST1" else "CRYST1"
+    return sum(1 for line in pdb_path.read_text().splitlines()
+               if line.startswith(prefix))
+
+
+@pytest.mark.slow
+def test_convert_preserves_header_records(
+    glycoprot_underannotated_conect_pdb: Path, tmp_workdir: Path,
+) -> None:
+    """convert must pass through SEQRES/HELIX/SHEET/CRYST1 unchanged —
+    `_parse_pdb` only ever reads ATOM/HETATM/CONECT/LINK, so these were
+    previously silently dropped, breaking downstream gap-modeling
+    (which needs SEQRES) for anyone using convert -> zbs directly."""
+    output = tmp_workdir / "converted.pdb"
+    proc = subprocess.run(
+        ["dvbfixer", "convert", str(glycoprot_underannotated_conect_pdb),
+         "-o", str(output)],
+        capture_output=True, text=True,
+    )
+    assert proc.returncode == 0, (
+        f"convert failed: stdout={proc.stdout}\nstderr={proc.stderr}"
+    )
+    for record in ("SEQRES", "HELIX", "SHEET", "CRYST1"):
+        n_in = _count_records(glycoprot_underannotated_conect_pdb, record)
+        n_out = _count_records(output, record)
+        assert n_out == n_in, (
+            f"{record}: expected {n_in} (matching input), got {n_out} "
+            f"in convert output"
+        )
+
+
+@pytest.mark.slow
+def test_convert_finds_undocumented_glycosylation_site(
+    glycoprot_underannotated_conect_pdb: Path, tmp_workdir: Path,
+) -> None:
+    """This fixture has 4 real N-glycosylation sites (chains A, B, C×2),
+    but the deposited PDB's CONECT/LINK annotation only documents 2 of
+    them (a genuine annotation gap for the other 2, not evidence they
+    don't exist). convert's bond-detection previously trusted "any
+    CONECT present" as an all-or-nothing gate and silently missed the
+    undocumented sites entirely (their Asn stayed unrenamed, sugar tree
+    floating, unbonded). All 4 sites must be found now."""
+    output = tmp_workdir / "converted.pdb"
+    proc = subprocess.run(
+        ["dvbfixer", "convert", str(glycoprot_underannotated_conect_pdb),
+         "-o", str(output), "-v"],
+        capture_output=True, text=True,
+    )
+    assert proc.returncode == 0, (
+        f"convert failed: stdout={proc.stdout}\nstderr={proc.stderr}"
+    )
+    assert "Detected 4 protein-sugar links" in proc.stdout, (
+        f"expected all 4 protein-sugar glycosylation sites detected; "
+        f"stdout:\n{proc.stdout}"
+    )

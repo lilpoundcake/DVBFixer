@@ -102,6 +102,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
              "in some cases (bad ligand geometry, ambiguous CONECT) they "
              "cause artifacts.",
     )
+    content.add_argument(
+        "--no-infer-conect", dest="no_infer_conect", action="store_true",
+        help="Skip automatic CONECT inference before Modeller runs. "
+             "Default: infer missing CONECT bonds (SS/glycosidic/"
+             "glycosylation) from coordinates first, so an under-"
+             "annotated glycosylation site (real bond, but no CONECT/LINK "
+             "in the deposited PDB) doesn't get repositioned arbitrarily "
+             "far from its anchor during modeling — Modeller has no way "
+             "to know two chains are covalently linked unless a bond is "
+             "already documented before it runs.",
+    )
 
     diag = p.add_argument_group("Diagnostics")
     diag.add_argument(

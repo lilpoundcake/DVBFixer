@@ -532,6 +532,13 @@ def restore_conect_records(result_lines, original_lines, verbose=False,
     Without `per_chain_masks` (e.g. when called without alignment info),
     falls back to naive position-by-position alignment which is correct
     only when no gaps were filled.
+
+    Note: `original_lines` should already have any CONECT gaps
+    supplemented (see `main()`'s CONECT-inference pre-processing,
+    applied to the input BEFORE Modeller ever runs) — restoring
+    whatever CONECT text is present here happens too late to prevent
+    an under-annotated glycan chain from being repositioned during
+    modeling; the fix has to happen before, not after.
     """
     def _build_residue_index(lines):
         """Walk all ATOM/HETATM lines and return:
@@ -828,6 +835,22 @@ def main(argv=None):
         output_path = Path(args.output).resolve()
     else:
         output_path = input_path.with_stem(input_path.stem + "_model")
+
+    # Infer missing CONECT bonds (SS/glycosidic/glycosylation) from
+    # coordinates BEFORE Modeller ever runs — not after. A real
+    # deposited PDB can have incomplete CONECT/LINK annotation for a
+    # genuine glycosylation site; without an explicit bond documented
+    # up front, Modeller has no way to know an under-annotated glycan
+    # chain is covalently anchored to the protein, and can reposition
+    # it arbitrarily far away during structure-building. No downstream
+    # distance-based bond detection (e.g. `convert_to_glycam`) can
+    # recover the connection once the geometry itself has drifted
+    # apart — the same information restore_conect_records applies
+    # AFTER modeling is already too late for this specific failure mode.
+    if not args.no_infer_conect:
+        from dvbfixer.pdbutils import _materialise_inferred_pdb
+        input_path = Path(_materialise_inferred_pdb(
+            input_path, verbose=args.verbose))
 
     with open(input_path) as f:
         lines = f.readlines()

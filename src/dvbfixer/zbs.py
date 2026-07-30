@@ -358,6 +358,8 @@ def _run_pipeline(args, input_path):
             model_argv.append("--strip-heterogens")
         if args.keep_water:
             model_argv.append("--keep-water")
+        if args.no_infer_conect:
+            model_argv.append("--no-infer-conect")
         if args.verbose:
             model_argv.append("-v")
         model_main(model_argv)

@@ -8,6 +8,116 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.9] — 2026-07-30
+
+### Fixed
+
+- **Ligand H/valence bugs on `prepare`'s heterogen-H passes** (both
+  the RDKit and OpenBabel code paths in `prepare/glycan.py`), plus
+  the identical root cause in `--parametrize-ligands`
+  (`lig_params.py`):
+  - **DAN's ring alkene (C2=C3, "2,3-didehydro" sialic acid) and its
+    amide carbonyl (C10=O10)** weren't recognised by geometry-only
+    bond perception (the crystal C2-C3 distance reads as an ordinary
+    single bond at this resolution), so C2/C3 were saturated to sp3
+    (spurious H on C2, one too many on C3), and DAN's SDF for GAFF2
+    had an unfillable radical. New `dvbfixer.ffutils.ligand_valence`
+    module carries a small per-ligand `_KNOWN_DOUBLE_BONDS` /
+    `_H_COUNT_OVERRIDES` table for exactly this class of problem —
+    note that both RDKit's `AddHs` and OpenBabel's `addh()` compute
+    added-H count from atom DEGREE, not bond-order-weighted valence,
+    so a bond-order override alone has zero effect; only the direct
+    H-count override works.
+  - **Carboxylate/sulfonate over-protonation** — DAN's carboxylate
+    and EPE's (HEPES) sulfonate (`S, O1S, O2S, O3S` — fully ionized
+    -SO3⁻ at physiological pH) were getting spurious hydroxyls added.
+    `ligand_valence.find_ionizable_terminal_oxygens_{rdkit,openbabel}`
+    detects these purely from connectivity (any C/S/P center with
+    ≥2/≥3 single-bonded terminal oxygens) rather than hardcoding more
+    per-ligand exceptions, so it generalizes to any current or future
+    ligand with these very common groups.
+  - **`lig_params._extract_residue_sdf`'s OpenBabel bond perception
+    was badly broken whenever hydrogens were already present** (as
+    they always are, post-`prepare`) — nearly every bond, including
+    N-C and C-H, came back as order 2, independent of any
+    ligand-specific issue. Fixed by rebuilding a heavy-atom-only
+    sub-`OBMol` (`ConnectTheDots()` + `PerceiveBondOrders()` on heavy
+    atoms alone) and re-attaching hydrogens afterward at their
+    existing positions with forced bond order 1, since `OpenFF`'s
+    `Molecule.from_file` trusts the SDF's bond orders/formal charges
+    directly with no independent re-derivation.
+
+- **`dvbfixer convert` (`glycam.py`) silently dropped every non-ATOM/
+  HETATM/CONECT header record** (SEQRES, HELIX, SHEET, CRYST1, ...)
+  — `_parse_pdb` only ever read ATOM/HETATM/CONECT/LINK. Losing
+  SEQRES specifically broke downstream `model` gap-filling for anyone
+  piping `convert` straight into `model`/`zbs`. Fixed via
+  `_extract_passthrough_header_lines`, mirroring `align.py`'s
+  existing `_apply_transform_preserving_headers` pattern.
+
+- **`convert_to_glycam`'s glycosidic-bond detection was an
+  either/or CONECT gate**: if the input had *any* CONECT records,
+  they were trusted exclusively for every residue, with no distance
+  cross-check. A real PDB can have CONECT for some but not all of its
+  N-glycosylation sites (a genuine annotation gap in the deposited
+  file, not something dvbfixer caused) — the undocumented sites'
+  Asn stayed unrenamed and their sugar trees ended up floating,
+  unbonded, in the final output. `_merge_glycosidic_bonds` now always
+  supplements CONECT-derived bonds with the distance-based detector
+  for any site CONECT doesn't already cover.
+
+- **`model.py`'s Modeller step could reposition an undocumented
+  glycan chain arbitrarily far from its protein anchor.** Modeller
+  has no way to know two chains are covalently linked unless a bond
+  is already documented (CONECT) before it runs. `model.main` now
+  calls the same `_materialise_inferred_pdb` CONECT-inference helper
+  `convert`'s CLI already used, early, before Modeller reads the
+  file. New `--no-infer-conect` flag opts out; threaded through
+  `zbs.py` to the `model` step. Fixing CONECT *after* Modeller ran
+  was tried and found ineffective — by then the arbitrary
+  repositioning has already happened.
+
+- **`renumber.py` silently dropped atoms following a bare/minimal
+  `TER\n` record** (as short as 4 characters — valid PDB, but
+  `line[11:]` on it returns `''`, not an IndexError, since Python
+  doesn't raise on an out-of-range slice). The constructed output
+  line then had no newline at all, merging directly into the next
+  physical line (`TER    4748HETATM 4749  C1  ...`) — every
+  downstream parser's line-start check silently dropped that atom
+  (and everything else on the merged line). This was the true final
+  root cause of an anomeric-carbon loss that broke glycosidic-bond
+  detection several steps downstream, chained together with the two
+  fixes above. Fixed by explicitly ensuring the output TER line ends
+  with `\n`.
+
+- **`minimize`'s unconditional force-reflect fallback (0.7.4) could
+  leave a real inter-residue steric clash**, not just "minor
+  strain" as previously assumed — a rigid sidechain mirror can swing
+  a hydrogen into a neighbouring residue's atom, and hydrogens carry
+  no restraint at all so they can't dodge during the reflect itself.
+  Root-caused a flaky `2VLQ_original.pdb` regression failure
+  (`test_zbs_shit_inputs.py`) that only ever reproduced inside a full
+  test-suite run, never in isolation, because whether any residue
+  needs forced reflection depends on Modeller's stochastic loop/MD
+  refinement. Fixed by re-anchoring the reflected residue's restraint
+  targets to their NEW post-reflection position (backbone atoms are
+  untouched by `fix_ca_chirality`, so this is a no-op for them) before
+  a bounded local `minimizeEnergy` — this lets the unrestrained
+  neighbouring hydrogens relax away from the clash with no
+  restraint-driven or energetic path back to D. The zero-D-Cα
+  guarantee is unchanged: a `find_d_residues` check still runs after,
+  falling back to an unconditional re-reflect (no minimize) if a
+  residue ever reverts.
+
+### Changed
+
+- `tests/test_prepare_broken_geom.py::test_prepare_fixes_coincident_hg_and_oxt`
+  no longer depends on the git-ignored `test/broken_SER/SER.pdb`
+  fixture (previously skipped whenever that fixture wasn't present
+  locally) — it now builds the same coincident-HG/OXT SER scenario
+  as an in-test PDB string, matching the pattern already used by the
+  adjacent missing-HG regression test.
+
 ## [0.7.8] — 2026-07-30
 
 ### Fixed

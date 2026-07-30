@@ -1110,10 +1110,10 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                 print(f"  ...and {len(final_offenders) - 20} more",
                       file=sys.stderr)
             if n_forced:
-                # Use the reflected positions AS-IS (no follow-up
-                # minimize). Any additional minimize would pull CB back
-                # to the FF's preferred D minimum, undoing the fix.
-                # Sidechain internal geometry is preserved by
+                # A plain follow-up minimize here would pull CB back
+                # toward the FF's preferred D minimum, undoing the fix
+                # — UNLESS the restraint anchors are moved first (see
+                # below). Sidechain internal geometry is preserved by
                 # fix_ca_chirality (reflects the whole sidechain, not
                 # just CB), so bond lengths within the sidechain are
                 # unchanged; only CB's position relative to backbone
@@ -1136,6 +1136,69 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                     for ch, rid, name, tri in still_d[:5]:
                         print(f"    {ch}/{name}{rid}: triple={tri:+.5f} nm³",
                               file=sys.stderr)
+
+                # Rigid reflection swings the whole sidechain to its
+                # mirror image, which can land a hydrogen inside a
+                # neighbouring residue (hydrogens carry no restraint at
+                # all in `restraint`, so they were never free to dodge
+                # during the reflect itself). Resolve this with one
+                # bounded LOCAL minimize — but first re-anchor every
+                # restrained atom of the just-reflected residues to
+                # their NEW (already-corrected) position. Backbone
+                # atoms are untouched by fix_ca_chirality, so
+                # re-anchoring them is a no-op; only the reflected
+                # sidechain's anchor actually moves. Because the
+                # anchor now points at the corrected geometry (not the
+                # old D-favoring one), this minimize has no energetic
+                # or restraint-driven path back to D — it can only let
+                # the genuinely unrestrained neighbours (hydrogens)
+                # relax out of the way.
+                target_keys = {(ch, rid, name)
+                               for ch, rid, name, _tri in final_offenders}
+                target_atom_indices = {
+                    atom.index
+                    for res in min_topology.residues()
+                    if (res.chain.id, str(res.id), res.name) in target_keys
+                    for atom in res.atoms()
+                }
+                n_reanchored = 0
+                for i in range(restraint.getNumParticles()):
+                    atom_idx, params = restraint.getParticleParameters(i)
+                    if atom_idx in target_atom_indices:
+                        p = min_positions[atom_idx]
+                        x0 = p[0].value_in_unit(nanometer)
+                        y0 = p[1].value_in_unit(nanometer)
+                        z0 = p[2].value_in_unit(nanometer)
+                        restraint.setParticleParameters(
+                            i, atom_idx, [params[0], x0, y0, z0])
+                        n_reanchored += 1
+                if n_reanchored:
+                    restraint.updateParametersInContext(simulation.context)
+                    simulation.minimizeEnergy(
+                        maxIterations=max(200, args.max_iter // 4))
+                    state = simulation.context.getState(
+                        getEnergy=True, getPositions=True)
+                    min_positions = state.getPositions()
+                    print(f"  Local relax after forced reflection "
+                          f"(anchors moved to corrected geometry): "
+                          f"{state.getPotentialEnergy()}", file=sys.stderr)
+                    # Sanity check only — the re-anchored restraint
+                    # should make this impossible, but the chirality
+                    # invariant is non-negotiable, so re-reflect rather
+                    # than ever emit a D residue.
+                    post_relax_d = find_d_residues(min_topology, min_positions)
+                    if post_relax_d:
+                        print(f"  {len(post_relax_d)} residue(s) reverted to "
+                              f"D-Cα during post-reflect local relax; "
+                              f"reflecting again unconditionally.",
+                              file=sys.stderr)
+                        pos_list = list(min_positions)
+                        fix_ca_chirality(min_topology, pos_list,
+                                          verbose=args.verbose)
+                        simulation.context.setPositions(pos_list)
+                        min_positions = simulation.context.getState(
+                            getPositions=True,
+                        ).getPositions()
 
     # Restore non-protein residues with original coordinates (legacy path only).
     # When keep_heterogens is on, n_stripped==0 and we write the minimized topology directly.

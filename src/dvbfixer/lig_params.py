@@ -125,8 +125,6 @@ def _extract_residue_sdf(pdb_path, chain_id, res_id, out_sdf, verbose=False):
         print(f"  [lig_params] OpenBabel could not read {pdb_path}")
         return False
 
-    # Build a sub-OBMol containing only the target residue's atoms.
-    sub = ob.OBMol()
     keep = []
     for atom in ob.OBMolAtomIter(mol):
         res = atom.GetResidue()
@@ -145,19 +143,79 @@ def _extract_residue_sdf(pdb_path, chain_id, res_id, out_sdf, verbose=False):
               f"{target_chain!r} resnum {target_num}")
         return False
 
+    # OpenBabel's whole-molecule bond-order perception (triggered inside
+    # ReadFile above) gets badly confused whenever explicit hydrogens are
+    # already present in the input — which is always true here, since
+    # this runs on an already-`prepare`d structure. Confirmed empirically:
+    # it can mark nearly every heavy-heavy (and even C-H) bond as double,
+    # for an arbitrary ligand, not just a specific known case. Reading the
+    # SAME structure with hydrogens stripped gives correct bond orders.
+    # Work around it by building the heavy-atom skeleton with NO bonds
+    # copied from `mol`, then deriving bond order fresh via OpenBabel's
+    # own distance-based ConnectTheDots + PerceiveBondOrders (which is
+    # what a from-scratch heavy-atom-only read does correctly) — then
+    # re-attaching the existing (already correctly placed) hydrogens
+    # with bond order 1, which is unambiguous and needs no perception.
+    sub = ob.OBMol()
     old_to_new = {}
+    name_to_atom = {}
+    resname = None
+    heavy_old_indices = []
+    h_old_indices = []
     for old_idx in keep:
+        atom = mol.GetAtom(old_idx)
+        if atom.GetAtomicNum() == 1:
+            h_old_indices.append(old_idx)
+        else:
+            heavy_old_indices.append(old_idx)
+
+    for old_idx in heavy_old_indices:
         atom = mol.GetAtom(old_idx)
         new_atom = sub.NewAtom()
         new_atom.SetAtomicNum(atom.GetAtomicNum())
         new_atom.SetVector(atom.x(), atom.y(), atom.z())
         old_to_new[old_idx] = new_atom.GetIdx()
+        res_info = atom.GetResidue()
+        if res_info is not None:
+            resname = res_info.GetName()
+            atom_name = res_info.GetAtomID(atom).strip()
+            if atom_name:
+                name_to_atom[atom_name] = new_atom
 
-    for bond in ob.OBMolBondIter(mol):
-        a = bond.GetBeginAtomIdx()
-        b = bond.GetEndAtomIdx()
-        if a in old_to_new and b in old_to_new:
-            sub.AddBond(old_to_new[a], old_to_new[b], bond.GetBondOrder())
+    sub.ConnectTheDots()
+    sub.PerceiveBondOrders()
+
+    # Re-attach hydrogens at their existing (already correct) positions,
+    # bonded to whichever heavy atom they were bonded to in `mol` — H
+    # bonds are always order 1, no perception needed.
+    for old_idx in h_old_indices:
+        atom = mol.GetAtom(old_idx)
+        parent_new_idx = None
+        for bond in ob.OBAtomBondIter(atom):
+            other = bond.GetNbrAtom(atom)
+            if other.GetIdx() in old_to_new:
+                parent_new_idx = old_to_new[other.GetIdx()]
+                break
+        if parent_new_idx is None:
+            continue
+        new_h = sub.NewAtom()
+        new_h.SetAtomicNum(1)
+        new_h.SetVector(atom.x(), atom.y(), atom.z())
+        sub.AddBond(parent_new_idx, new_h.GetIdx(), 1)
+
+    # Same PDB-has-no-bond-order limitation applies to the handful of
+    # cases below even after the workaround above: a genuine ligand
+    # double bond that distance-based perception still can't recover
+    # (DAN's ring alkene), or an ionized carboxylate/sulfonate/phosphate
+    # that needs explicit formal charges for antechamber to compute the
+    # correct net molecular charge. Fix known cases before writing.
+    if resname is not None:
+        from dvbfixer.ffutils.ligand_valence import (
+            apply_double_bond_override_openbabel,
+            assign_ionizable_bond_orders_openbabel,
+        )
+        apply_double_bond_override_openbabel(resname, name_to_atom)
+        assign_ionizable_bond_orders_openbabel(sub)
 
     if not obconv.WriteFile(sub, str(out_sdf)):
         print(f"  [lig_params] OpenBabel could not write {out_sdf}")

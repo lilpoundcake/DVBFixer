@@ -182,6 +182,70 @@ call bare `dvbfixer` resolve it. See
   from each subcommand's `parse_args()`. Run
   `python scripts/gen_cli_reference.py` after touching any argparse.
   CI enforces this with `--check`.
+- **Do not re-implement ionizable-group or ligand-alkene knowledge
+  outside `dvbfixer.ffutils.ligand_valence`.** Both
+  `prepare.glycan`'s RDKit and OpenBabel heterogen-H passes and
+  `lig_params._extract_residue_sdf` share it. Carboxylate/sulfonate-
+  or-sulfate/phosphate over-protonation is detected purely from
+  connectivity (`find_ionizable_terminal_oxygens_*`) — general, not
+  per-ligand. Genuine alkenes/carbonyls with no geometric signature
+  at crystallographic resolution (DAN's ring C2=C3, "2,3-didehydro"
+  sialic acid) need a `_KNOWN_DOUBLE_BONDS` / `_H_COUNT_OVERRIDES`
+  entry — note that RDKit's `AddHs`/OpenBabel's `addh()` compute
+  added-H count from atom DEGREE, not bond-order-weighted valence, so
+  setting bond order alone has zero effect on H count; only
+  `_H_COUNT_OVERRIDES` actually changes it.
+- **`lig_params._extract_residue_sdf` builds a heavy-atom-only
+  sub-`OBMol` first** (`ConnectTheDots()` + `PerceiveBondOrders()` on
+  heavy atoms alone, hydrogens re-attached after at forced bond order
+  1) rather than running OpenBabel's whole-molecule bond perception
+  on an already-hydrogenated PDB directly — the latter badly
+  miscalls bond orders once explicit H's are present (near-every
+  bond, including N-C and C-H, came back order 2), independent of any
+  per-ligand fix. `OpenFF`'s `Molecule.from_file` trusts the SDF's
+  bond orders/formal charges as-is with no independent re-derivation.
+- **`glycam.convert_to_glycam`/`convert_to_charmm` must pass through
+  non-ATOM/HETATM/CONECT header records** (SEQRES, HELIX, SHEET,
+  CRYST1, ...) via `_extract_passthrough_header_lines`, mirroring
+  `align.py`'s `_apply_transform_preserving_headers` pattern. Losing
+  SEQRES breaks downstream `model` gap-filling for anyone piping
+  `convert` straight into `model`/`zbs`. Glycosidic-bond detection
+  must always supplement CONECT-derived bonds with the
+  distance-based detector (`_merge_glycosidic_bonds`) rather than an
+  either/or gate — a real PDB can have CONECT for *some* but not all
+  of its glycosylation sites (a genuine annotation gap, not something
+  dvbfixer caused), and trusting CONECT exclusively whenever it's
+  present at all silently drops the undocumented sites.
+- **`model.main` runs CONECT inference (`_materialise_inferred_pdb`)
+  BEFORE Modeller, not after.** Modeller has no other way to know two
+  chains are covalently linked (e.g. an under-annotated
+  N-glycosylation site with a real bond but no CONECT/LINK in the
+  deposited PDB) and can reposition an undocumented chain arbitrarily
+  far from its anchor during structure-building — fixing CONECT
+  after Modeller runs is too late, the damage is already done.
+  `--no-infer-conect` opts out; `zbs.py` threads the same flag
+  through to `model`.
+- **A bare/minimal `TER\n` line (4 chars, no serial/resname/padding)
+  is valid PDB.** `line[11:]` on one returns `''` silently (no
+  IndexError on an out-of-range slice) — `renumber.py`'s TER handling
+  must explicitly ensure the constructed output line ends with `\n`,
+  or the next physical line merges directly onto it
+  (`TER    4748HETATM 4749  C1  ...`) and every downstream parser
+  silently drops that atom.
+- **`minimize`'s post-reflect local relax re-anchors restraints to
+  the NEW position, never the old one.** After the unconditional
+  force-reflect fallback (chirality invariant above), a plain
+  follow-up `minimizeEnergy` would pull the reflected sidechain back
+  toward the FF's D-preferring minimum — because the restraint's
+  anchor (`x0,y0,z0`) still points at the pre-reflection coordinate.
+  Update `restraint`'s per-particle anchor to the reflected residue's
+  current position FIRST (backbone atoms are untouched by
+  `fix_ca_chirality` so this is a no-op for them), then minimize —
+  this lets genuinely unrestrained neighbours (hydrogens) relax out
+  of any inter-residue clash the rigid reflection introduced, with no
+  energetic path back to D. Still followed by a `find_d_residues`
+  sanity check with unconditional re-reflect (no minimize) as a
+  fallback — the zero-D-Cα guarantee stays non-negotiable either way.
 
 ## Running tests locally
 

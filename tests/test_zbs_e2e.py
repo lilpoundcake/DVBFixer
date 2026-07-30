@@ -127,3 +127,40 @@ def test_zbs_glycoprot_amber_glycam_variant_preservation(
     pdb = PDBFile(str(out))
     n_res = sum(1 for _ in pdb.topology.residues())
     assert n_res > 0
+
+
+@pytest.mark.slow
+def test_zbs_preserves_undocumented_glycosylation_site(
+    glycoprot_underannotated_conect_pdb: Path, tmp_workdir: Path,
+) -> None:
+    """This fixture has 4 real N-glycosylation sites, but the deposited
+    PDB's own CONECT/LINK annotation only documents 2 of them, and its
+    raw text has a bare `TER` record right before one sugar chain's
+    HETATM block. Chained regression coverage: renumber's TER/newline
+    bug, model.py's CONECT-inference timing (before vs after
+    Modeller), and convert_to_glycam's all-or-nothing CONECT gate all
+    had to be fixed together for every site to survive the full
+    pipeline run directly (no `dvbfixer convert` pre-processing)."""
+    out = _run_zbs(glycoprot_underannotated_conect_pdb, tmp_workdir)
+    assert count_d_ca_residues(out) == 0
+
+    from openmm.app import PDBFile
+    pdb = PDBFile(str(out))
+    top = pdb.topology
+    nln_residues = [r for r in top.residues() if r.name == "NLN"]
+    assert len(nln_residues) == 4, (
+        f"expected 4 N-glycosylation sites renamed to NLN, got "
+        f"{len(nln_residues)}"
+    )
+    for r in nln_residues:
+        nd2 = next((a for a in r.atoms() if a.name == "ND2"), None)
+        assert nd2 is not None, f"{r.chain.id}:{r.name}{r.id} missing ND2"
+        bonded_to_sugar = any(
+            (b[0] is nd2 and b[1].residue is not r)
+            or (b[1] is nd2 and b[0].residue is not r)
+            for b in top.bonds()
+        )
+        assert bonded_to_sugar, (
+            f"{r.chain.id}:{r.name}{r.id}'s ND2 has no bond to a sugar "
+            f"tree — glycosylation site renamed but not actually linked"
+        )
