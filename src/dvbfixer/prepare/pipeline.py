@@ -1111,7 +1111,13 @@ def main(argv=None):
                     rs = line[22:26].strip()
                     var = var_lookup.get((ch, rs))
                     if var:
-                        line = f"ATOM  {line[6:17]}{var:>3s}{line[20:]}"
+                        # Preserve the original record type (ATOM/HETATM/TER)
+                        # — hardcoding "ATOM  " here used to corrupt TER
+                        # lines (which have no atom-name or coordinate
+                        # fields) into malformed, coordinate-less ATOM
+                        # records whenever the terminal residue itself had
+                        # a variant override (e.g. a C-terminal CYX).
+                        line = f"{line[:17]}{var:>3s}{line[20:]}"
                 f.write(line)
 
     _restore_variants(output_path)

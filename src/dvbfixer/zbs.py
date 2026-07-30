@@ -94,6 +94,16 @@ def parse_args(argv=None):
                       action="store_false", default=True,
                       help="Strip heterogens before processing (protein-only pipeline). "
                            "Default: keep heterogens through prepare and minimize the whole system.")
+    prep.add_argument("--backend", choices=["tleap-reduce", "legacy"],
+                      default="legacy",
+                      help="Prep backend, forwarded to prepare. 'legacy' "
+                           "(default): PDBFixer + Modeller.addHydrogens; "
+                           "handles glycans, ligands, heterogens and "
+                           "covalent-HETATM links. 'tleap-reduce': opt-in "
+                           "deterministic AmberTools + MolProbity pipeline "
+                           "(tleap for heavy atoms, reduce for H). "
+                           "Pure-protein only — rejects non-canonical "
+                           "residues and is incompatible with --mutate.")
     prep.add_argument("--no-heterogen-h", dest="heterogen_h",
                       action="store_false", default=True,
                       help="Skip hydrogen addition for heterogens in prepare "
@@ -178,6 +188,10 @@ def parse_args(argv=None):
 
     args = p.parse_args(argv)
 
+    if args.backend == "tleap-reduce" and args.mutate:
+        p.error("--mutate is not supported by the tleap-reduce backend; "
+                "rerun with --backend legacy for mutations.")
+
     # Deprecated --skip-protonate → forward as --no-propka --no-protassign
     # to prepare (0.7.7+: there is no separate protonate step).
     if getattr(args, 'skip_protonate', False):
@@ -241,7 +255,9 @@ def _print_dry_run(args, input_path, final_output):
             notes += ", --no-pin-input"
         _line("model", "_model", notes)
     if not args.skip_prepare:
-        notes = "backend: legacy (PDBFixer + Modeller.addHydrogens)"
+        notes = (f"backend: {args.backend} (PDBFixer + Modeller.addHydrogens)"
+                  if args.backend == "legacy" else
+                  f"backend: {args.backend} (AmberTools tleap + MolProbity reduce)")
         if not args.keep_heterogens:
             notes += ", --strip-heterogens"
         if args.mutate:
@@ -368,6 +384,7 @@ def _run_pipeline(args, input_path):
         prepare_argv = [current, "-o", out, "--ph", str(args.ph),
                         "--ff"] + args.ff
         prepare_argv.extend(["--atom-naming", args.atom_naming])
+        prepare_argv.extend(["--backend", args.backend])
         # Propagate PROPKA + Reduce flags into prepare (0.7.7+: legacy
         # prepare now runs PROPKA + Reduce internally so the pipeline
         # emits pKa-driven ASH/GLH/HIP/LYN/CYM variants and per-residue

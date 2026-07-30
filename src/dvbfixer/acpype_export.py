@@ -512,9 +512,53 @@ def add_glycam_bonds(topology, forcefield, verbose=False, positions=None):
                     existing_bonds.add(rpair)
                     added_sugar += 1
 
-    if added_intra or added_inter or added_sugar:
+        # Protein-to-sugar glycosylation bond (distance-based): the
+        # glycosylation donor atom (ND2 on ASN/NLN, OG on SER/OLS, OG1 on
+        # THR/OLT) within cutoff of a sugar's anomeric carbon. Without this
+        # bond, NLN/OLS/OLT's forcefield template can't match — its
+        # externally-bonded-atom set is missing the linkage to the glycan
+        # ("missing 1 N/O atom", "is the chain missing a terminal capping
+        # group?"). Mirrors dvbfixer.pdbutils.inference's file-level
+        # glycosylation override, which only applies to on-disk CONECT
+        # inference and isn't consulted by in-memory topology processing.
+        _glyco_donor_atoms = {
+            'ASN': 'ND2', 'NLN': 'ND2',
+            'SER': 'OG', 'OLS': 'OG',
+            'THR': 'OG1', 'OLT': 'OG1',
+        }
+        added_glyco = 0
+        for r in topology.residues():
+            donor_name = _glyco_donor_atoms.get(r.name)
+            if donor_name is None:
+                continue
+            donor = next((a for a in r.atoms() if a.name == donor_name), None)
+            if donor is None:
+                continue
+            dp = positions[donor.index]
+            dpv = dp.value_in_unit(nanometer) if nanometer is not None else dp
+            dx, dy, dz = float(dpv[0]), float(dpv[1]), float(dpv[2])
+            best = None
+            best_d2 = cutoff_nm * cutoff_nm * (2.5 / 2.0) ** 2  # 2.5 Å cutoff
+            for atom_c, c_pos in anomeric_atoms:
+                cx, cy, cz = float(c_pos[0]), float(c_pos[1]), float(c_pos[2])
+                d2 = (dx - cx) ** 2 + (dy - cy) ** 2 + (dz - cz) ** 2
+                if d2 < best_d2:
+                    best_d2 = d2
+                    best = atom_c
+            if best is not None:
+                pair = (donor.index, best.index)
+                rpair = (best.index, donor.index)
+                if pair not in existing_bonds and rpair not in existing_bonds:
+                    topology.addBond(donor, best)
+                    existing_bonds.add(pair)
+                    existing_bonds.add(rpair)
+                    added_glyco += 1
+    else:
+        added_glyco = 0
+
+    if added_intra or added_inter or added_sugar or added_glyco:
         print(f"  Added {added_intra} intra-residue + {added_inter} inter-residue "
-              f"+ {added_sugar} sugar-sugar bonds for GLYCAM")
+              f"+ {added_sugar} sugar-sugar + {added_glyco} glycosylation bonds for GLYCAM")
 
 
 _SOLVENT_IONS_BLOCK = """\

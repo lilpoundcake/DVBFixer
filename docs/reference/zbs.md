@@ -12,10 +12,11 @@ usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--no-terminal] [--num-loops NUM_LOOPS]
                     [--md-level {none,fast,slow,very_slow,slow_large}]
                     [--num-output NUM_OUTPUT] [--pin-input | --no-pin-input]
-                    [--strip-heterogens] [--no-heterogen-h]
-                    [--mutate CHAIN:RESNUM:NEW_AA] [--rename] [--no-solvent]
-                    [--rebuild-h] [--restraint-k RESTRAINT_K]
-                    [--max-iter MAX_ITER] [--refine {none,xtb,obminimize}]
+                    [--strip-heterogens] [--backend {tleap-reduce,legacy}]
+                    [--no-heterogen-h] [--mutate CHAIN:RESNUM:NEW_AA]
+                    [--rename] [--no-solvent] [--rebuild-h]
+                    [--restraint-k RESTRAINT_K] [--max-iter MAX_ITER]
+                    [--refine {none,xtb,obminimize}]
                     [--refine-heterogens-only] [--no-propka] [--no-protassign]
                     [--his-default {HIE,HID}] [--cys-ss-pka CYS_SS_PKA]
                     [--keep-water] [--no-infer-conect] [--keep-interim]
@@ -31,8 +32,7 @@ options:
 
 Input / output:
   input                 Input PDB file (must contain SEQRES)
-  -o OUTPUT, --output OUTPUT
-                        Final output PDB file (default: <input>_zbs.pdb)
+  -o, --output OUTPUT   Final output PDB file (default: <input>_zbs.pdb)
 
 Force field:
   --ph PH               pH for protonation and hydrogen addition (default:
@@ -86,6 +86,14 @@ Prepare step:
   --strip-heterogens    Strip heterogens before processing (protein-only
                         pipeline). Default: keep heterogens through prepare
                         and minimize the whole system.
+  --backend {tleap-reduce,legacy}
+                        Prep backend, forwarded to prepare. 'legacy'
+                        (default): PDBFixer + Modeller.addHydrogens; handles
+                        glycans, ligands, heterogens and covalent-HETATM
+                        links. 'tleap-reduce': opt-in deterministic AmberTools
+                        + MolProbity pipeline (tleap for heavy atoms, reduce
+                        for H). Pure-protein only — rejects non-canonical
+                        residues and is incompatible with --mutate.
   --no-heterogen-h      Skip hydrogen addition for heterogens in prepare
                         (default: add H to heterogens BioLuminate-style).
   --mutate CHAIN:RESNUM:NEW_AA

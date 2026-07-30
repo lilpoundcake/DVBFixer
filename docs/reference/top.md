@@ -21,8 +21,7 @@ options:
 
 Input / output:
   input                 Input PDB file
-  -o OUTPUT, --output OUTPUT
-                        Output .top file (default: topol.top)
+  -o, --output OUTPUT   Output .top file (default: topol.top)
   --pdb PDB             Output PDB file with topology-matched atom names
 
 Force field / solvation:

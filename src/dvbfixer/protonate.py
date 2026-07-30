@@ -58,9 +58,10 @@ def parse_args(argv=None):
         help="Default neutral HIS tautomer when pKa < pH (default: HIE = Ne2 protonated)"
     )
     ph.add_argument(
-        "--cys-disulfide-pka", type=float, default=90.0,
+        "--cys-disulfide-pka", type=float, default=99.99,
         help="PROPKA pKa threshold above which CYS is assumed to be in a disulfide "
-             "bond and renamed to CYX (default: 90.0). No-op under --no-propka."
+             "bond and renamed to CYX (default: 99.99, matching PROPKA's sentinel). "
+             "No-op under --no-propka."
     )
 
     p.add_argument(

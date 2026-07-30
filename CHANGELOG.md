@@ -8,9 +8,90 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
-## [Unreleased]
+## [0.7.8] — 2026-07-30
 
-### Documented
+### Fixed
+
+- **`environment.yml` / `pyproject.toml` now cap Python at `<3.14`.**
+  Previously only documented (see below) — the actual dependency
+  pins were still unbounded (`python >=3.11`), so a fresh env/install
+  could still resolve Python 3.14 and hit the propka crash. Both now
+  pin `>=3.11,<3.14`.
+
+- **Spurious duplicate disulfide (SG-SG) bonds crashing `minimize`.**
+  OpenMM's own `PDBFile.__init__` unconditionally calls
+  `Topology.createDisulfideBonds()` on every load, and
+  `PDBFixer.addMissingAtoms()` does the same internally on rebuild —
+  both are pure distance-cutoff scans with no 1:1 matching. On
+  structures where several CYS SG atoms sit close together (e.g. two
+  chain copies whose N-termini pack near each other), this gives one
+  SG atom two or three "partners", and `createSystem` then fails with
+  `No template found for residue N (CYS) ... has 1 S atom too many`.
+  Fixed at two levels: `pdbutils.inference.infer_conect_records` now
+  runs a centralized dedup (`_dedupe_ss_bonds`) across every bond
+  source (OpenBabel, the distance fallback, and `_domain_overrides`),
+  preferring pairs already in the file's own CONECT records and
+  resolving the rest by greedy nearest-distance 1:1 matching; and
+  `minimize.pipeline._drop_spurious_inter_aa_bonds` gained the same
+  resolution (a `positions`-driven nearest-match pass right after the
+  initial `PDBFile` load, plus a `valid_ss_pairs` snapshot-and-restore
+  around the strip-and-readd branch's `PDBFixer.addMissingAtoms()`
+  rebuild) so the correct pairing survives every subsequent rebuild.
+
+- **`add_glycam_bonds` never established the protein→sugar
+  glycosylation bond** (ND2 on ASN/NLN, OG on SER/OLS, OG1 on
+  THR/OLT, distance-matched to a sugar's anomeric carbon) — only
+  `pdbutils.inference`'s file-level CONECT inference did, and
+  `prepare`'s own `PDBFixer.addMissingAtoms()` rebuild doesn't trust
+  on-disk CONECT for non-heterogen-only bonds, so the glycosidic
+  linkage silently vanished before `minimize` ever saw it, and
+  NLN/OLS/OLT's forcefield template failed to match
+  ("missing 1 N/O atom. Is the chain missing a terminal capping
+  group?"). `add_glycam_bonds` now also detects and adds this bond.
+
+- **`minimize`'s strip-and-readd `addHydrogens` had no fallback** for
+  a heterogen whose template genuinely can't match the input geometry
+  (e.g. a glycosylation site with no sugar close enough to link to in
+  this specific structure) — it would crash the whole run instead of
+  degrading gracefully. Now mirrors `prepare`'s existing "falling
+  back to protein-only" pattern: on `ValueError`, retry
+  `addHydrogens` without a `forcefield` argument (plain geometric H
+  placement, no `createSystem`/template matching), matching the
+  resilience `prepare` already had.
+
+- **`prepare`'s `_restore_variants` corrupted TER records.** It
+  processes `ATOM `/`HETATM`/`TER   ` lines alike when rewriting a
+  residue's variant name, but unconditionally hardcoded the output
+  record type as `"ATOM  "` — so a TER line whose chain/resid matched
+  a variant override (e.g. a C-terminal CYX) got rewritten into a
+  malformed, coordinate-less `ATOM` line
+  (`ATOM   3251      CYX L 214`, no atom name, no coordinates),
+  which later crashed `minimize`'s strict `PDBFile` parser with
+  `ValueError: could not convert string to float: ''`. Now preserves
+  the original record type.
+
+- **`protonate`'s `--cys-disulfide-pka` was still at the pre-0.7.7
+  default (90.0)** — commit c6cebb0 fixed the equivalent `--cys-ss-pka`
+  default to `99.99` (PROPKA's actual disulfide sentinel) on
+  `prepare`/`zbs`/`prep_backend`, but never touched `protonate`'s own,
+  differently-named flag. Now `99.99` there too.
+
+- **Test fixture (`tests/conftest.py` / `test_zbs_e2e.py`) glycan-count
+  assertion didn't recognise GLYCAM-canonical sugar residue codes**
+  (`0fA`, `2MA`, `4YB`, `VMB`, `UYB`, ...) — only PDB-standard names
+  (`BMA`, `NAG`, ...). `amber+glycam` intentionally renames sugars to
+  GLYCAM canonical form, so the assertion now also checks
+  `ffutils.is_glycam_sugar`.
+
+### Added
+
+- **`zbs --backend {legacy,tleap-reduce}`.** `prepare` and `protonate`
+  already exposed this; `zbs` silently hardcoded `legacy` and had no
+  way to reach `tleap-reduce`. Threaded through to the internal
+  `prepare` invocation, with the same `--mutate` incompatibility
+  guard `prepare` already enforces.
+
+### Documented (carried over from Unreleased)
 
 - **propka 3.5.1 × Python 3.14 incompatibility.** propka reads
   `self.__annotations__` (instance-level) inside its `Parameters`
@@ -20,9 +101,10 @@ best-effort summaries; consult `git log` for exact provenance.
   PROPKA step inside `prepare` / `zbs`) at
   `propka.parameters.parse_line` with
   `AttributeError: 'Parameters' object has no attribute '__annotations__'`.
-  `environment.yml` already pins `python >=3.11,<3.14` to keep the env
-  on 3.12/3.13 where propka works — do not loosen it. Documented in
-  [CLAUDE.md](../CLAUDE.md) and [docs/known-issues.md](known-issues.md).
+  `environment.yml` / `pyproject.toml` pin `python >=3.11,<3.14` to
+  keep the env on 3.12/3.13 where propka works — do not loosen it.
+  Documented in [CLAUDE.md](../CLAUDE.md) and
+  [docs/known-issues.md](known-issues.md).
 
 - **micromamba env creation fails on macOS Docker host bind mounts.**
   When `MAMBA_ROOT_PREFIX` lives under a host bind mount such as

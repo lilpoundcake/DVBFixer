@@ -31,8 +31,7 @@ options:
 
 Input / output:
   input                 Input PDB file
-  -o OUTPUT, --output OUTPUT
-                        Output PDB file (default: <input>_prot.pdb)
+  -o, --output OUTPUT   Output PDB file (default: <input>_prot.pdb)
 
 pH-driven decisions:
   --ph PH               Target pH for protonation assignment (default: 7.0)
@@ -42,7 +41,8 @@ pH-driven decisions:
   --cys-disulfide-pka CYS_DISULFIDE_PKA
                         PROPKA pKa threshold above which CYS is assumed to be
                         in a disulfide bond and renamed to CYX (default:
-                        90.0). No-op under --no-propka.
+                        99.99, matching PROPKA's sentinel). No-op under --no-
+                        propka.
 
 Protonation engines:
   --backend {tleap-reduce,legacy}

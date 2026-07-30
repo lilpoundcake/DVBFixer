@@ -139,11 +139,22 @@ call bare `dvbfixer` resolve it. See
   produces LYS residues that miss HZ3 (template mismatch). Variants
   from PROPKA already carry the true protonation state, so the
   auto-selection heuristic driven by pH is redundant.
-- **Do not drop SG-SG bonds in `_drop_spurious_inter_aa_bonds`.**
-  The filter drops non-peptide inter-residue bonds between two
-  standard AAs, but disulfides (SG-SG on CYS-family residues:
-  CYS/CYX/CYM) are explicitly kept. Fixed 0.7.4 — dropping them
-  severs disulfides during minimize and lets them relax apart.
+- **Do not unconditionally drop SG-SG bonds in
+  `_drop_spurious_inter_aa_bonds`.** The filter drops non-peptide
+  inter-residue bonds between two standard AAs, but disulfides
+  (SG-SG on CYS-family residues: CYS/CYX/CYM) are kept — dropping a
+  *genuine* one severs the disulfide during minimize and lets it
+  relax apart (fixed 0.7.4). Since 0.7.8 the function also resolves
+  *spurious extra* SG-SG bonds down to one partner per atom (via
+  `valid_ss_pairs` snapshot-and-restore, or nearest-distance matching
+  when `positions` is given) — OpenMM's own `PDBFile.__init__` and
+  `PDBFixer.addMissingAtoms()` both call `Topology.
+  createDisulfideBonds()`, a pure distance-cutoff scan with no 1:1
+  matching, so tightly-packed CYS clusters can otherwise give one SG
+  atom two or three "partners" and crash `createSystem` with "N S
+  atom(s) too many". The invariant is "every SG has at most one SG-SG
+  partner, and a genuine one is never removed" — not "every SG-SG
+  bond survives unconditionally."
 - **Do not skip the `build_glycam_system` wrapper.** It packages
   the three-step GLYCAM ritual (`create_forcefield_with_openff` +
   `loadHydrogenDefinitions('glycam-hydrogens.xml')` +

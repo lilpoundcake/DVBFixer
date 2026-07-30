@@ -23,7 +23,6 @@ import pytest
 from tests.conftest import (
     _SUGAR_NAMES,
     count_d_ca_residues,
-    count_residues_by_name,
     count_ss_bonds,
 )
 
@@ -97,8 +96,16 @@ def test_zbs_glycoprotein_amber_ffs(
         f"D-Cα in glycoprotein output ({ff_args})"
     )
     # Glycans should survive splice-back (or be included in the
-    # GLYCAM-parametrised system).
-    n_sugars = count_residues_by_name(out, _SUGAR_NAMES)
+    # GLYCAM-parametrised system). amber+glycam auto-converts PDB-standard
+    # sugar names (BMA, NAG, ...) to GLYCAM-canonical 3-char codes (0fA,
+    # 2MA, ...) as part of normal, intentional processing, so a residue
+    # must match _SUGAR_NAMES OR the GLYCAM-code pattern to count.
+    from openmm.app import PDBFile
+
+    from dvbfixer.ffutils import is_glycam_sugar
+    pdb = PDBFile(str(out))
+    n_sugars = sum(1 for r in pdb.topology.residues()
+                   if r.name in _SUGAR_NAMES or is_glycam_sugar(r.name))
     assert n_sugars >= 10, (
         f"expected glycan chains preserved through zbs ({ff_args}); "
         f"got only {n_sugars} sugar residues"
