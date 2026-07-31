@@ -21,6 +21,10 @@ from openmm import CustomExternalForce, LangevinMiddleIntegrator
 from openmm.app import PME, ForceField, Modeller, PDBFile, Simulation
 from openmm.unit import kelvin, nanometer, picosecond
 
+from dvbfixer.ffutils.geometry import collect_ss_pairs as _collect_ss_pairs
+from dvbfixer.ffutils.geometry import (
+    drop_spurious_inter_aa_bonds as _drop_spurious_inter_aa_bonds,
+)
 from dvbfixer.ffutils.variants import AMBER_VARIANTS, scan_variant_names
 from dvbfixer.minimize.cli import BACKBONE_NAMES, parse_args
 from dvbfixer.minimize.refine import (
@@ -149,171 +153,12 @@ def _has_hydrogens(topology):
     return any(a.element.symbol == 'H' for a in topology.atoms())
 
 
-_CYS_NAMES = {"CYS", "CYX", "CYM"}
-
-
-def _collect_ss_pairs(topology):
-    """Return the set of (chain, resid) pairs currently SG-SG bonded.
-
-    Used to snapshot the true disulfide pairing before a PDBFixer
-    rebuild (which re-derives disulfides by distance and can introduce
-    spurious extras — see :func:`_drop_spurious_inter_aa_bonds`) so it
-    can be restored afterward.
-    """
-    pairs = set()
-    for b in topology.bonds():
-        if (b[0].name == "SG" and b[1].name == "SG"
-                and b[0].residue.name in _CYS_NAMES
-                and b[1].residue.name in _CYS_NAMES):
-            key = tuple(sorted([
-                (b[0].residue.chain.id, b[0].residue.id),
-                (b[1].residue.chain.id, b[1].residue.id),
-            ]))
-            pairs.add(key)
-    return pairs
-
-
-def _drop_spurious_inter_aa_bonds(topology, verbose=False, valid_ss_pairs=None,
-                                   positions=None):
-    """Remove spurious bonds that break FF template matching.
-
-    Three classes of spurious bond, the first two stemming from
-    over-eager CONECT inference (OpenBabel guessing bonds by distance
-    on real X-ray coordinates):
-
-    1. **Inter-residue non-peptide bonds** between two standard
-       protein residues. Mirrors the filter in
-       :func:`dvbfixer.pdbutils.inference._apply_filter`; the
-       canonical C(prev) - N(next) peptide bond is kept, everything
-       else is dropped.
-    2. **Hydrogens with more than one heavy-atom partner**. Every
-       H can bond to exactly one atom; extra bonds violate valence
-       and create the "1 C-O bond too many" template error.
-    3. **Extra SG-SG bonds beyond the true disulfide pairing.**
-       OpenMM's own ``PDBFile.__init__`` unconditionally calls
-       ``Topology.createDisulfideBonds()`` on every load (and
-       ``PDBFixer.addMissingAtoms()`` does the same internally on
-       rebuild) — a pure distance-cutoff scan with no 1:1 matching, so
-       tightly packed CYS clusters (e.g. two chain copies whose
-       N-termini sit close together) get every pairwise SG-SG contact
-       within cutoff, and template matching then fails with "N S
-       atom(s) too many" (a disulfide SG must have exactly one
-       external S bond). Resolved two ways: if ``valid_ss_pairs`` is
-       given (see :func:`_collect_ss_pairs`, snapshotted before a
-       rebuild that's known to reintroduce this), only pairs in that
-       set survive. Otherwise, if ``positions`` is given, resolve by
-       greedy nearest-distance 1:1 matching.
-
-    Returns the number of bonds dropped.
-    """
-    from dvbfixer.ffutils import PROTEIN_RESIDUES
-
-    # Pass 1: classify inter-residue bonds. SG-SG candidates are
-    # collected separately and resolved after the main pass (Pass 1.5)
-    # since disambiguating them may need to compare across all of them,
-    # not just decide bond-by-bond.
-    all_bonds = list(topology.bonds())
-    survivors = []
-    dropped = []
-    ss_candidates = []
-    for bond in all_bonds:
-        b1 = bond[0]
-        b2 = bond[1]
-        # Rule 2: H with a partner keeps its FIRST partner only.
-        # (Deferred to Pass 2 for correct counting.)
-        if b1.residue is b2.residue:
-            survivors.append(bond)
-            continue
-        if (b1.residue.name not in PROTEIN_RESIDUES
-                or b2.residue.name not in PROTEIN_RESIDUES):
-            survivors.append(bond)
-            continue
-        # Canonical peptide bond between adjacent residues: C of prev
-        # residue to N of next. Keep.
-        if {b1.name, b2.name} == {"C", "N"}:
-            survivors.append(bond)
-            continue
-        # Disulfide bond: SG-SG between two CYS-family residues (CYS/
-        # CYX/CYM). text_rename_variants_to_parent rewrote CYX → CYS
-        # before load, so both endpoints are CYS-named here even for
-        # user-annotated CYX pairs. Resolved in Pass 1.5 below.
-        if (b1.name == "SG" and b2.name == "SG"
-                and b1.residue.name in _CYS_NAMES
-                and b2.residue.name in _CYS_NAMES):
-            ss_candidates.append(bond)
-            continue
-        dropped.append(bond)
-
-    # Pass 1.5: resolve SG-SG candidates to at most one partner per atom.
-    if len(ss_candidates) < 2:
-        survivors.extend(ss_candidates)
-    elif valid_ss_pairs is not None:
-        for bond in ss_candidates:
-            b1, b2 = bond[0], bond[1]
-            key = tuple(sorted([
-                (b1.residue.chain.id, b1.residue.id),
-                (b2.residue.chain.id, b2.residue.id),
-            ]))
-            if key in valid_ss_pairs:
-                survivors.append(bond)
-            else:
-                dropped.append(bond)
-    elif positions is not None:
-        from openmm.unit import nanometer as _nm
-
-        def _pos(atom):
-            return positions[atom.index].value_in_unit(_nm)
-
-        def _dist2(bond):
-            p1, p2 = _pos(bond[0]), _pos(bond[1])
-            return ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 + (p1[2]-p2[2])**2)
-
-        locked = set()
-        for bond in sorted(ss_candidates, key=_dist2):
-            b1, b2 = bond[0], bond[1]
-            if b1.index in locked or b2.index in locked:
-                dropped.append(bond)
-                continue
-            locked.add(b1.index)
-            locked.add(b2.index)
-            survivors.append(bond)
-    else:
-        # No way to disambiguate — keep everything (old behavior).
-        survivors.extend(ss_candidates)
-
-    # Pass 2: hydrogen valence check. An H atom can bond to exactly
-    # one heavy atom; extra bonds break residue-template matching
-    # ("1 C-O bond too many" and similar errors from over-eager
-    # CONECT inference). Keep the FIRST heavy-atom partner seen for
-    # each H; drop any subsequent partners.
-    h_seen: dict[int, bool] = {}
-    survivors_after_h = []
-    for bond in survivors:
-        b1, b2 = bond[0], bond[1]
-        h_atom = None
-        if b1.element is not None and b1.element.symbol == "H":
-            h_atom = b1
-        elif b2.element is not None and b2.element.symbol == "H":
-            h_atom = b2
-        if h_atom is not None:
-            if h_seen.get(h_atom.index):
-                dropped.append(bond)
-                continue
-            h_seen[h_atom.index] = True
-        survivors_after_h.append(bond)
-
-    if not dropped:
-        return 0
-
-    topology._bonds = survivors_after_h  # noqa: SLF001
-
-    if verbose:
-        for bond in dropped:
-            b1, b2 = bond[0], bond[1]
-            print(f"  [minimize] dropped spurious bond "
-                  f"{b1.residue.chain.id}/{b1.residue.name}{b1.residue.id}:{b1.name} "
-                  f"- {b2.residue.chain.id}/{b2.residue.name}{b2.residue.id}:{b2.name}")
-    return len(dropped)
+# Disulfide-bond snapshot/cleanup (_collect_ss_pairs / _drop_spurious_inter_aa_bonds)
+# now lives in ffutils.geometry (imported above) — shared with protonate.py
+# so the "snapshot true SS pairing before a rebuild/load, restore after"
+# sequence can't drift out of sync across call sites again. It already had
+# once: the `keep_h` branch below was missing it while the `rebuild_h`
+# branch had it, and `protonate.py` had neither.
 
 
 def _read_amber_renames(pdb_path):
@@ -685,13 +530,21 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         n_terminals = sum(len(v) for v in _fixer.missingTerminals.values())
         if n_missing or n_terminals:
             print(f"Fixing {n_missing} missing atom(s), {n_terminals} terminal(s)...")
+            # Snapshot the true disulfide pairing BEFORE the rebuild — PDBFixer's
+            # addMissingAtoms() re-derives SG-SG bonds by a pure distance scan
+            # (Topology.createDisulfideBonds(), no 1:1 matching) and can pick up
+            # spurious extra pairs on tightly-packed CYS clusters, crashing
+            # createSystem with "N S atom(s) too many". The sibling `rebuild_h`
+            # branch below already does this; this branch previously didn't.
+            _true_ss_pairs = _collect_ss_pairs(_fixer.topology)
             from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry as _rebuild
             _rebuild(_fixer, verbose=args.verbose, log_prefix="[minimize] ")
             from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir
             _fix_chir(_fixer.topology, _fixer.positions, verbose=args.verbose)
             modeller = Modeller(_fixer.topology, _fixer.positions)
             # PDBFixer rebuilds bonds — re-drop spurious bonds before addHydrogens.
-            _drop_spurious_inter_aa_bonds(modeller.topology, verbose=args.verbose)
+            _drop_spurious_inter_aa_bonds(modeller.topology, verbose=args.verbose,
+                                           valid_ss_pairs=_true_ss_pairs)
             # PDBFixer's addMissingHydrogens ignores AMBER variant names
             # (its _describeVariant only recognises standard PDB names) and
             # canonicalises HIE/HID/HIP/ASH/GLH/CYX/CYM back to HIS/ASP/

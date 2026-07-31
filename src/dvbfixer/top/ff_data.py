@@ -139,6 +139,18 @@ _KNOWN_4CHAR_RESNAMES = {
 # Water residue names (for counting SOL molecules in PDB)
 _WATER_RESNAMES = {'SOL', 'HOH', 'WAT', 'TIP3', 'SPC', 'SPCE', 'TIP4', 'TIP5'}
 
+# Atoms per water molecule, by resname — used by `_count_water`'s
+# atom-count-based counting (needed to survive PDB resSeq wraparound at
+# 9999 in large systems, where per-residue counting would silently
+# undercount). A single hardcoded "//3" is wrong for TIP4/TIP5 (4/5-site
+# models) and HOH (often deposited O-only, 1 atom) even though all of
+# them are listed in `_WATER_RESNAMES` above. Defaults to 3 (the common
+# case) for any name not listed here.
+_WATER_ATOMS_PER_MOL = {
+    'SOL': 3, 'WAT': 3, 'TIP3': 3, 'SPC': 3, 'SPCE': 3,
+    'HOH': 1, 'TIP4': 4, 'TIP5': 5,
+}
+
 # ---------------------------------------------------------------------------
 # Water-model-matched ion Lennard-Jones parameters (AMBER side)
 #

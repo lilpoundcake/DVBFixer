@@ -22,6 +22,7 @@ from dvbfixer.top.cli import FF_CHOICES, FF_DIR, parse_args
 from dvbfixer.top.ff_data import (
     _EXPLICIT_RENAMES,
     _KNOWN_4CHAR_RESNAMES,
+    _WATER_ATOMS_PER_MOL,
     _WATER_DEFAULT_ION_SET,
     _WATER_ION_ALIAS,
     _WATER_RESNAMES,
@@ -421,21 +422,29 @@ def _split_chain_by_distance(chain, gap_cutoff=4.0):
 
 
 def _count_water(pdb_path):
-    """Count water molecules (SOL/HOH/WAT/TIP3) in PDB.
+    """Count water molecules (SOL/HOH/WAT/TIP3/TIP4/TIP5/SPC/SPCE) in PDB.
 
-    Uses atom count / 3 (atoms per water) to handle resseq overflow
-    in large systems where PDB wraps at 9999.
+    Uses atom count / atoms-per-molecule (per resname, via
+    `_WATER_ATOMS_PER_MOL`) to handle resseq overflow in large systems
+    where PDB wraps at 9999 — per-residue counting would undercount once
+    multiple distinct residues collide onto the same wrapped resSeq. A
+    single hardcoded "//3" divisor is wrong for TIP4/TIP5 (4/5-site
+    models) and HOH (often deposited O-only, 1 atom); atoms are tallied
+    separately per matched resname so each uses its own divisor.
     """
-    water_atoms = 0
+    water_atom_counts: dict[str, int] = {}
     with open(pdb_path) as f:
         for line in f:
             if not (line.startswith('ATOM') or line.startswith('HETATM')):
                 continue
             resname = line[17:20].strip()
             resname4 = line[17:21].strip()
-            if resname in _WATER_RESNAMES or resname4 in _WATER_RESNAMES:
-                water_atoms += 1
-    return water_atoms // 3
+            matched = resname if resname in _WATER_RESNAMES else (
+                resname4 if resname4 in _WATER_RESNAMES else None)
+            if matched:
+                water_atom_counts[matched] = water_atom_counts.get(matched, 0) + 1
+    return sum(count // _WATER_ATOMS_PER_MOL.get(name, 3)
+               for name, count in water_atom_counts.items())
 
 
 def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False):

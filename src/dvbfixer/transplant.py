@@ -157,11 +157,11 @@ def _write_pdb(atoms_groups, path, conect_maps=None):
     """Write PDB. Each group gets a TER record.
 
     conect_maps: list of (conect_lines, source_serial_map) tuples.
-    source_serial_map maps source serial -> (chain, resseq, atomname) for remapping.
-    If None, no CONECT written.
+    source_serial_map maps source serial -> (chain, resseq, icode, atomname)
+    for remapping. If None, no CONECT written.
     """
     serial = 0
-    # Build (chain, resseq, atomname) -> new_serial for CONECT remapping
+    # Build (chain, resseq, icode, atomname) -> new_serial for CONECT remapping
     atom_key_to_serial = {}
 
     with open(path, 'w') as f:
@@ -170,7 +170,7 @@ def _write_pdb(atoms_groups, path, conect_maps=None):
         for group in atoms_groups:
             for atom in group:
                 serial += 1
-                atom_key = (atom['chain'], atom['resseq'], atom['name'])
+                atom_key = (atom['chain'], atom['resseq'], atom['icode'], atom['name'])
                 atom_key_to_serial[atom_key] = serial
 
                 name = atom['name']
@@ -207,7 +207,7 @@ def _write_pdb(atoms_groups, path, conect_maps=None):
                     f"{last['resseq']:4d}\n"
                 )
 
-        # Write CONECT using atom identity (chain, resseq, name) matching
+        # Write CONECT using atom identity (chain, resseq, icode, name) matching
         if conect_maps:
             written = set()
             for conect_lines, src_serial_map in conect_maps:
@@ -300,10 +300,14 @@ def _select_conect(conect_lines, selected_serials):
 
 
 def _build_serial_map(atoms):
-    """Build serial -> (chain, resseq, atomname) map for CONECT remapping."""
+    """Build serial -> (chain, resseq, icode, atomname) map for CONECT
+    remapping. Includes icode — unlike every other residue-identity key
+    used elsewhere in this file (`_get_residue_key`, etc.) — so two
+    residues sharing a resseq via insertion code (e.g. Kabat CDR-loop
+    `H:82`/`H:82A`) don't get their CONECT-referenced atoms confused."""
     smap = {}
     for a in atoms:
-        smap[a['serial']] = (a['chain'], a['resseq'], a['name'])
+        smap[a['serial']] = (a['chain'], a['resseq'], a['icode'], a['name'])
     return smap
 
 

@@ -99,20 +99,48 @@ def get_atom_residues(lines, chain):
     return residues
 
 
-def align_to_seqres(atom_residues, seqres):
+def align_to_seqres(atom_residues, seqres, max_gap_search=5):
     """Align ATOM residues to SEQRES via subsequence matching.
     Returns dict: (old_resSeq, old_iCode) -> new_resSeq.
     Non-SEQRES residues (waters, ligands) get None initially.
+
+    A residue whose name doesn't match the current SEQRES position is
+    first looked up within a BOUNDED forward window (``max_gap_search``
+    positions) — this is what lets a short genuine ATOM/SEQRES gap
+    (missing residues) resync correctly. If nothing matches within that
+    window, the residue is treated as a point substitution AT THE
+    CURRENT POSITION rather than left unmapped: an earlier, unbounded
+    version of this search kept scanning arbitrarily far ahead looking
+    for a same-name match, and on a genuine point mutation (ATOM name
+    differs from wild-type SEQRES at that one position, e.g. an
+    engineered construct) it either found a spurious, wrong match
+    further downstream or exhausted the sequence — silently misplacing
+    that residue (and, since ``j`` was never advanced, every residue
+    after it) to the wrong position. `model/renumber.py`'s K-finder/
+    Needleman-Wunsch alignment handles this properly with full mutation
+    tolerance; this is a lighter, bounded fix for this standalone tool's
+    simpler subsequence-matching approach.
     """
     mapping = {}
     j = 0
     for resseq, icode, resname in atom_residues:
-        search_j = j
-        while search_j < len(seqres) and seqres[search_j] != resname:
+        if j < len(seqres) and seqres[j] == resname:
+            mapping[(resseq, icode)] = j + 1
+            j += 1
+            continue
+        search_j = j + 1
+        limit = min(len(seqres), j + 1 + max_gap_search)
+        while search_j < limit and seqres[search_j] != resname:
             search_j += 1
-        if search_j < len(seqres):
+        if search_j < limit:
             mapping[(resseq, icode)] = search_j + 1
             j = search_j + 1
+        elif j < len(seqres):
+            # No match in the nearby window — assume a point
+            # substitution at the current expected position rather than
+            # leaving this (and everything after it) unmapped.
+            mapping[(resseq, icode)] = j + 1
+            j += 1
         else:
             mapping[(resseq, icode)] = None
     return mapping
