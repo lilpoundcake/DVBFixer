@@ -18,24 +18,19 @@ import tempfile
 
 # Sugar / glycoprotein-attachment knowledge used by the inference domain
 # overrides. Imported lazily where needed to avoid circular imports.
-
-# Standard PDB sugar resnames recognised by dvbfixer downstream tools.
-# Used by the glycosidic-linkage override and the glycosylation-site override.
-_SUGAR_RESNAMES_PDB = {
-    'NAG', 'NDG', 'BMA', 'MAN', 'GAL', 'FUC', 'FUL', 'SIA', 'NGA', 'A2G',
-    'GLC', 'BGC', 'BGA', 'AGA', 'XYP', 'XYS', 'RIB', 'RIP', 'ARA', 'NAN',
-}
-# CHARMM-GUI 4-char sugars (loaded lazily from top.PDB_TO_CARB at call time)
-_SUGAR_RESNAMES_CHARMMGUI = {
-    'BGLC', 'AGLC', 'BMAN', 'AMAN', 'BGAL', 'AGAL', 'BFUC', 'AFUC',
-    'BGLCNA', 'AGLCNA', 'BGALNA', 'AGALNA', 'ANE5', 'BNE5', 'ANE5AC',
-}
+#
+# The PDB (3-char) and CHARMM-GUI (4-char) sugar name sets used to be
+# maintained here as separate, independently-drifted copies of the ones in
+# `dvbfixer.ffutils` — e.g. `BNE5AC` (beta-anomer sialic acid) was missing
+# from this file's own CHARMM-GUI set even though `ffutils` already had it.
+# Both name sets now live solely in `ffutils`; `_is_sugar_resname` below
+# delegates to `ffutils.is_pdb_sugar_resname`, the canonical check.
 
 # Anomeric carbon atom names. Sialic acid uses C2 (it's a ketose);
 # all aldose hexoses/pentoses use C1.
 _ANOMERIC_C_HEXOSE = 'C1'
 _ANOMERIC_C_SIALIC = 'C2'
-_SIALIC_RESNAMES = {'SIA', 'NAN', 'ANE5', 'BNE5', 'ANE5AC'}
+_SIALIC_RESNAMES = {'SIA', 'NAN', 'ANE5', 'BNE5', 'ANE5AC', 'BNE5AC'}
 
 # Ring oxygens that participate in glycosidic linkages (acceptor side).
 _GLYCOSIDIC_LINKAGE_OXYGENS = {'O2', 'O3', 'O4', 'O6'}
@@ -58,11 +53,8 @@ _GLYCOSYLATION_CUTOFF_A = 2.5
 
 def _is_sugar_resname(resname):
     """True if resname is a recognised sugar (PDB, CHARMM-GUI, or GLYCAM)."""
-    if resname in _SUGAR_RESNAMES_PDB or resname in _SUGAR_RESNAMES_CHARMMGUI:
-        return True
-    # GLYCAM 3-char codes: [linkage][sugar][anomer]
-    from dvbfixer.ffutils import is_glycam_sugar
-    return is_glycam_sugar(resname)
+    from dvbfixer.ffutils import is_pdb_sugar_resname
+    return is_pdb_sugar_resname(resname)
 
 
 def _anomeric_carbon(resname):
@@ -323,7 +315,7 @@ def _apply_filter(bonds, atoms, by_serial):
         3D, not bonded) — these were previously kept unconditionally,
         producing chemically-impossible CONECT entries in the output.
     """
-    from dvbfixer.ffutils import _PDB_SUGAR_NAMES, PROTEIN_RESIDUES, is_glycam_sugar
+    from dvbfixer.ffutils import PROTEIN_RESIDUES, is_pdb_sugar_resname
     from dvbfixer.ffutils.variants import ALL_VARIANTS
     _WATER = {'HOH', 'WAT', 'TIP3', 'TIP4', 'TIP5', 'SOL', 'SPC', 'SPCE'}
     _SUGAR_COVALENT_CUTOFF2 = 1.7 * 1.7  # Å², same default as the fallback distance-bonder
@@ -360,8 +352,7 @@ def _apply_filter(bonds, atoms, by_serial):
             continue
         if same_res and a['resname'] in PROTEIN_RESIDUES:
             continue
-        if same_res and (is_glycam_sugar(a['resname'])
-                          or a['resname'] in _PDB_SUGAR_NAMES):
+        if same_res and is_pdb_sugar_resname(a['resname']):
             dx = a['x'] - b['x']
             dy = a['y'] - b['y']
             dz = a['z'] - b['z']

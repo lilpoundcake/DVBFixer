@@ -28,10 +28,11 @@ class _FakeChain:
 
 
 class _FakeResidue:
-    def __init__(self, chain_id: str, res_id: str, name: str) -> None:
+    def __init__(self, chain_id: str, res_id: str, name: str, icode: str = "") -> None:
         self.chain = _FakeChain(chain_id)
         self.id = res_id
         self.name = name
+        self.insertionCode = icode
 
     def atoms(self):
         return []
@@ -154,25 +155,47 @@ def test_restore_variants_mixed_shapes_no_crash() -> None:
 
     protonate.py builds ``_saved`` by merging text-shape (3-tuple) keys
     into the topology-shape (2-tuple) map produced by
-    ``rename_variants_to_parent_in_topology``. If any residue misses the
-    direct-lookup path (line 226) and falls through to the last-resort
-    fallback (line 234), the fallback used to destructure every key as
-    a 3-tuple and crash with
-    ``ValueError: not enough values to unpack (expected 3, got 2)``.
+    ``rename_variants_to_parent_in_topology``. The old fallback
+    destructured every key as a 3-tuple unconditionally and crashed with
+    ``ValueError: not enough values to unpack (expected 3, got 2)`` the
+    moment ``saved`` contained a 2-tuple entry alongside a 3-tuple one.
 
-    Ensure the fallback tolerates a dict containing BOTH shapes.
+    Ensure the fallback tolerates a dict containing BOTH shapes without
+    raising — and, per the icode-collapse audit fix, that a 3-tuple entry
+    recorded under a DIFFERENT insertion code than the residue actually
+    has is correctly NOT applied (residue A:7 here has no icode; the
+    saved entry is for icode "B" — a different, hypothetical sibling
+    residue — so A:7 must stay unrestored).
     """
     top = _FakeTopology([
         _FakeResidue("A", "5", "HIS"),
         _FakeResidue("A", "7", "LYS"),
     ])
-    # Mixed: A:5 keyed by 2-tuple (topology shape, direct match at line 226),
-    # A:7 keyed by 3-tuple with a non-empty icode (needs the fallback path).
+    # Mixed: A:5 keyed by 2-tuple (topology shape, direct match).
+    # A:7's *icode* ("") doesn't appear in `saved` at all — only a
+    # same-resSeq, different-icode ("B") entry does, which must NOT match.
     saved = {
         ("A", "5"): "HIE",
-        ("A", "7", "B"): "LYN",  # non-empty icode → doesn't match key_text
+        ("A", "7", "B"): "LYN",
     }
-    # Should not raise. Both residues should get restored.
+    # Should not raise, and must not cross-contaminate icode "" with icode "B".
+    restore_variants_post_addhydrogens(top, saved)
+    names = [r.name for r in top.residues()]
+    assert names == ["HIE", "LYS"]
+
+
+def test_restore_variants_icode_exact_match() -> None:
+    """Two residues sharing a resSeq via insertion code (Kabat CDR-loop
+    style, e.g. ``H:82``/``H:82A``) must each get their OWN variant, not
+    whichever one a broad chain+resSeq scan happens to find first."""
+    top = _FakeTopology([
+        _FakeResidue("H", "82", "HIS", icode=""),
+        _FakeResidue("H", "82", "LYS", icode="A"),
+    ])
+    saved = {
+        ("H", "82", ""): "HIE",
+        ("H", "82", "A"): "LYN",
+    }
     restore_variants_post_addhydrogens(top, saved)
     names = [r.name for r in top.residues()]
     assert names == ["HIE", "LYN"]

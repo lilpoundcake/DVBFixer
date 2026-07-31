@@ -2896,17 +2896,24 @@ def _merge_chains(chain_tops):
     )
 
     offset = 0
+    resnr_offset = 0
     for ct in chain_tops:
         for atom in ct.atoms:
             new_atom = AtomEntry(
                 index=atom.index + offset,
                 atom_type=atom.atom_type,
-                resnr=atom.resnr,
+                resnr=atom.resnr + resnr_offset,
                 resname=atom.resname,
                 atomname=atom.atomname,
                 cgnr=atom.cgnr,
                 charge=atom.charge,
                 mass=atom.mass,
+                x=atom.x,
+                y=atom.y,
+                z=atom.z,
+                chain_id=atom.chain_id,
+                orig_resseq=atom.orig_resseq,
+                orig_resname=atom.orig_resname,
             )
             merged.atoms.append(new_atom)
 
@@ -2930,6 +2937,8 @@ def _merge_chains(chain_tops):
 
         max_idx = max(a.index for a in ct.atoms) if ct.atoms else 0
         offset += max_idx
+        max_resnr = max((a.resnr for a in ct.atoms), default=0)
+        resnr_offset += max_resnr
 
     return merged
 

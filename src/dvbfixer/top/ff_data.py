@@ -105,6 +105,13 @@ PDB_TO_CARB = {
     'AGALNA': 'AGALNA',
     'ANE5AC': 'ANE5AC',
     'ANE5': 'ANE5AC',
+    # Beta-anomer sialic acid — a real, distinct carb.rtp RESI (not the
+    # same as the alpha form above). Was previously missing entirely,
+    # silently dropping BNE5AC's glycosidic bonds from the emitted
+    # topology even though the rest of this module (is_sialic checks,
+    # anomeric-atom C2-vs-C1 logic) already treats it as first-class.
+    'BNE5AC': 'BNE5AC',
+    'BNE5': 'BNE5AC',
     # Non-standard PDB names (from transplant/GLYCAM workflows)
     'AGL': 'AGAL',     # alpha-galactose (_resolve_sugar_rtp auto-detects AGALNA if N-acetyl)  # CHARMM-GUI short name for sialic acid
 }

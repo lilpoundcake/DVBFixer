@@ -319,17 +319,19 @@ def _drop_spurious_inter_aa_bonds(topology, verbose=False, valid_ss_pairs=None,
 def _read_amber_renames(pdb_path):
     """Read PDB text to find AMBER protonation names before OpenMM normalizes them.
 
-    Wraps the shared ``ffutils.variants.scan_variant_names`` scanner and
-    projects its ``(chain, resseq, icode)`` keys down to the legacy
-    ``(chain, resseq)`` shape that this module's callers use. Filters out
+    Wraps the shared ``ffutils.variants.scan_variant_names`` scanner,
+    keeping its ``(chain, resseq, icode)`` keys as-is — this module's
+    callers used to project them down to a legacy ``(chain, resseq)``
+    shape, which silently conflated two residues sharing a resSeq via
+    insertion code (e.g. Kabat CDR-loop ``H:82``/``H:82A``). Filters out
     CHARMM-only variants (HSD/HSE/HSP/ASPP/GLUP/LSN) — minimize's
     downstream ``addHydrogens`` path only knows AMBER variant names.
     """
     saved = scan_variant_names(pdb_path)
     renames = {}
-    for (chain, resseq, _icode), name in saved.items():
+    for (chain, resseq, icode), name in saved.items():
         if name in AMBER_VARIANTS:
-            renames[(chain, resseq)] = name
+            renames[(chain, resseq, icode)] = name
     return renames
 
 
@@ -338,13 +340,21 @@ def _build_variants(topology, amber_renames):
 
     Returns list of variant names (or None) for each residue, suitable for
     Modeller.addHydrogens(variants=...).
+
+    ``amber_renames`` keys are ``(chain, resid, icode)``. Matches the
+    residue's real icode first; only falls back to an icode-less entry
+    when the residue itself has no icode — an icode-bearing residue must
+    never inherit a same-resSeq sibling's variant.
     """
     if not amber_renames:
         return None
     variants = []
     has_any = False
     for res in topology.residues():
-        key = (res.chain.id, res.id)
+        ic = res.insertionCode.strip() if hasattr(res, 'insertionCode') else ''
+        key = (res.chain.id, res.id, ic)
+        if key not in amber_renames and not ic:
+            key = (res.chain.id, res.id, '')
         if key in amber_renames:
             variants.append(amber_renames[key])
             has_any = True
@@ -434,6 +444,21 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                 old_to_new[atom.index] = new_idx
                 new_idx += 1
         stripped_new_indices = {old_to_new[i] for i in new_atom_indices if i in old_to_new}
+
+    # Capture the identity of every "new" atom as a (chain, resid, icode,
+    # atom_name) key — NOT just its integer index — before any further
+    # rebuild happens. `Modeller.addHydrogens()`/PDBFixer's
+    # `addMissingAtoms()` (both called further down, possibly more than
+    # once) each build an entirely new Topology, shifting every atom's
+    # index whenever one is inserted. Re-resolving these keys against the
+    # FINAL topology right before `build_restraint_force` (via the same
+    # `resolve_new_atom_indices` helper the `.dat`-driven path already
+    # uses) keeps the restraint tier assignment correct instead of
+    # silently applying strong/weak restraints to the wrong atoms.
+    new_atom_keys = {
+        (a.residue.chain.id, a.residue.id, a.residue.insertionCode.strip(), a.name)
+        for a in stripped_top.atoms() if a.index in stripped_new_indices
+    }
 
     print("Loading force field...")
     # Check if there are heterogens — if so and keep_heterogens, use glycan-aware FF
@@ -559,9 +584,9 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
 
     def _rename_variants_to_parent(top, amber_renames=None):
         """Rename variant residues to parent so addHydrogens recognises them.
-        Returns dict {(chain_id, res_id): original_name} for the post-pass —
-        residue refs in the OLD topology are stale after addHydrogens (which
-        rebuilds the topology entirely).
+        Returns dict {(chain_id, res_id, icode): original_name} for the
+        post-pass — residue refs in the OLD topology are stale after
+        addHydrogens (which rebuilds the topology entirely).
 
         Ground truth for the variant name is ``amber_renames`` (populated
         by ``_read_amber_renames`` from raw PDB text before any OpenMM
@@ -571,15 +596,24 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         — only LYN survives that normalization (not in OpenMM's standard
         residue map). That asymmetry is why zbs pre-0.6.3 preserved LYN
         but canonicalized every other variant.
+
+        ``amber_renames`` keys are ``(chain, resid, icode)`` — matched on
+        the residue's real icode first, falling back to an icode-less
+        entry only when the residue itself has none, so two residues
+        sharing a resSeq via insertion code never share a variant.
         """
         saved = {}
         for res in top.residues():
-            key = (res.chain.id, res.id)
+            ic = res.insertionCode.strip() if hasattr(res, 'insertionCode') else ''
+            key = (res.chain.id, res.id, ic)
             # Prefer the raw-text-derived variant name; fall back to the
             # topology name (only reliable for LYN).
             variant = None
-            if amber_renames and key in amber_renames:
-                candidate = amber_renames[key]
+            lookup_key = key
+            if amber_renames and lookup_key not in amber_renames and not ic:
+                lookup_key = (res.chain.id, res.id, '')
+            if amber_renames and lookup_key in amber_renames:
+                candidate = amber_renames[lookup_key]
                 if candidate in _VARIANT_TO_PARENT:
                     variant = candidate
             elif res.name in _VARIANT_TO_PARENT:
@@ -591,7 +625,8 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
 
     def _restore_variants_in_topology(top, saved):
         for res in top.residues():
-            key = (res.chain.id, res.id)
+            ic = res.insertionCode.strip() if hasattr(res, 'insertionCode') else ''
+            key = (res.chain.id, res.id, ic)
             if key in saved:
                 res.name = saved[key]
 
@@ -1044,9 +1079,15 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         # to the rigid-tracked glycan. Skip it.
         return out_top, out_pos
 
+    # Re-resolve by identity against the FINAL topology — `stripped_new_indices`
+    # (raw ints captured at function entry) no longer correspond to the same
+    # atoms if any addHydrogens/PDBFixer rebuild happened in between.
+    final_new_indices = resolve_new_atom_indices(
+        modeller.topology, new_atom_keys, verbose=args.verbose,
+    )
     restraint, n_strong, n_weak, n_free = build_restraint_force(
         modeller.topology, modeller.positions,
-        stripped_new_indices, args.restraint_k, args.weak_k
+        final_new_indices, args.restraint_k, args.weak_k
     )
     system.addForce(restraint)
     print(f"Restraints: {n_strong} strong (original), {n_weak} weak (new backbone), {n_free} free")
@@ -1491,9 +1532,15 @@ def main(argv=None):
 
         _dat = DatRecord.load(dat_path)
         for key_str, var_name in (_dat.variant_overrides or {}).items():
-            ch, rn = key_str.split(':', 1)
-            if (ch, rn) not in amber_renames:
-                amber_renames[(ch, rn)] = var_name
+            # New format: "chain:resid:icode" (3 fields, icode may be
+            # empty). Older .dat files on disk from before this fix used
+            # "chain:resid" (2 fields, no icode) — still accepted.
+            _parts = key_str.split(':', 2)
+            ch, rn = _parts[0], _parts[1]
+            ic = _parts[2] if len(_parts) > 2 else ''
+            key = (ch, rn, ic)
+            if key not in amber_renames:
+                amber_renames[key] = var_name
         if amber_renames:
             print(f"  Total protonation variants (PDB + .dat): {len(amber_renames)}")
     else:
