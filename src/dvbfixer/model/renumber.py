@@ -233,7 +233,13 @@ def _interpolate_gaps(full_resids, region_len, renumber_from_1=False):
 
     Handles:
     - internal gap (left and right templates present): place sequentially
-      from `left + 1` if room, else number backward from `right`.
+      from `left + 1`. If there isn't enough room between `left` and
+      `right` in the input's OWN numbering (the author never reserved
+      resseqs for this gap — common for a genuinely-absent, unresolved
+      loop/linker whose neighbors were numbered as if it didn't exist),
+      shift every already-placed resid from this gap onward by the
+      deficit instead of numbering backward into already-used resseqs
+      (WARN emitted; see below).
     - N-terminal gap (no left): number backward from the first template.
       If that would produce non-positive resseqs (input's first template
       resseq ≤ gap_len), fall back to shifting the whole chain by
@@ -280,8 +286,33 @@ def _interpolate_gaps(full_resids, region_len, renumber_from_1=False):
                 for k in range(gap_len):
                     full_resids[gap_start + k] = (left + k + 1, ' ')
             else:
+                # Not enough room in the input's own numbering for this
+                # gap (e.g. an unresolved loop/linker whose flanking
+                # residues were numbered back-to-back by the depositor,
+                # as if the gap didn't exist). Numbering backward from
+                # `right` would collide with resseqs already assigned to
+                # `left` and everything before it — place the gap
+                # sequentially from `left + 1` instead (matching the
+                # "enough room" branch above) and shift every
+                # already-placed resid from `right` onward forward by the
+                # deficit, so nothing collides. This mirrors the
+                # N-terminal branch's shift-the-rest-of-the-chain pattern
+                # below.
+                deficit = gap_len - available
                 for k in range(gap_len):
-                    full_resids[gap_start + k] = (right - gap_len + k, ' ')
+                    full_resids[gap_start + k] = (left + k + 1, ' ')
+                for j in range(gap_end, region_len):
+                    if full_resids[j] is None:
+                        continue
+                    rs, ic = full_resids[j]
+                    full_resids[j] = (rs + deficit, ic)
+                print(f"  [renumber] internal gap of {gap_len} residue(s) "
+                      f"has only {available} resseq(s) of room between "
+                      f"original resSeq {left} and {right} — shifting "
+                      f"every downstream residue in this chain by "
+                      f"+{deficit} to avoid resSeq collisions. Original "
+                      f"author numbering is not fully preserved past this "
+                      f"point.")
         elif left is None and right is not None:
             candidates = [right - gap_len + k for k in range(gap_len)]
             if min(candidates) > 0 and not renumber_from_1:
@@ -440,52 +471,14 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
                     full_resids[i] = orig_rids[orig_idx]
                     orig_idx += 1
 
-            # Fill gap runs: sequential numbers between flanking known positions
-            i = 0
-            while i < len(mask):
-                if mask[i]:
-                    i += 1
-                    continue
-                gap_start = i
-                while i < len(mask) and not mask[i]:
-                    i += 1
-                gap_end = i
-                gap_len = gap_end - gap_start
-
-                # Find nearest non-None positions flanking the gap
-                left = None
-                for j in range(gap_start - 1, -1, -1):
-                    if full_resids[j] is not None:
-                        left = full_resids[j][0]
-                        break
-                right = None
-                for j in range(gap_end, len(mask)):
-                    if full_resids[j] is not None:
-                        right = full_resids[j][0]
-                        break
-
-                if left is not None and right is not None:
-                    # Internal gap: fit between left and right
-                    available = right - left - 1
-                    if available >= gap_len:
-                        for k in range(gap_len):
-                            full_resids[gap_start + k] = (left + k + 1, ' ')
-                    else:
-                        # Not enough room — number backwards from right
-                        for k in range(gap_len):
-                            full_resids[gap_start + k] = (right - gap_len + k, ' ')
-                elif left is None and right is not None:
-                    # N-terminal gap: extend backward from the first template residue
-                    for k in range(gap_len):
-                        full_resids[gap_start + k] = (right - gap_len + k, ' ')
-                elif left is not None and right is None:
-                    # C-terminal gap: extend forward from the last template residue
-                    for k in range(gap_len):
-                        full_resids[gap_start + k] = (left + k + 1, ' ')
-                else:
-                    # Whole chain is a gap — start at 1
-                    for k in range(gap_len):
-                        full_resids[gap_start + k] = (k + 1, ' ')
+            # Fill gap runs via the same interpolation logic the
+            # deterministic path uses above — do not reimplement it here.
+            # This used to be a second, hand-rolled copy of the same
+            # gap-filling logic that had drifted out of sync (e.g. no
+            # `renumber_from_1` handling, and the same collision bug in
+            # its "not enough room" branch that `_interpolate_gaps` fixes).
+            _interpolate_gaps(full_resids, len(mask),
+                              renumber_from_1=renumber_from_1)
 
         # Fill any remaining None entries (mostly HETATM `.` slots beyond
         # the protein region) with sequential resseqs after the last

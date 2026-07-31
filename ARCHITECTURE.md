@@ -196,9 +196,25 @@ three-stage pipeline:
    kept as a final fallback for chains that defeat both deterministic
    paths (icode-bearing antibody Kabat numbering, etc.).
 
-`_interpolate_gaps` is the reusable helper for all three stages: it
+`_interpolate_gaps` is the reusable helper for all three stages (fixed
+0.7.13 — stage 3's `build_resnum_mapping` fallback used to carry its
+OWN second, hand-rolled copy of this same gap-filling logic, which had
+drifted out of sync; it now calls `_interpolate_gaps` directly): it
 fills N-terminal, internal, C-terminal, and all-gap regions in one
-place, given the flanking original (resSeq, iCode) tuples.
+place, given the flanking original (resSeq, iCode) tuples. For an
+internal gap, if the input's OWN numbering leaves enough numeric room
+between the flanking residues, the gap is placed sequentially from
+`left + 1`; if it doesn't (the depositor never reserved resSeqs for a
+genuinely-absent loop/linker — confirmed on a real scFv construct
+whose disordered (GGGS)×4 linker has no density and whose author
+numbered VH's first residue immediately after VL's last one, leaving
+zero room for the linker's 16 residues), the gap is still placed from
+`left + 1` and every already-placed resSeq downstream is shifted
+forward by the deficit (WARN emitted) — NOT numbered backward from the
+right flank, which would collide with resSeqs already used further
+left. Mirrors the N-terminal branch's existing (older)
+shift-the-rest-of-the-chain pattern for the equivalent "not enough
+room" case at the start of a chain.
 
 HETATM resseqs are preserved verbatim on the deterministic paths (no
 longer renumbered sequentially after the protein), so ligand and glycan

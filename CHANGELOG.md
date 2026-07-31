@@ -8,7 +8,58 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
-## [0.7.12] — 2026-07-31 (branch: `fix/seeded-atom-rebuild`, not yet merged to main)
+## [0.7.13] — 2026-07-31
+
+### Fixed
+
+- **`model`'s residue renumbering could silently produce duplicate
+  `(chain, resid)` keys when an internal gap's flanking residues left
+  no numeric "room" for it in the input's own numbering.** Confirmed
+  on a real scFv construct (`test/8cz8/8cz8_a_u.pdb` /
+  `8cz8_a_b.pdb`, chain C): the disordered (GGGS)×4 linker between VL
+  and VH has no electron density, and the depositor numbered VH's
+  first residue (111+1=112) immediately after VL's last one (111) —
+  never reserving the 16 resSeqs the missing linker actually needs.
+  `dvbfixer zbs 8cz8_a_u.pdb --fasta 8cz8_renamed.fasta --atom-naming
+  standard --no-solvent -v` reproduced it: the rebuilt linker got
+  renumbered to resSeqs 96-111 (colliding with the already-used 1-111
+  stretch) and every residue after it was off by a constant -16 for
+  the rest of the chain (final range 1-231 instead of 1-247 for 247
+  actual residues).
+
+  Root cause: `src/dvbfixer/model/renumber.py`'s `_interpolate_gaps`,
+  internal-gap branch — when `available = right - left - 1 < gap_len`,
+  it numbered the gap BACKWARD from `right` (`right - gap_len + k`)
+  with no collision check at all, unlike the N-terminal-gap branch
+  immediately above it (which already detects an equivalent
+  "not enough room" condition and shifts the rest of the chain
+  forward instead of colliding). Confirmed NW alignment itself was
+  not confused by the linker's periodicity — the real trigger is any
+  internal gap whose flanking anchors are numerically adjacent (or too
+  close) in the input's own resSeq, independent of sequence
+  composition. A byte-for-byte duplicate of the same bug existed a
+  second time in `build_resnum_mapping`'s own hand-rolled fallback
+  gap-loop (the align2d-mask last-resort path), which had drifted out
+  of sync with `_interpolate_gaps` (no `renumber_from_1` handling).
+
+  Fixed by making the internal-gap "not enough room" branch place the
+  gap sequentially from `left + 1` (matching the "enough room"
+  branch) and shift every already-placed resSeq downstream by the
+  deficit — mirroring the N-terminal branch's existing
+  shift-the-rest-of-the-chain pattern (WARN emitted). The fallback
+  path's duplicate loop was replaced with a direct call to the fixed
+  `_interpolate_gaps` instead of carrying two copies of the same
+  logic. Verified: both `8cz8_a_u.pdb` and `8cz8_a_b.pdb` now produce
+  chain C with resSeq range 1-247, zero duplicates, matching the FASTA
+  1:1.
+
+  Two other functions have the same theoretical vulnerability pattern
+  but were NOT touched (no concrete repro found): the standalone
+  `renumber` subcommand's `align_to_seqres`
+  (`src/dvbfixer/renumber.py`) and `model/modeller_run.py`'s
+  `_fix_terminal_alignment`.
+
+## [0.7.12] — 2026-07-31 (branch: `fix/seeded-atom-rebuild`, not yet merged to main; merged to `main` in 0.7.13's session)
 
 ### Fixed
 

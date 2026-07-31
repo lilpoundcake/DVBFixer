@@ -287,6 +287,26 @@ call bare `dvbfixer` resolve it. See
   after Modeller runs is too late, the damage is already done.
   `--no-infer-conect` opts out; `zbs.py` threads the same flag
   through to `model`.
+- **`model/renumber.py`'s `_interpolate_gaps` internal-gap branch must
+  never number a gap backward from its right flank when there isn't
+  enough room (since 0.7.13).** When an internal gap's two flanking
+  residues are numerically adjacent (or too close) in the INPUT's own
+  numbering — confirmed on a real scFv construct
+  (`test/8cz8/8cz8_a_u.pdb`/`8cz8_a_b.pdb`, chain C: a disordered
+  (GGGS)×4 linker between VL and VH has no density, and the depositor
+  numbered VH's first residue immediately after VL's last one,
+  reserving zero resSeqs for the missing linker) — numbering the gap
+  backward from `right` (`right - gap_len + k`) collides with resSeqs
+  already assigned further left. Place the gap sequentially from
+  `left + 1` instead (same formula as the "enough room" branch) and
+  shift every already-placed resSeq downstream by the deficit (WARN
+  emitted) — mirroring the N-terminal branch's existing
+  shift-the-rest-of-the-chain pattern for the equivalent case at the
+  start of a chain. `build_resnum_mapping`'s align2d-mask fallback
+  path must call `_interpolate_gaps` directly rather than carrying its
+  own second copy of this logic — the two had already drifted out of
+  sync once (the duplicate lacked `renumber_from_1` handling) before
+  this bug was found.
 - **A bare/minimal `TER\n` line (4 chars, no serial/resname/padding)
   is valid PDB.** `line[11:]` on one returns `''` silently (no
   IndexError on an out-of-range slice) — `renumber.py`'s TER handling
