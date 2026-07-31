@@ -8,6 +8,119 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.14] — 2026-07-31 (branch: `fix/audit-2026-07-31`, not yet merged to main)
+
+A 6-agent parallel codebase audit (excluding `homology.py`) found and
+this branch fixes every confirmed finding — High + Medium + Low
+severity, plus suggested improvements. Full detail per item is in the
+branch's commit messages (4 commits, one per severity bucket); summary
+below.
+
+### Fixed — High severity
+
+- **Insertion-code collapse corrupted protonation-variant names.**
+  `prepare/pipeline.py` collapsed `(chain, resid, icode)` variant keys
+  down to `(chain, resid)`, silently overwriting one insertion-code
+  sibling's variant with another's (e.g. a Kabat CDR-loop `H:82`/
+  `H:82A` pair). Fixed end to end: the merge/collapse, `_restore_variants`'s
+  PDB-line matching, the `.dat` `variant_overrides` encoding (now
+  `"chain:resid:icode"`, unambiguous), and `ffutils.variants`'
+  `build_variants_list`/`rename_variants_to_parent_in_topology`/
+  `restore_variants_post_addhydrogens`/`fix_lyn_hz_naming`. Ported the
+  same fix into `minimize/pipeline.py`'s parallel `amber_renames`
+  system, which had the identical collapse.
+- **`minimize` computed restraint tiers against stale, pre-rebuild atom
+  indices** — silently applying strong/weak/free restraints to the
+  wrong atoms on any input with missing atoms or protonation variants
+  (i.e. almost any real structure from `model`/`prepare`). Fixed by
+  capturing `(chain, resid, icode, atom_name)` keys instead of raw
+  indices and re-resolving them against the final topology.
+- **`dvbfixer top --merge` silently zeroed every atom's coordinates**
+  in `--pdb` output (`_merge_chains`'s `AtomEntry` construction omitted
+  `x`/`y`/`z`/`chain_id`/`orig_resseq`/`orig_resname`). Also fixed
+  `resnr` to offset per chain (was colliding across chains).
+- **Same-residue sugar-bond distance guard used the wrong (narrower)
+  name table** in `pdbutils/inference.py`, letting spurious same-residue
+  CONECT records through for NGA/A2G/CHARMM-GUI-named sugars.
+  Consolidated the PDB/CHARMM-GUI sugar-name sets — independently
+  drifted in ≥3 places — into one canonical `ffutils.is_pdb_sugar_resname`
+  helper. `top/ff_data.py`'s `PDB_TO_CARB` was also missing a `BNE5AC`
+  (beta-anomer sialic acid) entry entirely, silently dropping its bonds.
+
+### Fixed — Medium severity
+
+- `ffutils.geometry.rebuild_missing_atoms_with_retry` (0.7.13) only
+  covered `fixer.missingAtoms`, never `fixer.missingResidues` (whole
+  gap-filled residues) — both go through PDBFixer's identical
+  clash-escape MD. Reworked to diff the post-call topology against a
+  pre-call snapshot, covering both uniformly.
+- Disulfide-bond snapshot/cleanup was out of sync across 3 call sites
+  (`minimize/pipeline.py`'s two branches + `protonate.py`, which had
+  none at all). Moved the shared helpers into `ffutils.geometry`.
+- Standalone `renumber.py`'s `align_to_seqres` had zero mutation
+  tolerance — a single point mutation vs. wild-type SEQRES silently
+  misplaced that residue (and everything after it) to the sequence
+  tail. Bounded the forward search and fall back to a point-substitution
+  interpretation instead of leaving it unmapped.
+- `transplant.py`'s CONECT remap keyed by `(chain, resseq, name)`,
+  omitting insertion code — unlike every other identity key in the file.
+- `top/pipeline.py`'s `_count_water` used a single hardcoded
+  atom-count/3 divisor, wrong for TIP4/TIP5/HOH.
+
+### Fixed — Low severity / cleanup
+
+- `split_chains.py` never emitted a closing `TER` for the last chain.
+- Temp-file leaks in `prepare/pipeline.py` (exception path) and
+  `minimize/pipeline.py` (`--ff amber+glycam` auto-convert, `--rename`,
+  `--ff charmm` output auto-convert) — wrapped in `try/finally` or
+  deferred to `atexit`, matching the existing
+  `pdbutils._materialise_inferred_pdb` pattern.
+- `model/modeller_run.py`'s post-refinement chirality sweep silently
+  skipped any candidate whose PDB failed to load, with no diagnostic.
+- Removed dead code: `minimize/refine.py::_restore_glycosylated_h`
+  (confirmed zero callers) and `cluster.py::gromos_cluster`'s
+  unreachable `neighbor_counts[best_local] == 0` check.
+- Removed a stale comment in `protonate.py` claiming a nonexistent
+  `Modeller.addHydrogens(ignoreExternalBonds=...)` parameter, and fixed
+  `diagnose/steric.py`'s docstring citing the wrong default clash-mode
+  cutoffs.
+
+### Fixed — found during this branch's own regression-test writing
+
+- **CRITICAL: `prepare` could silently delete the user's own input
+  file.** `run_pdbfixer` compared `preprocessed_path`/`canon_path`
+  (always plain `str`) against `input_path` (a `Path` object) with
+  `!=` — always `True` in Python regardless of whether they name the
+  same file. A completely no-op preprocess+canonicalize pass (a clean
+  PDB needing neither fix — the common case) still unconditionally
+  unlinked `canon_path`, which in that case IS `input_path`. Confirmed:
+  `dvbfixer prepare <file> --no-infer-conect` on an already-clean input
+  permanently deleted the file. Fixed by normalizing to `str` once at
+  the top of `run_pdbfixer`.
+- The "capture AMBER/CHARMM variant names from input" loop read
+  `fixer.topology.residues()`, but PDBFixer's own parser already
+  normalizes variant names (HIE/HID/HIP/... → HIS) at construction
+  time — the loop was a silent no-op the whole time despite its own
+  comment's stated intent. Fixed to scan the raw input text via
+  `ffutils.variants.scan_variant_names` instead.
+
+### Improvements
+
+- Narrowed two `except (ValueError, Exception)`/`except Exception`
+  catches around `createSystem` in `minimize/pipeline.py` to
+  `except (ValueError, KeyError)` — the two types this codebase has
+  actually observed from that call — so an unrelated real bug surfaces
+  as a crash instead of masquerading as an expected template failure.
+- `protonate.py`: removed a pointless `findNonstandardResidues()` call
+  whose result was immediately discarded, plus its bare
+  `except Exception: pass`.
+- Evaluated splitting `top/pipeline.py`'s glycan-tree builder into its
+  own module; found the actual structure is a ~1278-line function
+  containing a nested class with zero test coverage for its riskiest
+  path (glycolipids) — decided not to attempt this move blind. Left as
+  a documented follow-up requiring test coverage first.
+- Added regression tests for every fix above (11 new tests).
+
 ## [0.7.13] — 2026-07-31
 
 ### Fixed

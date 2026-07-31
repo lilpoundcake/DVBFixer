@@ -397,6 +397,49 @@ call bare `dvbfixer` resolve it. See
   protonation variants) must scope its H-strip to `PROTEIN_RESIDUES`
   only — stripping H from an arbitrary ligand is unrecoverable since
   `addHydrogens` has no hydrogens.xml entry to rebuild it from.
+- **Never compare a `str` temp-file path against a `Path` object with
+  `!=`/`==` to decide whether to delete it (fixed 0.7.14).**
+  `Path('/a') != '/a'` is `True` in Python even when they name the
+  exact same file — `Path.__eq__` requires matching types. Several
+  helpers (`ffutils.sanitize_protein_hetatm`,
+  `prepare.pipeline._canonicalize_conect_records`) return plain `str`
+  even when handed a `Path` and no rewrite happened. Confirmed this
+  crashed `prepare`'s own "was this rewritten" check
+  (`preprocess_was_rewritten = preprocessed_path != input_path`) so it
+  was unconditionally `True`, and — when nothing had actually been
+  rewritten — `run_pdbfixer`'s cleanup then deleted `canon_path`, which
+  in that case IS `input_path`: **`dvbfixer prepare <file>
+  --no-infer-conect` on an already-clean input permanently deleted the
+  user's own input file.** Normalize to one type (str) immediately on
+  entry to any function that will later compare a path against
+  possibly-rewritten copies of itself; never trust a bare `!=` between
+  a function parameter and a helper's return value unless both sides
+  are guaranteed the same type.
+- **Never collapse a `(chain, resid, icode)` key down to `(chain,
+  resid)` anywhere protonation-variant names or CONECT atom identity
+  are tracked (fixed 0.7.14).** This exact bug recurred independently
+  in at least 5 places: `prepare/pipeline.py`'s `variant_overrides`
+  merge and `_restore_variants`'s PDB-line matching, `ffutils.variants`'
+  `build_variants_list`/`rename_variants_to_parent_in_topology`/
+  `restore_variants_post_addhydrogens`/`fix_lyn_hz_naming`,
+  `minimize/pipeline.py`'s parallel `amber_renames` system, and
+  `transplant.py`'s CONECT serial map. Any two residues sharing a
+  resSeq via insertion code (e.g. a Kabat CDR-loop `H:82`/`H:82A` pair
+  — this project's primary use case is antibody PDBs) silently
+  overwrite or cross-contaminate each other's data under a 2-tuple key.
+  `ffutils.ff_names.apply_variants_to_pdb_text`/`_split_key` already
+  had this right (icode-specific entry first, any-icode fallback only
+  for a residue that itself has none) — mirror that pattern, don't
+  reinvent a 2-tuple version.
+- **`minimize`'s restraint-tier atom-index set must be re-resolved by
+  `(chain, resid, icode, atom_name)` identity against the FINAL
+  topology, never carried as raw integer indices across an
+  `addHydrogens`/`addMissingAtoms` call (fixed 0.7.14).** Both rebuild
+  an entirely new `Topology`, shifting every atom's index whenever one
+  is inserted. `resolve_new_atom_indices` (already used by the `.dat`-
+  driven path) is the correct, existing helper — call it again right
+  before `build_restraint_force`, not just once at the top of
+  `minimize()`.
 
 ## Running tests locally
 
