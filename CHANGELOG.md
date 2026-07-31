@@ -8,6 +8,70 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.15] — 2026-07-31 (branch: `fix/audit-2026-07-31`, not yet merged to main)
+
+Three follow-ups from the user after 0.7.14's audit pass: a reported
+"strange links between lipid atoms" bug, a perceived `model`-step
+slowdown, and the `top/pipeline.py` glycan-tree split that 0.7.14 had
+deliberately deferred.
+
+### Fixed
+
+- **HETATM ligand resSeq colliding with a gap-filled protein residue,
+  causing coordinate cross-contamination.** The standalone, FASTA-blind
+  `renumber.py` numbers ATOM and HETATM residues in one shared
+  sequential space; when `model`'s FASTA-aware gap-fill later expanded
+  a chain, a ligand's naive resSeq could land on a newly-created
+  protein residue's resSeq. `minimize`'s legacy strip-and-splice
+  position-restore merge (keyed by `(chain, resid, atomname)`, no
+  resname check) then silently overwrote the ligand's colliding atoms
+  with the protein residue's minimized coordinates — confirmed on a
+  real fatty-acid ligand (`test/lipid/`), reproducing the user's report
+  exactly (an atom teleported tens of Å away from the rest of its own
+  molecule). Fixed in `model/renumber.py`'s `build_resnum_mapping`
+  (detects the collision, renumbers clear of it, warns); hardened
+  `minimize/pipeline.py`'s restore-merge key to `(chain, resid,
+  parent_resname, atomname)` as defense-in-depth.
+- **`top/pipeline.py` silently dropped any HETATM chain it couldn't
+  classify as protein/sugar/ceramide/known-small-molecule** — no
+  warning, no error, the chain just never appeared in the output
+  `.top`'s `[ molecules ]` section. Found while adding baseline test
+  coverage for `TopologyBuilder` on the same fatty-acid ligand above.
+  Now emits a `WARNING` naming the dropped chain and its resname(s);
+  does not add new topology support for arbitrary small molecules
+  (that's `--acpype` / `minimize --parametrize-ligands`'s job).
+
+### Investigated, no fix needed
+
+- **Perceived `model`-step slowdown.** Timed `dvbfixer model` on the
+  same input/flags at `241710a` (pre-0.7.10) vs current `HEAD`: both
+  22 seconds, identical `molpdf`. No regression in this branch —
+  likely inherent Modeller loop-refinement variance or an
+  input-dependent effect.
+
+### Refactor
+
+- **Completed the `top/pipeline.py` glycan-tree split that 0.7.14
+  deferred as "too risky."** A precise line-boundary re-read found the
+  prior session's characterization was wrong — `TopologyBuilder` was
+  never nested inside `build_glycan_trees`; it's a separate,
+  self-contained top-level class. Split into `top/types.py` (shared
+  dataclasses: `PDBResidue`, `PDBChain`, `AtomEntry`, `ChainTopology`),
+  `top/glycan.py` (`detect_glycan_links`, `build_glycan_trees`,
+  `_is_ceramide`, `_parse_conect_bonds`), and
+  `top/topology_builder.py` (`TopologyBuilder`, `_match_atom_names`,
+  `_resolve_sugar_rtp`). `top/pipeline.py` shrank from ~2966 to ~1305
+  lines and is now CLI orchestration + PDB I/O only. Added
+  `tests/test_top_pipeline_baseline.py` — the first test coverage
+  `TopologyBuilder` has ever had (protein / glycan / unrecognized-chain
+  paths) — before performing the move, then verified every moved
+  function/dataclass byte-identical via `inspect.getsource()` /
+  `dataclasses.fields()`, plus real `dvbfixer top` runs on protein,
+  glycan, and lipid fixtures comparing output before/after (identical
+  modulo a pre-existing, unrelated set-iteration-order
+  non-determinism in `build_glycan_trees`'s root-finding, reproduced
+  even between two runs of the same already-split code).
+
 ## [0.7.14] — 2026-07-31 (branch: `fix/audit-2026-07-31`, not yet merged to main)
 
 A 6-agent parallel codebase audit (excluding `homology.py`) found and
