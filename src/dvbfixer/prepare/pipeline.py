@@ -335,12 +335,22 @@ def _canonicalize_conect_records(input_path, verbose=False):
 
 def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                  mutations=None, heterogen_h=True, removed_residues_meta=None,
-                 ff_xmls=None, extra_variants=None):
+                 ff_xmls=None, his_default='HIE', cys_ss_pka=99.99,
+                 use_propka=True, use_reduce=True):
     """Run PDBFixer to add missing atoms/residues. Returns (fixer, new_atom_indices).
 
-    ``extra_variants`` is an optional ``{(chain, resid_str, icode): variant}``
-    map (typically from PROPKA + Reduce). Merged with user-supplied
-    ``--mutate`` overrides such that user entries win on collision.
+    PROPKA + MolProbity Reduce (see ``_run_propka_reduce_variants``) run
+    INSIDE this function, after PDBFixer's own heavy-atom repair
+    (``findMissingAtoms`` + ``addMissingAtoms``) — not before. Both PROPKA
+    and Reduce need a complete heavy-atom set to make any real protonation
+    decision; running them on the raw (possibly heavy-atom-incomplete)
+    input meant a residue with e.g. a missing imidazole ring (real
+    crystallographic disorder — confirmed on a real structure) got no
+    PROPKA result at all, silently deferring its HIS tautomer decision all
+    the way to OpenMM's own internal auto-detect in `Modeller.addHydrogens`,
+    which then raises an unrecoverable `ValueError: HIS residue (N) has
+    the wrong set of atoms` — on both the whole-system attempt AND the
+    protein-only fallback, since both share the same fragile logic.
     """
     # Glycoprotein-input fixes: rewrite HETATM→ATOM for protein/GLYCAM
     # glycoprotein residues (NLN/OLS/OLT) and drop spurious TER records
@@ -589,6 +599,35 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     if verbose and _chir_fixed:
         print(f"  [prepare] flipped {_chir_fixed} Cα chirality inversion(s)")
 
+    # PROPKA + MolProbity Reduce run HERE — on `fixer`'s current,
+    # heavy-atom-complete state — not on the original input. Both tools
+    # need a full heavy-atom set to make a real decision (see this
+    # function's docstring for the concrete failure mode this avoids).
+    extra_variants: dict = {}
+    if use_propka or use_reduce:
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False) as _tmp:
+            PDBFile.writeFile(fixer.topology, fixer.positions, _tmp, keepIds=True)
+            _propka_input_path = _tmp.name
+        try:
+            from dvbfixer.acpype_export import detect_ss_bonds
+            try:
+                _ss_pairs = detect_ss_bonds(_propka_input_path)
+            except Exception:
+                _ss_pairs = set()
+            extra_variants = _run_propka_reduce_variants(
+                _propka_input_path,
+                ph=ph,
+                ss_pairs=_ss_pairs,
+                his_default=his_default,
+                cys_ss_pka=cys_ss_pka,
+                use_propka=use_propka,
+                use_reduce=use_reduce,
+                verbose=verbose,
+            )
+        finally:
+            Path(_propka_input_path).unlink(missing_ok=True)
+
     # Build explicit variants list for addHydrogens.
     # PDBFixer's addMissingHydrogens ignores our topology renames — it uses
     # its own _describeVariant which only understands standard names.
@@ -633,6 +672,21 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                 variants.append('HID')
             elif 'HE2' in atom_names:
                 variants.append('HIE')
+            elif ('ND1' not in atom_names or 'NE2' not in atom_names):
+                # Defensive backstop: OpenMM's own auto-detect (which
+                # `None` defers to) requires exactly one ND1 and one NE2
+                # and raises an unrecoverable ValueError otherwise. This
+                # should be unreachable now that PROPKA/Reduce run after
+                # heavy-atom repair (see this function's docstring), but
+                # a residue PDBFixer's template rebuild can't fully fix
+                # for some other reason must never be able to crash the
+                # whole pipeline when a sane default already exists.
+                variants.append(his_default)
+                print(f"  WARNING: {res.chain.id}/{res.name}{res.id} still "
+                      f"lacks a complete ND1/NE2 ring after heavy-atom "
+                      f"repair — forcing --his-default ({his_default}) "
+                      f"instead of OpenMM's auto-detect (which requires "
+                      f"both and would raise otherwise).")
             else:
                 variants.append(None)  # let OpenMM auto-detect by pH
         else:
@@ -1059,35 +1113,23 @@ def main(argv=None):
             )
             input_path = deletion_path
 
-    # PROPKA + Reduce → variant map. Runs on the (possibly
-    # mutation-cleaned + GLYCAM-converted) input path; result is passed
-    # into run_pdbfixer as extra_variants and merged with any
-    # --mutate-supplied overrides there.
-    _propka_variants: dict = {}
-    if getattr(args, 'propka', True) or getattr(args, 'protassign', True):
-        try:
-            from dvbfixer.acpype_export import detect_ss_bonds
-            _ss = detect_ss_bonds(str(input_path))
-        except Exception:
-            _ss = set()
-        _propka_variants = _run_propka_reduce_variants(
-            input_path,
-            ph=args.ph,
-            ss_pairs=_ss,
-            his_default=getattr(args, 'his_default', 'HIE'),
-            cys_ss_pka=getattr(args, 'cys_ss_pka', 99.99),
-            use_propka=getattr(args, 'propka', True),
-            use_reduce=getattr(args, 'protassign', True),
-            verbose=args.verbose,
-        )
-
+    # PROPKA + Reduce now run INSIDE run_pdbfixer, after PDBFixer's own
+    # heavy-atom repair (findMissingAtoms/addMissingAtoms) — not before.
+    # See run_pdbfixer's docstring: running them on the raw input let a
+    # heavy-atom-incomplete residue (e.g. a missing imidazole ring) get
+    # no PROPKA result at all, deferring its variant decision all the
+    # way to OpenMM's own fragile auto-detect logic in addHydrogens,
+    # which then crashes with an unrecoverable ValueError.
     print(f"=== PDBFixer: {input_path} ===")
     fixer, new_atom_indices, variant_overrides = run_pdbfixer(
         input_path, args.ph, args.keep_water, args.keep_heterogens, args.verbose,
         mutations=args.mutate, heterogen_h=args.heterogen_h,
         removed_residues_meta=removed_residues_meta,
         ff_xmls=_ff_xmls,
-        extra_variants=_propka_variants,
+        his_default=getattr(args, 'his_default', 'HIE'),
+        cys_ss_pka=getattr(args, 'cys_ss_pka', 99.99),
+        use_propka=getattr(args, 'propka', True),
+        use_reduce=getattr(args, 'protassign', True),
     )
 
     # Write PDB with standard names first (OpenMM writes HETATM for non-standard)

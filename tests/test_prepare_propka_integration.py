@@ -134,3 +134,79 @@ def test_zbs_skip_protonate_maps_to_no_propka_no_protassign() -> None:
     args = parse_args(["dummy.pdb", "--skip-protonate"])
     assert args.propka is False
     assert args.protassign is False
+
+
+# Real fragment from test/8cz8/8cz8_t_u.pdb, chain E residues 370-372 —
+# HIS 371's entire imidazole ring (CG/ND1/CD2/CE1/NE2) is genuinely
+# missing in the deposited structure (crystallographic disorder), only
+# backbone + CB survive. This is the exact real-world trigger for
+# `ValueError: HIS residue (N) has the wrong set of atoms` from
+# `Modeller.addHydrogens` (0.7.11).
+_HIS_MISSING_RING_FRAGMENT = """\
+ATOM      1  N   GLN A 370      18.470  40.815 -84.848  1.00158.00           N
+ATOM      2  CA  GLN A 370      18.037  40.240 -83.545  1.00160.28           C
+ATOM      3  C   GLN A 370      19.146  39.332 -83.003  1.00161.91           C
+ATOM      4  O   GLN A 370      19.737  39.686 -81.969  1.00164.09           O
+ATOM      5  CB  GLN A 370      16.727  39.467 -83.700  1.00165.99           C
+ATOM      6  CG  GLN A 370      15.487  40.338 -83.551  1.00170.19           C
+ATOM      7  CD  GLN A 370      14.362  39.903 -84.460  1.00175.73           C
+ATOM      8  OE1 GLN A 370      13.638  40.724 -85.023  1.00175.98           O
+ATOM      9  NE2 GLN A 370      14.206  38.598 -84.614  1.00180.55           N
+ATOM     10  N   HIS A 371      19.418  38.212 -83.690  1.00161.49           N
+ATOM     11  CA  HIS A 371      20.300  37.108 -83.217  1.00157.10           C
+ATOM     12  C   HIS A 371      21.708  37.256 -83.821  1.00155.11           C
+ATOM     13  O   HIS A 371      22.391  36.227 -83.970  1.00156.79           O
+ATOM     14  CB  HIS A 371      19.669  35.744 -83.550  1.00151.22           C
+ATOM     15  N   LEU A 372      22.128  38.490 -84.138  1.00153.86           N
+ATOM     16  CA  LEU A 372      23.452  38.789 -84.764  1.00155.87           C
+ATOM     17  C   LEU A 372      24.578  38.315 -83.837  1.00150.72           C
+ATOM     18  O   LEU A 372      25.688  38.077 -84.338  1.00150.14           O
+ATOM     19  CB  LEU A 372      23.570  40.290 -85.040  1.00161.26           C
+ATOM     20  CG  LEU A 372      24.529  40.669 -86.170  1.00168.54           C
+ATOM     21  CD1 LEU A 372      23.793  40.757 -87.503  1.00170.38           C
+ATOM     22  CD2 LEU A 372      25.245  41.978 -85.865  1.00171.95           C
+TER
+END
+"""
+
+
+def test_prepare_completes_on_his_with_missing_ring(tmp_workdir: Path) -> None:
+    """Regression: a HIS residue with its entire imidazole ring missing
+    (real crystallographic disorder, not a dvbfixer bug at the source)
+    used to crash `prepare` unrecoverably with `ValueError: HIS residue
+    (N) has the wrong set of atoms` from `Modeller.addHydrogens` — on
+    BOTH the whole-topology attempt and the protein-only fallback,
+    since both share the same fragile internal auto-detect logic.
+
+    Root cause: PROPKA + MolProbity Reduce used to run on the RAW input
+    (before PDBFixer's own `findMissingAtoms`/`addMissingAtoms` rebuilds
+    the ring), so PROPKA had nothing to analyze for this residue and
+    emitted no pKa result at all — not "neutral", just absent — so its
+    variant decision fell through to OpenMM's own fragile ND1/NE2-
+    presence check. Fixed by moving PROPKA + Reduce to run AFTER
+    PDBFixer's heavy-atom repair, on the now-complete structure.
+    """
+    from dvbfixer.prepare.pipeline import main as prepare_main
+
+    input_pdb = tmp_workdir / "his_missing_ring.pdb"
+    input_pdb.write_text(_HIS_MISSING_RING_FRAGMENT)
+    out = tmp_workdir / "prep.pdb"
+
+    prepare_main([str(input_pdb), "-o", str(out)])
+
+    assert out.exists()
+    text = out.read_text()
+    his_lines = [ln for ln in text.splitlines()
+                 if ln[17:20].strip() in ("HIS", "HIE", "HID", "HIP")
+                 and ln[22:26].strip() == "371"]
+    atom_names = {ln[12:16].strip() for ln in his_lines}
+    assert {"ND1", "NE2", "CG", "CD2", "CE1"} <= atom_names, (
+        f"HIS 371's ring wasn't fully rebuilt: {sorted(atom_names)}"
+    )
+    # A rebuilt ring with no real H-bonding environment should get the
+    # user's declared default tautomer (HIE) via the normal PROPKA/
+    # Reduce path — not the emergency ND1/NE2-presence backstop.
+    assert any(ln[17:20].strip() == "HIE" for ln in his_lines), (
+        f"expected HIS 371 to resolve to the HIE default tautomer, "
+        f"found resnames: {sorted({ln[17:20].strip() for ln in his_lines})}"
+    )

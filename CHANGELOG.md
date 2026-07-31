@@ -8,6 +8,61 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.11] — 2026-07-31
+
+### Fixed
+
+- **`prepare` could crash unrecoverably on a HIS residue with an
+  incomplete imidazole ring** — `ValueError: HIS residue (N) has the
+  wrong set of atoms` from OpenMM's `Modeller.addHydrogens`, on both
+  the whole-topology attempt and the protein-only fallback, since both
+  share the same fragile internal auto-detect logic (requires exactly
+  one `ND1` and one `NE2`; no recovery path if the count is off).
+  Confirmed on a real structure (`test/8cz8/8cz8_t_u.pdb`, chain E
+  resid 371): a genuine crystallographic-disorder case where the whole
+  ring (`CG`/`ND1`/`CD2`/`CE1`/`NE2`) is missing from the deposited
+  file, only backbone + CB survive.
+
+  Root cause: PROPKA + MolProbity Reduce ran on the **raw input**,
+  *before* `PDBFixer`'s own `findMissingAtoms`/`addMissingAtoms`
+  rebuilds a residue's missing heavy atoms — confirmed PDBFixer's
+  repair is otherwise correct here (verified directly: it detects and
+  rebuilds all five missing ring atoms when run on this file in
+  isolation). Since PROPKA can't even identify a titratable HIS group
+  without ND1/NE2 to look at, it silently emitted *no* pKa result at
+  all for this residue (not "neutral" — absent), so the existing
+  `decide_protonation`/`--his-default` fallback (which only fires for
+  residues PROPKA *did* analyze and found ambiguous) never got a
+  chance to run, and the variant decision fell all the way through to
+  `variants.append(None)`, deferring to OpenMM's own fragile
+  auto-detect — the actual crash site.
+
+  Fixed by reordering: `run_pdbfixer` (`src/dvbfixer/prepare/pipeline.py`)
+  now runs PROPKA + MolProbity Reduce *after* `PDBFixer.addMissingAtoms()`
+  and the chirality fix, on the now heavy-atom-complete structure
+  (written to a temp PDB), instead of on the raw input. `main()` no
+  longer runs `_run_propka_reduce_variants` itself — that call, and the
+  SS-bond detection feeding it, moved inside `run_pdbfixer` between its
+  heavy-atom-repair and hydrogen-placement phases. Once PROPKA sees a
+  complete (rebuilt) ring, it behaves like any other HIS residue and
+  the *already-correct* `his_default` fallback machinery covers it
+  automatically — no new fallback logic was needed for the primary
+  fix. A defensive backstop was added anyway (belt-and-braces): if a
+  HIS residue still lacks a complete ND1/NE2 pair at the point the
+  `variants` list is built — for whatever reason, even one not yet
+  seen — it resolves directly to `--his-default` instead of `None`,
+  with a one-line warning naming the residue, so this class of crash
+  can never recur regardless of the specific trigger.
+
+### Changed
+
+- `run_pdbfixer`'s signature dropped the `extra_variants` parameter
+  (PROPKA/Reduce results are now computed internally) in favor of
+  `his_default`, `cys_ss_pka`, `use_propka`, `use_reduce` — the raw
+  inputs `_run_propka_reduce_variants` needs. It has exactly one call
+  site (`prepare/pipeline.py`'s own `main()`), so this isn't a public
+  API change for any other caller.
+
 ## [0.7.10] — 2026-07-30
 
 ### Fixed

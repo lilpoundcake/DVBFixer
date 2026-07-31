@@ -99,6 +99,21 @@ call bare `dvbfixer` resolve it. See
   disable per-flag via `--no-propka` / `--no-protassign`. Standalone
   `dvbfixer protonate` still exists as a post-hoc re-protonation
   tool.
+- **`_run_propka_reduce_variants` must run AFTER
+  `PDBFixer.addMissingAtoms()`, never before (since 0.7.11).** Both
+  PROPKA and Reduce need a complete heavy-atom set to make any real
+  decision. Running them on the raw (possibly heavy-atom-incomplete)
+  input meant a residue with genuinely missing heavy atoms (confirmed
+  on a real structure: a HIS with its entire imidazole ring absent —
+  crystallographic disorder, not a dvbfixer bug) got no PROPKA result
+  at all — not "neutral", just absent — so the *existing*
+  `decide_protonation`/`--his-default` fallback (which only fires for
+  residues PROPKA *did* analyze) never ran, and the variant fell
+  through to OpenMM's own fragile `Modeller.addHydrogens` auto-detect,
+  which raises an unrecoverable `ValueError` with no way to recover
+  once inside it. `run_pdbfixer` (`prepare/pipeline.py`) now calls
+  PROPKA/Reduce on a temp PDB written from `fixer`'s state right after
+  `addMissingAtoms()` + the chirality fix — not on `input_path`.
 - **Do not call `PDBFixer.addMissingHydrogens(pH)`.** On the new
   backend, H placement is Reduce's job (subprocess). On the legacy
   backend, use `modeller.addHydrogens(forcefield, pH=..., variants=[...])`.

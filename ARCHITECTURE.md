@@ -536,6 +536,27 @@ edits on the input PDB text:
 Both edits are no-ops on clean inputs (returns the original path,
 no temp file created).
 
+### `run_pdbfixer`'s internal ordering — heavy atoms before PROPKA/Reduce (0.7.11)
+
+`run_pdbfixer` (`prepare/pipeline.py`) does, in order: (1) load +
+`PDBFixer.findMissingResidues()`/`findMissingAtoms()`/
+`addMissingAtoms()` + the chirality fix — this is the ONLY step that
+can rebuild a residue's missing heavy atoms; (2) write `fixer`'s
+current (now heavy-atom-complete) state to a temp PDB and call
+`_run_propka_reduce_variants` on THAT file; (3) merge the result with
+`--mutate` overrides into the per-residue `variants` list and call
+`Modeller.addHydrogens(...)`. Step 2 used to happen in `main()`,
+before step 1 ever ran — on the RAW input, which can have a residue
+with genuinely missing heavy atoms (crystallographic disorder). PROPKA
+can't identify a titratable group with no atoms to look at, so it
+silently emitted no result at all for such a residue, and the variant
+decision fell through to OpenMM's own internal auto-detect in
+`Modeller.addHydrogens` (requires exactly one ND1 and one NE2 for HIS),
+which raises an unrecoverable `ValueError` with no fallback of its
+own. `main()` no longer calls `_run_propka_reduce_variants` itself —
+it only passes through the raw args (`his_default`, `cys_ss_pka`,
+`use_propka`, `use_reduce`) for `run_pdbfixer` to use internally.
+
 ### `prepare.find_glycosylated_atoms_with_sugar` — FF-agnostic detection
 
 Returns `dict {(chain, resid, atom): bonded_sugar_resname}`. Two passes:
