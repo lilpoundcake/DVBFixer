@@ -371,21 +371,23 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     # dict-returning variant so we also know which sugar each anchor is
     # bonded to — needed to decide whether to rename ASN→NLN (only for
     # GLYCAM-named sugars).
-    sugar_by_anchor = find_glycosylated_atoms_with_sugar(canon_path)
-    glycosylated_atoms = set(sugar_by_anchor.keys())
-    if glycosylated_atoms and verbose:
-        print(f"Detected {len(glycosylated_atoms)} glycosylated atom(s)")
+    try:
+        sugar_by_anchor = find_glycosylated_atoms_with_sugar(canon_path)
+        glycosylated_atoms = set(sugar_by_anchor.keys())
+        if glycosylated_atoms and verbose:
+            print(f"Detected {len(glycosylated_atoms)} glycosylated atom(s)")
 
-    with open(canon_path) as f:
-        fixer = PDBFixer(pdbfile=f)
-
-    # Cleanup: delete any temp PDB we wrote. canon_path may be the same
-    # file as preprocessed_path (if canonicalize was a no-op), so only
-    # one unlink covers both cases.
-    if canon_path != input_path:
-        Path(canon_path).unlink(missing_ok=True)
-    if preprocess_was_rewritten and preprocessed_path != canon_path:
-        Path(preprocessed_path).unlink(missing_ok=True)
+        with open(canon_path) as f:
+            fixer = PDBFixer(pdbfile=f)
+    finally:
+        # Cleanup: delete any temp PDB we wrote, even if the block above
+        # raised — otherwise these leak into /tmp on every failed run.
+        # canon_path may be the same file as preprocessed_path (if
+        # canonicalize was a no-op), so only one unlink covers both cases.
+        if canon_path != input_path:
+            Path(canon_path).unlink(missing_ok=True)
+        if preprocess_was_rewritten and preprocessed_path != canon_path:
+            Path(preprocessed_path).unlink(missing_ok=True)
 
     # Apply substitution mutations if requested. Deletions were already
     # applied at the raw-text level upstream (see main()).

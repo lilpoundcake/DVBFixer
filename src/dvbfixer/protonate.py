@@ -563,15 +563,7 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         _saved.setdefault((ch, rs), orig)
     try:
         try:
-            if glycam_present:
-                # ignoreExternalBonds=True: the protein-glycan ND2-C1 bond
-                # doesn't match any single template, so addHydrogens must
-                # tolerate it.
-                modeller.addHydrogens(forcefield, pH=args.ph,
-                                       variants=variants)
-            else:
-                modeller.addHydrogens(forcefield, pH=args.ph,
-                                       variants=variants)
+            modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
             # Post-addHydrogens sanity: re-place any H that landed on top of
             # another atom (OpenMM's CSER template bug with existing OXT).
             from dvbfixer.ffutils.geometry import (

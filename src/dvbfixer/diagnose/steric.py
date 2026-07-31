@@ -266,8 +266,13 @@ def clashes_python(
 
     For every non-bonded, non-1-3, non-1-4 pair within
     ``_NEIGHBOR_CUTOFF_A``, computes vdW overlap = (r_i + r_j) - d.
-    Overlap ≥ 0.5 Å → ERROR; 0.4 ≤ overlap < 0.5 → WARNING; below
-    0.4 Å (MolProbity's official clashscore floor) → not reported.
+    Overlap at or above ``clash_error_a`` → ERROR; at or above
+    ``clash_warn_a`` (but below the error threshold) → WARNING; below
+    that → not reported. Both default to ``CLASH_MODE_PRESETS[
+    DEFAULT_CLASH_MODE]`` (currently the ``"chimerax"`` preset, 0.6/0.9 Å)
+    unless the caller passes explicit ``clash_warn_a``/``clash_error_a``
+    values or picks a different preset (e.g. ``"molprobity"``, 0.4/0.5 Å,
+    MolProbity's official clashscore floor).
 
     Bond exclusion includes both the OpenMM topology bond set AND
     a distance-inferred graph — so HETATMs and non-standard residues

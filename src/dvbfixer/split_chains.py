@@ -534,7 +534,12 @@ def _render_block(lines, atom_lines, atom_orig_indices, chain_for_atom,
             new_line = new_line[:6] + f"{serial:5d}" + new_line[11:]
             output_lines.append(new_line)
             next_ai = ai + 1
-            if next_ai in break_set:
+            # `break_set` only ever holds chain-START indices, so it never
+            # contains `len(atom_orig_indices)` — the position right after
+            # the very LAST atom of this block. Without this explicit
+            # check, the final chain in the output never got a closing
+            # TER record.
+            if next_ai in break_set or next_ai == len(atom_orig_indices):
                 serial += 1
                 resname = get_resname(new_line)
                 resid = int(new_line[22:26].strip())

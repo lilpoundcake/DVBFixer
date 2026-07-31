@@ -855,9 +855,9 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                                          legacy_args, amber_renames=amber_renames)
             # Rigid-tracking inside the inner minimize already aligned the
             # glycan tree to the post-min anchor and snapped the linkage atom
-            # to its ideal trigonal-planar position. Calling
-            # _restore_glycosylated_h here would overwrite the post-min amide
-            # with stale prep coords and break that alignment.
+            # to its ideal trigonal-planar position. A prep-coordinate
+            # restore pass over the glycosidic amide here would overwrite
+            # that post-min alignment with stale coordinates — don't add one.
             return out_top, out_pos
 
     if not args.no_solvent:
@@ -926,10 +926,10 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                                      amber_renames=amber_renames)
         # Rigid-tracking inside the inner minimize already aligned the
         # glycan tree to the post-min anchor and snapped the linkage atom
-        # to its ideal trigonal-planar position. Calling
-        # _restore_glycosylated_h here would overwrite the post-min amide
-        # (CG/OD1/ND2/HD21) with stale prep coords, breaking the bond
-        # to the rigid-tracked glycan. Skip it.
+        # to its ideal trigonal-planar position. A prep-coordinate restore
+        # pass over the glycosidic amide (CG/OD1/ND2/HD21) here would
+        # overwrite that with stale coordinates, breaking the bond to the
+        # rigid-tracked glycan — don't add one.
         return out_top, out_pos
 
     # Re-resolve by identity against the FINAL topology — `stripped_new_indices`
@@ -1270,10 +1270,17 @@ def main(argv=None):
     # amber+glycam + PDB-standard sugars: auto-convert to GLYCAM
     # canonical naming so templates match.
     if _ff_alias == 'amber+glycam' and has_pdb_standard_sugars(input_path):
+        import atexit
         import tempfile as _tf
 
         from dvbfixer.glycam import convert_to_glycam
         _conv_out = _tf.mktemp(suffix='.pdb', prefix='dvbfixer_glycam_')
+        # Registered unconditionally (not only on success) — used as
+        # `input_path` for the rest of this run, so it can't be deleted
+        # right away; atexit is the same pattern
+        # `pdbutils._materialise_inferred_pdb` already uses for this exact
+        # "temp file becomes the working input" situation.
+        atexit.register(lambda p=_conv_out: Path(p).unlink(missing_ok=True))
         try:
             convert_to_glycam(str(input_path), _conv_out,
                               add_roh=True, verbose=args.verbose)
@@ -1297,6 +1304,7 @@ def main(argv=None):
         dat_path = Path(args.input).with_suffix(".dat")
 
     if args.rename:
+        import atexit
         import tempfile as _tf
 
         from dvbfixer.rename import canonicalize_pdb
@@ -1305,6 +1313,10 @@ def main(argv=None):
         if n > 0:
             print(f"Canonicalized {n} non-canonical residue(s)")
             input_path = _tmp
+            # Used as `input_path` for the rest of this run — can't
+            # delete it right away; defer to process exit (previously
+            # never cleaned up at all in this branch).
+            atexit.register(lambda p=_tmp: p.unlink(missing_ok=True))
         elif _tmp.exists():
             _tmp.unlink()
 
@@ -1492,5 +1504,10 @@ def main(argv=None):
             print(f"  [ff] convert_to_charmm on output failed ({e}); "
                   f"output has GLYCAM sugar names — run "
                   f"`dvbfixer convert --to-charmm` manually.")
+        finally:
+            # On success `shutil.move` already relocated this path (so
+            # there's nothing left to remove); on failure a partial or
+            # nonexistent file may remain — clean it up either way.
+            Path(_tmp).unlink(missing_ok=True)
 
     print(f"\nSaved minimized structure: {output_path}")

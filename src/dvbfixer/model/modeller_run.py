@@ -700,7 +700,16 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
         cand_path = c['name']
         try:
             _cand = PDBFile(cand_path)
-        except Exception:
+        except Exception as e:
+            # This candidate skips the chirality sweep entirely — it can
+            # still reach the output with a residual D-Cα this pass would
+            # have caught. The pipeline's own later `assert_all_l` call is
+            # a second safety net, but a silent skip here leaves no
+            # breadcrumb pointing back at THIS candidate as the cause.
+            print(f"  WARNING: [modeller] could not load {cand_path} for "
+                  f"the post-refinement chirality sweep ({type(e).__name__}: "
+                  f"{e}) — skipping it; any residual D-Cα here will only "
+                  f"surface later, if at all.")
             continue
         # Numpy-backed Quantity: fix_ca_chirality mutates via item
         # assignment (supported), and PDBFile.writeFile's np.isnan
