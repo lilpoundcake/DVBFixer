@@ -2339,6 +2339,16 @@ def main(argv=None):
             )
             if has_known:
                 other_chains.append(chain)
+            else:
+                unknown_resnames = sorted({r.resname for r in chain.residues})
+                print(f"WARNING: chain {chain.chain_id} has no residue(s) "
+                      f"recognized by the {args.ff} force field or GLYCAM/"
+                      f"CHARMM sugar/ceramide tables — dropping it entirely "
+                      f"from the topology (resname(s): "
+                      f"{', '.join(unknown_resnames)}). No .itp will be "
+                      f"generated for this chain; add it to PDB_TO_LIPID or "
+                      f"parametrize it separately (e.g. GAFF2/antechamber) "
+                      f"if it needs a topology.", file=sys.stderr)
 
     if not protein_chains and not other_chains and not small_mol_counts:
         print("Error: No recognized chains found", file=sys.stderr)
