@@ -508,13 +508,13 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         # In GLYCAM mode, prevent PDBFixer from "fixing" NLN/OLS/OLT (it
         # doesn't recognize them as standard residues and may strip/replace).
         if glycam_present:
-            # PDBFixer's substitutions[chain_idx] is a list of (res_idx, new_name).
-            # Just clear it — we don't want any substitutions.
-            try:
-                fixer.findNonstandardResidues()
-                fixer.nonstandardResidues = []
-            except Exception:
-                pass
+            # We don't want any substitutions — just clear the field
+            # directly. Calling `findNonstandardResidues()` first and
+            # then discarding its result was pointless (it has no side
+            # effect besides populating this one attribute) and its
+            # bare `except Exception: pass` could have silently hidden a
+            # real failure for no benefit.
+            fixer.nonstandardResidues = []
         fixer.findMissingAtoms()
         from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry as _rebuild
         _rebuild(fixer, verbose=args.verbose, log_prefix="[protonate] ")

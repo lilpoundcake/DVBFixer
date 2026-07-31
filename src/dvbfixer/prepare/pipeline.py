@@ -352,6 +352,24 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     the wrong set of atoms` — on both the whole-system attempt AND the
     protein-only fallback, since both share the same fragile logic.
     """
+    # Normalise to str up front. `_preprocess_glycoprotein_input`/
+    # `_canonicalize_conect_records` always return plain str (their
+    # no-rewrite branches do `return str(pdb_path)` / return their own
+    # str parameter unchanged) — but callers pass `input_path` as a
+    # `Path` object. `some_str != some_path_object` is ALWAYS True in
+    # Python regardless of whether they name the same file (`Path.__eq__`
+    # requires matching types), so every `preprocess_was_rewritten`/
+    # `canon_was_rewritten`/cleanup comparison below was silently wrong
+    # whenever `input_path` was a `Path`: a completely no-op preprocess +
+    # canonicalize pass (the common case — a clean PDB needing neither
+    # fix) still evaluated `canon_path != input_path` as True and
+    # unconditionally unlinked it — which, since no real rewrite
+    # happened, IS the exact same file as `input_path`. Confirmed this
+    # silently deleted the user's OWN INPUT FILE when `--no-infer-conect`
+    # was passed on an input that didn't trigger some other temp-copy
+    # step first. Keeping everything as str from here on makes the
+    # comparisons mean what they say.
+    input_path = str(input_path)
     # Glycoprotein-input fixes: rewrite HETATM→ATOM for protein/GLYCAM
     # glycoprotein residues (NLN/OLS/OLT) and drop spurious TER records
     # between same-chain protein residues. Both confuse OpenMM's topology
@@ -409,11 +427,22 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
 
     # Capture AMBER/CHARMM protonation variant names from input PDB before
     # PDBFixer normalizes them. These are re-applied after replaceNonstandardResidues.
-    for res in fixer.topology.residues():
-        _res_ic = res.insertionCode.strip() if hasattr(res, 'insertionCode') else ''
-        key = (res.chain.id, res.id, _res_ic)
-        if key not in variant_overrides and res.name in _VARIANT_TO_STANDARD:
-            variant_overrides[key] = res.name
+    #
+    # Must scan the RAW PDB TEXT (`scan_variant_names`), not
+    # `fixer.topology.residues()`: PDBFixer's own PDB parser normalizes
+    # variant names (HIE/HID/HIP/... -> HIS, etc.) at CONSTRUCTION time —
+    # by the point `fixer` exists, `res.name` is already "HIS"/"ASP"/...,
+    # so a loop reading `fixer.topology` here can never actually match
+    # `_VARIANT_TO_STANDARD` and was a silent no-op despite this exact
+    # comment's stated intent. Scan `input_path` (still on disk and
+    # untouched by residue-naming) rather than `canon_path`/
+    # `preprocessed_path` — both temp files are already unlinked above by
+    # this point.
+    from dvbfixer.ffutils.variants import scan_variant_names as _scan_variant_names
+    for (ch, rs, ic), variant_name in _scan_variant_names(input_path).items():
+        key = (ch, rs, ic or '')
+        if key not in variant_overrides and variant_name in _VARIANT_TO_STANDARD:
+            variant_overrides[key] = variant_name
 
     # Strip hydrogens from protein residues (incl GLYCAM glycoprotein
     # residues NLN/OLS/OLT) before findMissingAtoms — clean template matching.

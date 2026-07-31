@@ -832,7 +832,14 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             forcefield.createSystem(modeller.topology, nonbondedMethod=NoCutoff,
                                     ignoreExternalBonds=True,
                                     residueTemplates=res_templates)
-        except Exception as e:
+        except (ValueError, KeyError) as e:
+            # ValueError: OpenMM's normal "no template found"/"missing N
+            # atoms" report. KeyError: its temporary re-matching can raise
+            # this instead when a GAFF2 generator (registered above via
+            # `_ligand_generators`) is involved — see CLAUDE.md's hard rule
+            # on this exact `createSystem`/GAFF2-generator interaction.
+            # Anything else is a real bug, not an expected template
+            # mismatch — let it propagate instead of masquerading as one.
             from dvbfixer.ffutils import explain_template_error
             diag = explain_template_error(e, modeller.topology, forcefield)
             print(f"\nWARNING: pre-solvent parametrization failed:\n  {e}\n")
@@ -875,7 +882,17 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
                                              residueTemplates=res_templates)
         else:
             system = forcefield.createSystem(modeller.topology, nonbondedMethod=nbm)
-    except (ValueError, Exception) as e:
+    except (ValueError, KeyError) as e:
+        # ValueError: OpenMM's normal "no template found"/"missing N
+        # atoms" report. KeyError: its temporary re-matching can raise
+        # this instead when a GAFF2 generator is involved — see
+        # CLAUDE.md's hard rule on this exact createSystem/GAFF2-generator
+        # interaction. `(ValueError, Exception)` used to be caught here,
+        # which is exactly `except Exception` (ValueError already IS an
+        # Exception) — any real, unrelated bug (a typo raising
+        # AttributeError, say) silently masqueraded as an expected
+        # template mismatch and got the fallback/diagnostic treatment
+        # below instead of surfacing as a crash.
         if not has_heterogens:
             # Protein-only path — no auto-fallback available. Surface
             # `explain_template_error` so the user sees the specific
