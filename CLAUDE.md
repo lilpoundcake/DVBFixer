@@ -114,6 +114,50 @@ call bare `dvbfixer` resolve it. See
   once inside it. `run_pdbfixer` (`prepare/pipeline.py`) now calls
   PROPKA/Reduce on a temp PDB written from `fixer`'s state right after
   `addMissingAtoms()` + the chirality fix — not on `input_path`.
+- **Never call `fixer.addMissingAtoms()` directly (since 0.7.12,
+  `fix/seeded-atom-rebuild` branch) — call
+  `dvbfixer.ffutils.geometry.rebuild_missing_atoms_with_retry(fixer,
+  ...)` instead.** PDBFixer's own `addMissingAtoms(seed=None)` rebuilds
+  a missing sidechain via template-overlay + local minimization; if
+  that result clashes with a neighbor (< 0.13 nm, its own
+  `_findNearestDistance` cutoff) it falls back to UNSEEDED Langevin
+  dynamics (300 K, up to 2000 steps) to kick the new atoms apart —
+  genuine stochastic MD whose escaped conformation differs run to run
+  on the *exact same input* (confirmed: 11 truncated LYS residues in
+  `test/8cz8/8cz8_t_u.pdb` chain E). `rebuild_missing_atoms_with_retry`
+  retries with explicit seeds (1..5) until the rebuild passes a
+  chirality + clash check, snapshotting `fixer.topology`/`positions`
+  before each attempt (PDBFixer builds an entirely new `Topology` per
+  call and only reassigns those two attributes at the end — the
+  pre-call objects are never mutated in place, so this is a correct,
+  cheap way to retry without reconstructing PDBFixer). All 5 call
+  sites (`prepare/pipeline.py`, `minimize/pipeline.py` ×2,
+  `protonate.py`, `top/pipeline.py`) route through it. This fixes the
+  *rebuild's* non-determinism at the source — it does not replace or
+  weaken `minimize`'s existing reflect/re-minimize/force-reflect
+  safety net, which still fires (rarely) for residues whose full-
+  system FF minimum genuinely prefers D, a separate phenomenon this
+  doesn't (and isn't meant to) eliminate.
+- **`prepare.pipeline.run_pdbfixer`'s call order must be
+  `findMissingResidues()` (+ deletion-scrub) ->
+  `findNonstandardResidues()` -> `replaceNonstandardResidues()` ->
+  `removeHeterogens()` -> `findMissingAtoms()` -> rebuild — never
+  `findMissingAtoms()` before `removeHeterogens()`/
+  `replaceNonstandardResidues()` (fixed 0.7.12).** Both of those two
+  PDBFixer calls rebuild an entirely new `Topology` internally
+  (`Modeller(...).delete(...)`), which silently invalidates an
+  earlier-computed `missingAtoms` dict — it's keyed by Residue OBJECT
+  IDENTITY against the topology that existed at `findMissingAtoms()`
+  time, and PDBFixer's own `_addAtomsToTopology` looks residues up in
+  it by identity. Getting this order wrong means `addMissingAtoms()`
+  silently adds ZERO heavy atoms for every genuinely-missing sidechain
+  whenever heterogens are stripped (confirmed pre-existing on `main`
+  through 0.7.11: `E/LYS299` in `test/8cz8/8cz8_t_u.pdb` stayed
+  backbone+CB straight through `prepare`, despite PDBFixer's own
+  verbose log correctly reporting `CG`/`CD`/`CE`/`NZ` as missing
+  beforehand). `findMissingResidues()` is safe to call early —
+  it's keyed by `(chain.index, indexInChain)`, a positional pair that
+  survives the later rebuilds, unlike Residue-object identity.
 - **Do not call `PDBFixer.addMissingHydrogens(pH)`.** On the new
   backend, H placement is Reduce's job (subprocess). On the legacy
   backend, use `modeller.addHydrogens(forcefield, pH=..., variants=[...])`.

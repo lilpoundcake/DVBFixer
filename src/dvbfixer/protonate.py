@@ -502,7 +502,8 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
             except Exception:
                 pass
         fixer.findMissingAtoms()
-        fixer.addMissingAtoms()
+        from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry as _rebuild
+        _rebuild(fixer, verbose=args.verbose, log_prefix="[protonate] ")
         modeller = Modeller(fixer.topology, fixer.positions)
         # Rebuild variants list for potentially reordered topology
         variants = []

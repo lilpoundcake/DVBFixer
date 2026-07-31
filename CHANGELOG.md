@@ -8,6 +8,73 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.12] — 2026-07-31 (branch: `fix/seeded-atom-rebuild`, not yet merged to main)
+
+### Fixed
+
+- **`PDBFixer.addMissingAtoms()` was called unseeded at all 5 call
+  sites** (`prepare/pipeline.py`, `minimize/pipeline.py` ×2,
+  `protonate.py`, `top/pipeline.py`). When rebuilding a missing
+  sidechain (e.g. a LYS truncated to backbone+CB by real
+  crystallographic/cryo-EM disorder — confirmed 11 of 19 LYS residues
+  in `test/8cz8/8cz8_t_u.pdb` chain E), PDBFixer superposes the
+  missing atoms from an ideal template, minimizes locally, and — if
+  the result clashes with a neighbor (< 0.13 nm, its own
+  `_findNearestDistance` cutoff) — runs genuine UNSEEDED Langevin
+  dynamics (300 K, up to 2000 steps) to kick the atoms apart. The
+  escaped conformation differed run to run on the *exact same input*,
+  occasionally leaving a rebuilt sidechain non-deterministic or
+  D-chiral, which downstream `minimize` could only react to after the
+  fact (reflect + re-minimize) — not prevent.
+
+  Fixed by adding `dvbfixer.ffutils.geometry.
+  rebuild_missing_atoms_with_retry`: calls `addMissingAtoms(seed=1, 2,
+  3...)` up to 5 times, checking after each attempt whether the
+  rebuilt residues are L-chiral and clash-free
+  (`find_clashing_atoms`, new helper, matches PDBFixer's own 0.13 nm
+  cutoff but — unlike PDBFixer's own check — excludes the whole same
+  residue, not just directly-bonded atoms, since a flexible sidechain
+  can legitimately place two of its own atoms this close in a gauche
+  conformation). Keeps the first clean attempt, or the last attempt
+  with a printed warning if none passed. Wired into all 5 call sites.
+
+  Verified: the 11 truncated LYS residues in `test/8cz8/8cz8_t_u.pdb`
+  chain E now rebuild to bit-identical, clash-free, L-chiral
+  coordinates across repeated `prepare` runs (previously varied run to
+  run). Full end-to-end `zbs` flakiness is reduced but not fully
+  eliminated — a second, independent source of run-to-run variation
+  exists in `minimize`'s own full-system energy minimization
+  (confirmed: a residue with zero missing atoms, `SER212`, still
+  drifted to D-Cα in 1 of 5 repeated `zbs` runs); the existing
+  unconditional force-reflect safety net in `minimize` continues to
+  guarantee a zero-D-Cα final structure in every case.
+
+- **`prepare.pipeline.run_pdbfixer`'s `PDBFixer` call order silently
+  discarded missing-heavy-atom rebuilds whenever heterogens were
+  stripped** (the default). `PDBFixer.removeHeterogens()` and
+  `PDBFixer.replaceNonstandardResidues()` each rebuild an entirely new
+  `Topology` internally (`Modeller(...).delete(...)`), which
+  invalidates the `fixer.missingAtoms` dict computed by an earlier
+  `findMissingAtoms()` call — it's keyed by Residue *object identity*
+  against the topology that existed at that time, and PDBFixer's own
+  `_addAtomsToTopology` looks residues up in it by identity. The old
+  order (`findMissingAtoms()` before `removeHeterogens()`/
+  `replaceNonstandardResidues()`) meant `addMissingAtoms()` silently
+  added **zero** heavy atoms for every genuinely-missing sidechain on
+  every default (heterogens-stripped) run — confirmed on `main`
+  (pre-existing, not introduced by this branch): `E/LYS299` in
+  `test/8cz8/8cz8_t_u.pdb` stayed backbone+CB straight through
+  `prepare`, even though PDBFixer's own verbose log correctly reported
+  `CG`/`CD`/`CE`/`NZ` as missing beforehand.
+
+  Fixed by reordering `run_pdbfixer` to match PDBFixer's own canonical
+  usage: `findNonstandardResidues()` -> `replaceNonstandardResidues()`
+  -> `removeHeterogens()` -> `findMissingAtoms()` ->
+  `rebuild_missing_atoms_with_retry()`. `findMissingResidues()` (and
+  its deletion-scrub logic) stays where it was — it's keyed by
+  `(chain.index, indexInChain)`, a positional pair that survives the
+  later rebuilds, unlike Residue-object identity.
+
 ## [0.7.11] — 2026-07-31
 
 ### Fixed

@@ -546,7 +546,6 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
             print(f"  Scrubbed {len(scrubbed_keys)} missingResidues gap(s) "
                   f"for user-deleted residues")
 
-    fixer.findMissingAtoms()
     fixer.findNonstandardResidues()
 
     # Filter out GLYCAM glycoprotein residues BEFORE printing/replacing —
@@ -566,6 +565,42 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
             for (chain_idx, res_idx), resnames in sorted(fixer.missingResidues.items()):
                 chain_id = list(fixer.topology.chains())[chain_idx].id
                 print(f"  Chain {chain_id} position {res_idx}: {' '.join(resnames)}")
+        if fixer.nonstandardResidues:
+            print("Nonstandard residues:")
+            for res, std in fixer.nonstandardResidues:
+                print(f"  {res.chain.id}/{res.name}{res.id} -> {std}")
+
+    # Order below matches PDBFixer's own canonical usage (findNonstandard-
+    # Residues -> replaceNonstandardResidues -> removeHeterogens ->
+    # findMissingAtoms -> addMissingAtoms), NOT the order this function used
+    # before: both `removeHeterogens()` and `replaceNonstandardResidues()`
+    # rebuild an entirely new Topology internally (via `Modeller(...).
+    # delete(...)`), which silently invalidates any earlier `findMissingAtoms()`
+    # dict — it's keyed by Residue OBJECT identity against the topology that
+    # existed at the time, not by value. Calling `findMissingAtoms()` before
+    # either rebuild meant `fixer.addMissingAtoms()` looked up stale keys
+    # against a topology it no longer matched, silently adding ZERO heavy
+    # atoms for every genuinely-missing sidechain (confirmed: e.g. a
+    # backbone+CB-only LYS from real crystallographic disorder stayed
+    # backbone+CB-only straight through `prepare`, even though PDBFixer's own
+    # `findMissingAtoms()` correctly detected CG/CD/CE/NZ as missing
+    # beforehand) whenever heterogens were removed or a nonstandard residue
+    # was replaced — i.e. on every default run. `findMissingResidues()`
+    # above is safe to call early: `missingResidues` is keyed by
+    # `(chain.index, indexInChain)`, a positional pair that (for this
+    # codebase's inputs) survives the later rebuilds, unlike Residue-object
+    # identity.
+    if not keep_heterogens:
+        _warn_covalent_heterogen_bonds(input_path, verbose=verbose)
+
+    fixer.replaceNonstandardResidues()
+
+    if not keep_heterogens:
+        fixer.removeHeterogens(keepWater=keep_water)
+
+    fixer.findMissingAtoms()
+
+    if verbose:
         if fixer.missingAtoms:
             print("Missing atoms:")
             for res, atoms in fixer.missingAtoms.items():
@@ -574,26 +609,21 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
             print("Missing terminals:")
             for res, atoms in fixer.missingTerminals.items():
                 print(f"  {res.chain.id}/{res.name}{res.id}: {', '.join(a if isinstance(a, str) else a.name for a in atoms)}")
-        if fixer.nonstandardResidues:
-            print("Nonstandard residues:")
-            for res, std in fixer.nonstandardResidues:
-                print(f"  {res.chain.id}/{res.name}{res.id} -> {std}")
 
     n_missing_res = sum(len(v) for v in fixer.missingResidues.values())
     n_missing_atoms = sum(len(v) for v in fixer.missingAtoms.items())
     print(f"PDBFixer: {n_missing_res} missing residues, {n_missing_atoms} residues with missing atoms")
 
-    if not keep_heterogens:
-        _warn_covalent_heterogen_bonds(input_path, verbose=verbose)
-        fixer.removeHeterogens(keepWater=keep_water)
+    # Seeded, retried rebuild — see rebuild_missing_atoms_with_retry's
+    # docstring for why PDBFixer's own unseeded addMissingAtoms() is
+    # unsafe to call directly (its clash-escape fallback is genuine
+    # unseeded stochastic MD).
+    from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry as _rebuild
+    _rebuild(fixer, verbose=verbose, log_prefix="[prepare] ")
 
-    fixer.replaceNonstandardResidues()
-    fixer.addMissingAtoms()
-
-    # PDBFixer's addMissingAtoms rebuilds sidechain heavy atoms from
-    # ideal AMBER templates; on branched-Cβ residues (VAL/ILE/THR)
-    # the template alignment sometimes picks the D configuration.
-    # Reflect any inversions back to L before H addition.
+    # Belt-and-braces: on branched-Cβ residues (VAL/ILE/THR) template
+    # alignment can still occasionally pick the D configuration even in a
+    # clash-free rebuild. Reflect any inversions back to L before H addition.
     from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chirality
     _chir_fixed = _fix_chirality(fixer.topology, fixer.positions, verbose=verbose)
     if verbose and _chir_fixed:

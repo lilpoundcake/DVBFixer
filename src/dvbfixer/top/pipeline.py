@@ -587,7 +587,8 @@ def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False)
         fixer.findMissingResidues()
         fixer.missingResidues = {}  # Only fix atoms, not residues
         fixer.findMissingAtoms()
-        fixer.addMissingAtoms()
+        from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry
+        rebuild_missing_atoms_with_retry(fixer, verbose=verbose, log_prefix="[top] ")
 
         modeller = Modeller(fixer.topology, fixer.positions)
 

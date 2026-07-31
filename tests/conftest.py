@@ -83,6 +83,15 @@ def shit_dir() -> Path:
     return _fixture_or_skip(FIXTURES_ROOT / "shit")
 
 
+@pytest.fixture(scope="session")
+def eightcz8_dir() -> Path:
+    """8CZ8 fixture — chain E carries several LYS residues truncated to
+    backbone+CB by real crystallographic disorder. Exercises PDBFixer's
+    addMissingAtoms seeded-retry rebuild (unseeded clash-escape MD could
+    previously leave a rebuilt sidechain non-deterministic or D-chiral)."""
+    return _fixture_or_skip(FIXTURES_ROOT / "8cz8")
+
+
 # ---------------------------------------------------------------------------
 # Input-class fixtures for the comprehensive integration matrix (0.7.5+).
 # Each returns a specific PDB or directory representing one input class.

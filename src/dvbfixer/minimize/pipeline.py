@@ -650,7 +650,8 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         n_terminals = sum(len(v) for v in _fixer.missingTerminals.values())
         if n_missing or n_terminals:
             print(f"Fixing {n_missing} missing atom(s), {n_terminals} terminal(s)...")
-            _fixer.addMissingAtoms()
+            from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry as _rebuild
+            _rebuild(_fixer, verbose=args.verbose, log_prefix="[minimize] ")
             from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir
             _fix_chir(_fixer.topology, _fixer.positions, verbose=args.verbose)
             modeller = Modeller(_fixer.topology, _fixer.positions)
@@ -793,7 +794,8 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         # PROPKA+Reduce disulfide detection) before the rebuild so it can
         # be restored after.
         _true_ss_pairs = _collect_ss_pairs(modeller.topology)
-        _fixer.addMissingAtoms()
+        from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry as _rebuild
+        _rebuild(_fixer, verbose=args.verbose, log_prefix="[minimize] ")
         from dvbfixer.ffutils.geometry import fix_ca_chirality as _fix_chir
         _fix_chir(_fixer.topology, _fixer.positions, verbose=args.verbose)
         modeller = Modeller(_fixer.topology, _fixer.positions)

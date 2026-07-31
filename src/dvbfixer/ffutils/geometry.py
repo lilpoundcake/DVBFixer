@@ -862,6 +862,166 @@ def assert_all_l(topology: Any, positions: Any) -> None:
         raise ChiralityError(offenders)
 
 
+# Matches PDBFixer's own internal ``addMissingAtoms()`` clash-escape
+# threshold (``_findNearestDistance``'s 0.13 nm cutoff) — used to
+# verify that escape mechanism actually worked, since it's an
+# unseeded, fixed-iteration-budget Langevin walk and doesn't always
+# succeed within that budget.
+_CLASH_CUTOFF_NM = 0.13
+
+
+def find_clashing_atoms(
+    topology: Any,
+    positions: Any,
+    atom_indices: Any,
+    cutoff_nm: float = _CLASH_CUTOFF_NM,
+) -> list[int]:
+    """Return the subset of ``atom_indices`` within ``cutoff_nm`` of any
+    other atom in a DIFFERENT residue.
+
+    Used right after ``PDBFixer.addMissingAtoms()`` to check whether
+    its own internal clash-escape (unseeded Langevin dynamics,
+    triggered when a freshly-rebuilt atom lands within this same 0.13
+    nm cutoff of a neighbor) actually resolved the clash. That escape
+    is a fixed-budget random walk — it can fail to fully separate the
+    atoms, especially in a densely packed environment, and unlike a
+    hard crash this failure is silent: the rebuilt residue is simply
+    left overlapping its neighbor.
+
+    ``atom_indices`` is any iterable of ``atom.index`` ints (the
+    caller already knows which atoms were newly added — no new
+    tracking needed). Exclusion is by WHOLE RESIDUE, not just direct
+    bonds — matching PDBFixer's own exclusion set in this same check
+    (``exclusions = {a.index for a in atom.residue.atoms()}``, plus
+    any cross-residue bond partner). A flexible sidechain can legally
+    place two of its own atoms (e.g. NZ and a mid-chain HG) within this
+    cutoff in a gauche conformation; only an INTER-residue contact this
+    close is a real clash.
+    """
+    atom_list = list(topology.atoms())
+    same_residue: dict[int, set[int]] = {
+        a.index: {other.index for other in a.residue.atoms()} for a in atom_list
+    }
+    for bond in topology.bonds():
+        i1, i2 = bond.atom1.index, bond.atom2.index
+        same_residue[i1].add(i2)
+        same_residue[i2].add(i1)
+
+    all_positions = [_pos(positions, a) for a in atom_list]
+    cutoff2 = cutoff_nm * cutoff_nm
+
+    clashing: list[int] = []
+    for idx in atom_indices:
+        p_idx = all_positions[idx]
+        skip = same_residue[idx]
+        for j, p_j in enumerate(all_positions):
+            if j == idx or j in skip:
+                continue
+            if _dist2(p_idx, p_j) < cutoff2:
+                clashing.append(idx)
+                break
+    return clashing
+
+
+_DEFAULT_REBUILD_ATTEMPTS = 5
+
+
+def rebuild_missing_atoms_with_retry(
+    fixer: Any,
+    verbose: bool = False,
+    max_attempts: int = _DEFAULT_REBUILD_ATTEMPTS,
+    log_prefix: str = "",
+) -> None:
+    """Call ``fixer.addMissingAtoms()`` with an explicit, retried seed
+    until the rebuild is clean (L-chirality, clash-free) — instead of
+    accepting whatever PDBFixer's unseeded default hands back.
+
+    ``PDBFixer.addMissingAtoms(seed=None)`` rebuilds a missing sidechain
+    via template-overlay + a short local minimization; if that result
+    clashes with a neighbor (< 0.13 nm — PDBFixer's own
+    ``_findNearestDistance`` cutoff, matched by :func:`find_clashing_atoms`
+    above), it falls back to UNSEEDED Langevin dynamics (300 K, up to
+    2000 steps) to kick the new atoms apart. That's genuine stochastic
+    MD: the escaped conformation differs run to run on the exact same
+    input, and the fixed step budget doesn't always fully resolve the
+    clash or land on L chirality. Papering over a bad rebuild
+    downstream (reflect + re-minimize) only ever reacts to it after the
+    fact — this retries the rebuild itself, at the source.
+
+    Call after ``fixer.findMissingResidues()`` + ``fixer.findMissingAtoms()``
+    (and, if applicable, ``findNonstandardResidues()`` +
+    ``replaceNonstandardResidues()``) — i.e. whenever ``fixer`` would
+    otherwise be ready for a plain ``fixer.addMissingAtoms()`` call.
+    Mutates ``fixer.topology``/``fixer.positions`` in place, left set to
+    the first clean attempt found (or the last attempt, with a printed
+    warning, if none passed within ``max_attempts``).
+
+    PDBFixer builds an entirely new ``Topology`` object on every call
+    (``_addAtomsToTopology`` matches residues against
+    ``self.missingAtoms``/``self.missingResidues`` by object identity,
+    not value) and only reassigns ``self.topology``/``self.positions``
+    at the very end — the pre-call objects are never mutated in place —
+    so snapshotting them once and restoring before each attempt is a
+    correct, cheap way to retry from scratch without reconstructing
+    PDBFixer or re-running ``findMissingAtoms()``.
+    """
+    if not fixer.missingAtoms:
+        # Nothing to rebuild that carries this specific clash-escape
+        # risk (only new bonds/whole missing residues, if any).
+        fixer.addMissingAtoms(seed=1)
+        return
+
+    snap_topology = fixer.topology
+    snap_positions = fixer.positions
+    rebuilt_residue_keys = {
+        (res.chain.id, res.id, res.insertionCode) for res in fixer.missingAtoms
+    }
+    rebuilt_atom_keys = {
+        (res.chain.id, res.id, res.insertionCode, atom.name)
+        for res, atoms in fixer.missingAtoms.items() for atom in atoms
+    }
+
+    for attempt in range(1, max_attempts + 1):
+        fixer.topology = snap_topology
+        fixer.positions = snap_positions
+        fixer.addMissingAtoms(seed=attempt)
+
+        d_residues = {
+            (c, r) for (c, r, _name, _t) in find_d_residues(fixer.topology, fixer.positions)
+        }
+        chirality_bad = any((c, r) in d_residues for (c, r, _ic) in rebuilt_residue_keys)
+
+        new_atom_indices = [
+            a.index for a in fixer.topology.atoms()
+            if (a.residue.chain.id, a.residue.id, a.residue.insertionCode, a.name)
+            in rebuilt_atom_keys
+        ]
+        clashing = find_clashing_atoms(fixer.topology, fixer.positions, new_atom_indices)
+
+        if not chirality_bad and not clashing:
+            if verbose and attempt > 1:
+                print(f"  {log_prefix}addMissingAtoms: clean rebuild on attempt "
+                      f"{attempt} (seed={attempt})")
+            return
+
+        reasons = []
+        if chirality_bad:
+            reasons.append("D-Cα chirality")
+        if clashing:
+            reasons.append(f"{len(clashing)} clashing new atom(s)")
+        if attempt < max_attempts:
+            if verbose:
+                print(f"  {log_prefix}addMissingAtoms attempt {attempt} "
+                      f"(seed={attempt}): {', '.join(reasons)} — retrying with "
+                      f"a new seed")
+        else:
+            print(f"  WARNING: {log_prefix}addMissingAtoms attempt {attempt} "
+                  f"(seed={attempt}): {', '.join(reasons)} — exhausted "
+                  f"{max_attempts} seeded rebuild attempts, keeping the last "
+                  f"one. Downstream chirality reflect + minimize restraints "
+                  f"remain as a last-resort safety net.")
+
+
 # NOTE: An earlier revision added an ``improper_chirality_restraint``
 # (``CustomTorsionForce`` on CA-N-C-CB with θ₀ = +34°, k = 1000 kJ/mol/rad²)
 # to actively bias residues toward L during OpenMM ``minimizeEnergy``.
