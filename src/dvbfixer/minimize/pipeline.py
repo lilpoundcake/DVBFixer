@@ -1180,15 +1180,30 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             min_topology, min_positions = strip_solvent(min_topology, min_positions)
 
         # Merge: use minimized positions for protein atoms, original for HETATM
-        # Match by (chain, resid, atomname) since addHydrogens may have changed indices
+        # Match by (chain, resid, parent_resname, atomname) since
+        # addHydrogens may have changed indices. `parent_resname` (resname
+        # normalised through `_VARIANT_TO_PARENT`, so e.g. HIS/HIE/HID/HIP
+        # all compare equal) is included — not just chain+resid — as
+        # defense in depth: `min_topology` only ever contains protein/
+        # solvent-ion residues (stripped by `_strip_hetatm` above), so this
+        # never excludes a legitimate match (variant renames included) —
+        # but a HETATM residue that ends up sharing a (chain, resid) with a
+        # real protein residue (confirmed on a real structure: a
+        # resSeq-collision bug in `model/renumber.py`'s HETATM placement,
+        # now fixed at its source) must never have its own atoms
+        # overwritten by that protein residue's minimized coordinates just
+        # because an atom name like `CA`/`CB` happens to coincide.
         import numpy as np
         from openmm.unit import nanometer as nm_unit
+
+        def _parent_resname(name):
+            return _VARIANT_TO_PARENT.get(name, name)
 
         # Build position lookup from minimized protein
         min_pos_map = {}
         for atom in min_topology.atoms():
             res = atom.residue
-            key = (res.chain.id, res.id, atom.name)
+            key = (res.chain.id, res.id, _parent_resname(res.name), atom.name)
             min_pos_map[key] = min_positions[atom.index].value_in_unit(nm_unit)
 
         # Build result: original positions, overwritten by minimized where available
@@ -1200,7 +1215,7 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         n_updated = 0
         for atom in topology.atoms():
             res = atom.residue
-            key = (res.chain.id, res.id, atom.name)
+            key = (res.chain.id, res.id, _parent_resname(res.name), atom.name)
             if key in min_pos_map:
                 result[atom.index] = min_pos_map[key]
                 n_updated += 1

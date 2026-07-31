@@ -94,3 +94,72 @@ def test_interpolate_gaps_internal_gap_enough_room_unchanged() -> None:
     full_resids = [(1, ' '), None, None, (10, ' ')]
     _interpolate_gaps(full_resids, len(full_resids))
     assert [r[0] for r in full_resids] == [1, 2, 3, 10]
+
+
+def _synthetic_pdb_lines(n_protein: int, ligand_resseq: int) -> list[str]:
+    """Chain A: `n_protein` ALA residues (resSeq 1..n_protein, one CA atom
+    each) + one HETATM ligand ("LIG") at `ligand_resseq` with atoms named
+    CA/CB — deliberately colliding with real protein backbone atom names,
+    mirroring test/lipid/7x35_r_u.pdb's PLM (palmitic acid uses IUPAC-ish
+    names C1..C9,CA,CB,CC... for its alkyl chain)."""
+    lines = []
+    serial = 1
+    for resseq in range(1, n_protein + 1):
+        lines.append(
+            f"ATOM  {serial:5d}  CA  ALA A{resseq:4d}    "
+            f"{float(resseq):8.3f}{0.0:8.3f}{0.0:8.3f}  1.00  0.00           C\n"
+        )
+        serial += 1
+    # Same column layout as the ATOM lines above (record field is 6 chars
+    # either way — "ATOM  " / "HETATM" — everything after lines up
+    # identically): 2-char atom name, 3-char resname, chain, 4-digit resseq.
+    for name in ("CA", "CB"):
+        lines.append(
+            f"HETATM{serial:5d}  {name:<2s}  LIG A{ligand_resseq:4d}    "
+            f"{100.0:8.3f}{100.0:8.3f}{100.0:8.3f}  1.00  0.00           C\n"
+        )
+        serial += 1
+    return lines
+
+
+def test_build_resnum_mapping_hetatm_collision_with_gap_fill() -> None:
+    """Regression for the real test/lipid/7x35_r_u.pdb bug: a HETATM
+    ligand's ORIGINAL resSeq (as assigned by the earlier, FASTA-blind
+    standalone `renumber.py` step — here, deliberately one past the
+    ATOM-only residue count) collides with a protein resSeq that only
+    exists once the true, FASTA-complete sequence's C-terminal gap gets
+    filled in. The ligand must be renumbered out of the way, not
+    silently left at a resSeq a real (gap-filled) protein residue now
+    also occupies.
+    """
+    n_protein = 10
+    full_seq_len = 13  # 3 more residues than the ATOM records have — a gap
+    ligand_resseq = 11  # what upstream renumber.py naively assigned: n_protein + 1
+
+    lines = _synthetic_pdb_lines(n_protein, ligand_resseq)
+    # mask length = protein positions + 1 trailing HETATM slot (Modeller's
+    # own target alignment includes non-protein residues as template
+    # positions too — see CLAUDE.md's "model.py non-protein" note).
+    per_chain_masks = [[True] * (full_seq_len + 1)]
+    mapping = build_resnum_mapping(
+        per_chain_masks, ["A"], ["A"], lines,
+        protein_seq_map={"A": "A" * full_seq_len},
+    )
+
+    resids = [mapping[("A", n)] for n in range(1, full_seq_len + 2)]
+    resseqs = [r[0] for r in resids]
+
+    assert resseqs[:n_protein] == list(range(1, n_protein + 1))
+    # Gap-filled protein residues 11, 12, 13 must NOT be stolen by the ligand.
+    assert resseqs[n_protein:full_seq_len] == [11, 12, 13]
+    # The ligand (last mapping entry, placed at the trailing HETATM slot)
+    # must have been moved off resSeq 11 — it must not equal ANY protein
+    # resSeq now in use.
+    ligand_final_resseq = resseqs[-1]
+    assert ligand_final_resseq not in set(resseqs[:full_seq_len]), (
+        f"ligand resSeq {ligand_final_resseq} collides with a protein "
+        f"residue: {resseqs[:full_seq_len]}"
+    )
+    assert len(resseqs) == len(set(resseqs)), (
+        f"duplicate resSeq(s) in mapping: {resseqs}"
+    )

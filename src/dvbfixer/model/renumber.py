@@ -453,14 +453,47 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
             # their ORIGINAL resseqs (so an N-linked NAG keeps the resseq
             # it had in the input PDB rather than getting renumbered to
             # the next sequential integer after the last protein residue).
+            #
+            # BUT: "original resseq" here means whatever the upstream
+            # standalone `renumber.py` step assigned earlier in the
+            # pipeline — for a chain with no SEQRES records, that step
+            # numbers a HETATM sequentially right after the chain's
+            # ATOM-only residue count (confirmed: `renumber.py`'s
+            # no-SEQRES branch does exactly this). If the true, FASTA-
+            # complete sequence (`seq_len`, known here but NOT to that
+            # earlier step) is LONGER than the ATOM-only count — i.e.
+            # there's a real gap that `_interpolate_gaps` above just
+            # filled — the newly gap-filled protein residues can
+            # legitimately need exactly the resseq range the ligand was
+            # naively given "one past the end". Confirmed on a real
+            # structure (test/lipid/7x35_r_u.pdb): chain A had 267 ATOM
+            # residues but a 278-residue FASTA sequence; a HETATM ligand
+            # (PLM, palmitic acid) got resseq 268 from the upstream
+            # no-SEQRES numbering, then `_interpolate_gaps` assigned the
+            # first of the 11 gap-filled C-terminal residues that SAME
+            # resseq 268 — a real protein residue and a ligand ending up
+            # with an identical (chain, resseq), which silently
+            # corrupted BOTH residues' atoms wherever anything downstream
+            # looks up coordinates by (chain, resseq, atomname) without
+            # also checking resname.
+            protein_resseqs = {rs for rs, _ic in full_resids[:seq_len] if rs is not None}
             atom_keys = {(r, i) for r, i, _ in atom_only}
             hetatm_rids = [rid for rid in orig_rids if rid not in atom_keys]
             het_pos = seq_len
+            next_safe_resseq = (max(protein_resseqs) if protein_resseqs else 0) + 1
             for het_rid in hetatm_rids:
                 while het_pos < len(mask) and full_resids[het_pos] is not None:
                     het_pos += 1
                 if het_pos >= len(mask):
                     break
+                if het_rid[0] in protein_resseqs:
+                    print(f"  WARNING: HETATM at chain {chain} original resseq "
+                          f"{het_rid[0]}{het_rid[1].strip()} collides with a "
+                          f"gap-filled protein residue at the same resseq — "
+                          f"renumbering the HETATM to {next_safe_resseq} instead "
+                          f"of preserving its original number.")
+                    het_rid = (next_safe_resseq, ' ')
+                    next_safe_resseq += 1
                 full_resids[het_pos] = het_rid
                 het_pos += 1
         else:
