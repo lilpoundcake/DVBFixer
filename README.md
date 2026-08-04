@@ -61,6 +61,9 @@ single-run workflows.
 
 Batch processing continues after individual failures by default and prints a
 success/failure summary. Add `--fail-fast` to stop at the first failure.
+For `diagnose`, exit status 1 means the analysis completed but found at least
+one ERROR-severity structural issue; batch output labels these as `FINDINGS`
+rather than execution failures and points to the per-structure report.
 
 ## Pipelines
 

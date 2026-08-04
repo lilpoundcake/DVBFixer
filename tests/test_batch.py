@@ -105,3 +105,18 @@ def test_fail_fast_stops_after_first_failure(tmp_path: Path):
             [],
         )
     assert calls == ["a.pdb"]
+
+
+def test_diagnose_exit_one_is_findings_not_execution_failure(tmp_path: Path, capsys):
+    (tmp_path / "a.pdb").write_text("END\n")
+    with pytest.raises(SystemExit) as caught:
+        run_directory(
+            "diagnose", lambda argv: (_ for _ in ()).throw(SystemExit(1)),
+            Namespace(input_dir=str(tmp_path), output_dir=None,
+                      recursive=False, fail_fast=False),
+            [],
+        )
+    assert caught.value.code == 1  # retains diagnose's CI-friendly semantics
+    output = capsys.readouterr().out
+    assert "1 with ERROR findings, 0 execution failures" in output
+    assert "FAILED:" not in output

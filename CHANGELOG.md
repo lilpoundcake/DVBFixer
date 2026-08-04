@@ -8,6 +8,15 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.19] — 2026-08-04
+
+### Fixed
+
+- Batch `diagnose` now distinguishes a successful analysis containing
+  ERROR-severity findings (diagnose exit status 1) from a command execution
+  failure. Summaries label these structures as `FINDINGS` and link their
+  individual reports.
+
 ## [0.7.18] — 2026-08-04
 
 ### Changed

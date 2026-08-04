@@ -63,6 +63,7 @@ def run_directory(
         raise SystemExit(f"No supported structure files found in {input_dir}")
 
     failures: list[tuple[Path, str]] = []
+    diagnostic_findings: list[tuple[Path, Path]] = []
     successes = 0
     policy = "stop at first failure" if options.fail_fast else "continue after failures"
     print(f"Batch mode: run '{command}' independently on {len(inputs)} structure(s)")
@@ -86,6 +87,13 @@ def run_directory(
             if code == 0:
                 successes += 1
                 continue
+            if command == "diagnose" and code == 1:
+                diagnostic_findings.append((relative, output_path))
+                print(f"  FINDINGS: {relative} has ERROR-severity findings "
+                      f"(report: {output_path})")
+                if options.fail_fast:
+                    break
+                continue
             reason = (f"command exit status {code}" if isinstance(exc.code, int)
                       else str(exc.code))
             failures.append((relative, reason))
@@ -100,11 +108,20 @@ def run_directory(
             break
 
     if failures:
-        processed = successes + len(failures)
+        processed = successes + len(diagnostic_findings) + len(failures)
         print(f"Batch mode completed: {successes} succeeded, "
               f"{len(failures)} failed, {len(inputs) - processed} not processed.")
         print("Failed structures:")
         for path, reason in failures:
             print(f"  - {path}: {reason}")
+        raise SystemExit(1)
+    if diagnostic_findings:
+        processed = successes + len(diagnostic_findings)
+        print(f"Batch diagnose completed: {successes} clean, "
+              f"{len(diagnostic_findings)} with ERROR findings, "
+              f"0 execution failures, {len(inputs) - processed} not processed.")
+        print("Structures with ERROR findings:")
+        for path, report_path in diagnostic_findings:
+            print(f"  - {path} (report: {report_path})")
         raise SystemExit(1)
     print(f"Batch mode completed: {successes} succeeded, 0 failed.")
