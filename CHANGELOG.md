@@ -8,6 +8,29 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.17] — 2026-08-04
+
+### Added
+
+- Shared folder input for single-structure commands via `--input-dir`,
+  `--output-dir`, `--recursive`, and `--continue-on-error`.
+- Default ZBS postflight diagnostics that write a JSON report and warn on
+  ERROR-level findings; `--strict-postflight` promotes findings to pipeline
+  failure, while `--no-postflight` skips the check.
+- `dvbfixer doctor` text/JSON capability reporting for optional Python
+  packages, chemistry executables, and OpenMM platforms.
+
+### Changed
+
+- Temporary working paths are now reserved safely instead of using the
+  race-prone `tempfile.mktemp()` API.
+- Corrected FASTA/SEQRES, ZBS stage, and minimization-restraint documentation.
+- Diagnose no longer flags valid four-coordinate sulfur in sulfonates and
+  buffer molecules as an impossible valence state.
+- CI dependency guards now skip OpenMM integration tests in the lightweight
+  lane and treat an installed but unlicensed Modeller as unavailable instead
+  of aborting test collection.
+
 ## [0.7.16] — 2026-08-04 (branch: `fix/fasta-alignment`)
 
 ### Fixed
@@ -27,7 +50,7 @@ best-effort summaries; consult `git log` for exact provenance.
   numbers consistently use full-reference positions before modeling. Equal
   best alignments use a deterministic leftmost placement and emit a warning.
 
-## [0.7.15] — 2026-07-31 (branch: `fix/audit-2026-07-31`, not yet merged to main)
+## [0.7.15] — 2026-07-31
 
 Three follow-ups from the user after 0.7.14's audit pass: a reported
 "strange links between lipid atoms" bug, a perceived `model`-step

@@ -12,10 +12,17 @@ Intermediate files are cleaned up by default — use `--keep-interim` to preserv
 
 | # | Step | What it does |
 |---|---|---|
-| 1 | `renumber` | SEQRES-based renumbering; removes insertion codes |
+| 1 | `renumber` | FASTA/SEQRES-based renumbering; removes insertion codes |
 | 2 | `model` | Rebuild missing loops via Modeller (`--num-output` saves top-N candidates) |
 | 3 | `prepare` | Fix missing atoms + hydrogens via PDBFixer; PROPKA pKa + MolProbity Reduce (`--protassign` default ON) pick the correct AMBER variants (ASH/GLH/HIP/LYN/CYM/CYX, HIS tautomer, ASN/GLN flips) and place final H accordingly |
 | 4 | `minimize` | Relax the whole system under the resolved force field; preserves AMBER variant names on write. Optional post-minimize refinement via `--refine {xtb, obminimize}`. |
+
+After the transformation stages, ZBS runs `diagnose`, writes
+`<output>.diagnose.json`, and warns if ERROR-level structural findings remain.
+Use `--strict-postflight` to make those findings fail the pipeline, or
+`--no-postflight` when validation is performed separately. Report-first is the
+default because diagnostic clash thresholds are intentionally conservative and
+some supported ligand chemistries require user interpretation.
 
 ## Usage
 

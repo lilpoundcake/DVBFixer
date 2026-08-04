@@ -77,8 +77,8 @@ def canonicalize_pdb(input_path, output_path, verbose=False):
 
 def canonicalize_in_place(input_path, verbose=False):
     """Canonicalize a PDB file, overwriting it. Returns number of renames."""
-    import tempfile
-    tmp = Path(tempfile.mktemp(suffix='.pdb'))
+    from dvbfixer.tempfiles import make_temp_path
+    tmp = make_temp_path(suffix='.pdb')
     n = canonicalize_pdb(input_path, tmp, verbose)
     if n > 0:
         import shutil

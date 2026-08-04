@@ -1108,12 +1108,11 @@ def main(argv=None):
         )
 
     if _ff_alias == 'amber+glycam' and has_pdb_standard_sugars(input_path):
-        import tempfile as _tf
-
         from dvbfixer.glycam import convert_to_glycam
-        _conv_out = _tf.mktemp(suffix='.pdb', prefix='dvbfixer_glycam_')
+        from dvbfixer.tempfiles import make_temp_path
+        _conv_out = make_temp_path(suffix='.pdb', prefix='dvbfixer_glycam_')
         try:
-            convert_to_glycam(str(input_path), _conv_out,
+            convert_to_glycam(str(input_path), str(_conv_out),
                               add_roh=True, verbose=args.verbose)
             print("  [ff] auto-converted PDB-standard sugar names → "
                   "GLYCAM canonical for amber+glycam FF matching.")
@@ -1127,10 +1126,9 @@ def main(argv=None):
         print_ff_selection(_ff_alias, _ff_reason, _ff_xmls)
 
     if args.rename:
-        import tempfile as _tf
-
         from dvbfixer.rename import canonicalize_pdb
-        _tmp = Path(_tf.mktemp(suffix='.pdb'))
+        from dvbfixer.tempfiles import make_temp_path
+        _tmp = make_temp_path(suffix='.pdb')
         n = canonicalize_pdb(input_path, _tmp, args.verbose)
         if n > 0:
             print(f"Canonicalized {n} non-canonical residue(s)")
@@ -1350,14 +1348,13 @@ def main(argv=None):
     # matches what the user asked for at the CLI. Coordinates and
     # topology unchanged; only sugar residue names are affected.
     if _charmm_output_requested:
-        import tempfile as _tf
-
         from dvbfixer.glycam import convert_to_charmm
-        _tmp = _tf.mktemp(suffix='.pdb', prefix='dvbfixer_charmm_out_')
+        from dvbfixer.tempfiles import make_temp_path
+        _tmp = make_temp_path(suffix='.pdb', prefix='dvbfixer_charmm_out_')
         try:
-            convert_to_charmm(str(output_path), _tmp, verbose=args.verbose)
+            convert_to_charmm(str(output_path), str(_tmp), verbose=args.verbose)
             import shutil as _sh
-            _sh.move(_tmp, str(output_path))
+            _sh.move(str(_tmp), str(output_path))
             print("  [ff] rewrote sugar residue names GLYCAM → CHARMM "
                   "for output (user asked for --ff charmm).")
         except Exception as e:

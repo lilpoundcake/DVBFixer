@@ -6,7 +6,7 @@ import sys
 
 COMMANDS: dict[str, str] = {
     "split": "Split chains empirically (distance + numbering)",
-    "renumber": "Renumber residues using SEQRES alignment",
+    "renumber": "Renumber residues using FASTA or SEQRES alignment",
     "model": "Rebuild missing loops/gaps with Modeller",
     "pull": "Pull atoms together to form a bond (geometry-only)",
     "prepare": "Fix missing atoms/residues with PDBFixer",
@@ -22,7 +22,8 @@ COMMANDS: dict[str, str] = {
     "parametrize": "Parametrize small molecules with GAFF2 + AM1-BCC/RESP",
     "homology": "Multi-template homology modeling with Modeller",
     "diagnose": "Report structure-quality issues (missing atoms, clashes, valence, ...)",
-    "zbs": "Full pipeline: renumber -> model -> prepare -> minimize -> protonate",
+    "doctor": "Report installed backends, executables, and OpenMM platforms",
+    "zbs": "Full pipeline: renumber -> model -> prepare -> minimize",
 }
 
 
@@ -33,6 +34,11 @@ def print_help() -> None:
     for cmd, desc in COMMANDS.items():
         print(f"  {cmd:<12s}  {desc}")
     print("\n  --version     Show version")
+    print("\nBatch input (supported single-structure commands):")
+    print("  --input-dir DIR      Process every .pdb/.ent structure in DIR")
+    print("  --output-dir DIR     Batch output directory")
+    print("  --recursive          Include subdirectories")
+    print("  --continue-on-error  Process remaining files after a failure")
     print("\nRun 'dvbfixer <command> --help' for command-specific options.")
 
 
@@ -48,6 +54,10 @@ def main() -> None:
 
     command = sys.argv[1]
     argv = sys.argv[2:]
+
+    from dvbfixer.batch import extract_batch_options
+
+    batch_options, argv = extract_batch_options(argv)
 
     if command == "split":
         from dvbfixer.split_chains import main as cmd_main
@@ -89,6 +99,8 @@ def main() -> None:
         from dvbfixer.homology import main as cmd_main
     elif command == "diagnose":
         from dvbfixer.diagnose import main as cmd_main
+    elif command == "doctor":
+        from dvbfixer.doctor import main as cmd_main
     elif command == "zbs":
         from dvbfixer.zbs import main as cmd_main
     else:
@@ -96,7 +108,14 @@ def main() -> None:
         print_help()
         sys.exit(1)
 
-    cmd_main(argv)
+    if batch_options.input_dir:
+        from dvbfixer.batch import run_directory
+
+        run_directory(command, cmd_main, batch_options, argv)
+    else:
+        if batch_options.output_dir or batch_options.recursive or batch_options.continue_on_error:
+            raise SystemExit("--output-dir, --recursive, and --continue-on-error require --input-dir")
+        cmd_main(argv)
 
 
 if __name__ == "__main__":

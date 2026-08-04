@@ -19,7 +19,10 @@ MAX_BONDS: dict[str, int] = {
     "C": 4,
     "N": 4,
     "O": 2,
-    "S": 2,
+    # Sulfur is hypervalent in common supported ligands (e.g. sulfate,
+    # sulfonates, EPE buffer); bond count alone cannot distinguish those
+    # valid states from bad CONECT inference.
+    "S": 6,
     "H": 1,
     "P": 5,
 }

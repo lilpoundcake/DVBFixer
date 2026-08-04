@@ -1,0 +1,92 @@
+"""Shared directory-input support for single-structure commands."""
+
+from __future__ import annotations
+
+import argparse
+from collections.abc import Callable, Sequence
+from pathlib import Path
+
+OUTPUT_SUFFIXES = {
+    "split": "_split.pdb",
+    "renumber": "_renum.pdb",
+    "model": "_model.pdb",
+    "pull": "_pulled.pdb",
+    "prepare": "_prepared.pdb",
+    "minimize": "_minimized.pdb",
+    "protonate": "_prot.pdb",
+    "rename": "_canon.pdb",
+    "convert": "_converted.pdb",
+    "conect": "_conect.pdb",
+    "puppet": "_puppet.pdb",
+    "diagnose": "_diagnose.txt",
+    "zbs": "_zbs.pdb",
+}
+
+
+def extract_batch_options(argv: Sequence[str]) -> tuple[argparse.Namespace, list[str]]:
+    """Remove global batch options while leaving command options untouched."""
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--input-dir")
+    parser.add_argument("--output-dir")
+    parser.add_argument("--recursive", action="store_true")
+    parser.add_argument("--continue-on-error", action="store_true")
+    return parser.parse_known_args(list(argv))
+
+
+def run_directory(
+    command: str,
+    command_main: Callable[[list[str]], object],
+    options: argparse.Namespace,
+    command_argv: list[str],
+) -> None:
+    """Run a normal single-input command once for every structure in a folder."""
+    if command not in OUTPUT_SUFFIXES:
+        supported = ", ".join(sorted(OUTPUT_SUFFIXES))
+        raise SystemExit(
+            f"dvbfixer {command} does not support --input-dir. Supported commands: {supported}"
+        )
+    if "-o" in command_argv or "--output" in command_argv:
+        raise SystemExit("Use --output-dir, not -o/--output, with --input-dir")
+
+    input_dir = Path(options.input_dir).expanduser()
+    if not input_dir.is_dir():
+        raise SystemExit(f"Input directory does not exist or is not a directory: {input_dir}")
+    output_dir = Path(options.output_dir or f"{input_dir.name}_dvbfixer").expanduser()
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    globber = input_dir.rglob if options.recursive else input_dir.glob
+    extensions = {".pdb", ".ent"}
+    if command == "split":
+        extensions.add(".gro")
+    inputs = sorted(p for p in globber("*") if p.is_file() and p.suffix.lower() in extensions)
+    if not inputs:
+        raise SystemExit(f"No supported structure files found in {input_dir}")
+
+    failures: list[tuple[Path, str]] = []
+    print(f"Batch {command}: {len(inputs)} structure(s) -> {output_dir}")
+    for index, input_path in enumerate(inputs, 1):
+        relative = input_path.relative_to(input_dir)
+        destination_dir = output_dir / relative.parent
+        destination_dir.mkdir(parents=True, exist_ok=True)
+        suffix = OUTPUT_SUFFIXES[command]
+        if command == "diagnose" and "--format" in command_argv:
+            pos = command_argv.index("--format")
+            if pos + 1 < len(command_argv) and command_argv[pos + 1] == "json":
+                suffix = "_diagnose.json"
+        output_path = destination_dir / f"{input_path.stem}{suffix}"
+        print(f"[{index}/{len(inputs)}] {relative}")
+        try:
+            command_main([str(input_path), *command_argv, "-o", str(output_path)])
+        except SystemExit as exc:
+            code = exc.code if isinstance(exc.code, int) else 1
+            if code == 0:
+                continue
+            failures.append((relative, f"exit {code}"))
+        except Exception as exc:  # isolate files when explicitly requested
+            failures.append((relative, f"{type(exc).__name__}: {exc}"))
+        if failures and not options.continue_on_error:
+            break
+
+    if failures:
+        detail = "; ".join(f"{path}: {reason}" for path, reason in failures)
+        raise SystemExit(f"Batch failed for {len(failures)} structure(s): {detail}")

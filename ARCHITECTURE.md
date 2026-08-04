@@ -200,7 +200,7 @@ three-stage pipeline:
    when input resseq jumps line up with SEQRES missing positions.
    Tolerates up to 10% letter mismatches (mutations).
 2. `_align_atoms_to_seqres` (NW fallback) — semi-global Needleman-Wunsch
-   with affine gap penalties (open=-10, extend=-1, X-neutral, free end
+   with affine gap penalties (open=-5, extend=-1, mismatch=-3, X-neutral, free end
    gaps on SEQRES side). Mutation-tolerant; handles chains where the
    deterministic offset doesn't exist.
 3. align2d mask consumption (legacy) — original PIR-mask based path,

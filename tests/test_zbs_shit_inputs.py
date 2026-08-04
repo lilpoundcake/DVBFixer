@@ -30,7 +30,10 @@ import pytest
 
 pytest.importorskip("openmm", reason="zbs needs OpenMM")
 pytest.importorskip("pdbfixer", reason="zbs needs PDBFixer")
-pytest.importorskip("modeller", reason="zbs needs Sali-lab MODELLER")
+try:
+    import modeller  # noqa: F401
+except Exception as exc:
+    pytest.skip(f"zbs needs a licensed Sali-lab MODELLER: {exc}", allow_module_level=True)
 
 
 SHIT_INPUTS = ["1EMV_original.pdb", "1FR2_original.pdb",

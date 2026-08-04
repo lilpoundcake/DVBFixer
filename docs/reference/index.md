@@ -23,4 +23,5 @@
 | `dvbfixer parametrize` | [`parametrize.md`](parametrize.md) |
 | `dvbfixer homology` | [`homology.md`](homology.md) |
 | `dvbfixer diagnose` | [`diagnose.md`](diagnose.md) |
+| `dvbfixer doctor` | [`doctor.md`](doctor.md) |
 | `dvbfixer zbs` | [`zbs.md`](zbs.md) |

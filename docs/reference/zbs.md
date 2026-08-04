@@ -20,7 +20,10 @@ usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--refine-heterogens-only] [--no-propka] [--no-protassign]
                     [--his-default {HIE,HID}] [--cys-ss-pka CYS_SS_PKA]
                     [--keep-water] [--no-infer-conect] [--keep-interim]
-                    [--dry-run] [--align-to-input | --no-align-to-input]
+                    [--dry-run] [--no-postflight]
+                    [--postflight-report POSTFLIGHT_REPORT]
+                    [--strict-postflight]
+                    [--align-to-input | --no-align-to-input]
                     [--platform {CPU,CUDA,OpenCL,Reference}] [-v]
                     input
 
@@ -32,7 +35,8 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB file (must contain SEQRES)
+  input                 Input PDB file (use --fasta when SEQRES is absent or
+                        incomplete)
   -o OUTPUT, --output OUTPUT
                         Final output PDB file (default: <input>_zbs.pdb)
 
@@ -148,6 +152,14 @@ Pipeline behaviour:
   --dry-run             Print the planned pipeline steps + output filenames
                         without running anything. Useful when many skip flags
                         are in play.
+  --no-postflight       Skip the final diagnose quality gate. By default, zbs
+                        writes <output>.diagnose.json and warns if diagnose
+                        reports an ERROR.
+  --postflight-report POSTFLIGHT_REPORT
+                        Path for the final diagnose JSON report (default:
+                        <output>.diagnose.json).
+  --strict-postflight   Fail the pipeline when postflight diagnose reports
+                        ERROR findings. Default: write the report and warn.
   --align-to-input, --no-align-to-input
                         After every pipeline step, Kabsch-align the output
                         back to the ORIGINAL input on protein backbone atoms.
