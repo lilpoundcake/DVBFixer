@@ -73,7 +73,6 @@ def test_propka_reduce_helper_ss_pairs_force_cyx(
     end up as CYX in the returned map — regardless of PROPKA's
     per-residue CYS pKa."""
     from dvbfixer.acpype_export import detect_ss_bonds
-
     from dvbfixer.prepare.pipeline import _run_propka_reduce_variants
 
     ss_pairs = detect_ss_bonds(str(ss_bonded_antibody))
@@ -186,6 +185,8 @@ def test_prepare_completes_on_his_with_missing_ring(tmp_workdir: Path) -> None:
     presence check. Fixed by moving PROPKA + Reduce to run AFTER
     PDBFixer's heavy-atom repair, on the now-complete structure.
     """
+    pytest.importorskip("openmm", reason="prepare integration needs OpenMM")
+    pytest.importorskip("pdbfixer", reason="prepare integration needs PDBFixer")
     from dvbfixer.prepare.pipeline import main as prepare_main
 
     input_pdb = tmp_workdir / "his_missing_ring.pdb"

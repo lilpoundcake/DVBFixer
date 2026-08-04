@@ -111,6 +111,7 @@ def test_zbs_propagates_fasta_to_renumber(monkeypatch, tmp_path: Path) -> None:
     zbs.main([
         str(source), "--fasta", str(fasta), "--skip-model",
         "--skip-prepare", "--skip-minimize", "--no-align-to-input",
+        "--no-postflight",
     ])
 
     assert captured[captured.index("--fasta") + 1] == str(fasta)

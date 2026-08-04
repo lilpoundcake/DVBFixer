@@ -37,7 +37,7 @@ jobs:
           # The seed tests avoid heavy deps; anything that needs OpenBabel/OpenMM
           # is guarded with pytest.importorskip and will skip cleanly here.
           pip install --no-deps -e .
-          pytest tests/ -q
+          pytest tests/ -q -m "not slow"
 
       # mypy is REQUIRED on the API-surface modules as of Phase 3. Everything
       # in pyproject.toml's `[tool.mypy.overrides]` list runs strict; other

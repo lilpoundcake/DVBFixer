@@ -19,6 +19,9 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("openmm", reason="prepare integration needs OpenMM")
+pytest.importorskip("pdbfixer", reason="prepare integration needs PDBFixer")
+
 
 def _atom_line(serial: int, name: str, resname: str, chain: str,
                 resseq: int, icode: str, x: float, y: float, z: float) -> str:

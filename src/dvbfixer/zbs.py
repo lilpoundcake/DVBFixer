@@ -21,6 +21,10 @@ import sys
 from pathlib import Path
 
 
+class PostflightError(RuntimeError):
+    """The final structure could not pass or complete validation."""
+
+
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="dvbfixer zbs",
@@ -30,7 +34,7 @@ def parse_args(argv=None):
         "separate protonate stage.",
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file (must contain SEQRES)")
+    io.add_argument("input", help="Input PDB file (use --fasta when SEQRES is absent or incomplete)")
     io.add_argument("-o", "--output", help="Final output PDB file (default: <input>_zbs.pdb)")
 
     ff = p.add_argument_group("Force field")
@@ -173,6 +177,16 @@ def parse_args(argv=None):
                          help="Print the planned pipeline steps + output "
                               "filenames without running anything. Useful "
                               "when many skip flags are in play.")
+    general.add_argument("--no-postflight", action="store_true",
+                         help="Skip the final diagnose quality gate. By default, "
+                              "zbs writes <output>.diagnose.json and warns if "
+                              "diagnose reports an ERROR.")
+    general.add_argument("--postflight-report",
+                         help="Path for the final diagnose JSON report "
+                              "(default: <output>.diagnose.json).")
+    general.add_argument("--strict-postflight", action="store_true",
+                         help="Fail the pipeline when postflight diagnose reports "
+                              "ERROR findings. Default: write the report and warn.")
     general.add_argument("--align-to-input", dest="align_to_input",
                          action=argparse.BooleanOptionalAction, default=True,
                          help="After every pipeline step, Kabsch-align the output "
@@ -215,6 +229,9 @@ def main(argv=None):
         sys.exit(1)
     try:
         _run_pipeline(args, input_path)
+    except PostflightError as e:
+        print(f"\nERROR: {e}", file=sys.stderr)
+        sys.exit(3)
     except _lazy_import_chirality_error() as e:
         print(f"\nERROR: chirality guard tripped in the zbs pipeline.\n"
               f"{e}\n"
@@ -248,7 +265,7 @@ def _print_dry_run(args, input_path, final_output):
 
     if not args.skip_renumber:
         _line("renumber", "_renum",
-              "SEQRES-based residue renumbering"
+              "FASTA/SEQRES-based residue renumbering"
               + (", keep water" if args.keep_water else ""))
     if not args.skip_model:
         notes = f"Modeller LoopModel, --md-level {args.md_level}"
@@ -277,6 +294,10 @@ def _print_dry_run(args, input_path, final_output):
         _line("minimize", "_minimized", notes)
 
     print(f"  final       → {final_output.name}")
+    if not args.no_postflight:
+        report = args.postflight_report or f"{final_output}.diagnose.json"
+        policy = "strict ERROR gate" if args.strict_postflight else "report + warning"
+        print(f"  postflight  → {Path(report).name}   ({policy})")
     if args.verbose:
         interim_kept = "keep" if args.keep_interim else "delete"
         print(f"  (interim files: {interim_kept})")
@@ -470,6 +491,27 @@ def _run_pipeline(args, input_path):
     if str(current) != str(final_output):
         import shutil
         shutil.copy2(current, final_output)
+
+    if not args.no_postflight:
+        report_path = Path(args.postflight_report or f"{final_output}.diagnose.json")
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        print(f"\nRunning postflight structure diagnostics → {report_path}")
+        from dvbfixer.diagnose import main as diagnose_main
+
+        try:
+            diagnose_main([
+                str(final_output), "--format", "json", "--severity", "ERROR",
+                "-o", str(report_path),
+            ])
+        except SystemExit as exc:
+            code = exc.code if isinstance(exc.code, int) else 1
+            if code == 1 and not args.strict_postflight:
+                print(f"  WARNING: postflight diagnose reported ERROR findings; "
+                      f"inspect {report_path}", file=sys.stderr)
+            elif code != 0:
+                raise PostflightError(
+                    f"postflight diagnose failed with exit {code}; inspect {report_path}"
+                ) from exc
 
     # Clean up interim files
     if not args.keep_interim:

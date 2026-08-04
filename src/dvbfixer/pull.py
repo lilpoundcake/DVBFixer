@@ -572,10 +572,9 @@ def main(argv=None):
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
     if args.rename:
-        import tempfile as _tf
-
         from dvbfixer.rename import canonicalize_pdb
-        _tmp = Path(_tf.mktemp(suffix='.pdb'))
+        from dvbfixer.tempfiles import make_temp_path
+        _tmp = make_temp_path(suffix='.pdb')
         n = canonicalize_pdb(input_path, _tmp, args.verbose)
         if n > 0:
             print(f"Canonicalized {n} non-canonical residue(s)")

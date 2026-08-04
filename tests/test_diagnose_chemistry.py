@@ -132,6 +132,22 @@ def test_valence_4_on_carbon_not_flagged() -> None:
     assert [f for f in findings if f.category == "valence"] == []
 
 
+def test_four_coordinate_sulfur_not_flagged() -> None:
+    """Sulfonates/sulfates and EPE-like buffers commonly have four S bonds."""
+    top = Topology()
+    chain = top.addChain("A")
+    residue = top.addResidue("EPE", chain)
+    sulfur = top.addAtom("S", Element.getBySymbol("S"), residue)
+    neighbors = [
+        top.addAtom(f"O{i}", Element.getBySymbol("O"), residue)
+        for i in range(4)
+    ]
+    for atom in neighbors:
+        top.addBond(sulfur, atom)
+    findings = check_valences(top)
+    assert [f for f in findings if f.category == "valence"] == []
+
+
 # ---------------------------------------------------------------------------
 # check_bond_lengths
 # ---------------------------------------------------------------------------

@@ -20,7 +20,7 @@ Full install instructions (including the Modeller license step) are in [`docs/in
 | Command | What it does |
 |---------|--------------|
 | [`split`](docs/commands/split.md) | Empirical chain splitting for GRO/PDB files without chain IDs (multi-MODEL aware) |
-| [`renumber`](docs/commands/renumber.md) | SEQRES-based renumbering OR antibody schemes (Kabat/Chothia/IMGT/Martin/Aho/EU) |
+| [`renumber`](docs/commands/renumber.md) | FASTA/SEQRES renumbering OR antibody schemes (Kabat/Chothia/IMGT/Martin/Aho/EU) |
 | [`model`](docs/commands/model.md) | Rebuild missing loops/gaps with Modeller's LoopModel |
 | [`prepare`](docs/commands/prepare.md) | PDBFixer-based missing-atom/H repair, plus substitution and deletion mutations |
 | [`pull`](docs/commands/pull.md) | OpenMM partial minimization to form SS / glycosidic bonds |
@@ -36,9 +36,34 @@ Full install instructions (including the Modeller license step) are in [`docs/in
 | [`parametrize`](docs/commands/parametrize.md) | GAFF2 + AM1-BCC/RESP small-molecule parametrization (GROMACS-ready) |
 | [`puppet`](docs/commands/puppet.md) | Strip a PDB to backbone-only polyglycine (template / visualization) |
 | [`diagnose`](docs/commands/diagnose.md) | Report structure-quality issues (missing atoms, coincident atoms, valence, clashes, chirality) — report-only |
+| [`doctor`](docs/commands/doctor.md) | Report installed backends, external executables, and OpenMM platforms |
 | [`zbs`](docs/commands/zbs.md) | Full pipeline: renumber → model → prepare → minimize (PROPKA + Reduce run inside prepare) |
 
 The [command index](docs/commands/index.md) groups the same commands by workflow stage.
+
+## Batch mode: folder input
+
+Batch mode runs the selected single-structure command independently on every
+supported structure in a directory. One broken input does not prevent the
+remaining structures from being processed. Outputs go into a separate
+directory, and recursive input preserves the relative directory layout.
+
+```bash
+dvbfixer zbs --input-dir structures --output-dir fixed \
+  --recursive --no-solvent
+```
+
+Supported commands are `split`, `renumber`, `model`, `pull`, `prepare`,
+`minimize`, `protonate`, `rename`, `convert`, `conect`, `puppet`, `diagnose`,
+and `zbs`. Commands with multiple semantic inputs or multi-file topology
+outputs (`transplant`, `cluster`, `parametrize`, and `top`) remain explicit
+single-run workflows.
+
+Batch processing continues after individual failures by default and prints a
+success/failure summary. Add `--fail-fast` to stop at the first failure.
+For `diagnose`, exit status 1 means the analysis completed but found at least
+one ERROR-severity structural issue; batch output labels these as `FINDINGS`
+rather than execution failures and points to the per-structure report.
 
 ## Pipelines
 

@@ -26,6 +26,9 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("openmm", reason="prepare integration needs OpenMM")
+pytest.importorskip("pdbfixer", reason="prepare integration needs PDBFixer")
+
 
 @pytest.mark.slow
 def test_prepare_no_infer_conect_does_not_delete_input_file(tmp_workdir: Path) -> None:
