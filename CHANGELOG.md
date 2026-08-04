@@ -8,6 +8,15 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.18] — 2026-08-04
+
+### Changed
+
+- Folder processing now continues after failures by default. Use
+  `--fail-fast` to stop immediately.
+- Batch completion output now reports succeeded, failed, and unprocessed
+  counts and lists failed files on separate lines.
+
 ## [0.7.17] — 2026-08-04
 
 ### Added

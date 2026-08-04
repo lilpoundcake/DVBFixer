@@ -34,11 +34,12 @@ def print_help() -> None:
     for cmd, desc in COMMANDS.items():
         print(f"  {cmd:<12s}  {desc}")
     print("\n  --version     Show version")
-    print("\nBatch input (supported single-structure commands):")
+    print("\nBatch mode (runs a command independently on each structure;")
+    print("continues after per-file failures by default):")
     print("  --input-dir DIR      Process every .pdb/.ent structure in DIR")
     print("  --output-dir DIR     Batch output directory")
     print("  --recursive          Include subdirectories")
-    print("  --continue-on-error  Process remaining files after a failure")
+    print("  --fail-fast          Stop after the first failed structure")
     print("\nRun 'dvbfixer <command> --help' for command-specific options.")
 
 
@@ -113,8 +114,8 @@ def main() -> None:
 
         run_directory(command, cmd_main, batch_options, argv)
     else:
-        if batch_options.output_dir or batch_options.recursive or batch_options.continue_on_error:
-            raise SystemExit("--output-dir, --recursive, and --continue-on-error require --input-dir")
+        if batch_options.output_dir or batch_options.recursive or batch_options.fail_fast:
+            raise SystemExit("--output-dir, --recursive, and --fail-fast require --input-dir")
         cmd_main(argv)
 
 

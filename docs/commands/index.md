@@ -28,7 +28,7 @@ Every `dvbfixer` subcommand has its own page. The first column is alphabetical; 
 
 ## See also
 
-- [Folder input](../../README.md#folder-input) — batch processing for single-structure commands
+- [Batch mode](../../README.md#batch-mode-folder-input) — folder processing for single-structure commands
 
 - [Force fields](../force-fields.md) — short-name aliases (`--ff amber`, `--ff charmm`, `--ff amber+glycam`, …), auto-detection rules, the two `--ff` namespaces
 - [Pipelines](../pipelines.md) — end-to-end recipes

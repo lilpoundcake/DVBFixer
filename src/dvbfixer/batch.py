@@ -29,7 +29,7 @@ def extract_batch_options(argv: Sequence[str]) -> tuple[argparse.Namespace, list
     parser.add_argument("--input-dir")
     parser.add_argument("--output-dir")
     parser.add_argument("--recursive", action="store_true")
-    parser.add_argument("--continue-on-error", action="store_true")
+    parser.add_argument("--fail-fast", action="store_true")
     return parser.parse_known_args(list(argv))
 
 
@@ -63,7 +63,11 @@ def run_directory(
         raise SystemExit(f"No supported structure files found in {input_dir}")
 
     failures: list[tuple[Path, str]] = []
-    print(f"Batch {command}: {len(inputs)} structure(s) -> {output_dir}")
+    successes = 0
+    policy = "stop at first failure" if options.fail_fast else "continue after failures"
+    print(f"Batch mode: run '{command}' independently on {len(inputs)} structure(s)")
+    print(f"Output directory: {output_dir}")
+    print(f"Failure policy: {policy}")
     for index, input_path in enumerate(inputs, 1):
         relative = input_path.relative_to(input_dir)
         destination_dir = output_dir / relative.parent
@@ -78,15 +82,29 @@ def run_directory(
         try:
             command_main([str(input_path), *command_argv, "-o", str(output_path)])
         except SystemExit as exc:
-            code = exc.code if isinstance(exc.code, int) else 1
+            code = exc.code if isinstance(exc.code, int) else (0 if exc.code is None else 1)
             if code == 0:
+                successes += 1
                 continue
-            failures.append((relative, f"exit {code}"))
-        except Exception as exc:  # isolate files when explicitly requested
-            failures.append((relative, f"{type(exc).__name__}: {exc}"))
-        if failures and not options.continue_on_error:
+            reason = (f"command exit status {code}" if isinstance(exc.code, int)
+                      else str(exc.code))
+            failures.append((relative, reason))
+            print(f"  FAILED: {relative} ({reason}; see error above)")
+        except Exception as exc:  # isolate each structure from failures in the others
+            reason = f"{type(exc).__name__}: {exc}"
+            failures.append((relative, reason))
+            print(f"  FAILED: {relative} ({reason})")
+        else:
+            successes += 1
+        if failures and options.fail_fast:
             break
 
     if failures:
-        detail = "; ".join(f"{path}: {reason}" for path, reason in failures)
-        raise SystemExit(f"Batch failed for {len(failures)} structure(s): {detail}")
+        processed = successes + len(failures)
+        print(f"Batch mode completed: {successes} succeeded, "
+              f"{len(failures)} failed, {len(inputs) - processed} not processed.")
+        print("Failed structures:")
+        for path, reason in failures:
+            print(f"  - {path}: {reason}")
+        raise SystemExit(1)
+    print(f"Batch mode completed: {successes} succeeded, 0 failed.")

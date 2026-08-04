@@ -41,15 +41,16 @@ Full install instructions (including the Modeller license step) are in [`docs/in
 
 The [command index](docs/commands/index.md) groups the same commands by workflow stage.
 
-## Folder input
+## Batch mode: folder input
 
-Single-structure commands can process a directory with the shared
-`--input-dir` option. Outputs go into a separate directory and recursive
-input preserves the relative directory layout.
+Batch mode runs the selected single-structure command independently on every
+supported structure in a directory. One broken input does not prevent the
+remaining structures from being processed. Outputs go into a separate
+directory, and recursive input preserves the relative directory layout.
 
 ```bash
 dvbfixer zbs --input-dir structures --output-dir fixed \
-  --recursive --continue-on-error --no-solvent
+  --recursive --no-solvent
 ```
 
 Supported commands are `split`, `renumber`, `model`, `pull`, `prepare`,
@@ -57,6 +58,9 @@ Supported commands are `split`, `renumber`, `model`, `pull`, `prepare`,
 and `zbs`. Commands with multiple semantic inputs or multi-file topology
 outputs (`transplant`, `cluster`, `parametrize`, and `top`) remain explicit
 single-run workflows.
+
+Batch processing continues after individual failures by default and prints a
+success/failure summary. Add `--fail-fast` to stop at the first failure.
 
 ## Pipelines
 
