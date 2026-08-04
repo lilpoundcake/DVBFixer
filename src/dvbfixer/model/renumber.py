@@ -14,7 +14,7 @@ Strategy (tried in order):
    tolerates up to 10% letter mismatches (mutations), and handles
    N-term extras, internal gaps, and C-term extras uniformly.
 2. **Needleman-Wunsch** (:func:`_align_atoms_to_seqres`) — semi-global
-   fallback with affine gaps (open=-10, extend=-1, X-neutral, free end
+   fallback with affine gaps (open=-5, extend=-1, X-neutral, free end
    gaps on the SEQRES side). Used when K-finder can't converge because
    of excessive letter mismatches.
 3. **Interpolated gap-fill** (:func:`_interpolate_gaps`) — walks
@@ -141,90 +141,13 @@ def _align_atoms_to_seqres(orig_residues, seqres_seq):
       free end gaps
     - falls back gracefully when SEQRES is shorter than ATOMs
     """
-    Q = len(orig_residues)
-    R = len(seqres_seq)
-    if Q == 0:
+    if not orig_residues:
         return []
-    if R == 0 or Q > R:
-        return None
+    from dvbfixer.sequence_alignment import align_observed_to_reference
 
-    query = [r[2] for r in orig_residues]
-
-    MATCH, MISMATCH, X_NEUTRAL = 2, -1, 0
-    GAP_OPEN, GAP_EXTEND = -10, -1
-    NEG = float('-inf')
-
-    # Three matrices for affine gaps:
-    #   M[i][j]  = best score ending with query[i-1] aligned to seqres[j-1]
-    #   IX[i][j] = best score ending with a SEQRES gap (skip seqres[j-1]; not used since gap-in-seqres = skip-query, disallowed)
-    #   IY[i][j] = best score ending with a query gap (skip seqres[j-1])
-    # Because we forbid skipping query letters, IX is dropped. Only IY is needed.
-    M = [[NEG] * (R + 1) for _ in range(Q + 1)]
-    IY = [[NEG] * (R + 1) for _ in range(Q + 1)]
-    M[0][0] = 0
-    # free end gaps on SEQRES side at the START: M[0][j] = 0 (any j)
-    for j in range(R + 1):
-        M[0][j] = 0
-        IY[0][j] = NEG
-
-    bt_M = [[None] * (R + 1) for _ in range(Q + 1)]
-    bt_IY = [[None] * (R + 1) for _ in range(Q + 1)]
-
-    for i in range(1, Q + 1):
-        for j in range(1, R + 1):
-            q, r = query[i - 1], seqres_seq[j - 1]
-            if q == 'X' or r == 'X':
-                sub = X_NEUTRAL
-            elif q == r:
-                sub = MATCH
-            else:
-                sub = MISMATCH
-            # M[i][j]: match/mismatch from diag
-            from_M = M[i - 1][j - 1] + sub
-            from_IY = IY[i - 1][j - 1] + sub
-            if from_M >= from_IY:
-                M[i][j] = from_M
-                bt_M[i][j] = 'M'
-            else:
-                M[i][j] = from_IY
-                bt_M[i][j] = 'IY'
-            # IY[i][j]: gap in query (skip seqres[j-1])
-            open_iy = M[i][j - 1] + GAP_OPEN
-            ext_iy = IY[i][j - 1] + GAP_EXTEND
-            if open_iy >= ext_iy:
-                IY[i][j] = open_iy
-                bt_IY[i][j] = 'M'
-            else:
-                IY[i][j] = ext_iy
-                bt_IY[i][j] = 'IY'
-
-    # Free end gaps on SEQRES side at the END: best ending = max of M[Q][j] for j in 1..R
-    best_j = 0
-    best_score = NEG
-    for j in range(1, R + 1):
-        if M[Q][j] > best_score:
-            best_score = M[Q][j]
-            best_j = j
-    if best_score == NEG:
-        return None
-
-    result = [None] * Q
-    i, j = Q, best_j
-    state = 'M'
-    while i > 0 and j > 0:
-        if state == 'M':
-            result[i - 1] = j - 1
-            prev = bt_M[i][j]
-            i -= 1
-            j -= 1
-            state = prev
-        else:  # IY
-            prev = bt_IY[i][j]
-            j -= 1
-            state = prev
-    if any(r is None for r in result):
-        return None
-    return result
+    query = ''.join(r[2] for r in orig_residues)
+    result = align_observed_to_reference(query, seqres_seq)
+    return list(result.positions) if result is not None else None
 
 
 def _interpolate_gaps(full_resids, region_len, renumber_from_1=False):
@@ -453,14 +376,47 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
             # their ORIGINAL resseqs (so an N-linked NAG keeps the resseq
             # it had in the input PDB rather than getting renumbered to
             # the next sequential integer after the last protein residue).
+            #
+            # BUT: "original resseq" here means whatever the upstream
+            # standalone `renumber.py` step assigned earlier in the
+            # pipeline — for a chain with no SEQRES records, that step
+            # numbers a HETATM sequentially right after the chain's
+            # ATOM-only residue count (confirmed: `renumber.py`'s
+            # no-SEQRES branch does exactly this). If the true, FASTA-
+            # complete sequence (`seq_len`, known here but NOT to that
+            # earlier step) is LONGER than the ATOM-only count — i.e.
+            # there's a real gap that `_interpolate_gaps` above just
+            # filled — the newly gap-filled protein residues can
+            # legitimately need exactly the resseq range the ligand was
+            # naively given "one past the end". Confirmed on a real
+            # structure (test/lipid/7x35_r_u.pdb): chain A had 267 ATOM
+            # residues but a 278-residue FASTA sequence; a HETATM ligand
+            # (PLM, palmitic acid) got resseq 268 from the upstream
+            # no-SEQRES numbering, then `_interpolate_gaps` assigned the
+            # first of the 11 gap-filled C-terminal residues that SAME
+            # resseq 268 — a real protein residue and a ligand ending up
+            # with an identical (chain, resseq), which silently
+            # corrupted BOTH residues' atoms wherever anything downstream
+            # looks up coordinates by (chain, resseq, atomname) without
+            # also checking resname.
+            protein_resseqs = {rs for rs, _ic in full_resids[:seq_len] if rs is not None}
             atom_keys = {(r, i) for r, i, _ in atom_only}
             hetatm_rids = [rid for rid in orig_rids if rid not in atom_keys]
             het_pos = seq_len
+            next_safe_resseq = (max(protein_resseqs) if protein_resseqs else 0) + 1
             for het_rid in hetatm_rids:
                 while het_pos < len(mask) and full_resids[het_pos] is not None:
                     het_pos += 1
                 if het_pos >= len(mask):
                     break
+                if het_rid[0] in protein_resseqs:
+                    print(f"  WARNING: HETATM at chain {chain} original resseq "
+                          f"{het_rid[0]}{het_rid[1].strip()} collides with a "
+                          f"gap-filled protein residue at the same resseq — "
+                          f"renumbering the HETATM to {next_safe_resseq} instead "
+                          f"of preserving its original number.")
+                    het_rid = (next_safe_resseq, ' ')
+                    next_safe_resseq += 1
                 full_resids[het_pos] = het_rid
                 het_pos += 1
         else:
@@ -508,4 +464,3 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
             mapping[(chain, model_resnum)] = full_resids[pos_in_chain]
 
     return mapping
-

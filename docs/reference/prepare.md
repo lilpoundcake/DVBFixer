@@ -24,7 +24,8 @@ options:
 
 Input / output:
   input                 Input PDB file
-  -o, --output OUTPUT   Output PDB file (default: <input>_prepared.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_prepared.pdb)
   --dat DAT             Restraint data file path (default: <output>.dat)
 
 Force field / pH:

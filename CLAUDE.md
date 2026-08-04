@@ -307,6 +307,14 @@ call bare `dvbfixer` resolve it. See
   own second copy of this logic — the two had already drifted out of
   sync once (the duplicate lacked `renumber_from_1` handling) before
   this bug was found.
+- **All FASTA/SEQRES placement must use `sequence_alignment.py` (since
+  0.7.16), never a greedy "find the next same residue" loop.** Greedy
+  subsequence matching scattered 8B01 chain C's exact 104-residue block
+  across reference positions 27-507 and fabricated a 377-residue loop.
+  `renumber`, `trim_terminal_gaps`, Modeller's PIR fixer, and model residue
+  restoration must share the same affine semi-global placement. Under
+  `--no-terminal`, crop outside the first/last observed reference anchors
+  but preserve every reference gap between those anchors for modeling.
 - **A bare/minimal `TER\n` line (4 chars, no serial/resname/padding)
   is valid PDB.** `line[11:]` on one returns `''` silently (no
   IndexError on an out-of-range slice) — `renumber.py`'s TER handling
@@ -397,6 +405,91 @@ call bare `dvbfixer` resolve it. See
   protonation variants) must scope its H-strip to `PROTEIN_RESIDUES`
   only — stripping H from an arbitrary ligand is unrecoverable since
   `addHydrogens` has no hydrogens.xml entry to rebuild it from.
+- **Never compare a `str` temp-file path against a `Path` object with
+  `!=`/`==` to decide whether to delete it (fixed 0.7.14).**
+  `Path('/a') != '/a'` is `True` in Python even when they name the
+  exact same file — `Path.__eq__` requires matching types. Several
+  helpers (`ffutils.sanitize_protein_hetatm`,
+  `prepare.pipeline._canonicalize_conect_records`) return plain `str`
+  even when handed a `Path` and no rewrite happened. Confirmed this
+  crashed `prepare`'s own "was this rewritten" check
+  (`preprocess_was_rewritten = preprocessed_path != input_path`) so it
+  was unconditionally `True`, and — when nothing had actually been
+  rewritten — `run_pdbfixer`'s cleanup then deleted `canon_path`, which
+  in that case IS `input_path`: **`dvbfixer prepare <file>
+  --no-infer-conect` on an already-clean input permanently deleted the
+  user's own input file.** Normalize to one type (str) immediately on
+  entry to any function that will later compare a path against
+  possibly-rewritten copies of itself; never trust a bare `!=` between
+  a function parameter and a helper's return value unless both sides
+  are guaranteed the same type.
+- **Never collapse a `(chain, resid, icode)` key down to `(chain,
+  resid)` anywhere protonation-variant names or CONECT atom identity
+  are tracked (fixed 0.7.14).** This exact bug recurred independently
+  in at least 5 places: `prepare/pipeline.py`'s `variant_overrides`
+  merge and `_restore_variants`'s PDB-line matching, `ffutils.variants`'
+  `build_variants_list`/`rename_variants_to_parent_in_topology`/
+  `restore_variants_post_addhydrogens`/`fix_lyn_hz_naming`,
+  `minimize/pipeline.py`'s parallel `amber_renames` system, and
+  `transplant.py`'s CONECT serial map. Any two residues sharing a
+  resSeq via insertion code (e.g. a Kabat CDR-loop `H:82`/`H:82A` pair
+  — this project's primary use case is antibody PDBs) silently
+  overwrite or cross-contaminate each other's data under a 2-tuple key.
+  `ffutils.ff_names.apply_variants_to_pdb_text`/`_split_key` already
+  had this right (icode-specific entry first, any-icode fallback only
+  for a residue that itself has none) — mirror that pattern, don't
+  reinvent a 2-tuple version.
+- **`minimize`'s restraint-tier atom-index set must be re-resolved by
+  `(chain, resid, icode, atom_name)` identity against the FINAL
+  topology, never carried as raw integer indices across an
+  `addHydrogens`/`addMissingAtoms` call (fixed 0.7.14).** Both rebuild
+  an entirely new `Topology`, shifting every atom's index whenever one
+  is inserted. `resolve_new_atom_indices` (already used by the `.dat`-
+  driven path) is the correct, existing helper — call it again right
+  before `build_restraint_force`, not just once at the top of
+  `minimize()`.
+- **`model/renumber.py`'s `build_resnum_mapping` must check a HETATM's
+  preserved original resSeq against the (possibly gap-filled) protein
+  resSeq range before placing it, and renumber it clear of a collision
+  (fixed 0.7.15).** The standalone, FASTA-blind `renumber.py` numbers
+  ATOM and HETATM residues in one shared sequential space with no
+  isolation between them (its no-SEQRES branch matches both record
+  types by file-encounter order). If `model`'s FASTA-aware gap-fill
+  later expands a chain, a HETATM ligand's naive resSeq can land
+  exactly on a newly-created protein residue's resSeq — confirmed on a
+  real fatty-acid ligand (`test/lipid/`) whose resSeq collided with a
+  gap-filled `VAL`. `minimize`'s legacy strip-and-splice position-
+  restore merge (keyed by `(chain, resid, atomname)`, no resname check)
+  then silently overwrote the ligand's colliding atoms with the
+  protein residue's minimized coordinates — an atom teleported tens of
+  Angstroms away, i.e. "strange bonds" in any viewer. The restore-merge
+  key is now `(chain, resid, parent_resname, atomname)` as
+  defense-in-depth, but the root-cause fix belongs in
+  `build_resnum_mapping`, not there.
+- **`top/pipeline.py`'s chain classifier must WARN, never silently
+  drop, a chain it can't build a topology for (fixed 0.7.15).** A
+  chain whose residues aren't protein, a single known small molecule,
+  a sugar, or a ceramide used to vanish from the output `.top`'s
+  `[ molecules ]` section with zero diagnostic — confirmed on a plain
+  fatty-acid ligand with no `top/ff_data.PDB_TO_LIPID` entry. This does
+  not add topology support for arbitrary small molecules (that's
+  `--acpype` / `minimize --parametrize-ligands`'s job) — it only makes
+  the existing "can't handle this" outcome loud instead of silent.
+- **`top/pipeline.py` is split into `top/types.py` (shared dataclasses:
+  `PDBResidue`, `PDBChain`, `AtomEntry`, `ChainTopology`), `top/glycan.py`
+  (`detect_glycan_links`, `build_glycan_trees`, `_is_ceramide`,
+  `_parse_conect_bonds`), and `top/topology_builder.py`
+  (`TopologyBuilder`, `_match_atom_names`, `_resolve_sugar_rtp`) as of
+  0.7.15.** `pipeline.py` itself is now CLI orchestration (`main`) plus
+  PDB reading/writing only — it imports the three modules above rather
+  than defining any of that code inline. A prior session incorrectly
+  believed `TopologyBuilder` was nested inside `build_glycan_trees`
+  ("~1278-line function containing a nested class") and deferred this
+  split as too risky; a precise line-boundary re-read found
+  `TopologyBuilder` was always a separate, self-contained top-level
+  class. If you add a new glycan-detection helper or a new
+  `TopologyBuilder` method, put it in the matching new module, not back
+  in `pipeline.py`.
 
 ## Running tests locally
 

@@ -10,14 +10,15 @@ usage: dvbfixer puppet [-h] [-o OUTPUT] [--keep KEEP] input
 Strip PDB to backbone-only polyglycine model.
 
 options:
-  -h, --help           show this help message and exit
+  -h, --help            show this help message and exit
 
 Input / output:
-  input                Input PDB file
-  -o, --output OUTPUT  Output PDB (default: <input>_puppet.pdb)
+  input                 Input PDB file
+  -o OUTPUT, --output OUTPUT
+                        Output PDB (default: <input>_puppet.pdb)
 
 Content selection:
-  --keep KEEP          Keep residue(s) intact (all atoms, original name).
-                       Format: CHAIN:NUM, CHAIN:START-END, or
-                       CHAIN:NUM1,NUM2,START-END (repeatable)
+  --keep KEEP           Keep residue(s) intact (all atoms, original name).
+                        Format: CHAIN:NUM, CHAIN:START-END, or
+                        CHAIN:NUM1,NUM2,START-END (repeatable)
 ```

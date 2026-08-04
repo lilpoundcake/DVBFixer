@@ -171,22 +171,20 @@ def build_variants_list(
     variants: list[str | None] = []
     hit = False
     for res in topology.residues():
-        key = (res.chain.id, str(res.id), "")
-        # ``res.id`` is a plain integer-as-string in OpenMM; iCode is not
-        # preserved in ``res.id``. Match on (chain, resseq) with any icode
-        # by trying the empty-icode key first, then falling back to any
-        # icode variant.
-        if key in saved:
-            variants.append(saved[key])
-            hit = True
-            continue
-        # Fallback: same chain + resseq, non-empty icode.
-        fallback = next(
-            (name for (c, r, i), name in saved.items() if c == res.chain.id and r == str(res.id)),
-            None,
-        )
-        variants.append(fallback)
-        if fallback is not None:
+        ic = res.insertionCode.strip() if hasattr(res, "insertionCode") else ""
+        # ``res.id`` never carries the insertion code (it's a separate
+        # attribute) — read the real icode and match on it first, so two
+        # residues sharing a resSeq via insertion code (e.g. Kabat CDR-loop
+        # ``H:82``/``H:82A``) each get their OWN variant instead of one
+        # silently inheriting the other's. Only fall back to an icode-less
+        # entry when THIS residue itself has no icode (or `saved` was
+        # built without icode information at all).
+        key = (res.chain.id, str(res.id), ic)
+        variant = saved.get(key)
+        if variant is None and not ic:
+            variant = saved.get((res.chain.id, str(res.id), ""))
+        variants.append(variant)
+        if variant is not None:
             hit = True
     return variants if hit else None
 
@@ -195,52 +193,57 @@ def rename_variants_to_parent_in_topology(topology: Any) -> dict[tuple[str, str]
     """Rename variant residues in an OpenMM topology to standard parents.
 
     Used when the caller already has a topology (not a file) and wants to
-    prep it for ``addHydrogens``. Returns ``{(chain_id, res_id): original}``
-    keyed by OpenMM's own identifiers so the post-pass can look residues
-    up in the NEW topology produced by ``addHydrogens``.
+    prep it for ``addHydrogens``. Returns ``{(chain_id, res_id, icode): original}``
+    keyed by OpenMM's own identifiers (plus the real insertion code, read
+    from ``res.insertionCode`` — a separate attribute, never folded into
+    ``res.id``) so the post-pass can look residues up in the NEW topology
+    produced by ``addHydrogens`` without conflating two residues that share
+    a resSeq via insertion code (e.g. Kabat CDR-loop ``H:82``/``H:82A``).
     """
-    saved: dict[tuple[str, str], str] = {}
+    saved: dict[tuple[str, str, str], str] = {}
     for res in topology.residues():
         parent = VARIANT_TO_PARENT.get(res.name)
         if parent is not None and parent != res.name:
-            saved[(res.chain.id, res.id)] = res.name
+            ic = res.insertionCode.strip() if hasattr(res, "insertionCode") else ""
+            saved[(res.chain.id, res.id, ic)] = res.name
             res.name = parent
     return saved
 
 
 def restore_variants_post_addhydrogens(
     topology: Any,
-    saved: dict[tuple[str, str], str] | SavedMap,
+    saved: dict[tuple[str, str], str] | dict[tuple[str, str, str], str] | SavedMap,
 ) -> None:
     """Restore variant residue names on the topology produced by addHydrogens.
 
     Accepts either shape of ``saved``:
-    - ``{(chain_id, res_id): name}`` from
-      :func:`rename_variants_to_parent_in_topology`
+    - ``{(chain_id, res_id, icode): name}`` from
+      :func:`rename_variants_to_parent_in_topology`, or the legacy
+      ``{(chain_id, res_id): name}`` 2-tuple shape (icode-less callers)
     - ``{(chain, resseq, icode): name}`` from
-      :func:`text_rename_variants_to_parent` /
-      :func:`scan_variant_names`
+      :func:`text_rename_variants_to_parent` / :func:`scan_variant_names`
+
+    Matches on the residue's REAL insertion code first (read from
+    ``res.insertionCode``, never from ``res.id``). Only falls back to an
+    icode-agnostic match when the residue itself has no icode — an
+    icode-bearing residue must never inherit a same-resSeq sibling's
+    variant just because a broad scan happened to find one.
     """
     for res in topology.residues():
-        key_topo = (res.chain.id, res.id)
-        if key_topo in saved:
-            res.name = saved[key_topo]  # type: ignore[index]
-            continue
-        key_text = (res.chain.id, str(res.id), "")
-        if key_text in saved:
-            res.name = saved[key_text]  # type: ignore[index]
-            continue
-        # Match on chain+resseq ignoring icode as a last-resort fallback.
-        # Callers routinely merge text-shape (3-tuple) keys into
-        # topology-shape (2-tuple) dicts, so skip 2-tuples here — those
-        # were already covered by the direct lookup on line 226.
-        for key, name in saved.items():
-            if not (isinstance(key, tuple) and len(key) == 3):
-                continue
-            c, r, _i = key
-            if isinstance(r, str) and c == res.chain.id and r == str(res.id):
-                res.name = name
-                break
+        ic = res.insertionCode.strip() if hasattr(res, "insertionCode") else ""
+        name = (
+            saved.get((res.chain.id, res.id, ic))
+            or saved.get((res.chain.id, str(res.id), ic))
+        )
+        if name is None and not ic:
+            name = (
+                saved.get((res.chain.id, res.id))
+                or saved.get((res.chain.id, str(res.id)))
+                or saved.get((res.chain.id, res.id, ""))
+                or saved.get((res.chain.id, str(res.id), ""))
+            )
+        if name is not None:
+            res.name = name
 
 
 def rename_lyn_hz_for_gromacs(topology: Any) -> int:
@@ -330,29 +333,40 @@ def fix_lyn_hz_naming(
     :func:`restore_variants_post_addhydrogens`) plus optional
     ``extra_lyn_keys`` (e.g. PROPKA-assigned LYN that wasn't in the input
     PDB). Returns the number of atoms renamed.
+
+    Keys are kept as ``(chain, resseq, icode)`` — a 2-tuple key (icode
+    unknown) is normalised to icode ``""`` rather than matched against
+    every icode, so a LYN at ``H:82`` never causes a distinct, non-LYN
+    residue sharing that resSeq (``H:82A``) to have its HZ1 renamed too.
     """
-    lyn_ids: set[tuple[str, str]] = set()
+    lyn_ids: set[tuple[str, str, str]] = set()
 
     for key, name in saved.items():
         if name != "LYN":
             continue
         if isinstance(key, tuple) and len(key) == 2:
-            lyn_ids.add(key)
+            lyn_ids.add((key[0], str(key[1]), ""))
         elif isinstance(key, tuple) and len(key) == 3:
-            chain, resseq, _icode = key
-            lyn_ids.add((chain, str(resseq)))
+            chain, resseq, icode = key
+            lyn_ids.add((chain, str(resseq), (icode or "").strip()))
 
     if extra_lyn_keys:
         for key, name in extra_lyn_keys.items():
             if name != "LYN":
                 continue
-            if isinstance(key, tuple) and len(key) >= 2:
-                chain, resseq = key[0], key[1]
-                lyn_ids.add((chain, str(resseq)))
+            if isinstance(key, tuple) and len(key) == 3:
+                chain, resseq, icode = key
+                lyn_ids.add((chain, str(resseq), (icode or "").strip()))
+            elif isinstance(key, tuple) and len(key) == 2:
+                lyn_ids.add((key[0], str(key[1]), ""))
 
     renamed = 0
     for res in topology.residues():
-        if (res.chain.id, res.id) not in lyn_ids:
+        ic = res.insertionCode.strip() if hasattr(res, "insertionCode") else ""
+        is_lyn = (res.chain.id, res.id, ic) in lyn_ids
+        if not is_lyn and not ic:
+            is_lyn = (res.chain.id, res.id, "") in lyn_ids
+        if not is_lyn:
             continue
         for atom in res.atoms():
             if atom.name == "HZ1":

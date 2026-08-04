@@ -21,7 +21,8 @@ options:
 Input / output:
   topology              Topology file (.tpr, .pdb, .gro)
   trajectory            Trajectory file (.xtc, .trr, .dcd)
-  -o, --output OUTPUT   Output prefix (default: trajectory stem)
+  -o OUTPUT, --output OUTPUT
+                        Output prefix (default: trajectory stem)
 
 Frame selection:
   --stride STRIDE       Read every Nth frame (default: 1)

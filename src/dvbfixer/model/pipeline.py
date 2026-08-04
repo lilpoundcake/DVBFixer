@@ -201,10 +201,9 @@ def get_atom_sequence(lines, chain_id):
 def trim_terminal_gaps(protein_seq_map, pdb_lines, verbose=False):
     """Trim N/C terminal residues from target sequences that aren't in the structure.
 
-    Compares SEQRES-derived target sequence to ATOM-derived sequence for each chain.
-    Finds the ATOM sequence as a subsequence of the target, then trims any target
-    residues before the first matched position or after the last matched position.
-    Internal gaps (missing loops) are preserved.
+    Semi-globally aligns each ATOM-derived sequence to its complete target, then
+    trims target residues before the first observed anchor and after the last.
+    Reference gaps between those anchors remain modelable internal loops.
     """
     trimmed = {}
     for chain, target_seq in protein_seq_map.items():
@@ -213,25 +212,27 @@ def trim_terminal_gaps(protein_seq_map, pdb_lines, verbose=False):
             trimmed[chain] = target_seq
             continue
 
-        # Find ATOM residues as subsequence of target — record matched positions
-        matched_positions = []
-        ti = 0
-        for ai in range(len(atom_seq)):
-            while ti < len(target_seq) and target_seq[ti] != atom_seq[ai]:
-                ti += 1
-            if ti >= len(target_seq):
-                break
-            matched_positions.append(ti)
-            ti += 1
+        from dvbfixer.sequence_alignment import (
+            align_observed_to_reference,
+            format_alignment_diagnostic,
+        )
 
-        if len(matched_positions) != len(atom_seq):
-            # Subsequence match failed, keep original
+        alignment = align_observed_to_reference(atom_seq, target_seq)
+        if alignment is None:
+            # Alignment failed, keep original target rather than guessing.
             trimmed[chain] = target_seq
             continue
 
-        first_pos = matched_positions[0]
-        last_pos = matched_positions[-1]
-        new_seq = target_seq[first_pos:last_pos + 1]
+        diagnostic = format_alignment_diagnostic(chain, alignment)
+        if alignment.ambiguous:
+            print(f"  [alignment] WARNING: {diagnostic}; using deterministic "
+                  "leftmost best alignment")
+        elif verbose:
+            print(f"  [alignment] {diagnostic}")
+
+        first_pos = alignment.start
+        last_pos = alignment.end - 1
+        new_seq = target_seq[alignment.start:alignment.end]
 
         n_trimmed_n = first_pos
         n_trimmed_c = len(target_seq) - last_pos - 1

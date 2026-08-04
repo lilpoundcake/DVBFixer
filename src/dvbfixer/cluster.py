@@ -376,9 +376,6 @@ def gromos_cluster(dist_matrix, cutoff=30.0, max_clusters=100, verbose=False):
         neighbor_counts = np.sum(sub_dist <= cutoff, axis=1)
 
         best_local = np.argmax(neighbor_counts)
-        if neighbor_counts[best_local] == 0:
-            break
-
         neighbor_mask = sub_dist[best_local] <= cutoff
         members = avail_idx[neighbor_mask]
 

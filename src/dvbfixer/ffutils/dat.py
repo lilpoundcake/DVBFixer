@@ -40,10 +40,14 @@ Schema
   per rebuilt residue keyed by ``"{chain}/{resname}{resid}"``. Only used
   for the human-facing "N heavy atoms, M hydrogens added to X residues"
   print in ``prepare`` and ``model``.
-- ``variant_overrides: dict[str, str] | None`` — ``{f"{chain}:{resid}":
-  variant_name}``. Populated by ``prepare`` when the input already used
-  AMBER variant names (HIE/HID/HIP/ASH/GLH/CYX/CYM/LYN) OR when the user
-  passed ``--mutate CHAIN:RESNUM:VARIANT``. Consumed by ``minimize`` so
+- ``variant_overrides: dict[str, str] | None`` — ``{f"{chain}:{resid}:{icode}":
+  variant_name}`` (icode is an empty string when the residue has none — the
+  key always has exactly 3 colon-separated fields, never 2, so a bare
+  resid can't be confused with resid+icode concatenated together).
+  Populated by ``prepare`` when the input already used AMBER variant names
+  (HIE/HID/HIP/ASH/GLH/CYX/CYM/LYN) OR when the user passed ``--mutate
+  CHAIN:RESNUM:VARIANT`` (icode always '' for --mutate entries — that CLI
+  syntax has no icode field). Consumed by ``minimize`` so
   ``addHydrogens`` places the correct protonation H even after OpenMM's
   ``PDBFile`` normalises the names on load.
 - ``removed_residues: list[dict] | None`` — records any residues removed

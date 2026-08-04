@@ -352,6 +352,24 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     the wrong set of atoms` — on both the whole-system attempt AND the
     protein-only fallback, since both share the same fragile logic.
     """
+    # Normalise to str up front. `_preprocess_glycoprotein_input`/
+    # `_canonicalize_conect_records` always return plain str (their
+    # no-rewrite branches do `return str(pdb_path)` / return their own
+    # str parameter unchanged) — but callers pass `input_path` as a
+    # `Path` object. `some_str != some_path_object` is ALWAYS True in
+    # Python regardless of whether they name the same file (`Path.__eq__`
+    # requires matching types), so every `preprocess_was_rewritten`/
+    # `canon_was_rewritten`/cleanup comparison below was silently wrong
+    # whenever `input_path` was a `Path`: a completely no-op preprocess +
+    # canonicalize pass (the common case — a clean PDB needing neither
+    # fix) still evaluated `canon_path != input_path` as True and
+    # unconditionally unlinked it — which, since no real rewrite
+    # happened, IS the exact same file as `input_path`. Confirmed this
+    # silently deleted the user's OWN INPUT FILE when `--no-infer-conect`
+    # was passed on an input that didn't trigger some other temp-copy
+    # step first. Keeping everything as str from here on makes the
+    # comparisons mean what they say.
+    input_path = str(input_path)
     # Glycoprotein-input fixes: rewrite HETATM→ATOM for protein/GLYCAM
     # glycoprotein residues (NLN/OLS/OLT) and drop spurious TER records
     # between same-chain protein residues. Both confuse OpenMM's topology
@@ -371,40 +389,60 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     # dict-returning variant so we also know which sugar each anchor is
     # bonded to — needed to decide whether to rename ASN→NLN (only for
     # GLYCAM-named sugars).
-    sugar_by_anchor = find_glycosylated_atoms_with_sugar(canon_path)
-    glycosylated_atoms = set(sugar_by_anchor.keys())
-    if glycosylated_atoms and verbose:
-        print(f"Detected {len(glycosylated_atoms)} glycosylated atom(s)")
+    try:
+        sugar_by_anchor = find_glycosylated_atoms_with_sugar(canon_path)
+        glycosylated_atoms = set(sugar_by_anchor.keys())
+        if glycosylated_atoms and verbose:
+            print(f"Detected {len(glycosylated_atoms)} glycosylated atom(s)")
 
-    with open(canon_path) as f:
-        fixer = PDBFixer(pdbfile=f)
-
-    # Cleanup: delete any temp PDB we wrote. canon_path may be the same
-    # file as preprocessed_path (if canonicalize was a no-op), so only
-    # one unlink covers both cases.
-    if canon_path != input_path:
-        Path(canon_path).unlink(missing_ok=True)
-    if preprocess_was_rewritten and preprocessed_path != canon_path:
-        Path(preprocessed_path).unlink(missing_ok=True)
+        with open(canon_path) as f:
+            fixer = PDBFixer(pdbfile=f)
+    finally:
+        # Cleanup: delete any temp PDB we wrote, even if the block above
+        # raised — otherwise these leak into /tmp on every failed run.
+        # canon_path may be the same file as preprocessed_path (if
+        # canonicalize was a no-op), so only one unlink covers both cases.
+        if canon_path != input_path:
+            Path(canon_path).unlink(missing_ok=True)
+        if preprocess_was_rewritten and preprocessed_path != canon_path:
+            Path(preprocessed_path).unlink(missing_ok=True)
 
     # Apply substitution mutations if requested. Deletions were already
     # applied at the raw-text level upstream (see main()).
-    variant_overrides = {}  # (chain, resnum) -> variant name (HIP, ASH, etc.)
+    # variant_overrides: (chain, resnum, icode) -> variant name (HIP, ASH,
+    # etc.) — icode is '' for --mutate entries (the --mutate CLI syntax has
+    # no icode field) and for any residue without one.
+    variant_overrides: dict[tuple[str, str, str], str] = {}
     if mutations:
-        mutations_by_chain, variant_overrides, _deletions_ignored = parse_mutations(mutations)
+        mutations_by_chain, _mutate_variant_overrides, _deletions_ignored = parse_mutations(mutations)
+        variant_overrides = {
+            (ch, rn, ''): var for (ch, rn), var in _mutate_variant_overrides.items()
+        }
         if mutations_by_chain:
             print(f"Applying {sum(len(v) for v in mutations_by_chain.values())} mutation(s)...")
             apply_mutations(fixer, mutations_by_chain, verbose)
             if variant_overrides and verbose:
-                for (ch, rn), var in variant_overrides.items():
-                    print(f"  Protonation override: {ch}:{rn} → {var}")
+                for (ch, rn, ic), var in variant_overrides.items():
+                    print(f"  Protonation override: {ch}:{rn}{ic} → {var}")
 
     # Capture AMBER/CHARMM protonation variant names from input PDB before
     # PDBFixer normalizes them. These are re-applied after replaceNonstandardResidues.
-    for res in fixer.topology.residues():
-        key = (res.chain.id, res.id)
-        if key not in variant_overrides and res.name in _VARIANT_TO_STANDARD:
-            variant_overrides[key] = res.name
+    #
+    # Must scan the RAW PDB TEXT (`scan_variant_names`), not
+    # `fixer.topology.residues()`: PDBFixer's own PDB parser normalizes
+    # variant names (HIE/HID/HIP/... -> HIS, etc.) at CONSTRUCTION time —
+    # by the point `fixer` exists, `res.name` is already "HIS"/"ASP"/...,
+    # so a loop reading `fixer.topology` here can never actually match
+    # `_VARIANT_TO_STANDARD` and was a silent no-op despite this exact
+    # comment's stated intent. Scan `input_path` (still on disk and
+    # untouched by residue-naming) rather than `canon_path`/
+    # `preprocessed_path` — both temp files are already unlinked above by
+    # this point.
+    from dvbfixer.ffutils.variants import scan_variant_names as _scan_variant_names
+    for (ch, rs, ic), variant_name in _scan_variant_names(input_path).items():
+        key = (ch, rs, ic or '')
+        if key not in variant_overrides and variant_name in _VARIANT_TO_STANDARD:
+            variant_overrides[key] = variant_name
 
     # Strip hydrogens from protein residues (incl GLYCAM glycoprotein
     # residues NLN/OLS/OLT) before findMissingAtoms — clean template matching.
@@ -668,26 +706,25 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     _OPENMM_VARIANTS = {'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYX', 'LYN'}
 
     # Merge PROPKA + Reduce output (extra_variants, 3-tuple keys) with
-    # user --mutate overrides (variant_overrides, 2-tuple keys). User
-    # entries win on collision — matches .dat schema "downstream wins".
-    merged_variants: dict[tuple, str] = {}
+    # user --mutate / raw-text-captured overrides (variant_overrides,
+    # already 3-tuple `(chain, resid, icode)` keys). User entries win on
+    # collision — matches .dat schema "downstream wins". Kept as one
+    # single 3-tuple-keyed dict throughout (no 2-tuple collapse) so two
+    # residues sharing a resSeq via insertion code (e.g. Kabat CDR-loop
+    # `H:82`/`H:82A`) never overwrite each other's variant.
+    merged_variants: dict[tuple[str, str, str], str] = {}
     if extra_variants:
         for (ch, rn, ic), var in extra_variants.items():
             merged_variants[(ch, str(rn), ic or '')] = var
-    for (ch, rn), var in variant_overrides.items():
-        # Normalise to 3-tuple with empty icode; user overrides win.
-        merged_variants[(ch, str(rn), '')] = var
-    # Also expose a 2-tuple view for downstream code that still uses
-    # ``variant_overrides`` (e.g. .dat variant_overrides serialization).
-    for (ch, rn, ic), var in merged_variants.items():
-        variant_overrides[(ch, rn)] = var
+    for (ch, rn, ic), var in variant_overrides.items():
+        merged_variants[(ch, str(rn), ic or '')] = var
+    variant_overrides = merged_variants
 
     variants = []
     for res in fixer.topology.residues():
         _ic = res.insertionCode.strip() if hasattr(res, 'insertionCode') else ''
         key3 = (res.chain.id, str(res.id), _ic)
-        key2 = (res.chain.id, str(res.id))
-        _var = merged_variants.get(key3) or merged_variants.get(
+        _var = variant_overrides.get(key3) or variant_overrides.get(
             (res.chain.id, str(res.id), ''))
         if _var and _var in _OPENMM_VARIANTS:
             variants.append(_var)
@@ -995,7 +1032,11 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
                     "atoms get strong restraints.",
         added_atoms=added_atoms,
         residue_summary=residue_summary,
-        variant_overrides={f"{c}:{r}{i}" if i else f"{c}:{r}": v
+        # "chain:resid:icode" — same unambiguous 3-field format the legacy
+        # backend uses (icode empty when none); NOT "chain:resid" + icode
+        # concatenated onto resid, which can't be told apart from a longer
+        # plain resid on read-back.
+        variant_overrides={f"{c}:{r}:{i}": v
                             for (c, r, i), v in result["renames"].items()},
     )
     dat.save(dat_path)
@@ -1166,22 +1207,34 @@ def main(argv=None):
     with open(output_path, 'w') as f:
         PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)
 
-    # Build var_lookup for variant name restoration (applied after each PDB write)
-    var_lookup = {}
-    for (ch, rn), var_name in variant_overrides.items():
-        var_lookup[(ch, rn)] = var_name
+    # Build var_lookup for variant name restoration (applied after each PDB
+    # write). Split into an icode-specific map and an any-icode fallback map
+    # (same pattern as ffutils.ff_names.apply_variants_to_pdb_text) so two
+    # residues sharing a resSeq via insertion code (Kabat CDR loops) each
+    # keep their own variant instead of the last one in iteration order
+    # silently winning for both.
+    var_lookup_by_icode: dict[tuple[str, str, str], str] = {}
+    var_lookup_any_icode: dict[tuple[str, str], str] = {}
+    for (ch, rn, ic), var_name in variant_overrides.items():
+        if ic:
+            var_lookup_by_icode[(ch, rn, ic)] = var_name
+        else:
+            var_lookup_any_icode[(ch, rn)] = var_name
 
     def _restore_variants(path):
-        if not var_lookup:
+        if not var_lookup_by_icode and not var_lookup_any_icode:
             return
         with open(path) as f:
             pdb_lines = f.readlines()
         with open(path, 'w') as f:
             for line in pdb_lines:
-                if line.startswith(('ATOM  ', 'HETATM', 'TER   ')):
+                if line.startswith(('ATOM  ', 'HETATM', 'TER   ')) and len(line) > 26:
                     ch = line[21]
                     rs = line[22:26].strip()
-                    var = var_lookup.get((ch, rs))
+                    ic = line[26].strip()
+                    var = var_lookup_by_icode.get((ch, rs, ic))
+                    if var is None:
+                        var = var_lookup_any_icode.get((ch, rs))
                     if var:
                         # Preserve the original record type (ATOM/HETATM/TER)
                         # — hardcoding "ATOM  " here used to corrupt TER
@@ -1280,8 +1333,8 @@ def main(argv=None):
                 _merged_variants[(ch, resid, icode)] = v
     except Exception:
         pass
-    for (ch, rn), var_name in variant_overrides.items():
-        _merged_variants[(ch, str(rn))] = var_name
+    for (ch, rn, ic), var_name in variant_overrides.items():
+        _merged_variants[(ch, str(rn), ic)] = var_name
     _n_var = apply_variants_to_pdb_text(
         output_path, _merged_variants,
         target_ff=_ff_target, verbose=args.verbose,
@@ -1316,10 +1369,13 @@ def main(argv=None):
 
     dat = build_dat(fixer, new_atom_indices)
 
-    # Save variant overrides in .dat so minimize can restore them
+    # Save variant overrides in .dat so minimize can restore them. Key
+    # format is always "chain:resid:icode" (icode empty when none) — an
+    # unambiguous 3-field split, unlike concatenating resid+icode with no
+    # separator (which can't be told apart from a longer plain resid).
     if variant_overrides:
         dat['variant_overrides'] = {
-            f"{ch}:{rn}": var for (ch, rn), var in variant_overrides.items()
+            f"{ch}:{rn}:{ic}": var for (ch, rn, ic), var in variant_overrides.items()
         }
 
     # Record any --mutate ...:del removals so downstream minimize / model

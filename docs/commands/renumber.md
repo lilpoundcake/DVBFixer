@@ -4,7 +4,7 @@
 
 Renumbers residues with one of two strategies:
 
-- **Default (`--scheme seqres`)** — aligns ATOM records to the SEQRES section via subsequence matching. Removes insertion codes, makes resseq sequential per chain, preserves gap positions.
+- **Default (`--scheme seqres`)** — aligns ATOM records to `--fasta` when supplied, otherwise to the PDB SEQRES section, using affine semi-global alignment. Removes insertion codes and assigns full-sequence positions while preserving genuine gap positions.
 - **Antibody (`--scheme kabat|chothia|imgt|martin|aho|eu`)** — applies an antibody numbering convention via ANARCI for V-domains and bundled EU reference sequences for C-domains. Works on incomplete chains (Fv-only, Fc-only, partial domains). Falls back to SEQRES for chains that aren't antibodies. Fully local — no web service.
 
 Updates **all** PDB sections that reference residue numbers:
@@ -35,6 +35,9 @@ ANARCI is an optional dependency: only required when `--scheme` is non-default. 
 # Basic usage (SEQRES-based) — writes input_renum.pdb
 dvbfixer renumber input.pdb
 
+# Use a complete FASTA instead of SEQRES and number by FASTA position
+dvbfixer renumber input.pdb --fasta sequence.fasta -v
+
 # Antibody Kabat numbering (CDR insertions at H100A/B/C etc.)
 dvbfixer renumber antibody.pdb --scheme kabat -v
 
@@ -63,6 +66,7 @@ dvbfixer renumber input.pdb -o renumbered.pdb
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-o`, `--output` | `<input>_renum.pdb` | Output file path |
+| `--fasta` | none | Complete sequence(s), keyed by chain ID, used instead of SEQRES. Residues receive their full FASTA positions. |
 | `--scheme` | `seqres` | Numbering scheme: `seqres`, `kabat`, `chothia`, `imgt`, `martin`, `aho`, `eu`. Antibody schemes use ANARCI for V-domains + bundled EU references for C-domains. |
 | `--chain-scheme` | none | Per-chain override (e.g. `H:kabat`). Repeatable. Wins over `--scheme`. |
 | `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |
@@ -73,9 +77,9 @@ dvbfixer renumber input.pdb -o renumbered.pdb
 
 ### Default SEQRES path
 
-1. Parses SEQRES records to get the full sequence per chain
+1. Parses `--fasta` when supplied, otherwise SEQRES, to get the full sequence per chain
 2. Extracts unique (resSeq, iCode, resname) tuples from ATOM records
-3. Aligns ATOM residues to SEQRES as a subsequence — each ATOM residue name is matched to the next occurrence in SEQRES
+3. Affine-aligns the complete observed chain semi-globally to the reference, with free terminal reference overhangs, mutation tolerance, and penalized internal gaps
 4. Assigns new sequential numbering based on SEQRES position (position 1 = first SEQRES residue)
 5. Non-SEQRES residues (waters, ligands) are numbered sequentially after the last SEQRES position
 6. Chains without SEQRES entries are renumbered sequentially from 1
@@ -97,6 +101,6 @@ dvbfixer renumber input.pdb -o renumbered.pdb
 - [`homology`](homology.md) — antibody-aware homology modeling (also uses ANARCI)
 
 ## How it works
-Renumbers residues with one of two strategies. **Default (`--scheme seqres`)**: align ATOM records to SEQRES via subsequence matching, remove insertion codes (e.g. Kabat 100A-J -> sequential). **Antibody schemes** (`--scheme kabat|chothia|imgt|martin|aho|eu`, plus per-chain `--chain-scheme H:kabat`): apply an antibody numbering convention via ANARCI for V-domains and bundled human IgG1/Cκ/Cλ EU reference sequences for C-domains. Updates **all** PDB sections: ATOM, HETATM, TER, HELIX, SHEET, SSBOND, LINK, CISPEP, HET, DBREF, SEQADV, CONECT, REMARK 465/500/610.
+Renumbers residues with one of two strategies. **Default (`--scheme seqres`)**: affine-align ATOM records to `--fasta` or SEQRES and number by full-reference position while removing insertion codes. **Antibody schemes** (`--scheme kabat|chothia|imgt|martin|aho|eu`, plus per-chain `--chain-scheme H:kabat`): apply an antibody numbering convention via ANARCI for V-domains and bundled human IgG1/Cκ/Cλ EU reference sequences for C-domains. Updates **all** PDB sections: ATOM, HETATM, TER, HELIX, SHEET, SSBOND, LINK, CISPEP, HET, DBREF, SEQADV, CONECT, REMARK 465/500/610.
 
 **Antibody numbering** (`src/dvbfixer/antibody.py`): V-domains use ANARCI directly (Kabat/Chothia/IMGT/Martin/Aho; EU's V-domain numbering matches Kabat's). C-domains are placed by semi-global Needleman-Wunsch alignment against three embedded EU references (`IGG1_HEAVY_CONST_SEQ` covers CH1+Hinge+CH2+CH3 EU 118-447, `CK_SEQ` covers EU 108-214, `CL_SEQ` covers IGLC2 EU 108-214). Best-scoring reference wins; matches >50% of input length required. C-domain numbering is always EU regardless of the V-scheme — Kabat/Chothia/Martin/Aho don't define C-domain positions. When the V-scheme extends past EU position 117 (IMGT/Martin/Aho), the EU C-domain numbers are shifted forward by `(max_V_resseq + 5 - first_C_EU)` to avoid collisions and a warning is emitted. Chains with no antibody domain detected fall back to the SEQRES path. ANARCI is an OPTIONAL dependency — the antibody import is deferred inside the scheme branch, so users on the default `seqres` path are unaffected. Chain-map values are widened from `int` to `(resseq, icode)` tuples so iCodes from CDR insertions reach the ATOM/HETATM/TER writers (was hardcoded `' '`). Each section has specific column positions — see the `update_*` functions and `remap_resid()` helper.

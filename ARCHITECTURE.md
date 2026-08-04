@@ -8,61 +8,68 @@ src/dvbfixer/
 ├── __init__.py          24 lines   — __version__, MDAnalysis warning filters
 │
 │   STRUCTURE PREP PIPELINE (composable subcommands)
-├── split_chains.py     714 lines   — empirical chain splitting (gap / dist / numbering)
-├── renumber.py         592 lines   — SEQRES-based renumbering, removes insertion codes
-├── model/             2653 lines   — Modeller LoopModel loop/gap rebuilding (package: cli.py,
-│                                     pipeline.py 1240, modeller_run.py 727, renumber.py 518)
-├── prepare/           3150 lines   — PDBFixer wrapper + BioLuminate-style H placement (package:
-│                                     cli.py, pipeline.py 1283, glycan.py 1105, mutations.py 573)
-├── minimize/          2729 lines   — OpenMM minimization + optional xtb/obminimize refine
-│                                     (package: cli.py, pipeline.py 1594, refine.py 950)
+├── split_chains.py     719 lines   — empirical chain splitting (gap / dist / numbering)
+├── renumber.py         620 lines   — SEQRES-based renumbering, removes insertion codes
+├── model/             2688 lines   — Modeller LoopModel loop/gap rebuilding (package: cli.py 127,
+│                                     __init__.py 41, pipeline.py 1240, modeller_run.py 736,
+│                                     renumber.py 544)
+├── prepare/           3278 lines   — PDBFixer wrapper + BioLuminate-style H placement (package:
+│                                     cli.py 133, __init__.py 56, pipeline.py 1411, glycan.py 1105,
+│                                     mutations.py 573)
+├── minimize/          2597 lines   — OpenMM minimization + optional xtb/obminimize refine
+│                                     (package: cli.py 125, __init__.py 60, pipeline.py 1545,
+│                                     refine.py 867)
 ├── prep_backend.py    1017 lines   — tleap+reduce deterministic prep backend (`--backend
 │                                     tleap-reduce`, opt-in on `prepare`/`zbs`; see CLAUDE.md)
-├── protonate.py       1321 lines   — PROPKA3 pKa-based protonation
+├── protonate.py       1333 lines   — PROPKA3 pKa-based protonation
 ├── pull.py             658 lines   — bond pulling via OpenMM mass=0 partial min
 ├── rename.py           105 lines   — text-based variant → canonical name
 ├── puppet.py           101 lines   — strip to backbone polyglycine
-├── zbs.py              482 lines   — full pipeline (renumber→model→prepare→minimize→protonate→minimize) + --align-to-input
+├── zbs.py              484 lines   — full pipeline (renumber→model→prepare→minimize→protonate→minimize) + --align-to-input
 │
 │   FF / TOPOLOGY GENERATION
-├── top/               4067 lines   — RTP-based GROMACS topology (AMBER + CHARMM) (package:
-│                                     cli.py, pipeline.py 2937, writers.py 542, ff_data.py 330,
-│                                     acpype.py 125 — see "Recommended areas for future work")
+├── top/               4148 lines   — RTP-based GROMACS topology (AMBER + CHARMM) (package:
+│                                     cli.py 96, __init__.py 37, ff_data.py 349, writers.py 542,
+│                                     acpype.py 125, types.py 52 — shared dataclasses, glycan.py
+│                                     292 — glycan/glycolipid link detection, topology_builder.py
+│                                     1358 — TopologyBuilder, pipeline.py 1297 — CLI orchestration
+│                                     + PDB I/O only; split from a single ~2900-line pipeline.py
+│                                     in 0.7.15, see CLAUDE.md)
 ├── rtp_parser.py       261 lines   — parses GROMACS RTP/ARN/R2B/TDB/ATP files
 ├── acpype_export.py   1010 lines   — ACPYPE-based GMX topology (OpenMM→ParmEd→ACPYPE)
-├── ffutils/           2934 lines   — shared FF selection (package: __init__.py 715 —
+├── ffutils/           3324 lines   — shared FF selection (package: __init__.py 737 —
 │                                     FF_ALIASES + resolve_ff, sanitize_protein_hetatm, GLYCAM
 │                                     helpers, explain_template_error, create_forcefield_with_openff;
-│                                     geometry.py 882 — chirality invariant, misplaced-H repair;
-│                                     variants.py 362; ff_names.py 486; dat.py 230 — DatRecord;
+│                                     geometry.py 1232 — chirality invariant, misplaced-H repair;
+│                                     variants.py 376; ff_names.py 486; dat.py 234 — DatRecord;
 │                                     ligand_valence.py 259 — ionizable-group + alkene overrides)
 │
 │   GLYCAN / SMALL-MOLECULE TOOLS
 ├── glycam.py          1134 lines   — bidirectional PDB/CHARMM ↔ GLYCAM nomenclature converter
-├── transplant.py       882 lines   — graft residues between PDBs (Kabsch align)
+├── transplant.py       886 lines   — graft residues between PDBs (Kabsch align)
 ├── parametrize.py     1179 lines   — GAFF2 small molecule (antechamber→tleap→ParmEd); RESP via Gaussian / PSI4-subprocess / PySCF
 ├── lig_params.py       413 lines   — on-the-fly GAFF2+AM1-BCC template generation for unknown ligands (feeds `minimize --parametrize-ligands`)
-├── cluster.py         1187 lines   — glycosidic torsion clustering from MD trajectory
+├── cluster.py         1184 lines   — glycosidic torsion clustering from MD trajectory
 │
 │   ANTIBODY / HOMOLOGY
 ├── homology.py         773 lines   — multi-template homology with ANARCI antibody mode
 ├── antibody.py         377 lines   — antibody-scheme numbering (Kabat/Chothia/IMGT/Martin/Aho) via ANARCI + embedded EU C-domain references
 │
 │   SHARED HELPERS
-├── pdbutils/           794 lines   — CONECT record remapping + inference (package: inference.py
-│                                     646 — OpenBabel ConnectTheDots + domain overrides for
+├── pdbutils/           785 lines   — CONECT record remapping + inference (package: inference.py
+│                                     637 — OpenBabel ConnectTheDots + domain overrides for
 │                                     SS/glycosidic/glycosylation; io.py 109;
 │                                     _materialise_inferred_pdb temp-file bridge)
 ├── align.py            280 lines   — internal Kabsch superposition (sequence-paired via Bio.Align.PairwiseAligner); line-level PDB rewrite preserves SEQRES/CONECT/all non-ATOM records
 ├── conect.py           100 lines   — standalone `dvbfixer conect` subcommand wrapping the pdbutils inference
 │
 │   DIAGNOSTIC / QA
-└── diagnose/          1918 lines   — `dvbfixer diagnose` structure-quality report; three check
+└── diagnose/          1923 lines   — `dvbfixer diagnose` structure-quality report; three check
                                       families (structural / chemistry / steric); report-only.
                                       See docs/commands/diagnose.md.
 ```
 
-Line counts are exact (`wc -l`) as of 0.7.10; re-run `wc -l src/dvbfixer/*.py src/dvbfixer/*/*.py`
+Line counts are exact (`wc -l`) as of 0.7.15; re-run `wc -l src/dvbfixer/*.py src/dvbfixer/*/*.py`
 before trusting them verbatim in a much later session — they drift with every refactor.
 
 ## Data flow
@@ -115,12 +122,16 @@ Strengths: fast, deterministic, no per-ligand setup. Strong glycan
 support via CHARMM `carb.rtp`. Glycolipid support via auto-detection
 of ceramide+sugar trees.
 
-Weaknesses: only handles residues with RTP templates. Unknown organic
-molecules fail.
+Weaknesses: only handles residues with RTP templates. A chain with no
+protein/sugar/ceramide/known-small-molecule residue is dropped from the
+topology entirely, with a `WARNING` naming the chain and its resname(s)
+(since 0.7.15 — was previously silent, confirmed on a plain fatty-acid
+ligand with no RTP entry). Use `--acpype` or `minimize
+--parametrize-ligands` (GAFF2) for arbitrary organic ligands instead.
 
 **Water + ion handling (AMBER):** `--water` choices `{tip3p, spc, spce,
 tip4p, tip4pew, opc}` drive both the water moleculetype AND the ion LJ
-parameters via the `ION_PARAMS` dict in `top.py`. `--ion-set auto`
+parameters via the `ION_PARAMS` dict in `top/ff_data.py`. `--ion-set auto`
 (default) selects the JC/LM set matched to the water model; manual
 overrides include `jc-tip3p`, `jc-spce`, `jc-tip4pew`, `lm-hfe-opc`,
 `lm-iod-opc`, and `dang-legacy` (the pre-2008 bundled Aqvist/Dang
@@ -1154,12 +1165,15 @@ called out in each `__init__.py`.
 2. **xtb v6.8+ when conda-forge ships it** — fixes the `$fix` bug that
    causes ~0.1 Å drift on nominally-frozen anchors during `--xtb-refine`.
 
-3. **Remaining top extraction** — `ff_data.py`, `writers.py`, and
-   `acpype.py` are already split out of `top.py`. `top/pipeline.py` is
-   still the largest file (~2900 lines) — extracting its topology-
-   builder functions (`build_chain` / `build_glycan_chain` /
-   `build_glycolipid_chain`) into a `rtp_build.py` is the one
-   remaining follow-up, documented in `top/__init__.py`.
+3. ~~**Remaining top extraction**~~ — done. `ff_data.py`, `writers.py`,
+   `acpype.py`, and now `types.py` / `glycan.py` / `topology_builder.py`
+   are all split out of `top.py`. `top/pipeline.py` shrank from ~2900
+   to ~1300 lines and is now CLI orchestration + PDB I/O only; the
+   `TopologyBuilder` class (`build_chain` / `build_glycan_chain` /
+   `build_glycolipid_chain`) lives in `top/topology_builder.py`, and
+   glycan-tree detection (`detect_glycan_links` / `build_glycan_trees`)
+   lives in `top/glycan.py`. See `top/__init__.py` for the current
+   module map.
 
 4. **Docs migration** — the per-subcommand "algorithm" prose currently
    in `docs/DESIGN_NOTES.md` (was `CLAUDE.md` before Phase 4b) should

@@ -105,6 +105,13 @@ PDB_TO_CARB = {
     'AGALNA': 'AGALNA',
     'ANE5AC': 'ANE5AC',
     'ANE5': 'ANE5AC',
+    # Beta-anomer sialic acid — a real, distinct carb.rtp RESI (not the
+    # same as the alpha form above). Was previously missing entirely,
+    # silently dropping BNE5AC's glycosidic bonds from the emitted
+    # topology even though the rest of this module (is_sialic checks,
+    # anomeric-atom C2-vs-C1 logic) already treats it as first-class.
+    'BNE5AC': 'BNE5AC',
+    'BNE5': 'BNE5AC',
     # Non-standard PDB names (from transplant/GLYCAM workflows)
     'AGL': 'AGAL',     # alpha-galactose (_resolve_sugar_rtp auto-detects AGALNA if N-acetyl)  # CHARMM-GUI short name for sialic acid
 }
@@ -131,6 +138,18 @@ _KNOWN_4CHAR_RESNAMES = {
 
 # Water residue names (for counting SOL molecules in PDB)
 _WATER_RESNAMES = {'SOL', 'HOH', 'WAT', 'TIP3', 'SPC', 'SPCE', 'TIP4', 'TIP5'}
+
+# Atoms per water molecule, by resname — used by `_count_water`'s
+# atom-count-based counting (needed to survive PDB resSeq wraparound at
+# 9999 in large systems, where per-residue counting would silently
+# undercount). A single hardcoded "//3" is wrong for TIP4/TIP5 (4/5-site
+# models) and HOH (often deposited O-only, 1 atom) even though all of
+# them are listed in `_WATER_RESNAMES` above. Defaults to 3 (the common
+# case) for any name not listed here.
+_WATER_ATOMS_PER_MOL = {
+    'SOL': 3, 'WAT': 3, 'TIP3': 3, 'SPC': 3, 'SPCE': 3,
+    'HOH': 1, 'TIP4': 4, 'TIP5': 5,
+}
 
 # ---------------------------------------------------------------------------
 # Water-model-matched ion Lennard-Jones parameters (AMBER side)

@@ -27,8 +27,14 @@ from typing import Any
 # PDB-standard sugar residue names — the ambiguous set from the auto-detect
 # path (a hit alone does not identify an FF; user is warned to convert first).
 # Kept as a module-level constant because detect_ff_from_pdb consults it.
+# This is the CANONICAL source for "is this a PDB Chemical Component
+# Dictionary sugar name" — `pdbutils.inference` and `top.ff_data` used to
+# each keep their own, independently-drifted copy (missing different
+# subsets of names — e.g. `BNE5AC`, beta-anomer sialic acid, was absent
+# from more than one of them at once); they now import from here instead.
 _PDB_SUGAR_NAMES = {
     'NAG', 'NDG', 'BMA', 'MAN', 'FUC', 'FUL', 'GAL', 'BGC', 'GLC', 'SIA',
+    'NGA', 'A2G', 'BGA', 'AGA', 'XYP', 'XYS', 'RIB', 'RIP', 'ARA', 'NAN',
 }
 
 # Standard protein/water/ion residues that don't need OpenFF parametrization
@@ -285,6 +291,22 @@ def is_glycam_sugar(name: str) -> bool:
 def is_glycam_residue(name: str) -> bool:
     """True if `name` is any GLYCAM-named residue (sugar OR glycoprotein)."""
     return name in GLYCAM_PROTEIN_RESIDUES or is_glycam_sugar(name)
+
+
+def is_pdb_sugar_resname(name: str) -> bool:
+    """True if `name` is any recognized sugar residue name — PDB Chemical
+    Component Dictionary 3-char code (`_PDB_SUGAR_NAMES`), CHARMM-GUI 4-char
+    code (`_CHARMM_SUGAR_MARKERS`), or GLYCAM-canonical (`is_glycam_sugar`).
+
+    The single canonical "is this a sugar" check for the whole codebase —
+    `pdbutils.inference` and `top.ff_data` used to each maintain their own
+    copy of the PDB/CHARMM-GUI name sets, and those copies had already
+    independently drifted (missing different residues, including
+    `BNE5AC`, beta-anomer sialic acid) before being unified here.
+    """
+    return (name in _PDB_SUGAR_NAMES
+            or name in _CHARMM_SUGAR_MARKERS
+            or is_glycam_sugar(name))
 
 
 def detect_glycam_input(topology: Any) -> dict[str, set[tuple[str, str]]]:

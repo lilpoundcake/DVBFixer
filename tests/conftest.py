@@ -92,6 +92,19 @@ def eightcz8_dir() -> Path:
     return _fixture_or_skip(FIXTURES_ROOT / "8cz8")
 
 
+@pytest.fixture(scope="session")
+def lipid_dir() -> Path:
+    """7X35 fixture — a 3-chain viral capsid (no SEQRES records) with a
+    bound palmitic acid (PLM) ligand whose atom-naming convention
+    (C1..C9, CA, CB, CC...) collides with standard protein backbone atom
+    names. Exercises `model/renumber.py`'s HETATM-vs-gap-filled-protein
+    resSeq collision (chain A has an 11-residue gap vs. its full FASTA
+    sequence; PLM's naively-assigned resSeq lands exactly where the
+    gap-fill needs to go) and the downstream minimize position-restore
+    merge that must not cross-contaminate the two residues' coordinates."""
+    return _fixture_or_skip(FIXTURES_ROOT / "lipid")
+
+
 # ---------------------------------------------------------------------------
 # Input-class fixtures for the comprehensive integration matrix (0.7.5+).
 # Each returns a specific PDB or directory representing one input class.

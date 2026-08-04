@@ -74,7 +74,8 @@ def parse_args(argv=None):
     model_grp = p.add_argument_group("Model step (Modeller)")
     model_grp.add_argument("--fasta", help="FASTA file with complete sequence(s) for model step")
     model_grp.add_argument("--no-terminal", action="store_true",
-                           help="Do not model missing N/C terminal residues")
+                           help="Do not model missing N/C terminal residues; "
+                                "rebuild only gaps between observed anchors")
     model_grp.add_argument("--num-loops", type=int, default=2,
                            help="Number of loop models (default: 2)")
     model_grp.add_argument("--md-level", choices=["none", "fast", "slow", "very_slow", "slow_large"],
@@ -327,6 +328,8 @@ def _run_pipeline(args, input_path):
         from dvbfixer.renumber import main as renumber_main
         out = step_output("renum")
         renumber_argv = [current, "-o", out]
+        if args.fasta:
+            renumber_argv.extend(["--fasta", args.fasta])
         if args.keep_water:
             renumber_argv.append("--keep-water")
         if args.verbose:

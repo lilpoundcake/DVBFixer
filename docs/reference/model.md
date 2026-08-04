@@ -22,14 +22,15 @@ options:
 
 Input / output:
   input                 Input PDB file (must contain SEQRES or use --fasta)
-  -o, --output OUTPUT   Output PDB file (default: <input>_model.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_model.pdb)
   --fasta FASTA         FASTA file with complete sequence(s). Headers must
                         encode chain IDs: '>chain_X', '>PDBID_X', or '>X'.
                         Mapping is by chain ID, not file order. Use instead of
                         SEQRES.
 
 Modelling parameters:
-  -n, --num-models NUM_MODELS
+  -n NUM_MODELS, --num-models NUM_MODELS
                         Number of initial models to generate (default: 1)
   --num-loops NUM_LOOPS
                         Number of loop refinement models per initial model
@@ -52,8 +53,10 @@ Modelling parameters:
                         input close contacts get relaxed normally. Pass --no-
                         pin-input for the legacy LoopModel behaviour (gap ±~3
                         residue flank mobile).
-  --no-terminal         Do not model missing N/C terminal residues (only
-                        rebuild internal gaps)
+  --no-terminal         Do not model missing N/C terminal residues. Align to
+                        the complete reference first, trim outside the
+                        first/last observed anchors, and rebuild only gaps
+                        between those anchors.
   --renumber-from-1     Force the whole chain to start at resseq 1 when
                         Modeller adds N-terminal residues. Default OFF:
                         preserve original PDB numbering unless it would yield

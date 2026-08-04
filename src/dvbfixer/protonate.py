@@ -421,6 +421,20 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
 
     pdb = PDBFile(str(input_path))
 
+    # Snapshot the disulfide pairing right after this first load — used to
+    # restore the true pairing after the PDBFixer rebuild below, which
+    # (like this load) re-derives SG-SG bonds via a pure distance scan
+    # (Topology.createDisulfideBonds(), no 1:1 matching) and can introduce
+    # spurious extra pairs on tightly-packed CYS clusters, crashing
+    # createSystem with "N S atom(s) too many". minimize.py already guards
+    # its own PDBFixer rebuilds this way; protonate.py previously had no
+    # such guard at all despite doing the same two risky operations.
+    from dvbfixer.ffutils.geometry import collect_ss_pairs as _collect_ss_pairs
+    from dvbfixer.ffutils.geometry import (
+        drop_spurious_inter_aa_bonds as _drop_spurious_inter_aa_bonds,
+    )
+    _true_ss_pairs = _collect_ss_pairs(pdb.topology)
+
     # Detect GLYCAM residues. If present, we keep ALL residues in the system
     # and use AMBER14+GLYCAM (which has NLN/OLS/OLT/sugar templates) instead
     # of ff19SB (which has none).
@@ -494,16 +508,21 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         # In GLYCAM mode, prevent PDBFixer from "fixing" NLN/OLS/OLT (it
         # doesn't recognize them as standard residues and may strip/replace).
         if glycam_present:
-            # PDBFixer's substitutions[chain_idx] is a list of (res_idx, new_name).
-            # Just clear it — we don't want any substitutions.
-            try:
-                fixer.findNonstandardResidues()
-                fixer.nonstandardResidues = []
-            except Exception:
-                pass
+            # We don't want any substitutions — just clear the field
+            # directly. Calling `findNonstandardResidues()` first and
+            # then discarding its result was pointless (it has no side
+            # effect besides populating this one attribute) and its
+            # bare `except Exception: pass` could have silently hidden a
+            # real failure for no benefit.
+            fixer.nonstandardResidues = []
         fixer.findMissingAtoms()
         from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry as _rebuild
         _rebuild(fixer, verbose=args.verbose, log_prefix="[protonate] ")
+        # PDBFixer rebuilds bonds — re-drop any spurious extra SG-SG bonds
+        # its internal createDisulfideBonds() re-derivation introduced,
+        # restoring the pairing snapshotted right after the initial load.
+        _drop_spurious_inter_aa_bonds(fixer.topology, verbose=args.verbose,
+                                       valid_ss_pairs=_true_ss_pairs)
         modeller = Modeller(fixer.topology, fixer.positions)
         # Rebuild variants list for potentially reordered topology
         variants = []
@@ -544,15 +563,7 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         _saved.setdefault((ch, rs), orig)
     try:
         try:
-            if glycam_present:
-                # ignoreExternalBonds=True: the protein-glycan ND2-C1 bond
-                # doesn't match any single template, so addHydrogens must
-                # tolerate it.
-                modeller.addHydrogens(forcefield, pH=args.ph,
-                                       variants=variants)
-            else:
-                modeller.addHydrogens(forcefield, pH=args.ph,
-                                       variants=variants)
+            modeller.addHydrogens(forcefield, pH=args.ph, variants=variants)
             # Post-addHydrogens sanity: re-place any H that landed on top of
             # another atom (OpenMM's CSER template bug with existing OXT).
             from dvbfixer.ffutils.geometry import (

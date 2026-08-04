@@ -27,12 +27,13 @@ options:
 
 Input / output:
   input                 Input structure file (.pdb, .mol2, .sdf)
-  -o, --output OUTPUT   Output prefix (default: input stem)
-  -n, --name NAME       Molecule name for [ moleculetype ] (default: from
+  -o OUTPUT, --output OUTPUT
+                        Output prefix (default: input stem)
+  -n NAME, --name NAME  Molecule name for [ moleculetype ] (default: from
                         input filename, uppercased)
 
 Chemistry:
-  -c, --charge-method {bcc,resp}
+  -c {bcc,resp}, --charge-method {bcc,resp}
                         Charge method: bcc (AM1-BCC, default — fast, ~95% RESP
                         accuracy) or resp (slower, requires --qm-engine to
                         pick a QM backend).
@@ -49,14 +50,14 @@ RESP backend (only when -c resp):
                         two-step --gen-gaussian / --gaussian-log workflow.
                         `psi4` = free, separate conda env via `micromamba
                         create -n psi4 -c conda-forge psi4 psiresp`.
-  --qm-method, --psi4-method QM_METHOD
+  --qm-method QM_METHOD, --psi4-method QM_METHOD
                         QM method for --qm-engine pyscf / psi4 (default:
                         HF/6-31G*, the AMBER-standard RESP recipe). Override
                         only if you know why.
-  --qm-nthreads, --psi4-nthreads QM_NTHREADS
+  --qm-nthreads QM_NTHREADS, --psi4-nthreads QM_NTHREADS
                         OpenMP threads for the QM job (default: 4). PySCF/PSI4
                         scale modestly (~30% at 4 cores).
-  --qm-memory, --psi4-memory QM_MEMORY
+  --qm-memory QM_MEMORY, --psi4-memory QM_MEMORY
                         Memory cap for the QM job (default: 4GB). PSI4 errors
                         out if too low for the basis set; PySCF reads
                         PYSCF_MAX_MEMORY env var if set.
