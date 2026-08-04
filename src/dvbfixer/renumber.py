@@ -27,13 +27,18 @@ _AA3TO1 = {
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="dvbfixer renumber",
-        description="Read SEQRES from a PDB file, align ATOM residues to the full "
-        "sequence, and renumber to remove insertion codes while preserving "
-        "gap positions. Updates all PDB sections referencing residue numbers."
+        description="Align ATOM residues to a complete FASTA or PDB SEQRES "
+        "sequence and renumber to full-sequence positions while removing "
+        "insertion codes. Updates all PDB sections referencing residue numbers."
     )
     io = p.add_argument_group("Input / output")
     io.add_argument("input", help="Input PDB file")
     io.add_argument("-o", "--output", help="Output PDB file (default: <input>_renum.pdb)")
+    io.add_argument(
+        "--fasta",
+        help="Complete sequence(s) used instead of SEQRES. Headers must encode "
+             "chain IDs using the same formats as `dvbfixer model`.",
+    )
 
     scheme = p.add_argument_group("Numbering scheme")
     scheme.add_argument(
@@ -99,50 +104,33 @@ def get_atom_residues(lines, chain):
     return residues
 
 
+def _align_residues_to_reference(atom_residues, seqres):
+    """Return ``(protein_residues, shared_alignment_result)``."""
+    from dvbfixer.sequence_alignment import align_observed_to_reference
+
+    protein = [r for r in atom_residues if r[2] in _AA3TO1]
+    observed = ''.join(_AA3TO1[r[2]] for r in protein)
+    reference = ''.join(
+        r if len(r) == 1 else _AA3TO1.get(r, 'X') for r in seqres
+    )
+    return protein, align_observed_to_reference(observed, reference)
+
+
 def align_to_seqres(atom_residues, seqres, max_gap_search=5):
-    """Align ATOM residues to SEQRES via subsequence matching.
+    """Align protein ATOM residues semi-globally to SEQRES.
     Returns dict: (old_resSeq, old_iCode) -> new_resSeq.
     Non-SEQRES residues (waters, ligands) get None initially.
 
-    A residue whose name doesn't match the current SEQRES position is
-    first looked up within a BOUNDED forward window (``max_gap_search``
-    positions) — this is what lets a short genuine ATOM/SEQRES gap
-    (missing residues) resync correctly. If nothing matches within that
-    window, the residue is treated as a point substitution AT THE
-    CURRENT POSITION rather than left unmapped: an earlier, unbounded
-    version of this search kept scanning arbitrarily far ahead looking
-    for a same-name match, and on a genuine point mutation (ATOM name
-    differs from wild-type SEQRES at that one position, e.g. an
-    engineered construct) it either found a spurious, wrong match
-    further downstream or exhausted the sequence — silently misplacing
-    that residue (and, since ``j`` was never advanced, every residue
-    after it) to the wrong position. `model/renumber.py`'s K-finder/
-    Needleman-Wunsch alignment handles this properly with full mutation
-    tolerance; this is a lighter, bounded fix for this standalone tool's
-    simpler subsequence-matching approach.
+    ``max_gap_search`` remains for API compatibility but is no longer used.
+    The shared affine aligner handles arbitrary internal gaps, mutations, and
+    terminal reference overhangs consistently with the model step.
     """
-    mapping = {}
-    j = 0
-    for resseq, icode, resname in atom_residues:
-        if j < len(seqres) and seqres[j] == resname:
-            mapping[(resseq, icode)] = j + 1
-            j += 1
-            continue
-        search_j = j + 1
-        limit = min(len(seqres), j + 1 + max_gap_search)
-        while search_j < limit and seqres[search_j] != resname:
-            search_j += 1
-        if search_j < limit:
-            mapping[(resseq, icode)] = search_j + 1
-            j = search_j + 1
-        elif j < len(seqres):
-            # No match in the nearby window — assume a point
-            # substitution at the current expected position rather than
-            # leaving this (and everything after it) unmapped.
-            mapping[(resseq, icode)] = j + 1
-            j += 1
-        else:
-            mapping[(resseq, icode)] = None
+    del max_gap_search
+    protein, result = _align_residues_to_reference(atom_residues, seqres)
+    mapping = {(resseq, icode): None for resseq, icode, _ in atom_residues}
+    if result is not None:
+        for residue, pos in zip(protein, result.positions):
+            mapping[(residue[0], residue[1])] = pos + 1
     return mapping
 
 
@@ -356,6 +344,13 @@ def main(argv=None):
         lines = f.readlines()
 
     seqres = parse_seqres(lines)
+    sequence_label = "SEQRES"
+    if args.fasta:
+        from dvbfixer.model.pipeline import parse_fasta
+
+        fasta_map = parse_fasta(args.fasta)
+        seqres = {chain: list(sequence) for chain, sequence in fasta_map.items()}
+        sequence_label = "FASTA"
     if not seqres:
         print("No SEQRES records — renumbering sequentially (resolving insertion codes)")
 
@@ -433,6 +428,19 @@ def main(argv=None):
         if chain in seqres:
             mapping = align_to_seqres(atom_res, seqres[chain])
 
+            _protein, alignment = _align_residues_to_reference(
+                atom_res, seqres[chain]
+            )
+            if alignment is not None:
+                from dvbfixer.sequence_alignment import format_alignment_diagnostic
+
+                diagnostic = format_alignment_diagnostic(chain, alignment)
+                if alignment.ambiguous:
+                    print(f"  [alignment] WARNING: {diagnostic}; using "
+                          "deterministic leftmost best alignment")
+                elif args.verbose:
+                    print(f"  [alignment] {diagnostic}")
+
             next_num = len(seqres[chain]) + 1
             for key in mapping:
                 if mapping[key] is None:
@@ -446,7 +454,7 @@ def main(argv=None):
                            if v <= len(seqres[chain])]
                 non_seq = [(k, v) for k, v in mapping.items()
                            if v > len(seqres[chain])]
-                print(f"Chain {chain}: {len(seqres[chain])} SEQRES residues, "
+                print(f"Chain {chain}: {len(seqres[chain])} {sequence_label} residues, "
                       f"{len(matched)} ATOM matched, {len(non_seq)} non-SEQRES")
 
                 insertions = [(k, v) for k, v in mapping.items()

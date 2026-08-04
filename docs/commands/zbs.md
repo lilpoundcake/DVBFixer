@@ -76,7 +76,7 @@ Organised by which pipeline step each flag flows into.
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--skip-model` | off | Skip this step |
-| `--no-terminal` | off | Do not model N/C terminal residues |
+| `--no-terminal` | off | Trim reference sequence outside the first/last observed anchors and model only genuine internal gaps between them. |
 | `--num-loops` | 2 | Number of loop refinement models per initial model |
 | `--md-level` | fast | Modeller MD refinement level (`none`, `fast`, `slow`, `very_slow`, `slow_large`) |
 | `--fasta` | none | FASTA file with complete sequence(s) |

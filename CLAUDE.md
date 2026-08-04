@@ -307,6 +307,14 @@ call bare `dvbfixer` resolve it. See
   own second copy of this logic — the two had already drifted out of
   sync once (the duplicate lacked `renumber_from_1` handling) before
   this bug was found.
+- **All FASTA/SEQRES placement must use `sequence_alignment.py` (since
+  0.7.16), never a greedy "find the next same residue" loop.** Greedy
+  subsequence matching scattered 8B01 chain C's exact 104-residue block
+  across reference positions 27-507 and fabricated a 377-residue loop.
+  `renumber`, `trim_terminal_gaps`, Modeller's PIR fixer, and model residue
+  restoration must share the same affine semi-global placement. Under
+  `--no-terminal`, crop outside the first/last observed reference anchors
+  but preserve every reference gap between those anchors for modeling.
 - **A bare/minimal `TER\n` line (4 chars, no serial/resname/padding)
   is valid PDB.** `line[11:]` on one returns `''` silently (no
   IndexError on an out-of-range slice) — `renumber.py`'s TER handling

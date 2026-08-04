@@ -33,7 +33,8 @@ options:
 
 Input / output:
   input                 Input PDB file (must contain SEQRES)
-  -o, --output OUTPUT   Final output PDB file (default: <input>_zbs.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Final output PDB file (default: <input>_zbs.pdb)
 
 Force field:
   --ph PH               pH for protonation and hydrogen addition (default:
@@ -66,7 +67,8 @@ Pipeline skip flags:
 
 Model step (Modeller):
   --fasta FASTA         FASTA file with complete sequence(s) for model step
-  --no-terminal         Do not model missing N/C terminal residues
+  --no-terminal         Do not model missing N/C terminal residues; rebuild
+                        only gaps between observed anchors
   --num-loops NUM_LOOPS
                         Number of loop models (default: 2)
   --md-level {none,fast,slow,very_slow,slow_large}

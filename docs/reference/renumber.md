@@ -5,22 +5,26 @@
 > For prose about how to use `renumber`, see [`docs/commands/renumber.md`](../commands/renumber.md).
 
 ```
-usage: dvbfixer renumber [-h] [-o OUTPUT]
+usage: dvbfixer renumber [-h] [-o OUTPUT] [--fasta FASTA]
                          [--scheme {seqres,kabat,chothia,imgt,martin,eu,aho}]
                          [--chain-scheme CHAIN:SCHEME] [--keep-water]
                          [--rename] [-v]
                          input
 
-Read SEQRES from a PDB file, align ATOM residues to the full sequence, and
-renumber to remove insertion codes while preserving gap positions. Updates all
-PDB sections referencing residue numbers.
+Align ATOM residues to a complete FASTA or PDB SEQRES sequence and renumber to
+full-sequence positions while removing insertion codes. Updates all PDB
+sections referencing residue numbers.
 
 options:
   -h, --help            show this help message and exit
 
 Input / output:
   input                 Input PDB file
-  -o, --output OUTPUT   Output PDB file (default: <input>_renum.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_renum.pdb)
+  --fasta FASTA         Complete sequence(s) used instead of SEQRES. Headers
+                        must encode chain IDs using the same formats as
+                        `dvbfixer model`.
 
 Numbering scheme:
   --scheme {seqres,kabat,chothia,imgt,martin,eu,aho}

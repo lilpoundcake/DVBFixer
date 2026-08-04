@@ -8,6 +8,25 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.16] — 2026-08-04 (branch: `fix/fasta-alignment`)
+
+### Fixed
+
+- **`model --no-terminal` could turn missing terminal sequence into an
+  enormous internal loop.** Three independent code paths greedily matched
+  each observed residue to the next same letter in FASTA/SEQRES. On 8B01
+  chain C this anchored the first observed alanine at reference position 27
+  and scattered 104 resolved residues through position 507, inventing 377
+  internal residues even though the resolved chain is an exact contiguous
+  match at positions 404-507. Renumbering, terminal trimming, Modeller PIR
+  correction, and post-model numbering now share one affine semi-global
+  alignment. `--no-terminal` crops only outside the first and last observed
+  anchors while retaining genuine gaps between them.
+- **`zbs --fasta` was not forwarded to its initial renumber step.** Standalone
+  `renumber` now accepts `--fasta`, and `zbs` passes it through so residue
+  numbers consistently use full-reference positions before modeling. Equal
+  best alignments use a deterministic leftmost placement and emit a warning.
+
 ## [0.7.15] — 2026-07-31 (branch: `fix/audit-2026-07-31`, not yet merged to main)
 
 Three follow-ups from the user after 0.7.14's audit pass: a reported

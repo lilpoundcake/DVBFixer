@@ -314,21 +314,23 @@ def _fix_terminal_alignment(raw_aln_path, fixed_aln_path, pdb_name,
             fixed_tgt_chains.append(raw_tgt)
             continue
 
-        # Find where template protein maps into target via subsequence matching
-        match_positions = []
-        ti = 0
-        for c in tpl_protein:
-            while ti < len(tgt_protein) and tgt_protein[ti] != c:
-                ti += 1
-            if ti >= len(tgt_protein):
-                break
-            match_positions.append(ti)
-            ti += 1
+        from dvbfixer.sequence_alignment import (
+            align_observed_to_reference,
+            format_alignment_diagnostic,
+        )
 
-        if len(match_positions) != len(tpl_protein):
+        alignment = align_observed_to_reference(tpl_protein, tgt_protein)
+        if alignment is None:
             fixed_tpl_chains.append(raw_tpl)
             fixed_tgt_chains.append(raw_tgt)
             continue
+        match_positions = list(alignment.positions)
+        diagnostic = format_alignment_diagnostic(ch, alignment)
+        if alignment.ambiguous:
+            print(f"  [alignment] WARNING: {diagnostic}; using deterministic "
+                  "leftmost best alignment")
+        elif verbose:
+            print(f"  [alignment] {diagnostic}")
 
         n_prefix = match_positions[0]
         n_suffix = len(tgt_protein) - match_positions[-1] - 1

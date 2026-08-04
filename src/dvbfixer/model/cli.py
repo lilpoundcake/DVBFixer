@@ -75,7 +75,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     modelling.add_argument(
         "--no-terminal", action="store_true",
-        help="Do not model missing N/C terminal residues (only rebuild internal gaps)"
+        help="Do not model missing N/C terminal residues. Align to the complete "
+             "reference first, trim outside the first/last observed anchors, "
+             "and rebuild only gaps between those anchors."
     )
     modelling.add_argument(
         "--renumber-from-1", action="store_true",
