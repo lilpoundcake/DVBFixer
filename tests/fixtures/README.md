@@ -14,6 +14,7 @@ verify that none of the source fixtures changed accidentally.
 | Tracked fixture | Historical source | Purpose |
 |---|---|---|
 | `ASN.pdb` | `test/ASN.pdb` | Minimal two-residue ASN input |
+| `assemblies/8XJ0.pdb` | `test/homology_modelling/8XJ0.pdb` | Four Fab biological assemblies declared by REMARK 350/BIOMT |
 | `hinge_CH3_glycosylated.pdb` | `test/default.pdb` | GLYCAM hinge/CH3, CYX, rename/convert/CONECT tests |
 | `multistate.pdb`, `multistate.fasta` | `test/multistate/test_multistate.pdb`, `test/multistate/test.fasta` | Eleven-model split input and companion sequence |
 | `8cz8/*` | `test/8cz8/*` | Pure-protein renumbering and truncated-LYS deterministic rebuild; companion FASTA |

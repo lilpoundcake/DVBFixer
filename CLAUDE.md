@@ -93,6 +93,12 @@ call bare `dvbfixer` resolve it. See
 - **Do not remove `keepIds=True`** from any `PDBFile.writeFile` call.
   Losing chain IDs mid-pipeline breaks the `.dat` handoff that
   `minimize` uses for tiered restraints.
+- **`split --assembly ID|all` is metadata-driven, not empirical.** Keep
+  `REMARK 350` parsing and BIOMT rendering in `biological_assembly.py`; the
+  legacy distance/number-reset path in `split_chains.py` remains the default.
+  Assembly output preserves residue numbers unless `--renumber` is explicit,
+  transforms ANISOU with the same rotation as coordinates, and must fail
+  before writing if any requested assembly is invalid.
 - **PROPKA + MolProbity Reduce run INSIDE the legacy prepare backend**
   (since 0.7.7). The helper
   `dvbfixer.prepare.pipeline._run_propka_reduce_variants` produces

@@ -14,6 +14,8 @@ GLH / HIP / LYN / CYM were never emitted for the average user.
 """
 from __future__ import annotations
 
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -109,6 +111,21 @@ def test_prepare_cli_propka_flags_exist() -> None:
     assert args.protassign is False
     assert args.his_default == "HID"
     assert args.cys_ss_pka == 9.5
+
+
+def test_prepare_cli_import_does_not_load_openmm() -> None:
+    """The argparse-only module must work in CI's lightweight environment."""
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; import dvbfixer.prepare.cli; "
+            "assert not any(m == 'openmm' or m.startswith('openmm.') for m in sys.modules)",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, proc.stderr
 
 
 def test_zbs_cli_propka_flags_exist() -> None:

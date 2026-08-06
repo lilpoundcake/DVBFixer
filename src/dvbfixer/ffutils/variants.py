@@ -30,6 +30,7 @@ tables and dict shapes. This module is the one source of truth.
 from __future__ import annotations
 
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -189,7 +190,7 @@ def build_variants_list(
     return variants if hit else None
 
 
-def rename_variants_to_parent_in_topology(topology: Any) -> dict[tuple[str, str], str]:
+def rename_variants_to_parent_in_topology(topology: Any) -> dict[tuple[str, str, str], str]:
     """Rename variant residues in an OpenMM topology to standard parents.
 
     Used when the caller already has a topology (not a file) and wants to
@@ -212,7 +213,7 @@ def rename_variants_to_parent_in_topology(topology: Any) -> dict[tuple[str, str]
 
 def restore_variants_post_addhydrogens(
     topology: Any,
-    saved: dict[tuple[str, str], str] | dict[tuple[str, str, str], str] | SavedMap,
+    saved: Mapping[tuple[str, ...], str],
 ) -> None:
     """Restore variant residue names on the topology produced by addHydrogens.
 

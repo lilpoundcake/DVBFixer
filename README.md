@@ -28,7 +28,7 @@ chemistry backends.
 
 | Command | What it does |
 |---------|--------------|
-| [`split`](docs/commands/split.md) | Empirical chain splitting for GRO/PDB files without chain IDs (multi-MODEL aware) |
+| [`split`](docs/commands/split.md) | Empirical chain splitting or REMARK 350/BIOMT biological-assembly extraction |
 | [`renumber`](docs/commands/renumber.md) | FASTA/SEQRES renumbering OR antibody schemes (Kabat/Chothia/IMGT/Martin/Aho/EU) |
 | [`model`](docs/commands/model.md) | Rebuild missing loops/gaps with Modeller's LoopModel |
 | [`prepare`](docs/commands/prepare.md) | PDBFixer-based missing-atom/H repair, optional SMILES-guided ligand chemistry, plus substitution and deletion mutations |

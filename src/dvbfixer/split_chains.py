@@ -71,13 +71,17 @@ def parse_gro(path):
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="dvbfixer split",
-        description="Empirically split chains in a PDB or GRO file. Detects chain breaks by "
-        "residue number resets and/or C-N inter-residue distance, assigns unique "
-        "chain IDs, and inserts TER records."
+        description="Split chains empirically, or extract PDB biological assemblies "
+        "from REMARK 350 BIOMT records."
     )
     io = p.add_argument_group("Input / output")
     io.add_argument("input", help="Input PDB or GRO file")
     io.add_argument("-o", "--output", help="Output PDB file (default: <input>_split.pdb)")
+    io.add_argument(
+        "--assembly", metavar="ID|all",
+        help="Extract one REMARK 350 biological assembly, or all assemblies. "
+             "PDB input only; empirical splitting remains the default."
+    )
 
     detection = p.add_argument_group("Chain-break detection")
     detection.add_argument(
@@ -100,13 +104,18 @@ def parse_args(argv=None):
              f"single-residue HETATMs) — they stay with blank chain ID. "
              f"Protein chains always get chain IDs. "
              f"Default: {DEFAULT_MAX_CHAIN_THRESHOLD}. Set higher to keep "
-             f"the original assign-all behaviour (max {52} via lowercase fallback)."
+             f"the original assign-all behaviour (max {len(CHAIN_IDS)})."
     )
 
     content = p.add_argument_group("Content / renumbering")
-    content.add_argument(
-        "--no-renumber", action="store_true",
-        help="Keep original residue numbers (default: renumber per chain starting from 1)"
+    numbering = content.add_mutually_exclusive_group()
+    numbering.add_argument(
+        "--renumber", action="store_true", default=None,
+        help="Renumber residues per chain (default in empirical mode)"
+    )
+    numbering.add_argument(
+        "--no-renumber", action="store_false", dest="renumber",
+        help="Keep original residue numbers (default in assembly mode)"
     )
     content.add_argument(
         "--keep-water", action="store_true",
@@ -329,13 +338,54 @@ def main(argv=None):
         sys.exit(1)
 
     is_gro = input_path.suffix.lower() == '.gro'
+    if args.assembly:
+        if is_gro:
+            print("--assembly requires a PDB input with REMARK 350 records.", file=sys.stderr)
+            sys.exit(1)
+        from dvbfixer.biological_assembly import (
+            AssemblyError,
+            assembly_output_path,
+            parse_biological_assemblies,
+            render_biological_assembly,
+        )
+
+        try:
+            lines = input_path.read_text().splitlines(keepends=True)
+            assemblies = parse_biological_assemblies(lines)
+            all_mode = args.assembly.lower() == "all"
+            identifiers = list(assemblies) if all_mode else [args.assembly]
+            unknown = [identifier for identifier in identifiers if identifier not in assemblies]
+            if unknown:
+                available = ", ".join(assemblies)
+                raise AssemblyError(
+                    f"unknown biological assembly {unknown[0]!r}; available: {available}"
+                )
+            rendered = []
+            for identifier in identifiers:
+                output_path = assembly_output_path(
+                    input_path, args.output, identifier, all_mode
+                )
+                output_lines = render_biological_assembly(
+                    lines, assemblies[identifier], CHAIN_IDS,
+                    renumber=bool(args.renumber),
+                )
+                rendered.append((output_path, output_lines))
+        except (AssemblyError, OSError, ValueError) as exc:
+            print(f"Biological assembly error: {exc}", file=sys.stderr)
+            sys.exit(1)
+        for output_path, output_lines in rendered:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text("".join(output_lines))
+            print(f"Wrote biological assembly to {output_path}")
+        return
+
     if args.output:
         output_path = Path(args.output)
     else:
         # Always output PDB (GRO has no chain IDs)
         output_path = input_path.with_stem(input_path.stem + "_split").with_suffix(".pdb")
     use_distance = not args.no_distance
-    renumber = not args.no_renumber
+    renumber = True if args.renumber is None else args.renumber
 
     if is_gro:
         lines = parse_gro(input_path)

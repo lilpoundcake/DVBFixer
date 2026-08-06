@@ -407,10 +407,10 @@ def _tetrahedral_h_positions(
         seed = (1.0, 0.0, 0.0) if abs(u[0]) < 0.9 else (0.0, 1.0, 0.0)
         dot = seed[0] * u[0] + seed[1] * u[1] + seed[2] * u[2]
         r = (seed[0] - dot * u[0], seed[1] - dot * u[1], seed[2] - dot * u[2])
-        r = _unit(r)
+        normalized = _unit(r)
         # `seed` is not parallel to `u` so `r` is well-defined.
-        assert r is not None
-        return r
+        assert normalized is not None
+        return normalized
 
     def _cross(a: tuple[float, float, float],
                b: tuple[float, float, float]) -> tuple[float, float, float]:
@@ -1053,15 +1053,16 @@ def collect_ss_pairs(topology: Any) -> set[tuple[tuple[str, str], tuple[str, str
     SG-SG bonds. Restore the true pairing afterward via
     :func:`drop_spurious_inter_aa_bonds`'s ``valid_ss_pairs`` argument.
     """
-    pairs = set()
+    pairs: set[tuple[tuple[str, str], tuple[str, str]]] = set()
     for b in topology.bonds():
         if (b[0].name == "SG" and b[1].name == "SG"
                 and b[0].residue.name in CYS_FAMILY_RESNAMES
                 and b[1].residue.name in CYS_FAMILY_RESNAMES):
-            key = tuple(sorted([
+            endpoints = sorted([
                 (b[0].residue.chain.id, b[0].residue.id),
                 (b[1].residue.chain.id, b[1].residue.id),
-            ]))
+            ])
+            key = (endpoints[0], endpoints[1])
             pairs.add(key)
     return pairs
 

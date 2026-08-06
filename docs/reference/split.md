@@ -5,14 +5,14 @@
 > For prose about how to use `split`, see [`docs/commands/split.md`](../commands/split.md).
 
 ```
-usage: dvbfixer split [-h] [-o OUTPUT] [-d DISTANCE_CUTOFF] [-g GAP_CUTOFF]
-                      [--no-distance] [--max-chains MAX_CHAINS]
-                      [--no-renumber] [--keep-water] [-v]
+usage: dvbfixer split [-h] [-o OUTPUT] [--assembly ID|all]
+                      [-d DISTANCE_CUTOFF] [-g GAP_CUTOFF] [--no-distance]
+                      [--max-chains MAX_CHAINS] [--renumber | --no-renumber]
+                      [--keep-water] [-v]
                       input
 
-Empirically split chains in a PDB or GRO file. Detects chain breaks by residue
-number resets and/or C-N inter-residue distance, assigns unique chain IDs, and
-inserts TER records.
+Split chains empirically, or extract PDB biological assemblies from REMARK 350
+BIOMT records.
 
 options:
   -h, --help            show this help message and exit
@@ -21,6 +21,9 @@ Input / output:
   input                 Input PDB or GRO file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_split.pdb)
+  --assembly ID|all     Extract one REMARK 350 biological assembly, or all
+                        assemblies. PDB input only; empirical splitting
+                        remains the default.
 
 Chain-break detection:
   -d DISTANCE_CUTOFF, --distance-cutoff DISTANCE_CUTOFF
@@ -37,11 +40,13 @@ Chain-break detection:
                         ligands, lipids, single-residue HETATMs) — they stay
                         with blank chain ID. Protein chains always get chain
                         IDs. Default: 26. Set higher to keep the original
-                        assign-all behaviour (max 52 via lowercase fallback).
+                        assign-all behaviour (max 62).
 
 Content / renumbering:
-  --no-renumber         Keep original residue numbers (default: renumber per
-                        chain starting from 1)
+  --renumber            Renumber residues per chain (default in empirical
+                        mode)
+  --no-renumber         Keep original residue numbers (default in assembly
+                        mode)
   --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
                         (default: remove)
 
