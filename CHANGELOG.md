@@ -21,8 +21,8 @@ best-effort summaries; consult `git log` for exact provenance.
   the protein-only 8CZ8 input.
 - SMILES graph ambiguity handling recognizes ionized carboxylate/sulfonate
   resonance-equivalent oxygens. A real 1VCU regression now prepares DAN and
-  both EPE molecules from physiological ionic SMILES while retaining separate
-  coverage of the automatic no-SMILES path.
+  both EPE molecules from explicitly selected near-physiological microspecies
+  while retaining separate coverage of the automatic no-SMILES path.
 
 ## [0.7.20] — 2026-08-06
 

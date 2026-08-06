@@ -19,7 +19,7 @@ prep_backend.py` and `--backend {legacy,tleap-reduce}` on `prepare`/
 L-only by construction), fixing the D-Cα (openmm/pdbfixer#145) and
 coincident-H (`Modeller.addHydrogens` bug) issues that surface on
 gap-filled model outputs — verified against
-`test/shit/{1EMV,1FR2,2VLN,2VLQ}_original.pdb` (zero D-Cα, zero
+`tests/fixtures/regressions/{1EMV,1FR2,2VLN,2VLQ}.pdb` (zero D-Cα, zero
 coincident atoms). See the hard rules below for the full behavior
 split: `legacy` remains the default because it's the only backend that
 handles every input class (glycans, ligands, PTMs, covalent HETATM
@@ -39,6 +39,7 @@ non-canonical residues.
 | Historical design notes, gotchas | [`docs/DESIGN_NOTES.md`](docs/DESIGN_NOTES.md) |
 | Installation + Modeller license | [`docs/installation.md`](docs/installation.md) |
 | Force-field selection matrix | [`docs/force-fields.md`](docs/force-fields.md) |
+| Tracked structural test inputs, provenance, and checksums | [`tests/fixtures/README.md`](tests/fixtures/README.md) |
 
 ## Environment
 
@@ -99,6 +100,17 @@ call bare `dvbfixer` resolve it. See
   disable per-flag via `--no-propka` / `--no-protassign`. Standalone
   `dvbfixer protonate` still exists as a post-hoc re-protonation
   tool.
+- **Ligand SMILES input is optional and authoritative when supplied**
+  (since 0.7.20). `prepare` and `zbs` accept repeatable
+  `--smiles 'RESNAME=SMILES'` mappings for isolated, single-residue small
+  molecules. Mapped residues preserve PDB heavy-atom names and coordinates;
+  SMILES supplies bond orders, aromaticity, formal charge, and H count.
+  Unmapped ligands, and every invocation without `--smiles`, retain the
+  automatic RDKit/OpenBabel path. Do not apply `--ph` to a supplied ligand:
+  its SMILES already selects the microspecies. Graph matching must fail rather
+  than guess for incompatible, chemically ambiguous, or covalently attached
+  residues. Ionized terminal oxygens may be resonance-equivalent; preserve
+  the normalization in `prepare/smiles.py::_chemical_signature`.
 - **`_run_propka_reduce_variants` must run AFTER
   `PDBFixer.addMissingAtoms()`, never before (since 0.7.11).** Both
   PROPKA and Reduce need a complete heavy-atom set to make any real
@@ -124,7 +136,7 @@ call bare `dvbfixer` resolve it. See
   dynamics (300 K, up to 2000 steps) to kick the new atoms apart —
   genuine stochastic MD whose escaped conformation differs run to run
   on the *exact same input* (confirmed: 11 truncated LYS residues in
-  `test/8cz8/8cz8_t_u.pdb` chain E). `rebuild_missing_atoms_with_retry`
+  `tests/fixtures/8cz8/8cz8_t_u.pdb` chain E). `rebuild_missing_atoms_with_retry`
   retries with explicit seeds (1..5) until the rebuild passes a
   chirality + clash check, snapshotting `fixer.topology`/`positions`
   before each attempt (PDBFixer builds an entirely new `Topology` per
@@ -152,7 +164,7 @@ call bare `dvbfixer` resolve it. See
   it by identity. Getting this order wrong means `addMissingAtoms()`
   silently adds ZERO heavy atoms for every genuinely-missing sidechain
   whenever heterogens are stripped (confirmed pre-existing on `main`
-  through 0.7.11: `E/LYS299` in `test/8cz8/8cz8_t_u.pdb` stayed
+  through 0.7.11: `E/LYS299` in `tests/fixtures/8cz8/8cz8_t_u.pdb` stayed
   backbone+CB straight through `prepare`, despite PDBFixer's own
   verbose log correctly reporting `CG`/`CD`/`CE`/`NZ` as missing
   beforehand). `findMissingResidues()` is safe to call early —
@@ -292,7 +304,7 @@ call bare `dvbfixer` resolve it. See
   enough room (since 0.7.13).** When an internal gap's two flanking
   residues are numerically adjacent (or too close) in the INPUT's own
   numbering — confirmed on a real scFv construct
-  (`test/8cz8/8cz8_a_u.pdb`/`8cz8_a_b.pdb`, chain C: a disordered
+  (`tests/fixtures/8cz8/8cz8_a_u.pdb`/`8cz8_a_b.pdb`, chain C: a disordered
   (GGGS)×4 linker between VL and VH has no density, and the depositor
   numbered VH's first residue immediately after VL's last one,
   reserving zero resSeqs for the missing linker) — numbering the gap
@@ -457,7 +469,7 @@ call bare `dvbfixer` resolve it. See
   types by file-encounter order). If `model`'s FASTA-aware gap-fill
   later expands a chain, a HETATM ligand's naive resSeq can land
   exactly on a newly-created protein residue's resSeq — confirmed on a
-  real fatty-acid ligand (`test/lipid/`) whose resSeq collided with a
+  real fatty-acid ligand (`tests/fixtures/lipid/`) whose resSeq collided with a
   gap-filled `VAL`. `minimize`'s legacy strip-and-splice position-
   restore merge (keyed by `(chain, resid, atomname)`, no resname check)
   then silently overwrote the ligand's colliding atoms with the
@@ -494,13 +506,15 @@ call bare `dvbfixer` resolve it. See
 ## Running tests locally
 
 ```bash
-pytest tests/ -q          # fast lane, ~2 s, no OpenMM/Modeller needed
+pytest -m 'not slow' -q   # fast lane
+pytest                   # complete suite, including external-tool integrations
 ruff check src/dvbfixer   # style
 mypy src/dvbfixer/cli.py src/dvbfixer/ffutils src/dvbfixer/pdbutils src/dvbfixer/align.py
 ```
 
-The full test suite (Modeller-touching integration cases) needs the
-scientific stack from `environment.yml`; it runs in CI's full-lane job.
+The full suite needs the scientific stack and external executables from
+`environment.yml`. Structural inputs and companion FASTAs are tracked under
+`tests/fixtures/`; update `MANIFEST.sha256` whenever an input asset changes.
 
 ## Session preferences
 

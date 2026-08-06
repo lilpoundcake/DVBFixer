@@ -21,8 +21,8 @@ import pytest
 from tests.conftest import count_h_on_atom
 
 # RCSB Chemical Component Dictionary connectivity/stereochemistry with the
-# physiological ionic states used by prepare: DAN carboxylate and zwitterionic
-# HEPES (EPE; hydroxyethyl-substituted piperazine N protonated).
+# Explicit near-physiological microspecies used by this regression: dominant
+# DAN carboxylate and a representative zwitterionic HEPES (EPE) state.
 DAN_SMILES = "CC(=O)N[C@@H]1[C@H](C=C(O[C@H]1[C@@H]([C@@H](CO)O)O)C(=O)[O-])O"
 EPE_SMILES = "C1CN(CC[NH+]1CCO)CCS(=O)(=O)[O-]"
 

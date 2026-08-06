@@ -29,12 +29,17 @@ verify that none of the source fixtures changed accidentally.
 ## 1VCU ligand chemistry
 
 The optional-SMILES regression uses RCSB Chemical Component Dictionary
-connectivity and DAN stereochemistry, with physiological ionic forms so the
-expected acidic oxygens remain unprotonated:
+connectivity and DAN stereochemistry. The selected forms represent the
+dominant DAN carboxylate and a representative HEPES/EPE zwitterion near
+physiological pH, so the expected acidic oxygens remain unprotonated:
 
 - DAN: `CC(=O)N[C@@H]1[C@H](C=C(O[C@H]1[C@@H]([C@@H](CO)O)O)C(=O)[O-])O`
 - EPE: `C1CN(CC[NH+]1CCO)CCS(=O)(=O)[O-]`
 
 Sources: [RCSB DAN](https://www.rcsb.org/ligand/DAN),
-[RCSB EPE](https://www.rcsb.org/ligand/EPE), and the physiological EPE
-zwitterion [PubChem CID 23830](https://pubchem.ncbi.nlm.nih.gov/compound/23830).
+[RCSB EPE](https://www.rcsb.org/ligand/EPE), and
+[PubChem HEPES (CID 23831)](https://pubchem.ncbi.nlm.nih.gov/compound/Hepes).
+At pH 7.4, HEPES is close to its approximately 7.55 buffer pKa, so protonated
+zwitterionic and deprotonated anionic microspecies coexist; the test chooses
+the slightly more populated zwitterion. A protein binding site can shift this
+balance, so users should supply the microspecies appropriate to their system.

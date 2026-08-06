@@ -598,7 +598,7 @@ time, and PDBFixer's own `_addAtomsToTopology` (inside
 `addMissingAtoms()`) looks residues up in it by identity, not value.
 Net effect on every default (heterogens-stripped) run: `addMissingAtoms()`
 silently added ZERO heavy atoms for any genuinely-missing sidechain —
-confirmed on `main` through 0.7.11 (`E/LYS299` in `test/8cz8/
+confirmed on `main` through 0.7.11 (`E/LYS299` in `tests/fixtures/8cz8/
 8cz8_t_u.pdb` stayed backbone+CB straight through `prepare`, despite
 PDBFixer's own verbose log correctly reporting `CG`/`CD`/`CE`/`NZ` as
 missing beforehand). Fixed by reordering to match PDBFixer's own
@@ -616,7 +616,7 @@ minimization; if the result clashes with a neighbor (< 0.13 nm, its
 own `_findNearestDistance` cutoff), it falls back to UNSEEDED Langevin
 dynamics (300 K, up to 2000 steps) to kick the new atoms apart —
 genuine stochastic MD whose escaped conformation differs run to run on
-the exact same input (confirmed: 11 of 19 LYS residues in `test/8cz8/
+the exact same input (confirmed: 11 of 19 LYS residues in `tests/fixtures/8cz8/
 8cz8_t_u.pdb` chain E are truncated to backbone+CB by real disorder).
 `dvbfixer.ffutils.geometry.rebuild_missing_atoms_with_retry(fixer,
 verbose=..., log_prefix=...)` retries `addMissingAtoms(seed=1..5)`
