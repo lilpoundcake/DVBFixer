@@ -11,8 +11,7 @@ from dvbfixer.model.pipeline import get_atom_sequence, trim_terminal_gaps
 from dvbfixer.renumber import main as renumber_main
 from dvbfixer.sequence_alignment import align_observed_to_reference
 
-_ROOT = Path(__file__).parents[1]
-_FIXTURES = _ROOT / "test" / "numbering_problem"
+_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "numbering"
 
 
 def _chain_c_reference() -> str:

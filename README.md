@@ -15,6 +15,15 @@ dvbfixer --help
 
 Full install instructions (including the Modeller license step) are in [`docs/installation.md`](docs/installation.md).
 
+## Testing
+
+The PDB and FASTA inputs consumed by pytest are tracked under
+[`tests/fixtures/`](tests/fixtures/README.md). Verify their integrity with
+`sha256sum -c tests/fixtures/MANIFEST.sha256`, then run the fast suite with
+`pytest -m 'not slow'`. Tests marked `slow` exercise full preparation and ZBS
+pipelines and may require Modeller, AmberTools, OpenBabel, and other optional
+chemistry backends.
+
 ## Commands
 
 | Command | What it does |

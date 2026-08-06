@@ -1,6 +1,6 @@
 """Regression tests for `dvbfixer split`.
 
-Uses the multistate fixture that already ships in `test/multistate/` —
+Uses the tracked `tests/fixtures/multistate.pdb` fixture —
 it's a multi-MODEL PDB with 3 chains and no chain IDs, so it exercises
 the multi-MODEL detection path.
 """
@@ -8,8 +8,6 @@ the multi-MODEL detection path.
 from __future__ import annotations
 
 from pathlib import Path
-
-import pytest
 
 from dvbfixer.split_chains import main
 
@@ -33,8 +31,7 @@ def _count_ter(pdb: Path) -> int:
 
 
 def test_split_multistate_assigns_chain_ids(tmp_workdir: Path, multistate_pdb: Path) -> None:
-    if not multistate_pdb.exists():
-        pytest.skip(f"multistate fixture missing: {multistate_pdb}")
+    assert multistate_pdb.is_file(), f"tracked fixture missing: {multistate_pdb}"
     out = tmp_workdir / "split.pdb"
     main([str(multistate_pdb), "-o", str(out)])
     assert out.exists()
@@ -44,8 +41,7 @@ def test_split_multistate_assigns_chain_ids(tmp_workdir: Path, multistate_pdb: P
 
 
 def test_split_multistate_preserves_model_count(tmp_workdir: Path, multistate_pdb: Path) -> None:
-    if not multistate_pdb.exists():
-        pytest.skip(f"multistate fixture missing: {multistate_pdb}")
+    assert multistate_pdb.is_file(), f"tracked fixture missing: {multistate_pdb}"
     out = tmp_workdir / "split.pdb"
     main([str(multistate_pdb), "-o", str(out)])
     # multistate fixture is 11 MODELs.
@@ -55,8 +51,7 @@ def test_split_multistate_preserves_model_count(tmp_workdir: Path, multistate_pd
 
 
 def test_split_inserts_ter_records(tmp_workdir: Path, multistate_pdb: Path) -> None:
-    if not multistate_pdb.exists():
-        pytest.skip(f"multistate fixture missing: {multistate_pdb}")
+    assert multistate_pdb.is_file(), f"tracked fixture missing: {multistate_pdb}"
     out = tmp_workdir / "split.pdb"
     main([str(multistate_pdb), "-o", str(out)])
     # Every chain boundary should get a TER; multi-MODEL multiplies.

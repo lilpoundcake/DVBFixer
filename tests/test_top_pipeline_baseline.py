@@ -9,10 +9,9 @@ before/after behavioural baseline instead of "trust the diff."
 
 Covers the three real `TopologyBuilder` entry points exercised by
 `main()`:
-  - `build_chain` — plain protein (test/default.pdb).
-  - `build_glycan_chain` — glycosylated antibody (GLYCAM-named sugars,
-    test/glycosilated_mAb_Amber_Glycam/1HZH.pdb).
-  - The "unrecognized HETATM chain" path (test/lipid/7x35_r_u.pdb, PLM)
+  - `build_chain` — plain protein (`tests/fixtures/8cz8/8cz8_a_u.pdb`).
+  - `build_glycan_chain` — the tracked CHARMM glycosylated antibody.
+  - The "unrecognized HETATM chain" path (`tests/fixtures/lipid/7x35_r_u.pdb`, PLM)
     — this ligand does NOT reach `build_chain`/`build_glycolipid_chain`
     at all today; `top/pipeline.py`'s chain classifier drops any chain
     with no FF/GLYCAM/ceramide-recognized residue before topology
@@ -52,7 +51,7 @@ def test_top_pure_protein_baseline(pure_protein_small: Path, tmp_workdir: Path) 
     assert len(atom_lines) > 100, "suspiciously few atoms in topology-matched PDB output"
 
 
-def test_top_glycoprotein_baseline(charmm_glycan_dir: Path, tmp_workdir: Path) -> None:
+def test_top_glycoprotein_baseline(charmm_glycan_pdb: Path, tmp_workdir: Path) -> None:
     """`build_glycan_chain` on a properly-bonded, pre-processed
     CHARMM-GUI glycosylated antibody (`conf.pdb` — CHARMM-GUI's own
     output already carries the glycosidic bonds `detect_glycan_links`
@@ -60,17 +59,13 @@ def test_top_glycoprotein_baseline(charmm_glycan_dir: Path, tmp_workdir: Path) -
     separate, pre-existing input-readiness gap, not something this
     baseline test is meant to cover): at least one Glycan_
     moleculetype gets built alongside the protein chains."""
-    src = charmm_glycan_dir / "conf.pdb"
-    if not src.exists():
-        pytest.skip(f"fixture missing: {src}")
-
-    top_text, _ = _run_top(src, tmp_workdir, ff="charmm")
+    top_text, _ = _run_top(charmm_glycan_pdb, tmp_workdir, ff="charmm")
 
     assert "[ molecules ]" in top_text
     mol_section = top_text.split("[ molecules ]")[1]
     assert "Protein_chain" in mol_section
     assert "Glycan" in top_text, (
-        "expected at least one Glycan_* moleculetype for a GLYCAM-named "
+        "expected at least one Glycan_* moleculetype for the tracked "
         "glycosylated antibody fixture"
     )
 
@@ -83,8 +78,7 @@ def test_top_unrecognized_hetatm_chain_warns_and_drops(
     for it — this must be a loud WARNING (not silence), and protein
     chains must still build correctly around it."""
     src = lipid_dir / "7x35_r_u.pdb"
-    if not src.exists():
-        pytest.skip(f"fixture missing: {src}")
+    assert src.is_file(), f"tracked fixture missing: {src}"
 
     top_text, _ = _run_top(src, tmp_workdir)
     captured = capsys.readouterr()

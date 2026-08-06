@@ -20,7 +20,10 @@ fallback dependency. Version 1 accepts isolated small molecules contained in
 one PDB residue and preserves their heavy-atom names and coordinates. It fails
 instead of guessing when the PDB heavy-atom graph cannot be mapped safely or
 the residue has a covalent bond to another residue. The protonation encoded in
-SMILES controls the mapped ligand; `--ph` still controls protein residues.
+SMILES controls the mapped ligand; `--ph` still controls protein residues and
+does not titrate the supplied ligand. Near a ligand pKa, multiple microspecies
+may coexist, and the user must choose the charge/protonation state appropriate
+to the experimental pH and binding environment.
 
 **Input preprocessing** — `_preprocess_glycoprotein_input` runs first to fix two common upstream-tool issues that break OpenMM topology parsing: (1) HETATM lines for protein/GLYCAM glycoprotein residues are rewritten to ATOM (HETATM gets treated as ligand → no peptide bond inferred to neighbours → "TYR missing externally bonded C atom" template errors), and (2) spurious TER records between two amino-acid residues on the same chain are dropped (a TER forces a new chain in OpenMM, breaking the polymer). Both edits are no-ops on clean inputs.
 

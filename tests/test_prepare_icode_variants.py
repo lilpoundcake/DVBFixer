@@ -34,7 +34,7 @@ def _atom_line(serial: int, name: str, resname: str, chain: str,
 
 # Two HIS-family variant residues sharing chain H / resSeq 354, differing
 # only by insertion code — HIE at icode "" (no icode), HIP at icode "A".
-# Heavy-atom coordinates are a real HIS ring (test/8cz8/8cz8_t_u.pdb chain
+# Heavy-atom coordinates are a real HIS ring (tests/fixtures/8cz8/8cz8_t_u.pdb chain
 # E resid 354), duplicated with the second residue's copy shifted +10 A
 # in x so PDBFixer's coincident-atom stripping doesn't touch either.
 _HIS_RING_ATOMS = [

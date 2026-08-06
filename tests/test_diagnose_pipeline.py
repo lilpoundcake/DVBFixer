@@ -1,6 +1,6 @@
 """End-to-end tests for `dvbfixer diagnose` pipeline.
 
-Uses the shipped fixture `test/broken_SER/SER.pdb` (skipped if the
+Uses the shipped fixture `an external broken-SER fixture` (skipped if the
 fixture isn't provisioned locally, matching the pattern used by other
 tests) plus synthetic in-test inputs so CI can exercise the pipeline
 without a checked-in PDB.

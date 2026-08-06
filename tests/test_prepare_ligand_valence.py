@@ -7,16 +7,24 @@ over-protonates resonance-delocalized ionizable groups (carboxylate,
 sulfonate/sulfate, phosphate) and misses genuine alkenes whose bond
 length looks single-bond-like at typical crystallographic resolution.
 Regression coverage for both classes of bug, surfaced by
-`test/protein_ligand/1VCU.pdb` (DAN + EPE).
+`tests/fixtures/1VCU.pdb` (DAN + EPE).
 """
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 from pathlib import Path
 
 import pytest
+
 from tests.conftest import count_h_on_atom
+
+# RCSB Chemical Component Dictionary connectivity/stereochemistry with the
+# Explicit near-physiological microspecies used by this regression: dominant
+# DAN carboxylate and a representative zwitterionic HEPES (EPE) state.
+DAN_SMILES = "CC(=O)N[C@@H]1[C@H](C=C(O[C@H]1[C@@H]([C@@H](CO)O)O)C(=O)[O-])O"
+EPE_SMILES = "C1CN(CC[NH+]1CCO)CCS(=O)(=O)[O-]"
 
 
 def _run_prepare(input_pdb: Path, workdir: Path, *extra: str) -> Path:
@@ -71,6 +79,35 @@ def test_prepare_epe_sulfonate_fully_ionized(
         assert count_h_on_atom(out, "EPE", atom_name) == 0, (
             f"EPE {atom_name} (sulfonate) should never be protonated"
         )
+
+
+@pytest.mark.slow
+def test_prepare_1vcu_with_optional_smiles(
+    protein_ligand_gaps_pdb: Path, tmp_workdir: Path,
+) -> None:
+    """The optional SMILES path maps DAN and both EPE instances while the
+    existing no-SMILES tests above continue to cover automatic preparation."""
+    out = _run_prepare(
+        protein_ligand_gaps_pdb, tmp_workdir, "--ff", "amber",
+        "--smiles", f"DAN={DAN_SMILES}",
+        "--smiles", f"EPE={EPE_SMILES}",
+    )
+
+    assert count_h_on_atom(out, "DAN", "C2") == 0
+    assert count_h_on_atom(out, "DAN", "C3") == 1
+    assert count_h_on_atom(out, "DAN", "O1A") == 0
+    assert count_h_on_atom(out, "DAN", "O1B") == 0
+    for atom_name in ("O1S", "O2S", "O3S"):
+        assert count_h_on_atom(out, "EPE", atom_name) == 0
+    assert count_h_on_atom(out, "EPE", "N1") == 0
+    assert count_h_on_atom(out, "EPE", "N4") == 2  # one H on each EPE copy
+
+    record = json.loads(out.with_suffix(".dat").read_text())
+    mapped_h = [
+        atom for atom in record["added_atoms"]
+        if atom["resname"] in {"DAN", "EPE"} and atom["element"] == "H"
+    ]
+    assert mapped_h, "SMILES-generated ligand H atoms must be recorded in .dat"
 
 
 def test_ionizable_detector_generalizes_beyond_dan_epe() -> None:

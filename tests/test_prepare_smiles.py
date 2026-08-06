@@ -166,7 +166,33 @@ def test_chemically_distinct_symmetric_mapping_fails():
         ],
     )
     with pytest.raises(SmilesPreparationError, match="chemically distinct"):
-        add_hydrogens_from_smiles(top, positions, {"ACT": "CC(=O)[O-]"})
+        add_hydrogens_from_smiles(top, positions, {"ACT": "CC(=O)O"})
+
+
+def test_ionized_resonance_oxygens_map_without_false_ambiguity():
+    top, positions = _topology(
+        [("ACT", 1, [
+            ("C1", element.carbon, (0, 0, 0)),
+            ("C2", element.carbon, (0.15, 0, 0)),
+            ("O1", element.oxygen, (0.27, 0.08, 0)),
+            ("O2", element.oxygen, (0.27, -0.08, 0)),
+        ])],
+        [
+            ((1, "C1"), (1, "C2")), ((1, "C2"), (1, "O1")),
+            ((1, "C2"), (1, "O2")),
+        ],
+    )
+    new_top, _ = add_hydrogens_from_smiles(top, positions, {"ACT": "CC(=O)[O-]"})
+    oxygen_names = {a.name for a in new_top.atoms() if a.element.symbol == "O"}
+    oxygen_h_parents = {
+        b[0].name for b in new_top.bonds()
+        if b[0].element.symbol == "O" and b[1].element.symbol == "H"
+    } | {
+        b[1].name for b in new_top.bonds()
+        if b[1].element.symbol == "O" and b[0].element.symbol == "H"
+    }
+    assert oxygen_names == {"O1", "O2"}
+    assert oxygen_h_parents == set()
 
 
 def test_missing_mismatched_and_covalent_targets_fail_clearly():
