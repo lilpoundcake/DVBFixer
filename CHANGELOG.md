@@ -8,6 +8,20 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.20] — 2026-08-06
+
+### Added
+
+- `prepare` and `zbs` accept repeatable optional
+  `--smiles 'RESNAME=SMILES'` mappings for isolated one-residue ligands.
+  Mapped ligands retain their PDB heavy atoms and coordinates while SMILES
+  supplies authoritative bond orders, aromaticity, formal charge, and
+  hydrogen counts. Unmapped ligands—and every invocation without
+  `--smiles`—continue through the existing automatic RDKit/OpenBabel path.
+- SMILES graph matching fails clearly on missing or incompatible residues,
+  chemically ambiguous mappings, and covalently attached ligands instead of
+  silently guessing their chemistry.
+
 ## [0.7.19] — 2026-08-04
 
 ### Fixed

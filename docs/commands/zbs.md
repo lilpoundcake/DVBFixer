@@ -48,6 +48,9 @@ dvbfixer zbs input.pdb --num-loops 4 --num-output 3 -v
 # xtb refinement pass after minimize (organic ligands)
 dvbfixer zbs input.pdb --refine xtb --refine-heterogens-only -v
 
+# Optionally guide preparation of every LIG residue with authoritative SMILES
+dvbfixer zbs input.pdb --smiles 'LIG=C[NH3+]' -v
+
 # Disable MolProbity Reduce (fall back to pure PROPKA + --his-default)
 dvbfixer zbs input.pdb --no-protassign -v
 
@@ -97,6 +100,7 @@ Organised by which pipeline step each flag flows into.
 | `--strip-heterogens` | off | Strip heterogens (protein-only pipeline); default keeps them |
 | `--backend` | `legacy` | Prep backend. `legacy`: PDBFixer + Modeller.addHydrogens; handles glycans, ligands, heterogens, covalent-HETATM links. `tleap-reduce`: opt-in deterministic AmberTools + MolProbity pipeline (tleap for heavy atoms, reduce for H); pure-protein only, rejects non-canonical residues, incompatible with `--mutate`. |
 | `--no-heterogen-h` | off | Skip H addition on heterogens in prepare (default: add H BioLuminate-style) |
+| `--smiles RESNAME=SMILES` | none | Optional, repeatable SMILES chemistry forwarded to prepare for isolated matching ligand residues. Unmapped heterogens retain automatic preparation. Requires the legacy backend and an enabled prepare/heterogen-H step. |
 | `--mutate CHAIN:RESNUM:NEW_AA` | none | Mutate a residue; repeatable |
 | `--rename` | off | Canonicalise non-standard residue names before prepare/minimize |
 | `--no-propka` | off | Skip PROPKA3 during prepare; Reduce (`--protassign`) becomes the only source of HIS tautomer picks and ASN/GLN flip detection. Combined with `--no-protassign`, leaves variants = `--mutate` only. |

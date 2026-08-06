@@ -13,10 +13,10 @@ usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--md-level {none,fast,slow,very_slow,slow_large}]
                     [--num-output NUM_OUTPUT] [--pin-input | --no-pin-input]
                     [--strip-heterogens] [--backend {tleap-reduce,legacy}]
-                    [--no-heterogen-h] [--mutate CHAIN:RESNUM:NEW_AA]
-                    [--rename] [--no-solvent] [--rebuild-h]
-                    [--restraint-k RESTRAINT_K] [--max-iter MAX_ITER]
-                    [--refine {none,xtb,obminimize}]
+                    [--no-heterogen-h] [--smiles RESNAME=SMILES]
+                    [--mutate CHAIN:RESNUM:NEW_AA] [--rename] [--no-solvent]
+                    [--rebuild-h] [--restraint-k RESTRAINT_K]
+                    [--max-iter MAX_ITER] [--refine {none,xtb,obminimize}]
                     [--refine-heterogens-only] [--no-propka] [--no-protassign]
                     [--his-default {HIE,HID}] [--cys-ss-pka CYS_SS_PKA]
                     [--keep-water] [--no-infer-conect] [--keep-interim]
@@ -102,6 +102,10 @@ Prepare step:
                         residues and is incompatible with --mutate.
   --no-heterogen-h      Skip hydrogen addition for heterogens in prepare
                         (default: add H to heterogens BioLuminate-style).
+  --smiles RESNAME=SMILES
+                        Optional SMILES chemistry for an isolated ligand
+                        residue; repeatable and forwarded to prepare. Unmapped
+                        ligands keep the existing automatic preparation path.
   --mutate CHAIN:RESNUM:NEW_AA
                         Mutate a residue during prepare step (can be used
                         multiple times)

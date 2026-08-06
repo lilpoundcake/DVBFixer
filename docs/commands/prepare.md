@@ -10,6 +10,18 @@ Adds missing residues, missing heavy atoms, and hydrogens using PDBFixer. **Hete
 
 **Non-GLYCAM heterogen H-count correctness** (since 0.7.9): both the RDKit and OpenBabel H-polish passes consult `dvbfixer.ffutils.ligand_valence` for two classes of problem plain geometry-based bond perception can't solve — carboxylate/sulfonate-or-sulfate/phosphate groups (detected purely from connectivity, so any ligand with these common ionizable groups is covered, not just the ones seen so far) never get a hydroxyl added, since they're fully ionized at physiological pH; and a small per-ligand table covers genuine double bonds with no geometric signature at crystallographic resolution (e.g. DAN's ring alkene from "2,3-didehydro" sialic acid).
 
+**Optional SMILES-guided ligands** (since 0.7.20): pass repeatable
+`--smiles 'RESNAME=SMILES'` mappings when PDB coordinates and CONECT records
+do not contain enough chemistry to determine bond orders, formal charges, or
+aromaticity. SMILES is authoritative only for matching residues; every other
+heterogen continues through the existing automatic RDKit/OpenBabel path. If
+the flag is omitted, preparation is unchanged and RDKit remains an optional
+fallback dependency. Version 1 accepts isolated small molecules contained in
+one PDB residue and preserves their heavy-atom names and coordinates. It fails
+instead of guessing when the PDB heavy-atom graph cannot be mapped safely or
+the residue has a covalent bond to another residue. The protonation encoded in
+SMILES controls the mapped ligand; `--ph` still controls protein residues.
+
 **Input preprocessing** — `_preprocess_glycoprotein_input` runs first to fix two common upstream-tool issues that break OpenMM topology parsing: (1) HETATM lines for protein/GLYCAM glycoprotein residues are rewritten to ATOM (HETATM gets treated as ligand → no peptide bond inferred to neighbours → "TYR missing externally bonded C atom" template errors), and (2) spurious TER records between two amino-acid residues on the same chain are dropped (a TER forces a new chain in OpenMM, breaking the polymer). Both edits are no-ops on clean inputs.
 
 **Glycosylation detection is FF-agnostic** — `find_glycosylated_atoms_with_sugar` uses CONECT records AND a distance-based fallback (ASN ND2 / SER OG / THR OG1 within 2.0 Å of a sugar anomeric C). Inputs with PDB sugars (NAG/NDG/BMA/...) and inputs with CHARMM-GUI 4-char sugars (BGLC/BMAN/AMAN/BGLCNA/...) are both recognized. The ASN→NLN rename fires ONLY when the bonded sugar is GLYCAM-named — for PDB/CHARMM sugars, ASN stays as ASN. The extra HD22 on glycosylated ND2 is removed in all three FF conventions (consistent across CHARMM, AMBER, GLYCAM).
@@ -46,6 +58,12 @@ dvbfixer prepare input.pdb --keep-water
 # Strip heterogens (protein-only mode)
 dvbfixer prepare input.pdb --strip-heterogens
 
+# Use authoritative chemistry for LIG; quote the value for shell safety
+dvbfixer prepare complex.pdb --smiles 'LIG=C[NH3+]' -o prepared.pdb
+
+# Repeat for several residue names; unmapped ligands retain automatic handling
+dvbfixer prepare complex.pdb --smiles 'LIG=C=C' --smiles 'COF=[NH4+]'
+
 # Apply point mutations
 dvbfixer prepare input.pdb --mutate A:39:ALA --mutate B:100:GLY -v
 
@@ -78,6 +96,7 @@ dvbfixer prepare input.pdb --mutate A:39:ALA --mutate H:446:del -v
 | `--keep-water` | off | Keep crystallographic waters |
 | `--strip-heterogens` | off (default: keep) | Remove heterogens (sugars, ligands, ions) before processing — protein-only mode |
 | `--no-heterogen-h` | off | Keep heterogens but skip H addition |
+| `--smiles RESNAME=SMILES` | none | Optional authoritative chemistry for every isolated ligand residue named `RESNAME`; repeatable. Preserves heavy atoms/coordinates and regenerates H. Unmapped heterogens use the existing automatic path. Requires the legacy backend and is incompatible with `--strip-heterogens` / `--no-heterogen-h`. |
 | `--ff` | `auto` | Force field for the heterogen-H addition step. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. Only consulted when heterogen-H addition actually runs. See [force-fields.md](../force-fields.md). |
 | `--no-infer-conect` | off | Skip automatic CONECT inference (SS/glycosidic/glycosylation bonds from coordinates); default infers so glycoprotein flows work even on CONECT-less inputs |
 | `--mutate` | none | Mutate a residue: `CHAIN:RESNUM:NEW_AA` (substitution) or `CHAIN:RESNUM:del` (deletion). Insertion codes supported (`H:100A:del`). Repeatable. |

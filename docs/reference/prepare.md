@@ -12,7 +12,8 @@ usage: dvbfixer prepare [-h] [-o OUTPUT] [--dat DAT]
                         [--his-default {HIE,HID}] [--cys-ss-pka CYS_SS_PKA]
                         [--backend {tleap-reduce,legacy}] [--ph PH]
                         [--ff FF [FF ...]] [--keep-water] [--strip-heterogens]
-                        [--no-heterogen-h] [--rename] [--no-infer-conect]
+                        [--no-heterogen-h] [--smiles RESNAME=SMILES]
+                        [--rename] [--no-infer-conect]
                         [--mutate CHAIN:RESNUM:NEW_AA] [-v]
                         input
 
@@ -80,6 +81,12 @@ Content selection:
                         heterogens.
   --no-heterogen-h      Skip hydrogen addition for heterogens
                         (sugars/ligands).
+  --smiles RESNAME=SMILES
+                        Use SMILES chemistry when adding H to an isolated
+                        small-molecule residue (for example --smiles
+                        'LIG=CC(=O)[O-]'). Applies to every matching residue
+                        and may be repeated. Optional; unmapped heterogens
+                        keep the existing automatic RDKit/OpenBabel path.
   --rename              Rename non-canonical residues (AMBER/CHARMM) to
                         standard names before processing
   --no-infer-conect     Skip automatic CONECT inference. By default dvbfixer
