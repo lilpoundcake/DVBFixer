@@ -370,7 +370,7 @@ def _build_glycan_trees(topology, positions, known_set):
 
 
 def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
-                               verbose=False):
+                               verbose=False, excluded_resnames=None):
     """BioLuminate-style H addition for all heterogens via RDKit.
 
     Pipes the prepared PDB (with CONECT records for inter-residue bonds) through
@@ -391,7 +391,8 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
 
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
 
-    known = PROTEIN_RESIDUES | SOLVENT_IONS
+    excluded_resnames = set(excluded_resnames or ())
+    known = PROTEIN_RESIDUES | SOLVENT_IONS | excluded_resnames
 
     # Need any heterogens without H?
     needs_h = False
@@ -477,7 +478,8 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
             het_indices = set()
             for atom in molh.GetAtoms():
                 info = atom.GetPDBResidueInfo()
-                if info and info.GetResidueName().strip() not in known:
+                if (info and info.GetResidueName().strip() not in known
+                        and info.GetResidueName().strip() not in excluded_resnames):
                     het_indices.add(atom.GetIdx())
                 elif atom.GetIdx() >= n_before:
                     # Added H — keep its position frozen if parent is protein,
@@ -486,7 +488,9 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
                         other = bond.GetOtherAtom(atom)
                         other_info = other.GetPDBResidueInfo()
                         if (other_info and
-                                other_info.GetResidueName().strip() not in known):
+                                other_info.GetResidueName().strip() not in known
+                                and other_info.GetResidueName().strip()
+                                not in excluded_resnames):
                             het_indices.add(atom.GetIdx())
                         break
 
@@ -564,7 +568,8 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
         if parent_idx is None:
             continue
         parent_omm = rdkit_heavy_to_omm.get(parent_idx)
-        if parent_omm is None or parent_omm.residue.name in known:
+        if (parent_omm is None or parent_omm.residue.name in known
+                or parent_omm.residue.name in excluded_resnames):
             continue
         # Skip H if parent atom is on the no-H list for its residue type
         # (carbonyl C/O atoms that RDKit can't perceive as double-bonded),
@@ -852,7 +857,8 @@ def _process_single_residue(res, external_bond_counts, positions, known, ob,
                                 (x_a / 10.0, y_a / 10.0, z_a / 10.0)))
 
 
-def add_heterogen_h_via_openbabel(topology, positions, verbose=False):
+def add_heterogen_h_via_openbabel(topology, positions, verbose=False,
+                                  excluded_resnames=None):
     """Use OpenBabel to add H atoms to heterogens (sugars, ligands), respecting
     inter-residue bonds (protein-glycan, sugar-sugar).
 
@@ -877,7 +883,8 @@ def add_heterogen_h_via_openbabel(topology, positions, verbose=False):
 
     from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
 
-    known = PROTEIN_RESIDUES | SOLVENT_IONS
+    excluded_resnames = set(excluded_resnames or ())
+    known = PROTEIN_RESIDUES | SOLVENT_IONS | excluded_resnames
 
     # Find heterogen residues that need H. A residue needs H if:
     # (a) it has no H at all, or
@@ -1102,4 +1109,3 @@ def rename_glycosylated_protein_residues(topology, positions, glycosylated_atoms
         m.delete(h_to_drop)
         return m.topology, m.positions, renamed
     return topology, positions, renamed
-

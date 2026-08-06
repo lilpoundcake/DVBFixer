@@ -109,6 +109,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     content.add_argument("--no-heterogen-h", dest="heterogen_h",
                          action="store_false", default=True,
                          help="Skip hydrogen addition for heterogens (sugars/ligands).")
+    content.add_argument(
+        "--smiles", action="append", default=[], metavar="RESNAME=SMILES",
+        help="Use SMILES chemistry when adding H to an isolated small-molecule "
+             "residue (for example --smiles 'LIG=CC(=O)[O-]'). Applies to "
+             "every matching residue and may be repeated. Optional; unmapped "
+             "heterogens keep the existing automatic RDKit/OpenBabel path.",
+    )
     content.add_argument("--rename", action="store_true",
                          help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing")
     content.add_argument("--no-infer-conect", dest="no_infer_conect",

@@ -115,6 +115,12 @@ def parse_args(argv=None):
                       action="store_false", default=True,
                       help="Skip hydrogen addition for heterogens in prepare "
                            "(default: add H to heterogens BioLuminate-style).")
+    prep.add_argument(
+        "--smiles", action="append", default=[], metavar="RESNAME=SMILES",
+        help="Optional SMILES chemistry for an isolated ligand residue; "
+             "repeatable and forwarded to prepare. Unmapped ligands keep "
+             "the existing automatic preparation path.",
+    )
     prep.add_argument("--mutate", action="append", default=[],
                       metavar="CHAIN:RESNUM:NEW_AA",
                       help="Mutate a residue during prepare step (can be used multiple times)")
@@ -208,6 +214,15 @@ def parse_args(argv=None):
     if args.backend == "tleap-reduce" and args.mutate:
         p.error("--mutate is not supported by the tleap-reduce backend; "
                 "rerun with --backend legacy for mutations.")
+    if args.smiles:
+        if args.skip_prepare:
+            p.error("--smiles cannot be used with --skip-prepare")
+        if args.backend != "legacy":
+            p.error("--smiles requires --backend legacy")
+        if not args.keep_heterogens:
+            p.error("--smiles cannot be used with --strip-heterogens")
+        if not args.heterogen_h:
+            p.error("--smiles cannot be used with --no-heterogen-h")
 
     # Deprecated --skip-protonate → forward as --no-propka --no-protassign
     # to prepare (0.7.7+: there is no separate protonate step).
@@ -427,6 +442,8 @@ def _run_pipeline(args, input_path):
             prepare_argv.append("--strip-heterogens")
         if not args.heterogen_h:
             prepare_argv.append("--no-heterogen-h")
+        for mapping in args.smiles:
+            prepare_argv.extend(["--smiles", mapping])
         for mut in args.mutate:
             prepare_argv.extend(["--mutate", mut])
         if args.rename:

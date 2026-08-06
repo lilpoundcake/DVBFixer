@@ -25,6 +25,11 @@ from dvbfixer.prepare.mutations import (
     apply_mutations,
     parse_mutations,
 )
+from dvbfixer.prepare.smiles import (
+    SmilesPreparationError,
+    add_hydrogens_from_smiles,
+    parse_smiles_mappings,
+)
 
 # ---------------------------------------------------------------------------
 # .dat file: records what PDBFixer added
@@ -1052,6 +1057,24 @@ def main(argv=None):
         print(f"File not found: {input_path}", file=sys.stderr)
         sys.exit(1)
 
+    try:
+        smiles_by_resname = parse_smiles_mappings(getattr(args, "smiles", []))
+    except SmilesPreparationError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        raise SystemExit(2) from exc
+    if smiles_by_resname:
+        incompatible = []
+        if getattr(args, "backend", "legacy") != "legacy":
+            incompatible.append("--backend tleap-reduce")
+        if not args.keep_heterogens:
+            incompatible.append("--strip-heterogens")
+        if not args.heterogen_h:
+            incompatible.append("--no-heterogen-h")
+        if incompatible:
+            print("Error: --smiles is incompatible with " + ", ".join(incompatible),
+                  file=sys.stderr)
+            raise SystemExit(2)
+
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prepared")
     dat_path = Path(args.dat) if args.dat else output_path.with_suffix(".dat")
 
@@ -1251,6 +1274,35 @@ def main(argv=None):
     # them to reconstruct topology bonds.
     _write_heterogen_conects(output_path, fixer.topology)
 
+    if smiles_by_resname:
+        old_atoms = list(fixer.topology.atoms())
+        previous_new_keys = {
+            (old_atoms[index].residue.chain.id, old_atoms[index].residue.id,
+             old_atoms[index].residue.insertionCode, old_atoms[index].name)
+            for index in new_atom_indices
+        }
+        old_atom_keys = {
+            (a.residue.chain.id, a.residue.id, a.residue.insertionCode, a.name)
+            for a in old_atoms
+        }
+        try:
+            fixer.topology, fixer.positions = add_hydrogens_from_smiles(
+                fixer.topology, fixer.positions, smiles_by_resname, args.verbose,
+            )
+        except SmilesPreparationError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            raise SystemExit(2) from exc
+        with open(output_path, 'w') as f:
+            PDBFile.writeFile(fixer.topology, fixer.positions, f, keepIds=True)
+        _restore_variants(output_path)
+        _write_heterogen_conects(output_path, fixer.topology)
+        new_atom_indices = set()
+        for atom in fixer.topology.atoms():
+            key = (atom.residue.chain.id, atom.residue.id,
+                   atom.residue.insertionCode, atom.name)
+            if key in previous_new_keys or key not in old_atom_keys:
+                new_atom_indices.add(atom.index)
+
     # BioLuminate-style polish: pipe through RDKit so it sees the full
     # molecular graph (CONECT-derived bonds + distance perception) and adds H
     # to any heterogens that still need them, with proper 3D geometry.
@@ -1268,10 +1320,11 @@ def main(argv=None):
     _known = _PR | _SI
     needs_polish = any(
         not is_glycam_residue(r.name) and r.name not in _known
+        and r.name not in smiles_by_resname
         for r in fixer.topology.residues()
     )
     if args.heterogen_h and not needs_polish and args.verbose:
-        print("All heterogens are GLYCAM-named — skipping RDKit/OpenBabel polish")
+        print("No unmapped non-GLYCAM heterogens need RDKit/OpenBabel polish")
 
     if args.heterogen_h and needs_polish:
         # Two-pass heterogen H addition:
@@ -1284,10 +1337,12 @@ def main(argv=None):
             if h_pass is add_heterogen_h_via_rdkit:
                 new_top, new_pos = h_pass(
                     fixer.topology, fixer.positions, output_path, args.verbose,
+                    excluded_resnames=smiles_by_resname,
                 )
             else:
                 new_top, new_pos = h_pass(
                     fixer.topology, fixer.positions, args.verbose,
+                    excluded_resnames=smiles_by_resname,
                 )
             if new_top is not fixer.topology:
                 old_atom_keys = {
