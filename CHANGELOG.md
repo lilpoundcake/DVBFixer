@@ -8,6 +8,16 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.22] — 2026-08-06
+
+### Added
+
+- `split --assembly ID|all` extracts PDB biological assemblies from REMARK 350,
+  including BIOMT-generated coordinate copies. Assembly mode preserves residue
+  numbers by default and regenerates chain-sensitive structural records.
+- The tracked 8XJ0 regression verifies its four deposited Fab assemblies:
+  AB, CD, EF, and GH.
+
 ## [0.7.21] — 2026-08-06
 
 ### Changed

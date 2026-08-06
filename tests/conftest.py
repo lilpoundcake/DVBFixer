@@ -45,6 +45,12 @@ def multistate_pdb() -> Path:
 
 
 @pytest.fixture(scope="session")
+def biological_assembly_pdb() -> Path:
+    """8XJ0 crystal asymmetric unit with four REMARK 350 Fab assemblies."""
+    return _fixture(FIXTURES_ROOT / "assemblies" / "8XJ0.pdb")
+
+
+@pytest.fixture(scope="session")
 def charmm_glycan_pdb() -> Path:
     """CHARMM-GUI glycosylated antibody used by topology tests."""
     return _fixture(FIXTURES_ROOT / "glycosilated_mAb_CHARMM.pdb")

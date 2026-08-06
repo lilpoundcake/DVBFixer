@@ -334,6 +334,15 @@ of a multi-state ensemble). If signatures differ, the tool falls back to
 per-MODEL independent chain IDs with a warning. Atom serials reset within
 each MODEL; TER records inserted between chains in every MODEL.
 
+### `biological_assembly.py` — REMARK 350/BIOMT extraction
+
+`split --assembly ID|all` bypasses empirical chain detection. The parser binds
+each APPLY/AND CHAINS group to its complete BIOMT operators; the renderer
+selects source chains, generates transformed copies, and assigns collision-free
+PDB chain IDs. Coordinates and ANISOU tensors are transformed and
+chain/serial-sensitive records regenerated. Every requested assembly validates
+before writing, so `all` mode cannot leave a partial output set.
+
 ### `model.parse_fasta` — chain-ID-keyed FASTA parsing
 
 Returns `dict[chain_id, sequence]` (previously a list of tuples in

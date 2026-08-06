@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 
 COMMANDS: dict[str, str] = {
-    "split": "Split chains empirically (distance + numbering)",
+    "split": "Split chains empirically or extract PDB biological assemblies",
     "renumber": "Renumber residues using FASTA or SEQRES alignment",
     "model": "Rebuild missing loops/gaps with Modeller",
     "pull": "Pull atoms together to form a bond (geometry-only)",

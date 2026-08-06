@@ -1,8 +1,14 @@
-# dvbfixer split — Empirical Chain Splitting
+# dvbfixer split — Chain and Biological-Assembly Splitting
 
 [← command index](index.md) · [← README](../../README.md)
 
 Splits chains in PDB or GRO files that lack chain IDs (e.g. GROMACS MD output). Assigns unique chain IDs (A-Z, a-z, 0-9), inserts TER records, and renumbers residues per chain. GRO files are converted to PDB via MDAnalysis, preserving all residue names including protonation variants (GLUP, ASPP, etc.). Water, ions, and buffer particles (BUF/BUFF) are removed before chain detection to prevent false breaks, then optionally re-appended.
+
+For deposited PDB files with biological-assembly metadata, explicit
+`--assembly ID|all` mode reads `REMARK 350`, selects the declared chains, and
+applies every BIOMT rotation/translation. This mode preserves source residue
+numbers by default and does not use empirical distance cutoffs. Existing
+`split` behavior is unchanged when `--assembly` is absent.
 
 Chain breaks are detected by three criteria, applied in priority order:
 
@@ -34,6 +40,13 @@ dvbfixer split input.pdb --no-distance
 
 # Keep original residue numbers
 dvbfixer split input.pdb --no-renumber
+
+# Extract one biological assembly to an exact output path
+dvbfixer split 8XJ0.pdb --assembly 1 -o 8XJ0_AB.pdb
+
+# Extract every declared assembly
+dvbfixer split 8XJ0.pdb --assembly all
+# writes 8XJ0_assembly_1.pdb ... 8XJ0_assembly_4.pdb
 ```
 
 ## Options
@@ -41,10 +54,11 @@ dvbfixer split input.pdb --no-renumber
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-o`, `--output` | `<input>_split.pdb` | Output file path |
+| `--assembly ID\|all` | none | Extract one or all PDB biological assemblies from REMARK 350/BIOMT. With `all`, `-o` is treated as an output prefix. PDB only. |
 | `-d`, `--distance-cutoff` | 2.5 | C->N peptide bond cutoff (angstroms) |
 | `-g`, `--gap-cutoff` | 15.0 | Nearest-atom gap cutoff for non-protein residues (angstroms) |
 | `--no-distance` | off | Disable all distance-based detection |
-| `--no-renumber` | off | Keep original residue numbers |
+| `--renumber` / `--no-renumber` | mode-dependent | Empirical mode renumbers by default; assembly mode preserves deposited numbering by default. |
 | `--keep-water` | off | Keep water and ions in output (removed by default) |
 | `--max-chains` | 26 | Above this many detected chains, small-molecule chains (ions, ligands, lipids, single-residue HETATMs, glycan trees) get blank chain ID; only protein chains get IDs. |
 | `-v`, `--verbose` | off | Print detected chain info |
@@ -64,3 +78,11 @@ Splits chains in PDB or GRO files lacking chain IDs (e.g. GROMACS output). GRO f
 **Multi-MODEL handling** (`find_model_blocks` + `_process_multi_model`): when the input contains multiple MODEL/ENDMDL records (multi-state PDB, NMR ensemble, GROMACS trajectory dumped with MODEL records), each MODEL is the SAME complex sampled at different states. Per-MODEL chain signatures (atom count + residue count + first/last resname per chain) are compared across MODELs; when all match, every MODEL is rewritten with the SAME chain IDs (A B C in MODEL 1, A B C in MODEL 2, …) instead of cascading (A B C / D E F / G H I). If MODELs differ structurally the tool falls back to per-MODEL independent chain IDs with a warning. Atom serials reset within each MODEL (standard PDB convention); TER records inserted between chains in every MODEL.
 
 **Small-molecule threshold** (`--max-chains`, default 26): when total detected chains > threshold, only PROTEIN chains get chain IDs from `CHAIN_IDS`; small-molecule chains (ions, ligands, lipids, single-residue HETATMs, glycan trees) keep blank chain ID. Classification via `_classify_chains` (per-chain ≥ 50% standard-AA residues = protein; STANDARD_RESIDUES now also includes AMBER protonation variants HID/HIE/HIP/ASH/GLH/CYX/CYM/LYN, GLYCAM NLN/OLS/OLT, and MSE). `_assign_chain_ids` returns the per-chain ID list honouring the threshold. Applies to both single-block and multi-MODEL paths. Protein-chain count above `len(CHAIN_IDS)` (62) still aborts with an error.
+
+**Biological-assembly handling** (`biological_assembly.py`): parses each
+BIOMOLECULE, APPLY/AND CHAINS group, and complete BIOMT1/2/3 operator. Atom
+coordinates and ANISOU tensors are transformed per operator; duplicated chains
+receive unused PDB chain IDs. SEQRES, SSBOND, LINK, CONECT, TER, and atom
+serials are regenerated for each standalone output. Missing chains, malformed
+operators, unknown IDs, GRO input, and the 62-chain PDB limit fail before any
+output is written.
