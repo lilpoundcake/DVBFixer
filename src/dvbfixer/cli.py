@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from importlib import import_module
 
 COMMANDS: dict[str, str] = {
     "split": "Split chains empirically or extract PDB biological assemblies",
@@ -60,54 +61,23 @@ def main() -> None:
 
     batch_options, argv = extract_batch_options(argv)
 
-    if command == "split":
-        from dvbfixer.split_chains import main as cmd_main
-    elif command == "renumber":
-        from dvbfixer.renumber import main as cmd_main
-    elif command == "model":
-        from dvbfixer.model import main as cmd_main
-    elif command == "pull":
-        from dvbfixer.pull import main as cmd_main
-    elif command == "rename":
-        from dvbfixer.rename import main as cmd_main
-    elif command == "top":
-        from dvbfixer.top import main as cmd_main
-    elif command == "prepare":
-        from dvbfixer.prepare import main as cmd_main
-    elif command == "minimize":
-        from dvbfixer.minimize import main as cmd_main
-    elif command == "protonate":
-        from dvbfixer.protonate import main as cmd_main
-    elif command == "transplant":
-        from dvbfixer.transplant import main as cmd_main
-    elif command == "puppet":
-        from dvbfixer.puppet import main as cmd_main
-    elif command in ("convert", "glycam"):
+    if command == "glycam":
         # `glycam` is the legacy name; `convert` is preferred. The module
         # filename stays as `glycam.py` for now to keep imports stable.
-        if command == "glycam":
-            print("[deprecated] 'dvbfixer glycam' is now 'dvbfixer convert'. "
-                  "The old name still works but please update scripts.",
-                  file=sys.stderr)
-        from dvbfixer.glycam import main as cmd_main
-    elif command == "conect":
-        from dvbfixer.conect import main as cmd_main
-    elif command == "cluster":
-        from dvbfixer.cluster import main as cmd_main
-    elif command == "parametrize":
-        from dvbfixer.parametrize import main as cmd_main
-    elif command == "homology":
-        from dvbfixer.homology import main as cmd_main
-    elif command == "diagnose":
-        from dvbfixer.diagnose import main as cmd_main
-    elif command == "doctor":
-        from dvbfixer.doctor import main as cmd_main
-    elif command == "zbs":
-        from dvbfixer.zbs import main as cmd_main
-    else:
+        print("[deprecated] 'dvbfixer glycam' is now 'dvbfixer convert'. "
+              "The old name still works but please update scripts.",
+              file=sys.stderr)
+    if command not in COMMANDS and command != "glycam":
         print(f"Unknown command: {command}\n", file=sys.stderr)
         print_help()
         sys.exit(1)
+
+    module_name = {
+        "split": "split_chains",
+        "convert": "glycam",
+        "glycam": "glycam",
+    }.get(command, command)
+    cmd_main = import_module(f"dvbfixer.{module_name}").main
 
     if batch_options.input_dir:
         from dvbfixer.batch import run_directory

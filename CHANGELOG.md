@@ -18,6 +18,12 @@ best-effort summaries; consult `git log` for exact provenance.
 - The tracked 8XJ0 regression verifies its four deposited Fab assemblies:
   AB, CD, EF, and GH.
 
+### Fixed
+
+- The argparse-only `dvbfixer.prepare.cli` module no longer imports the heavy
+  OpenMM/PDBFixer pipeline through its package initializer, restoring the
+  lightweight CI lane that deliberately runs without OpenMM.
+
 ## [0.7.21] — 2026-08-06
 
 ### Changed

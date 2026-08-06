@@ -35,13 +35,29 @@ from dvbfixer.prepare.cli import (
     SUGAR_RESNAMES,
     parse_args,
 )
-from dvbfixer.prepare.pipeline import (
-    build_dat,
-    main,
-    parse_mutations,
-    run_pdbfixer,
-    write_dat,
-)
+
+_PIPELINE_EXPORTS = {
+    "build_dat",
+    "main",
+    "parse_mutations",
+    "run_pdbfixer",
+    "write_dat",
+}
+
+
+def __getattr__(name: str):
+    """Load OpenMM/PDBFixer-dependent exports only when requested.
+
+    Importing ``dvbfixer.prepare.cli`` must remain safe in lightweight
+    environments used for CLI parsing, documentation, and the fast CI lane.
+    """
+    if name not in _PIPELINE_EXPORTS:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    from dvbfixer.prepare import pipeline
+
+    value = getattr(pipeline, name)
+    globals()[name] = value
+    return value
 
 __all__ = [
     "DEFAULT_PH",
