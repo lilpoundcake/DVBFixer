@@ -135,7 +135,7 @@ def test_zbs_skip_protonate_maps_to_no_propka_no_protassign() -> None:
     assert args.protassign is False
 
 
-# Real fragment from test/8cz8/8cz8_t_u.pdb, chain E residues 370-372 —
+# Real fragment from tests/fixtures/8cz8/8cz8_t_u.pdb, chain E residues 370-372 —
 # HIS 371's entire imidazole ring (CG/ND1/CD2/CE1/NE2) is genuinely
 # missing in the deposited structure (crystallographic disorder), only
 # backbone + CB survive. This is the exact real-world trigger for

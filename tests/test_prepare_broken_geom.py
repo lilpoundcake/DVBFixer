@@ -53,7 +53,7 @@ def _dist(a: tuple[float, float, float], b: tuple[float, float, float]) -> float
 # whose input file placed HG at the SAME coordinates as OXT (0 Å apart —
 # clearly a coordinate-corruption bug in some upstream tool), giving an
 # OG-HG distance of ~1.7 Å once OpenMM's CSER template repositions things.
-# Built in-test (rather than depending on a `test/broken_SER/SER.pdb`
+# Built in-test (rather than depending on a `an external broken-SER fixture`
 # fixture, which is git-ignored and not guaranteed present in every
 # environment) so this regression always runs instead of silently
 # skipping when the external fixture is absent.
@@ -125,7 +125,7 @@ def test_prepare_fixes_coincident_hg_and_oxt(tmp_workdir: Path) -> None:
 # couldn't catch this because the input has no coincident pair. Fixed
 # in 0.4.2 by the post-addHydrogens repair pass in ffutils.geometry.
 #
-# Constructed in-test so the test doesn't depend on the `test/`
+# Constructed in-test so the test doesn't depend on the external fixture tree
 # fixtures directory (which is git-ignored).
 _SER_INPUT_HG_MISSING_OXT_PRESENT = """\
 ATOM   4731  N   SER B 125     -17.531  20.605 -24.080  1.00  0.00           N

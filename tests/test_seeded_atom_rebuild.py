@@ -6,7 +6,7 @@ missing sidechain via template-overlay + a short local minimization; if
 the result clashes with a neighbor (< 0.13 nm, PDBFixer's own
 `_findNearestDistance` cutoff), it falls back to UNSEEDED Langevin
 dynamics (300 K, up to 2000 steps) to kick the new atoms apart. On a
-real structure with several truncated LYS sidechains (`test/8cz8/
+real structure with several truncated LYS sidechains (`tests/fixtures/8cz8/
 8cz8_t_u.pdb`, chain E — real crystallographic disorder, confirmed via
 atom-count scan: 11 of 19 LYS residues in that chain carry only
 `N/CA/C/O/CB`), this produced a genuinely different rebuilt
@@ -82,8 +82,7 @@ def test_prepare_rebuilds_truncated_lys_deterministically(
     from dvbfixer.prepare.pipeline import main as prepare_main
 
     src = eightcz8_dir / "8cz8_t_u.pdb"
-    if not src.exists():
-        pytest.skip(f"fixture missing: {src}")
+    assert src.is_file(), f"tracked fixture missing: {src}"
 
     runs = []
     for i in range(2):
@@ -134,8 +133,7 @@ def test_addmissingatoms_rebuild_no_clash_no_d_chirality(
     )
 
     src = eightcz8_dir / "8cz8_t_u.pdb"
-    if not src.exists():
-        pytest.skip(f"fixture missing: {src}")
+    assert src.is_file(), f"tracked fixture missing: {src}"
 
     # Mirrors run_pdbfixer's own ordering (see the comment above
     # `fixer.findNonstandardResidues()` in prepare/pipeline.py): find/

@@ -139,20 +139,30 @@ def _graph_mappings(pdb_atoms: list[Any], pdb_edges: set[tuple[int, int]], mol: 
 
 
 def _chemical_signature(mapping: dict[int, int], mol: Any) -> tuple[Any, ...]:
+    from dvbfixer.ffutils.ligand_valence import find_ionizable_terminal_oxygens_rdkit
+
     inverse = {si: ti for ti, si in mapping.items()}
+    resonance_oxygens = find_ionizable_terminal_oxygens_rdkit(mol)
     atom_signatures = []
     for ti in sorted(mapping):
         atom = mol.GetAtomWithIdx(mapping[ti])
+        # Carboxylate and sulfonate oxygens are resonance-equivalent when
+        # none carries H.  Sanitized SMILES must choose one Kekule placement
+        # for the negative charge/double bond, but swapping that placement
+        # between equivalent PDB oxygen names does not change the chemistry.
+        charge = ("resonance" if atom.GetIdx() in resonance_oxygens
+                  else atom.GetFormalCharge())
         atom_signatures.append((
-            ti, atom.GetFormalCharge(), atom.GetIsAromatic(), atom.GetTotalNumHs(),
+            ti, charge, atom.GetIsAromatic(), atom.GetTotalNumHs(),
         ))
     bond_signatures = []
     for bond in mol.GetBonds():
         a = inverse[bond.GetBeginAtomIdx()]
         b = inverse[bond.GetEndAtomIdx()]
-        bond_signatures.append((
-            min(a, b), max(a, b), float(bond.GetBondTypeAsDouble()), bond.GetIsAromatic(),
-        ))
+        begin, end = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
+        order = ("resonance" if begin in resonance_oxygens or end in resonance_oxygens
+                 else float(bond.GetBondTypeAsDouble()))
+        bond_signatures.append((min(a, b), max(a, b), order, bond.GetIsAromatic()))
     return tuple(atom_signatures), tuple(sorted(bond_signatures))
 
 

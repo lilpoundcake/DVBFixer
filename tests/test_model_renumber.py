@@ -9,7 +9,7 @@ and VH has no electron density, so the author numbered VH's first
 residue immediately after VL's last one), the old code numbered the
 gap BACKWARD from its right flank (`right - gap_len + k`), colliding
 with resSeqs already assigned to `left` and everything before it.
-Confirmed on a real structure (`test/8cz8/8cz8_a_u.pdb`, chain C, a
+Confirmed on a real structure (`tests/fixtures/8cz8/8cz8_a_u.pdb`, chain C, a
 scFv: VL 1-111, missing 16-residue linker, VH 128-230 in the true
 numbering) — the old code produced a chain with 16 duplicate
 `(chain, resid)` keys and every residue after the linker off by a
@@ -28,8 +28,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from dvbfixer.model.renumber import _interpolate_gaps, build_resnum_mapping
 
 _SCFV_C_FASTA = (
@@ -44,8 +42,7 @@ def test_build_resnum_mapping_scfv_linker_gap(eightcz8_dir: Path) -> None:
     """The real scFv-linker-gap case: no duplicate resids, linker fills
     112-127, VH resumes at 128 (not the old, colliding 96-111/112...)."""
     src = eightcz8_dir / "8cz8_a_u.pdb"
-    if not src.exists():
-        pytest.skip(f"fixture missing: {src}")
+    assert src.is_file(), f"tracked fixture missing: {src}"
 
     lines = src.read_text().splitlines(keepends=True)
     per_chain_masks = [[True] * len(_SCFV_C_FASTA)]
@@ -100,7 +97,7 @@ def _synthetic_pdb_lines(n_protein: int, ligand_resseq: int) -> list[str]:
     """Chain A: `n_protein` ALA residues (resSeq 1..n_protein, one CA atom
     each) + one HETATM ligand ("LIG") at `ligand_resseq` with atoms named
     CA/CB — deliberately colliding with real protein backbone atom names,
-    mirroring test/lipid/7x35_r_u.pdb's PLM (palmitic acid uses IUPAC-ish
+    mirroring tests/fixtures/lipid/7x35_r_u.pdb's PLM (palmitic acid uses IUPAC-ish
     names C1..C9,CA,CB,CC... for its alkyl chain)."""
     lines = []
     serial = 1
@@ -123,7 +120,7 @@ def _synthetic_pdb_lines(n_protein: int, ligand_resseq: int) -> list[str]:
 
 
 def test_build_resnum_mapping_hetatm_collision_with_gap_fill() -> None:
-    """Regression for the real test/lipid/7x35_r_u.pdb bug: a HETATM
+    """Regression for the real tests/fixtures/lipid/7x35_r_u.pdb bug: a HETATM
     ligand's ORIGINAL resSeq (as assigned by the earlier, FASTA-blind
     standalone `renumber.py` step — here, deliberately one past the
     ATOM-only residue count) collides with a protein resSeq that only

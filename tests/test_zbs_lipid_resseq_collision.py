@@ -1,5 +1,5 @@
 """Regression test for a real HETATM/protein resSeq-collision bug found
-on `test/lipid/7x35_r_u.pdb`.
+on `tests/fixtures/lipid/7x35_r_u.pdb`.
 
 Chain A of this 3-chain viral capsid has no SEQRES records and only 267
 ATOM residues, but its true (FASTA) sequence is 278 residues — an
@@ -39,8 +39,7 @@ except Exception as exc:
 def test_zbs_no_lipid_protein_resseq_collision(lipid_dir: Path, tmp_workdir: Path) -> None:
     src = lipid_dir / "7x35_r_u.pdb"
     fasta = lipid_dir / "7x35_renamed.fasta"
-    if not src.exists() or not fasta.exists():
-        pytest.skip(f"fixture missing: {src} / {fasta}")
+    assert src.is_file() and fasta.is_file(), f"tracked fixture missing: {src} / {fasta}"
 
     import shutil
     local = tmp_workdir / src.name

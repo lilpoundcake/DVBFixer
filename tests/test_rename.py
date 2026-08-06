@@ -29,11 +29,11 @@ def test_canonical_map_is_complete() -> None:
     assert CANONICAL_MAP["MSE"] == "MET"
 
 
-def test_canonicalize_pdb_renames_cyx_to_cys(tmp_workdir: Path, default_pdb: Path) -> None:
-    """default.pdb has CYX residues; after rename they should be CYS."""
-    assert "CYX" in _resnames(default_pdb), "fixture invariant"
+def test_canonicalize_pdb_renames_cyx_to_cys(tmp_workdir: Path, hinge_ch3_glycosylated_pdb: Path) -> None:
+    """The tracked hinge fixture has CYX; after rename they should be CYS."""
+    assert "CYX" in _resnames(hinge_ch3_glycosylated_pdb), "fixture invariant"
     out = tmp_workdir / "renamed.pdb"
-    n = canonicalize_pdb(default_pdb, out, verbose=False)
+    n = canonicalize_pdb(hinge_ch3_glycosylated_pdb, out, verbose=False)
     assert n > 0, "expected at least one rename"
     names = _resnames(out)
     assert "CYX" not in names
@@ -52,11 +52,11 @@ def test_canonicalize_pdb_is_idempotent(tmp_workdir: Path, small_pdb: Path) -> N
     assert out1.read_text() == out2.read_text()
 
 
-def test_canonicalize_pdb_preserves_coords(tmp_workdir: Path, default_pdb: Path) -> None:
+def test_canonicalize_pdb_preserves_coords(tmp_workdir: Path, hinge_ch3_glycosylated_pdb: Path) -> None:
     """Rename must not touch atom coordinates or the atom count."""
-    before = [ln for ln in default_pdb.read_text().splitlines() if ln.startswith(("ATOM  ", "HETATM"))]
+    before = [ln for ln in hinge_ch3_glycosylated_pdb.read_text().splitlines() if ln.startswith(("ATOM  ", "HETATM"))]
     out = tmp_workdir / "renamed.pdb"
-    canonicalize_pdb(default_pdb, out, verbose=False)
+    canonicalize_pdb(hinge_ch3_glycosylated_pdb, out, verbose=False)
     after = [ln for ln in out.read_text().splitlines() if ln.startswith(("ATOM  ", "HETATM"))]
     assert len(before) == len(after)
     # Coord columns (30-54) are untouched.
@@ -64,9 +64,9 @@ def test_canonicalize_pdb_preserves_coords(tmp_workdir: Path, default_pdb: Path)
         assert b[30:54] == a[30:54]
 
 
-def test_main_cli_writes_output(tmp_workdir: Path, default_pdb: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_main_cli_writes_output(tmp_workdir: Path, hinge_ch3_glycosylated_pdb: Path, capsys: pytest.CaptureFixture[str]) -> None:
     out = tmp_workdir / "cli_out.pdb"
-    main([str(default_pdb), "-o", str(out)])
+    main([str(hinge_ch3_glycosylated_pdb), "-o", str(out)])
     assert out.exists()
     captured = capsys.readouterr()
     assert "Wrote" in captured.out

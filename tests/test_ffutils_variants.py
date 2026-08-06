@@ -61,9 +61,9 @@ def test_variant_tables_do_not_overlap() -> None:
     assert not set(AMBER_VARIANT_TO_PARENT) & set(CHARMM_VARIANT_TO_PARENT)
 
 
-def test_scan_variant_names_finds_cyx(default_pdb: Path) -> None:
-    """default.pdb has CYX residues; scan should locate them."""
-    saved = scan_variant_names(default_pdb)
+def test_scan_variant_names_finds_cyx(hinge_ch3_glycosylated_pdb: Path) -> None:
+    """The tracked hinge fixture has CYX residues; scan should locate them."""
+    saved = scan_variant_names(hinge_ch3_glycosylated_pdb)
     assert saved, "expected at least one variant"
     assert any(name == "CYX" for name in saved.values()), (
         f"expected CYX in scan, got {set(saved.values())}"
@@ -77,12 +77,12 @@ def test_scan_variant_names_ignores_standard_residues(small_pdb: Path) -> None:
 
 
 def test_text_rename_variants_to_parent_rewrites_cyx(
-    tmp_workdir: Path, default_pdb: Path
+    tmp_workdir: Path, hinge_ch3_glycosylated_pdb: Path
 ) -> None:
-    """CYX residues in default.pdb → CYS in the rewritten file."""
-    out_path, saved = text_rename_variants_to_parent(default_pdb)
+    """CYX residues in the hinge fixture become CYS in the rewritten file."""
+    out_path, saved = text_rename_variants_to_parent(hinge_ch3_glycosylated_pdb)
     assert saved, "expected renames"
-    assert out_path != str(default_pdb), "should have written a temp file"
+    assert out_path != str(hinge_ch3_glycosylated_pdb), "should have written a temp file"
 
     # Rewritten file has no CYX left.
     rewritten_names = {
@@ -107,16 +107,16 @@ def test_text_rename_variants_to_parent_no_op_on_standard(
 
 
 def test_text_rename_variants_preserves_columns(
-    tmp_workdir: Path, default_pdb: Path
+    tmp_workdir: Path, hinge_ch3_glycosylated_pdb: Path
 ) -> None:
     """Rewritten line must keep atom coord columns byte-identical."""
     orig_lines = {
         ln[6:11].strip(): ln[30:54]
-        for ln in default_pdb.read_text().splitlines()
+        for ln in hinge_ch3_glycosylated_pdb.read_text().splitlines()
         if ln.startswith(("ATOM  ", "HETATM"))
     }
-    out_path, _saved = text_rename_variants_to_parent(default_pdb)
-    if out_path == str(default_pdb):
+    out_path, _saved = text_rename_variants_to_parent(hinge_ch3_glycosylated_pdb)
+    if out_path == str(hinge_ch3_glycosylated_pdb):
         pytest.skip("no rewrite happened; nothing to compare")
 
     for ln in Path(out_path).read_text().splitlines():

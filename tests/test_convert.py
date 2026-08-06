@@ -1,6 +1,6 @@
 """Regression tests for `dvbfixer convert` (legacy `glycam`).
 
-Uses `default.pdb` — its CYX residues exercise the AMBER protein-variant
+Uses `hinge_CH3_glycosylated.pdb` — its CYX residues exercise the AMBER protein-variant
 rename path (CYX → CYS on `--to-charmm`) without needing glycan fixtures.
 """
 
@@ -19,29 +19,29 @@ def _resnames(pdb: Path) -> set[str]:
     return names
 
 
-def test_convert_to_charmm_renames_cyx(tmp_workdir: Path, default_pdb: Path) -> None:
+def test_convert_to_charmm_renames_cyx(tmp_workdir: Path, hinge_ch3_glycosylated_pdb: Path) -> None:
     """AMBER CYX should become CHARMM CYS under --to-charmm."""
-    assert "CYX" in _resnames(default_pdb)
+    assert "CYX" in _resnames(hinge_ch3_glycosylated_pdb)
     out = tmp_workdir / "charmm.pdb"
-    main([str(default_pdb), "-o", str(out), "--to-charmm"])
+    main([str(hinge_ch3_glycosylated_pdb), "-o", str(out), "--to-charmm"])
     names = _resnames(out)
     assert "CYX" not in names, "CYX should be renamed under --to-charmm"
     assert "CYS" in names
 
 
-def test_convert_to_amber_is_noop_on_amber_input(tmp_workdir: Path, default_pdb: Path) -> None:
-    """default.pdb is already AMBER-named; --to-amber should be idempotent."""
+def test_convert_to_amber_is_noop_on_amber_input(tmp_workdir: Path, hinge_ch3_glycosylated_pdb: Path) -> None:
+    """The hinge fixture is already AMBER-named; conversion is idempotent."""
     out = tmp_workdir / "amber.pdb"
-    main([str(default_pdb), "-o", str(out), "--to-amber"])
+    main([str(hinge_ch3_glycosylated_pdb), "-o", str(out), "--to-amber"])
     # Same protein-variant names should still be present.
-    before = _resnames(default_pdb)
+    before = _resnames(hinge_ch3_glycosylated_pdb)
     after = _resnames(out)
     for name in ("CYX", "HIS", "ASN"):
         if name in before:
             assert name in after, f"{name} should survive --to-amber pass"
 
 
-def test_convert_round_trip_runs_cleanly(tmp_workdir: Path, default_pdb: Path) -> None:
+def test_convert_round_trip_runs_cleanly(tmp_workdir: Path, hinge_ch3_glycosylated_pdb: Path) -> None:
     """AMBER → CHARMM → AMBER doesn't crash; output has a comparable atom count.
 
     Exact count preservation isn't guaranteed — variant-aware stale-H drops
@@ -50,13 +50,13 @@ def test_convert_round_trip_runs_cleanly(tmp_workdir: Path, default_pdb: Path) -
     """
     to_charmm = tmp_workdir / "charmm.pdb"
     to_amber = tmp_workdir / "amber.pdb"
-    main([str(default_pdb), "-o", str(to_charmm), "--to-charmm"])
+    main([str(hinge_ch3_glycosylated_pdb), "-o", str(to_charmm), "--to-charmm"])
     main([str(to_charmm), "-o", str(to_amber), "--to-amber"])
 
     def atom_count(pdb: Path) -> int:
         return sum(1 for ln in pdb.read_text().splitlines() if ln.startswith(("ATOM  ", "HETATM")))
 
-    before = atom_count(default_pdb)
+    before = atom_count(hinge_ch3_glycosylated_pdb)
     after = atom_count(to_amber)
     assert after > 0
     tolerance = max(5, before // 100)  # 1% or 5 atoms, whichever is larger

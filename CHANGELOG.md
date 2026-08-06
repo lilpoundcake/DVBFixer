@@ -8,6 +8,22 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.21] — 2026-08-06
+
+### Changed
+
+- All PDB and FASTA inputs actively used by pytest are now tracked under
+  `tests/fixtures/`, with descriptive names, provenance documentation, and a
+  SHA-256 integrity manifest. Fixture-dependent tests no longer silently skip
+  because the historical local `test/` tree is absent.
+- Corrected the test taxonomy: the former `default.pdb` is a GLYCAM-named
+  hinge/CH3 glycoprotein, not a pure protein. Pure-protein smoke tests now use
+  the protein-only 8CZ8 input.
+- SMILES graph ambiguity handling recognizes ionized carboxylate/sulfonate
+  resonance-equivalent oxygens. A real 1VCU regression now prepares DAN and
+  both EPE molecules from physiological ionic SMILES while retaining separate
+  coverage of the automatic no-SMILES path.
+
 ## [0.7.20] — 2026-08-06
 
 ### Added

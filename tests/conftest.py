@@ -1,9 +1,4 @@
-"""Shared pytest fixtures + fixture-file paths for dvbfixer tests.
-
-The repository's ``test/`` directory (singular, historical) holds the raw
-input PDBs used as fixtures. The ``tests/`` directory (plural, this one)
-holds the pytest suite. Do not confuse the two.
-"""
+"""Shared paths for the tracked dvbfixer test fixtures."""
 
 from __future__ import annotations
 
@@ -11,8 +6,7 @@ from pathlib import Path
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-FIXTURES_ROOT = REPO_ROOT / "test"
+FIXTURES_ROOT = Path(__file__).resolve().parent / "fixtures"
 GOLDEN_ROOT = Path(__file__).resolve().parent / "golden"
 
 
@@ -26,53 +20,34 @@ def golden_root() -> Path:
     return GOLDEN_ROOT
 
 
-def _fixture_or_skip(path: Path) -> Path:
-    """Return ``path`` if it exists, else skip the calling test.
-
-    The ``test/`` directory is intentionally untracked (large binary
-    fixtures live outside git). On CI where the fixtures aren't
-    provisioned, tests that need them skip cleanly instead of ERROR-ing.
-    Locally the tests run against the developer's own ``test/`` tree.
-    """
-    if not path.exists():
-        pytest.skip(f"fixture missing: {path}")
+def _fixture(path: Path) -> Path:
+    """Return a required tracked fixture, failing if the checkout is incomplete."""
+    assert path.is_file(), f"tracked fixture missing: {path}"
     return path
 
 
 @pytest.fixture(scope="session")
 def small_pdb() -> Path:
-    """Single-residue ASN — smallest input we ship."""
-    return _fixture_or_skip(FIXTURES_ROOT / "ASN.pdb")
+    """Two isolated ASN residues — the smallest tracked structural input."""
+    return _fixture(FIXTURES_ROOT / "ASN.pdb")
 
 
 @pytest.fixture(scope="session")
-def default_pdb() -> Path:
-    """Small default PDB used across smoke tests."""
-    return _fixture_or_skip(FIXTURES_ROOT / "default.pdb")
+def hinge_ch3_glycosylated_pdb() -> Path:
+    """GLYCAM-named hinge/CH3 glycoprotein used by conversion smoke tests."""
+    return _fixture(FIXTURES_ROOT / "hinge_CH3_glycosylated.pdb")
 
 
 @pytest.fixture(scope="session")
 def multistate_pdb() -> Path:
     """Multi-MODEL PDB — 11 states × 3 chains, exercises split's MODEL path."""
-    return _fixture_or_skip(FIXTURES_ROOT / "multistate" / "test_multistate.pdb")
+    return _fixture(FIXTURES_ROOT / "multistate.pdb")
 
 
 @pytest.fixture(scope="session")
-def glycam_dir() -> Path:
-    """GLYCAM-named glycoprotein fixture."""
-    return _fixture_or_skip(FIXTURES_ROOT / "glycosilated_mAb_Amber_Glycam")
-
-
-@pytest.fixture(scope="session")
-def charmm_glycan_dir() -> Path:
-    """CHARMM-GUI-named glycoprotein fixture (mirror of glycam_dir)."""
-    return _fixture_or_skip(FIXTURES_ROOT / "glycosilated_mAb_Charmm-GUI")
-
-
-@pytest.fixture(scope="session")
-def trastuzumab_dir() -> Path:
-    """Antibody fixture — templates + target FASTA for homology tests."""
-    return _fixture_or_skip(FIXTURES_ROOT / "trastuzumab")
+def charmm_glycan_pdb() -> Path:
+    """CHARMM-GUI glycosylated antibody used by topology tests."""
+    return _fixture(FIXTURES_ROOT / "glycosilated_mAb_CHARMM.pdb")
 
 
 @pytest.fixture(scope="session")
@@ -80,7 +55,9 @@ def shit_dir() -> Path:
     """Curated set of raw PDBs that historically broke the zbs pipeline
     (coincident-atom H's from Modeller, chirality oscillation, etc.).
     Used by the ``@pytest.mark.slow`` end-to-end regression suite."""
-    return _fixture_or_skip(FIXTURES_ROOT / "shit")
+    path = FIXTURES_ROOT / "regressions"
+    assert path.is_dir(), f"tracked fixture directory missing: {path}"
+    return path
 
 
 @pytest.fixture(scope="session")
@@ -89,7 +66,9 @@ def eightcz8_dir() -> Path:
     backbone+CB by real crystallographic disorder. Exercises PDBFixer's
     addMissingAtoms seeded-retry rebuild (unseeded clash-escape MD could
     previously leave a rebuilt sidechain non-deterministic or D-chiral)."""
-    return _fixture_or_skip(FIXTURES_ROOT / "8cz8")
+    path = FIXTURES_ROOT / "8cz8"
+    assert path.is_dir(), f"tracked fixture directory missing: {path}"
+    return path
 
 
 @pytest.fixture(scope="session")
@@ -102,7 +81,9 @@ def lipid_dir() -> Path:
     sequence; PLM's naively-assigned resSeq lands exactly where the
     gap-fill needs to go) and the downstream minimize position-restore
     merge that must not cross-contaminate the two residues' coordinates."""
-    return _fixture_or_skip(FIXTURES_ROOT / "lipid")
+    path = FIXTURES_ROOT / "lipid"
+    assert path.is_dir(), f"tracked fixture directory missing: {path}"
+    return path
 
 
 # ---------------------------------------------------------------------------
@@ -113,62 +94,28 @@ def lipid_dir() -> Path:
 
 @pytest.fixture(scope="session")
 def pure_protein_small() -> Path:
-    """Small pure-protein PDB — smoke fixture for prepare/minimize/protonate."""
-    return _fixture_or_skip(FIXTURES_ROOT / "default.pdb")
-
-
-@pytest.fixture(scope="session")
-def pure_protein_antibody() -> Path:
-    """Full antibody (heavy + light chains, Kabat numbering)."""
-    return _fixture_or_skip(FIXTURES_ROOT / "1HZH.pdb")
+    """Compact pure-protein 8CZ8 chain used for pipeline smoke tests."""
+    return _fixture(FIXTURES_ROOT / "8cz8" / "8cz8_a_u.pdb")
 
 
 @pytest.fixture(scope="session")
 def glycoprot_stress() -> Path:
     """Glycoprotein stress-test PDB — trastuzumab with N-glycans on
     the Fc region. Exercises the ASN → NLN + sugar-tree paths."""
-    return _fixture_or_skip(FIXTURES_ROOT / "shit" / "trastuzumab.pdb")
-
-
-@pytest.fixture(scope="session")
-def glycoprot_amber_glycam_dir() -> Path:
-    """Glycoprotein with GLYCAM-canonical residue names (NLN + linkage
-    codes like 0YB/4YB/VMA). Ready-to-load by AMBER+GLYCAM FF."""
-    return _fixture_or_skip(FIXTURES_ROOT / "glycosilated_mAb_Amber_Glycam")
-
-
-@pytest.fixture(scope="session")
-def glycoprot_charmm_gui_dir() -> Path:
-    """Glycoprotein with CHARMM-GUI 4-char residue names (BGLC, BMAN,
-    etc.). Exercises the convert-to-glycam path."""
-    return _fixture_or_skip(FIXTURES_ROOT / "glycosilated_mAb_Charmm-GUI")
+    return _fixture(FIXTURES_ROOT / "trastuzumab.pdb")
 
 
 @pytest.fixture(scope="session")
 def ss_bonded_antibody() -> Path:
     """1DQJ antibody with 12 disulfide bonds — SS-preservation regression."""
-    return _fixture_or_skip(FIXTURES_ROOT / "shit" / "1DQJ_original.pdb")
-
-
-@pytest.fixture(scope="session")
-def donor_pdb() -> Path:
-    """Transplant donor PDB."""
-    return _fixture_or_skip(FIXTURES_ROOT / "donor.pdb")
-
-
-@pytest.fixture(scope="session")
-def shit_broken_geom_pdbs() -> list[Path]:
-    """The four historically-broken PDBs used by test_zbs_shit_inputs."""
-    names = ("1EMV_original.pdb", "1FR2_original.pdb",
-             "2VLN_original.pdb", "2VLQ_original.pdb")
-    return [_fixture_or_skip(FIXTURES_ROOT / "shit" / n) for n in names]
+    return _fixture(FIXTURES_ROOT / "regressions" / "1DQJ.pdb")
 
 
 @pytest.fixture(scope="session")
 def protein_ligand_gaps_pdb() -> Path:
     """Protein with SEQRES gaps + two real ligands (DAN, EPE) —
     exercises heterogen H-addition valence correctness."""
-    return _fixture_or_skip(FIXTURES_ROOT / "protein_ligand" / "1VCU.pdb")
+    return _fixture(FIXTURES_ROOT / "1VCU.pdb")
 
 
 @pytest.fixture(scope="session")
@@ -178,7 +125,7 @@ def glycoprot_underannotated_conect_pdb() -> Path:
     genuinely incomplete for one of its three real N-glycosylation
     sites — exercises `convert`'s header pass-through and its
     CONECT-vs-distance glycosidic bond detection."""
-    return _fixture_or_skip(FIXTURES_ROOT / "3ry6" / "3ry6.pdb")
+    return _fixture(FIXTURES_ROOT / "3ry6.pdb")
 
 
 # ---------------------------------------------------------------------------

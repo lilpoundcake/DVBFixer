@@ -1,4 +1,4 @@
-"""Slow end-to-end regression: the raw PDBs in ``test/shit/`` broke the
+"""Slow end-to-end regression: the tracked raw regression PDBs broke the
 zbs pipeline with ``openmm.OpenMMException: Particle coordinate is NaN``.
 
 Root cause (July 2026):
@@ -36,8 +36,8 @@ except Exception as exc:
     pytest.skip(f"zbs needs a licensed Sali-lab MODELLER: {exc}", allow_module_level=True)
 
 
-SHIT_INPUTS = ["1EMV_original.pdb", "1FR2_original.pdb",
-               "2VLN_original.pdb", "2VLQ_original.pdb"]
+SHIT_INPUTS = ["1EMV.pdb", "1FR2.pdb",
+               "2VLN.pdb", "2VLQ.pdb"]
 
 
 @pytest.mark.slow
@@ -57,8 +57,7 @@ def test_zbs_completes_on_shit_input(
     — the failure mode is independent of solvation and heterogens.
     """
     src = shit_dir / input_name
-    if not src.exists():
-        pytest.skip(f"fixture missing: {src}")
+    assert src.is_file(), f"tracked fixture missing: {src}"
 
     # zbs writes side-by-side to the input, so copy into tmp_workdir first.
     import shutil
