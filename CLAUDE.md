@@ -6,7 +6,7 @@ Guidance for Claude Code (claude.ai/code) working in this repository.
 
 **dvbfixer** — a Python package providing CLI tools for preparing PDB
 (Protein Data Bank) structural biology files. Installed as a single
-`dvbfixer` command with 19 subcommands.
+`dvbfixer` command with 21 subcommands, plus the React/Node GUI in `gui/`.
 
 ## Prep backends: `legacy` (default) vs `tleap-reduce` (opt-in)
 
@@ -54,6 +54,15 @@ still install and run.
 Modeller needs a free academic license from
 <https://salilab.org/modeller/registration.html>. Set the key in
 `<env>/lib/modeller-10.8/modlib/modeller/config.py`.
+
+The Homology workspace and `dvbfixer msa` shell out to external MSA engines.
+`environment.yml` installs MAFFT, MUSCLE 5, and Clustal Omega; their required
+`PATH` names are `mafft`, `muscle`, and `clustalo`. Keep MUSCLE pinned to v5
+because v3 uses incompatible arguments. Diagnose the active environment with
+`dvbfixer msa --list-engines`; `auto` prefers MAFFT, then MUSCLE, then Clustal
+Omega. Keep user-facing installation details in
+`docs/installation.md#multiple-sequence-alignment-executables` and link to
+that section instead of duplicating platform instructions elsewhere.
 
 **Python is pinned `>=3.11,<3.14`** in `environment.yml`. Do not loosen
 this. propka 3.5.1 reads `self.__annotations__` (instance-level) inside

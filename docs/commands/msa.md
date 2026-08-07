@@ -14,5 +14,10 @@ dvbfixer msa target.fasta --template template1.pdb:A --template template2.pdb:H
 dvbfixer msa ignored.fasta --list-engines
 ```
 
-The executable is resolved from `PATH`. Install the GUI environment to obtain
-all three engines, or install only the engine required by a headless workflow.
+The executable is resolved from `PATH` as `mafft`, `muscle`, or `clustalo`.
+Install the full environment to obtain all three engines, or install only the
+engine required by a headless workflow. MUSCLE must be version 5; MUSCLE 3 has
+a different command-line interface. Run `dvbfixer msa --list-engines` to see
+the executable paths detected by the CLI. Full conda, Homebrew, Linux, Windows,
+and standalone-binary instructions are in the
+[installation guide](../installation.md#multiple-sequence-alignment-executables).
