@@ -5,7 +5,8 @@
 > For prose about how to use `homology`, see [`docs/commands/homology.md`](../commands/homology.md).
 
 ```
-usage: dvbfixer homology [-h] --template TEMPLATE [-o OUTPUT]
+usage: dvbfixer homology [-h] [--template TEMPLATE]
+                         [--template-plan TEMPLATE_PLAN] [-o OUTPUT]
                          [--alignment ALIGNMENT] [--salign] [-n NUM_MODELS]
                          [--md-level {none,fast,slow,very_slow,slow_large}]
                          [--no-loop-refine] [--antibody] [--prepare]
@@ -22,6 +23,9 @@ Input / output:
   fasta                 Target sequence FASTA (multi-chain, one >header per
                         chain)
   --template TEMPLATE   Template PDB file (repeatable, at least 1)
+  --template-plan TEMPLATE_PLAN
+                        JSON template-chain selection plan; fits and merges
+                        selected parts into one known
   -o OUTPUT, --output OUTPUT
                         Output prefix (default: FASTA stem)
 

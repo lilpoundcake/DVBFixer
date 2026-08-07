@@ -18,9 +18,11 @@ import type { Plugin, ViteDevServer } from 'vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import path from 'node:path'
 import fs from 'node:fs'
+import crypto from 'node:crypto'
 import { COMMANDS } from './dvbfixer-spec'
 import { registerHomologyApi } from './homology-api'
 import { runDvbfixerArgs } from './dvbfixer-runner'
+import { loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, saveWorkspace, workspaceRoot } from './workspace-api'
 export { runDvbfixer } from './dvbfixer-runner'
 
 // Defer the pg import so the plugin loads even if pg is missing or DB is unset.
@@ -241,16 +243,6 @@ export function buildArgs(commandName: string, values: Record<string, any>): str
   return args
 }
 
-function resolveWorkspacePath(root: string, relativePath: string): string {
-  if (!relativePath || path.isAbsolute(relativePath)) throw new Error(`invalid artifact path: ${relativePath}`)
-  const resolved = path.resolve(root, relativePath)
-  const rel = path.relative(root, resolved)
-  if (rel.startsWith('..') || path.isAbsolute(rel) || !fs.existsSync(resolved)) {
-    throw new Error(`artifact not found: ${relativePath}`)
-  }
-  return resolved
-}
-
 function listRunFiles(root: string): string[] {
   const files: string[] = []
   const walk = (directory: string) => {
@@ -274,6 +266,7 @@ export function apiPlugin(): Plugin {
       // can find `mutations.json` regardless of which working directory
       // the dev server was launched from.
       projectRoot = server.config.root
+      registerWorkspaceApi(server, structuresDir)
       registerHomologyApi(server, structuresDir)
 
       // ── Artifact import ────────────────────────────────────────────────
@@ -319,11 +312,14 @@ export function apiPlugin(): Plugin {
           const def = COMMANDS.find(candidate => candidate.name === command)
           if (!command || !def) return sendJson(res, 404, { error: `unknown command: ${command || ''}` })
           const body = JSON.parse(await readBody(req) || '{}') as {
+            workspaceId?: string
             inputFile?: string
             inputs?: Record<string, string | string[]>
             values?: Record<string, any>
             fastaContent?: string
           }
+          if (!body.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
+          const activeWorkspaceRoot = workspaceRoot(structuresDir, body.workspaceId)
           const suppliedInputs = { ...(body.inputs || {}) }
           if (body.inputFile && def.inputs[0] && suppliedInputs[def.inputs[0].dest] === undefined) {
             suppliedInputs[def.inputs[0].dest] = body.inputFile
@@ -335,12 +331,12 @@ export function apiPlugin(): Plugin {
             if (input.required && items.length === 0) {
               return sendJson(res, 400, { error: `${input.label} is required` })
             }
-            for (const item of items) positional.push(resolveWorkspacePath(structuresDir, item))
+            for (const item of items) positional.push(resolveWorkspaceFile(structuresDir, body.workspaceId, item))
           }
 
           const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
           const subdirName = `dvb_${command}_${ts}`
-          const outDir = path.join(structuresDir, subdirName)
+          const outDir = path.join(activeWorkspaceRoot, 'runs', subdirName)
           fs.mkdirSync(outDir, { recursive: true })
           const firstInput = positional[0]
           const inputBase = firstInput ? path.basename(firstInput, path.extname(firstInput)) : command
@@ -352,12 +348,12 @@ export function apiPlugin(): Plugin {
           const values = { ...(body.values || {}) }
           for (const field of def.flags.filter(field => field.type === 'artifact')) {
             const raw = values[field.flag]
-            if (Array.isArray(raw)) values[field.flag] = raw.map(item => resolveWorkspacePath(structuresDir, String(item)))
+            if (Array.isArray(raw)) values[field.flag] = raw.map(item => resolveWorkspaceFile(structuresDir, body.workspaceId!, String(item)))
             else if (typeof raw === 'string' && raw.trim()) {
               const parts = field.repeatable ? raw.split(',').map(item => item.trim()).filter(Boolean) : [raw]
               values[field.flag] = field.repeatable
-                ? parts.map(item => resolveWorkspacePath(structuresDir, item))
-                : resolveWorkspacePath(structuresDir, raw)
+                ? parts.map(item => resolveWorkspaceFile(structuresDir, body.workspaceId!, item))
+                : resolveWorkspaceFile(structuresDir, body.workspaceId!, raw)
             }
           }
           if (typeof body.fastaContent === 'string' && body.fastaContent.trim()) {
@@ -376,35 +372,36 @@ export function apiPlugin(): Plugin {
           const ok = def.successCodes.includes(result.code)
           let movedTo: string | null = null
           if (!ok) {
-            const failedRoot = path.join(structuresDir, '_dvb_failed')
+            const failedRoot = path.join(activeWorkspaceRoot, 'runs', '_failed')
             fs.mkdirSync(failedRoot, { recursive: true })
             let destination = path.join(failedRoot, subdirName)
             let counter = 1
             while (fs.existsSync(destination)) destination = path.join(failedRoot, `${subdirName}_${counter++}`)
             fs.renameSync(outDir, destination)
-            movedTo = path.relative(structuresDir, destination).replace(/\\/g, '/')
+            movedTo = path.relative(activeWorkspaceRoot, destination).replace(/\\/g, '/')
           }
 
           const files = ok ? listRunFiles(outDir) : []
           const primaryRel = files.find(file => /\.(pdb|cif|mmcif)$/i.test(file)) || files[0] || ''
-          const outputFile = primaryRel ? `${subdirName}/${primaryRel}` : ''
+          const outputFile = primaryRel ? `runs/${subdirName}/${primaryRel}` : ''
           if (ok && outputFile) {
-            const indexPath = path.join(structuresDir, 'index.json')
-            let entries: any[] = []
-            if (fs.existsSync(indexPath)) try { entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8')) } catch {}
+            const workspace = loadWorkspace(structuresDir, body.workspaceId)
             const parent = typeof suppliedInputs[def.inputs[0]?.dest] === 'string'
               ? suppliedInputs[def.inputs[0]?.dest] as string : undefined
-            entries.push({
-              id: outputFile, file: outputFile, name: `${inputBase} → ${command}`,
-              kind: /\.(pdb|cif|mmcif)$/i.test(outputFile) ? 'structure' : 'artifact',
-              artifactType: def.outputKind, artifacts: files.map(file => `${subdirName}/${file}`),
-              parent, command, organism: '', chains: 0, residues: 0,
-              description: `DVBfixer ${command} · ${new Date().toLocaleString()}`,
-            })
-            fs.writeFileSync(indexPath, JSON.stringify(entries, null, 2))
+            for (const runFile of files) {
+              const relative = `runs/${subdirName}/${runFile}`
+              workspace.artifacts.push({
+                id: crypto.randomUUID(), file: relative,
+                name: relative === outputFile ? `${inputBase} → ${command}` : path.basename(runFile),
+                kind: /\.(pdb|cif|mmcif)$/i.test(relative) ? 'structure' : 'artifact',
+                artifactType: def.outputKind, parent, command, folder: `runs/${subdirName}`,
+                hidden: ['run.json', 'stdout.log', 'stderr.log'].includes(path.basename(runFile)) || path.basename(runFile).startsWith('_'),
+              })
+            }
+            saveWorkspace(structuresDir, workspace)
           }
           sendJson(res, ok ? 200 : 500, {
-            ok, command, outputFile, outputDir: subdirName, artifacts: files,
+            ok, command, outputFile, outputDir: `runs/${subdirName}`, artifacts: files,
             movedTo, stdout: result.stdout, stderr: result.stderr, exitCode: result.code,
           })
         } catch (err: any) {
@@ -827,6 +824,7 @@ export function apiPlugin(): Plugin {
         try {
           const bodyText = await readBody(req)
           const body = JSON.parse(bodyText || '{}') as {
+            workspaceId?: string
             inputFile?: string
             mutationIds?: number[]
             equivalentChainsMap?: Record<string, string[]>
@@ -838,6 +836,7 @@ export function apiPlugin(): Plugin {
             hasGlycan?: boolean
             scheme?: 'EU' | 'Kabat'
           }
+          if (!body.workspaceId) return sendJson(res, 400, { error: 'workspaceId required' })
           if (!body.inputFile) return sendJson(res, 400, { error: 'inputFile required' })
           if (!Array.isArray(body.mutationIds) || body.mutationIds.length === 0) {
             return sendJson(res, 400, { error: 'mutationIds required (non-empty array)' })
@@ -845,10 +844,8 @@ export function apiPlugin(): Plugin {
           if (typeof body.hasGlycan !== 'boolean') return sendJson(res, 400, { error: 'hasGlycan required' })
           if (body.scheme !== 'EU' && body.scheme !== 'Kabat') return sendJson(res, 400, { error: 'scheme must be EU or Kabat' })
 
-          const inputAbs = path.resolve(structuresDir, body.inputFile)
-          if (!inputAbs.startsWith(structuresDir) || !fs.existsSync(inputAbs)) {
-            return sendJson(res, 404, { error: 'inputFile not found under structures/' })
-          }
+          const activeRoot = workspaceRoot(structuresDir, body.workspaceId)
+          resolveWorkspaceFile(structuresDir, body.workspaceId, body.inputFile)
 
           // Dynamic imports so SSE-specific deps stay out of cold-path code.
           const { runEngineerPipeline, engineerChecksum, findCachedEntry } =
@@ -866,7 +863,7 @@ export function apiPlugin(): Plugin {
           let aborted = false
           req.on('close', () => { aborted = true })
 
-          const cached = findCachedEntry(structuresDir, body.inputFile, checksum)
+          const cached = findCachedEntry(activeRoot, body.inputFile, checksum)
           if (cached) {
             sseSend(res, { step: 0, total: 0, name: 'cached', status: 'done', outputFile: cached.file })
             sseSend(res, { step: 0, total: 0, status: 'complete', outputFile: cached.file, entry: cached })
@@ -896,7 +893,7 @@ export function apiPlugin(): Plugin {
           }
 
           await runEngineerPipeline({
-            structuresDir,
+            structuresDir: activeRoot,
             inputFile: body.inputFile,
             mutationRows: rows as any,
             mutationIds: body.mutationIds,
@@ -908,6 +905,17 @@ export function apiPlugin(): Plugin {
             onEvent: (e) => sseSend(res, e),
             isAborted: () => aborted,
           })
+
+          const generatedIndex = path.join(activeRoot, 'index.json')
+          if (fs.existsSync(generatedIndex)) {
+            const workspace = loadWorkspace(structuresDir, body.workspaceId)
+            const generated = JSON.parse(fs.readFileSync(generatedIndex, 'utf8')) as any[]
+            for (const entry of generated.filter(item => item.file && !workspace.artifacts.some(existing => existing.file === item.file))) {
+              workspace.artifacts.push({ id: crypto.randomUUID(), file: entry.file, name: entry.name || path.basename(entry.file),
+                kind: /\.(pdb|cif|mmcif)$/i.test(entry.file) ? 'structure' : 'artifact', command: entry.command, parent: entry.parent })
+            }
+            saveWorkspace(structuresDir, workspace)
+          }
 
           res.end()
         } catch (err: any) {

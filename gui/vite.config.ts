@@ -15,7 +15,7 @@ function walkPdbFiles(dir: string, baseDir: string, out: string[]) {
     // Skip dot-prefixed and underscore-prefixed directories (e.g. _dvb_failed/,
     // .git/). Outputs of failed DVBFixer runs are moved into _dvb_failed/ so
     // they don't pollute the library.
-    if (item.isDirectory() && (item.name.startsWith('_') || item.name.startsWith('.'))) {
+    if (item.isDirectory() && (item.name.startsWith('_') || item.name.startsWith('.') || item.name === 'projects')) {
       continue
     }
     const full = path.join(dir, item.name)

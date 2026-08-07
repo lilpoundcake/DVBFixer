@@ -80,3 +80,13 @@ export function residueClass(oneLetterCode: string): string {
   if (oneLetterCode === 'G') return 'special'
   return 'other'
 }
+
+/** Shared by Sequence and Homology alignment views. */
+export const RESIDUE_CLASS_COLORS: Record<string, string> = {
+  hydrophobic: '#2e7d32',
+  positive: '#1565c0',
+  negative: '#c62828',
+  polar: '#e68a00',
+  special: '#7b1fa2',
+  other: '#5a607a',
+}

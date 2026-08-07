@@ -2,10 +2,14 @@
 
 [← command index](index.md) · [← README](../../README.md)
 
-Create a structure-guided multiple alignment using the Modeller dependency.
+Align and superpose multiple structures. The default engine uses an external
+sequence aligner to establish residue correspondence and Biopython's SVD
+superposition, so it does not require Modeller or a license. Modeller SALIGN
+remains available as an optional engine.
+
 Inputs may be complete PDB files or a single chain written as `PATH:CHAIN`.
-The primary output is a Modeller PIR alignment; `--fit-dir` also retains the
-superposed structures produced by SALIGN.
+The default Biopython engine requires a chain for each input. The primary
+output is PIR alignment; `--fit-dir` retains all superposed structures.
 
 ```bash
 dvbfixer salign template1.pdb:A template2.pdb:H \
@@ -19,21 +23,25 @@ dvbfixer salign template1.pdb:A template2.pdb:H \
 | Key / argument | Value | Default | Description |
 |---|---|---|---|
 | `template` | `PDB` or `PDB:CHAIN` | required | Two or more template structures. Add `:CHAIN` to restrict an input to one chain. |
-| `-o`, `--output` | path | `structural_alignment.pir` | Output path for the Modeller PIR structural alignment. |
+| `-o`, `--output` | path | `structural_alignment.pir` | Output path for the PIR alignment. |
 | `--fit-dir` | directory | none | Retain the fitted/superposed PDB structures in this directory. Without it, fitted structures are temporary. |
 
 ### Structural alignment
 
 | Key | Value | Default | Description |
 |---|---|---|---|
-| `--fit-atoms` | Modeller atom selection | `CA` | Atom type or selection passed to SALIGN for structural fitting. |
-| `--rms-cutoff` | ångströms | `3.5` | RMS-distance cutoff passed to SALIGN while improving the alignment. |
+| `--engine` | `biopython`, `modeller` | `biopython` | Structural fitting implementation. Biopython is license-free; Modeller selects SALIGN. |
+| `--msa-engine` | `auto`, `mafft`, `muscle`, `clustalo` | `auto` | Sequence engine used to identify corresponding residues for Biopython fitting. |
+| `--fit-atoms` | atom selection | `CA` | Atoms used for fitting. The Biopython engine currently supports `CA`; Modeller accepts its SALIGN selections. |
+| `--rms-cutoff` | ångströms | `3.5` | RMS-distance cutoff used only by Modeller SALIGN. |
 
 ### Diagnostics
 
 | Key | Value | Default | Description |
 |---|---|---|---|
-| `-v`, `--verbose` | flag | off | Enable verbose Modeller logging and SALIGN quality output. |
+| `-v`, `--verbose` | flag | off | Print the selected MSA engine and fit RMSD, or verbose Modeller SALIGN output. |
 | `-h`, `--help` | flag | off | Print command help and exit. |
 
-A working Modeller installation and license are required.
+The default engine needs MAFFT, MUSCLE 5, or Clustal Omega on `PATH`; see the
+[installation guide](../installation.md#multiple-sequence-alignment-executables).
+Only `--engine modeller` requires a working Modeller installation and license.

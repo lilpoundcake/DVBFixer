@@ -6,10 +6,12 @@
 
 ```
 usage: dvbfixer salign [-h] [-o OUTPUT] [--fit-dir FIT_DIR]
-                       [--fit-atoms FIT_ATOMS] [--rms-cutoff RMS_CUTOFF] [-v]
+                       [--fit-atoms FIT_ATOMS] [--rms-cutoff RMS_CUTOFF]
+                       [--engine {biopython,modeller}]
+                       [--msa-engine {auto,mafft,muscle,clustalo}] [-v]
                        template [template ...]
 
-Create a structure-based multiple alignment with Modeller SALIGN.
+Align and superpose multiple structures with Biopython or Modeller SALIGN.
 
 options:
   -h, --help            show this help message and exit
@@ -26,6 +28,11 @@ Alignment:
                         Atoms used for fitting (default: CA)
   --rms-cutoff RMS_CUTOFF
                         RMS cutoff in angstroms (default: 3.5)
+  --engine {biopython,modeller}
+                        Structural fitting engine (default: biopython)
+  --msa-engine {auto,mafft,muscle,clustalo}
+                        Sequence correspondence engine used by biopython
+                        (default: auto)
 
 Diagnostics:
   -v, --verbose

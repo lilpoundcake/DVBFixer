@@ -29,6 +29,16 @@ optional Node-side dev backend (Vite middleware) for DVBFixer pipeline runs
 and a PostgreSQL-backed Mutations DB. It loads PDB/mmCIF files and provides
 a dockable multi-panel workspace:
 
+The Library is project-based. `server/workspace-api.ts` owns versioned
+manifests below `structures/projects/<id>/`; `stores/workspaceStore.ts` is the
+frontend source of truth for the active project. Imports and every workflow
+request must carry `workspaceId` and resolve paths inside that project. Do not
+reintroduce global `/structures/index.json` selectors in workflow panels.
+Artifacts marked `hidden` are reproducibility helpers and must not appear in
+the project tree or workflow selectors. Workspace/file deletion is recoverable:
+the API moves targets to `_workspace_trash/` or the project's `.trash/` rather
+than unlinking them.
+
 - **3D Structure (primary + optional secondary)**: two independent Mol*
   viewers with optional camera sync between them
 - **Sequence**: amino acid sequence with residue-type coloring, drag-to-select,
@@ -1001,6 +1011,30 @@ we check `Loci.isEmpty(event.current.loci)` ourselves (NOT `isEmptyLoci(loci)`
 - **`pg` is loaded lazily** server-side via dynamic import; missing pg or unset `DATABASE_URL` doesn't break the app.
 - **postinstall** `scripts/fix-native-deps.mjs` installs the right platform-specific `@rollup/rollup-*` binding.
 
+## Workspace and Homology architecture
+
+The authoritative user guide is `../docs/gui-homology.md`. The Library panel
+is `ProjectLibrary.tsx`, backed by `workspaceStore.ts` and
+`server/workspace-api.ts`. Workspace imports, renames, reorders, and
+recoverable trash operations must flush/cancel pending manifest autosaves and
+reload both the active manifest and workspace summaries. Helpers and run files
+remain on disk with `hidden: true`. `TextFileViewer.tsx` owns read-only preview
+of text-like artifacts.
+
+`HomologyPanel.tsx` edits workflow state only: target FASTA, template/target
+chain assignments, rectangular MSA rows, and masks. Build requests are handled
+by `server/homology-api.ts`, which writes `template-plan.json` with absolute
+source paths and invokes `dvbfixer homology --template-plan`. Scientific
+fitting/mosaic/PIR logic must stay in Python (`dvbfixer.homology_plan`), not be
+reimplemented in React or the Vite server.
+
+Selection rules are click=replace, drag=range, Shift=additive extension from
+the newest anchor, and Cmd/Ctrl/Option=toggle plus new anchor. Mask ranges are
+zero-based and half-open. Earlier template rows win overlapping columns. The
+build emits one coordinate-preserving mosaic known, never independent knowns
+per painted span. Multi-chain plans share the first template structure as a
+global reference; `VH` and `VL` map to PDB `H` and `L`.
+
 ## File Map
 
 ```
@@ -1024,6 +1058,8 @@ src/
     AntibodyEngineerPanel.tsx   # End-to-end mutate-by-DB-row tool: chain detection, severity-tagged validation (out-of-range = warning, non-blocking), SSE-driven progress, auto-load output
     SettingsPanel.tsx           # App-wide preferences (auto-orient-on-load, Alignment source-label mode); all localStorage-persisted
     FileLoader.tsx              # Upload button (honors loadTargetSlot)
+    ProjectLibrary.tsx          # Workspace switcher/file browser: import, rename, recoverable trash, zebra rows, Shift/Cmd selection, reorder
+    TextFileViewer.tsx          # Read-only text-artifact preview tab
     ChainSelector.tsx           # Chain dropdown (same filter+sort as SequenceViewer)
 
   hooks/
@@ -1034,6 +1070,7 @@ src/
   stores/
     structureStore.ts           # plugin, secondaryPlugin, loadTargetSlot, chains+secondaryChains (each residue has seqId + optional authSeqId), elements, meta (incl. iggSubtype + allotype + optional equivalentChains override), focusedChainId+Category, cameraSyncEnabled, autoOrientOnLoad + alignmentLabelMode (both localStorage-persisted), clearAllSignal
     selectionStore.ts           # selected/hovered residues, _lock mechanism
+    workspaceStore.ts           # workspace summaries, active manifest, debounced persistence, text-preview target
 
   lib/
     molstar-helpers.ts          # MolScript builders, showSticksForLoci, extractChains (label_seq_id as seqId + auth_seq_id as authSeqId + SEQRES merge + present flag), buildAtomLoci + showClashLine (severity-colored dashed line via measurement.addDistance, per-plugin ref tracking)
@@ -1047,6 +1084,8 @@ src/
 
 server/
   api-plugin.ts                 # Vite middleware: /api/dvbfixer/*, /api/mutations, /api/library/{star,meta,folder,move}, /api/antibody-engineer/run (SSE), /api/status. Exports runDvbfixer + getPg + writeSSEHeaders + sseSend for reuse.
+  workspace-api.ts              # Workspace CRUD/import/files/rename/recoverable trash
+  homology-api.ts               # Homology project persistence; writes CLI template plans and registers run artifacts
   antibody-pipeline.ts          # Multi-step DVBFixer orchestrator: expandMutations, validateNoDuplicateTargets, pipelineSteps (glycan-7 vs no-glycan-5), engineerChecksum dedup, runEngineerPipeline (intermediate + final index.json entries, _engineer_failed/ rollback)
   dvbfixer-spec.ts              # CommandDef[] for split/renumber/model/prepare/minimize/protonate/convert (was `glycam` in older DVBFixer). renumber.--scheme options: seqres/kabat/chothia/imgt/martin/eu/aho. convert exposes --to-amber + --to-charmm + --no-roh. minimize + protonate `--ff` is a select-multi dropdown of OpenMM bundles (AMBER19/AMBER14/GLYCAM/CHARMM36 presets, empty = DVBFixer auto-pick). minimize defaults `--no-solvent` to ON (vacuum minimization is the common case in the AE pipeline + most user runs). prepare exposes --no-infer-conect. model exposes --num-output (top-N candidate save count; with N>1 the auxiliary _2.pdb/_3.pdb outputs stay on disk and Tarantino only auto-loads the first). Removed from UI: model --keep-workdir, minimize --dat/--padding/--platform, protonate --cys-disulfide-pka, protonate --protassign (DVBFixer now defaults it ON). Hidden flags are still valid on the CLI.
 

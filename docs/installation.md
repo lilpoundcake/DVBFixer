@@ -18,7 +18,8 @@ the cap.
 
 ## Multiple-sequence alignment executables
 
-`dvbfixer msa` and the GUI Homology workspace run an external alignment
+`dvbfixer msa`, `dvbfixer homology --template-plan`, and the GUI Homology
+workspace run an external alignment
 program. The full `environment.yml` installs all three supported engines:
 
 ```bash

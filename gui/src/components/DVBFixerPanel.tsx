@@ -22,6 +22,7 @@ import Tooltip from '@mui/material/Tooltip'
 import { useStructureStore } from '../stores/structureStore'
 import { chainToSequence } from '../lib/alignment'
 import { filterSequenceableChains } from '../lib/chain-grouping'
+import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
 
 // Re-declare the spec types here (mirrors server/dvbfixer-spec.ts) so the
 // frontend doesn't have to import server/. The actual spec is fetched at
@@ -207,6 +208,10 @@ export function DVBFixerPanel() {
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState<RunResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const workspace = useWorkspaceStore(state => state.active)
+  const workspaceRevision = useWorkspaceStore(state => state.revision)
+  const reloadWorkspace = useWorkspaceStore(state => state.reload)
+  const updateToolState = useWorkspaceStore(state => state.updateToolState)
 
   const fetchSpec = useCallback(() => {
     fetch(`/api/dvbfixer-spec?t=${Date.now()}`, { cache: 'no-store' })
@@ -241,16 +246,27 @@ export function DVBFixerPanel() {
 
   useEffect(() => { fetchSpec() }, [fetchSpec])
 
-  const refreshStructures = useCallback(() => {
-    fetch('/structures/index.json')
-      .then(r => r.ok ? r.json() : [])
-      .then((data: StructureEntry[]) => {
-        setStructures(data)
-      })
-      .catch(() => {})
-  }, [])
+  useEffect(() => {
+    setStructures((workspace?.artifacts || []).filter(item => !item.hidden).map(item => ({ id: item.id, file: item.file, name: item.name, kind: item.kind, artifactType: item.artifactType })))
+  }, [workspace, workspaceRevision])
 
-  useEffect(() => { refreshStructures() }, [refreshStructures])
+  useEffect(() => {
+    const state = workspace?.toolState?.dvbfixer as any
+    if (!state) return
+    setInputFile(state.inputFile || '')
+    setInputsByCommand(state.inputsByCommand || {})
+    setValues(current => ({ ...current, ...(state.values || {}) }))
+    if (state.category) setCategory(state.category)
+    if (state.result) setResult(state.result)
+  // Restore once when switching workspaces; autosave updates must not reset in-progress edits.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspace?.id])
+
+  useEffect(() => {
+    if (!workspace) return
+    updateToolState('dvbfixer', { inputFile, inputsByCommand, values, category, result })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputFile, inputsByCommand, values, category, result])
 
   // Keep the input dropdown in sync with the currently-loaded structure in
   // the PRIMARY 3D viewer. When the user loads / switches structures, the
@@ -393,7 +409,7 @@ export function DVBFixerPanel() {
       const res = await fetch(`/api/dvbfixer/${activeCmd.name}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inputFile, inputs: runInputs, values: activeValues, fastaContent }),
+        body: JSON.stringify({ workspaceId: workspace?.id, inputFile, inputs: runInputs, values: activeValues, fastaContent }),
       })
       const body = await res.json() as RunResult & { error?: string }
       if (!res.ok) {
@@ -406,8 +422,8 @@ export function DVBFixerPanel() {
         const plugin = useStructureStore.getState().plugin
         if (plugin && outputFile && /\.(pdb|cif|mmcif|gro)$/i.test(outputFile)) {
           try {
-            const fileRes = await fetch(`/structures/${encodeURI(outputFile)}`)
-            if (fileRes.ok) {
+            const fileRes = workspace ? await fetch(workspaceFileUrl(workspace.id, outputFile)) : null
+            if (fileRes?.ok) {
               const text = await fileRes.text()
               const format = outputFile.endsWith('.cif') || outputFile.endsWith('.mmcif') ? 'mmcif' : 'pdb'
               await plugin.clear()
@@ -425,15 +441,14 @@ export function DVBFixerPanel() {
           }
         }
       }
-      // Refresh local input list + notify other components (Library) to refetch
-      setTimeout(refreshStructures, 200)
+      await reloadWorkspace()
       useStructureStore.getState().bumpLibraryVersion()
     } catch (e: any) {
       setError(e.message ?? String(e))
     } finally {
       setRunning(false)
     }
-  }, [activeCmd, inputFile, inputsByCommand, activeValues, refreshStructures, buildFastaContent])
+  }, [activeCmd, inputFile, inputsByCommand, activeValues, buildFastaContent, reloadWorkspace, workspace])
 
   const inputOptions = useMemo(() => structures.filter(s => s.kind !== 'folder' && !!s.file), [structures])
 
@@ -533,7 +548,7 @@ export function DVBFixerPanel() {
               </Button>
 
               <Tooltip title="Reload command specs (pick up new DVBFixer subcommands without page reload)">
-                <IconButton size="small" onClick={() => { fetchSpec(); refreshStructures() }}>
+                <IconButton size="small" onClick={() => { fetchSpec(); reloadWorkspace().catch(() => {}) }}>
                   <RefreshIcon sx={{ fontSize: 16 }} />
                 </IconButton>
               </Tooltip>

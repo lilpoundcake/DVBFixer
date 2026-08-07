@@ -49,7 +49,11 @@ def parse_fasta_chains(fasta_path):
                     else:
                         chain_id = header[-1]
                 else:
-                    chain_id = header[-1] if len(header) == 1 else header[0]
+                    upper = header.upper()
+                    if upper in ('VH', 'VL'):
+                        chain_id = upper[-1]
+                    else:
+                        chain_id = header[-1] if len(header) == 1 else header[0]
                 current_id = chain_id
                 current_seq = []
             elif current_id is not None:
@@ -381,6 +385,35 @@ def _build_per_chain_alignment(env, target_chains, template_names,
 # Modeller multi-template modeling
 # ---------------------------------------------------------------------------
 
+def _make_model_with_loop_fallback(env, automodel_cls, loopmodel_cls,
+                                   alnfile, knowns, sequence, num_models,
+                                   no_loop_refine, md_level):
+    """Build with LoopModel, retrying with automodel when no loops exist."""
+    use_loops = not no_loop_refine
+    model_cls = loopmodel_cls if use_loops else automodel_cls
+
+    def configured(cls, configure_loops):
+        model = cls(env, alnfile=alnfile, knowns=knowns, sequence=sequence)
+        model.starting_model = 1
+        model.ending_model = num_models
+        if configure_loops:
+            model.loop.starting_model = 1
+            model.loop.ending_model = num_models
+            model.loop.md_level = md_level
+        return model
+
+    model = configured(model_cls, use_loops)
+    try:
+        model.make()
+    except Exception as exc:
+        if not use_loops or "No loops detected for refinement" not in str(exc):
+            raise
+        print("INFO: alignment contains no modelable loops; retrying with automodel")
+        model = configured(automodel_cls, False)
+        model.make()
+        use_loops = False
+    return model, use_loops
+
 def run_homology_modeller(target_chains, template_paths, chain_mapping,
                           args, workdir='.'):
     """Run Modeller multi-template homology modeling.
@@ -423,18 +456,12 @@ def run_homology_modeller(target_chains, template_paths, chain_mapping,
         shutil.copy2(aln_path, os.path.join(workdir, 'alignment.pir'))
         aln_path = os.path.join(workdir, 'alignment.pir')
 
-        ModelClass = automodel if args.no_loop_refine else LoopModel
-        a = ModelClass(env, alnfile=aln_path,
-                       knowns=tuple(template_names), sequence='target')
-        a.starting_model = 1
-        a.ending_model = args.num_models
-        if not args.no_loop_refine:
-            a.loop.starting_model = 1
-            a.loop.ending_model = args.num_models
-            a.loop.md_level = md_levels[args.md_level]
-        a.make()
-
-        models = (_get_best_models(a, args.no_loop_refine))
+        a, used_loops = _make_model_with_loop_fallback(
+            env, automodel, LoopModel, aln_path, tuple(template_names),
+            'target', args.num_models, args.no_loop_refine,
+            md_levels[args.md_level],
+        )
+        models = _get_best_models(a, not used_loops)
         best = min(models, key=lambda x: x['molpdf'])
         print(f"Best model: {best['name']} (molpdf={best['molpdf']:.1f})")
         return os.path.join(workdir, best['name']), aln_path
@@ -488,19 +515,12 @@ def run_homology_modeller(target_chains, template_paths, chain_mapping,
                 print(af.read()[:300])
 
         # Model this chain
-        ModelClass = automodel if args.no_loop_refine else LoopModel
-        a = ModelClass(env, alnfile=chain_aln_path,
-                       knowns=chain_code,
-                       sequence=f'target_{tgt_chain_id}')
-        a.starting_model = 1
-        a.ending_model = args.num_models
-        if not args.no_loop_refine:
-            a.loop.starting_model = 1
-            a.loop.ending_model = args.num_models
-            a.loop.md_level = md_levels[args.md_level]
-        a.make()
-
-        models = _get_best_models(a, args.no_loop_refine)
+        a, used_loops = _make_model_with_loop_fallback(
+            env, automodel, LoopModel, chain_aln_path, chain_code,
+            f'target_{tgt_chain_id}', args.num_models,
+            args.no_loop_refine, md_levels[args.md_level],
+        )
+        models = _get_best_models(a, not used_loops)
         best = min(models, key=lambda x: x['molpdf'])
         print(f"    Best: {best['name']} (molpdf={best['molpdf']:.1f})")
         chain_models[tgt_chain_id] = os.path.join(workdir, best['name'])
@@ -604,8 +624,10 @@ def parse_args(argv=None):
     io = p.add_argument_group('Input / output')
     io.add_argument('fasta',
                     help='Target sequence FASTA (multi-chain, one >header per chain)')
-    io.add_argument('--template', action='append', required=True,
+    io.add_argument('--template', action='append', default=[],
                     help='Template PDB file (repeatable, at least 1)')
+    io.add_argument('--template-plan',
+                    help='JSON template-chain selection plan; fits and merges selected parts into one known')
     io.add_argument('-o', '--output', default=None,
                     help='Output prefix (default: FASTA stem)')
 
@@ -653,6 +675,10 @@ def main(argv=None):
         print(f"Error: {fasta_path} not found", file=sys.stderr)
         sys.exit(1)
 
+    if not args.template and not args.template_plan:
+        raise SystemExit('ERROR: provide --template at least once or use --template-plan')
+    if args.template_plan and (args.template or args.alignment):
+        raise SystemExit('ERROR: --template-plan cannot be combined with --template or --alignment')
     for tpl in args.template:
         if not Path(tpl).exists():
             print(f"Error: template {tpl} not found", file=sys.stderr)
@@ -664,9 +690,16 @@ def main(argv=None):
     for ch_id, seq in target_chains:
         print(f"  Chain {ch_id}: {len(seq)} residues")
 
+    workdir = tempfile.mkdtemp(prefix='dvbfixer_homology_')
+    if args.template_plan:
+        from dvbfixer.homology_plan import materialize_template_plan
+        template_paths, args.alignment = materialize_template_plan(
+            Path(args.template_plan).resolve(), Path(workdir), verbose=args.verbose)
+    else:
+        template_paths = [str(Path(t).resolve()) for t in args.template]
+
     # 2. Analyze templates
     template_infos = []
-    template_paths = [str(Path(t).resolve()) for t in args.template]
     for tpl_path in template_paths:
         tpl_name = Path(tpl_path).stem
         tpl_chains = get_template_chains(tpl_path)
@@ -687,7 +720,6 @@ def main(argv=None):
         ab_info = run_antibody_analysis(target_chains, verbose=args.verbose)
 
     # 5. Run Modeller
-    workdir = tempfile.mkdtemp(prefix='dvbfixer_homology_')
     orig_dir = os.getcwd()
 
     try:

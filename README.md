@@ -19,6 +19,8 @@ The `dvbfixer-gui` branch includes a React/Mol* workspace under [`gui/`](gui/).
 It exposes every CLI command through forms generated from the argparse surface,
 indexes structure and non-structure artifacts, and adds a persistent
 multi-template Homology workflow with MSA editing and Modeller template masks.
+The complete workflow is documented in the
+[GUI Homology guide](docs/gui-homology.md).
 
 ```bash
 cd gui
@@ -60,7 +62,7 @@ chemistry backends.
 | [`cluster`](docs/commands/cluster.md) | Glycan conformational clustering from MD trajectories (GFDB-style) |
 | [`homology`](docs/commands/homology.md) | Multi-template homology modeling with Modeller (antibody-aware) |
 | [`msa`](docs/commands/msa.md) | Multiple protein-sequence alignment with MAFFT, MUSCLE 5, or Clustal Omega |
-| [`salign`](docs/commands/salign.md) | Structure-based multiple alignment and superposition with Modeller SALIGN |
+| [`salign`](docs/commands/salign.md) | Multiple structural superposition with Biopython (default) or Modeller SALIGN |
 | [`parametrize`](docs/commands/parametrize.md) | GAFF2 + AM1-BCC/RESP small-molecule parametrization (GROMACS-ready) |
 | [`puppet`](docs/commands/puppet.md) | Strip a PDB to backbone-only polyglycine (template / visualization) |
 | [`diagnose`](docs/commands/diagnose.md) | Report structure-quality issues (missing atoms, coincident atoms, valence, clashes, chirality) — report-only |

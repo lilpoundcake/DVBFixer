@@ -41,6 +41,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useStructureStore, type ViewerSlot } from '../stores/structureStore'
 import { useSelectionStore } from '../stores/selectionStore'
+import { useWorkspaceStore } from '../stores/workspaceStore'
 
 /* ────────────────────────────────────────────────────────────────────────
  * Types
@@ -146,6 +147,10 @@ export function StructureLibrary(_props: { onClose?: () => void }) {
   const clearSelection = useSelectionStore((s) => s.clearSelection)
   const bumpLibraryVersion = useStructureStore((s) => s.bumpLibraryVersion)
   const libraryVersion = useStructureStore((s) => s.libraryVersion)
+  const activeWorkspace = useWorkspaceStore((s) => s.active)
+  const saveWorkspace = useWorkspaceStore((s) => s.save)
+  const reloadWorkspace = useWorkspaceStore((s) => s.reload)
+  const refreshWorkspaces = useWorkspaceStore((s) => s.refresh)
 
   /* ── Fetch ─────────────────────────────────────────────────────────── */
   const fetchIndex = useCallback(async () => {
@@ -210,24 +215,27 @@ export function StructureLibrary(_props: { onClose?: () => void }) {
 
   const importArtifacts = useCallback(async (files: FileList | null) => {
     if (!files?.length) return
+    if (!activeWorkspace) { setStoreError('Create or select a workspace before importing files'); return }
     setStoreLoading(true)
     setStoreError(null)
     try {
+      await saveWorkspace()
       for (const file of Array.from(files)) {
-        const response = await fetch('/api/artifacts/import', {
+        const response = await fetch(`/api/workspaces/${encodeURIComponent(activeWorkspace.id)}/import`, {
           method: 'POST', headers: { 'X-File-Name': encodeURIComponent(file.name) }, body: file,
         })
         const body = await response.json().catch(() => ({}))
         if (!response.ok) throw new Error(body.error || `Upload failed: HTTP ${response.status}`)
       }
-      bumpLibraryVersion()
+      await reloadWorkspace()
+      await refreshWorkspaces()
     } catch (reason: any) {
       setStoreError(reason.message || String(reason))
     } finally {
       setStoreLoading(false)
       if (uploadRef.current) uploadRef.current.value = ''
     }
-  }, [bumpLibraryVersion, setStoreError, setStoreLoading])
+  }, [activeWorkspace, refreshWorkspaces, reloadWorkspace, saveWorkspace, setStoreError, setStoreLoading])
 
   /* ── Load a structure into the active viewer slot ──────────────────── */
   const findStarredInLineage = useCallback((rootStruct: StructureEntry): StructureEntry | null => {

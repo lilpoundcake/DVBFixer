@@ -2889,8 +2889,20 @@ export const GENERATED_COMMANDS = [
         "type": "artifact",
         "group": "Input / output",
         "help": "Template PDB file (repeatable, at least 1)",
-        "required": true,
+        "required": false,
         "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
+        "flag": "--template-plan",
+        "dest": "template_plan",
+        "label": "Template Plan",
+        "type": "text",
+        "group": "Input / output",
+        "help": "JSON template-chain selection plan; fits and merges selected parts into one known",
+        "required": false,
+        "repeatable": false,
         "multi": false
       },
       {
@@ -3036,7 +3048,8 @@ export const GENERATED_COMMANDS = [
       {
         "name": "Input / output",
         "fields": [
-          "--template"
+          "--template",
+          "--template-plan"
         ]
       },
       {
@@ -3256,6 +3269,40 @@ export const GENERATED_COMMANDS = [
         "default": 3.5
       },
       {
+        "flag": "--engine",
+        "dest": "engine",
+        "label": "Engine",
+        "type": "select",
+        "group": "Alignment",
+        "help": "Structural fitting engine (default: biopython)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "biopython",
+        "options": [
+          "biopython",
+          "modeller"
+        ]
+      },
+      {
+        "flag": "--msa-engine",
+        "dest": "msa_engine",
+        "label": "Msa Engine",
+        "type": "select",
+        "group": "Alignment",
+        "help": "Sequence correspondence engine used by biopython (default: auto)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "auto",
+        "options": [
+          "auto",
+          "mafft",
+          "muscle",
+          "clustalo"
+        ]
+      },
+      {
         "flag": "--verbose",
         "dest": "verbose",
         "label": "Verbose",
@@ -3278,7 +3325,9 @@ export const GENERATED_COMMANDS = [
         "name": "Alignment",
         "fields": [
           "--fit-atoms",
-          "--rms-cutoff"
+          "--rms-cutoff",
+          "--engine",
+          "--msa-engine"
         ]
       },
       {

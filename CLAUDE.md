@@ -64,6 +64,27 @@ Omega. Keep user-facing installation details in
 `docs/installation.md#multiple-sequence-alignment-executables` and link to
 that section instead of duplicating platform instructions elsewhere.
 
+The GUI Library is a workspace/project switcher. Project manifests and owned
+artifacts live below `gui/structures/projects/<id>/`; workflow API requests are
+scoped by `workspaceId`. Homology supports multiple workflows per workspace,
+target parsing from workspace files, active-primary template capture, parsed
+chain selectors, Clustal-style continuous alignments, and synchronized
+template-residue selection for Modeller fragments. Preserve project path
+isolation and the one-time legacy Library migration.
+Homology GUI behavior is documented in `docs/gui-homology.md`. The GUI writes
+`template-plan.json`; all scientific materialization belongs in Python
+`dvbfixer homology --template-plan`, specifically
+`src/dvbfixer/homology_plan.py`. That path groups template chains by target,
+fits them into a shared reference frame, resolves zero-based half-open masks
+(earlier template wins overlap), and creates ONE
+`selected_template_mosaic.pdb` plus its matching PIR. Do not regress to one
+Modeller `known` per selected span: Modeller independently repositions
+non-overlapping knowns and destroys mosaic geometry. Multi-chain groups must
+all contain a chain from the first template structure. Logical `VH`/`VL`
+target IDs map to distinct PDB chains `H`/`L`; never truncate both to `V`.
+`dvbfixer salign` defaults to sequence-guided Biopython Cα superposition;
+Modeller SALIGN remains an explicit optional engine.
+
 **Python is pinned `>=3.11,<3.14`** in `environment.yml`. Do not loosen
 this. propka 3.5.1 reads `self.__annotations__` (instance-level) inside
 its `Parameters` dataclass; Python 3.14's PEP 649/749 annotation change

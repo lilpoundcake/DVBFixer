@@ -25,8 +25,14 @@ backend and an optional PostgreSQL-backed mutations table.
 - **DVBfixer panel** -- every current CLI tool, generated from argparse and
   grouped by workflow and argument section
 - **Homology workspace** -- persistent target/template projects, MAFFT,
-  MUSCLE 5, or Clustal Omega MSA, manual gap editing, Modeller SALIGN, template
+  MUSCLE 5, or Clustal Omega MSA, manual gap editing, license-free Biopython
+  structural fitting grouped by target chain (with optional Modeller SALIGN), template
   span masks, and model generation
+- **Project workspaces** -- each project owns its files, generated runs/logs,
+  active A/B structures, workflow inputs/results, and Homology workflows
+- **Workspace file browser** -- alternating rows, Shift/Cmd multi-selection,
+  reorder controls, rename/trash context actions, and a dedicated read-only
+  Text Files tab for FASTA, PIR, logs, JSON, YAML, and other text artifacts
 - **Mutations panel** -- editable DataGrid backed by PostgreSQL for keeping
   antibody mutation sets (e.g. YTE, LS, DLE)
 - **Structure library** -- expandable tree of pre-loaded structures, star a
@@ -37,6 +43,42 @@ backend and an optional PostgreSQL-backed mutations table.
 
 Everything except DVBFixer runs and the Mutations DB runs in the browser.
 Your files never leave your machine.
+
+### Project data and Homology selection
+
+For the complete target-to-model workflow, selection controls, structural
+fitting behavior, template-plan schema, diagnostics, and limitations, see the
+[GUI Homology Workspace guide](../docs/gui-homology.md).
+
+Projects live below `structures/projects/<project-id>/` in a versioned
+`workspace.json` plus `files/`, `runs/`, and `homology/` directories. On first
+start, legacy top-level Library folders become projects and ungrouped files go
+to `Unsorted`; legacy files remain intact as a recovery source.
+
+Internal bookkeeping (`workspace.json`, run manifests, captured stdout/stderr,
+and temporary alignment/model inputs) stays on disk but is hidden from the
+project tree and workflow file selectors. Right-click a project or visible file
+to move it to trash. Project trash is stored under
+`structures/_workspace_trash/`; file trash stays in the owning project's
+`.trash/` directory.
+
+The Homology Target tab parses FASTA/PIR or protein chains from a workspace
+PDB/mmCIF file. **Add active 3D template** captures viewer A and populates its
+chain selector from the structure. With multiple target chains, Alignment
+shows a target-chain selector and one synchronized, horizontally scrolling
+alignment at a time.
+
+| Consensus mark | Meaning |
+|---|---|
+| `*` | Fully conserved column |
+| `:` | Strongly similar residues |
+| `.` | Weakly similar residues |
+| blank | Mismatch or a column containing a gap |
+
+Click a template residue to select it, Shift-click for a range, and Ctrl/Cmd-
+click to add or remove disjoint residues. Selecting a template loads it into
+viewer A when necessary and synchronizes the 3D highlight. Gap arrows move a
+gap without changing row length; the toolbar adds or removes full gap columns.
 
 ## Install & run
 

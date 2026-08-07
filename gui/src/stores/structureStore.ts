@@ -165,14 +165,21 @@ export const useStructureStore = create<StructureState>((set, get) => ({ // @dsp
   meta: { ...defaultMeta },
   focusedChainId: null,
   focusedCategory: null,
-  cameraSyncEnabled: true,
+  // Independent interaction is the safe default. Camera linking is explicit:
+  // an idle/drawing secondary canvas must never push its camera back onto A.
+  cameraSyncEnabled: false,
   autoOrientOnLoad: loadPersistedAutoOrient(),
   alignmentLabelMode: loadAlignmentLabelMode(),
   clearAllSignal: 0,
   libraryVersion: 0,
 
   setPlugin: (plugin) => set({ plugin }),
-  setSecondaryPlugin: (plugin) => set({ secondaryPlugin: plugin }),
+  setSecondaryPlugin: (plugin) => set({
+    secondaryPlugin: plugin,
+    // Opening B must not unexpectedly seize A's camera. Users can opt back
+    // into linking after both viewers are loaded.
+    ...(plugin ? { cameraSyncEnabled: false } : {}),
+  }),
   setLoadTargetSlot: (slot) => set({ loadTargetSlot: slot }),
   setChains: (chains) => {
     set({

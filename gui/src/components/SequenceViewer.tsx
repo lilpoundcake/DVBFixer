@@ -11,20 +11,13 @@ import ZoomInIcon from '@mui/icons-material/CenterFocusStrong'
 import { useStructureStore } from '../stores/structureStore'
 import { useSelectionStore } from '../stores/selectionStore'
 import { selectResiduesInViewer, showSurroundingsAndFocus } from '../lib/molstar-helpers'
-import { threeToOne, residueClass } from '../lib/residue-codes'
+import { threeToOne, residueClass, RESIDUE_CLASS_COLORS } from '../lib/residue-codes'
 import { ChainSelector } from './ChainSelector'
 
 const RESIDUES_PER_LINE = 60
 const BLOCK_SIZE = 10
 
-const CLASS_COLORS: Record<string, string> = {
-  hydrophobic: '#2e7d32',
-  positive: '#1565c0',
-  negative: '#c62828',
-  polar: '#e68a00',
-  special: '#7b1fa2',
-  other: '#5a607a',
-}
+const CLASS_COLORS = RESIDUE_CLASS_COLORS
 
 const NON_SEQ_COMPS = new Set([
   'HOH', 'WAT', 'DOD', 'H2O',  // water

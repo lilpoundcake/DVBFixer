@@ -20,6 +20,7 @@ import Alert from '@mui/material/Alert'
 import Tooltip from '@mui/material/Tooltip'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { useStructureStore } from '../stores/structureStore'
+import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
 import { identifyAntibodyChain, mapEuToAuthSeqId, parseMutation, mutateArgFor, type AntibodyClassification } from '../lib/antibody-numbering'
 
 interface StructureEntry {
@@ -68,14 +69,11 @@ export function AntibodyEngineerPanel() {
   const [inputFile, setInputFile] = useState('')
   const userPickedInputRef = useRef(false)
   const primaryFileName = useStructureStore(s => s.fileName)
+  const workspace = useWorkspaceStore(s => s.active)
+  const reloadWorkspace = useWorkspaceStore(s => s.reload)
+  const updateToolState = useWorkspaceStore(s => s.updateToolState)
 
-  const refreshStructures = useCallback(() => {
-    fetch('/structures/index.json')
-      .then(r => r.ok ? r.json() : [])
-      .then((data: StructureEntry[]) => setStructures(data))
-      .catch(() => {})
-  }, [])
-  useEffect(() => { refreshStructures() }, [refreshStructures])
+  useEffect(() => setStructures((workspace?.artifacts || []).filter(item => !item.hidden).map(item => ({ id: item.id, file: item.file, name: item.name }))), [workspace])
 
   useEffect(() => {
     if (!primaryFileName) return
@@ -326,6 +324,27 @@ export function AntibodyEngineerPanel() {
   const [runError, setRunError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
+  useEffect(() => {
+    const state = workspace?.toolState?.antibodyEngineer as any
+    if (!state) return
+    setInputFile(state.inputFile || '')
+    setChecked(new Set(state.checked || []))
+    setManualChainsByMutationId(state.manualChainsByMutationId || {})
+    setGlycanMode(state.glycanMode || 'auto')
+    setScheme(state.scheme || 'EU')
+    if (state.phase === 'done' || state.phase === 'cached') setPhase(state.phase)
+    if (state.progress) setProgress(state.progress)
+  // Restore once when switching workspaces; autosave updates must not reset in-progress edits.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspace?.id])
+
+  useEffect(() => {
+    if (!workspace) return
+    updateToolState('antibodyEngineer', { inputFile, checked: [...checked], manualChainsByMutationId, glycanMode, scheme,
+      phase: phase === 'running' ? 'idle' : phase, progress })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputFile, checked, manualChainsByMutationId, glycanMode, scheme, phase, progress])
+
   // Only ERROR-severity issues block the Run button. Warnings (currently:
   // out-of-range residues) are non-blocking — DVBFixer's recent versions
   // silently skip residues missing from the structure rather than failing.
@@ -346,6 +365,7 @@ export function AntibodyEngineerPanel() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
         body: JSON.stringify({
+          workspaceId: workspace?.id,
           inputFile,
           mutationIds: Array.from(checked).sort((a, b) => a - b),
           equivalentChainsMap,
@@ -402,7 +422,8 @@ export function AntibodyEngineerPanel() {
       }
       // Stream closed.
       if (finalOutput) {
-        await loadOutputIntoPrimary(finalOutput)
+        if (workspace) await loadOutputIntoPrimary(workspace.id, finalOutput)
+        await reloadWorkspace()
         useStructureStore.getState().bumpLibraryVersion()
         if (phase !== 'cached') setPhase('done')
       }
@@ -410,7 +431,7 @@ export function AntibodyEngineerPanel() {
       setRunError(e?.message ?? String(e))
       setPhase('error')
     }
-  }, [canRun, inputFile, checked, equivalentChainsMap, effectiveHasGlycan, scheme, phase])
+  }, [canRun, inputFile, checked, equivalentChainsMap, manualChainsByMutationId, effectiveHasGlycan, scheme, phase, reloadWorkspace, workspace])
 
   const handleCancel = useCallback(() => {
     abortRef.current?.abort()
@@ -746,11 +767,11 @@ export function AntibodyEngineerPanel() {
  * panels react. Failures are warned but not fatal — the SSE stream has
  * already reported success.
  */
-async function loadOutputIntoPrimary(outputFile: string): Promise<void> {
+async function loadOutputIntoPrimary(workspaceId: string, outputFile: string): Promise<void> {
   const plugin = useStructureStore.getState().plugin
   if (!plugin) return
   try {
-    const fileRes = await fetch(`/structures/${encodeURI(outputFile)}`)
+    const fileRes = await fetch(workspaceFileUrl(workspaceId, outputFile))
     if (!fileRes.ok) return
     const text = await fileRes.text()
     const format = outputFile.endsWith('.cif') || outputFile.endsWith('.mmcif') ? 'mmcif' : 'pdb'

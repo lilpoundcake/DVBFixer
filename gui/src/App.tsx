@@ -30,7 +30,7 @@ import Tooltip from '@mui/material/Tooltip'
 import { MolstarViewer } from './components/MolstarViewer'
 import { SequenceViewer } from './components/SequenceViewer'
 import { FileLoader } from './components/FileLoader'
-import { StructureLibrary } from './components/StructureLibrary'
+import { ProjectLibrary } from './components/ProjectLibrary'
 import { StructureInfo } from './components/StructureInfo'
 import { ElementsTable } from './components/ElementsTable'
 import { InteractionsPanel } from './components/InteractionsPanel'
@@ -41,6 +41,7 @@ import { HomologyPanel } from './components/HomologyPanel'
 import { MutationsPanel } from './components/MutationsPanel'
 import { AntibodyEngineerPanel } from './components/AntibodyEngineerPanel'
 import { SettingsPanel } from './components/SettingsPanel'
+import { TextFileViewer } from './components/TextFileViewer'
 import { useStructureStore } from './stores/structureStore'
 import { useSelectionStore } from './stores/selectionStore'
 import { useMolstarSync } from './hooks/useMolstarSync'
@@ -51,6 +52,7 @@ const PANEL_TYPES = [
   { component: 'viewer', name: '3D Structure', icon: <ViewInArIcon sx={{ fontSize: 16 }} /> },
   { component: 'viewer2', name: '3D Structure (B)', icon: <ViewInArIcon sx={{ fontSize: 16 }} /> },
   { component: 'sequence', name: 'Sequence', icon: <TextSnippetIcon sx={{ fontSize: 16 }} /> },
+  { component: 'text-viewer', name: 'Text Files', icon: <TextSnippetIcon sx={{ fontSize: 16 }} /> },
   { component: 'elements', name: 'Elements', icon: <ListAltIcon sx={{ fontSize: 16 }} /> },
   { component: 'interactions', name: 'Interactions', icon: <HubIcon sx={{ fontSize: 16 }} /> },
   { component: 'clashes', name: 'Clashes', icon: <WarningIcon sx={{ fontSize: 16 }} /> },
@@ -95,6 +97,7 @@ const layoutJson: IJsonModel = {
             weight: 45,
             children: [
               { type: 'tab', name: 'Info', component: 'info' },
+              { type: 'tab', name: 'Text Files', component: 'text-viewer' },
               { type: 'tab', name: 'Settings', component: 'settings' },
             ],
           },
@@ -163,6 +166,18 @@ function App() { // @dsp obj-a1000002
   useCameraSync()
 
   useEffect(() => {
+    const openTextViewer = () => {
+      let target: TabNode | null = null
+      modelRef.current.visitNodes(node => {
+        if (node instanceof TabNode && node.getComponent() === 'text-viewer') target = node
+      })
+      if (target) modelRef.current.doAction(Actions.selectTab((target as TabNode).getId()))
+    }
+    window.addEventListener('dvbfixer:open-text-viewer', openTextViewer)
+    return () => window.removeEventListener('dvbfixer:open-text-viewer', openTextViewer)
+  }, [])
+
+  useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         clearSelection()
@@ -191,7 +206,8 @@ function App() { // @dsp obj-a1000002
       case 'viewer': return <MolstarViewer slot="primary" />
       case 'viewer2': return <MolstarViewer slot="secondary" />
       case 'sequence': return <SequenceViewer />
-      case 'library': return <StructureLibrary />
+      case 'text-viewer': return <TextFileViewer />
+      case 'library': return <ProjectLibrary />
       case 'info': return <StructureInfo />
       case 'elements': return <ElementsTable />
       case 'interactions': return <InteractionsPanel />

@@ -4,6 +4,7 @@ import Button from '@mui/material/Button'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { useStructureStore } from '../stores/structureStore'
 import { useSelectionStore } from '../stores/selectionStore'
+import { useWorkspaceStore, workspaceFileUrl, type WorkspaceArtifact } from '../stores/workspaceStore'
 
 function detectFormat(filename: string): 'pdb' | 'mmcif' {
   const lower = filename.toLowerCase()
@@ -21,6 +22,11 @@ export function FileLoader() { // @dsp obj-a1000005
   const setLoading = useStructureStore((s) => s.setLoading)
   const setError = useStructureStore((s) => s.setError)
   const clearSelection = useSelectionStore((s) => s.clearSelection)
+  const activeWorkspace = useWorkspaceStore((s) => s.active)
+  const saveWorkspace = useWorkspaceStore((s) => s.save)
+  const reloadWorkspace = useWorkspaceStore((s) => s.reload)
+  const refreshWorkspaces = useWorkspaceStore((s) => s.refresh)
+  const updateWorkspace = useWorkspaceStore((s) => s.update)
 
   const loadFile = useCallback(async (file: File) => {
     const targetPlugin = loadTargetSlot === 'secondary' ? secondaryPlugin : plugin
@@ -38,8 +44,19 @@ export function FileLoader() { // @dsp obj-a1000005
     if (loadTargetSlot === 'primary') clearSelection()
 
     try {
-      const text = await file.text()
-      const format = detectFormat(file.name)
+      if (!activeWorkspace) throw new Error('Create or select a workspace before importing files')
+      await saveWorkspace()
+      const upload = await fetch(`/api/workspaces/${encodeURIComponent(activeWorkspace.id)}/import`, {
+        method: 'POST', headers: { 'X-File-Name': encodeURIComponent(file.name) }, body: file,
+      })
+      const artifact = await upload.json() as WorkspaceArtifact & { error?: string }
+      if (!upload.ok) throw new Error(artifact.error || `Import failed: HTTP ${upload.status}`)
+      await reloadWorkspace()
+      await refreshWorkspaces()
+      const response = await fetch(workspaceFileUrl(activeWorkspace.id, artifact.file), { cache: 'no-store' })
+      if (!response.ok) throw new Error(`Imported file cannot be read: HTTP ${response.status}`)
+      const text = await response.text()
+      const format = detectFormat(artifact.file)
 
       await targetPlugin.clear()
       const data = await targetPlugin.builders.data.rawData({ data: text, label: file.name })
@@ -47,16 +64,18 @@ export function FileLoader() { // @dsp obj-a1000005
       await targetPlugin.builders.structure.hierarchy.applyPreset(trajectory, 'default')
 
       if (loadTargetSlot === 'secondary') {
-        setSecondaryFileName(file.name)
+        setSecondaryFileName(artifact.file)
+        updateWorkspace({ secondaryFile: artifact.file })
       } else {
-        setFileName(file.name)
+        setFileName(artifact.file)
+        updateWorkspace({ primaryFile: artifact.file })
       }
     } catch (err: any) {
       setError(`Failed to load file: ${err.message}`)
     } finally {
       setLoading(false)
     }
-  }, [plugin, secondaryPlugin, loadTargetSlot, setFileName, setSecondaryFileName, setLoading, setError, clearSelection])
+  }, [activeWorkspace, clearSelection, loadTargetSlot, plugin, refreshWorkspaces, reloadWorkspace, saveWorkspace, secondaryPlugin, setError, setFileName, setLoading, setSecondaryFileName, updateWorkspace])
 
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
