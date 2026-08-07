@@ -6,6 +6,9 @@ def test_capability_report_has_stable_sections():
     assert set(report) == {"python_packages", "executables", "openmm_platforms"}
     assert "OpenMM" in report["python_packages"]
     assert "tleap" in report["executables"]
+    assert "MAFFT" in report["executables"]
+    assert "MUSCLE" in report["executables"]
+    assert "Clustal Omega" in report["executables"]
 
 
 def test_json_output_is_machine_readable(capsys):

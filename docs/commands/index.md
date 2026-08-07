@@ -12,6 +12,7 @@ Every `dvbfixer` subcommand has its own page. The first column is alphabetical; 
 | [`diagnose`](diagnose.md) | Report structure-quality issues without modifying the input | Analysis |
 | [`doctor`](doctor.md) | Report installed backends, executables, and OpenMM platforms | Utilities |
 | [`homology`](homology.md) | Multi-template homology modeling with Modeller (antibody-aware) | Modeling |
+| [`msa`](msa.md) | Multiple protein-sequence alignment using MAFFT, MUSCLE 5, or Clustal Omega | Modeling |
 | [`minimize`](minimize.md) | Energy minimization with OpenMM + selective restraints, optional xtb/obminimize refinement | Refinement |
 | [`model`](model.md) | Rebuild missing loops/gaps with Modeller's LoopModel | Structure prep |
 | [`parametrize`](parametrize.md) | GAFF2 + AM1-BCC/RESP small-molecule parametrization (GROMACS-ready) | Topology |
@@ -21,6 +22,7 @@ Every `dvbfixer` subcommand has its own page. The first column is alphabetical; 
 | [`puppet`](puppet.md) | Strip a PDB to backbone-only polyglycine (template / visualization) | Utilities |
 | [`rename`](rename.md) | Canonicalize residue names (AMBER/CHARMM/MSE → standard PDB) | Utilities |
 | [`renumber`](renumber.md) | FASTA/SEQRES renumbering OR antibody schemes (Kabat/Chothia/IMGT/Martin/Aho/EU) | Structure prep |
+| [`salign`](salign.md) | Structure-based multiple alignment and superposition using Modeller SALIGN | Modeling |
 | [`split`](split.md) | Empirical chain splitting for GRO/PDB files without chain IDs (multi-MODEL aware) | Structure prep |
 | [`top`](top.md) | GROMACS topology from PDB/GRO (AMBER, CHARMM, or ACPYPE pipeline) | Topology |
 | [`transplant`](transplant.md) | Transplant molecules between PDB structures (GLYCAM glycoprotein workflow) | Glycoprotein prep |

@@ -13,6 +13,23 @@ pip install -e .
 dvbfixer --help
 ```
 
+## DVBfixer GUI
+
+The `dvbfixer-gui` branch includes a React/Mol* workspace under [`gui/`](gui/).
+It exposes every CLI command through forms generated from the argparse surface,
+indexes structure and non-structure artifacts, and adds a persistent
+multi-template Homology workflow with MSA editing and Modeller template masks.
+
+```bash
+cd gui
+npm ci --legacy-peer-deps
+npm run dev:no-db
+```
+
+The GUI uses `gui/structures/` by default. Point it at an existing Tarantino or
+DVBfixer workspace without copying data by setting `DVBFIXER_GUI_DATA_DIR`.
+Set `DVBFIXER_CMD` when the executable is not directly on `PATH`.
+
 Full install instructions (including the Modeller license step) are in [`docs/installation.md`](docs/installation.md).
 
 ## Testing
@@ -42,6 +59,8 @@ chemistry backends.
 | [`conect`](docs/commands/conect.md) | Infer missing CONECT records (SS, glycosidic, glycosylation) — runs automatically inside prepare/top/minimize/transplant/convert |
 | [`cluster`](docs/commands/cluster.md) | Glycan conformational clustering from MD trajectories (GFDB-style) |
 | [`homology`](docs/commands/homology.md) | Multi-template homology modeling with Modeller (antibody-aware) |
+| [`msa`](docs/commands/msa.md) | Multiple protein-sequence alignment with MAFFT, MUSCLE 5, or Clustal Omega |
+| [`salign`](docs/commands/salign.md) | Structure-based multiple alignment and superposition with Modeller SALIGN |
 | [`parametrize`](docs/commands/parametrize.md) | GAFF2 + AM1-BCC/RESP small-molecule parametrization (GROMACS-ready) |
 | [`puppet`](docs/commands/puppet.md) | Strip a PDB to backbone-only polyglycine (template / visualization) |
 | [`diagnose`](docs/commands/diagnose.md) | Report structure-quality issues (missing atoms, coincident atoms, valence, clashes, chirality) — report-only |

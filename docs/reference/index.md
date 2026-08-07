@@ -22,6 +22,8 @@
 | `dvbfixer cluster` | [`cluster.md`](cluster.md) |
 | `dvbfixer parametrize` | [`parametrize.md`](parametrize.md) |
 | `dvbfixer homology` | [`homology.md`](homology.md) |
+| `dvbfixer msa` | [`msa.md`](msa.md) |
+| `dvbfixer salign` | [`salign.md`](salign.md) |
 | `dvbfixer diagnose` | [`diagnose.md`](diagnose.md) |
 | `dvbfixer doctor` | [`doctor.md`](doctor.md) |
 | `dvbfixer zbs` | [`zbs.md`](zbs.md) |

@@ -79,3 +79,27 @@ jobs:
       - name: docs reference in sync with argparse
         shell: bash -el {0}
         run: python scripts/gen_cli_reference.py --check
+
+      - name: GUI command schema in sync with argparse
+        shell: bash -el {0}
+        run: python scripts/gen_gui_spec.py --check
+
+  gui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: gui/package-lock.json
+      - name: Install GUI dependencies
+        working-directory: gui
+        run: npm ci --legacy-peer-deps
+      - name: Lint, test, typecheck, and build GUI
+        working-directory: gui
+        run: |
+          npm run lint
+          npm test
+          npm run typecheck
+          npm run build
