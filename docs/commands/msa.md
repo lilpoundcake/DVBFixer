@@ -14,6 +14,31 @@ dvbfixer msa target.fasta --template template1.pdb:A --template template2.pdb:H
 dvbfixer msa ignored.fasta --list-engines
 ```
 
+## Supported options
+
+### Input and output
+
+| Key / argument | Value | Default | Description |
+|---|---|---|---|
+| `input` | FASTA path | required unless `--list-engines` | Input containing at least two records, or one record when templates are appended. |
+| `-o`, `--output` | path | `<input>_aligned.fasta` | Alignment output path; the automatic suffix is `.pir` with `--format pir`. |
+| `--template` | `PDB[:CHAIN]` | none | Append sequence data extracted from a template PDB. Repeat the option for multiple templates. |
+
+### Alignment
+
+| Key | Supported values | Default | Description |
+|---|---|---|---|
+| `--engine` | `auto`, `mafft`, `muscle`, `clustalo` | `auto` | Select the external engine. Auto tries MAFFT, MUSCLE 5, then Clustal Omega. |
+| `--format` | `fasta`, `pir` | `fasta` | Select aligned FASTA or Modeller PIR output. |
+
+### Diagnostics
+
+| Key | Value | Default | Description |
+|---|---|---|---|
+| `--list-engines` | flag | off | Print each supported engine and its detected executable path, then exit. |
+| `-v`, `--verbose` | flag | off | Print the external command and any diagnostic output from the engine. |
+| `-h`, `--help` | flag | off | Print command help and exit. |
+
 The executable is resolved from `PATH` as `mafft`, `muscle`, or `clustalo`.
 Install the full environment to obtain all three engines, or install only the
 engine required by a headless workflow. MUSCLE must be version 5; MUSCLE 3 has

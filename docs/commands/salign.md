@@ -12,4 +12,28 @@ dvbfixer salign template1.pdb:A template2.pdb:H \
   -o templates.pir --fit-dir fitted -v
 ```
 
+## Supported options
+
+### Input and output
+
+| Key / argument | Value | Default | Description |
+|---|---|---|---|
+| `template` | `PDB` or `PDB:CHAIN` | required | Two or more template structures. Add `:CHAIN` to restrict an input to one chain. |
+| `-o`, `--output` | path | `structural_alignment.pir` | Output path for the Modeller PIR structural alignment. |
+| `--fit-dir` | directory | none | Retain the fitted/superposed PDB structures in this directory. Without it, fitted structures are temporary. |
+
+### Structural alignment
+
+| Key | Value | Default | Description |
+|---|---|---|---|
+| `--fit-atoms` | Modeller atom selection | `CA` | Atom type or selection passed to SALIGN for structural fitting. |
+| `--rms-cutoff` | ångströms | `3.5` | RMS-distance cutoff passed to SALIGN while improving the alignment. |
+
+### Diagnostics
+
+| Key | Value | Default | Description |
+|---|---|---|---|
+| `-v`, `--verbose` | flag | off | Enable verbose Modeller logging and SALIGN quality output. |
+| `-h`, `--help` | flag | off | Print command help and exit. |
+
 A working Modeller installation and license are required.
