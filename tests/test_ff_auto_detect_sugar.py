@@ -89,3 +89,30 @@ def test_resolve_ff_explicit_amber_upgrades_on_glycoprotein(
         f"amber → amber+glycam upgrade should fire; got {alias!r}"
     )
     assert reason and "upgrade" in reason.lower()
+
+
+def test_charmm_four_character_protonation_names_are_not_truncated(
+    tmp_workdir: Path,
+) -> None:
+    from dvbfixer.ffutils import detect_ff_from_pdb
+
+    for resname in ("ASPP", "GLUP"):
+        pdb = tmp_workdir / f"{resname}.pdb"
+        pdb.write_text(
+            f"ATOM      1  CA  {resname:4s}A   1       0.000   0.000   0.000  1.00  0.00           C\nEND\n"
+        )
+        alias, reason = detect_ff_from_pdb(pdb)
+        assert alias == "charmm", reason
+
+
+def test_all_registered_pdb_sugars_trigger_glycam_detection(tmp_workdir: Path) -> None:
+    from dvbfixer.ffutils import detect_ff_from_pdb
+    from dvbfixer.residue_registry import PDB_SUGAR_RESNAMES
+
+    for resname in PDB_SUGAR_RESNAMES:
+        pdb = tmp_workdir / f"{resname}.pdb"
+        pdb.write_text(
+            f"HETATM    1  C1  {resname:>3s} A   1       0.000   0.000   0.000  1.00  0.00           C\nEND\n"
+        )
+        alias, reason = detect_ff_from_pdb(pdb)
+        assert alias == "amber+glycam", (resname, reason)

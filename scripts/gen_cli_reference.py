@@ -40,6 +40,8 @@ import io
 import sys
 from pathlib import Path
 
+from dvbfixer.command_registry import COMMAND_REGISTRY
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFERENCE_DIR = REPO_ROOT / "docs" / "reference"
 
@@ -48,27 +50,7 @@ REFERENCE_DIR = REPO_ROOT / "docs" / "reference"
 # command. Order matches ``dvbfixer.cli.COMMANDS`` so the index page
 # reads left-to-right the way users see it.
 COMMANDS: list[tuple[str, str]] = [
-    ("split", "dvbfixer.split_chains"),
-    ("renumber", "dvbfixer.renumber"),
-    ("model", "dvbfixer.model"),
-    ("pull", "dvbfixer.pull"),
-    ("prepare", "dvbfixer.prepare"),
-    ("minimize", "dvbfixer.minimize"),
-    ("protonate", "dvbfixer.protonate"),
-    ("rename", "dvbfixer.rename"),
-    ("top", "dvbfixer.top"),
-    ("transplant", "dvbfixer.transplant"),
-    ("puppet", "dvbfixer.puppet"),
-    ("convert", "dvbfixer.glycam"),
-    ("conect", "dvbfixer.conect"),
-    ("cluster", "dvbfixer.cluster"),
-    ("parametrize", "dvbfixer.parametrize"),
-    ("homology", "dvbfixer.homology"),
-    ("msa", "dvbfixer.msa"),
-    ("salign", "dvbfixer.salign"),
-    ("diagnose", "dvbfixer.diagnose"),
-    ("doctor", "dvbfixer.doctor"),
-    ("zbs", "dvbfixer.zbs"),
+    (command.name, command.module) for command in COMMAND_REGISTRY
 ]
 
 

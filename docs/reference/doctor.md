@@ -11,7 +11,7 @@ Report optional Python packages, external executables, and OpenMM platforms.
 
 options:
   -h, --help            show this help message and exit
-  --format {text,json}
+  --format {text,json}  Report format (default: text)
 
 Global logging:
   --log-file PATH       Append all stdout/stderr (including child tools) to

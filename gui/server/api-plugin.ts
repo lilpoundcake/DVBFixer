@@ -10,7 +10,8 @@
  *   DELETE /api/mutations/:id       — delete
  *
  * Env vars:
- *   DVBFIXER_CMD   default 'dvbfixer'  — how to invoke the CLI
+ *   DVBFIXER_EXECUTABLE  default 'dvbfixer' — CLI executable
+ *   DVBFIXER_ARGS        optional JSON string array prepended to CLI arguments
  *   DATABASE_URL   postgres connection string
  */
 
@@ -20,10 +21,14 @@ import path from 'node:path'
 import fs from 'node:fs'
 import crypto from 'node:crypto'
 import { COMMANDS } from './dvbfixer-spec'
+import { buildArgs } from './command-args'
+import { acquireWorkspaceRun, registerManagedJobApi } from './managed-jobs'
 import { registerHomologyApi } from './homology-api'
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import { loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, saveWorkspace, workspaceRoot } from './workspace-api'
+import { errorStatus, MAX_UPLOAD_BODY_BYTES, readRequestBody } from './request-body'
 export { runDvbfixer } from './dvbfixer-runner'
+export { buildArgs } from './command-args'
 
 // Defer the pg import so the plugin loads even if pg is missing or DB is unset.
 type PgClient = {
@@ -181,21 +186,11 @@ export function sseSend(res: ServerResponse, payload: unknown): void {
 
 /** Read the entire request body as a string. */
 function readBody(req: IncomingMessage): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = []
-    req.on('data', (c) => chunks.push(c))
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
-    req.on('error', reject)
-  })
+  return readRequestBody(req).then(body => body.toString('utf8'))
 }
 
 function readBuffer(req: IncomingMessage): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = []
-    req.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
-    req.on('end', () => resolve(Buffer.concat(chunks)))
-    req.on('error', reject)
-  })
+  return readRequestBody(req, MAX_UPLOAD_BODY_BYTES)
 }
 
 function sendJson(res: ServerResponse, status: number, body: any) {
@@ -203,44 +198,6 @@ function sendJson(res: ServerResponse, status: number, body: any) {
   res.setHeader('Content-Type', 'application/json')
   res.setHeader('Cache-Control', 'no-store')
   res.end(JSON.stringify(body))
-}
-
-/** Build CLI argument list from form values + the command's flag spec. */
-export function buildArgs(commandName: string, values: Record<string, any>): string[] {
-  const def = COMMANDS.find(c => c.name === commandName)
-  if (!def) throw new Error(`Unknown DVBFixer command: ${commandName}`)
-  const args: string[] = []
-  for (const flag of def.flags) {
-    const v = values[flag.flag]
-    if (v === undefined || v === '' || v === null) continue
-    if (flag.type === 'bool') {
-      if (v === true) args.push(flag.flag)
-      else if (v === false && flag.falseFlag) args.push(flag.falseFlag)
-    } else if (flag.type === 'number') {
-      args.push(flag.flag, String(v))
-    } else if (flag.repeatable && Array.isArray(v)) {
-      for (const item of v) if (String(item).trim()) args.push(flag.flag, String(item))
-    } else if (flag.multi && Array.isArray(v)) {
-      const items = v.map(String).filter(Boolean)
-      if (items.length > 0) args.push(flag.flag, ...items)
-    } else if (flag.repeatable && typeof v === 'string') {
-      // Comma-separated input → multiple --flag <value> pairs
-      const items = v.split(',').map(s => s.trim()).filter(Boolean)
-      for (const item of items) {
-        args.push(flag.flag, ...(flag.multi ? item.split(/\s+/).filter(Boolean) : [item]))
-      }
-    } else if (flag.multi && typeof v === 'string') {
-      // Whitespace-separated input → single --flag followed by all values
-      // (Python argparse nargs='+'), e.g. `--ff a.xml b.xml`
-      const items = v.split(/\s+/).map(s => s.trim()).filter(Boolean)
-      if (items.length > 0) {
-        args.push(flag.flag, ...items)
-      }
-    } else {
-      args.push(flag.flag, String(v))
-    }
-  }
-  return args
 }
 
 function listRunFiles(root: string): string[] {
@@ -266,8 +223,22 @@ export function apiPlugin(): Plugin {
       // can find `mutations.json` regardless of which working directory
       // the dev server was launched from.
       projectRoot = server.config.root
+      server.middlewares.use('/api/health', (req, res, next) => {
+        if (req.method !== 'GET') return next()
+        let version = 'unknown'
+        try {
+          version = JSON.parse(fs.readFileSync(path.join(server.config.root, 'package.json'), 'utf8')).version || version
+        } catch { /* health remains available when package metadata is absent */ }
+        let storageWritable = false
+        try { fs.accessSync(structuresDir, fs.constants.R_OK | fs.constants.W_OK); storageWritable = true } catch { /* reported below */ }
+        return sendJson(res, storageWritable ? 200 : 503, {
+          status: storageWritable ? 'ready' : 'degraded', version, storageWritable,
+          databaseConfigured: Boolean(process.env.DATABASE_URL),
+        })
+      })
       registerWorkspaceApi(server, structuresDir)
       registerHomologyApi(server, structuresDir)
+      registerManagedJobApi(server, structuresDir)
 
       // ── Artifact import ────────────────────────────────────────────────
       server.middlewares.use('/api/artifacts/import', async (req, res, next) => {
@@ -300,7 +271,7 @@ export function apiPlugin(): Plugin {
             file: path.relative(structuresDir, destination).replace(/\\/g, '/'), size: content.length,
           })
         } catch (error: any) {
-          return sendJson(res, 500, { error: error?.message || String(error) })
+          return sendJson(res, errorStatus(error), { error: error?.message || String(error) })
         }
       })
 
@@ -319,6 +290,9 @@ export function apiPlugin(): Plugin {
             fastaContent?: string
           }
           if (!body.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
+          const releaseRun = acquireWorkspaceRun(body.workspaceId, `sync-${crypto.randomUUID()}`)
+          if (!releaseRun) return sendJson(res, 409, { error: 'another DVBfixer job is already running in this workspace' })
+          try {
           const activeWorkspaceRoot = workspaceRoot(structuresDir, body.workspaceId)
           const suppliedInputs = { ...(body.inputs || {}) }
           if (body.inputFile && def.inputs[0] && suppliedInputs[def.inputs[0].dest] === undefined) {
@@ -404,8 +378,11 @@ export function apiPlugin(): Plugin {
             ok, command, outputFile, outputDir: `runs/${subdirName}`, artifacts: files,
             movedTo, stdout: result.stdout, stderr: result.stderr, exitCode: result.code,
           })
+          } finally {
+            releaseRun()
+          }
         } catch (err: any) {
-          sendJson(res, 500, { error: err.message ?? String(err) })
+          sendJson(res, errorStatus(err), { error: err.message ?? String(err) })
         }
       })
 
@@ -495,7 +472,7 @@ export function apiPlugin(): Plugin {
 
           return next()
         } catch (err: any) {
-          sendJson(res, 500, { error: err.message ?? String(err) })
+          sendJson(res, errorStatus(err), { error: err.message ?? String(err) })
         }
       })
 
@@ -503,316 +480,6 @@ export function apiPlugin(): Plugin {
       server.middlewares.use('/api/dvbfixer-spec', async (req, res, next) => {
         if (req.method !== 'GET') return next()
         sendJson(res, 200, COMMANDS)
-      })
-
-      // ── Update library entry metadata ─────────────────────────────────
-      // PUT /api/library/meta { file, name?, organism?, method?, resolution?, description? }
-      // Persists user edits from the Info panel into index.json so they
-      // survive across structure switches and page reloads.
-      server.middlewares.use('/api/library/meta', async (req, res, next) => {
-        if (req.method !== 'PUT' && req.method !== 'POST') return next()
-        try {
-          const body = JSON.parse(await readBody(req) || '{}')
-          const file = body.file as string | undefined
-          if (!file) return sendJson(res, 400, { error: 'file required' })
-
-          const indexPath = path.join(structuresDir, 'index.json')
-          let entries: any[] = []
-          if (fs.existsSync(indexPath)) {
-            try { entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8')) } catch {}
-          }
-
-          let idx = entries.findIndex(e => e.file === file)
-          if (idx === -1) {
-            // Auto-detected — promote into index.json
-            const absPath = path.resolve(path.join(structuresDir, file))
-            if (!absPath.startsWith(structuresDir) || !fs.existsSync(absPath)) {
-              return sendJson(res, 404, { error: 'file not found on disk' })
-            }
-            entries.push({
-              id: file,
-              file,
-              // Preserve the filename's actual case — extension-stripped basename.
-              // Previously `.toUpperCase()` here mangled mixed-case names.
-              name: path.basename(file).replace(/\.(pdb|cif|mmcif)$/i, ''),
-              organism: '', chains: 0, residues: 0,
-              description: '',
-            })
-            idx = entries.length - 1
-          }
-
-          const entry = entries[idx]
-          // Only patch known meta fields. (Don't blindly merge — we don't want
-          // the client to overwrite `id`/`file`/`parent`/`starred` etc.)
-          // A `null` value is treated as "delete this key" so the client can
-          // remove a manual equivalent-chains override and fall back to
-          // auto-detection without leaving an empty array in index.json.
-          for (const key of ['name', 'organism', 'method', 'resolution', 'description', 'iggSubtype', 'allotype', 'equivalentChains'] as const) {
-            if (!(key in body)) continue
-            if (body[key] === null) delete entry[key]
-            else entry[key] = body[key]
-          }
-
-          fs.writeFileSync(indexPath, JSON.stringify(entries, null, 2))
-          sendJson(res, 200, { ok: true, entry })
-        } catch (err: any) {
-          sendJson(res, 500, { error: err.message ?? String(err) })
-        }
-      })
-
-      // ── Star a library entry ──────────────────────────────────────────
-      // POST /api/library/star  { file }
-      //   Marks the entry as the DEFAULT to load when clicking its family
-      //   root. The tree structure is NOT modified — parent/child stays as
-      //   it was. The library UI uses this flag to choose which descendant
-      //   to load when the top-level (root of the family) is clicked.
-      //   Toggling: clicking again unstars. Only one starred per family.
-      server.middlewares.use('/api/library/star', async (req, res, next) => {
-        if (req.method !== 'POST') return next()
-        try {
-          const body = JSON.parse(await readBody(req) || '{}')
-          const file = body.file as string | undefined
-          if (!file) return sendJson(res, 400, { error: 'file required' })
-
-          const indexPath = path.join(structuresDir, 'index.json')
-          let entries: any[] = []
-          if (fs.existsSync(indexPath)) {
-            try { entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8')) } catch {}
-          }
-
-          // Build a parent-pointer map of CURRENT entries + everything on disk
-          // (so we can compute the "family root" even for auto-detected files).
-          const indexFor = (f: string) => entries.findIndex(e => e.file === f)
-
-          // Ensure the target file is persisted (might be auto-detected).
-          let idx = indexFor(file)
-          if (idx === -1) {
-            const absPath = path.resolve(path.join(structuresDir, file))
-            if (!absPath.startsWith(structuresDir) || !fs.existsSync(absPath)) {
-              return sendJson(res, 404, { error: 'file not found on disk' })
-            }
-            entries.push({
-              id: file,
-              file,
-              // Preserve the filename's actual case — extension-stripped basename.
-              // Previously `.toUpperCase()` here mangled mixed-case names.
-              name: path.basename(file).replace(/\.(pdb|cif|mmcif)$/i, ''),
-              organism: '', chains: 0, residues: 0,
-              description: '',
-            })
-            idx = entries.length - 1
-          }
-
-          const target = entries[idx]
-          // Walk up the parent chain to find the family root.
-          const familyRootFile = (() => {
-            let cur = target
-            const seen = new Set<string>()
-            while (cur.parent && !seen.has(cur.parent)) {
-              seen.add(cur.parent)
-              const parentIdx = indexFor(cur.parent)
-              if (parentIdx === -1) break
-              cur = entries[parentIdx]
-            }
-            return cur.file
-          })()
-
-          // Walk down to collect ALL entries in this family (root + every descendant).
-          const familyFiles = new Set<string>([familyRootFile])
-          let changed = true
-          while (changed) {
-            changed = false
-            for (const e of entries) {
-              if (e.parent && familyFiles.has(e.parent) && !familyFiles.has(e.file)) {
-                familyFiles.add(e.file)
-                changed = true
-              }
-            }
-          }
-
-          // Toggle: if already starred, unstar; otherwise star (and unstar siblings).
-          const wasStarred = !!target.starred
-          for (const e of entries) {
-            if (familyFiles.has(e.file)) e.starred = false
-          }
-          if (!wasStarred) target.starred = true
-
-          fs.writeFileSync(indexPath, JSON.stringify(entries, null, 2))
-          sendJson(res, 200, { ok: true, entries })
-        } catch (err: any) {
-          sendJson(res, 500, { error: err.message ?? String(err) })
-        }
-      })
-
-      // ── Library folders + reordering ──────────────────────────────────
-      // Folder entries live in structures/index.json alongside structure
-      // entries; the discriminator is `kind: 'folder' | 'structure'`. A
-      // synthetic '__root__' folder always exists and its `children` array
-      // is the ordered top-level layout. See vite.config.ts:scanStructuresDir
-      // for the migration / synthesis logic.
-      const ROOT_ID = '__root__'
-      const readIndex = (): any[] => {
-        const indexPath = path.join(structuresDir, 'index.json')
-        if (!fs.existsSync(indexPath)) return []
-        try { return JSON.parse(fs.readFileSync(indexPath, 'utf-8')) } catch { return [] }
-      }
-      const writeIndex = (entries: any[]) => {
-        const indexPath = path.join(structuresDir, 'index.json')
-        fs.writeFileSync(indexPath, JSON.stringify(entries, null, 2))
-      }
-      const findRoot = (entries: any[]) => entries.find(e => e.kind === 'folder' && e.id === ROOT_ID)
-      const entryIdOf = (e: any): string => e.kind === 'folder' ? e.id : e.file
-      const findFolder = (entries: any[], id: string) =>
-        entries.find(e => e.kind === 'folder' && e.id === id)
-      const folderContainingId = (entries: any[], id: string) => {
-        for (const e of entries) {
-          if (e.kind === 'folder' && Array.isArray(e.children) && e.children.includes(id)) return e
-        }
-        return null
-      }
-      const bumpVersion = () => {
-        // No server-side equivalent of bumpLibraryVersion; the frontend
-        // re-fetches index.json after each successful mutation via its
-        // own bumpLibraryVersion() call.
-      }
-      void bumpVersion // reserved
-
-      // POST   /api/library/folder    { name, parentFolderId? } → { folder }
-      // PATCH  /api/library/folder/:id { name }                 → { folder }
-      // DELETE /api/library/folder/:id                          → 204
-      server.middlewares.use('/api/library/folder', async (req, res, next) => {
-        const method = req.method
-        if (method !== 'POST' && method !== 'PATCH' && method !== 'DELETE') return next()
-        try {
-          const url = (req.url || '').split('?')[0]
-          const idMatch = url.match(/^\/([^/]+)$/)
-          const folderId = idMatch ? decodeURIComponent(idMatch[1]) : null
-
-          const body = method === 'DELETE' ? {} : JSON.parse(await readBody(req) || '{}')
-          const entries = readIndex()
-          let root = findRoot(entries)
-          if (!root) {
-            root = { id: ROOT_ID, kind: 'folder', name: '__root__', children: [] }
-            entries.push(root)
-          }
-
-          if (method === 'POST') {
-            const name = (body.name ?? '').toString().trim() || 'New folder'
-            const parentFolderId = body.parentFolderId ?? ROOT_ID
-            const parent = findFolder(entries, parentFolderId) ?? root
-            if (!Array.isArray(parent.children)) parent.children = []
-            const id = `fld_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-            const folder = { id, kind: 'folder', name, children: [] }
-            entries.push(folder)
-            parent.children.push(id)
-            writeIndex(entries)
-            return sendJson(res, 201, { folder })
-          }
-
-          if (!folderId) return sendJson(res, 400, { error: 'folder id required in path' })
-          if (folderId === ROOT_ID) return sendJson(res, 400, { error: '__root__ cannot be modified directly' })
-          const folder = findFolder(entries, folderId)
-          if (!folder) return sendJson(res, 404, { error: `folder not found: ${folderId}` })
-
-          if (method === 'PATCH') {
-            if (typeof body.name === 'string') folder.name = body.name.trim() || folder.name
-            writeIndex(entries)
-            return sendJson(res, 200, { folder })
-          }
-
-          if (method === 'DELETE') {
-            // Promote folder's children up into its parent at the
-            // folder's current position, preserving order.
-            const container = folderContainingId(entries, folderId) ?? root
-            const containerChildren: string[] = container.children
-            const pos = containerChildren.indexOf(folderId)
-            const myChildren: string[] = folder.children ?? []
-            container.children = [
-              ...containerChildren.slice(0, pos),
-              ...myChildren,
-              ...containerChildren.slice(pos + 1),
-            ]
-            // Remove the folder entry itself.
-            const idx = entries.indexOf(folder)
-            if (idx >= 0) entries.splice(idx, 1)
-            writeIndex(entries)
-            res.statusCode = 204
-            return res.end()
-          }
-        } catch (err: any) {
-          sendJson(res, 500, { error: err.message ?? String(err) })
-        }
-      })
-
-      // PATCH /api/library/move { entryId, toFolderId?, beforeId? } → { ok }
-      // Move/reorder an entry. entryId is the folder id or structure file
-      // path. toFolderId defaults to __root__. beforeId defaults to "end".
-      server.middlewares.use('/api/library/move', async (req, res, next) => {
-        if (req.method !== 'PATCH' && req.method !== 'POST') return next()
-        try {
-          const body = JSON.parse(await readBody(req) || '{}') as {
-            entryId?: string
-            toFolderId?: string
-            beforeId?: string | null
-          }
-          if (!body.entryId) return sendJson(res, 400, { error: 'entryId required' })
-          const entries = readIndex()
-          let root = findRoot(entries)
-          if (!root) {
-            root = { id: ROOT_ID, kind: 'folder', name: '__root__', children: [] }
-            entries.push(root)
-          }
-          // Validate the moved entry exists.
-          const moved = entries.find(e => entryIdOf(e) === body.entryId)
-          if (!moved) return sendJson(res, 404, { error: `entry not found: ${body.entryId}` })
-          // Refuse to move __root__ or move an entry into itself / descendant.
-          if (body.entryId === ROOT_ID) return sendJson(res, 400, { error: 'cannot move __root__' })
-          // Lineage children (structures with `.parent`) ARE allowed to be
-          // moved. They keep their `parent` field as informative metadata,
-          // and the frontend suppresses default lineage rendering for any
-          // structure that's explicitly placed in some folder.children, so
-          // there's no duplicate display.
-
-          const dest = findFolder(entries, body.toFolderId ?? ROOT_ID)
-          if (!dest) return sendJson(res, 404, { error: `destination folder not found: ${body.toFolderId}` })
-          if (!Array.isArray(dest.children)) dest.children = []
-
-          // If moving a folder, ensure we're not putting it inside itself
-          // or one of its descendants (would create a cycle).
-          if (moved.kind === 'folder') {
-            const isDescendant = (folder: any, candidateId: string): boolean => {
-              if (!folder || !Array.isArray(folder.children)) return false
-              for (const childId of folder.children) {
-                if (childId === candidateId) return true
-                const child = findFolder(entries, childId)
-                if (child && isDescendant(child, candidateId)) return true
-              }
-              return false
-            }
-            if (body.toFolderId === moved.id || isDescendant(moved, dest.id)) {
-              return sendJson(res, 400, { error: 'cannot move a folder inside itself' })
-            }
-          }
-
-          // Remove the entry from its current parent's children list.
-          const oldParent = folderContainingId(entries, body.entryId)
-          if (oldParent) {
-            oldParent.children = oldParent.children.filter((id: string) => id !== body.entryId)
-          }
-
-          // Insert into destination at the requested position.
-          let insertAt = dest.children.length
-          if (body.beforeId) {
-            const at = dest.children.indexOf(body.beforeId)
-            if (at >= 0) insertAt = at
-          }
-          dest.children.splice(insertAt, 0, body.entryId)
-
-          writeIndex(entries)
-          sendJson(res, 200, { ok: true })
-        } catch (err: any) {
-          sendJson(res, 500, { error: err.message ?? String(err) })
-        }
       })
 
       // ── Antibody Engineer pipeline (SSE) ─────────────────────────────
@@ -863,7 +530,9 @@ export function apiPlugin(): Plugin {
           let aborted = false
           req.on('close', () => { aborted = true })
 
-          const cached = findCachedEntry(activeRoot, body.inputFile, checksum)
+          const workspaceBeforeRun = loadWorkspace(structuresDir, body.workspaceId)
+          const inputArtifact = workspaceBeforeRun.artifacts.find(artifact => artifact.file === body.inputFile)
+          const cached = findCachedEntry(activeRoot, workspaceBeforeRun.artifacts, body.inputFile, checksum)
           if (cached) {
             sseSend(res, { step: 0, total: 0, name: 'cached', status: 'done', outputFile: cached.file })
             sseSend(res, { step: 0, total: 0, status: 'complete', outputFile: cached.file, entry: cached })
@@ -892,7 +561,7 @@ export function apiPlugin(): Plugin {
             return
           }
 
-          await runEngineerPipeline({
+          const generated = await runEngineerPipeline({
             structuresDir: activeRoot,
             inputFile: body.inputFile,
             mutationRows: rows as any,
@@ -902,17 +571,23 @@ export function apiPlugin(): Plugin {
             hasGlycan: body.hasGlycan,
             scheme: body.scheme,
             checksum,
+            inputMetadata: inputArtifact,
             onEvent: (e) => sseSend(res, e),
             isAborted: () => aborted,
           })
 
-          const generatedIndex = path.join(activeRoot, 'index.json')
-          if (fs.existsSync(generatedIndex)) {
+          if (generated.length) {
             const workspace = loadWorkspace(structuresDir, body.workspaceId)
-            const generated = JSON.parse(fs.readFileSync(generatedIndex, 'utf8')) as any[]
             for (const entry of generated.filter(item => item.file && !workspace.artifacts.some(existing => existing.file === item.file))) {
               workspace.artifacts.push({ id: crypto.randomUUID(), file: entry.file, name: entry.name || path.basename(entry.file),
-                kind: /\.(pdb|cif|mmcif)$/i.test(entry.file) ? 'structure' : 'artifact', command: entry.command, parent: entry.parent })
+                kind: /\.(pdb|cif|mmcif)$/i.test(entry.file) ? 'structure' : 'artifact', command: entry.command,
+                parent: entry.parent, description: entry.description, allotype: entry.allotype,
+                iggSubtype: entry.iggSubtype,
+                ...('engineerChecksum' in entry ? {
+                  engineerChecksum: entry.engineerChecksum, mutationIds: entry.mutationIds,
+                  mutationsResolved: entry.mutationsResolved, hasGlycan: entry.hasGlycan, scheme: entry.scheme,
+                } : {}),
+              })
             }
             saveWorkspace(structuresDir, workspace)
           }
@@ -924,7 +599,7 @@ export function apiPlugin(): Plugin {
             sseSend(res, { step: 0, total: 0, name: 'fatal', status: 'error', stderr: err?.message ?? String(err) })
             res.end()
           } catch {
-            sendJson(res, 500, { error: err?.message ?? String(err) })
+            sendJson(res, errorStatus(err), { error: err?.message ?? String(err) })
           }
         }
       })
@@ -933,7 +608,7 @@ export function apiPlugin(): Plugin {
       server.middlewares.use('/api/status', async (req, res, next) => {
         if (req.method !== 'GET') return next()
         const pg = await getPg()
-        const dvbfixer = process.env.DVBFIXER_CMD || 'dvbfixer'
+        const dvbfixer = process.env.DVBFIXER_EXECUTABLE || 'dvbfixer'
         sendJson(res, 200, {
           dvbfixer,
           databaseConfigured: !!process.env.DATABASE_URL,

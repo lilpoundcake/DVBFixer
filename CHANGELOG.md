@@ -8,6 +8,67 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.28] — 2026-08-11
+
+### Fixed
+- Hardened Workspace ordering and persistence against filtered-list corruption and stale writes.
+- Corrected unified CLI option dispatch so command `--output` is never consumed
+  as an abbreviation for the batch-only `--output-dir` option.
+- Recognized four-character CHARMM protonation names such as ASPP and GLUP
+  during residue classification and force-field detection.
+- Preserved crystallographic waters end to end when `zbs --keep-water` is used,
+  including through the minimize stage without retaining temporary solvent.
+- Packaged the bundled AMBER and CHARMM GROMACS force-field trees in wheels and
+  resolved them from the active environment instead of requiring a checkout.
+- Validated GUI workspace paths and Homology command options at the server boundary.
+
+### Changed
+- Added bounded, cancellable GUI subprocess execution with explicit executable/argument configuration.
+- Centralized command/module/category/batch/output metadata in one declarative
+  registry shared by CLI dispatch, CLI-reference generation, and GUI-schema generation.
+- Added argparse-time positive/non-negative numeric checks and structured
+  selector checks for pull bonds/anchors and topology SS/HIS/protonation inputs.
+- Added release CI that builds wheel and source distributions, installs the
+  wheel cleanly, and checks version/help plus bundled force-field resources.
+- Moved CLI reference and GUI schema freshness checks into the fast CI lane.
+- Made the `pyproject.toml` version authoritative and synchronized Python, GUI,
+  lockfile, and latest-changelog versions at 0.7.28.
+
+### Removed
+- Removed the deprecated `dvbfixer glycam` command alias; use
+  `dvbfixer convert`.
+- Removed the deprecated `zbs --skip-protonate` compatibility option; use
+  `--no-propka --no-protassign` when both preparation-time assignments should
+  be disabled.
+- Removed the deprecated Python keyword `include_gromacs_lyn`; callers must use
+  `include_gromacs_shifts`.
+- Removed the deprecated `create_forcefield_with_openff` keyword sink for the
+  obsolete `small_mol_ff` and `extra_molecules` arguments.
+- Removed the deprecated `parametrize --psi4-method`, `--psi4-nthreads`, and
+  `--psi4-memory` aliases; use the shared `--qm-*` options.
+- Removed the GUI server's `DVBFIXER_CMD` fallback. Configure
+  `DVBFIXER_EXECUTABLE` and, when needed, the `DVBFIXER_ARGS` JSON array.
+
+## [0.7.27] — 2026-08-11
+
+### Added
+
+- Homology template-chain selectors show pairwise sequence identity to the
+  selected target chain, automatically choose the highest-identity chain,
+  and can be filtered by target chain.
+- Empty template rows can be added without first loading a structure in the
+  3D viewer; an active workspace structure is still used as the default.
+- Library now lists workspaces only; a separate Workspace panel contains the
+  active workspace's files and file actions.
+
+### Changed
+
+- The GUI command schema includes every current CLI option, presents help for
+  every field type, and retains the CLI's semantic grouping.
+- Homology workflow tabs use numbered labels with punctuation.
+- Workspace and file renaming uses an in-app dialog instead of a browser
+  prompt, fixing context-menu rename handling.
+
 ## [0.7.26] — 2026-08-11
 
 ### Fixed

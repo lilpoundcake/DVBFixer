@@ -11,10 +11,20 @@ describe('generated DVBfixer command schema', () => {
     expect(prepare.groups.map(group => group.name)).toContain('Mutations')
     expect(prepare.flags.map(field => field.flag)).toContain('--smiles')
     expect(prepare.flags.find(field => field.flag === '--strip-heterogens')?.default).toBe(false)
+    expect(prepare.flags.map(field => field.flag)).toContain('--cap-termini')
+    expect(prepare.flags.map(field => field.flag)).toContain('--cap-chain')
     const model = GENERATED_COMMANDS.find(command => command.name === 'model')!
     expect(model.flags.find(field => field.flag === '--pin-input')).toMatchObject({
       default: true, falseFlag: '--no-pin-input',
     })
+  })
+
+  it('provides a description for every visible input and option', () => {
+    for (const command of GENERATED_COMMANDS) {
+      for (const field of [...command.inputs, ...command.flags]) {
+        expect(field.help, `${command.name} ${field.flag}`).toBeTruthy()
+      }
+    }
   })
 
   it('expands repeatable fixed-cardinality arguments correctly', () => {

@@ -45,3 +45,27 @@ export function updateColumnSelection(existing: Iterable<number>, sequence: stri
   }
   return [...selected].sort((left, right) => left - right)
 }
+
+/** Convert selected alignment columns into the compact half-open spans used by model plans. */
+export function alignmentColumnsToSpans(columns: Iterable<number>): Array<{ start: number; end: number }> {
+  const ordered = [...new Set(columns)].sort((left, right) => left - right)
+  const spans: Array<{ start: number; end: number }> = []
+  for (const column of ordered) {
+    const last = spans[spans.length - 1]
+    if (last?.end === column) last.end = column + 1
+    else spans.push({ start: column, end: column + 1 })
+  }
+  return spans
+}
+
+/** Map 1-based ungapped residue ordinals from 3D back to alignment columns. */
+export function alignmentColumnsForResidues(sequence: string, residueOrdinals: ReadonlySet<number>): number[] {
+  const columns: number[] = []
+  let ordinal = 0
+  for (let column = 0; column < sequence.length; column++) {
+    if (sequence[column] === '-') continue
+    ordinal++
+    if (residueOrdinals.has(ordinal)) columns.push(column)
+  }
+  return columns
+}

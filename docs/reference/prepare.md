@@ -13,10 +13,10 @@ usage: dvbfixer prepare [-h] [-o OUTPUT] [--dat DAT]
                         [--backend {tleap-reduce,legacy}] [--ph PH]
                         [--ff FF [FF ...]] [--keep-water] [--strip-heterogens]
                         [--no-heterogen-h] [--smiles RESNAME=SMILES]
-                        [--rename] [--no-infer-conect]
-                        [--mutate CHAIN:RESNUM:NEW_AA] [-v] [--log-file PATH]
-                        [--input-dir DIR] [--output-dir DIR] [--recursive]
-                        [--fail-fast]
+                        [--rename] [--no-infer-conect] [--cap-termini]
+                        [--cap-chain CHAIN] [--mutate CHAIN:RESNUM:NEW_AA]
+                        [-v] [--log-file PATH] [--input-dir DIR]
+                        [--output-dir DIR] [--recursive] [--fail-fast]
                         input
 
 Fix missing atoms and residues in a PDB structure using PDBFixer. Writes a
@@ -95,6 +95,11 @@ Content selection:
                         perceives missing CONECT records (SS, glycosidic,
                         glycosylation) so glycoprotein flows work even on
                         inputs without CONECT.
+  --cap-termini         Add a neutral ACE N-cap and NME C-cap to protein
+                        chains. By default every protein chain is capped; use
+                        --cap-chain to restrict the selection.
+  --cap-chain CHAIN     Protein chain to cap (repeatable). Use '_' for a blank
+                        chain ID. Only meaningful with --cap-termini.
 
 Mutations:
   --mutate CHAIN:RESNUM:NEW_AA

@@ -6,26 +6,20 @@ import argparse
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
+from dvbfixer.command_registry import COMMAND_REGISTRY
+
 OUTPUT_SUFFIXES = {
-    "split": "_split.pdb",
-    "renumber": "_renum.pdb",
-    "model": "_model.pdb",
-    "pull": "_pulled.pdb",
-    "prepare": "_prepared.pdb",
-    "minimize": "_minimized.pdb",
-    "protonate": "_prot.pdb",
-    "rename": "_canon.pdb",
-    "convert": "_converted.pdb",
-    "conect": "_conect.pdb",
-    "puppet": "_puppet.pdb",
-    "diagnose": "_diagnose.txt",
-    "zbs": "_zbs.pdb",
+    command.name: command.batch_output_suffix
+    for command in COMMAND_REGISTRY
+    if command.batch_output_suffix is not None
 }
 
 
 def extract_batch_options(argv: Sequence[str]) -> tuple[argparse.Namespace, list[str]]:
     """Remove global batch options while leaving command options untouched."""
-    parser = argparse.ArgumentParser(add_help=False)
+    # Do not let this pre-parser steal command options by abbreviation:
+    # ``--output`` must not be interpreted as global ``--output-dir``.
+    parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
     parser.add_argument("--input-dir")
     parser.add_argument("--output-dir")
     parser.add_argument("--recursive", action="store_true")

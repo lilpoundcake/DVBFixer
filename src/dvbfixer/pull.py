@@ -18,7 +18,9 @@ from openmm import CustomBondForce, CustomExternalForce, LangevinMiddleIntegrato
 from openmm.app import Modeller, NoCutoff, PDBFile, Simulation
 from openmm.unit import angstrom, kelvin, nanometer, picosecond
 
+from dvbfixer.cli_types import atom_spec, nonnegative_int, positive_float
 from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
+from dvbfixer.residue_registry import is_sugar_resname
 
 # Default force field (protein only)
 DEFAULT_FF = 'auto'
@@ -29,8 +31,6 @@ TARGET_DISTANCES = {
     'glycosidic': 1.45, # ASN ND2/OD1 - sugar C1
     'generic': 1.50,
 }
-
-SUGAR_RESNAMES = {'NAG', 'NDG', 'BMA', 'MAN', 'FUC', 'FUL', 'GAL', 'BGC', 'GLC', 'SIA'}
 
 # Max bonds per element in biological context
 MAX_BONDS = {'C': 4, 'N': 4, 'O': 2, 'S': 2, 'H': 1, 'P': 5, 'SE': 2}
@@ -62,17 +62,18 @@ def parse_args(argv=None):
 
     bonds = p.add_argument_group("Bond specification")
     bonds.add_argument("--bond", nargs=2, required=True, action="append", metavar="SPEC",
+                       type=atom_spec,
                        help="Two atom specs: chain:resnum:atomname (e.g. --bond H:239:SG K:239:SG). "
                             "Can be specified multiple times for multiple bonds.")
-    bonds.add_argument("--target-distance", type=float,
+    bonds.add_argument("--target-distance", type=positive_float,
                        help="Target bond distance in angstroms (default: auto by bond type)")
-    bonds.add_argument("--anchor", metavar="SPEC",
+    bonds.add_argument("--anchor", metavar="SPEC", type=atom_spec,
                        help="Anchor one endpoint (freeze its side, only move the other)")
 
     physics = p.add_argument_group("Physics / restraints")
-    physics.add_argument("--radius", type=float, default=10.0,
+    physics.add_argument("--radius", type=positive_float, default=10.0,
                          help="Radius of free region around bond endpoints in angstroms (default: 10.0)")
-    physics.add_argument("--max-iter", type=int, default=1000,
+    physics.add_argument("--max-iter", type=nonnegative_int, default=1000,
                          help="Max minimization iterations (default: 1000)")
 
     ff = p.add_argument_group("Force field")
@@ -132,7 +133,7 @@ def get_target_distance(topology, idx_a, idx_b, user_override=None):
             b.residue.name == 'CYS' and b.name == 'SG'):
         return TARGET_DISTANCES['SS']
 
-    if a.residue.name in SUGAR_RESNAMES or b.residue.name in SUGAR_RESNAMES:
+    if is_sugar_resname(a.residue.name) or is_sugar_resname(b.residue.name):
         return TARGET_DISTANCES['glycosidic']
 
     return TARGET_DISTANCES['generic']

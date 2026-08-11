@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import argparse
 
+from dvbfixer.residue_registry import CHARMM_SUGAR_RESNAMES, PDB_SUGAR_RESNAMES
+
 DEFAULT_PH = 7.0
 
 # Residues that form glycosidic bonds through their sidechain donor
@@ -21,16 +23,7 @@ GLYCOSYLATED_RESIDUES = {"ASN", "SER", "THR"}
 #   - PDB-style 3-char codes from the RCSB Chemical Component Dictionary
 #   - CHARMM-GUI 4-char codes (BGLC, AMAN, BGAL, BGLCNA, ...)
 #   - GLYCAM 3-char codes are detected separately via is_glycam_sugar()
-SUGAR_RESNAMES = {
-    # PDB 3-char
-    "NAG", "NDG", "BMA", "MAN", "FUC", "FUL", "GAL", "BGC", "GLC", "SIA",
-    "NGA", "A2G", "AFU", "AMA", "BGA", "BGL", "XYS", "XYP", "RIB", "GCU",
-    "IDS", "RAM", "NAN",
-    # CHARMM-GUI 4-char
-    "BGLC", "AGLC", "BMAN", "AMAN", "BGAL", "AGAL", "BGLCNA", "BGALNA",
-    "AFUC", "BFUC", "ANE5AC", "BNE5AC", "BXYL", "AXYL", "BIDOA", "BGLCA",
-    "AGLCA",
-}
+SUGAR_RESNAMES = set(PDB_SUGAR_RESNAMES | CHARMM_SUGAR_RESNAMES)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

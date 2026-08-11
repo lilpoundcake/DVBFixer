@@ -8,15 +8,16 @@
 usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--atom-naming {gromacs,standard}] [--parametrize-ligands]
                     [--skip-renumber] [--skip-model] [--skip-prepare]
-                    [--skip-minimize] [--skip-protonate] [--fasta FASTA]
-                    [--no-terminal] [--num-loops NUM_LOOPS]
+                    [--skip-minimize] [--fasta FASTA] [--no-terminal]
+                    [--num-loops NUM_LOOPS]
                     [--md-level {none,fast,slow,very_slow,slow_large}]
                     [--num-output NUM_OUTPUT] [--pin-input | --no-pin-input]
                     [--strip-heterogens] [--backend {tleap-reduce,legacy}]
                     [--no-heterogen-h] [--smiles RESNAME=SMILES]
-                    [--mutate CHAIN:RESNUM:NEW_AA] [--rename] [--no-solvent]
-                    [--rebuild-h] [--restraint-k RESTRAINT_K]
-                    [--max-iter MAX_ITER] [--refine {none,xtb,obminimize}]
+                    [--mutate CHAIN:RESNUM:NEW_AA] [--rename] [--cap-termini]
+                    [--cap-chain CHAIN] [--no-solvent] [--rebuild-h]
+                    [--restraint-k RESTRAINT_K] [--max-iter MAX_ITER]
+                    [--refine {none,xtb,obminimize}]
                     [--refine-heterogens-only] [--no-propka] [--no-protassign]
                     [--his-default {HIE,HID}] [--cys-ss-pka CYS_SS_PKA]
                     [--keep-water] [--no-infer-conect] [--keep-interim]
@@ -65,11 +66,6 @@ Pipeline skip flags:
   --skip-model          Skip the model step
   --skip-prepare        Skip the prepare step
   --skip-minimize       Skip the minimize step
-  --skip-protonate      [deprecated] The protonate step no longer runs as a
-                        separate pipeline stage — PROPKA + Reduce are
-                        integrated into prepare (0.7.7+). Kept for backward
-                        compat: mapped to `--no-propka --no-protassign` on
-                        prepare.
 
 Model step (Modeller):
   --fasta FASTA         FASTA file with complete sequence(s) for model step
@@ -113,6 +109,10 @@ Prepare step:
                         multiple times)
   --rename              Canonicalise non-standard residue names before
                         prepare/minimize.
+  --cap-termini         Add neutral ACE/NME caps during prepare. Applies to
+                        all protein chains unless --cap-chain is supplied.
+  --cap-chain CHAIN     Protein chain to cap (repeatable; '_' means blank
+                        chain).
 
 Minimize step (OpenMM):
   --no-solvent          Minimize in vacuum (no solvent box)

@@ -77,7 +77,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         prog="dvbfixer doctor",
         description="Report optional Python packages, external executables, and OpenMM platforms.",
     )
-    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--format", choices=["text", "json"], default="text",
+                        help="Report format (default: text)")
     from dvbfixer.batch import add_runtime_help
     add_runtime_help(parser)
     return parser.parse_args(argv)

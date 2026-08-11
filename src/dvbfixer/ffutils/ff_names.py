@@ -349,8 +349,6 @@ def apply_variants_to_pdb_text(
     target_ff: str = "amber",
     include_gromacs_shifts: bool = True,
     verbose: bool = False,
-    *,
-    include_gromacs_lyn: bool | None = None,  # deprecated alias
 ) -> int:
     """Rewrite ATOM/HETATM residue and atom names in ``pdb_path`` so the
     file is directly GROMACS-canonical for ``target_ff``.
@@ -376,18 +374,11 @@ def apply_variants_to_pdb_text(
         Enable all GROMACS-compatibility rewrites (per-residue methylene
         shifts, terminal renames, cap renames, backbone H→HN for CHARMM).
         Off if strict ff14SB naming is required.
-    include_gromacs_lyn
-        Deprecated alias for ``include_gromacs_shifts``. Emits no
-        warning yet; will be removed in a future release.
-
     Returns the number of ATOM/HETATM lines whose residue OR atom name
     changed. Idempotent.
     """
     if target_ff not in ("amber", "charmm"):
         raise ValueError(f"target_ff must be 'amber' or 'charmm', got {target_ff!r}")
-
-    if include_gromacs_lyn is not None:
-        include_gromacs_shifts = include_gromacs_lyn
 
     # Normalise key shape for O(1) lookup during scan.
     lookup: dict[tuple[str, str], str] = {}

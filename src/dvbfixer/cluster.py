@@ -27,43 +27,31 @@ from pathlib import Path
 
 import numpy as np
 
+from dvbfixer.cli_types import nonnegative_int, positive_float, positive_int
+from dvbfixer.residue_registry import (
+    CHARMM_SUGAR_RESNAMES,
+    PDB_SUGAR_RESNAMES,
+    SIALIC_RESNAMES,
+    is_glycam_sugar,
+    is_sugar_resname,
+)
+
 # ---------------------------------------------------------------------------
 # Sugar residue recognition
 # ---------------------------------------------------------------------------
 
-_PDB_SUGARS = {
-    'NAG', 'NDG', 'BGL', 'BMA', 'MAN', 'GAL', 'BGC', 'GLC',
-    'FUC', 'FUL', 'AFU', 'SIA', 'NGA', 'A2G', 'AMA', 'BGA',
-    'XYS', 'XYP', 'RIB', 'GCU', 'IDS', 'RAM',
-}
-
-_CHARMM_SUGARS = {
-    'BGLC', 'AGLC', 'BGAL', 'AGAL', 'BMAN', 'AMAN',
-    'BGLCNA', 'AGLCNA', 'BGALNA', 'AGALNA',
-    'ANE5AC', 'BNE5AC', 'AFUC', 'BFUC',
-    'BXYL', 'AXYL', 'ARIB', 'BRIB',
-    'AGLCA', 'BGLCA', 'AIDOA', 'BIDOA',
-    'ARHA', 'BRHA',
-}
-
-SIALIC_RESIDUES = {'SIA', 'ANE5', 'ANE5AC', 'BNE5AC'}
-
+_PDB_SUGARS = PDB_SUGAR_RESNAMES
+_CHARMM_SUGARS = CHARMM_SUGAR_RESNAMES
+SIALIC_RESIDUES = SIALIC_RESNAMES
 SUGAR_RESIDUES = _PDB_SUGARS | _CHARMM_SUGARS | SIALIC_RESIDUES
-
-_GLYCAM_LINKAGE_CHARS = set('0123456789VWUZXYTSRQPvwuzxytsr')
-_GLYCAM_ANOMER_CHARS = {'A', 'B'}
 
 
 def _is_glycam_name(resname):
-    if len(resname) != 3:
-        return False
-    return (resname[0] in _GLYCAM_LINKAGE_CHARS and
-            resname[2] in _GLYCAM_ANOMER_CHARS and
-            resname[1].isalpha())
+    return is_glycam_sugar(resname)
 
 
 def _is_sugar(resname):
-    return resname in SUGAR_RESIDUES or _is_glycam_name(resname)
+    return is_sugar_resname(resname)
 
 
 def _is_sialic(resname):
@@ -1031,17 +1019,17 @@ def parse_args(argv=None):
                     help='Output prefix (default: trajectory stem)')
 
     frames = p.add_argument_group('Frame selection')
-    frames.add_argument('--stride', type=int, default=1,
+    frames.add_argument('--stride', type=positive_int, default=1,
                         help='Read every Nth frame (default: 1)')
-    frames.add_argument('--begin', type=int, default=None,
+    frames.add_argument('--begin', type=nonnegative_int, default=None,
                         help='First frame (0-based)')
-    frames.add_argument('--end', type=int, default=None,
+    frames.add_argument('--end', type=nonnegative_int, default=None,
                         help='Last frame (exclusive)')
     frames.add_argument('--select', default=None,
                         help='MDAnalysis selection for output PDB atoms')
 
     clustering = p.add_argument_group('Clustering')
-    clustering.add_argument('--cutoff', type=float, default=30.0,
+    clustering.add_argument('--cutoff', type=positive_float, default=30.0,
                             help='RMSD cutoff in degrees (default: 30.0)')
     clustering.add_argument('--mode', choices=['global', 'per-linkage'],
                             default='per-linkage',

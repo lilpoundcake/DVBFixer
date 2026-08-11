@@ -21,6 +21,7 @@ import Tooltip from '@mui/material/Tooltip'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { useStructureStore } from '../stores/structureStore'
 import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
+import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 import { identifyAntibodyChain, mapEuToAuthSeqId, parseMutation, mutateArgFor, type AntibodyClassification } from '../lib/antibody-numbering'
 
 interface StructureEntry {
@@ -422,9 +423,8 @@ export function AntibodyEngineerPanel() {
       }
       // Stream closed.
       if (finalOutput) {
-        if (workspace) await loadOutputIntoPrimary(workspace.id, finalOutput)
         await reloadWorkspace()
-        useStructureStore.getState().bumpLibraryVersion()
+        if (workspace) await loadOutputIntoPrimary(workspace.id, finalOutput)
         if (phase !== 'cached') setPhase('done')
       }
     } catch (e: any) {
@@ -779,6 +779,8 @@ async function loadOutputIntoPrimary(workspaceId: string, outputFile: string): P
     const data = await plugin.builders.data.rawData({ data: text, label: outputFile })
     const trajectory = await plugin.builders.structure.parseTrajectory(data, format as any)
     await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default')
+    const artifact = useWorkspaceStore.getState().active?.artifacts.find(item => item.file === outputFile)
+    if (artifact) useStructureStore.getState().setMeta(structureMetaFromArtifact(artifact))
     useStructureStore.getState().setFileName(outputFile)
   } catch (err) {
     console.warn('[antibody-engineer] auto-load output failed:', err)

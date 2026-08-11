@@ -29,7 +29,7 @@ Alignment:
 
 Diagnostics:
   --list-engines        Print detected alignment engines and exit
-  -v, --verbose
+  -v, --verbose         Print the alignment command and progress details
 
 Global logging:
   --log-file PATH       Append all stdout/stderr (including child tools) to

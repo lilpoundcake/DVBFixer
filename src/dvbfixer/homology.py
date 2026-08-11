@@ -14,6 +14,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+from dvbfixer.cli_types import positive_int
 from dvbfixer.model import (
     AA3TO1,
     WATER_RESNAMES,
@@ -638,7 +639,7 @@ def parse_args(argv=None):
                            help='Use structure-based alignment instead of align2d')
 
     modelling = p.add_argument_group('Modelling parameters')
-    modelling.add_argument('-n', '--num-models', type=int, default=5,
+    modelling.add_argument('-n', '--num-models', type=positive_int, default=5,
                            help='Number of models to generate (default: 5)')
     modelling.add_argument('--md-level',
                            choices=['none', 'fast', 'slow', 'very_slow', 'slow_large'],

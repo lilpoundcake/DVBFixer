@@ -12,6 +12,20 @@ dvbfixer zbs --input-dir structures --output-dir fixed --recursive
 The shared keys are `--input-dir DIR`, `--output-dir DIR`, `--recursive`, and
 `--fail-fast`.
 
+Shared keys use exact option matching. In particular, `-o` and `--output`
+remain subcommand output options and are not accepted as abbreviations for
+`--output-dir`, regardless of their position in the command. This makes both
+forms below unambiguous:
+
+```bash
+dvbfixer prepare input.pdb --output prepared.pdb
+dvbfixer prepare --input-dir structures --output-dir prepared
+```
+
+Positive/non-negative numeric constraints and structured selector syntax are
+validated once by each subcommand's parser before batch processing begins, so
+an invalid shared invocation cannot fail differently from file to file.
+
 ## Support by tool
 
 | Tool | Batch input | Notes |

@@ -12,6 +12,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
 import MenuItem from '@mui/material/MenuItem'
 import { useStructureStore, type StructureMeta } from '../stores/structureStore'
 import { computeEquivalentChains, filterSequenceableChains, validateGrouping } from '../lib/chain-grouping'
+import { useWorkspaceStore } from '../stores/workspaceStore'
 
 const META_FIELDS: Array<keyof StructureMeta> = ['name', 'organism', 'method', 'resolution', 'description', 'iggSubtype', 'allotype', 'equivalentChains']
 
@@ -43,9 +44,10 @@ export function StructureInfo() {
   const fileName = useStructureStore((s) => s.fileName)
   const chains = useStructureStore((s) => s.chains)
   const elements = useStructureStore((s) => s.elements)
-  const bumpLibraryVersion = useStructureStore((s) => s.bumpLibraryVersion)
+  const workspace = useWorkspaceStore((s) => s.active)
+  const updateArtifactMetadata = useWorkspaceStore((s) => s.updateArtifactMetadata)
 
-  // Persist meta edits to the backend (per-file in structures/index.json).
+  // Persist meta edits on the active workspace artifact.
   // Debounced so we don't write on every keystroke. Resets when the loaded
   // file changes so the new structure's meta isn't immediately overwritten
   // by the just-loaded values.
@@ -63,6 +65,8 @@ export function StructureInfo() {
 
   useEffect(() => {
     if (!fileName) return
+    const artifact = workspace?.artifacts.find(item => item.file === fileName)
+    if (!artifact) return
     if (lastSavedFileRef.current !== fileName) return // file just switched
     if (!initialMetaRef.current) return
     // Compare against the initial snapshot. equivalentChains needs deep
@@ -72,34 +76,23 @@ export function StructureInfo() {
     clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
       try {
-        await fetch('/api/library/meta', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            file: fileName,
-            name: meta.name,
-            organism: meta.organism,
-            method: meta.method,
-            resolution: meta.resolution,
-            description: meta.description,
-            iggSubtype: meta.iggSubtype,
-            allotype: meta.allotype,
-            // `null` tells the backend to DELETE the key (fall back to
-            // auto-detection); an array (even empty) is treated as an
-            // explicit override and persisted as-is.
-            equivalentChains: meta.equivalentChains === undefined ? null : meta.equivalentChains,
-          }),
+        await updateArtifactMetadata(artifact.id, {
+          name: meta.name,
+          organism: meta.organism || null,
+          method: meta.method || null,
+          resolution: meta.resolution || null,
+          description: meta.description || null,
+          iggSubtype: meta.iggSubtype || null,
+          allotype: meta.allotype || null,
+          equivalentChains: meta.equivalentChains ?? null,
         })
         initialMetaRef.current = { ...meta }
-        // Tell the library to re-fetch so the row's name / description
-        // reflects the just-saved values.
-        bumpLibraryVersion()
       } catch (err) {
         console.warn('[info] failed to persist meta:', err)
       }
     }, 500)
     return () => clearTimeout(debounceRef.current)
-  }, [meta, fileName, bumpLibraryVersion])
+  }, [meta, fileName, updateArtifactMetadata, workspace])
 
   if (!fileName) {
     return (

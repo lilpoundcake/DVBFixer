@@ -5,6 +5,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { useStructureStore } from '../stores/structureStore'
 import { useSelectionStore } from '../stores/selectionStore'
 import { useWorkspaceStore, workspaceFileUrl, type WorkspaceArtifact } from '../stores/workspaceStore'
+import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 
 function detectFormat(filename: string): 'pdb' | 'mmcif' {
   const lower = filename.toLowerCase()
@@ -20,6 +21,7 @@ export function FileLoader() { // @dsp obj-a1000005
   const setFileName = useStructureStore((s) => s.setFileName)
   const setSecondaryFileName = useStructureStore((s) => s.setSecondaryFileName)
   const setLoading = useStructureStore((s) => s.setLoading)
+  const setMeta = useStructureStore((s) => s.setMeta)
   const setError = useStructureStore((s) => s.setError)
   const clearSelection = useSelectionStore((s) => s.clearSelection)
   const activeWorkspace = useWorkspaceStore((s) => s.active)
@@ -67,6 +69,7 @@ export function FileLoader() { // @dsp obj-a1000005
         setSecondaryFileName(artifact.file)
         updateWorkspace({ secondaryFile: artifact.file })
       } else {
+        setMeta(structureMetaFromArtifact(artifact))
         setFileName(artifact.file)
         updateWorkspace({ primaryFile: artifact.file })
       }
@@ -75,7 +78,7 @@ export function FileLoader() { // @dsp obj-a1000005
     } finally {
       setLoading(false)
     }
-  }, [activeWorkspace, clearSelection, loadTargetSlot, plugin, refreshWorkspaces, reloadWorkspace, saveWorkspace, secondaryPlugin, setError, setFileName, setLoading, setSecondaryFileName, updateWorkspace])
+  }, [activeWorkspace, clearSelection, loadTargetSlot, plugin, refreshWorkspaces, reloadWorkspace, saveWorkspace, secondaryPlugin, setError, setFileName, setLoading, setMeta, setSecondaryFileName, updateWorkspace])
 
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

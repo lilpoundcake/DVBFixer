@@ -9,6 +9,11 @@ import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import Divider from '@mui/material/Divider'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Tooltip from '@mui/material/Tooltip'
@@ -18,11 +23,14 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import { useStructureStore, type ViewerSlot } from '../stores/structureStore'
 import { useWorkspaceStore, workspaceFileUrl, type WorkspaceArtifact, type WorkspaceManifest } from '../stores/workspaceStore'
 import { useSelectionStore } from '../stores/selectionStore'
+import { reorderVisibleArtifacts } from '../lib/workspace-order'
+import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 
-export function ProjectLibrary() {
+export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'workspace' }) {
   const uploadRef = useRef<HTMLInputElement>(null)
   const workspaces = useWorkspaceStore(state => state.workspaces)
   const active = useWorkspaceStore(state => state.active)
@@ -31,7 +39,9 @@ export function ProjectLibrary() {
   const refresh = useWorkspaceStore(state => state.refresh)
   const activate = useWorkspaceStore(state => state.activate)
   const createWorkspace = useWorkspaceStore(state => state.createWorkspace)
+  const reorderWorkspaces = useWorkspaceStore(state => state.reorderWorkspaces)
   const updateWorkspace = useWorkspaceStore(state => state.update)
+  const updateArtifactMetadata = useWorkspaceStore(state => state.updateArtifactMetadata)
   const saveWorkspace = useWorkspaceStore(state => state.save)
   const reloadWorkspace = useWorkspaceStore(state => state.reload)
   const discardActive = useWorkspaceStore(state => state.discardActive)
@@ -40,6 +50,12 @@ export function ProjectLibrary() {
   const selectionAnchor = useRef<number | null>(null)
   const [loadTarget, setLoadTarget] = useState<ViewerSlot>('primary')
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; kind: 'workspace' | 'artifact'; id: string; name: string } | null>(null)
+  const [renameTarget, setRenameTarget] = useState<{ kind: 'workspace' | 'artifact'; id: string; name: string } | null>(null)
+  const [renameDraft, setRenameDraft] = useState('')
+  const [draggedWorkspace, setDraggedWorkspace] = useState<string | null>(null)
+  const [draggedArtifact, setDraggedArtifact] = useState<string | null>(null)
+  const [dropMarker, setDropMarker] = useState<{ kind: 'workspace' | 'artifact'; id: string; position: 'before' | 'after' } | null>(null)
+  const [showNonPdb, setShowNonPdb] = useState(true)
   const plugin = useStructureStore(state => state.plugin)
   const secondaryPlugin = useStructureStore(state => state.secondaryPlugin)
   const setFileName = useStructureStore(state => state.setFileName)
@@ -70,8 +86,8 @@ export function ProjectLibrary() {
       const trajectory = await target.builders.structure.parseTrajectory(data, format)
       await target.builders.structure.hierarchy.applyPreset(trajectory, 'default')
       if (slot === 'primary') {
+        setMeta(structureMetaFromArtifact(artifact))
         setFileName(artifact.file)
-        setMeta({ name: artifact.name })
         updateWorkspace({ primaryFile: artifact.file })
       } else {
         setSecondaryFileName(artifact.file)
@@ -93,14 +109,6 @@ export function ProjectLibrary() {
     if (secondary && secondaryPlugin) await loadArtifact(workspace, secondary, 'secondary')
     else { setSecondaryFileName(null); if (secondaryPlugin) await secondaryPlugin.clear() }
   }, [activate, loadArtifact, plugin, secondaryPlugin, setFileName, setSecondaryFileName])
-
-  useEffect(() => {
-    refresh().then(() => {
-      const current = useWorkspaceStore.getState()
-      if (!current.active && current.workspaces[0]) openWorkspace(current.workspaces[0].id).catch(() => {})
-      else if (!current.active && !current.workspaces.length) createWorkspace().catch(() => {})
-    }).catch(() => {})
-  }, [createWorkspace, openWorkspace, refresh])
 
   const importFiles = async (files: FileList | null) => {
     if (!active || !files?.length) return
@@ -172,65 +180,137 @@ export function ProjectLibrary() {
     finally { setLoading(false) }
   }
 
-  const renameContextItem = async (target: NonNullable<typeof contextMenu>) => {
-    setContextMenu(null)
-    const name = window.prompt(`Rename ${target.kind}`, target.name)?.trim()
+  const renameContextItem = async (target: NonNullable<typeof renameTarget>, draft: string) => {
+    const name = draft.trim()
     if (!name || name === target.name) return
     try {
-      await saveWorkspace()
-      const url = target.kind === 'workspace'
-        ? `/api/workspaces/${encodeURIComponent(target.id)}/rename`
-        : `/api/workspaces/${encodeURIComponent(active?.id || '')}/artifacts/${encodeURIComponent(target.id)}/rename`
-      const response = await fetch(url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) })
-      const body = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(body.error || `Rename failed: HTTP ${response.status}`)
-      if (target.kind === 'artifact') await reloadWorkspace()
-      else if (active?.id === target.id) await reloadWorkspace()
+      if (target.kind === 'artifact') {
+        await updateArtifactMetadata(target.id, { name })
+      } else {
+        await saveWorkspace()
+        const response = await fetch(`/api/workspaces/${encodeURIComponent(target.id)}/rename`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+        })
+        const body = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(body.error || `Rename failed: HTTP ${response.status}`)
+        if (active?.id === target.id) await reloadWorkspace()
+      }
       await refresh()
     } catch (reason: any) { setError(reason.message || String(reason)) }
   }
 
+  const downloadContextItem = (target: NonNullable<typeof contextMenu>) => {
+    const anchor = document.createElement('a')
+    if (target.kind === 'workspace') {
+      anchor.href = `/api/workspaces/${encodeURIComponent(target.id)}/download`
+    } else {
+      if (!active) return
+      const artifact = active.artifacts.find(item => item.id === target.id)
+      if (!artifact) return
+      anchor.href = workspaceFileUrl(active.id, artifact.file)
+      anchor.download = artifact.file.split('/').pop() || artifact.name
+    }
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
+    setContextMenu(null)
+  }
+
+  const moveWorkspace = async (draggedId: string, targetId: string, position: 'before' | 'after') => {
+    if (draggedId === targetId) return
+    const ids = workspaces.map(workspace => workspace.id)
+    const from = ids.indexOf(draggedId)
+    if (from < 0 || ids.indexOf(targetId) < 0) return
+    const moved = ids.splice(from, 1)[0]
+    const targetIndex = ids.indexOf(targetId)
+    ids.splice(targetIndex + (position === 'after' ? 1 : 0), 0, moved)
+    try { await reorderWorkspaces(ids) } catch (reason: any) { setError(reason.message || String(reason)) }
+  }
+
+  const moveArtifact = async (draggedId: string, targetId: string, position: 'before' | 'after') => {
+    if (!active || draggedId === targetId) return
+    const artifacts = [...active.artifacts]
+    const from = artifacts.findIndex(artifact => artifact.id === draggedId)
+    if (from < 0 || artifacts.findIndex(artifact => artifact.id === targetId) < 0) return
+    const moved = artifacts.splice(from, 1)[0]
+    const targetIndex = artifacts.findIndex(artifact => artifact.id === targetId)
+    artifacts.splice(targetIndex + (position === 'after' ? 1 : 0), 0, moved)
+    updateWorkspace({ artifacts })
+    try { await useWorkspaceStore.getState().save() } catch (reason: any) { setError(reason.message || String(reason)) }
+  }
+
   const reorderSelected = async (direction: -1 | 1) => {
     if (!active || !selectedArtifacts.size) return
-    const visible = active.artifacts.filter(item => !item.hidden)
-    if (direction < 0) {
-      for (let index = 1; index < visible.length; index++) if (selectedArtifacts.has(visible[index].id) && !selectedArtifacts.has(visible[index - 1].id)) [visible[index - 1], visible[index]] = [visible[index], visible[index - 1]]
-    } else {
-      for (let index = visible.length - 2; index >= 0; index--) if (selectedArtifacts.has(visible[index].id) && !selectedArtifacts.has(visible[index + 1].id)) [visible[index], visible[index + 1]] = [visible[index + 1], visible[index]]
-    }
-    let visibleIndex = 0
-    updateWorkspace({ artifacts: active.artifacts.map(item => item.hidden ? item : visible[visibleIndex++]) })
+    const visible = active.artifacts.filter(item => !item.hidden && (showNonPdb || /\.pdb$/i.test(item.file)))
+    updateWorkspace({
+      artifacts: reorderVisibleArtifacts(
+        active.artifacts,
+        visible.map(item => item.id),
+        selectedArtifacts,
+        direction,
+      ),
+    })
     await useWorkspaceStore.getState().save()
   }
 
   return <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-    <Box sx={{ px: 1, py: 0.75, borderBottom: 1, borderColor: 'divider', display: 'flex', gap: 0.5, alignItems: 'center' }}>
-      <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>Projects</Typography>
-      <Tooltip title="New workspace"><IconButton size="small" onClick={() => createWorkspace()}><AddIcon fontSize="small" /></IconButton></Tooltip>
-      <input ref={uploadRef} hidden multiple type="file" onChange={event => importFiles(event.target.files)} />
-      <Tooltip title="Import files into active workspace"><span><IconButton size="small" disabled={!active} onClick={() => uploadRef.current?.click()}><UploadFileIcon fontSize="small" /></IconButton></span></Tooltip>
-      <ToggleButtonGroup size="small" exclusive value={loadTarget} onChange={(_event, value) => value && setLoadTarget(value)} sx={{ ml: 'auto' }}>
-        <ToggleButton value="primary">A</ToggleButton><ToggleButton value="secondary" disabled={!secondaryPlugin}>B</ToggleButton>
-      </ToggleButtonGroup>
+    <Box sx={{ px: 1, py: 0, height: 36, boxSizing: 'border-box', flexShrink: 0, borderBottom: 1, borderColor: 'divider', display: 'flex', gap: 0.5, alignItems: 'center' }}>
+      <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>{mode === 'library' ? 'Workspace' : active?.name || 'Workspace'}</Typography>
+      {mode === 'library' ? (
+        <Tooltip title="New workspace"><IconButton size="small" sx={{ ml: 'auto' }} onClick={() => createWorkspace()}><AddIcon fontSize="small" /></IconButton></Tooltip>
+      ) : <>
+        <input ref={uploadRef} hidden multiple type="file" onChange={event => importFiles(event.target.files)} />
+        <Tooltip title="Import files into active workspace"><span><IconButton size="small" disabled={!active} onClick={() => uploadRef.current?.click()}><UploadFileIcon fontSize="small" /></IconButton></span></Tooltip>
+        <ToggleButtonGroup size="small" exclusive value={loadTarget} onChange={(_event, value) => value && setLoadTarget(value)} sx={{ ml: 'auto', '& .MuiToggleButton-root': { minHeight: 24, py: 0, px: 1, fontSize: '0.68rem' } }}>
+          <ToggleButton value="primary">A</ToggleButton><ToggleButton value="secondary" disabled={!secondaryPlugin}>B</ToggleButton>
+        </ToggleButtonGroup>
+      </>}
     </Box>
     {error && <Typography variant="caption" color="error" sx={{ px: 1, py: 0.5 }}>{error}</Typography>}
     {loading && <CircularProgress size={16} sx={{ m: 1 }} />}
-    <List dense disablePadding sx={{ borderBottom: 1, borderColor: 'divider' }}>
-      {workspaces.map(workspace => <ListItemButton key={workspace.id} selected={active?.id === workspace.id} onClick={() => openWorkspace(workspace.id)}
-        onContextMenu={event => { event.preventDefault(); setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, kind: 'workspace', id: workspace.id, name: workspace.name }) }}>
+    {mode === 'library' && <List dense disablePadding sx={{ flex: 1, overflow: 'auto' }}>
+      {workspaces.map((workspace, index) => <ListItemButton key={workspace.id} selected={active?.id === workspace.id} onClick={() => openWorkspace(workspace.id)}
+        onDragOver={event => { event.preventDefault(); event.stopPropagation(); event.dataTransfer.dropEffect = 'move'; const rect = event.currentTarget.getBoundingClientRect(); setDropMarker({ kind: 'workspace', id: workspace.id, position: event.clientY < rect.top + rect.height / 2 ? 'before' : 'after' }) }}
+        onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropMarker(null) }}
+        onDrop={event => { event.preventDefault(); event.stopPropagation(); const position = dropMarker?.kind === 'workspace' && dropMarker.id === workspace.id ? dropMarker.position : 'before'; if (draggedWorkspace) moveWorkspace(draggedWorkspace, workspace.id, position).catch(() => {}); setDraggedWorkspace(null); setDropMarker(null) }}
+        onContextMenu={event => { event.preventDefault(); setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, kind: 'workspace', id: workspace.id, name: workspace.name }) }}
+        sx={{
+          py: 0.2,
+          '& .MuiListItemText-root': { my: 0.25 },
+          bgcolor: active?.id === workspace.id ? 'rgba(29,50,97,0.24)' : index % 2 ? 'rgba(29,50,97,0.045)' : 'transparent',
+          '&.Mui-selected': { bgcolor: 'rgba(29,50,97,0.24)' },
+          '&.Mui-selected:hover': { bgcolor: 'rgba(29,50,97,0.31)' },
+          borderTop: '2px solid', borderBottom: '2px solid',
+          borderTopColor: dropMarker?.kind === 'workspace' && dropMarker.id === workspace.id && dropMarker.position === 'before' ? 'primary.main' : 'transparent',
+          borderBottomColor: dropMarker?.kind === 'workspace' && dropMarker.id === workspace.id && dropMarker.position === 'after' ? 'primary.main' : 'transparent',
+        }}>
+        <Box component="span" draggable onMouseDown={event => event.stopPropagation()}
+          onClick={event => event.stopPropagation()}
+          onDragStart={event => { event.stopPropagation(); event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', workspace.id); setDraggedWorkspace(workspace.id) }}
+          onDragEnd={event => { event.stopPropagation(); setDraggedWorkspace(null); setDropMarker(null) }}
+          sx={{ display: 'inline-flex', cursor: 'grab', color: 'text.disabled', mr: 0.5, '&:active': { cursor: 'grabbing' } }}>
+          <DragIndicatorIcon sx={{ fontSize: 16 }} />
+        </Box>
         <FolderOpenIcon sx={{ fontSize: 16, mr: 1 }} />
         <ListItemText primary={workspace.name} secondary={`${workspace.artifactCount} files`} />
       </ListItemButton>)}
-    </List>
-    {active && <>
-      <Box sx={{ p: 1 }}><TextField size="small" fullWidth label="Workspace name" value={active.name} onChange={event => updateWorkspace({ name: event.target.value })} /></Box>
-      <Box sx={{ px: 1, display: 'flex', alignItems: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>FILES</Typography>
-        <Tooltip title="Move selected files up"><span><IconButton size="small" disabled={!selectedArtifacts.size} onClick={() => reorderSelected(-1)}><ArrowUpwardIcon fontSize="inherit" /></IconButton></span></Tooltip>
-        <Tooltip title="Move selected files down"><span><IconButton size="small" disabled={!selectedArtifacts.size} onClick={() => reorderSelected(1)}><ArrowDownwardIcon fontSize="inherit" /></IconButton></span></Tooltip>
+    </List>}
+    {mode === 'workspace' && active && <>
+      <Box sx={{ px: 1, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>FILES</Typography>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+        <Button size="small" onClick={() => setShowNonPdb(show => !show)}>{showNonPdb ? 'Hide non-PDB files' : 'Show non-PDB files'}</Button>
         {!!selectedArtifacts.size && <Typography variant="caption" color="primary">{selectedArtifacts.size} selected</Typography>}
+        <Box sx={{ ml: 'auto', display: 'flex' }}>
+          <Tooltip title="Move selected files up"><span><IconButton size="small" disabled={!selectedArtifacts.size} onClick={() => reorderSelected(-1)}><ArrowUpwardIcon fontSize="inherit" /></IconButton></span></Tooltip>
+          <Tooltip title="Move selected files down"><span><IconButton size="small" disabled={!selectedArtifacts.size} onClick={() => reorderSelected(1)}><ArrowDownwardIcon fontSize="inherit" /></IconButton></span></Tooltip>
+        </Box>
       </Box>
       <List dense disablePadding sx={{ flex: 1, overflow: 'auto' }}>
-        {active.artifacts.filter(artifact => !artifact.hidden).map((artifact, index, visible) => <ListItemButton key={artifact.id} selected={selectedArtifacts.has(artifact.id)} onClick={event => {
+        {active.artifacts.filter(artifact => !artifact.hidden && (showNonPdb || /\.pdb$/i.test(artifact.file))).map((artifact, index, visible) => <ListItemButton key={artifact.id} selected={selectedArtifacts.has(artifact.id)}
+          onDragOver={event => { event.preventDefault(); event.stopPropagation(); event.dataTransfer.dropEffect = 'move'; const rect = event.currentTarget.getBoundingClientRect(); setDropMarker({ kind: 'artifact', id: artifact.id, position: event.clientY < rect.top + rect.height / 2 ? 'before' : 'after' }) }}
+          onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropMarker(null) }}
+          onDrop={event => { event.preventDefault(); event.stopPropagation(); const position = dropMarker?.kind === 'artifact' && dropMarker.id === artifact.id ? dropMarker.position : 'before'; if (draggedArtifact) moveArtifact(draggedArtifact, artifact.id, position).catch(() => {}); setDraggedArtifact(null); setDropMarker(null) }}
+          onClick={event => {
           if (event.shiftKey && selectionAnchor.current !== null) {
             const start = Math.min(selectionAnchor.current, index); const end = Math.max(selectionAnchor.current, index)
             setSelectedArtifacts(current => new Set([...current, ...visible.slice(start, end + 1).map(item => item.id)]))
@@ -246,9 +326,19 @@ export function ProjectLibrary() {
           bgcolor: selectedArtifacts.has(artifact.id) ? 'rgba(29,50,97,0.24)' : index % 2 ? 'rgba(29,50,97,0.045)' : 'transparent',
           '&.Mui-selected': { bgcolor: 'rgba(29,50,97,0.24)' },
           '&.Mui-selected:hover': { bgcolor: 'rgba(29,50,97,0.31)' },
+          borderTop: '2px solid', borderBottom: '2px solid',
+          borderTopColor: dropMarker?.kind === 'artifact' && dropMarker.id === artifact.id && dropMarker.position === 'before' ? 'primary.main' : 'transparent',
+          borderBottomColor: dropMarker?.kind === 'artifact' && dropMarker.id === artifact.id && dropMarker.position === 'after' ? 'primary.main' : 'transparent',
         }}
           onContextMenu={event => { event.preventDefault(); setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, kind: 'artifact', id: artifact.id, name: artifact.name }) }}>
-          <ListItemText primary={artifact.name} secondary={[artifact.folder, artifact.file].filter(Boolean).join(' · ')} />
+          <Box component="span" draggable onMouseDown={event => event.stopPropagation()}
+            onClick={event => event.stopPropagation()}
+            onDragStart={event => { event.stopPropagation(); event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', artifact.id); setDraggedArtifact(artifact.id) }}
+            onDragEnd={event => { event.stopPropagation(); setDraggedArtifact(null); setDropMarker(null) }}
+            sx={{ display: 'inline-flex', cursor: 'grab', color: 'text.disabled', mr: 0.5, '&:active': { cursor: 'grabbing' } }}>
+            <DragIndicatorIcon sx={{ fontSize: 16 }} />
+          </Box>
+          <ListItemText primary={artifact.name} />
         </ListItemButton>)}
         {!active.artifacts.length && <Box sx={{ p: 2, textAlign: 'center' }}><Typography variant="caption" color="text.secondary">Import files to begin.</Typography></Box>}
       </List>
@@ -256,8 +346,38 @@ export function ProjectLibrary() {
     <Button size="small" onClick={() => refresh()} sx={{ m: 0.5 }}>Refresh</Button>
     <Menu open={!!contextMenu} onClose={() => setContextMenu(null)} anchorReference="anchorPosition"
       anchorPosition={contextMenu ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined}>
-      <MenuItem onClick={() => contextMenu && renameContextItem(contextMenu)}>Rename</MenuItem>
+      <MenuItem onClick={() => {
+        if (!contextMenu) return
+        setRenameTarget({ kind: contextMenu.kind, id: contextMenu.id, name: contextMenu.name })
+        setRenameDraft(contextMenu.name)
+        setContextMenu(null)
+      }}>Rename</MenuItem>
+      <MenuItem onClick={() => contextMenu && downloadContextItem(contextMenu)}>
+        Download{contextMenu?.kind === 'workspace' ? ' archive' : ''}
+      </MenuItem>
       <MenuItem onClick={() => contextMenu && removeContextItem(contextMenu)}>Move {contextMenu?.kind === 'workspace' ? 'workspace' : contextMenu && selectedArtifacts.has(contextMenu.id) && selectedArtifacts.size > 1 ? `${selectedArtifacts.size} selected files` : 'file'} to trash</MenuItem>
     </Menu>
+    <Dialog open={!!renameTarget} onClose={() => setRenameTarget(null)} fullWidth maxWidth="xs">
+      <DialogTitle>Rename {renameTarget?.kind}</DialogTitle>
+      <DialogContent>
+        <TextField autoFocus fullWidth size="small" label="Name" value={renameDraft}
+          onChange={event => setRenameDraft(event.target.value)} sx={{ mt: 1 }}
+          onKeyDown={event => {
+            if (event.key !== 'Enter' || !renameTarget) return
+            renameContextItem(renameTarget, renameDraft).finally(() => setRenameTarget(null))
+          }} />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setRenameTarget(null)}>Cancel</Button>
+        <Button variant="contained" disabled={!renameDraft.trim()} onClick={() => {
+          if (!renameTarget) return
+          renameContextItem(renameTarget, renameDraft).finally(() => setRenameTarget(null))
+        }}>Rename</Button>
+      </DialogActions>
+    </Dialog>
   </Box>
+}
+
+export function WorkspacePanel() {
+  return <ProjectLibrary mode="workspace" />
 }

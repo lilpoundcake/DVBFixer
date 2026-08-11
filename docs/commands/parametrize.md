@@ -117,10 +117,6 @@ Tuning knobs (shared with the PSI4 backend):
 - `--qm-memory '4GB'` — memory cap (applies to PSI4; PySCF reads
   `PYSCF_MAX_MEMORY` env var if you need to tune).
 
-The legacy names `--psi4-method`, `--psi4-nthreads`, `--psi4-memory`
-are kept as aliases of the `--qm-*` flags for scripts that already
-use them.
-
 ## RESP via PSI4 (free, separate env — fragile on macOS)
 
 PSI4 + psiresp produce AMBER-standard 2-stage RESP charges without
@@ -168,9 +164,9 @@ What happens internally:
 5. parmchk2 → tleap → ParmEd continue as for the BCC path.
 
 Tuning knobs:
-- `--psi4-method 'HF/6-31G*'` (default; the AMBER recipe — change only if you know why)
-- `--psi4-nthreads 4` (default; OpenMP, ~30% speedup at 4 cores; not linear)
-- `--psi4-memory '4GB'` (default; raise for larger molecules)
+- `--qm-method 'HF/6-31G*'` (default; the AMBER recipe — change only if you know why)
+- `--qm-nthreads 4` (default; OpenMP, ~30% speedup at 4 cores; not linear)
+- `--qm-memory '4GB'` (default; raise for larger molecules)
 
 Quality: per-atom charges within 0.05 e of Gaussian-RESP on standard
 AMBER test molecules. Use whichever engine is more convenient.
@@ -278,9 +274,9 @@ RESP backend selector, then per-backend tuning knobs.
 ### QM compute knobs (shared by `pyscf` and `psi4` backends)
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--qm-method` (alias: `--psi4-method`) | `HF/6-31G*` | QM method/basis. AMBER RESP-A1 standard. |
-| `--qm-nthreads` (alias: `--psi4-nthreads`) | `4` | OpenMP threads (PSI4 only; PySCF reads `OMP_NUM_THREADS`) |
-| `--qm-memory` (alias: `--psi4-memory`) | `4GB` | Memory cap (PSI4 only; PySCF reads `PYSCF_MAX_MEMORY`) |
+| `--qm-method` | `HF/6-31G*` | QM method/basis. AMBER RESP-A1 standard. |
+| `--qm-nthreads` | `4` | OpenMP threads (PSI4 only; PySCF reads `OMP_NUM_THREADS`) |
+| `--qm-memory` | `4GB` | Memory cap (PSI4 only; PySCF reads `PYSCF_MAX_MEMORY`) |
 | `--psi4-env` | `psi4` | Name of the conda env with `psi4 + psiresp` (only for `--qm-engine psi4`) |
 
 ### Gaussian-specific (only when `--qm-engine gaussian`)
@@ -426,9 +422,9 @@ dvbfixer top complex.pdb --water opc -o gmx/
 ## How it works
 Parametrises small molecules with GAFF2 force field and AM1-BCC or RESP charges for GROMACS MD. Wraps the AmberTools pipeline: `antechamber` (atom types + charges) → `parmchk2` (missing parameter check) → `tleap` (AMBER topology) → ParmEd (AMBER→GROMACS conversion). Output: standalone `.itp` file (with `[ defaults ]`, `[ atomtypes ]`, `[ moleculetype ]` sections), `.gro` coordinates, and `posre_*.itp` position restraints. **AM1-BCC is the default** (`-c bcc`, fast, no QM needed, ~95% of RESP accuracy per published OpenFF/AMBER benchmarks). For RESP charges (`-c resp`), the user must explicitly choose `--qm-engine gaussian` (commercial license, existing two-step `--gen-gaussian`/`--gaussian-log` workflow) or `--qm-engine psi4` (free PSI4+psiresp via conda, one-shot, ~5-7× slower than Gaussian). Both engines produce charges within 0.05 e/atom of each other. Supports PDB, MOL2, and SDF input formats.
 
-**PySCF backend (`--qm-engine pyscf`, RECOMMENDED for macOS arm64)**: pure-Python pipeline in the main dvbfixer env. `_compute_resp_charges_pyscf()` (a) loads coords + bond graph via OpenBabel, (b) builds `pyscf.gto.Mole` + runs HF/6-31G* SCF (uses input geometry — no geom opt; pre-minimise externally if needed), (c) generates Merz-Kollman ESP grid via `_generate_mk_grid()` (4 shells at 1.4-2.0× vdW radii, Connolly exclusion at 1.4× — implemented with Fibonacci sphere via `_fibonacci_sphere()`), (d) evaluates ESP via `_evaluate_esp()` using `mol.intor('int1e_grids')` contracted with the SCF density matrix + analytic nuclear sum, (e) runs `_stage1_resp_fit()` (KKT system: linear least-squares with charge-sum + H-equivalence constraints from `_h_equivalence_groups()`), (f) runs `_stage2_resp_fit()` (iterated hyperbolic restraint on heavy atoms, AMBER defaults a=0.001 Ha, b=0.1 e, max_iter=50, tol=1e-6). Quality on acetate test: net charge -0.999998 (target -1), methyl-H equivalent at +0.040 each, per-atom within ~0.01 e of published RESP-A1. PySCF in `environment.yml` pip section (`pip install pyscf` — wheels on PyPI for macOS arm64 + Linux x86_64, no conda dylib hell). Reuses `--psi4-method` flag for the QM method (default HF/6-31G*); `--psi4-nthreads`/`--psi4-memory` are ignored for PySCF (use OMP_NUM_THREADS / PYSCF_MAX_MEMORY env vars).
+**PySCF backend (`--qm-engine pyscf`, RECOMMENDED for macOS arm64)**: pure-Python pipeline in the main dvbfixer env. `_compute_resp_charges_pyscf()` (a) loads coords + bond graph via OpenBabel, (b) builds `pyscf.gto.Mole` + runs HF/6-31G* SCF (uses input geometry — no geom opt; pre-minimise externally if needed), (c) generates Merz-Kollman ESP grid via `_generate_mk_grid()` (4 shells at 1.4-2.0× vdW radii, Connolly exclusion at 1.4× — implemented with Fibonacci sphere via `_fibonacci_sphere()`), (d) evaluates ESP via `_evaluate_esp()` using `mol.intor('int1e_grids')` contracted with the SCF density matrix + analytic nuclear sum, (e) runs `_stage1_resp_fit()` (KKT system: linear least-squares with charge-sum + H-equivalence constraints from `_h_equivalence_groups()`), (f) runs `_stage2_resp_fit()` (iterated hyperbolic restraint on heavy atoms, AMBER defaults a=0.001 Ha, b=0.1 e, max_iter=50, tol=1e-6). Quality on acetate test: net charge -0.999998 (target -1), methyl-H equivalent at +0.040 each, per-atom within ~0.01 e of published RESP-A1. PySCF in `environment.yml` pip section (`pip install pyscf` — wheels on PyPI for macOS arm64 + Linux x86_64, no conda dylib hell). Use `--qm-method` for the QM method (default HF/6-31G*); PySCF reads `OMP_NUM_THREADS` and `PYSCF_MAX_MEMORY` when those environment variables are set.
 
-**PSI4 backend (`--qm-engine psi4`)**: invokes psi4 + psiresp in a SEPARATE conda env via subprocess (`micromamba run -n <env> python worker.py …`). Required because (a) psi4's MKL/BLAS stack conflicts with OpenMM's in a single env, and (b) psi4 conda-forge builds pull Python 3.9 which dvbfixer's pyproject.toml rejects. `_compute_resp_charges_psi4()` lives in the MAIN env: it loads coords via OpenBabel (already a dvbfixer dep), writes a temp XYZ file + a worker script + an output JSON path, finds a conda runner via `_find_env_runner()` (micromamba > mamba > conda on PATH), and runs `<runner> run -n <psi4_env> python worker.py xyz q m method nthreads memory out.json`. The worker script (`_PSI4_WORKER_SCRIPT`, a string literal at module scope) runs INSIDE the psi4 env: `psi4.optimize('hf', ...)` for HF/6-31G* geometry, then `psiresp.Job(config=psiresp.configs.TwoStageRESP())` for AMBER-standard 2-stage RESP. Worker writes JSON `{energy_hartree, charges}` on success or `{error: str}` on failure. Main env reads the JSON, calls `_patch_mol2_charges()` to overwrite antechamber's GAFF2-typed mol2 charges with the PSI4-RESP values; downstream parmchk2/tleap/ParmEd see the patched mol2. CLI flags: `--psi4-method` (default `HF/6-31G*`), `--psi4-nthreads` (default 4), `--psi4-memory` (default `4GB`), `--psi4-env` (default `psi4` — name of the dedicated conda env). Missing env → error message containing the exact `micromamba create -n <name> -c conda-forge psi4 psiresp` command. Missing micromamba/mamba/conda on PATH → "no env runner found" error.
+**PSI4 backend (`--qm-engine psi4`)**: invokes psi4 + psiresp in a SEPARATE conda env via subprocess (`micromamba run -n <env> python worker.py …`). Required because (a) psi4's MKL/BLAS stack conflicts with OpenMM's in a single env, and (b) psi4 conda-forge builds pull Python 3.9 which dvbfixer's pyproject.toml rejects. `_compute_resp_charges_psi4()` lives in the MAIN env: it loads coords via OpenBabel (already a dvbfixer dep), writes a temp XYZ file + a worker script + an output JSON path, finds a conda runner via `_find_env_runner()` (micromamba > mamba > conda on PATH), and runs `<runner> run -n <psi4_env> python worker.py xyz q m method nthreads memory out.json`. The worker script (`_PSI4_WORKER_SCRIPT`, a string literal at module scope) runs INSIDE the psi4 env: `psi4.optimize('hf', ...)` for HF/6-31G* geometry, then `psiresp.Job(config=psiresp.configs.TwoStageRESP())` for AMBER-standard 2-stage RESP. Worker writes JSON `{energy_hartree, charges}` on success or `{error: str}` on failure. Main env reads the JSON, calls `_patch_mol2_charges()` to overwrite antechamber's GAFF2-typed mol2 charges with the PSI4-RESP values; downstream parmchk2/tleap/ParmEd see the patched mol2. CLI flags: `--qm-method` (default `HF/6-31G*`), `--qm-nthreads` (default 4), `--qm-memory` (default `4GB`), `--psi4-env` (default `psi4` — name of the dedicated conda env). Missing env → error message containing the exact `micromamba create -n <name> -c conda-forge psi4 psiresp` command. Missing micromamba/mamba/conda on PATH → "no env runner found" error.
 
 **Setup (user side, one-time):** `micromamba create -n psi4 -c conda-forge psi4 psiresp`. Don't pip-install dvbfixer in that env — dvbfixer stays in its main env and only shells out for the QM step.
 

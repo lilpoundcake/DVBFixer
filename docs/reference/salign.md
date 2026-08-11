@@ -36,7 +36,7 @@ Alignment:
                         (default: auto)
 
 Diagnostics:
-  -v, --verbose
+  -v, --verbose         Print structural-alignment progress and diagnostics
 
 Global logging:
   --log-file PATH       Append all stdout/stderr (including child tools) to

@@ -10,12 +10,25 @@ its future extracted submodules (``rtp_build`` / ``ff_data`` /
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
+
+from dvbfixer.cli_types import disulfide_spec, histidine_spec, protonation_spec
+
 
 # Bundled GROMACS force-field directories. ``FF_DIR`` points at the
 # top-level ``FF/`` folder shipped with the package; ``FF_CHOICES``
 # maps the ``--ff`` short name to its subdirectory.
-FF_DIR = Path(__file__).parent.parent.parent.parent / "FF"
+def bundled_ff_root() -> Path:
+    """Locate bundled GROMACS data in a checkout or an installed wheel."""
+    source_root = Path(__file__).resolve().parents[3] / "FF"
+    installed_root = Path(sys.prefix) / "share" / "dvbfixer" / "FF"
+    if source_root.is_dir():
+        return source_root
+    return installed_root
+
+
+FF_DIR = bundled_ff_root()
 FF_CHOICES = {
     "amber": "amber99sb-ildn-lipid21.ff",
     "charmm": "charmm36_ljpme-jul2022.ff",
@@ -48,11 +61,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                          "matched to the water model). Ignored with --ff charmm.")
 
     protonation = parser.add_argument_group("Protonation / bonds")
-    protonation.add_argument("--ss", action="append", default=[],
+    protonation.add_argument("--ss", action="append", default=[], type=disulfide_spec,
                              help="Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable)")
-    protonation.add_argument("--his", action="append", default=[],
+    protonation.add_argument("--his", action="append", default=[], type=histidine_spec,
                              help="HIS protonation: CHAIN:NUM:STATE (HIE/HID/HIP, repeatable)")
-    protonation.add_argument("--protonate", default=None,
+    protonation.add_argument("--protonate", default=None, type=protonation_spec,
                              help="Protonate residues. \"all\" protonates every ASP->ASPP, "
                                   "GLU->GLUP, HIS->HSP. Comma-separated list protonates "
                                   "specific residues: CHAIN:NUM[:STATE],... "

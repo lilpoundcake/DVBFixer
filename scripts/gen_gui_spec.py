@@ -9,46 +9,23 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from dvbfixer.cli import COMMANDS
+from dvbfixer.command_registry import COMMAND_BY_NAME, COMMAND_REGISTRY
 
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = ROOT / "gui" / "server" / "generated-dvbfixer-spec.ts"
-MODULES = {
-    "split": "dvbfixer.split_chains", "convert": "dvbfixer.glycam",
-    "model": "dvbfixer.model", "prepare": "dvbfixer.prepare",
-    "minimize": "dvbfixer.minimize", "top": "dvbfixer.top",
-    "diagnose": "dvbfixer.diagnose",
-}
-CATEGORIES = {
-    "split": "Structure preparation", "renumber": "Structure preparation",
-    "model": "Structure preparation", "prepare": "Structure preparation",
-    "pull": "Refinement", "minimize": "Refinement", "protonate": "Refinement",
-    "homology": "Modeling & alignment", "msa": "Modeling & alignment",
-    "salign": "Modeling & alignment", "convert": "Glycoprotein preparation",
-    "transplant": "Glycoprotein preparation", "top": "Topology & chemistry",
-    "parametrize": "Topology & chemistry", "cluster": "Analysis",
-    "diagnose": "Analysis", "rename": "Utilities", "conect": "Utilities",
-    "puppet": "Utilities", "doctor": "Utilities", "zbs": "Pipeline",
-}
-BATCH = {
-    "split", "renumber", "model", "pull", "prepare", "minimize", "protonate",
-    "rename", "convert", "conect", "puppet", "diagnose", "zbs",
-}
+# Compatibility views for callers that imported these generator constants.
+# They are derived from the registry and are no longer independent metadata.
+MODULES = {command.name: command.module for command in COMMAND_REGISTRY}
+CATEGORIES = {command.name: command.category for command in COMMAND_REGISTRY}
+BATCH = {command.name for command in COMMAND_REGISTRY if command.batch}
 ARTIFACT_DESTS = {
     "input", "topology", "trajectory", "acceptor", "donor", "graft", "template",
     "fasta", "alignment", "dat", "gaussian_log",
 }
 OUTPUT_EXTENSIONS = {
-    "split": ".pdb", "renumber": ".pdb", "model": ".pdb", "pull": ".pdb",
-    "prepare": ".pdb", "minimize": ".pdb", "protonate": ".pdb", "rename": ".pdb",
-    "transplant": ".pdb", "puppet": ".pdb", "convert": ".pdb", "conect": ".pdb",
-    "homology": ".pdb", "salign": ".pir", "msa": ".fasta", "diagnose": ".txt",
-    "zbs": ".pdb", "top": ".top", "cluster": "", "parametrize": "",
+    command.name: command.output_extension for command in COMMAND_REGISTRY
 }
-OUTPUT_MODES = {
-    "doctor": "stdout", "homology": "prefix", "cluster": "directory",
-    "parametrize": "directory",
-}
+OUTPUT_MODES = {command.name: command.output_mode for command in COMMAND_REGISTRY}
 
 
 class _Captured(Exception):
@@ -92,7 +69,7 @@ def _field(action: argparse.Action, group: str) -> dict:
         field_type = "bool"
     elif choices:
         field_type = "select"
-    elif action.type in (int, float):
+    elif action.type in (int, float) or getattr(action.type, "_dvbfixer_numeric", False):
         field_type = "number"
     elif action.dest in ARTIFACT_DESTS:
         field_type = "artifact"
@@ -123,8 +100,8 @@ def _field(action: argparse.Action, group: str) -> dict:
 
 
 def command_schema(name: str, description: str) -> dict:
-    module_name = MODULES.get(name, f"dvbfixer.{name}")
-    parser = _capture_parser(module_name)
+    command = COMMAND_BY_NAME[name]
+    parser = _capture_parser(command.module)
     groups: list[dict] = []
     inputs: list[dict] = []
     flags: list[dict] = []
@@ -153,17 +130,17 @@ def command_schema(name: str, description: str) -> dict:
         "name": name,
         "label": name.replace("_", " ").title(),
         "description": description,
-        "category": CATEGORIES[name],
+        "category": command.category,
         "inputs": inputs,
         "flags": flags,
         "groups": groups,
-        "outputExtension": OUTPUT_EXTENSIONS.get(name, ".pdb"),
-        "outputMode": OUTPUT_MODES.get(name, "file"),
+        "outputExtension": command.output_extension,
+        "outputMode": command.output_mode,
         "hasOutput": has_output,
-        "outputKind": "report" if name in {"doctor", "diagnose"} else "artifact",
-        "batch": name in BATCH,
-        "successCodes": [0, 1] if name == "diagnose" else [0],
-        "specialized": name == "homology",
+        "outputKind": command.output_kind,
+        "batch": command.batch,
+        "successCodes": list(command.success_codes),
+        "specialized": command.specialized,
     }
 
 
@@ -171,7 +148,10 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Fail if the committed schema is stale")
     args = parser.parse_args(argv)
-    schema = [command_schema(name, description) for name, description in COMMANDS.items()]
+    schema = [
+        command_schema(command.name, command.description)
+        for command in COMMAND_REGISTRY
+    ]
     payload = json.dumps(schema, indent=2, ensure_ascii=False)
     content = (
         "// Generated by scripts/gen_gui_spec.py; do not edit by hand.\n"

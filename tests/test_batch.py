@@ -16,6 +16,24 @@ def test_extract_batch_options_preserves_command_arguments():
     assert remaining == ["--no-solvent"]
 
 
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["input.pdb", "--output", "output.pdb"],
+        ["input.pdb", "--log", "command-specific-value"],
+        ["--input", "command-specific-value"],
+        ["input.pdb", "--fail", "command-specific-value"],
+    ],
+)
+def test_extract_batch_options_does_not_abbreviate_global_flags(argv):
+    options, remaining = extract_batch_options(argv)
+    assert options.input_dir is None
+    assert options.output_dir is None
+    assert options.log_file is None
+    assert options.fail_fast is False
+    assert remaining == argv
+
+
 def test_directory_runs_each_pdb_and_preserves_subdirectories(tmp_path: Path):
     source = tmp_path / "structures"
     nested = source / "nested"

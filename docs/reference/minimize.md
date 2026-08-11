@@ -10,10 +10,10 @@ usage: dvbfixer minimize [-h] [-o OUTPUT] [--dat DAT] [--ph PH]
                          [--atom-naming {gromacs,standard}]
                          [--padding PADDING] [--no-solvent]
                          [--restraint-k RESTRAINT_K] [--weak-k WEAK_K]
-                         [--max-iter MAX_ITER] [--strip-heterogens]
-                         [--rebuild-h] [--rename] [--no-infer-conect]
-                         [--xtb-refine] [--xtb-cycles XTB_CYCLES]
-                         [--obminimize-refine]
+                         [--max-iter MAX_ITER] [--keep-water]
+                         [--strip-heterogens] [--rebuild-h] [--rename]
+                         [--no-infer-conect] [--xtb-refine]
+                         [--xtb-cycles XTB_CYCLES] [--obminimize-refine]
                          [--obminimize-ff {MMFF94,MMFF94s,UFF,GAFF,Ghemical}]
                          [--obminimize-steps OBMINIMIZE_STEPS]
                          [--refine-heterogens-only]
@@ -72,6 +72,9 @@ Physics / restraints:
   --max-iter MAX_ITER   Max minimization iterations per phase (default: 1000)
 
 Content selection:
+  --keep-water          Keep waters that were present in the input PDB.
+                        Temporary solvent added for minimization is still
+                        removed.
   --strip-heterogens    Strip heterogens before minimization, restore coords
                         after (protein-only mode). Default: minimize the whole
                         system.

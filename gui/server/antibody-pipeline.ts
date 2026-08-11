@@ -21,7 +21,7 @@ export type SSEEvent =
   | { step: number;  total: number; name: string;    status: 'error'; stderr: string }
   | { step: number;  total: number;                  status: 'complete'; outputFile: string; entry: IndexEntry }
 
-interface IndexEntry {
+export interface IndexEntry {
   id: string
   file: string
   name: string
@@ -29,7 +29,7 @@ interface IndexEntry {
   command: string
   mutationIds: number[]
   mutationsResolved: string
-  _engineerChecksum: string
+  engineerChecksum: string
   hasGlycan: boolean
   scheme: 'EU' | 'Kabat'
   organism: string
@@ -63,6 +63,7 @@ export interface PipelineInput {
   hasGlycan: boolean
   scheme: 'EU' | 'Kabat'
   checksum: string
+  inputMetadata?: { allotype?: string; iggSubtype?: string }
   onEvent: (e: SSEEvent) => void
   isAborted: () => boolean
 }
@@ -225,16 +226,15 @@ export function engineerChecksum(p: {
 }
 
 /** Look up an existing engineered output for the same input+mutation combo. */
-export function findCachedEntry(structuresDir: string, inputFile: string, checksum: string): IndexEntry | null {
-  const indexPath = path.join(structuresDir, 'index.json')
-  if (!fs.existsSync(indexPath)) return null
-  try {
-    const entries: any[] = JSON.parse(fs.readFileSync(indexPath, 'utf-8'))
-    const hit = entries.find(e => e?.parent === inputFile && e?._engineerChecksum === checksum && fs.existsSync(path.join(structuresDir, e.file)))
-    return hit ?? null
-  } catch {
-    return null
-  }
+export function findCachedEntry(
+  structuresDir: string,
+  entries: Array<{ file: string; parent?: string; engineerChecksum?: string }>,
+  inputFile: string,
+  checksum: string,
+): IndexEntry | null {
+  const hit = entries.find(entry => entry.parent === inputFile && entry.engineerChecksum === checksum &&
+    fs.existsSync(path.join(structuresDir, entry.file)))
+  return hit as IndexEntry | undefined ?? null
 }
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -245,41 +245,22 @@ function tsTag(): string {
   return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
 }
 
-function safeReadIndex(indexPath: string): any[] {
-  if (!fs.existsSync(indexPath)) return []
-  try { return JSON.parse(fs.readFileSync(indexPath, 'utf-8')) } catch { return [] }
-}
-
-function writeIndex(indexPath: string, entries: any[]): void {
-  fs.writeFileSync(indexPath, JSON.stringify(entries, null, 2))
-}
-
-/**
- * Register a plain intermediate entry for an in-pipeline output so the
- * library tree shows the parent → child relationship the same way the
- * existing single-command /api/dvbfixer route does.
- */
-function registerIntermediateEntry(
-  indexPath: string,
+function intermediateEntry(
   inputFile: string,
   outputFile: string,
   command: string,
-): void {
-  const entries = safeReadIndex(indexPath)
+  inputMetadata?: { allotype?: string; iggSubtype?: string },
+): Omit<IndexEntry, 'mutationIds' | 'mutationsResolved' | 'engineerChecksum' | 'hasGlycan' | 'scheme'> {
   const inputBase = path.basename(inputFile, path.extname(inputFile))
   const outBase = path.basename(outputFile)
-  // Inherit allotype / iggSubtype from the immediate input entry —
-  // identity tags propagate down the lineage chain so the user only
-  // sees them filled at the top once.
-  const inputEntry = entries.find((e: any) => e && e.file === inputFile && e.kind !== 'folder')
   const inherited: Record<string, string> = {}
-  if (inputEntry?.allotype && typeof inputEntry.allotype === 'string' && inputEntry.allotype.trim() !== '') {
-    inherited.allotype = inputEntry.allotype
+  if (inputMetadata?.allotype?.trim()) {
+    inherited.allotype = inputMetadata.allotype
   }
-  if (inputEntry?.iggSubtype && typeof inputEntry.iggSubtype === 'string' && inputEntry.iggSubtype.trim() !== '') {
-    inherited.iggSubtype = inputEntry.iggSubtype
+  if (inputMetadata?.iggSubtype?.trim()) {
+    inherited.iggSubtype = inputMetadata.iggSubtype
   }
-  entries.push({
+  return {
     id: outputFile,
     file: outputFile,
     name: `${inputBase} → ${command}`,
@@ -290,8 +271,7 @@ function registerIntermediateEntry(
     residues: 0,
     description: `DVBFixer ${command} · ${new Date().toLocaleString()} · ${outBase}`,
     ...inherited,
-  })
-  writeIndex(indexPath, entries)
+  }
 }
 
 function moveDirToFailed(structuresDir: string, srcDir: string): string | null {
@@ -306,7 +286,7 @@ function moveDirToFailed(structuresDir: string, srcDir: string): string | null {
   }
 }
 
-export async function runEngineerPipeline(p: PipelineInput): Promise<void> {
+export async function runEngineerPipeline(p: PipelineInput): Promise<Array<IndexEntry | ReturnType<typeof intermediateEntry>>> {
   // Build + validate the --mutate args ONCE; if anything's malformed,
   // surface it as a synthetic step-0 error BEFORE running the CLI.
   let mutateArgs: string[]
@@ -315,16 +295,16 @@ export async function runEngineerPipeline(p: PipelineInput): Promise<void> {
     validateNoDuplicateTargets(mutateArgs)
   } catch (err: any) {
     p.onEvent({ step: 0, total: 0, name: 'validate', status: 'error', stderr: err.message ?? String(err) })
-    return
+    return []
   }
   if (mutateArgs.length === 0) {
     p.onEvent({ step: 0, total: 0, name: 'validate', status: 'error', stderr: 'No mutations resolved — nothing to do.' })
-    return
+    return []
   }
 
   const steps = pipelineSteps(p.scheme, p.hasGlycan, mutateArgs)
   const total = steps.length
-  const indexPath = path.join(p.structuresDir, 'index.json')
+  const generatedEntries: Array<IndexEntry | ReturnType<typeof intermediateEntry>> = []
 
   // Track every output directory we create so we can roll them all into
   // `_engineer_failed/` if any step blows up.
@@ -336,11 +316,11 @@ export async function runEngineerPipeline(p: PipelineInput): Promise<void> {
   // Sanity: input must exist and live under structuresDir.
   if (!currentInputAbs.startsWith(path.resolve(p.structuresDir))) {
     p.onEvent({ step: 0, total, name: 'validate', status: 'error', stderr: 'Input path escapes structures/.' })
-    return
+    return []
   }
   if (!fs.existsSync(currentInputAbs)) {
     p.onEvent({ step: 0, total, name: 'validate', status: 'error', stderr: `Input not found: ${p.inputFile}` })
-    return
+    return []
   }
 
   const inputBase = path.basename(p.inputFile, path.extname(p.inputFile))
@@ -350,7 +330,7 @@ export async function runEngineerPipeline(p: PipelineInput): Promise<void> {
       p.onEvent({ step: i + 1, total, name: steps[i].command, status: 'error', stderr: 'Aborted by client.' })
       // Best-effort cleanup of partial outputs.
       for (const d of createdDirs) moveDirToFailed(p.structuresDir, d)
-      return
+      return []
     }
 
     const step = steps[i]
@@ -373,19 +353,19 @@ export async function runEngineerPipeline(p: PipelineInput): Promise<void> {
       // so a partial pipeline doesn't pollute the library.
       for (const d of createdDirs) moveDirToFailed(p.structuresDir, d)
       p.onEvent({ step: i + 1, total, name: step.command, status: 'error', stderr: res.stderr || res.stdout || `exit ${res.code}` })
-      return
+      return []
     }
     if (!fs.existsSync(outFileAbs)) {
       for (const d of createdDirs) moveDirToFailed(p.structuresDir, d)
       p.onEvent({ step: i + 1, total, name: step.command, status: 'error', stderr: `Step exited 0 but did not produce ${outFileRel}.\nstdout: ${res.stdout}\nstderr: ${res.stderr}` })
-      return
+      return []
     }
 
     // Register intermediate entries (parent → previous step's output) so the
     // library shows the chain. Skip the LAST step — that one gets the rich
     // engineer entry below.
     if (i < steps.length - 1) {
-      registerIntermediateEntry(indexPath, currentInputRel, outFileRel, step.command)
+      generatedEntries.push(intermediateEntry(currentInputRel, outFileRel, step.command, p.inputMetadata))
     }
 
     p.onEvent({ step: i + 1, total, name: step.command, status: 'done', outputFile: outFileRel })
@@ -406,14 +386,12 @@ export async function runEngineerPipeline(p: PipelineInput): Promise<void> {
   // every engineered variant. If the input has neither set, the output
   // simply lacks them (the Info panel will show the empty fields and
   // the user can fill in if they want).
-  const allEntries = safeReadIndex(indexPath)
-  const inputEntry = allEntries.find((e: any) => e && e.file === p.inputFile && e.kind !== 'folder')
   const inherited: Partial<IndexEntry> = {}
-  if (inputEntry?.allotype && typeof inputEntry.allotype === 'string' && inputEntry.allotype.trim() !== '') {
-    inherited.allotype = inputEntry.allotype
+  if (p.inputMetadata?.allotype?.trim()) {
+    inherited.allotype = p.inputMetadata.allotype
   }
-  if (inputEntry?.iggSubtype && typeof inputEntry.iggSubtype === 'string' && inputEntry.iggSubtype.trim() !== '') {
-    inherited.iggSubtype = inputEntry.iggSubtype
+  if (p.inputMetadata?.iggSubtype?.trim()) {
+    inherited.iggSubtype = p.inputMetadata.iggSubtype
   }
 
   const entry: IndexEntry = {
@@ -424,7 +402,7 @@ export async function runEngineerPipeline(p: PipelineInput): Promise<void> {
     command: 'antibody-engineer',
     mutationIds: [...p.mutationIds].sort((a, b) => a - b),
     mutationsResolved: mutateArgs.join(' '),
-    _engineerChecksum: p.checksum,
+    engineerChecksum: p.checksum,
     hasGlycan: p.hasGlycan,
     scheme: p.scheme,
     organism: '',
@@ -433,8 +411,8 @@ export async function runEngineerPipeline(p: PipelineInput): Promise<void> {
     description: `Antibody engineer · ${p.hasGlycan ? 'glycan' : 'no-glycan'} · ${p.scheme} · ${new Date().toLocaleString()}`,
     ...inherited,
   }
-  allEntries.push(entry)
-  writeIndex(indexPath, allEntries)
+  generatedEntries.push(entry)
 
   p.onEvent({ step: total, total, status: 'complete', outputFile: finalRel, entry })
+  return generatedEntries
 }

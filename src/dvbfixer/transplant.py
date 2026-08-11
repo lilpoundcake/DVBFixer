@@ -626,7 +626,8 @@ def parse_args(argv=None):
                               "(default: infer missing bonds before transplant).")
 
     diag = p.add_argument_group("Diagnostics")
-    diag.add_argument("-v", "--verbose", action='store_true')
+    diag.add_argument("-v", "--verbose", action='store_true',
+                      help="Print detailed transplant progress and diagnostics")
 
     from dvbfixer.batch import add_runtime_help
     add_runtime_help(p)
