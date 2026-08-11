@@ -11,7 +11,7 @@ usage: dvbfixer top [-h] [-o OUTPUT] [--pdb PDB] [--ff {amber,charmm}]
                     [--ion-set {auto,jc-tip3p,jc-spce,jc-tip4pew,lm-hfe-opc,lm-iod-opc,dang-legacy}]
                     [--ss SS] [--his HIS] [--protonate PROTONATE] [--ignh]
                     [--keep-all-hydrogens] [--no-infer-conect] [--merge]
-                    [--acpype] [-v]
+                    [--acpype] [-v] [--log-file PATH]
                     input
 
 Generate GROMACS topology files from PDB
@@ -70,4 +70,8 @@ Pipeline mode:
 
 Diagnostics:
   -v, --verbose         Verbose output
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
 ```

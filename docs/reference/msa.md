@@ -7,7 +7,7 @@
 ```
 usage: dvbfixer msa [-h] [-o OUTPUT] [--engine {auto,mafft,muscle,clustalo}]
                     [--format {fasta,pir}] [--template TEMPLATE]
-                    [--list-engines] [-v]
+                    [--list-engines] [-v] [--log-file PATH]
                     [input]
 
 Align protein FASTA records with MAFFT, MUSCLE 5, or Clustal Omega.
@@ -30,4 +30,8 @@ Alignment:
 Diagnostics:
   --list-engines        Print detected alignment engines and exit
   -v, --verbose
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
 ```

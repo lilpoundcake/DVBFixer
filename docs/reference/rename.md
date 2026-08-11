@@ -5,7 +5,10 @@
 > For prose about how to use `rename`, see [`docs/commands/rename.md`](../commands/rename.md).
 
 ```
-usage: dvbfixer rename [-h] [-o OUTPUT] [-v] input
+usage: dvbfixer rename [-h] [-o OUTPUT] [-v] [--log-file PATH]
+                       [--input-dir DIR] [--output-dir DIR] [--recursive]
+                       [--fail-fast]
+                       input
 
 Rename non-canonical residue names to standard PDB names. Converts AMBER
 (HIE/HID/HIP, ASH, GLH, CYX, CYM, LYN), CHARMM (HSD/HSE/HSP), and MSE to their
@@ -21,4 +24,17 @@ Input / output:
 
 Diagnostics:
   -v, --verbose         Print each rename
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  Run this command independently for every supported structure in a
+  directory. Processing continues after per-file failures by default.
+
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

@@ -130,6 +130,8 @@ def command_schema(name: str, description: str) -> dict:
     flags: list[dict] = []
     has_output = False
     for group in parser._action_groups:
+        if group.title in {"Global logging", "Batch mode"}:
+            continue
         group_fields: list[str] = []
         for action in group._group_actions:
             if isinstance(action, argparse._HelpAction):

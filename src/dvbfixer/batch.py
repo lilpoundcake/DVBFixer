@@ -30,7 +30,27 @@ def extract_batch_options(argv: Sequence[str]) -> tuple[argparse.Namespace, list
     parser.add_argument("--output-dir")
     parser.add_argument("--recursive", action="store_true")
     parser.add_argument("--fail-fast", action="store_true")
+    parser.add_argument("--log-file")
     return parser.parse_known_args(list(argv))
+
+
+def add_runtime_help(parser: argparse.ArgumentParser, *, batch: bool = False) -> None:
+    """Expose unified-CLI options in a subcommand's own help output."""
+    runtime = parser.add_argument_group("Global logging")
+    runtime.add_argument(
+        "--log-file", metavar="PATH",
+        help="Append all stdout/stderr (including child tools) to PATH while still printing it",
+    )
+    if batch:
+        group = parser.add_argument_group(
+            "Batch mode",
+            "Run this command independently for every supported structure in a directory. "
+            "Processing continues after per-file failures by default.",
+        )
+        group.add_argument("--input-dir", metavar="DIR", help="Process every supported structure in DIR")
+        group.add_argument("--output-dir", metavar="DIR", help="Write batch results under DIR")
+        group.add_argument("--recursive", action="store_true", help="Include input subdirectories")
+        group.add_argument("--fail-fast", action="store_true", help="Stop after the first failed structure")
 
 
 def run_directory(

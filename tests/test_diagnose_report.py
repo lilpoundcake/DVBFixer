@@ -65,6 +65,23 @@ class TestFormatReport:
         text = format_report("clean.pdb", 100, 20, 2, [])
         assert "No findings" in text
         assert "clean.pdb" in text
+        assert "D-isomer error: NO" in text
+
+    def test_forced_repair_history_warns_about_hydrogen_geometry(self) -> None:
+        text = format_report(
+            "fixed.pdb", 100, 20, 2, [],
+            chirality_repairs=[{
+                "stage": "minimize", "chain": "A", "resname": "SER",
+                "resid": "42", "icode": "",
+            }],
+        )
+        assert "Forced D→L repair history: YES" in text
+        assert "A/SER42" in text
+        assert "inspect hydrogen angles" in text
+
+    def test_chirality_not_checked_is_explicit(self) -> None:
+        text = format_report("x.pdb", 10, 1, 1, [], chirality_checked=False)
+        assert "D-isomer error: NOT CHECKED" in text
 
     def test_findings_grouped_by_heading(self) -> None:
         findings = [

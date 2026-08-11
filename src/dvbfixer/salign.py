@@ -128,6 +128,7 @@ def run_biopython_superposition(specs: list[str], output: Path, fit_dir: Path | 
     from Bio.PDB import PDBIO, PDBParser, Superimposer
     from Bio.PDB.Polypeptide import is_aa
     from Bio.SeqUtils import seq1
+
     from dvbfixer.msa import run_alignment
 
     parsed = [parse_template_spec(spec) for spec in specs]
@@ -241,6 +242,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                            help="Sequence correspondence engine used by biopython (default: auto)")
     diagnostics = parser.add_argument_group("Diagnostics")
     diagnostics.add_argument("-v", "--verbose", action="store_true")
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(parser)
     return parser.parse_args(argv)
 
 

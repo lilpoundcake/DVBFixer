@@ -19,6 +19,24 @@ from pathlib import Path
 
 import pytest
 
+from dvbfixer.renumber import normalize_numbering_from_one
+
+
+def test_normalize_numbering_starts_each_chain_at_one_and_preserves_gaps(tmp_path: Path):
+    path = tmp_path / "numbered.pdb"
+    path.write_text(
+        "ATOM      1  CA  ALA A  10       0.000   0.000   0.000  1.00  0.00           C\n"
+        "ATOM      2  CA  GLY A  12       1.000   0.000   0.000  1.00  0.00           C\n"
+        "HETATM    3  C1  LIG A  20       2.000   0.000   0.000  1.00  0.00           C\n"
+        "ATOM      4  CA  SER B 101       3.000   0.000   0.000  1.00  0.00           C\n"
+        "END\n"
+    )
+    deltas = normalize_numbering_from_one(path)
+    assert deltas == {"A": -9, "B": -100}
+    residues = [int(line[22:26]) for line in path.read_text().splitlines()
+                if line.startswith(("ATOM  ", "HETATM"))]
+    assert residues == [1, 3, 11, 1]
+
 
 def test_renumber_preserves_bare_ter_line_atom_count(tmp_workdir: Path) -> None:
     """A synthetic minimal repro: a bare `TER\\n` immediately followed

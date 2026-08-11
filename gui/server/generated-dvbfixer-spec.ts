@@ -262,6 +262,18 @@ export const GENERATED_COMMANDS = [
         "default": false
       },
       {
+        "flag": "--number-from-1",
+        "dest": "number_from_1",
+        "label": "Number From 1",
+        "type": "bool",
+        "group": "Content selection",
+        "help": "Shift each completed chain so its first retained protein residue is numbered 1; internal gaps and relative numbering are preserved",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
         "flag": "--verbose",
         "dest": "verbose",
         "label": "Verbose",
@@ -292,7 +304,8 @@ export const GENERATED_COMMANDS = [
         "name": "Content selection",
         "fields": [
           "--keep-water",
-          "--rename"
+          "--rename",
+          "--number-from-1"
         ]
       },
       {
@@ -425,12 +438,12 @@ export const GENERATED_COMMANDS = [
         "default": false
       },
       {
-        "flag": "--renumber-from-1",
-        "dest": "renumber_from_1",
-        "label": "Renumber From 1",
+        "flag": "--number-from-1",
+        "dest": "number_from_1",
+        "label": "Number From 1",
         "type": "bool",
         "group": "Modelling parameters",
-        "help": "Force the whole chain to start at resseq 1 when Modeller adds N-terminal residues. Default OFF: preserve original PDB numbering unless it would yield non-positive resseqs (e.g. input starts at resseq 3 with 5 added N-term residues → would go to -1..3; auto-fallback to shift-to-1 with WARN).",
+        "help": "Shift each completed output chain so its first retained protein residue is 1; applies even when missing N-terminal residues were not modeled",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -513,7 +526,7 @@ export const GENERATED_COMMANDS = [
           "--md-level",
           "--pin-input",
           "--no-terminal",
-          "--renumber-from-1"
+          "--number-from-1"
         ]
       },
       {
@@ -4016,6 +4029,18 @@ export const GENERATED_COMMANDS = [
         "default": false
       },
       {
+        "flag": "--number-from-1",
+        "dest": "number_from_1",
+        "label": "Number From 1",
+        "type": "bool",
+        "group": "Pipeline behaviour",
+        "help": "Shift each final output chain so its first retained protein residue is 1",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
         "flag": "--no-postflight",
         "dest": "no_postflight",
         "label": "No Postflight",
@@ -4162,6 +4187,7 @@ export const GENERATED_COMMANDS = [
           "--no-infer-conect",
           "--keep-interim",
           "--dry-run",
+          "--number-from-1",
           "--no-postflight",
           "--postflight-report",
           "--strict-postflight",

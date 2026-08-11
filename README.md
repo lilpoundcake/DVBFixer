@@ -95,6 +95,18 @@ For `diagnose`, exit status 1 means the analysis completed but found at least
 one ERROR-severity structural issue; batch output labels these as `FINDINGS`
 rather than execution failures and points to the per-structure report.
 
+## Run logs and final numbering
+
+Every command accepts `--log-file PATH`. DVBFixer appends a versioned UTC run
+header and tees stdout/stderr from Python and child tools to that file while
+retaining normal terminal output.
+
+`renumber`, `model`, and `zbs` accept `--number-from-1`. It shifts each final
+chain so the first retained protein residue is 1 while preserving internal
+gaps and relative heterogen numbering. ZBS applies this only to its completed
+structure, immediately before postflight diagnose, so intermediate `.dat`
+restraint identifiers remain stable.
+
 ## Pipelines
 
 End-to-end recipes — quick `zbs` one-liner, manual step-by-step, GLYCAM glycoprotein, CHARMM-GUI alternative, GROMACS topology export, glycan clustering, antibody homology, small-molecule parametrization — live in [`docs/pipelines.md`](docs/pipelines.md). For the all-in-one path, see [`zbs`](docs/commands/zbs.md).

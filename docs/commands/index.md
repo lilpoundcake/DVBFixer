@@ -4,6 +4,10 @@
 
 Every `dvbfixer` subcommand has its own page. The first column is alphabetical; the workflow group hints at where each command typically sits in a pipeline.
 
+Commands that accept directory input document it on their own page; see the
+shared [Batch mode guide](../batch-mode.md) for supported tools and failure
+behavior.
+
 | Command | What it does | Workflow group |
 |---------|--------------|----------------|
 | [`cluster`](cluster.md) | Glycan conformational clustering from MD trajectories (GFDB-style) | Analysis |

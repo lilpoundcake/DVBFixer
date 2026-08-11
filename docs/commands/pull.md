@@ -41,3 +41,9 @@ dvbfixer pull input.pdb --bond A:22:SG A:96:SG --anchor A:22:SG -v
 
 ## How it works
 Pulls atoms together to form bonds (disulfide bridges, glycosidic bonds) using OpenMM partial minimization. Supports multiple `--bond` specifications, each given as two separate `chain:resnum:atomname` tokens. Protein-protein bonds use `CustomBondForce`; protein-HETATM bonds use `CustomExternalForce` toward the fixed HETATM position. Atoms within `--radius` of bond endpoints are free to move (mass=0 freezing for the rest); `--anchor` freezes one specific endpoint's side even if it would otherwise fall in the free radius. Auto-removes conflicting hydrogens (CYS HG for disulfides, ASN HD22 for glycosidic bonds). Pre-pull validation checks valence (bond count vs `MAX_BONDS`) and bond type reasonableness for the pulling residues. Post-pull validation checks convergence (distance vs target), bond length range, and steric clashes within pulling residues.
+
+## Batch mode
+
+`pull` applies the same bond specification to each directory input independently:
+`dvbfixer pull --input-dir structures --output-dir pulled --bond A:10:SG A:45:SG`.
+See [Batch mode](../batch-mode.md) for shared keys.

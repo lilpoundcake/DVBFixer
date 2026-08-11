@@ -6,7 +6,9 @@
 
 ```
 usage: dvbfixer convert [-h] [-o OUTPUT] [--to-amber | --to-charmm] [--no-roh]
-                        [--no-infer-conect] [-v]
+                        [--no-infer-conect] [-v] [--log-file PATH]
+                        [--input-dir DIR] [--output-dir DIR] [--recursive]
+                        [--fail-fast]
                         input
 
 Convert structure naming between PDB/AMBER/GLYCAM and CHARMM conventions.
@@ -46,4 +48,17 @@ Content selection:
 
 Diagnostics:
   -v, --verbose         Print conversion details
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  Run this command independently for every supported structure in a
+  directory. Processing continues after per-file failures by default.
+
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

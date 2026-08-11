@@ -9,6 +9,7 @@ usage: dvbfixer salign [-h] [-o OUTPUT] [--fit-dir FIT_DIR]
                        [--fit-atoms FIT_ATOMS] [--rms-cutoff RMS_CUTOFF]
                        [--engine {biopython,modeller}]
                        [--msa-engine {auto,mafft,muscle,clustalo}] [-v]
+                       [--log-file PATH]
                        template [template ...]
 
 Align and superpose multiple structures with Biopython or Modeller SALIGN.
@@ -36,4 +37,8 @@ Alignment:
 
 Diagnostics:
   -v, --verbose
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
 ```

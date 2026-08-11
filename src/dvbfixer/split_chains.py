@@ -128,6 +128,8 @@ def parse_args(argv=None):
         help="Print detected chain info"
     )
 
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(p, batch=True)
     return p.parse_args(argv)
 
 

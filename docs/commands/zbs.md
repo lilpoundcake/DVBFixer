@@ -73,6 +73,7 @@ Organised by which pipeline step each flag flows into.
 | `--no-infer-conect` | off | Skip auto CONECT inference in model/prepare/minimize |
 | `--keep-interim` | off | Keep all intermediate files (default: only final output) |
 | `--dry-run` | off | Print the planned pipeline steps + output filenames without running anything |
+| `--number-from-1` | off | Normalize only the final PDB so each chain's first retained protein residue is 1; runs before postflight diagnose and leaves intermediate `.dat` IDs unchanged. |
 | `--align-to-input` / `--no-align-to-input` | **on** | After every pipeline step, Kabsch-align the output back to the ORIGINAL input on protein backbone atoms. Prevents accumulated rigid-body drift so residue-by-residue comparisons in a viewer line up. Pass `--no-align-to-input` for the legacy behaviour (each step's output in its own frame). |
 | `--platform` | auto | OpenMM platform (`CPU`, `CUDA`, `OpenCL`, `Reference`) |
 | `-v`, `--verbose` | off | Print detailed progress for all steps |
@@ -130,3 +131,9 @@ Organised by which pipeline step each flag flows into.
 Full pipeline in 4 steps: renumber → model → prepare → minimize. Interim files are deleted by default (`--keep-interim` to preserve). PROPKA + MolProbity Reduce run inside prepare (0.7.7+) — there is no separate protonate stage and no second minimize pass. `minimize`'s own capture-restore path preserves AMBER variant names on write, so no name-restore step is needed after minimize either. Water removed by default. `.dat` flows from model → prepare (merged) → minimize.
 
 **`--align-to-input` / `--no-align-to-input`** (default ON): after every pipeline step, `_maybe_align(out)` runs `dvbfixer.align.kabsch_align_pdb(out, original_input, out, selection='backbone')` in-place. Kabsch rotation + translation is computed on backbone atoms (N/CA/C/O of standard AAs) matched by `(chain, resseq, icode, atomname)` and applied to EVERY atom in the file — protein + heterogens stay in a consistent relative frame with the user's original input, no accumulated rigid-body drift from successive OpenMM minimizations. Alignment is pure numpy (~30 lines in `align.py`), no extra deps. Legacy behaviour (each step's output in its own frame) via `--no-align-to-input`. No standalone `dvbfixer align` subcommand — kept as a pipeline-internal helper per user preference.
+
+## Batch mode
+
+`zbs` runs the complete pipeline separately for every directory input:
+`dvbfixer zbs --input-dir structures --output-dir fixed --recursive --number-from-1`.
+See [Batch mode](../batch-mode.md) for shared keys.

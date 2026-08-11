@@ -824,6 +824,17 @@ Each subcommand exposes `parse_args(argv=None)` and `main(argv=None)`.
 to the matching module's `main()`. Entry point in `pyproject.toml`:
 `dvbfixer = "dvbfixer.cli:main"`.
 
+Before dispatch, shared runtime arguments are removed from the command argv.
+`--log-file` enters an fd-level tee so Python output and inherited subprocess
+streams reach both the terminal and an append-only log. Actual runs begin with
+a version/timestamp/command header on stderr. `batch.add_runtime_help()` adds
+logging help to every parser and a separate Batch Mode group only to supported
+single-structure tools.
+
+`--number-from-1` is a final-output normalization boundary. Renumber and model
+normalize their completed artifacts (model also synchronizes `.dat`); ZBS
+normalizes only its final copied PDB before postflight diagnose.
+
 ### CONECT record handling (`pdbutils.py`)
 
 Three shared helpers:

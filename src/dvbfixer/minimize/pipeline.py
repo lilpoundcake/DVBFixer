@@ -962,14 +962,15 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     system.addForce(restraint)
     print(f"Restraints: {n_strong} strong (original), {n_weak} weak (new backbone), {n_free} free")
 
-    # Chirality is enforced *positionally* — reflect any D residue via
-    # ``fix_ca_chirality`` (already ran above at the safety net and
-    # asserted L via ``assert_all_l``) and re-verify in the iterative
-    # phase-2 loop below. NO CustomTorsionForce is added: field
-    # consensus (VMD/NAMD chirality plugin, pdb4amber, CHARMM-GUI) is
-    # reflect-then-minimize-then-verify; a stiff runtime bias would
-    # produce NaN forces on broken inputs and fight physics on the
-    # rare cases where reflection genuinely needs a second pass.
+    # Prevent rather than repair Cα inversion.  This Cartesian signed-volume
+    # wall is inactive for healthy L geometry and has no dihedral singularity.
+    from dvbfixer.ffutils.geometry import build_ca_chirality_force
+    chirality_force, n_chiral = build_ca_chirality_force(
+        modeller.topology, modeller.positions,
+    )
+    if n_chiral:
+        system.addForce(chirality_force)
+    print(f"Chirality guard: {n_chiral} L-amino-acid centre(s) protected")
 
     integrator = LangevinMiddleIntegrator(300 * kelvin, 1.0 / picosecond, 0.002 * picosecond)
 
@@ -1026,151 +1027,36 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     state = simulation.context.getState(getEnergy=True, getPositions=True)
     print(f"Energy after phase 2: {state.getPotentialEnergy()}")
 
-    # Post-minimize chirality check + reflect-and-re-minimize loop.
-    # After phase-2 minimize, some residues may have drifted into D-Cα
-    # geometry (real FF energy minimum for that local packing). We
-    # reflect any D-Cα back to L via fix_ca_chirality and run a short
-    # follow-up minimize under the (already-weakened) phase-2 restraints
-    # so the reflected CB relaxes into a compatible position without
-    # swinging to 2 Å bond lengths. Bounded loop: at most a few
-    # iterations to keep runtime under control.
+    # Emergency recovery should normally be unreachable because the signed-
+    # volume force prevents crossing. If it does trigger, audit one reflection,
+    # locally minimize under the still-active guard, and fail rather than emit
+    # any residue that remains D-chiral.
     from dvbfixer.ffutils.geometry import find_d_residues, fix_ca_chirality
     min_topology = simulation.topology
     min_positions = state.getPositions()
-    for _reflect_iter in range(3):
-        offenders = find_d_residues(min_topology, min_positions)
-        if not offenders:
-            break
-        print(f"  {len(offenders)} residue(s) drifted into D-Cα during "
-              f"minimize (iter {_reflect_iter + 1}); reflecting and "
-              f"re-minimizing.", file=sys.stderr)
-        # Reflect in-place on a mutable list of Vec3.
+    emergency = find_d_residues(min_topology, min_positions)
+    if emergency:
+        print(f"  WARNING: chirality guard left {len(emergency)} D-Cα residue(s); "
+              "performing one audited reflection and guarded local minimize.",
+              file=sys.stderr)
+        repairs = getattr(args, "_chirality_repairs", None)
+        if repairs is not None:
+            repairs.extend(("minimize", *item[:3]) for item in emergency)
         pos_list = list(min_positions)
-        n_fixed = fix_ca_chirality(min_topology, pos_list,
-                                    verbose=args.verbose)
-        if not n_fixed:
-            # Reflect returned 0 — nothing repairable (all near-degenerate).
-            # Break to avoid an infinite loop.
-            break
+        fixed = fix_ca_chirality(min_topology, pos_list, verbose=args.verbose)
+        if not fixed:
+            from dvbfixer.ffutils.geometry import ChiralityError
+            raise ChiralityError(emergency)
         simulation.context.setPositions(pos_list)
         simulation.minimizeEnergy(maxIterations=max(200, args.max_iter // 4))
         state = simulation.context.getState(getEnergy=True, getPositions=True)
         min_positions = state.getPositions()
-        print(f"  Energy after reflect+re-minimize iter {_reflect_iter + 1}: "
+        remaining = find_d_residues(min_topology, min_positions)
+        if remaining:
+            from dvbfixer.ffutils.geometry import ChiralityError
+            raise ChiralityError(remaining)
+        print(f"  Emergency chirality repair passed guarded local minimization: "
               f"{state.getPotentialEnergy()}", file=sys.stderr)
-    else:
-        # Loop exhausted without breaking → the FF's local minimum for
-        # these residues genuinely sits on the D side (rare, exotic
-        # packing). Chirality invariant is non-negotiable: reflect
-        # unconditionally and accept the small packing strain. Any
-        # downstream tool that cares can re-relax; we WILL NOT emit a D
-        # residue.
-        final_offenders = find_d_residues(min_topology, min_positions)
-        if final_offenders:
-            pos_list = list(min_positions)
-            n_forced = fix_ca_chirality(min_topology, pos_list,
-                                         verbose=args.verbose)
-            print(f"WARNING: {len(final_offenders)} residue(s) preferred "
-                  f"D-Cα geometry after 3 reflect+re-minimize iterations. "
-                  f"Forcing L via unconditional reflection (may leave "
-                  f"minor local strain — manual inspection recommended):",
-                  file=sys.stderr)
-            for ch, rid, name, tri in final_offenders[:20]:
-                print(f"  {ch}/{name}{rid}: triple={tri:+.5f} nm³",
-                      file=sys.stderr)
-            if len(final_offenders) > 20:
-                print(f"  ...and {len(final_offenders) - 20} more",
-                      file=sys.stderr)
-            if n_forced:
-                # A plain follow-up minimize here would pull CB back
-                # toward the FF's preferred D minimum, undoing the fix
-                # — UNLESS the restraint anchors are moved first (see
-                # below). Sidechain internal geometry is preserved by
-                # fix_ca_chirality (reflects the whole sidechain, not
-                # just CB), so bond lengths within the sidechain are
-                # unchanged; only CB's position relative to backbone
-                # neighbours changes.
-                # Round-trip through the simulation context so
-                # min_positions is a Quantity(list, unit) — the raw
-                # pos_list is list[Quantity] which trips PDBFile's
-                # np.isnan check downstream.
-                simulation.context.setPositions(pos_list)
-                min_positions = simulation.context.getState(
-                    getPositions=True,
-                ).getPositions()
-                # Verify.
-                still_d = find_d_residues(min_topology, min_positions)
-                if still_d:
-                    print(f"  {len(still_d)} residue(s) STILL D after "
-                          f"forced reflection — geometry near-degenerate "
-                          f"(fix_ca_chirality skipped them):",
-                          file=sys.stderr)
-                    for ch, rid, name, tri in still_d[:5]:
-                        print(f"    {ch}/{name}{rid}: triple={tri:+.5f} nm³",
-                              file=sys.stderr)
-
-                # Rigid reflection swings the whole sidechain to its
-                # mirror image, which can land a hydrogen inside a
-                # neighbouring residue (hydrogens carry no restraint at
-                # all in `restraint`, so they were never free to dodge
-                # during the reflect itself). Resolve this with one
-                # bounded LOCAL minimize — but first re-anchor every
-                # restrained atom of the just-reflected residues to
-                # their NEW (already-corrected) position. Backbone
-                # atoms are untouched by fix_ca_chirality, so
-                # re-anchoring them is a no-op; only the reflected
-                # sidechain's anchor actually moves. Because the
-                # anchor now points at the corrected geometry (not the
-                # old D-favoring one), this minimize has no energetic
-                # or restraint-driven path back to D — it can only let
-                # the genuinely unrestrained neighbours (hydrogens)
-                # relax out of the way.
-                target_keys = {(ch, rid, name)
-                               for ch, rid, name, _tri in final_offenders}
-                target_atom_indices = {
-                    atom.index
-                    for res in min_topology.residues()
-                    if (res.chain.id, str(res.id), res.name) in target_keys
-                    for atom in res.atoms()
-                }
-                n_reanchored = 0
-                for i in range(restraint.getNumParticles()):
-                    atom_idx, params = restraint.getParticleParameters(i)
-                    if atom_idx in target_atom_indices:
-                        p = min_positions[atom_idx]
-                        x0 = p[0].value_in_unit(nanometer)
-                        y0 = p[1].value_in_unit(nanometer)
-                        z0 = p[2].value_in_unit(nanometer)
-                        restraint.setParticleParameters(
-                            i, atom_idx, [params[0], x0, y0, z0])
-                        n_reanchored += 1
-                if n_reanchored:
-                    restraint.updateParametersInContext(simulation.context)
-                    simulation.minimizeEnergy(
-                        maxIterations=max(200, args.max_iter // 4))
-                    state = simulation.context.getState(
-                        getEnergy=True, getPositions=True)
-                    min_positions = state.getPositions()
-                    print(f"  Local relax after forced reflection "
-                          f"(anchors moved to corrected geometry): "
-                          f"{state.getPotentialEnergy()}", file=sys.stderr)
-                    # Sanity check only — the re-anchored restraint
-                    # should make this impossible, but the chirality
-                    # invariant is non-negotiable, so re-reflect rather
-                    # than ever emit a D residue.
-                    post_relax_d = find_d_residues(min_topology, min_positions)
-                    if post_relax_d:
-                        print(f"  {len(post_relax_d)} residue(s) reverted to "
-                              f"D-Cα during post-reflect local relax; "
-                              f"reflecting again unconditionally.",
-                              file=sys.stderr)
-                        pos_list = list(min_positions)
-                        fix_ca_chirality(min_topology, pos_list,
-                                          verbose=args.verbose)
-                        simulation.context.setPositions(pos_list)
-                        min_positions = simulation.context.getState(
-                            getPositions=True,
-                        ).getPositions()
 
     # Restore non-protein residues with original coordinates (legacy path only).
     # When keep_heterogens is on, n_stripped==0 and we write the minimized topology directly.
@@ -1260,6 +1146,7 @@ def strip_solvent(topology, positions):
 
 def main(argv=None):
     args = parse_args(argv)
+    args._chirality_repairs = []
     input_path = Path(args.input)
     if not input_path.exists():
         print(f"File not found: {input_path}", file=sys.stderr)
@@ -1540,5 +1427,18 @@ def main(argv=None):
             # there's nothing left to remove); on failure a partial or
             # nonexistent file may remain — clean it up either way.
             Path(_tmp).unlink(missing_ok=True)
+
+    if args._chirality_repairs:
+        lines = output_path.read_text().splitlines(keepends=True)
+        remarks = [
+            f"REMARK 999 DVBFIXER CHIRALITY_REPAIR {stage} "
+            f"{chain or '_'} {resname} {resid} .\n"
+            for stage, chain, resid, resname in dict.fromkeys(args._chirality_repairs)
+        ]
+        insert_at = next(
+            (i for i, line in enumerate(lines) if line.startswith(("ATOM  ", "HETATM"))),
+            0,
+        )
+        output_path.write_text("".join(lines[:insert_at] + remarks + lines[insert_at:]))
 
     print(f"\nSaved minimized structure: {output_path}")

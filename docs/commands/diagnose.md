@@ -90,6 +90,13 @@ Notable non-default behaviours:
   machine-readable list of findings suitable for CI gating or
   scripted post-processing.
 
+Every report includes `D-isomer error: YES`, `NO`, or `NOT CHECKED`. Inputs
+carrying a DVBFixer emergency-reflection REMARK also list the repaired
+residue(s), even when their final chirality is L, and warn that local hydrogen
+angles should be inspected. JSON exposes the same information under
+`chirality` with `checked`, `d_isomer_error`, `forced_repairs`, and
+`hydrogen_geometry_review_recommended` fields.
+
 ## Sample output
 
 ```
@@ -181,3 +188,9 @@ preset — e.g. `dvbfixer diagnose --clash-cutoff 0.35,0.45 in.pdb`.
   linkages)
 - [BEST_PRACTICES.md](../../BEST_PRACTICES.md) — recipe for QA-first
   glycoprotein preparation
+
+## Batch mode
+
+`diagnose` writes one report per structure and distinguishes quality findings
+from execution failures: `dvbfixer diagnose --input-dir structures --output-dir reports`.
+See [Batch mode](../batch-mode.md) for shared keys and exit behavior.

@@ -9,7 +9,7 @@ usage: dvbfixer cluster [-h] [-o OUTPUT] [--stride STRIDE] [--begin BEGIN]
                         [--end END] [--select SELECT] [--cutoff CUTOFF]
                         [--mode {global,per-linkage}]
                         [--align-resid ALIGN_RESID] [--no-align]
-                        [--separate-pdb] [--plot] [-v]
+                        [--separate-pdb] [--plot] [-v] [--log-file PATH]
                         topology trajectory
 
 Cluster glycan conformations from MD trajectory using glycosidic torsion angle
@@ -47,4 +47,8 @@ Representative PDBs:
 Diagnostics:
   --plot                Generate interactive HTML plots (requires plotly)
   -v, --verbose         Verbose output
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
 ```

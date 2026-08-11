@@ -16,7 +16,7 @@ usage: dvbfixer parametrize [-h] [-o OUTPUT] [-n NAME] [-c {bcc,resp}]
                             [--gaussian-method GAUSSIAN_METHOD]
                             [--gaussian-mem GAUSSIAN_MEM]
                             [--gaussian-nproc GAUSSIAN_NPROC]
-                            [--keep-intermediate] [-v]
+                            [--keep-intermediate] [-v] [--log-file PATH]
                             input
 
 Parametrize small molecules with GAFF2 for GROMACS MD. Uses antechamber +
@@ -88,4 +88,8 @@ Gaussian backend (only when --qm-engine gaussian):
 Diagnostics:
   --keep-intermediate   Keep antechamber/tleap intermediate files
   -v, --verbose         Verbose output
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
 ```

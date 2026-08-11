@@ -54,6 +54,33 @@ dvbfixer homology target.fasta --template fab.pdb --template fullsize.pdb --mini
 dvbfixer homology target.fasta --template fab.pdb --template igg.pdb --antibody -v
 ```
 
+## Inputs and keys
+
+| Argument | Default | Description |
+|---|---:|---|
+| `fasta` | required | Multi-chain target FASTA, one header per chain. |
+| `--template PDB` | — | Template structure; repeat for multiple templates. Required unless `--template-plan` is used. |
+| `--template-plan JSON` | — | GUI-compatible chain/range selection plan. Cannot be combined with `--template` or `--alignment`. |
+| `-o`, `--output PREFIX` | FASTA stem | Output prefix for ranked model PDB and `.dat` files. |
+| `--alignment PIR` | auto | Use a pre-built PIR alignment instead of automatic alignment. |
+| `--salign` | off | Use Modeller structure-based SALIGN rather than pairwise `align2d`. |
+| `-n`, `--num-models N` | `5` | Number of candidate models to generate. |
+| `--md-level LEVEL` | `fast` | Refinement level: `none`, `fast`, `slow`, `very_slow`, or `slow_large`. |
+| `--no-loop-refine` | off | Use ordinary `automodel`; useful when no loops need rebuilding. |
+| `--antibody` | off | Enable ANARCI-based antibody domain/CDR analysis. |
+| `--prepare` | off | Run DVBFixer prepare on the selected model. |
+| `--minimize` | off | Run prepare and minimize on the selected model. |
+| `--ph PH` | `7.0` | Hydrogen-addition pH used by post-processing. |
+| `--keep-workdir` | off | Preserve Modeller intermediate files for debugging. |
+| `-v`, `--verbose` | off | Print template mapping, alignment, and modeling details. |
+| `--log-file PATH` | — | Append complete stdout/stderr to a file while retaining terminal output. |
+
+Modeller is required. ANARCI is required only for `--antibody`. Automatic
+multi-template mode maps each target chain to its best template chain;
+`--template-plan` instead materializes the explicitly selected aligned ranges.
+The primary output is the best-ranked PDB plus a matching `.dat` restraint
+sidecar for downstream `prepare`/`minimize`.
+
 ## See also
 
 - [`model`](model.md) — single-template loop rebuilding

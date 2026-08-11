@@ -86,3 +86,9 @@ receive unused PDB chain IDs. SEQRES, SSBOND, LINK, CONECT, TER, and atom
 serials are regenerated for each standalone output. Missing chains, malformed
 operators, unknown IDs, GRO input, and the 62-chain PDB limit fail before any
 output is written.
+
+## Batch mode
+
+`split` can process every `.pdb`, `.ent`, or `.gro` in a directory independently:
+`dvbfixer split --input-dir structures --output-dir split --recursive`.
+See [Batch mode](../batch-mode.md) for failure policy and shared keys.

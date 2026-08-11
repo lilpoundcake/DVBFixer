@@ -103,7 +103,16 @@
   SG-SG disulfides were between two "CYS"-named residues → dropped.
   Fixed by adding an SG-SG exception for the CYS family (CYS/CYX/CYM).
 
-- **D-Cα residues surviving minimize (fixed 0.7.4)**: The prior
+- **D-Cα inversion and reflected hydrogen geometry (prevention added
+  0.7.23)**: minimize now installs a one-sided Cartesian signed-volume guard
+  on every N–CA–C–CB centre. It prevents inversion without a singular improper
+  torsion and leaves normal L geometry unforced. Reflection is emergency-only,
+  followed by guarded local minimization; unresolved D geometry aborts output.
+  Emergency repairs are persisted as `REMARK 999 DVBFIXER
+  CHIRALITY_REPAIR`; diagnose names those residues and recommends inspection
+  of hydrogen angles and local geometry.
+
+- **Historical D-Cα repair behavior (fixed 0.7.4, superseded in 0.7.23)**: The prior
   design was WARN-only when a residue drifted into D-Cα geometry
   during phase-2 minimize (rationale: reflecting an equilibrated
   sidechain can stretch CA-CB to ~2 Å). Replaced with a two-tier

@@ -239,3 +239,18 @@ def test_json_output_is_valid(
             "severity", "category", "chain", "resid", "resname",
             "atom", "message", "fix_hint",
         }
+
+
+def test_json_reports_persistent_chirality_repair_history(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    in_pdb = tmp_workdir / "repaired.pdb"
+    in_pdb.write_text(
+        "REMARK 999 DVBFIXER CHIRALITY_REPAIR minimize A ALA 1 .\n" + _CLEAN_ALA
+    )
+    _run([str(in_pdb), "--format", "json"])
+    import json as _json
+    payload = _json.loads(capsys.readouterr().out)
+    assert payload["chirality"]["d_isomer_error"] is False
+    assert payload["chirality"]["hydrogen_geometry_review_recommended"] is True
+    assert payload["chirality"]["forced_repairs"][0]["resid"] == "1"

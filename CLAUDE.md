@@ -220,14 +220,24 @@ call bare `dvbfixer` resolve it. See
 - **Chirality invariant**: `dvbfixer.ffutils.geometry.assert_all_l`
   must succeed after every heavy-atom repair. `find_d_residues`
   and `fix_ca_chirality` are the detector and reflector primitives.
-  tleap is L-only by construction so `assert_all_l` should never
-  trip on the new backend — it fires only if a downstream bug
-  regresses. Post-minimize enforcement is bounded reflect+re-minimize
-  (3 iters) then UNCONDITIONAL force-reflect: the output MUST have
-  zero D-Cα, even if it means accepting minor local packing strain
-  on the rare residue whose FF minimum genuinely lies on the D side.
-  Do NOT re-introduce a WARN-only path — the chirality invariant is
+  `build_ca_chirality_force` protects every initially-L N–CA–C–CB centre with
+  a one-sided signed-volume wall during minimize. It uses Cartesian products,
+  not an improper dihedral, so it has no torsion singularity. Reflection is an
+  emergency-only recovery followed by guarded local minimization; if L
+  geometry is not restored, raise `ChiralityError` and write no output. Record
+  emergency repairs in `REMARK 999 DVBFIXER CHIRALITY_REPAIR` so diagnose can
+  warn about possible hydrogen-angle strain. Zero D-Cα output remains
   non-negotiable.
+
+- **Unified CLI runtime options**: `cli.py` removes `--log-file` and batch
+  arguments before subcommand parsing. `runtime.tee_output` captures Python and
+  inherited child-process stdout/stderr at file-descriptor level. Every parser
+  calls `batch.add_runtime_help`; the GUI generator excludes the informational
+  `Global logging` and `Batch mode` groups.
+- **Final numbering normalization**: public spelling is `--number-from-1` on
+  renumber/model/zbs. ZBS applies it only after copying the final output and
+  before postflight diagnose, never to intermediate `.dat` identifiers. Model
+  normalizes each output candidate and its residue-keyed `.dat` sidecar.
 - **Do not read a `.dat` file with hand-rolled `json.load`.** Use
   `dvbfixer.ffutils.dat.DatRecord` — the schema (added_atoms,
   variant_overrides, removed_residues, residue_summary,
@@ -353,7 +363,8 @@ call bare `dvbfixer` resolve it. See
   start of a chain. `build_resnum_mapping`'s align2d-mask fallback
   path must call `_interpolate_gaps` directly rather than carrying its
   own second copy of this logic — the two had already drifted out of
-  sync once (the duplicate lacked `renumber_from_1` handling) before
+  sync once (the duplicate lacked the former internal
+  `renumber_from_1` handling) before
   this bug was found.
 - **All FASTA/SEQRES placement must use `sequence_alignment.py` (since
   0.7.16), never a greedy "find the next same residue" loop.** Greedy

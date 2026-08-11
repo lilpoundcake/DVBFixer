@@ -11,6 +11,7 @@ usage: dvbfixer homology [-h] [--template TEMPLATE]
                          [--md-level {none,fast,slow,very_slow,slow_large}]
                          [--no-loop-refine] [--antibody] [--prepare]
                          [--minimize] [--ph PH] [--keep-workdir] [-v]
+                         [--log-file PATH]
                          fasta
 
 Multi-template homology modeling with Modeller. Builds a composite model from
@@ -51,4 +52,8 @@ Post-processing pipeline:
 Diagnostics:
   --keep-workdir        Keep Modeller working directory
   -v, --verbose         Verbose output
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
 ```

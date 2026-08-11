@@ -1220,6 +1220,7 @@ def main(argv=None):
             assert_all_l(_mdl.topology, _pos)
 
             # Write .dat file only if there were actual gaps
+            dat_path = None
             if n_gaps > 0:
                 from dvbfixer.ffutils.dat import DatRecord
                 dat = build_model_dat(
@@ -1232,6 +1233,26 @@ def main(argv=None):
                     residue_summary=dat["residue_summary"],
                 ).save(dat_path, verbose=False)
                 print(f"  Saved restraint data: {dat_path} ({dat['total_added']} atoms in rebuilt regions)")
+
+            if getattr(args, "number_from_1", False):
+                from dvbfixer.renumber import normalize_numbering_from_one
+
+                deltas = normalize_numbering_from_one(this_output)
+                if dat_path is not None and dat_path.exists():
+                    record = DatRecord.load(dat_path)
+                    for atom in record.added_atoms:
+                        delta = deltas.get(atom["chain"], 0)
+                        atom["resid"] = str(int(atom["resid"]) + delta)
+                    summary = {}
+                    for atom in record.added_atoms:
+                        key = f"{atom['chain']}/{atom['resname']}{atom['resid']}"
+                        bucket = summary.setdefault(key, {"heavy": 0, "hydrogen": 0})
+                        bucket["hydrogen" if atom.get("element") == "H" else "heavy"] += 1
+                    record.residue_summary = summary
+                    record.save(dat_path, verbose=False)
+                if args.verbose:
+                    shifted = ", ".join(f"{chain}:{delta:+d}" for chain, delta in deltas.items())
+                    print(f"  [model] normalized final residue numbering ({shifted})")
 
     finally:
         os.chdir(orig_dir)

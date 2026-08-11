@@ -8,6 +8,25 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.23] — 2026-08-11
+
+### Added
+
+- `--log-file PATH` tees complete command and child-process output to an
+  append-only log, with a versioned UTC run header.
+- `--number-from-1` normalizes final `renumber`, `model`, and `zbs` structures
+  without changing intermediate ZBS identifiers.
+- Every batch-capable command now documents folder processing in its own help
+  and guide; homology documentation lists its complete CLI surface.
+
+### Changed
+
+- OpenMM minimization now prevents Cα inversion with a non-singular signed-
+  volume guard. Emergency reflection is audited in PDB REMARK records and must
+  pass guarded local minimization before output is written.
+- Diagnose reports current D-isomer status and prior forced chirality repairs
+  in text and JSON, including a hydrogen-geometry inspection warning.
+
 ## [0.7.22] — 2026-08-06
 
 ### Added

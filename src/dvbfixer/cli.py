@@ -37,6 +37,7 @@ def print_help() -> None:
     for cmd, desc in COMMANDS.items():
         print(f"  {cmd:<12s}  {desc}")
     print("\n  --version     Show version")
+    print("  --log-file PATH  Append all output to PATH while retaining the terminal")
     print("\nBatch mode (runs a command independently on each structure;")
     print("continues after per-file failures by default):")
     print("  --input-dir DIR      Process every .pdb/.ent structure in DIR")
@@ -81,14 +82,20 @@ def main() -> None:
     }.get(command, command)
     cmd_main = import_module(f"dvbfixer.{module_name}").main
 
-    if batch_options.input_dir:
-        from dvbfixer.batch import run_directory
+    from dvbfixer.runtime import run_header, tee_output
 
-        run_directory(command, cmd_main, batch_options, argv)
-    else:
-        if batch_options.output_dir or batch_options.recursive or batch_options.fail_fast:
-            raise SystemExit("--output-dir, --recursive, and --fail-fast require --input-dir")
-        cmd_main(argv)
+    informational = any(arg in ("-h", "--help") for arg in argv)
+    with tee_output(None if informational else batch_options.log_file):
+        if not informational:
+            print(run_header(command), file=sys.stderr)
+        if batch_options.input_dir:
+            from dvbfixer.batch import run_directory
+
+            run_directory(command, cmd_main, batch_options, argv)
+        else:
+            if batch_options.output_dir or batch_options.recursive or batch_options.fail_fast:
+                raise SystemExit("--output-dir, --recursive, and --fail-fast require --input-dir")
+            cmd_main(argv)
 
 
 if __name__ == "__main__":

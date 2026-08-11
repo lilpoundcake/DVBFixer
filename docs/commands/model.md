@@ -53,6 +53,7 @@ dvbfixer model input.pdb --keep-workdir -v
 | `--md-level` | fast | MD refinement level: none, fast, slow, very_slow, slow_large |
 | `--pin-input` / `--no-pin-input` | **on** | Freeze every input-structure residue during MD refinement — only gap residues move. Prevents flanking-residue drift; the downstream `minimize` step refines the whole system properly. Pass `--no-pin-input` for the legacy LoopModel behaviour (gap ±~3 residue flank mobile). |
 | `--no-terminal` | off | Align to the complete reference, trim outside the first/last observed anchors, and rebuild only genuine gaps between those anchors. |
+| `--number-from-1` | off | Normalize each completed candidate so its first retained protein residue is 1; matching `.dat` residue keys are shifted too. |
 | `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |
 | `--strip-heterogens` | off | Remove all HETATM records (ligands, sugars, ions, cofactors) before Modeller runs. Useful when heterogen geometry causes loop-refinement artifacts. Waters preserved only if `--keep-water` is also set. |
 | `--keep-workdir` | off | Keep Modeller temp directory |
@@ -101,3 +102,9 @@ Rebuilds missing loops/gaps using Modeller's LoopModel. Takes SEQRES (or --fasta
 **N-terminal gap numbering** (in `build_resnum_mapping`): N-terminal gaps now extend backward from the first template residue. Example — SEQRES has 2 extra N-term residues, input starts at resseq 235 → new residues are numbered 233, 234, then 235... Previously the gap-fill default `left=0` made N-term gaps numbered 1, 2, ..., producing a huge numbering jump at the N-term junction.
 
 **HETATM resseq preservation** (in the deterministic paths of `build_resnum_mapping`): HETATMs attached to a protein chain (N-linked NAG and friends) keep their ORIGINAL input resseq instead of being renumbered to the next sequential integer after the last protein residue. Verified on FcgRI chain A (NAG stays at resseq 4) and 3ry6 chain C (NAG stays at resseq 206).
+
+## Batch mode
+
+`model` runs independently on every structure while applying the same FASTA and
+modeling options: `dvbfixer model --input-dir structures --output-dir models --recursive`.
+See [Batch mode](../batch-mode.md) for shared keys.

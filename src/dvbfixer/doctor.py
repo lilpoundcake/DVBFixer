@@ -78,6 +78,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Report optional Python packages, external executables, and OpenMM platforms.",
     )
     parser.add_argument("--format", choices=["text", "json"], default="text")
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(parser)
     return parser.parse_args(argv)
 
 

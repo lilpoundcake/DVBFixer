@@ -118,3 +118,9 @@ Falls back to element-aware distance cutoffs + scipy.spatial.cKDTree if OpenBabe
 **Standalone use.** `dvbfixer conect input.pdb -o output.pdb` writes a copy with merged CONECT. Idempotent: running twice produces identical output. Options: `--force` to allow `--output == input`, `--include-protein-backbone` to also emit standard-AA bonds (needed for cyclic peptides), `-v` for bond counts.
 
 The legacy scattered fallbacks in `prepare.find_glycosylated_atoms_with_sugar`, `top.detect_glycan_links`, `acpype_export.detect_ss_bonds`, and `glycam._detect_glycosidic_bonds_by_distance` are kept as defence-in-depth: they're never reached on the happy path (auto-infer populates CONECT first), but they catch the `--no-infer-conect` case.
+
+## Batch mode
+
+`conect` can infer connectivity independently for a structure directory:
+`dvbfixer conect --input-dir structures --output-dir connected --recursive`.
+See [Batch mode](../batch-mode.md) for shared keys.
