@@ -8,6 +8,30 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.26] — 2026-08-11
+
+### Fixed
+
+- `--atom-naming gromacs` now emits ACE/NME atom names that exactly match the
+  bundled GROMACS AMBER and CHARMM RTP entries (`HH31/HH32/HH33`, NME `CH3`,
+  and CHARMM NME `HN`). The previous cap hydrogen conversion was reversed.
+
+## [0.7.25] — 2026-08-11
+
+### Added
+
+- `prepare` and `zbs` can add neutral ACE/NME peptide caps with
+  `--cap-termini`, optionally restricted with repeatable `--cap-chain`.
+- Explicit CHARMM36 ACE/NME OpenMM templates allow capped structures to pass
+  hydrogen placement and minimization without patched-template ambiguity.
+
+### Fixed
+
+- `top --ff amber|charmm` retains explicit ACE/NME residues and their peptide
+  bonds instead of silently dropping them from the protein chain.
+- `--strip-heterogens` preserves requested or pre-existing peptide caps while
+  continuing to remove ordinary heterogens.
+
 ## [0.7.24] — 2026-08-11
 
 ### Changed

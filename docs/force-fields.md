@@ -26,6 +26,11 @@ Applies to: `prepare`, `minimize`, `protonate`, `pull`, `zbs`.
 | `charmm36`       | `charmm36.xml`, `charmm36/water.xml`                                                                  | Explicit CHARMM36.                                                                                   |
 | `charmm2024`     | `charmm36_2024.xml`, `charmm36/water.xml`                                                             | Newer CHARMM36 release (2024).                                                                       |
 
+Neutral peptide caps are supported as explicit `ACE` and `NME` residues.
+AMBER XML files provide these templates directly. For CHARMM, dvbfixer loads
+an explicit-residue bridge equivalent to CHARMM36's ACE and CT3 patches when
+caps are present, avoiding ambiguity with OpenMM's merged terminal templates.
+
 You can also pass **explicit XML paths** for backward compatibility:
 
 ```bash

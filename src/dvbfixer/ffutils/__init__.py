@@ -629,7 +629,16 @@ def create_forcefield_with_openff(
     """
     from openmm.app import ForceField
 
-    ff = ForceField(*ff_xmls)
+    effective_xmls = list(ff_xmls)
+    cap_names = {r.name for r in topology.residues()} & {'ACE', 'NME'}
+    charmm_loaded = any('charmm' in str(x).lower() for x in ff_xmls)
+    if charmm_loaded and cap_names:
+        cap_xml = Path(__file__).resolve().parent.parent / 'data' / 'charmm-terminal-caps.xml'
+        effective_xmls.append(str(cap_xml))
+        if verbose:
+            print("Loaded explicit CHARMM ACE/NME residue templates")
+
+    ff = ForceField(*effective_xmls)
 
     # Suppress GLYCAM sugar/NA templates when PDB-named sugars are present.
     pdb_sugars = {r.name for r in topology.residues()

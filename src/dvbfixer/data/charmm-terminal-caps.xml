@@ -1,0 +1,36 @@
+<ForceField>
+  <!-- Explicit-residue equivalents of CHARMM36's ACE and CT3 patches.
+       OpenMM's stock CHARMM XML expresses these as atoms merged into the
+       terminal amino acid; dvbfixer and GROMACS use separate ACE/NME
+       residues, so direct templates remove an otherwise ambiguous match. -->
+  <Residues>
+    <Residue name="ACE">
+      <Atom name="CH3" type="CT3" charge="-0.27"/>
+      <Atom name="H1" type="HA3" charge="0.09"/>
+      <Atom name="H2" type="HA3" charge="0.09"/>
+      <Atom name="H3" type="HA3" charge="0.09"/>
+      <Atom name="C" type="C" charge="0.51"/>
+      <Atom name="O" type="O" charge="-0.51"/>
+      <Bond atomName1="CH3" atomName2="H1"/>
+      <Bond atomName1="CH3" atomName2="H2"/>
+      <Bond atomName1="CH3" atomName2="H3"/>
+      <Bond atomName1="CH3" atomName2="C"/>
+      <Bond atomName1="C" atomName2="O"/>
+      <ExternalBond atomName="C"/>
+    </Residue>
+    <Residue name="NME">
+      <Atom name="N" type="NH1" charge="-0.47"/>
+      <Atom name="H" type="H" charge="0.31"/>
+      <Atom name="C" type="CT3" charge="-0.11"/>
+      <Atom name="H1" type="HA3" charge="0.09"/>
+      <Atom name="H2" type="HA3" charge="0.09"/>
+      <Atom name="H3" type="HA3" charge="0.09"/>
+      <Bond atomName1="N" atomName2="H"/>
+      <Bond atomName1="N" atomName2="C"/>
+      <Bond atomName1="C" atomName2="H1"/>
+      <Bond atomName1="C" atomName2="H2"/>
+      <Bond atomName1="C" atomName2="H3"/>
+      <ExternalBond atomName="N"/>
+    </Residue>
+  </Residues>
+</ForceField>

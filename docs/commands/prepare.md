@@ -81,6 +81,13 @@ dvbfixer prepare antibody.pdb --mutate H:22:ALA -v
 
 # Mix substitution and deletion
 dvbfixer prepare input.pdb --mutate A:39:ALA --mutate H:446:del -v
+
+# Add neutral ACE/NME caps to every protein chain
+dvbfixer prepare input.pdb --cap-termini --ff amber -o capped.pdb
+
+# Cap only chains A and B, using CHARMM36-compatible parameters downstream
+dvbfixer prepare input.pdb --cap-termini --cap-chain A --cap-chain B \
+  --ff charmm -o capped_charmm.pdb
 ```
 
 ## Options
@@ -102,6 +109,8 @@ dvbfixer prepare input.pdb --mutate A:39:ALA --mutate H:446:del -v
 | `--smiles RESNAME=SMILES` | none | Optional authoritative chemistry for every isolated ligand residue named `RESNAME`; repeatable. Preserves heavy atoms/coordinates and regenerates H. Unmapped heterogens use the existing automatic path. Requires the legacy backend and is incompatible with `--strip-heterogens` / `--no-heterogen-h`. |
 | `--ff` | `auto` | Force field for the heterogen-H addition step. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. Only consulted when heterogen-H addition actually runs. See [force-fields.md](../force-fields.md). |
 | `--no-infer-conect` | off | Skip automatic CONECT inference (SS/glycosidic/glycosylation bonds from coordinates); default infers so glycoprotein flows work even on CONECT-less inputs |
+| `--cap-termini` | off | Add neutral ACE and NME residues to the N- and C-termini of every protein chain. Existing correct caps are retained. |
+| `--cap-chain CHAIN` | all protein chains | Restrict `--cap-termini` to selected chains; repeatable. Use `_` for a blank chain ID. |
 | `--mutate` | none | Mutate a residue: `CHAIN:RESNUM:NEW_AA` (substitution) or `CHAIN:RESNUM:del` (deletion). Insertion codes supported (`H:100A:del`). Repeatable. |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
 | `-v`, `--verbose` | off | Print detailed progress |

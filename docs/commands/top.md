@@ -4,6 +4,11 @@
 
 Generates GROMACS topology files directly from PDB or GRO files by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. GRO files are auto-converted via MDAnalysis. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). Output is a modular set of `.itp` files: `ffparams.itp` (all FF parameters), `{chain}.itp` (each chain moleculetype), `water.itp`, `ions.itp`, `posre_*.itp` (position restraints), `interchain_ss.itp` (inter-chain SS bonds + protein-glycan bonds), and a compact `topol.top` with only `#include` directives — no external FF directory needed. Handles proteins, carbohydrates (CHARMM glycan topology with glycosidic bond detection and protein-glycan bonds), glycolipids (ceramide + sugar tree as single moleculetype from CHARMM-GUI output), small CGenFF molecules (ACET, ACEH — auto-detected via distance splitting), lipids, nucleic acids, and all other CHARMM molecule types (~2400+ residues). Water (SOL/HOH/WAT), ions, and buffer particles (BUF) in the input are auto-detected and added to `[ molecules ]`. Automatically splits chains with overlapping residue numbers (e.g. duplicate glycan trees from `transplant`).
 
+ACE/NME-capped protein chains are accepted directly for both bundled force
+fields. The caps remain explicit residues, their peptide bonds are retained,
+and charged NH3+/COO- terminal patches are not applied at capped ends. Generate
+caps with `dvbfixer prepare --cap-termini` or supply a pre-capped PDB.
+
 ## Usage
 
 ```bash

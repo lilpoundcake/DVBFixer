@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 from openmm import CustomExternalForce, LangevinMiddleIntegrator
-from openmm.app import PME, ForceField, Modeller, PDBFile, Simulation
+from openmm.app import PME, Modeller, PDBFile, Simulation
 from openmm.unit import kelvin, nanometer, picosecond
 
 from dvbfixer.ffutils.geometry import collect_ss_pairs as _collect_ss_pairs
@@ -363,7 +363,13 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
         except Exception:
             pass
     else:
-        forcefield = ForceField(*args.ff)
+        # Protein terminal caps are classified as protein (not arbitrary
+        # heterogens), but CHARMM still needs dvbfixer's explicit ACE/NME
+        # residue templates.  Use the shared constructor on this path too.
+        from dvbfixer.ffutils import create_forcefield_with_openff
+        forcefield = create_forcefield_with_openff(
+            args.ff, stripped_top, verbose=args.verbose,
+        )
 
     modeller = Modeller(stripped_top, stripped_pos)
 

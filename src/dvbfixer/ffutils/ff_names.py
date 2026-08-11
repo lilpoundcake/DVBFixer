@@ -113,9 +113,10 @@ GROMACS_AMBER_ATOM_RENAMES: dict[str, dict[str, str]] = {
     # Special cases.
     "GLY": {"HA3": "HA1"},           # α-methylene on GLY
     "ILE": {"HG13": "HG11"},         # γ-methylene only
-    # Cap residues. amber14 uses HH31/HH32/HH33; GROMACS uses H1/H2/H3.
-    "ACE": {"HH31": "H1", "HH32": "H2", "HH33": "H3"},
-    "NME": {"HH31": "H1", "HH32": "H2", "HH33": "H3"},
+    # Cap residues. OpenMM writes PDB-style H1/H2/H3 (and C for the NME
+    # methyl carbon), while the GROMACS AMBER RTP uses HH31/HH32/HH33 and CH3.
+    "ACE": {"H1": "HH31", "H2": "HH32", "H3": "HH33"},
+    "NME": {"H1": "HH31", "H2": "HH32", "H3": "HH33", "C": "CH3"},
 }
 
 # Kept for back-compat with 0.6.x callers that referenced it directly.
@@ -128,6 +129,16 @@ GROMACS_AMBER_LYN_ATOM_RENAME: dict[str, dict[str, str]] = {
 # hydrogen; ff14SB uses H.
 CHARMM_UNIVERSAL_ATOM_RENAMES: dict[str, str] = {
     "H": "HN",
+}
+
+# OpenMM's cap templates use portable PDB atom names. GROMACS CHARMM36 RTP
+# entries use the CHARMM methyl and amide-hydrogen names instead.
+GROMACS_CHARMM_CAP_ATOM_RENAMES: dict[str, dict[str, str]] = {
+    "ACE": {"H1": "HH31", "H2": "HH32", "H3": "HH33"},
+    "NME": {
+        "H1": "HH31", "H2": "HH32", "H3": "HH33",
+        "C": "CH3", "H": "HN",
+    },
 }
 
 # N-terminal ATOM rename: applied on the first residue of each
@@ -197,6 +208,7 @@ _PROTEIN_RESNAMES: frozenset[str] = frozenset({
     # Non-standard
     "MSE", "SEC", "PYL", "SEP", "TPO", "PTR", "CSO", "CSD", "CME",
 })
+_TERMINAL_CHAIN_RESNAMES = _PROTEIN_RESNAMES | {"ACE", "NME", "NHE", "NH2"}
 
 
 def _effective_amber_rename_map(
@@ -258,7 +270,7 @@ def _classify_terminal_residues(
         if not (line.startswith(("ATOM  ", "HETATM")) and len(line) >= 27):
             continue
         resname = line[17:20].strip()
-        if resname not in _PROTEIN_RESNAMES:
+        if resname not in _TERMINAL_CHAIN_RESNAMES:
             continue
         chain = line[21]
         resid = line[22:26].strip()
@@ -445,10 +457,14 @@ def apply_variants_to_pdb_text(
         terminal_pos = terminal_map.get((chain, resid, icode), set())
 
         if target_ff == "charmm":
-            # LYN → LSN NZ H shift, plus universal backbone H → HN.
+            # LYN → LSN NZ H shift, cap names, plus backbone H → HN.
             atom_map = dict(PROTONATION_ATOM_RENAME_TO_CHARMM.get(
                 variant or cur_resname, {}
             ))
+            if include_gromacs_shifts:
+                atom_map.update(GROMACS_CHARMM_CAP_ATOM_RENAMES.get(
+                    new_resname, {}
+                ))
             if include_gromacs_shifts and cur_resname in _PROTEIN_RESNAMES:
                 atom_map.setdefault(
                     "H", CHARMM_UNIVERSAL_ATOM_RENAMES["H"]

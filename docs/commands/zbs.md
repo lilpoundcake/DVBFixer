@@ -104,6 +104,8 @@ Organised by which pipeline step each flag flows into.
 | `--smiles RESNAME=SMILES` | none | Optional, repeatable SMILES chemistry forwarded to prepare for isolated matching ligand residues. Unmapped heterogens retain automatic preparation. Requires the legacy backend and an enabled prepare/heterogen-H step. |
 | `--mutate CHAIN:RESNUM:NEW_AA` | none | Mutate a residue; repeatable |
 | `--rename` | off | Canonicalise non-standard residue names before prepare/minimize |
+| `--cap-termini` | off | Add neutral ACE/NME caps during prepare; incompatible with `--skip-prepare`. |
+| `--cap-chain CHAIN` | all protein chains | Restrict capping to selected chains; repeatable. Use `_` for a blank chain ID. |
 | `--no-propka` | off | Skip PROPKA3 during prepare; Reduce (`--protassign`) becomes the only source of HIS tautomer picks and ASN/GLN flip detection. Combined with `--no-protassign`, leaves variants = `--mutate` only. |
 | `--no-protassign` | off | Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip detection) during prepare. Default: run Reduce. |
 | `--his-default` | `HIE` | Default HIS tautomer when PROPKA says neutral AND Reduce didn't place either HD1 or HE2 (`HIE` or `HID`) |

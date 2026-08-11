@@ -124,6 +124,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                               "perceives missing CONECT records (SS, glycosidic, "
                               "glycosylation) so glycoprotein flows work even on "
                               "inputs without CONECT.")
+    content.add_argument(
+        "--cap-termini", action="store_true",
+        help="Add a neutral ACE N-cap and NME C-cap to protein chains. "
+             "By default every protein chain is capped; use --cap-chain "
+             "to restrict the selection.",
+    )
+    content.add_argument(
+        "--cap-chain", action="append", default=[], metavar="CHAIN",
+        help="Protein chain to cap (repeatable). Use '_' for a blank chain ID. "
+             "Only meaningful with --cap-termini.",
+    )
 
     mutations = p.add_argument_group("Mutations")
     mutations.add_argument("--mutate", action="append", default=[],
