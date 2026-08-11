@@ -43,6 +43,8 @@ def parse_args(argv=None):
     diag.add_argument('-v', '--verbose', action='store_true',
                       help='Print bond counts and source breakdown')
 
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(parser, batch=True)
     return parser.parse_args(argv)
 
 

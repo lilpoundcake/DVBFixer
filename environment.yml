@@ -19,6 +19,10 @@ dependencies:
   - plotly
   - hmmer
   - anarci
+  - mafft            # default multiple-sequence alignment engine for the GUI
+  - muscle >=5       # optional high-accuracy MSA alternative
+  - clustalo         # optional scalable MSA alternative
+  - nodejs >=20      # React/Node GUI under gui/
   - xtb              # GFN-FF/GFN-xTB universal FF for --xtb-refine
   - openbabel        # obminimize CLI for --obminimize-refine
   - ambertools >=23  # tleap + reduce + pdb4amber for the deterministic

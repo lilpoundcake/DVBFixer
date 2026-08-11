@@ -16,6 +16,58 @@ propka 3.5.1 (used by `protonate` / `prepare`) reads the dataclass attribute
 change makes raise `AttributeError`, crashing the PROPKA step. Do not loosen
 the cap.
 
+## Multiple-sequence alignment executables
+
+`dvbfixer msa`, `dvbfixer homology --template-plan`, and the GUI Homology
+workspace run an external alignment
+program. The full `environment.yml` installs all three supported engines:
+
+```bash
+micromamba create -f environment.yml
+micromamba activate dvbfixer
+dvbfixer msa --list-engines
+```
+
+For an existing conda/micromamba environment, install one or more engines
+from conda-forge/bioconda. MAFFT is the default and is sufficient by itself:
+
+```bash
+micromamba install -n dvbfixer -c conda-forge -c bioconda mafft
+# Optional alternatives:
+micromamba install -n dvbfixer -c conda-forge -c bioconda "muscle>=5" clustalo
+```
+
+The commands must be available on `PATH` under these exact names:
+
+| Engine | Required executable | Check |
+|---|---|---|
+| MAFFT | `mafft` | `mafft --version` |
+| MUSCLE 5 | `muscle` | `muscle -version` |
+| Clustal Omega | `clustalo` | `clustalo --version` |
+
+On macOS, Homebrew users can install the native packages with
+`brew install mafft muscle clustal-omega`. On Debian/Ubuntu, distribution
+packages are commonly available as `mafft`, `muscle`, and `clustalo`, but
+verify that the `muscle` package is version 5: MUSCLE 3 uses a different CLI
+and is not supported. Native Windows users should use WSL with the Linux
+instructions, or download upstream binaries and put their directory on
+`PATH`. When installing a standalone MUSCLE binary, rename it to `muscle`
+(`muscle.exe` on Windows); rename a standalone Clustal Omega binary to
+`clustalo` (`clustalo.exe` on Windows).
+
+After any standalone installation, restart the GUI/dev server so it inherits
+the updated `PATH`, then confirm detection with:
+
+```bash
+dvbfixer msa --list-engines
+```
+
+`--engine auto` selects the first installed engine in this order: MAFFT,
+MUSCLE 5, Clustal Omega. See the official download pages for
+[MAFFT](https://mafft.cbrc.jp/alignment/software/),
+[MUSCLE 5](https://drive5.com/muscle5/manual/install.html), and
+[Clustal Omega](http://www.clustal.org/omega/).
+
 **macOS Docker (VirtioFS) users:** if your `MAMBA_ROOT_PREFIX` is under a host
 bind mount (e.g. `/home/agent`, a `fakeowner` mount of `/Users`), `micromamba
 create` will abort at `Linking 'ncurses'` with

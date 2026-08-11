@@ -13,6 +13,25 @@ pip install -e .
 dvbfixer --help
 ```
 
+## DVBfixer GUI
+
+The `dvbfixer-gui` branch includes a React/Mol* workspace under [`gui/`](gui/).
+It exposes every CLI command through forms generated from the argparse surface,
+indexes structure and non-structure artifacts, and adds a persistent
+multi-template Homology workflow with MSA editing and Modeller template masks.
+The complete workflow is documented in the
+[GUI Homology guide](docs/gui-homology.md).
+
+```bash
+cd gui
+npm ci --legacy-peer-deps
+npm run dev:no-db
+```
+
+The GUI uses `gui/structures/` by default. Point it at an existing Tarantino or
+DVBfixer workspace without copying data by setting `DVBFIXER_GUI_DATA_DIR`.
+Set `DVBFIXER_CMD` when the executable is not directly on `PATH`.
+
 Full install instructions (including the Modeller license step) are in [`docs/installation.md`](docs/installation.md).
 
 ## Testing
@@ -42,6 +61,8 @@ chemistry backends.
 | [`conect`](docs/commands/conect.md) | Infer missing CONECT records (SS, glycosidic, glycosylation) — runs automatically inside prepare/top/minimize/transplant/convert |
 | [`cluster`](docs/commands/cluster.md) | Glycan conformational clustering from MD trajectories (GFDB-style) |
 | [`homology`](docs/commands/homology.md) | Multi-template homology modeling with Modeller (antibody-aware) |
+| [`msa`](docs/commands/msa.md) | Multiple protein-sequence alignment with MAFFT, MUSCLE 5, or Clustal Omega |
+| [`salign`](docs/commands/salign.md) | Multiple structural superposition with Biopython (default) or Modeller SALIGN |
 | [`parametrize`](docs/commands/parametrize.md) | GAFF2 + AM1-BCC/RESP small-molecule parametrization (GROMACS-ready) |
 | [`puppet`](docs/commands/puppet.md) | Strip a PDB to backbone-only polyglycine (template / visualization) |
 | [`diagnose`](docs/commands/diagnose.md) | Report structure-quality issues (missing atoms, coincident atoms, valence, clashes, chirality) — report-only |
@@ -64,15 +85,29 @@ dvbfixer zbs --input-dir structures --output-dir fixed \
 
 Supported commands are `split`, `renumber`, `model`, `pull`, `prepare`,
 `minimize`, `protonate`, `rename`, `convert`, `conect`, `puppet`, `diagnose`,
-and `zbs`. Commands with multiple semantic inputs or multi-file topology
-outputs (`transplant`, `cluster`, `parametrize`, and `top`) remain explicit
-single-run workflows.
+and `zbs`. The remaining tools (`top`, `transplant`, `cluster`, `parametrize`,
+`homology`, `msa`, `salign`, and `doctor`) remain explicit single-run workflows
+because they have no per-structure directory operation. Every tool states its
+status in its own `--help` and command guide; see the complete
+[batch support matrix](docs/batch-mode.md#support-by-tool).
 
 Batch processing continues after individual failures by default and prints a
 success/failure summary. Add `--fail-fast` to stop at the first failure.
 For `diagnose`, exit status 1 means the analysis completed but found at least
 one ERROR-severity structural issue; batch output labels these as `FINDINGS`
 rather than execution failures and points to the per-structure report.
+
+## Run logs and final numbering
+
+Every command accepts `--log-file PATH`. DVBFixer appends a versioned UTC run
+header and tees stdout/stderr from Python and child tools to that file while
+retaining normal terminal output.
+
+`renumber`, `model`, and `zbs` accept `--number-from-1`. It shifts each final
+chain so the first retained protein residue is 1 while preserving internal
+gaps and relative heterogen numbering. ZBS applies this only to its completed
+structure, immediately before postflight diagnose, so intermediate `.dat`
+restraint identifiers remain stable.
 
 ## Pipelines
 

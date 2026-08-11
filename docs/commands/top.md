@@ -4,6 +4,11 @@
 
 Generates GROMACS topology files directly from PDB or GRO files by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. GRO files are auto-converted via MDAnalysis. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). Output is a modular set of `.itp` files: `ffparams.itp` (all FF parameters), `{chain}.itp` (each chain moleculetype), `water.itp`, `ions.itp`, `posre_*.itp` (position restraints), `interchain_ss.itp` (inter-chain SS bonds + protein-glycan bonds), and a compact `topol.top` with only `#include` directives — no external FF directory needed. Handles proteins, carbohydrates (CHARMM glycan topology with glycosidic bond detection and protein-glycan bonds), glycolipids (ceramide + sugar tree as single moleculetype from CHARMM-GUI output), small CGenFF molecules (ACET, ACEH — auto-detected via distance splitting), lipids, nucleic acids, and all other CHARMM molecule types (~2400+ residues). Water (SOL/HOH/WAT), ions, and buffer particles (BUF) in the input are auto-detected and added to `[ molecules ]`. Automatically splits chains with overlapping residue numbers (e.g. duplicate glycan trees from `transplant`).
 
+ACE/NME-capped protein chains are accepted directly for both bundled force
+fields. The caps remain explicit residues, their peptide bonds are retained,
+and charged NH3+/COO- terminal patches are not applied at capped ends. Generate
+caps with `dvbfixer prepare --cap-termini` or supply a pre-capped PDB.
+
 ## Usage
 
 ```bash
@@ -218,3 +223,9 @@ FF directory is only used at build time for RTP parsing, not needed at runtime.
 **Atom name matching (`_match_atom_names`):** Multi-pass algorithm: (0) exact match, (0a) ARN reverse mapping (e.g. HN→H for CHARMM), (1) strip trailing digits, (2) common H renames, (3) numbered variants, (4) singleton numbered atoms (HG1→HG). Validates all RTP heavy atoms are present; warns on extra/missing atoms.
 
 **`--acpype` mode:** Alternative to RTP-based topology. Uses `acpype_export.py` shared module: OpenMM (AMBER14+GLYCAM) → ParmEd → ACPYPE → GROMACS `topol.top`/`.gro` with `[ pairs_nb ]` for mixed 1-4 scaling (BERNARDI 2019 — AMBER fudgeLJ=0.5 vs GLYCAM fudgeLJ=1.0 reconciled via per-pair scaling). Output includes `#ifdef POSRES` / `#include "posre_{stem}.itp"` / `#endif` in the moleculetype section, and water/ion moleculetypes appended before `[ system ]`. Ignores `--ff`/`--water`/`--ignh`/`--merge` flags. Respects `--ss` for explicit disulfide bonds. Handles glycosylated proteins: auto-detects SS bonds via `detect_ss_bonds` from CONECT AND distance fallback (SG-SG within 2.5 Å, recognizes SG on CYS/CYX/CYM), reorders chains (protein first, glycan after), filters glycan TER records, captures/restores AMBER variant names across PDBFile normalization (incl. CYX/CYM not just HID/HIE/HIP/ASH/GLH/LYN), `add_glycam_bonds(positions=...)` adds intra-residue + protein-glycan peptide + sugar-sugar glycosidic bonds, adds HD21 for NLN, uses `ignoreExternalBonds=True` and `residueTemplates` for CYX disambiguation. Defensive CYS template forcing in `res_templates` loop: any CYS not yet captured gets explicit template (`CYS` if HG present, `CYX` if HG missing — assume disulfide; handles terminals NCYS/CCYS/NCYX/CCYX). **Selective H stripping** via `_GLYCAM_KEEP_H` allowlist: NLN keeps `{H, HA, HB2, HB3, HD21}`, OLS keeps `{H, HA, HB2, HB3}`, OLT keeps `{H, HA, HB, HG21/HG22/HG23}`. Only strips disallowed atoms (HD22 on NLN, HG on OLS, HG1 on OLT, CHARMM HN/HT*). This preserves the carefully-placed HD21 geometry produced by minimize's `_rigid_track_glycan_trees` through `top --acpype` (verified: CG-ND2-HD21 = 112° in output .gro, matches input; was 179° before the fix). **Terminal ASH/GLH limitation:** AMBER14 has no NASH/NGLH templates (never parameterized via RESP). Terminal ASH/GLH are converted to standard ASP/GLU with protonation H stripped; emits `UserWarning`.
+
+## Batch mode
+
+`top` does not support directory batch input. Generate each topology from one
+explicit input structure per invocation. See the
+[batch support matrix](../batch-mode.md#support-by-tool).

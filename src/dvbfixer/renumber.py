@@ -67,6 +67,11 @@ def parse_args(argv=None):
         "--rename", action="store_true",
         help="Rename non-canonical residues (AMBER/CHARMM) to standard names before processing"
     )
+    content.add_argument(
+        "--number-from-1", action="store_true",
+        help="Shift each completed chain so its first retained protein residue is numbered 1; "
+             "internal gaps and relative numbering are preserved",
+    )
 
     diag = p.add_argument_group("Diagnostics")
     diag.add_argument(
@@ -74,6 +79,8 @@ def parse_args(argv=None):
         help="Print alignment details and gap positions"
     )
 
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(p, batch=True)
     return p.parse_args(argv)
 
 
@@ -287,6 +294,79 @@ def update_remark_500(line, chain_maps):
     return line
 
 
+def normalize_numbering_from_one(pdb_path):
+    """Shift every coordinate chain so its first retained protein residue is 1.
+
+    This is deliberately a final text-level pass.  It preserves internal gaps
+    and insertion codes and applies the same chain delta to heterogens and all
+    supported PDB records that reference present residues.  Returns the delta
+    applied to each chain for synchronising sidecar metadata.
+    """
+    path = Path(pdb_path)
+    lines = path.read_text().splitlines(keepends=True)
+    first_protein = {}
+    first_any = {}
+    keys_by_chain = {}
+    for line in lines:
+        if not line.startswith(("ATOM  ", "HETATM")) or len(line) < 27:
+            continue
+        seq = line[22:26].strip()
+        if not seq or not seq.lstrip("-").isdigit():
+            continue
+        chain = line[21]
+        key = (int(seq), line[26])
+        keys_by_chain.setdefault(chain, set()).add(key)
+        first_any.setdefault(chain, key[0])
+        if line.startswith("ATOM  "):
+            first_protein.setdefault(chain, key[0])
+
+    deltas = {
+        chain: 1 - first_protein.get(chain, first_any[chain])
+        for chain in first_any
+    }
+    chain_maps = {
+        chain: {(seq, icode): (seq + deltas[chain], icode) for seq, icode in keys}
+        for chain, keys in keys_by_chain.items()
+    }
+
+    output = []
+    for line in lines:
+        rec = line[:6].strip()
+        if rec in ("ATOM", "HETATM", "ANISOU") and len(line) >= 27:
+            chain = line[21]
+            seq = line[22:26].strip()
+            if seq and seq.lstrip("-").isdigit() and chain in deltas:
+                line = line[:22] + f"{int(seq) + deltas[chain]:4d}" + line[26:]
+        elif rec == "TER" and len(line) >= 27:
+            chain = line[21]
+            seq = line[22:26].strip()
+            if seq and seq.lstrip("-").isdigit() and chain in deltas:
+                line = line[:22] + f"{int(seq) + deltas[chain]:4d}" + line[26:]
+        elif rec == "HELIX":
+            line = update_helix(line, chain_maps)
+        elif rec == "SHEET":
+            line = update_sheet(line, chain_maps)
+        elif rec == "SSBOND":
+            line = update_ssbond(line, chain_maps)
+        elif rec == "LINK":
+            line = update_link(line, chain_maps)
+        elif rec == "CISPEP":
+            line = update_cispep(line, chain_maps)
+        elif rec == "HET":
+            line = update_het(line, chain_maps)
+        elif rec == "DBREF":
+            line = update_dbref(line, chain_maps)
+        elif rec == "SEQADV":
+            line = update_seqadv(line, chain_maps)
+        elif line.startswith("REMARK 465") or line.startswith("REMARK 610"):
+            line = update_remark_465_610(line, chain_maps)
+        elif line.startswith("REMARK 500"):
+            line = update_remark_500(line, chain_maps)
+        output.append(line)
+    path.write_text("".join(output))
+    return deltas
+
+
 def update_conect(line, serial_map):
     """CONECT: remap atom serial numbers. Each serial is 5 chars starting at col 6.
 
@@ -327,6 +407,11 @@ def main(argv=None):
         sys.exit(1)
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_renum")
+
+    if args.number_from_1 and (
+        args.scheme != "seqres" or any(not item.lower().endswith(":seqres") for item in args.chain_scheme)
+    ):
+        raise SystemExit("--number-from-1 cannot be combined with antibody numbering schemes")
 
     if args.rename:
         from dvbfixer.rename import canonicalize_pdb
@@ -623,5 +708,11 @@ def main(argv=None):
 
     with open(output_path, 'w') as f:
         f.writelines(output_lines)
+
+    if args.number_from_1:
+        deltas = normalize_numbering_from_one(output_path)
+        if args.verbose:
+            shifted = ", ".join(f"{chain}:{delta:+d}" for chain, delta in deltas.items())
+            print(f"Normalized final residue numbering ({shifted or 'no coordinate chains'})")
 
     print(f"Wrote {output_path}")

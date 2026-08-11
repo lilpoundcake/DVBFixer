@@ -93,4 +93,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     diag.add_argument("-v", "--verbose", action="store_true",
                       help="Verbose output")
 
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(parser)
     return parser.parse_args(argv)

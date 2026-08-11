@@ -35,6 +35,11 @@ PDB_TO_GMX = {
     # or CHARMM36 RTP — map to standard parent; protein-glycan bond detection
     # adds the cross-residue bond to interchain_ss.itp)
     'NLN': 'ASN', 'OLS': 'SER', 'OLT': 'THR',
+    # Neutral peptide terminal caps.  These are explicit RTP residues in
+    # both bundled AMBER and CHARMM force fields (not terminal variants of
+    # an amino acid), but including them here keeps them attached to the
+    # protein chain during pipeline classification.
+    'ACE': 'ACE', 'NME': 'NME',
 }
 
 # Standard amino acids that can appear in PDB
@@ -346,4 +351,3 @@ _GLYCAN_LINKAGE_PARAMS = """\
   NC2D1   CC3161  CC3161  OC3C61     9     0.000000     0.836800     3 ; from OC3C61 CC3261 CC3161 NC2D1
 
 """
-

@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Vendored DVBFixer install (cloned by the user, not part of this repo)
+DVBFixer/
+
+# DVBFixer failed runs are moved here at runtime
+structures/_dvb_failed/
+# Local artifact workspace (set DVBFIXER_GUI_DATA_DIR to reuse another one)
+structures/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

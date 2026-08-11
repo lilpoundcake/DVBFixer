@@ -14,3 +14,9 @@ dvbfixer doctor --format json
 
 Missing optional tools are reported rather than treated as an error. Use the
 JSON form in CI or before submitting a large folder-input run.
+
+## Batch mode
+
+`doctor` does not support directory batch input. It checks the DVBfixer
+installation once and has no per-structure input. See the
+[batch support matrix](../batch-mode.md#support-by-tool).

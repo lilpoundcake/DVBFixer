@@ -96,3 +96,9 @@ Transplants molecules from a graft PDB into an acceptor PDB, with optional AMBER
 2. ParmEd `load_topology()` → Structure → saves AMBER prmtop/inpcrd
 3. ACPYPE converts to GROMACS `.top`/`.gro` with per-pair 1-4 parameters via `[ pairs_nb ]` directive (solves mixed AMBER fudgeLJ=0.5 / GLYCAM fudgeLJ=1.0 scaling)
 4. Output: `topol.top`, `{stem}.gro`, `posre_{stem}.itp` in target directory. `topol.top` includes `#ifdef POSRES` / `#include "posre_{stem}.itp"` / `#endif` and water/ion moleculetypes.
+
+## Batch mode
+
+`transplant` does not support directory batch input because every run defines
+an explicit source/target relationship. Run it separately for each pair. See
+the [batch support matrix](../batch-mode.md#support-by-tool).

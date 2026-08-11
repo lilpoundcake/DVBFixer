@@ -5,11 +5,19 @@
 > For prose about how to use `doctor`, see [`docs/commands/doctor.md`](../commands/doctor.md).
 
 ```
-usage: dvbfixer doctor [-h] [--format {text,json}]
+usage: dvbfixer doctor [-h] [--format {text,json}] [--log-file PATH]
 
 Report optional Python packages, external executables, and OpenMM platforms.
 
 options:
   -h, --help            show this help message and exit
   --format {text,json}
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  This command does not support directory batch input. Run it once per
+  input, or use a supported pipeline command.
 ```

@@ -8,7 +8,9 @@
 usage: dvbfixer renumber [-h] [-o OUTPUT] [--fasta FASTA]
                          [--scheme {seqres,kabat,chothia,imgt,martin,eu,aho}]
                          [--chain-scheme CHAIN:SCHEME] [--keep-water]
-                         [--rename] [-v]
+                         [--rename] [--number-from-1] [-v] [--log-file PATH]
+                         [--input-dir DIR] [--output-dir DIR] [--recursive]
+                         [--fail-fast]
                          input
 
 Align ATOM residues to a complete FASTA or PDB SEQRES sequence and renumber to
@@ -46,7 +48,23 @@ Content selection:
                         (default: remove)
   --rename              Rename non-canonical residues (AMBER/CHARMM) to
                         standard names before processing
+  --number-from-1       Shift each completed chain so its first retained
+                        protein residue is numbered 1; internal gaps and
+                        relative numbering are preserved
 
 Diagnostics:
   -v, --verbose         Print alignment details and gap positions
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  Run this command independently for every supported structure in a
+  directory. Processing continues after per-file failures by default.
+
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

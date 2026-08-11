@@ -14,7 +14,7 @@ pytest.importorskip("openmm", reason="chirality fix needs OpenMM")
 from openmm.app import Element, Topology  # noqa: E402
 from openmm.unit import Quantity, nanometer  # noqa: E402
 
-from dvbfixer.ffutils.geometry import fix_ca_chirality  # noqa: E402
+from dvbfixer.ffutils.geometry import build_ca_chirality_force, fix_ca_chirality  # noqa: E402
 
 
 def _make_residue(
@@ -83,6 +83,34 @@ def test_l_valine_untouched() -> None:
     assert repairs == 0
     after_cb = tuple(pos[ix["CB"]].value_in_unit(nanometer))
     assert after_cb == original_cb
+
+
+def test_signed_volume_guard_is_zero_for_l_and_penalizes_d() -> None:
+    from openmm import Context, System, VerletIntegrator
+    from openmm.unit import kilojoule_per_mole, picosecond
+
+    top, pos, ix = _make_residue(
+        "VAL", (-0.87, 1.21, 0.00), (0.00, 0.00, 0.00),
+        (1.44, 0.00, -0.20), (-0.86, -0.87, -0.87),
+    )
+    force, count = build_ca_chirality_force(top, pos)
+    assert count == 1
+    system = System()
+    for _ in range(4):
+        system.addParticle(12.0)
+    system.addForce(force)
+    context = Context(system, VerletIntegrator(0.001 * picosecond))
+    context.setPositions(pos)
+    e_l = context.getState(getEnergy=True).getPotentialEnergy().value_in_unit(kilojoule_per_mole)
+    d_pos = Quantity(list(pos.value_in_unit(nanometer)), nanometer)
+    cb = d_pos[ix["CB"]].value_in_unit(nanometer)
+    d_pos[ix["CB"]] = Quantity((cb[0], cb[1], -cb[2]), nanometer)
+    context.setPositions(d_pos)
+    state = context.getState(getEnergy=True, getForces=True)
+    e_d = state.getPotentialEnergy().value_in_unit(kilojoule_per_mole)
+    assert e_l == pytest.approx(0.0, abs=1e-10)
+    assert e_d > 0.0
+    assert all(value == value for force_vec in state.getForces() for value in force_vec)
 
 
 def test_d_valine_flipped_to_l() -> None:

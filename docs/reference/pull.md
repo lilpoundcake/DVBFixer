@@ -8,7 +8,9 @@
 usage: dvbfixer pull [-h] [-o OUTPUT] --bond SPEC SPEC
                      [--target-distance TARGET_DISTANCE] [--anchor SPEC]
                      [--radius RADIUS] [--max-iter MAX_ITER]
-                     [--ff FF [FF ...]] [--rename] [-v]
+                     [--ff FF [FF ...]] [--rename] [-v] [--log-file PATH]
+                     [--input-dir DIR] [--output-dir DIR] [--recursive]
+                     [--fail-fast]
                      input
 
 Pull two atoms together to form a bond using OpenMM partial minimization.
@@ -50,4 +52,17 @@ Content selection:
 
 Diagnostics:
   -v, --verbose         Print detailed progress
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  Run this command independently for every supported structure in a
+  directory. Processing continues after per-file failures by default.
+
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

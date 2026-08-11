@@ -186,7 +186,11 @@ def _restore_metadata(
 # ---------------------------------------------------------------------------
 
 
-def _strip_hydrogens(pdb_path: Path, out_path: Path) -> None:
+def _strip_hydrogens(
+    pdb_path: Path,
+    out_path: Path,
+    preserve_resnames: set[str] | None = None,
+) -> None:
     """Copy ``pdb_path`` to ``out_path`` dropping every ATOM/HETATM line
     whose element (cols 77-78) is ``H`` or whose atom name starts with
     ``H``. Non-ATOM lines pass through unchanged.
@@ -197,6 +201,10 @@ def _strip_hydrogens(pdb_path: Path, out_path: Path) -> None:
     out: list[str] = []
     for raw in pdb_path.read_text().splitlines(keepends=True):
         if not raw.startswith(("ATOM  ", "HETATM")):
+            out.append(raw)
+            continue
+        resname = raw[17:20].strip() if len(raw) >= 20 else ""
+        if preserve_resnames and resname in preserve_resnames:
             out.append(raw)
             continue
         elem = raw[76:78].strip() if len(raw) >= 78 else ""
@@ -886,7 +894,10 @@ def run_prep(
         _strip_hydrogens(step0, step1)
         run_tleap(step1, step2, ff=ff, extra_leaprc=extra_leaprc,
                   verbose=verbose)
-        _strip_hydrogens(step2, step3)
+        # Reduce knows standard amino acids but does not build ACE/NME cap
+        # hydrogens.  Keep tleap's deterministic cap H while still asking
+        # Reduce to rebuild every ordinary protein hydrogen.
+        _strip_hydrogens(step2, step3, preserve_resnames={"ACE", "NME"})
         # tleap converts HIS → HIE (its default); Reduce treats HIE as
         # fixed and won't decide the tautomer per residue. Rename all
         # HIS-variants back to HIS so Reduce actually runs its H-bond

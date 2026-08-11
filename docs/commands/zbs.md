@@ -73,6 +73,7 @@ Organised by which pipeline step each flag flows into.
 | `--no-infer-conect` | off | Skip auto CONECT inference in model/prepare/minimize |
 | `--keep-interim` | off | Keep all intermediate files (default: only final output) |
 | `--dry-run` | off | Print the planned pipeline steps + output filenames without running anything |
+| `--number-from-1` | off | Normalize only the final PDB so each chain's first retained protein residue is 1; runs before postflight diagnose and leaves intermediate `.dat` IDs unchanged. |
 | `--align-to-input` / `--no-align-to-input` | **on** | After every pipeline step, Kabsch-align the output back to the ORIGINAL input on protein backbone atoms. Prevents accumulated rigid-body drift so residue-by-residue comparisons in a viewer line up. Pass `--no-align-to-input` for the legacy behaviour (each step's output in its own frame). |
 | `--platform` | auto | OpenMM platform (`CPU`, `CUDA`, `OpenCL`, `Reference`) |
 | `-v`, `--verbose` | off | Print detailed progress for all steps |
@@ -103,6 +104,8 @@ Organised by which pipeline step each flag flows into.
 | `--smiles RESNAME=SMILES` | none | Optional, repeatable SMILES chemistry forwarded to prepare for isolated matching ligand residues. Unmapped heterogens retain automatic preparation. Requires the legacy backend and an enabled prepare/heterogen-H step. |
 | `--mutate CHAIN:RESNUM:NEW_AA` | none | Mutate a residue; repeatable |
 | `--rename` | off | Canonicalise non-standard residue names before prepare/minimize |
+| `--cap-termini` | off | Add neutral ACE/NME caps during prepare; incompatible with `--skip-prepare`. |
+| `--cap-chain CHAIN` | all protein chains | Restrict capping to selected chains; repeatable. Use `_` for a blank chain ID. |
 | `--no-propka` | off | Skip PROPKA3 during prepare; Reduce (`--protassign`) becomes the only source of HIS tautomer picks and ASN/GLN flip detection. Combined with `--no-protassign`, leaves variants = `--mutate` only. |
 | `--no-protassign` | off | Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip detection) during prepare. Default: run Reduce. |
 | `--his-default` | `HIE` | Default HIS tautomer when PROPKA says neutral AND Reduce didn't place either HD1 or HE2 (`HIE` or `HID`) |
@@ -130,3 +133,9 @@ Organised by which pipeline step each flag flows into.
 Full pipeline in 4 steps: renumber → model → prepare → minimize. Interim files are deleted by default (`--keep-interim` to preserve). PROPKA + MolProbity Reduce run inside prepare (0.7.7+) — there is no separate protonate stage and no second minimize pass. `minimize`'s own capture-restore path preserves AMBER variant names on write, so no name-restore step is needed after minimize either. Water removed by default. `.dat` flows from model → prepare (merged) → minimize.
 
 **`--align-to-input` / `--no-align-to-input`** (default ON): after every pipeline step, `_maybe_align(out)` runs `dvbfixer.align.kabsch_align_pdb(out, original_input, out, selection='backbone')` in-place. Kabsch rotation + translation is computed on backbone atoms (N/CA/C/O of standard AAs) matched by `(chain, resseq, icode, atomname)` and applied to EVERY atom in the file — protein + heterogens stay in a consistent relative frame with the user's original input, no accumulated rigid-body drift from successive OpenMM minimizations. Alignment is pure numpy (~30 lines in `align.py`), no extra deps. Legacy behaviour (each step's output in its own frame) via `--no-align-to-input`. No standalone `dvbfixer align` subcommand — kept as a pipeline-internal helper per user preference.
+
+## Batch mode
+
+`zbs` runs the complete pipeline separately for every directory input:
+`dvbfixer zbs --input-dir structures --output-dir fixed --recursive --number-from-1`.
+See [Batch mode](../batch-mode.md) for shared keys.

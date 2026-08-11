@@ -35,6 +35,28 @@ def _detect_multi_model(pdb_path: Path) -> int:
     return count
 
 
+def _read_chirality_repairs(pdb_path: Path) -> list[dict[str, str]]:
+    """Read DVBFixer's persistent emergency-reflection audit REMARKs."""
+    repairs: list[dict[str, str]] = []
+    with open(pdb_path) as handle:
+        for line in handle:
+            prefix = "REMARK 999 DVBFIXER CHIRALITY_REPAIR "
+            if not line.startswith(prefix):
+                continue
+            fields = line[len(prefix):].split()
+            if len(fields) < 5:
+                continue
+            stage, chain, resname, resid, icode = fields[:5]
+            repairs.append({
+                "stage": stage,
+                "chain": "" if chain == "_" else chain,
+                "resname": resname,
+                "resid": resid,
+                "icode": "" if icode == "." else icode,
+            })
+    return repairs
+
+
 def _extract_first_model(pdb_path: Path, work_dir: Path) -> Path:
     """Copy MODEL 1 (through its ENDMDL) to a temp file. Non-ATOM/HETATM
     headers before the first MODEL are preserved so PDBFixer still sees
@@ -178,6 +200,9 @@ def main(argv: list[str] | None = None) -> None:
             verbose,
         ))
 
+    chirality_checked = args.only in ("all", "chemistry")
+    chirality_repairs = _read_chirality_repairs(input_path)
+
     # Severity filter.
     threshold = Severity(args.severity)
     findings = [f for f in findings if sev_at_least(f.severity, threshold)]
@@ -198,11 +223,22 @@ def main(argv: list[str] | None = None) -> None:
                 sev.value: sum(1 for f in findings if f.severity == sev)
                 for sev in Severity
             },
+            "chirality": {
+                "checked": chirality_checked,
+                "d_isomer_error": (
+                    any(f.category == "chirality" for f in findings)
+                    if chirality_checked else None
+                ),
+                "forced_repairs": chirality_repairs,
+                "hydrogen_geometry_review_recommended": bool(chirality_repairs),
+            },
         }
         report_text = json.dumps(payload, indent=2)
     else:
         report_text = format_report(
             str(input_path), n_atoms, n_residues, n_chains, findings,
+            chirality_checked=chirality_checked,
+            chirality_repairs=chirality_repairs,
         )
 
     if args.output:

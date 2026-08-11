@@ -80,15 +80,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
              "and rebuild only gaps between those anchors."
     )
     modelling.add_argument(
-        "--renumber-from-1", action="store_true",
-        help="Force the whole chain to start at resseq 1 when Modeller "
-             "adds N-terminal residues. Default OFF: preserve original "
-             "PDB numbering unless it would yield non-positive resseqs "
-             "(e.g. input starts at resseq 3 with 5 added N-term "
-             "residues → would go to -1..3; auto-fallback to shift-to-1 "
-             "with WARN)."
+        "--number-from-1", action="store_true",
+        help="Shift each completed output chain so its first retained protein residue is 1; "
+             "applies even when missing N-terminal residues were not modeled",
     )
-
     content = p.add_argument_group("Content selection")
     content.add_argument(
         "--keep-water", action="store_true",
@@ -126,4 +121,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Print Modeller progress"
     )
 
-    return p.parse_args(argv)
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(p, batch=True)
+    args = p.parse_args(argv)
+    return args

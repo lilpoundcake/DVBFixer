@@ -107,4 +107,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Include per-check timing on stderr.",
     )
 
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(p, batch=True)
     return p.parse_args(argv)

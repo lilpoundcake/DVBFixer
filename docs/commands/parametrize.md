@@ -435,3 +435,9 @@ Parametrises small molecules with GAFF2 force field and AM1-BCC or RESP charges 
 **`-c resp` without `--qm-engine` → error** listing both backend options + trade-offs. Auto-promotion preserves backwards compat: `-c resp --gen-gaussian` or `-c resp --gaussian-log` without `--qm-engine` auto-sets `--qm-engine gaussian` with an INFO log. `--qm-engine psi4` + any `--gaussian-*` flag → warning that the Gaussian flag is ignored.
 
 **QM-engine survey (June 2026)** — 16 engines evaluated for free-RESP backend. See `memory/reference_qm_engines_for_resp.md` for the full comparison table. Decision rationale: PSI4 picked over GPU4PySCF (NVIDIA GPU only), MOPAC (Merz-Kollman ≠ true RESP), ORCA/GAMESS/NWChem (manual install friction, no conda), R.E.D. Server (web/privacy concerns), DALTON (CMake build only), and the niche multiconfigurational/coupled-cluster engines (OpenMolcas/MRCC/CFOUR — overkill for RESP).
+
+## Batch mode
+
+`parametrize` does not support directory batch input because ligand and charge
+inputs must be specified explicitly for each parameterization job. See the
+[batch support matrix](../batch-mode.md#support-by-tool).

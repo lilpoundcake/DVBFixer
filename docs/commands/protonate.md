@@ -153,3 +153,9 @@ Runs PROPKA3 for pKa prediction, renames residues to AMBER protonation names (HI
 **FF-aware output naming (`--ff charmm`)**: `_remap_amber_variants_to_charmm_in_pdb` rewrites the AMBER-style variant names in the final output PDB to CHARMM36 equivalents: HID→HSD, HIE→HSE, HIP→HSP, CYX→CYS (SS via SSBOND), CYM→CYM. ASH/GLH/LYN have NO OpenMM-`charmm36.xml` template — those get folded back to standard ASP/GLU/LYS with a clear WARNING that the PROPKA-requested charge state can't be expressed with the shipped CHARMM XML. `--ff amber` (default) leaves AMBER names as-is. All rewrites use `f"{name:<3s}"` (fixed 3-char left-align) so column alignment is preserved. Selection driven by `_is_charmm_ff(args.ff)` which scans the resolved XML list for `charmm`.
 
 **Unsupported PROPKA titratable groups**: PROPKA also reports pKas for TYR (deprotonated tyrosinate) and ARG (neutral arginine). Neither AMBER14/19 nor CHARMM36 ships a TYD/TYN/ARN variant template — no way to add those H atoms via the stock `addHydrogens` flow. `decide_protonation` skips them; `main()` logs them as "Unsupported PROPKA-titratable groups at pH X" in `--verbose` mode so users know. Terminal N+/C- pKas are handled automatically by OpenMM's NXXX/CXXX terminal patches.
+
+## Batch mode
+
+`protonate` supports directory input with a common pH and force field:
+`dvbfixer protonate --input-dir structures --output-dir protonated --ph 7.4`.
+See [Batch mode](../batch-mode.md) for shared keys.
