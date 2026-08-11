@@ -9,6 +9,7 @@ usage: dvbfixer transplant [-h] --donor DONOR [--graft GRAFT] [-o OUTPUT]
                            [--select SELECT] [--align ALIGN] [--superpose]
                            [--relax] [--relax-stages RELAX_STAGES]
                            [--gromacs DIR] [--no-infer-conect] [-v]
+                           [--log-file PATH]
                            acceptor
 
 Transplant molecules from graft PDB into acceptor PDB. Supports GLYCAM-Web and
@@ -56,4 +57,12 @@ Content selection:
 
 Diagnostics:
   -v, --verbose
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  This command does not support directory batch input. Run it once per
+  input, or use a supported pipeline command.
 ```

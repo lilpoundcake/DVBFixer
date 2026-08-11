@@ -139,6 +139,9 @@ def format_report(
     n_residues: int,
     n_chains: int,
     findings: list[Finding],
+    *,
+    chirality_checked: bool = True,
+    chirality_repairs: list[dict[str, str]] | None = None,
 ) -> str:
     """Render the plain-text report."""
     lines: list[str] = []
@@ -148,6 +151,22 @@ def format_report(
     lines.append(f"dvbfixer diagnose — {input_path}")
     lines.append(bar)
     lines.append(f"Loaded: {n_atoms} atoms, {n_residues} residues, {n_chains} chains")
+    d_findings = [f for f in findings if f.category == "chirality"]
+    if chirality_checked:
+        status = "YES" if d_findings else "NO"
+    else:
+        status = "NOT CHECKED"
+    lines.append(f"D-isomer error: {status}")
+    repairs = chirality_repairs or []
+    if repairs:
+        labels = ", ".join(
+            f"{item['chain']}/{item['resname']}{item['resid']} ({item['stage']})"
+            for item in repairs
+        )
+        lines.append(f"Forced D→L repair history: YES — {labels}")
+        lines.append("WARNING: inspect hydrogen angles and local geometry around repaired residues.")
+    else:
+        lines.append("Forced D→L repair history: NO")
     lines.append("")
 
     if not findings:

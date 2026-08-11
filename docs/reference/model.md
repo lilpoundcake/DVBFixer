@@ -9,8 +9,10 @@ usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA] [-n NUM_MODELS]
                       [--num-loops NUM_LOOPS] [--num-output NUM_OUTPUT]
                       [--md-level {none,fast,slow,very_slow,slow_large}]
                       [--pin-input | --no-pin-input] [--no-terminal]
-                      [--renumber-from-1] [--keep-water] [--strip-heterogens]
+                      [--number-from-1] [--keep-water] [--strip-heterogens]
                       [--no-infer-conect] [--keep-workdir] [-v]
+                      [--log-file PATH] [--input-dir DIR] [--output-dir DIR]
+                      [--recursive] [--fail-fast]
                       input
 
 Rebuild missing loops and gaps in a PDB structure using Modeller. Identifies
@@ -57,12 +59,9 @@ Modelling parameters:
                         the complete reference first, trim outside the
                         first/last observed anchors, and rebuild only gaps
                         between those anchors.
-  --renumber-from-1     Force the whole chain to start at resseq 1 when
-                        Modeller adds N-terminal residues. Default OFF:
-                        preserve original PDB numbering unless it would yield
-                        non-positive resseqs (e.g. input starts at resseq 3
-                        with 5 added N-term residues → would go to -1..3;
-                        auto-fallback to shift-to-1 with WARN).
+  --number-from-1       Shift each completed output chain so its first
+                        retained protein residue is 1; applies even when
+                        missing N-terminal residues were not modeled
 
 Content selection:
   --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
@@ -86,4 +85,17 @@ Content selection:
 Diagnostics:
   --keep-workdir        Keep the Modeller working directory (for debugging)
   -v, --verbose         Print Modeller progress
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  Run this command independently for every supported structure in a
+  directory. Processing continues after per-file failures by default.
+
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

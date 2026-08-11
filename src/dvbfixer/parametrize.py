@@ -955,6 +955,8 @@ def parse_args(argv=None):
     diag.add_argument('-v', '--verbose', action='store_true',
                       help='Verbose output')
 
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(p)
     return p.parse_args(argv)
 
 

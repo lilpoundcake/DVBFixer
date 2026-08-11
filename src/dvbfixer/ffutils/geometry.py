@@ -850,6 +850,52 @@ def find_d_residues(
     return offenders
 
 
+def build_ca_chirality_force(
+    topology: Any,
+    positions: Any,
+    *,
+    strength_kj_mol: float = 10000.0,
+    minimum_fraction: float = 0.20,
+) -> tuple[Any, int]:
+    """Build a non-singular one-sided restraint that prevents Cα inversion.
+
+    The signed scalar triple product ``((N-CA)×(C-CA))·(CB-CA)`` is
+    positive for the L geometry used throughout dvbfixer.  The force is zero
+    above ``minimum_fraction`` of the starting L volume and becomes harmonic
+    only as the centre approaches planar/D geometry.  It uses Cartesian
+    coordinates directly, avoiding the singular derivatives of an improper
+    dihedral near degenerate geometries.
+    """
+    from openmm import CustomCompoundBondForce
+
+    expression = (
+        "0.5*k*step(qmin-q)*(qmin-q)^2;"
+        "q=v/vref;"
+        "v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);"
+        "ax=x1-x2; ay=y1-y2; az=z1-z2;"
+        "bx=x3-x2; by=y3-y2; bz=z3-z2;"
+        "cx=x4-x2; cy=y4-y2; cz=z4-z2"
+    )
+    force = CustomCompoundBondForce(4, expression)
+    force.addGlobalParameter("k", strength_kj_mol)
+    force.addGlobalParameter("qmin", minimum_fraction)
+    force.addPerBondParameter("vref")
+    count = 0
+    for res in topology.residues():
+        if res.name in _CHIRALITY_SKIP_RESNAMES:
+            continue
+        found = _find_ncacb(res)
+        if found is None:
+            continue
+        n, ca, c, cb = found
+        triple, norm2, vn2, vc2 = _ca_triple(positions, n, ca, c, cb)
+        if triple <= 1e-6 or norm2 < 1e-18 or norm2 < 0.01 * vn2 * vc2:
+            continue
+        force.addBond([n.index, ca.index, c.index, cb.index], [triple])
+        count += 1
+    return force, count
+
+
 def assert_all_l(topology: Any, positions: Any) -> None:
     """Raise :class:`ChiralityError` if any residue is still D.
 

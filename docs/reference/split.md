@@ -8,7 +8,8 @@
 usage: dvbfixer split [-h] [-o OUTPUT] [--assembly ID|all]
                       [-d DISTANCE_CUTOFF] [-g GAP_CUTOFF] [--no-distance]
                       [--max-chains MAX_CHAINS] [--renumber | --no-renumber]
-                      [--keep-water] [-v]
+                      [--keep-water] [-v] [--log-file PATH] [--input-dir DIR]
+                      [--output-dir DIR] [--recursive] [--fail-fast]
                       input
 
 Split chains empirically, or extract PDB biological assemblies from REMARK 350
@@ -52,4 +53,17 @@ Content / renumbering:
 
 Diagnostics:
   -v, --verbose         Print detected chain info
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  Run this command independently for every supported structure in a
+  directory. Processing continues after per-file failures by default.
+
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

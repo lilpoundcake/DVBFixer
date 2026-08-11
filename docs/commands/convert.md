@@ -149,3 +149,9 @@ Bidirectional converter for BOTH sugar nomenclature AND protein protonation vari
 **ATOM vs HETATM:** `_format_atom_line()` writes `ATOM` records for standard amino acids (including AMBER protonation variants HIE/HID/HIP/ASH/GLH/CYX/CYM/LYN and GLYCAM protein residues NLN/OLS/OLT) and `HETATM` for sugar residues. This is critical for downstream tools that expect protein residues as ATOM records.
 
 **Pipeline:** Forward output feeds `dvbfixer top --acpype` (AMBER14+GLYCAM). Reverse (`--to-charmm`) output feeds `dvbfixer top --ff charmm` (CHARMM36). The same source structure can drive both FFs.
+
+## Batch mode
+
+`convert` supports independent directory conversion in either direction:
+`dvbfixer convert --input-dir structures --output-dir glycam --to-amber`.
+See [Batch mode](../batch-mode.md) for shared keys.

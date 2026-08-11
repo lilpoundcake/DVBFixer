@@ -6,7 +6,7 @@ Guidance for Claude Code (claude.ai/code) working in this repository.
 
 **dvbfixer** — a Python package providing CLI tools for preparing PDB
 (Protein Data Bank) structural biology files. Installed as a single
-`dvbfixer` command with 19 subcommands.
+`dvbfixer` command with 21 subcommands, plus the React/Node GUI in `gui/`.
 
 ## Prep backends: `legacy` (default) vs `tleap-reduce` (opt-in)
 
@@ -54,6 +54,36 @@ still install and run.
 Modeller needs a free academic license from
 <https://salilab.org/modeller/registration.html>. Set the key in
 `<env>/lib/modeller-10.8/modlib/modeller/config.py`.
+
+The Homology workspace and `dvbfixer msa` shell out to external MSA engines.
+`environment.yml` installs MAFFT, MUSCLE 5, and Clustal Omega; their required
+`PATH` names are `mafft`, `muscle`, and `clustalo`. Keep MUSCLE pinned to v5
+because v3 uses incompatible arguments. Diagnose the active environment with
+`dvbfixer msa --list-engines`; `auto` prefers MAFFT, then MUSCLE, then Clustal
+Omega. Keep user-facing installation details in
+`docs/installation.md#multiple-sequence-alignment-executables` and link to
+that section instead of duplicating platform instructions elsewhere.
+
+The GUI Library is a workspace/project switcher. Project manifests and owned
+artifacts live below `gui/structures/projects/<id>/`; workflow API requests are
+scoped by `workspaceId`. Homology supports multiple workflows per workspace,
+target parsing from workspace files, active-primary template capture, parsed
+chain selectors, Clustal-style continuous alignments, and synchronized
+template-residue selection for Modeller fragments. Preserve project path
+isolation and the one-time legacy Library migration.
+Homology GUI behavior is documented in `docs/gui-homology.md`. The GUI writes
+`template-plan.json`; all scientific materialization belongs in Python
+`dvbfixer homology --template-plan`, specifically
+`src/dvbfixer/homology_plan.py`. That path groups template chains by target,
+fits them into a shared reference frame, resolves zero-based half-open masks
+(earlier template wins overlap), and creates ONE
+`selected_template_mosaic.pdb` plus its matching PIR. Do not regress to one
+Modeller `known` per selected span: Modeller independently repositions
+non-overlapping knowns and destroys mosaic geometry. Multi-chain groups must
+all contain a chain from the first template structure. Logical `VH`/`VL`
+target IDs map to distinct PDB chains `H`/`L`; never truncate both to `V`.
+`dvbfixer salign` defaults to sequence-guided Biopython Cα superposition;
+Modeller SALIGN remains an explicit optional engine.
 
 **Python is pinned `>=3.11,<3.14`** in `environment.yml`. Do not loosen
 this. propka 3.5.1 reads `self.__annotations__` (instance-level) inside
@@ -190,14 +220,26 @@ call bare `dvbfixer` resolve it. See
 - **Chirality invariant**: `dvbfixer.ffutils.geometry.assert_all_l`
   must succeed after every heavy-atom repair. `find_d_residues`
   and `fix_ca_chirality` are the detector and reflector primitives.
-  tleap is L-only by construction so `assert_all_l` should never
-  trip on the new backend — it fires only if a downstream bug
-  regresses. Post-minimize enforcement is bounded reflect+re-minimize
-  (3 iters) then UNCONDITIONAL force-reflect: the output MUST have
-  zero D-Cα, even if it means accepting minor local packing strain
-  on the rare residue whose FF minimum genuinely lies on the D side.
-  Do NOT re-introduce a WARN-only path — the chirality invariant is
+  `build_ca_chirality_force` protects every initially-L N–CA–C–CB centre with
+  a one-sided signed-volume wall during minimize. It uses Cartesian products,
+  not an improper dihedral, so it has no torsion singularity. Reflection is an
+  emergency-only recovery followed by guarded local minimization; if L
+  geometry is not restored, raise `ChiralityError` and write no output. Record
+  emergency repairs in `REMARK 999 DVBFIXER CHIRALITY_REPAIR` so diagnose can
+  warn about possible hydrogen-angle strain. Zero D-Cα output remains
   non-negotiable.
+
+- **Unified CLI runtime options**: `cli.py` removes `--log-file` and batch
+  arguments before subcommand parsing. `runtime.tee_output` captures Python and
+  inherited child-process stdout/stderr at file-descriptor level. Every parser
+  calls `batch.add_runtime_help`; every tool's help therefore states whether
+  directory batch input is supported. Supported tools show the four batch keys;
+  unsupported tools show an explicit status description. The GUI generator
+  excludes the informational `Global logging` and `Batch mode` groups.
+- **Final numbering normalization**: public spelling is `--number-from-1` on
+  renumber/model/zbs. ZBS applies it only after copying the final output and
+  before postflight diagnose, never to intermediate `.dat` identifiers. Model
+  normalizes each output candidate and its residue-keyed `.dat` sidecar.
 - **Do not read a `.dat` file with hand-rolled `json.load`.** Use
   `dvbfixer.ffutils.dat.DatRecord` — the schema (added_atoms,
   variant_overrides, removed_residues, residue_summary,
@@ -323,7 +365,8 @@ call bare `dvbfixer` resolve it. See
   start of a chain. `build_resnum_mapping`'s align2d-mask fallback
   path must call `_interpolate_gaps` directly rather than carrying its
   own second copy of this logic — the two had already drifted out of
-  sync once (the duplicate lacked `renumber_from_1` handling) before
+  sync once (the duplicate lacked the former internal
+  `renumber_from_1` handling) before
   this bug was found.
 - **All FASTA/SEQRES placement must use `sequence_alignment.py` (since
   0.7.16), never a greedy "find the next same residue" loop.** Greedy

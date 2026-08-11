@@ -116,3 +116,9 @@ Energy-minimizes with OpenMM using selective restraints from the `.dat` file. Or
 **Important:** OpenMM's `PDBFile` reader normalizes AMBER names (GLH→GLU, HIE→HIS, CYX→CYS). The raw PDB must be read first with `_read_amber_renames()` to capture original names before loading with PDBFile.
 
 **Known issue:** `.dat` stores chain IDs from PDBFixer. External tools may reassign chain IDs, breaking `.dat` matching.
+
+## Batch mode
+
+`minimize` supports folder input and applies the same force-field/restraint options
+to every structure: `dvbfixer minimize --input-dir structures --output-dir minimized`.
+See [Batch mode](../batch-mode.md) for shared keys.

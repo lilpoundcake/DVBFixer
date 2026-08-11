@@ -81,6 +81,13 @@ dvbfixer prepare antibody.pdb --mutate H:22:ALA -v
 
 # Mix substitution and deletion
 dvbfixer prepare input.pdb --mutate A:39:ALA --mutate H:446:del -v
+
+# Add neutral ACE/NME caps to every protein chain
+dvbfixer prepare input.pdb --cap-termini --ff amber -o capped.pdb
+
+# Cap only chains A and B, using CHARMM36-compatible parameters downstream
+dvbfixer prepare input.pdb --cap-termini --cap-chain A --cap-chain B \
+  --ff charmm -o capped_charmm.pdb
 ```
 
 ## Options
@@ -102,6 +109,8 @@ dvbfixer prepare input.pdb --mutate A:39:ALA --mutate H:446:del -v
 | `--smiles RESNAME=SMILES` | none | Optional authoritative chemistry for every isolated ligand residue named `RESNAME`; repeatable. Preserves heavy atoms/coordinates and regenerates H. Unmapped heterogens use the existing automatic path. Requires the legacy backend and is incompatible with `--strip-heterogens` / `--no-heterogen-h`. |
 | `--ff` | `auto` | Force field for the heterogen-H addition step. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. Only consulted when heterogen-H addition actually runs. See [force-fields.md](../force-fields.md). |
 | `--no-infer-conect` | off | Skip automatic CONECT inference (SS/glycosidic/glycosylation bonds from coordinates); default infers so glycoprotein flows work even on CONECT-less inputs |
+| `--cap-termini` | off | Add neutral ACE and NME residues to the N- and C-termini of every protein chain. Existing correct caps are retained. |
+| `--cap-chain CHAIN` | all protein chains | Restrict `--cap-termini` to selected chains; repeatable. Use `_` for a blank chain ID. |
 | `--mutate` | none | Mutate a residue: `CHAIN:RESNUM:NEW_AA` (substitution) or `CHAIN:RESNUM:del` (deletion). Insertion codes supported (`H:100A:del`). Repeatable. |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
 | `-v`, `--verbose` | off | Print detailed progress |
@@ -195,3 +204,9 @@ The cleaned PDB is written with: atom lines filtered (deletions only), CONECT li
 **Input preprocessing** (`_preprocess_glycoprotein_input`, runs before `_canonicalize_conect_records`): fixes two common upstream-tool issues. (1) `HETATM` lines for residues in `FORCE_ATOM_RESIDUES` (20 std AA + AMBER variants + NLN/OLS/OLT) are rewritten to `ATOM  ` — HETATM gets treated as ligand by OpenMM, breaking peptide bond inference to neighbours and producing "TYR missing externally bonded C atom" template errors. (2) Spurious TER records between two amino-acid residues on the SAME chain are dropped — a TER forces OpenMM to split the chain, breaking the polymer. Both edits are no-ops on clean inputs (returns the original path).
 
 **FF-agnostic glycosylation detection** (`find_glycosylated_atoms_with_sugar`): returns `{(chain, resid, atom): bonded_sugar_resname}`. Uses CONECT records for protein-sugar bonds AND distance fallback (ASN ND2 / SER OG / THR OG1 within 2.0 Å of a sugar anomeric C; C2 for sialic) — catches glycosylation sites that have no CONECT record (common in CHARMM-GUI output and crystal PDBs). Sugar set includes PDB 3-char names (NAG/NDG/BMA/MAN/GAL/FUC/FUL/SIA/NGA/A2G/...), CHARMM-GUI 4-char names (BGLC/BMAN/AMAN/BGAL/BGLCNA/...), and GLYCAM 3-char codes (via `is_glycam_sugar`). The ASN→NLN rename in `rename_glycosylated_protein_residues` fires ONLY when the bonded sugar is GLYCAM-named (NLN is a GLYCAM-specific name). For PDB/CHARMM sugars, ASN/SER/THR stay with standard names; HD22/HG/HG1 removal still happens via `remove_extra_glycan_hydrogens` (consistent behavior across all three FFs).
+
+## Batch mode
+
+`prepare` supports folder input with one isolated run per structure:
+`dvbfixer prepare --input-dir structures --output-dir prepared --recursive`.
+See [Batch mode](../batch-mode.md) for shared keys.

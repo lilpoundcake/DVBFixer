@@ -14,7 +14,9 @@ usage: dvbfixer prepare [-h] [-o OUTPUT] [--dat DAT]
                         [--ff FF [FF ...]] [--keep-water] [--strip-heterogens]
                         [--no-heterogen-h] [--smiles RESNAME=SMILES]
                         [--rename] [--no-infer-conect]
-                        [--mutate CHAIN:RESNUM:NEW_AA] [-v]
+                        [--mutate CHAIN:RESNUM:NEW_AA] [-v] [--log-file PATH]
+                        [--input-dir DIR] [--output-dir DIR] [--recursive]
+                        [--fail-fast]
                         input
 
 Fix missing atoms and residues in a PDB structure using PDBFixer. Writes a
@@ -103,4 +105,17 @@ Mutations:
 
 Diagnostics:
   -v, --verbose         Print detailed progress
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  Run this command independently for every supported structure in a
+  directory. Processing continues after per-file failures by default.
+
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

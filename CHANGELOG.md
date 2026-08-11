@@ -8,6 +8,58 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.26] — 2026-08-11
+
+### Fixed
+
+- `--atom-naming gromacs` now emits ACE/NME atom names that exactly match the
+  bundled GROMACS AMBER and CHARMM RTP entries (`HH31/HH32/HH33`, NME `CH3`,
+  and CHARMM NME `HN`). The previous cap hydrogen conversion was reversed.
+
+## [0.7.25] — 2026-08-11
+
+### Added
+
+- `prepare` and `zbs` can add neutral ACE/NME peptide caps with
+  `--cap-termini`, optionally restricted with repeatable `--cap-chain`.
+- Explicit CHARMM36 ACE/NME OpenMM templates allow capped structures to pass
+  hydrogen placement and minimization without patched-template ambiguity.
+
+### Fixed
+
+- `top --ff amber|charmm` retains explicit ACE/NME residues and their peptide
+  bonds instead of silently dropping them from the protein chain.
+- `--strip-heterogens` preserves requested or pre-existing peptide caps while
+  continuing to remove ordinary heterogens.
+
+## [0.7.24] — 2026-08-11
+
+### Changed
+
+- Every subcommand now has a dedicated Batch mode section in both `--help` and
+  its command guide. Unsupported tools explicitly explain that directory input
+  is unavailable instead of silently omitting batch information.
+- The batch guide now contains a complete support matrix for all 21 tools.
+
+## [0.7.23] — 2026-08-11
+
+### Added
+
+- `--log-file PATH` tees complete command and child-process output to an
+  append-only log, with a versioned UTC run header.
+- `--number-from-1` normalizes final `renumber`, `model`, and `zbs` structures
+  without changing intermediate ZBS identifiers.
+- Every batch-capable command now documents folder processing in its own help
+  and guide; homology documentation lists its complete CLI surface.
+
+### Changed
+
+- OpenMM minimization now prevents Cα inversion with a non-singular signed-
+  volume guard. Emergency reflection is audited in PDB REMARK records and must
+  pass guarded local minimization before output is written.
+- Diagnose reports current D-isomer status and prior forced chirality repairs
+  in text and JSON, including a hydrogen-geometry inspection warning.
+
 ## [0.7.22] — 2026-08-06
 
 ### Added

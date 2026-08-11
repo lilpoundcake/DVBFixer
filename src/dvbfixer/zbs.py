@@ -126,6 +126,11 @@ def parse_args(argv=None):
                       help="Mutate a residue during prepare step (can be used multiple times)")
     prep.add_argument("--rename", action="store_true",
                       help="Canonicalise non-standard residue names before prepare/minimize.")
+    prep.add_argument("--cap-termini", action="store_true",
+                      help="Add neutral ACE/NME caps during prepare. Applies to "
+                           "all protein chains unless --cap-chain is supplied.")
+    prep.add_argument("--cap-chain", action="append", default=[], metavar="CHAIN",
+                      help="Protein chain to cap (repeatable; '_' means blank chain).")
 
     minz = p.add_argument_group("Minimize step (OpenMM)")
     minz.add_argument("--no-solvent", action="store_true",
@@ -183,6 +188,8 @@ def parse_args(argv=None):
                          help="Print the planned pipeline steps + output "
                               "filenames without running anything. Useful "
                               "when many skip flags are in play.")
+    general.add_argument("--number-from-1", action="store_true",
+                         help="Shift each final output chain so its first retained protein residue is 1")
     general.add_argument("--no-postflight", action="store_true",
                          help="Skip the final diagnose quality gate. By default, "
                               "zbs writes <output>.diagnose.json and warns if "
@@ -209,11 +216,17 @@ def parse_args(argv=None):
     runtime.add_argument("-v", "--verbose", action="store_true",
                          help="Print detailed progress for all steps")
 
+    from dvbfixer.batch import add_runtime_help
+    add_runtime_help(p, batch=True)
     args = p.parse_args(argv)
 
     if args.backend == "tleap-reduce" and args.mutate:
         p.error("--mutate is not supported by the tleap-reduce backend; "
                 "rerun with --backend legacy for mutations.")
+    if args.cap_chain and not args.cap_termini:
+        p.error("--cap-chain requires --cap-termini")
+    if args.cap_termini and args.skip_prepare:
+        p.error("--cap-termini cannot be used with --skip-prepare")
     if args.smiles:
         if args.skip_prepare:
             p.error("--smiles cannot be used with --skip-prepare")
@@ -448,6 +461,10 @@ def _run_pipeline(args, input_path):
             prepare_argv.extend(["--mutate", mut])
         if args.rename:
             prepare_argv.append("--rename")
+        if args.cap_termini:
+            prepare_argv.append("--cap-termini")
+            for chain in args.cap_chain:
+                prepare_argv.extend(["--cap-chain", chain])
         if args.no_infer_conect:
             prepare_argv.append("--no-infer-conect")
         if args.verbose:
@@ -508,6 +525,13 @@ def _run_pipeline(args, input_path):
     if str(current) != str(final_output):
         import shutil
         shutil.copy2(current, final_output)
+
+    if args.number_from_1:
+        from dvbfixer.renumber import normalize_numbering_from_one
+
+        deltas = normalize_numbering_from_one(final_output)
+        shifted = ", ".join(f"{chain}:{delta:+d}" for chain, delta in deltas.items())
+        print(f"Normalized final residue numbering ({shifted or 'no coordinate chains'})")
 
     if not args.no_postflight:
         report_path = Path(args.postflight_report or f"{final_output}.diagnose.json")

@@ -10,7 +10,8 @@ usage: dvbfixer diagnose [-h] [-o OUTPUT]
                          [--severity {ERROR,WARNING,INFO}] [--include-water]
                          [--clash-mode {bioluminate,chimerax,molprobity}]
                          [--clash-cutoff WARN,ERROR] [--format {text,json}]
-                         [-v]
+                         [-v] [--log-file PATH] [--input-dir DIR]
+                         [--output-dir DIR] [--recursive] [--fail-fast]
                          input
 
 Inspect a PDB file and report structure-quality issues (missing atoms,
@@ -51,4 +52,17 @@ Output format:
 
 Diagnostics:
   -v, --verbose         Include per-check timing on stderr.
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  Run this command independently for every supported structure in a
+  directory. Processing continues after per-file failures by default.
+
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

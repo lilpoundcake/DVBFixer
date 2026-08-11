@@ -20,11 +20,13 @@ usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--refine-heterogens-only] [--no-propka] [--no-protassign]
                     [--his-default {HIE,HID}] [--cys-ss-pka CYS_SS_PKA]
                     [--keep-water] [--no-infer-conect] [--keep-interim]
-                    [--dry-run] [--no-postflight]
+                    [--dry-run] [--number-from-1] [--no-postflight]
                     [--postflight-report POSTFLIGHT_REPORT]
                     [--strict-postflight]
                     [--align-to-input | --no-align-to-input]
                     [--platform {CPU,CUDA,OpenCL,Reference}] [-v]
+                    [--log-file PATH] [--input-dir DIR] [--output-dir DIR]
+                    [--recursive] [--fail-fast]
                     input
 
 Run the full preparation pipeline: renumber -> model -> prepare -> minimize.
@@ -156,6 +158,8 @@ Pipeline behaviour:
   --dry-run             Print the planned pipeline steps + output filenames
                         without running anything. Useful when many skip flags
                         are in play.
+  --number-from-1       Shift each final output chain so its first retained
+                        protein residue is 1
   --no-postflight       Skip the final diagnose quality gate. By default, zbs
                         writes <output>.diagnose.json and warns if diagnose
                         reports an ERROR.
@@ -176,4 +180,17 @@ Runtime:
   --platform {CPU,CUDA,OpenCL,Reference}
                         OpenMM platform (default: auto)
   -v, --verbose         Print detailed progress for all steps
+
+Global logging:
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
+
+Batch mode:
+  Run this command independently for every supported structure in a
+  directory. Processing continues after per-file failures by default.
+
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

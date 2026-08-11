@@ -31,3 +31,9 @@ Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pul
 
 ## How it works
 Text-based rename of non-canonical residue names to standard PDB names. Converts AMBER protonation (HIE/HID/HIP→HIS, ASH→ASP, GLH→GLU, CYX/CYM→CYS, LYN→LYS), CHARMM (HSD/HSE/HSP→HIS), and MSE→MET. Also available as `--rename` flag on `renumber`, `prepare`, `minimize`, and `pull` tools. Uses `CANONICAL_MAP` dict in `rename.py`.
+
+## Batch mode
+
+`rename` can canonicalize a directory without combining structures:
+`dvbfixer rename --input-dir structures --output-dir canonical`.
+See [Batch mode](../batch-mode.md) for shared keys.

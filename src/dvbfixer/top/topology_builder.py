@@ -102,6 +102,20 @@ def _match_atom_names(rtp_names, pdb_names, arn_rtp_to_pdb=None):
         mapping['H1'] = 'H'
         used_pdb.add('H')
 
+    # Canonical PDB cap aliases.  The bundled RTPs retain force-field-native
+    # HH31/HH32/HH33 and CH3 names, while OpenMM writes H1/H2/H3 and writes
+    # the NME methyl carbon as C.
+    for rtp_name, pdb_name in (("HH31", "H1"), ("HH32", "H2"),
+                               ("HH33", "H3")):
+        if (rtp_name in rtp_set and rtp_name not in mapping
+                and pdb_name in pdb_set and pdb_name not in used_pdb):
+            mapping[rtp_name] = pdb_name
+            used_pdb.add(pdb_name)
+    if ('CH3' in rtp_set and 'CH3' not in pdb_set and 'C' in pdb_set
+            and 'C' not in used_pdb):
+        mapping['CH3'] = 'C'
+        used_pdb.add('C')
+
     # Pass 1: shift matching for detected prefixes
     for rtp_name in rtp_names:
         if rtp_name in mapping:
@@ -561,27 +575,29 @@ class TopologyBuilder:
         """Apply CHARMM terminal patches (TDB). Only for protein chains."""
         n_res = len(chain.residues)
 
-        # Only apply patches to protein residues (not CGenFF small molecules)
         first_res = chain.residues[0].resname
-        if first_res not in STANDARD_AA and first_res not in PDB_TO_GMX:
-            return
-        if first_res == 'GLY':
-            n_patch_name = 'GLY-NH3+'
-        elif first_res == 'PRO':
-            n_patch_name = 'PRO-NH2+'
-        else:
-            n_patch_name = 'NH3+'
+        last_res = chain.residues[-1].resname
 
-        # Determine C-terminal patch
-        c_patch_name = 'COO-'
+        # Treat the two ends independently.  A previous all-or-nothing guard
+        # skipped both patches whenever ACE was first, which also left an
+        # otherwise uncapped C terminus unpatched (and vice versa for NME).
+        if first_res != 'ACE':
+            if first_res == 'GLY':
+                n_patch_name = 'GLY-NH3+'
+            elif first_res == 'PRO':
+                n_patch_name = 'PRO-NH2+'
+            elif first_res in STANDARD_AA or first_res in PDB_TO_GMX:
+                n_patch_name = 'NH3+'
+            else:
+                n_patch_name = None
+            if n_patch_name in self.n_patches:
+                self._apply_patch(self.n_patches[n_patch_name], 0,
+                                  chain_top, atom_index_map)
 
-        # Apply N-terminal patch
-        if n_patch_name in self.n_patches:
-            self._apply_patch(self.n_patches[n_patch_name], 0, chain_top, atom_index_map)
-
-        # Apply C-terminal patch
-        if c_patch_name in self.c_patches:
-            self._apply_patch(self.c_patches[c_patch_name], n_res - 1, chain_top, atom_index_map)
+        if last_res != 'NME' and (last_res in STANDARD_AA or last_res in PDB_TO_GMX):
+            if 'COO-' in self.c_patches:
+                self._apply_patch(self.c_patches['COO-'], n_res - 1,
+                                  chain_top, atom_index_map)
 
     def _apply_patch(self, patch, res_i, chain_top, atom_index_map):
         """Apply a single terminal patch to the chain topology."""

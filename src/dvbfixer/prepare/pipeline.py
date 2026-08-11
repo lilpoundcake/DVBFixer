@@ -639,7 +639,26 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     fixer.replaceNonstandardResidues()
 
     if not keep_heterogens:
-        fixer.removeHeterogens(keepWater=keep_water)
+        # PDBFixer's built-in keep set does not include the peptide caps ACE
+        # and NME, even though OpenMM classifies them as Protein in
+        # pdbNames.xml.  Preserve caps explicitly under --strip-heterogens;
+        # otherwise `zbs --cap-termini --strip-heterogens` adds the caps and
+        # silently deletes them again in this call.
+        has_caps = any(r.name in {'ACE', 'NME'} for r in fixer.topology.residues())
+        if has_caps:
+            from pdbfixer.pdbfixer import dnaResidues, proteinResidues, rnaResidues
+            keep_resnames = set(proteinResidues).union(dnaResidues).union(rnaResidues)
+            keep_resnames.update({'N', 'UNK', 'ACE', 'NME'})
+            if keep_water:
+                keep_resnames.add('HOH')
+            to_delete = [r for r in fixer.topology.residues()
+                         if r.name not in keep_resnames]
+            modeller = Modeller(fixer.topology, fixer.positions)
+            modeller.delete(to_delete)
+            fixer.topology = modeller.topology
+            fixer.positions = modeller.positions
+        else:
+            fixer.removeHeterogens(keepWater=keep_water)
 
     fixer.findMissingAtoms()
 
@@ -954,6 +973,19 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
               file=sys.stderr)
         sys.exit(2)
 
+    original_input_path = input_path
+    if getattr(args, "cap_termini", False):
+        from dvbfixer.terminal_caps import add_terminal_caps_to_pdb
+        try:
+            input_path = add_terminal_caps_to_pdb(
+                input_path,
+                chain_ids=args.cap_chain or None,
+                verbose=args.verbose,
+            )
+        except ValueError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            raise SystemExit(2) from exc
+
     print(f"=== prep (tleap + reduce): {input_path} ===")
     try:
         result = run_prep(
@@ -995,7 +1027,7 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
     # present in the original input as "added" (weak restraint in
     # minimize). Match by (chain, resseq, icode, atom name).
     orig_keys: set[tuple[str, str, str, str]] = set()
-    for raw in input_path.read_text().splitlines():
+    for raw in original_input_path.read_text().splitlines():
         if not raw.startswith(("ATOM  ", "HETATM")) or len(raw) < 27:
             continue
         orig_keys.add((raw[21], raw[22:26].strip(),
@@ -1074,6 +1106,9 @@ def main(argv=None):
             print("Error: --smiles is incompatible with " + ", ".join(incompatible),
                   file=sys.stderr)
             raise SystemExit(2)
+    if args.cap_chain and not args.cap_termini:
+        print("Error: --cap-chain requires --cap-termini", file=sys.stderr)
+        raise SystemExit(2)
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prepared")
     dat_path = Path(args.dat) if args.dat else output_path.with_suffix(".dat")
@@ -1205,6 +1240,23 @@ def main(argv=None):
             )
             input_path = deletion_path
 
+    precap_atom_keys: set[tuple[str, str, str, str]] = set()
+    if args.cap_termini:
+        for raw in Path(input_path).read_text().splitlines():
+            if raw.startswith(("ATOM  ", "HETATM")) and len(raw) >= 27:
+                precap_atom_keys.add((raw[21], raw[22:26].strip(),
+                                      raw[26].strip(), raw[12:16].strip()))
+        from dvbfixer.terminal_caps import add_terminal_caps_to_pdb
+        try:
+            input_path = add_terminal_caps_to_pdb(
+                input_path,
+                chain_ids=args.cap_chain or None,
+                verbose=args.verbose,
+            )
+        except ValueError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            raise SystemExit(2) from exc
+
     # PROPKA + Reduce now run INSIDE run_pdbfixer, after PDBFixer's own
     # heavy-atom repair (findMissingAtoms/addMissingAtoms) — not before.
     # See run_pdbfixer's docstring: running them on the raw input let a
@@ -1223,6 +1275,19 @@ def main(argv=None):
         use_propka=getattr(args, 'propka', True),
         use_reduce=getattr(args, 'protassign', True),
     )
+
+    # Heavy cap atoms were inserted before PDBFixer, so run_pdbfixer's
+    # ordinary before/after comparison sees them as pre-existing.  Restore
+    # their real provenance for the .dat restraint policy while leaving
+    # genuinely pre-capped input atoms classified as original.
+    if args.cap_termini:
+        for atom in fixer.topology.atoms():
+            if atom.residue.name not in {'ACE', 'NME'}:
+                continue
+            key = (atom.residue.chain.id, atom.residue.id,
+                   atom.residue.insertionCode.strip(), atom.name)
+            if key not in precap_atom_keys:
+                new_atom_indices.add(atom.index)
 
     # Write PDB with standard names first (OpenMM writes HETATM for non-standard)
     with open(output_path, 'w') as f:
