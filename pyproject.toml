@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dvbfixer"
-version = "0.7.26"
+version = "0.7.28"
 description = "PDB structure preparation tools: chain splitting, renumbering, loop modeling, fixing, minimization, protonation, topology generation, molecule transplanting"
 requires-python = ">=3.11,<3.14"
 dependencies = [
@@ -37,6 +37,13 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 dvbfixer = ["data/*.xml"]
+
+# Install the bundled GROMACS force fields as architecture-independent shared
+# data.  Editable/source checkouts still use the repository-level FF directory;
+# wheels resolve this conventional share path instead.
+[tool.setuptools.data-files]
+"share/dvbfixer/FF/amber99sb-ildn-lipid21.ff" = ["FF/amber99sb-ildn-lipid21.ff/*"]
+"share/dvbfixer/FF/charmm36_ljpme-jul2022.ff" = ["FF/charmm36_ljpme-jul2022.ff/*"]
 
 [tool.ruff]
 line-length = 100

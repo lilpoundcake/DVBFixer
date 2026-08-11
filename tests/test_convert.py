@@ -1,4 +1,4 @@
-"""Regression tests for `dvbfixer convert` (legacy `glycam`).
+"""Regression tests for `dvbfixer convert`.
 
 Uses `hinge_CH3_glycosylated.pdb` — its CYX residues exercise the AMBER protein-variant
 rename path (CYX → CYS on `--to-charmm`) without needing glycan fixtures.

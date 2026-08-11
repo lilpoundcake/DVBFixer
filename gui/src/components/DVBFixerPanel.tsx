@@ -17,12 +17,15 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import CancelIcon from '@mui/icons-material/CancelOutlined'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import { useStructureStore } from '../stores/structureStore'
 import { chainToSequence } from '../lib/alignment'
 import { filterSequenceableChains } from '../lib/chain-grouping'
 import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
+import { isActiveManagedJob, managedJobStatusLabel, selectRestoredManagedJob, type ManagedJobRecord } from '../lib/managed-jobs'
+import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 
 // Re-declare the spec types here (mirrors server/dvbfixer-spec.ts) so the
 // frontend doesn't have to import server/. The actual spec is fetched at
@@ -205,13 +208,116 @@ export function DVBFixerPanel() {
   const [inputFile, setInputFile] = useState<string>('')
   const [inputsByCommand, setInputsByCommand] = useState<Record<string, Record<string, string | string[]>>>({})
   const [values, setValues] = useState<Record<string, Record<string, any>>>({})
-  const [running, setRunning] = useState(false)
+  const [job, setJob] = useState<ManagedJobRecord | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
   const [result, setResult] = useState<RunResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const workspace = useWorkspaceStore(state => state.active)
   const workspaceRevision = useWorkspaceStore(state => state.revision)
   const reloadWorkspace = useWorkspaceStore(state => state.reload)
   const updateToolState = useWorkspaceStore(state => state.updateToolState)
+  const terminalHandledRef = useRef<Set<string>>(new Set())
+  const submitInFlightRef = useRef(false)
+
+  const jobActive = isActiveManagedJob(job)
+  const activeJobId = jobActive ? job?.id : undefined
+
+  // Restore an interrupted/active run whenever this panel mounts or the
+  // active workspace changes. The server is the source of truth.
+  useEffect(() => {
+    const workspaceId = workspace?.id
+    setJob(null)
+    setCancelling(false)
+    if (!workspaceId) return
+    const controller = new AbortController()
+    fetch(`/api/jobs?workspaceId=${encodeURIComponent(workspaceId)}`, { cache: 'no-store', signal: controller.signal })
+      .then(async response => {
+        const body = await response.json() as ManagedJobRecord[] & { error?: string }
+        if (!response.ok) throw new Error((body as any).error || `Jobs: HTTP ${response.status}`)
+        const restored = selectRestoredManagedJob(body)
+        if (!restored || controller.signal.aborted) return
+        // Historical terminal jobs are shown but must not auto-load again.
+        if (!isActiveManagedJob(restored)) terminalHandledRef.current.add(restored.id)
+        setJob(restored)
+      })
+      .catch(reason => { if (reason.name !== 'AbortError') setError(reason.message || String(reason)) })
+    return () => controller.abort()
+  }, [workspace?.id])
+
+  // Stream state changes, with polling as a fallback for browsers/proxies
+  // where EventSource is unavailable or disconnected.
+  useEffect(() => {
+    if (!activeJobId || !workspace?.id) return
+    const workspaceId = workspace.id
+    const jobId = activeJobId
+    let disposed = false
+    let source: EventSource | null = null
+    const apply = (next: ManagedJobRecord) => {
+      if (!disposed && next.id === jobId && next.workspaceId === workspaceId) setJob(next)
+    }
+    if (typeof EventSource !== 'undefined') {
+      source = new EventSource(`/api/jobs/${encodeURIComponent(jobId)}/events?workspaceId=${encodeURIComponent(workspaceId)}`)
+      source.onmessage = event => {
+        try { apply(JSON.parse(event.data) as ManagedJobRecord) } catch { /* polling remains available */ }
+      }
+      source.onerror = () => { source?.close(); source = null }
+    }
+    const poll = async () => {
+      try {
+        const response = await fetch(`/api/jobs/${encodeURIComponent(jobId)}?workspaceId=${encodeURIComponent(workspaceId)}`, { cache: 'no-store' })
+        if (response.ok) apply(await response.json() as ManagedJobRecord)
+      } catch { /* the next poll or SSE event can recover */ }
+    }
+    const timer = window.setInterval(() => { void poll() }, 1500)
+    void poll()
+    return () => { disposed = true; source?.close(); window.clearInterval(timer) }
+  }, [activeJobId, workspace?.id])
+
+  // Fetch terminal logs for the existing output pane.
+  useEffect(() => {
+    if (!job || isActiveManagedJob(job) || !workspace?.id) return
+    const controller = new AbortController()
+    Promise.all([job.stdoutLog, job.stderrLog].map(async file => {
+      const response = await fetch(workspaceFileUrl(workspace.id, file), { cache: 'no-store', signal: controller.signal })
+      return response.ok ? response.text() : ''
+    })).then(([stdout, stderr]) => {
+      if (controller.signal.aborted) return
+      setResult({
+        ok: job.status === 'succeeded', command: [job.command, ...job.args].join(' '),
+        outputFile: job.outputFile || '', outputDir: job.outputDir,
+        stdout, stderr: stderr || job.error || '', exitCode: job.exitCode ?? -1,
+      })
+    }).catch(reason => { if (reason.name !== 'AbortError') setError(reason.message || String(reason)) })
+    return () => controller.abort()
+  }, [job, workspace?.id])
+
+  // A newly-completed successful job registers artifacts server-side. Refresh
+  // once and load its primary structure, without replaying historical jobs.
+  useEffect(() => {
+    if (!job || isActiveManagedJob(job) || terminalHandledRef.current.has(job.id) || !workspace?.id) return
+    terminalHandledRef.current.add(job.id)
+    setCancelling(false)
+    const workspaceId = workspace.id
+    ;(async () => {
+      const refreshed = await reloadWorkspace()
+      if (job.status !== 'succeeded' || !job.outputFile || !/\.(pdb|cif|mmcif|gro)$/i.test(job.outputFile)) return
+      const plugin = useStructureStore.getState().plugin
+      if (!plugin) return
+      const response = await fetch(workspaceFileUrl(workspaceId, job.outputFile), { cache: 'no-store' })
+      if (!response.ok) throw new Error(`Output cannot be loaded: HTTP ${response.status}`)
+      const format = /\.(cif|mmcif)$/i.test(job.outputFile) ? 'mmcif' : 'pdb'
+      await plugin.clear()
+      const data = await plugin.builders.data.rawData({ data: await response.text(), label: job.outputFile })
+      const trajectory = await plugin.builders.structure.parseTrajectory(data, format as any)
+      await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default')
+      const artifact = refreshed?.artifacts.find(item => item.file === job.outputFile)
+      if (artifact) useStructureStore.getState().setMeta(structureMetaFromArtifact(artifact))
+      useStructureStore.getState().setFileName(job.outputFile)
+      userPickedInputRef.current = false
+      setInputFile(job.outputFile)
+    })().catch(reason => setError(reason.message || String(reason)))
+  }, [job, reloadWorkspace, workspace?.id])
 
   const fetchSpec = useCallback(() => {
     fetch(`/api/dvbfixer-spec?t=${Date.now()}`, { cache: 'no-store' })
@@ -389,7 +495,7 @@ export function DVBFixerPanel() {
   }, [seqChains, fastaByChain, inputFile])
 
   const handleRun = useCallback(async () => {
-    if (!activeCmd) return
+    if (!activeCmd || !workspace || jobActive || submitInFlightRef.current) return
     const runInputs: Record<string, string | string[]> = { ...(inputsByCommand[activeCmd.name] ?? {}) }
     if (activeCmd.inputs[0] && !activeCmd.inputs[0].multi && inputFile) runInputs[activeCmd.inputs[0].dest] = inputFile
     const missing = activeCmd.inputs.find(input => input.required && (
@@ -397,7 +503,8 @@ export function DVBFixerPanel() {
       (Array.isArray(runInputs[input.dest]) && runInputs[input.dest].length === 0)
     ))
     if (missing) { setError(`${missing.label} is required`); return }
-    setRunning(true)
+    submitInFlightRef.current = true
+    setSubmitting(true)
     setError(null)
     setResult(null)
     try {
@@ -406,49 +513,39 @@ export function DVBFixerPanel() {
       // --fasta automatically. Empty string = nothing shipped (backend
       // ignores).
       const fastaContent = activeCmd.name === 'model' ? buildFastaContent() : ''
-      const res = await fetch(`/api/dvbfixer/${activeCmd.name}`, {
+      const res = await fetch('/api/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ workspaceId: workspace?.id, inputFile, inputs: runInputs, values: activeValues, fastaContent }),
       })
-      const body = await res.json() as RunResult & { error?: string }
+      const body = await res.json() as ManagedJobRecord & { error?: string }
       if (!res.ok) {
         setError(body.error || `HTTP ${res.status}`)
-        if (body.stdout || body.stderr) setResult(body as RunResult)
       } else {
-        setResult(body as RunResult)
-        // Auto-load the freshly-produced output into the PRIMARY 3D viewer.
-        const outputFile = body.outputFile
-        const plugin = useStructureStore.getState().plugin
-        if (plugin && outputFile && /\.(pdb|cif|mmcif|gro)$/i.test(outputFile)) {
-          try {
-            const fileRes = workspace ? await fetch(workspaceFileUrl(workspace.id, outputFile)) : null
-            if (fileRes?.ok) {
-              const text = await fileRes.text()
-              const format = outputFile.endsWith('.cif') || outputFile.endsWith('.mmcif') ? 'mmcif' : 'pdb'
-              await plugin.clear()
-              const data = await plugin.builders.data.rawData({ data: text, label: outputFile })
-              const trajectory = await plugin.builders.structure.parseTrajectory(data, format as any)
-              await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default')
-              useStructureStore.getState().setFileName(outputFile)
-              // The newly loaded structure also becomes the next DVBFixer
-              // input (so the user can chain commands without re-picking).
-              userPickedInputRef.current = false
-              setInputFile(outputFile)
-            }
-          } catch (loadErr) {
-            console.warn('[dvbfixer] auto-load output failed:', loadErr)
-          }
-        }
+        setJob(body)
       }
-      await reloadWorkspace()
-      useStructureStore.getState().bumpLibraryVersion()
     } catch (e: any) {
       setError(e.message ?? String(e))
     } finally {
-      setRunning(false)
+      submitInFlightRef.current = false
+      setSubmitting(false)
     }
-  }, [activeCmd, inputFile, inputsByCommand, activeValues, buildFastaContent, reloadWorkspace, workspace])
+  }, [activeCmd, inputFile, inputsByCommand, activeValues, buildFastaContent, jobActive, workspace])
+
+  const cancelJob = useCallback(async () => {
+    if (!job || !workspace || !isActiveManagedJob(job) || cancelling) return
+    setCancelling(true)
+    setError(null)
+    try {
+      const response = await fetch(`/api/jobs/${encodeURIComponent(job.id)}?workspaceId=${encodeURIComponent(workspace.id)}`, { method: 'DELETE' })
+      const body = await response.json() as ManagedJobRecord & { error?: string }
+      if (!response.ok) throw new Error(body.error || `Cancel: HTTP ${response.status}`)
+      setJob(body)
+    } catch (reason: any) {
+      setError(reason.message || String(reason))
+      setCancelling(false)
+    }
+  }, [cancelling, job, workspace])
 
   const inputOptions = useMemo(() => structures.filter(s => s.kind !== 'folder' && !!s.file), [structures])
 
@@ -504,7 +601,7 @@ export function DVBFixerPanel() {
               {activeCmd.description}
             </Typography>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, flexWrap: 'wrap' }}>
               {activeCmd.inputs.map((input, index) => {
                 const multiple = input.multi || input.nargs === '+' || input.nargs === '*'
                 const current = index === 0 && !multiple
@@ -530,33 +627,58 @@ export function DVBFixerPanel() {
                         </MenuItem>
                       ))}
                     </Select>
+                    {input.help && <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.25, fontSize: '0.65rem' }}>{input.help}</Typography>}
                   </FormControl>
                 )
               })}
 
-              <Button
-                variant="contained"
-                size="small"
-                disabled={running || activeCmd.inputs.some((input, index) => input.required && (
-                  index === 0 && !(input.multi || input.nargs === '+' || input.nargs === '*')
-                    ? !inputFile : !inputsByCommand[activeCmd.name]?.[input.dest]
-                ))}
-                onClick={handleRun}
-                startIcon={running ? <CircularProgress size={12} sx={{ color: 'white' }} /> : <PlayArrowIcon sx={{ fontSize: 16 }} />}
-              >
-                Run {activeCmd.label}
-              </Button>
+              <Box sx={{ height: 40, display: 'flex', alignItems: 'center', transform: 'translateY(-3px)' }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  disabled={jobActive || submitting || activeCmd.inputs.some((input, index) => input.required && (
+                    index === 0 && !(input.multi || input.nargs === '+' || input.nargs === '*')
+                      ? !inputFile : !inputsByCommand[activeCmd.name]?.[input.dest]
+                  ))}
+                  onClick={handleRun}
+                  startIcon={jobActive || submitting ? <CircularProgress size={12} sx={{ color: 'white' }} /> : <PlayArrowIcon sx={{ fontSize: 16 }} />}
+                >
+                  Run {activeCmd.label}
+                </Button>
+              </Box>
 
-              <Tooltip title="Reload command specs (pick up new DVBFixer subcommands without page reload)">
-                <IconButton size="small" onClick={() => { fetchSpec(); reloadWorkspace().catch(() => {}) }}>
-                  <RefreshIcon sx={{ fontSize: 16 }} />
-                </IconButton>
-              </Tooltip>
+              {jobActive && (
+                <Button
+                  size="small"
+                  color="error"
+                  variant="outlined"
+                  disabled={cancelling}
+                  onClick={cancelJob}
+                  startIcon={cancelling ? <CircularProgress size={12} /> : <CancelIcon sx={{ fontSize: 16 }} />}
+                >
+                  {cancelling ? 'Cancelling…' : 'Cancel'}
+                </Button>
+              )}
 
-              {result && result.ok && (
+              <Box sx={{ height: 40, display: 'flex', alignItems: 'center', transform: 'translateY(-3px)' }}>
+                <Tooltip title="Reload command specs (pick up new DVBFixer subcommands without page reload)">
+                  <IconButton size="small" onClick={() => { fetchSpec(); reloadWorkspace().catch(() => {}) }}>
+                    <RefreshIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+
+              {job && (
+                <Chip
+                  label={managedJobStatusLabel(job)}
+                  color={job.status === 'succeeded' ? 'success' : job.status === 'failed' ? 'error' : job.status === 'cancelled' ? 'default' : 'info'}
+                  size="small"
+                />
+              )}
+              {!job && result && result.ok && (
                 <Chip label={`OK · ${result.outputFile}`} color="success" size="small" />
               )}
-              {result && !result.ok && (
+              {!job && result && !result.ok && (
                 <Chip
                   label={result.movedTo ? `Exit ${result.exitCode} · moved to ${result.movedTo}` : `Exit ${result.exitCode}`}
                   color="error"
@@ -733,6 +855,9 @@ function FlagControl({ flag, value, artifactOptions, onChange }: {
             <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: 'monospace', fontSize: '0.65rem' }}>
               {flag.flag}
             </Typography>
+            {flag.help && <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary', fontSize: '0.65rem' }}>
+              {flag.help}
+            </Typography>}
           </Box>
         }
         sx={{ alignItems: 'flex-start', m: 0 }}

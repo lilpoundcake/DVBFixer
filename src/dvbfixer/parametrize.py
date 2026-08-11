@@ -16,6 +16,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from dvbfixer.cli_types import positive_int
+
 # Input format detection from file extension
 _FORMAT_MAP = {
     '.pdb': 'pdb',
@@ -890,7 +892,7 @@ def parse_args(argv=None):
                            '--qm-engine to pick a QM backend).')
     chem.add_argument('--net-charge', type=int, default=0,
                       help='Net charge of the molecule (default: 0)')
-    chem.add_argument('--multiplicity', type=int, default=1,
+    chem.add_argument('--multiplicity', type=positive_int, default=1,
                       help='Spin multiplicity (default: 1)')
 
     qm = p.add_argument_group('RESP backend (only when -c resp)')
@@ -904,18 +906,16 @@ def parse_args(argv=None):
                          '`micromamba create -n psi4 -c conda-forge psi4 '
                          'psiresp`.')
     # PySCF / PSI4 shared knobs (the QM job's compute parameters).
-    # --psi4-* names kept as aliases for backwards compatibility with
-    # invocations from older scripts.
-    qm.add_argument('--qm-method', '--psi4-method',
+    qm.add_argument('--qm-method',
                     dest='qm_method', default='HF/6-31G*',
                     help='QM method for --qm-engine pyscf / psi4 '
                          '(default: HF/6-31G*, the AMBER-standard RESP '
                          'recipe). Override only if you know why.')
-    qm.add_argument('--qm-nthreads', '--psi4-nthreads',
-                    dest='qm_nthreads', type=int, default=4,
+    qm.add_argument('--qm-nthreads',
+                    dest='qm_nthreads', type=positive_int, default=4,
                     help='OpenMP threads for the QM job (default: 4). '
                          'PySCF/PSI4 scale modestly (~30%% at 4 cores).')
-    qm.add_argument('--qm-memory', '--psi4-memory',
+    qm.add_argument('--qm-memory',
                     dest='qm_memory', default='4GB',
                     help='Memory cap for the QM job (default: 4GB). '
                          'PSI4 errors out if too low for the basis set; '
@@ -945,7 +945,7 @@ def parse_args(argv=None):
     gaussian.add_argument('--gaussian-mem', default='4GB',
                           help='%%mem= directive in the generated .com '
                                '(default: 4GB).')
-    gaussian.add_argument('--gaussian-nproc', type=int, default=4,
+    gaussian.add_argument('--gaussian-nproc', type=positive_int, default=4,
                           help='%%nproc= directive in the generated .com '
                                '(default: 4).')
 
@@ -975,8 +975,8 @@ def main(argv=None):
     # Both Gaussian and PSI4 are explicit opt-ins. AM1-BCC (the default) needs
     # no QM engine. When user passes -c resp, they MUST pick an engine.
     if args.charge_method == 'resp':
-        # Auto-promote legacy invocations: --gen-gaussian or --gaussian-log
-        # imply --qm-engine gaussian.
+        # The Gaussian workflow flags unambiguously select their backend, so
+        # they imply --qm-engine gaussian when it was not provided explicitly.
         if args.qm_engine is None and (args.gen_gaussian or args.gaussian_log):
             args.qm_engine = 'gaussian'
             print("INFO: --gen-gaussian/--gaussian-log implies "

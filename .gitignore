@@ -2,6 +2,11 @@ __pycache__/
 *.pyc
 *.egg-info/
 .DS_Store
+build/
+gui/.vite/
+gui/dist/
+gui/node_modules/
+leap.log
 *.pdb
 !tests/fixtures/
 !tests/fixtures/**/

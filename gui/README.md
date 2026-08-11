@@ -4,6 +4,11 @@ Local graphical workspace for DVBfixer, protein structures, multiple alignment,
 and homology modeling. It runs in the browser with a Node-side development
 backend and an optional PostgreSQL-backed mutations table.
 
+The backend invokes `dvbfixer` from `PATH` by default. Configure an alternate
+binary with `DVBFIXER_EXECUTABLE` and an optional fixed JSON argument array in
+`DVBFIXER_ARGS`; subprocesses have bounded captured output and a configurable
+timeout (`DVBFIXER_MAX_OUTPUT_BYTES` and `DVBFIXER_TIMEOUT_MS`).
+
 ## What it does
 
 - **3D viewer (×2)** -- interactive [Mol*](https://molstar.org) molecular
@@ -23,20 +28,21 @@ backend and an optional PostgreSQL-backed mutations table.
   pi-stacking, and more with chain pair filtering; auto-filters when Show
   Interface is active
 - **DVBfixer panel** -- every current CLI tool, generated from argparse and
-  grouped by workflow and argument section
+  grouped by workflow and argument section; runs persist across panel reloads,
+  stream status, capture bounded logs, and can be cancelled
 - **Homology workspace** -- persistent target/template projects, MAFFT,
   MUSCLE 5, or Clustal Omega MSA, manual gap editing, license-free Biopython
   structural fitting grouped by target chain (with optional Modeller SALIGN), template
   span masks, and model generation
-- **Project workspaces** -- each project owns its files, generated runs/logs,
+- **Workspaces** -- each workspace owns its files, generated runs/logs,
   active A/B structures, workflow inputs/results, and Homology workflows
 - **Workspace file browser** -- alternating rows, Shift/Cmd multi-selection,
-  reorder controls, rename/trash context actions, and a dedicated read-only
-  Text Files tab for FASTA, PIR, logs, JSON, YAML, and other text artifacts
+  drag-handle and arrow reordering, PDB-only filtering, rename/download/trash
+  context actions, and a dedicated read-only Text Files tab
 - **Mutations panel** -- editable DataGrid backed by PostgreSQL for keeping
   antibody mutation sets (e.g. YTE, LS, DLE)
-- **Structure library** -- expandable tree of pre-loaded structures, star a
-  child to make it the default-load target of its family root
+- **Library** -- an ordered list of workspaces; the active workspace's files
+  appear in the separate Workspace panel
 - **Dockable panels** -- drag panels to rearrange, "+" button to spawn any
   panel into any tabset
 - **Local files** -- upload your own .pdb or .mmcif files into either viewer
@@ -44,27 +50,34 @@ backend and an optional PostgreSQL-backed mutations table.
 Everything except DVBFixer runs and the Mutations DB runs in the browser.
 Your files never leave your machine.
 
-### Project data and Homology selection
+### Workspace data and Homology selection
 
 For the complete target-to-model workflow, selection controls, structural
 fitting behavior, template-plan schema, diagnostics, and limitations, see the
 [GUI Homology Workspace guide](../docs/gui-homology.md).
 
-Projects live below `structures/projects/<project-id>/` in a versioned
+Workspaces live below `structures/projects/<workspace-id>/` in a versioned
 `workspace.json` plus `files/`, `runs/`, and `homology/` directories. On first
-start, legacy top-level Library folders become projects and ungrouped files go
+start, legacy top-level Library folders become workspaces and ungrouped files go
 to `Unsorted`; legacy files remain intact as a recovery source.
 
 Internal bookkeeping (`workspace.json`, run manifests, captured stdout/stderr,
 and temporary alignment/model inputs) stays on disk but is hidden from the
-project tree and workflow file selectors. Right-click a project or visible file
-to move it to trash. Project trash is stored under
-`structures/_workspace_trash/`; file trash stays in the owning project's
+workspace file list and workflow file selectors. Right-click a workspace or visible file
+to move it to trash. Workspace trash is stored under
+`structures/_workspace_trash/`; file trash stays in the owning workspace's
 `.trash/` directory.
 
+Library workspaces and Workspace files can be reordered from their drag
+handles; the insertion marker shows the future position. The Workspace toolbar
+can hide non-PDB files without changing their stored order. A file context menu
+downloads the original file, while a workspace download produces a `.tar.gz`
+archive. Structure metadata is stored on the workspace artifact and edited in
+Info with revision-aware autosave.
+
 The Homology Target tab parses FASTA/PIR or protein chains from a workspace
-PDB/mmCIF file. **Add active 3D template** captures viewer A and populates its
-chain selector from the structure. With multiple target chains, Alignment
+PDB/mmCIF file. **+ Add new** creates a template selector, using the active
+viewer structure when available. With multiple target chains, Alignment
 shows a target-chain selector and one synchronized, horizontally scrolling
 alignment at a time.
 
@@ -77,8 +90,10 @@ alignment at a time.
 
 Click a template residue to select it, Shift-click for a range, and Ctrl/Cmd-
 click to add or remove disjoint residues. Selecting a template loads it into
-viewer A when necessary and synchronizes the 3D highlight. Gap arrows move a
-gap without changing row length; the toolbar adds or removes full gap columns.
+viewer A when necessary and, while linked, synchronizes the 3D highlight. This
+selection is transient: **Use selection as modeling span** explicitly copies
+it into the persisted model mask. Gap arrows move a gap without changing row
+length; the toolbar adds or removes full gap columns.
 
 ## Install & run
 
@@ -162,7 +177,8 @@ npm run dev
 **Override DVBFixer** if it's not on PATH (e.g. wrapped in micromamba):
 
 ```
-export DVBFIXER_CMD="micromamba run -n tarantino dvbfixer"
+export DVBFIXER_EXECUTABLE="micromamba"
+export DVBFIXER_ARGS='["run", "-n", "tarantino", "dvbfixer"]'
 ```
 
 The DVBFixer tab is usable even without the env (it will just error on
@@ -185,11 +201,12 @@ React 19, TypeScript 6, Vite 6, Mol*, MUI (Material UI v9, plus
 | Alignment           | Pairwise Needleman-Wunsch (BLOSUM62) across chains, incl. across structure A and B; click number row to pick the same column on both sides |
 | Elements            | Categorized tree (polymer/ligand/ion/water) with per-component visibility + per-chain Show Interface |
 | Interactions        | Computed non-covalent + covalent contacts, filterable by type and chain pair |
-| DVBfixer            | Run all CLI commands with workflow- and argument-grouped forms generated from argparse |
+| DVBfixer            | Generated CLI forms with managed queued/running state, bounded logs, restore-after-reload, and Cancel |
 | Homology            | Target → templates → editable MSA and masks → Modeller project workflow |
 | Mutations           | Editable DataGrid backed by PostgreSQL (`mutations` table: chain / mutation_name / mutations) |
-| Library             | Expandable tree of structures from `structures/`. **Everything is collapsed by default** — click a chevron to open a parent. Star a row to set it as the family's default load target. Auto-refreshes whenever anything in the library changes. |
-| Info                | Editable metadata (name, organism, method, resolution, notes) + stats. Edits **auto-save per-structure** to `index.json` (debounced 500 ms). |
+| Library             | Ordered workspace list with rename, archive download, and recoverable trash |
+| Workspace           | Active-workspace files with A/B loading, import, filtering, reordering, download, rename, and recoverable trash |
+| Info                | Editable artifact metadata and structure statistics with revision-aware autosave |
 
 Every panel can be duplicated via the "+" button on its tabset header.
 Sequence panels maintain independent chain selections.
@@ -211,72 +228,41 @@ The complete command and flag schema is generated by
 GUI synchronized with new DVBfixer releases, including repeatable and
 multi-value options.
 
-## Library hierarchy & starring
+Commands run as workspace-scoped managed jobs. The panel shows queued,
+running, succeeded, failed, or cancelled state; restores an active job after a
+panel/page reload; streams status with polling fallback; and displays captured
+stdout/stderr when the job finishes. Only one job can run in a workspace at a
+time. **Cancel** stops the active process, and successful outputs are added to
+Workspace and loaded into viewer A when they are structures.
 
-The Library panel renders structures as a tree. Entries get a `parent` field
-in `index.json` either manually or automatically (every successful DVBFixer
-run is registered as a child of its input file). Children are auto-expanded
-when something new appears.
+## Workspace management
 
-Each row has a star button. Starring a descendant marks it as the
-**default-load target** of its family root: clicking the root then loads the
-starred descendant instead. The root row shows an orange `⭐ → <name>`
-hint chip when this is in effect. The tree structure is unchanged — starring
-just flips a flag.
+The **Library** contains workspaces only. Create, activate, reorder, rename,
+download, or move a workspace to recoverable trash there. The separate
+**Workspace** panel lists files owned by the active workspace. Import local
+files from its header or the global Upload button; generated DVBfixer and
+Homology outputs are registered in the same manifest automatically.
 
-When two 3D viewers are open, a small `A` / `B` toggle in the Library header
-chooses which viewer the next click loads into.
+When two 3D viewers are open, the `A` / `B` selector in Workspace chooses the
+destination for the next structure-file click. Internal run records and logs
+remain on disk for reproducibility but stay hidden from ordinary file pickers.
 
-## Adding structures to the library
-
-Drop `.pdb`, `.cif`, or `.mmcif` files into `structures/` (subfolders are
-scanned recursively; directories starting with `.` or `_` are skipped).
-They are auto-detected — no config needed. Stale `index.json` entries whose
-files have been deleted are auto-pruned on every scan.
-
-For richer metadata, add an entry to `structures/index.json`:
-
-```json
-{
-  "id": "1abc",
-  "file": "1abc.pdb",
-  "name": "My Protein",
-  "organism": "Homo sapiens",
-  "chains": 2,
-  "residues": 150,
-  "description": "Short description of what this structure is"
-}
-```
-
-To mark something as a child of another structure, add `"parent": "<file>"`.
-
-## Pre-loaded structures
-
-The repo ships with an Fc-receptor / C1q working set focused on antibody
-engineering use cases:
-
-| File              | Name   | Notes                                                                 |
-|-------------------|--------|-----------------------------------------------------------------------|
-| `FcRn.pdb`        | FcRn   | Neonatal Fc receptor (recycling / half-life extension; YTE target)    |
-| `FcgRI.pdb`       | FcγRI  | High-affinity IgG receptor (CD64)                                     |
-| `FcgRIIa.pdb`     | FcγRIIa | Low-affinity IgG receptor (CD32a)                                    |
-| `FcgRIIb.pdb`     | FcγRIIb | Inhibitory IgG receptor (CD32b)                                      |
-| `FcgRIIIa.pdb`    | FcγRIIIa | Low-affinity IgG receptor (CD16a; F158 wild-type)                   |
-| `FcgRIIIa_158V.pdb` | FcγRIIIa V158 | V158 high-responder allotype variant of FcγRIIIa              |
-| `FcgRIIIb.pdb`    | FcγRIIIb | GPI-anchored neutrophil IgG receptor (CD16b)                        |
-| `C1q.pdb`         | C1q    | Complement classical-pathway recognition subunit                      |
-
-These were chosen as everyday antibody-engineering substrates (Fc / FcγR /
-FcRn / C1q interactions). Swap them out for your own files; the scanner
-auto-detects anything you drop into `structures/`.
+`workspace.json` is the active artifact and metadata source. On first use,
+older top-level and per-workspace `index.json` files are imported into workspace
+manifests without deleting the legacy files; they remain recovery sources only.
+The retired `/structures/index.json` scanner and `/api/library/*` mutation
+routes are not served.
 
 ## Controls
 
 | Action                       | How                                                          |
 |------------------------------|--------------------------------------------------------------|
-| Load from library            | Click a structure in the Library panel                       |
-| Choose target viewer         | `A` / `B` toggle in the Library header (shown when both viewers are open) |
-| Star a structure             | Star icon at the right of each row                           |
+| Activate workspace           | Click a workspace in Library                                 |
+| Load workspace structure     | Click a structure file in Workspace                          |
+| Choose target viewer         | `A` / `B` selector in the Workspace header                   |
+| Filter workspace files       | **Hide non-PDB files** / **Show non-PDB files**              |
+| Reorder workspaces/files     | Drag the row handle to the insertion marker; arrows move selected files |
+| Download                     | Context menu → **Download**; workspaces download as `.tar.gz` archives |
 | Load your own file           | Click Upload in the top bar                                  |
 | Toggle camera sync (A ↔ B)   | Link icon in the top bar                                     |
 | Rotate 3D                    | Left-click drag                                              |
@@ -290,6 +276,7 @@ auto-detects anything you drop into `structures/`.
 | Show Interface               | Network/hub icon next to a chain in Elements (zooms to 5 Å contact zone, filters Interactions) |
 | Focus interaction            | Click a row in the Interactions panel                        |
 | Run a DVBFixer command       | Pick the sub-tab, set the input file, click Run              |
+| Cancel a DVBFixer command    | Click **Cancel** while the job is queued or running          |
 | Duplicate a panel            | Click "+" on any tabset header                               |
 | Clear 3D markers             | Tap empty space in 3D                                        |
 | Clear everything             | Press Escape                                                 |
@@ -316,5 +303,5 @@ server that re-uses the plugin (or port the routes).
 - Water is hidden by default when a structure loads
 - The custom color theme (carbons by residue type, non-carbons CPK) applies to focus/stick representations
 - Non-canonical amino acids (phosphorylated residues, modified cysteines, protonation variants, etc.) are normalized to standard codes
-- Failed DVBFixer runs are moved to `structures/_dvb_failed/` so they don't pollute the library; the scanner skips `_*` and `.*` directories
+- Failed workflow output is kept out of the visible workspace manifest and moved to a workspace-scoped failure directory when supported
 - The `postinstall` script (`scripts/fix-native-deps.mjs`) handles cross-platform rollup native bindings for macOS and Linux

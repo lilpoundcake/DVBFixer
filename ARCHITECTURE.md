@@ -5,6 +5,8 @@
 ```
 src/dvbfixer/
 ├── cli.py              103 lines   — single entry point, dispatches to subcommand main()
+├── command_registry.py            — authoritative public command/module/category/batch/output metadata
+├── cli_types.py                   — shared argparse numeric and structured-selector validators
 ├── __init__.py          24 lines   — __version__, MDAnalysis warning filters
 │
 │   STRUCTURE PREP PIPELINE (composable subcommands)
@@ -25,7 +27,7 @@ src/dvbfixer/
 ├── pull.py             658 lines   — bond pulling via OpenMM mass=0 partial min
 ├── rename.py           105 lines   — text-based variant → canonical name
 ├── puppet.py           101 lines   — strip to backbone polyglycine
-├── zbs.py              484 lines   — full pipeline (renumber→model→prepare→minimize→protonate→minimize) + --align-to-input
+├── zbs.py              484 lines   — full pipeline (renumber→model→prepare→minimize) + --align-to-input
 │
 │   FF / TOPOLOGY GENERATION
 ├── top/               4148 lines   — RTP-based GROMACS topology (AMBER + CHARMM) (package:
@@ -105,7 +107,7 @@ additions with upstream `.dat` so `minimize` can apply tiered restraints:
 dvbfixer supports three independent paths to a GROMACS topology, chosen
 by `dvbfixer top` flags:
 
-### 1. RTP path (`--ff amber` or `--ff charmm`) — `top.py` + `rtp_parser.py`
+### 1. RTP path (`--ff amber` or `--ff charmm`) — `top/` + `rtp_parser.py`
 
 Parses GROMACS `.rtp`/`.arn`/`.r2b`/`.tdb`/`.atp` files directly in Python
 (no `pdb2gmx`, no GROMACS install). Builds bond graphs, enumerates angles
@@ -551,7 +553,7 @@ CHARMM-GUI (as input) and `dvbfixer top --ff charmm` (which maps them
 to CHARMM RTP names via `PDB_TO_CARB`). Linkage information is
 preserved via CONECT records — the residue name no longer carries it.
 
-CLI: `dvbfixer convert <input> --to-charmm -o <output>` (legacy alias: `dvbfixer glycam`).
+CLI: `dvbfixer convert <input> --to-charmm -o <output>`.
 
 ### `prepare._preprocess_glycoprotein_input` — pre-PDBFixer input fixes
 
@@ -1200,3 +1202,14 @@ called out in each `__init__.py`.
 4. **Docs migration** — the per-subcommand "algorithm" prose currently
    in `docs/DESIGN_NOTES.md` (was `CLAUDE.md` before Phase 4b) should
    migrate into a "How it works" section in each `docs/commands/*.md`.
+
+## GUI workspace boundary
+
+The GUI's Vite middleware uses `gui/server/workspace-api.ts` as the only
+runtime authority for workspace files and artifact metadata. Each workspace
+has a revisioned `structures/projects/<id>/workspace.json`; file reads go
+through a containment-checked `/api/workspaces/:id/files/...` route. The old
+global `/structures/index.json` scanner and `/api/library/{meta,star,folder,move}`
+routes have been removed. Legacy top-level and per-workspace indexes are read
+only by idempotent, non-destructive migrations and remain on disk as recovery
+sources.

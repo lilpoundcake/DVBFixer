@@ -18,6 +18,16 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
+from dvbfixer.residue_registry import (
+    CHARMM_SUGAR_RESNAMES,
+    GLYCAM_CAP_RESNAMES,
+    GLYCAM_PROTEIN_RESNAMES,
+    PDB_SUGAR_RESNAMES,
+)
+from dvbfixer.residue_registry import (
+    is_glycam_sugar as _registry_is_glycam_sugar,
+)
+
 # NOTE: openmm.app.ForceField is imported lazily inside
 # `create_forcefield_with_openff` and `build_glycam_system` (the only two
 # functions that use it). Keeping the top-level import laziness means
@@ -32,10 +42,7 @@ from typing import Any
 # each keep their own, independently-drifted copy (missing different
 # subsets of names — e.g. `BNE5AC`, beta-anomer sialic acid, was absent
 # from more than one of them at once); they now import from here instead.
-_PDB_SUGAR_NAMES = {
-    'NAG', 'NDG', 'BMA', 'MAN', 'FUC', 'FUL', 'GAL', 'BGC', 'GLC', 'SIA',
-    'NGA', 'A2G', 'BGA', 'AGA', 'XYP', 'XYS', 'RIB', 'RIP', 'ARA', 'NAN',
-}
+_PDB_SUGAR_NAMES = PDB_SUGAR_RESNAMES
 
 # Standard protein/water/ion residues that don't need OpenFF parametrization
 PROTEIN_RESIDUES = {
@@ -54,10 +61,8 @@ SOLVENT_IONS = {
 # GLYCAM force field naming detection. GLYCAM uses 3-char codes:
 #   [linkage][sugar][anomer] (e.g. UYB, 4YB, VMB, 0YA)
 # Plus glycoprotein residues (NLN/OLS/OLT) and reducing-end caps.
-_GLYCAM_LINKAGE_CHARS = set('0123456789VWUZXYTSRQPvwuzxytsr')
-_GLYCAM_ANOMER_CHARS = {'A', 'B'}
-GLYCAM_PROTEIN_RESIDUES = {'NLN', 'OLS', 'OLT'}
-GLYCAM_CAPS = {'ROH', 'OME', 'TBT', 'CMET'}
+GLYCAM_PROTEIN_RESIDUES = GLYCAM_PROTEIN_RESNAMES
+GLYCAM_CAPS = GLYCAM_CAP_RESNAMES
 
 # Residue names that should be written as ATOM (not HETATM) in PDB output.
 # OpenMM's PDBFile.writeFile defaults non-standard names to HETATM; this set
@@ -92,12 +97,7 @@ FF_ALIASES = {
 # CHARMM markers: CHARMM-specific protonation names + CHARMM-GUI 4-char sugar
 # names + ceramide names. See top.CERAMIDE_RTP / glycam._CHARMM_4CHAR_RESNAMES.
 _CHARMM_PROTONATION_MARKERS = {'HSD', 'HSE', 'HSP', 'ASPP', 'GLUP', 'LSN'}
-_CHARMM_SUGAR_MARKERS = {
-    'BGLC', 'AGLC', 'BMAN', 'AMAN', 'BGAL', 'AGAL', 'BFUC', 'AFUC',
-    'BGLCNA', 'AGLCNA', 'BGALNA', 'AGALNA',
-    'ANE5', 'BNE5', 'ANE5AC', 'BNE5AC',
-    'AIDO', 'BIDO',
-}
+_CHARMM_SUGAR_MARKERS = CHARMM_SUGAR_RESNAMES
 _CHARMM_CERAMIDE_MARKERS = {
     'CER1', 'CER160', 'CER180', 'CER181',
     'CER2', 'CER200', 'CER220', 'CER240', 'CER241', 'CER3E',
@@ -130,7 +130,9 @@ def _scan_resnames(pdb_path: str | Path) -> set[str]:
                 # known CHARMM 4-char name we take it, otherwise fall back
                 # to the standard 3-char slice.
                 cand4 = line[17:21].strip() if len(line) >= 21 else ''
-                if cand4 in _CHARMM_SUGAR_MARKERS or cand4 in _CHARMM_CERAMIDE_MARKERS:
+                if (cand4 in _CHARMM_SUGAR_MARKERS
+                        or cand4 in _CHARMM_CERAMIDE_MARKERS
+                        or cand4 in _CHARMM_PROTONATION_MARKERS):
                     names.add(cand4)
                     continue
                 cand3 = line[17:20].strip()
@@ -281,11 +283,7 @@ def print_ff_selection(
 
 def is_glycam_sugar(name: str) -> bool:
     """True if `name` is a GLYCAM sugar code (3-char linkage+sugar+anomer or cap)."""
-    if name in GLYCAM_CAPS:
-        return True
-    return (len(name) == 3
-            and name[0] in _GLYCAM_LINKAGE_CHARS
-            and name[2] in _GLYCAM_ANOMER_CHARS)
+    return _registry_is_glycam_sugar(name)
 
 
 def is_glycam_residue(name: str) -> bool:
@@ -598,7 +596,6 @@ def create_forcefield_with_openff(
     topology: Any,
     extra_generators: Iterable[Any] | None = None,
     verbose: bool = False,
-    **_legacy_kwargs: Any,
 ) -> Any:
     """Build an OpenMM ForceField with GLYCAM template suppression.
 
@@ -624,8 +621,6 @@ def create_forcefield_with_openff(
             generators to register on the returned ForceField (used by
             `--parametrize-ligands` to plug in GAFF2 templates).
         verbose: Extra logging.
-        _legacy_kwargs: Silently swallowed (was `small_mol_ff`,
-            `extra_molecules`); kept for callers that hadn't been updated.
     """
     from openmm.app import ForceField
 

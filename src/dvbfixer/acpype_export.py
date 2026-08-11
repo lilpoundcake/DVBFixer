@@ -10,6 +10,8 @@ using [ pairs_nb ] directive with per-pair LJ/Coulomb parameters.
 
 from pathlib import Path
 
+from dvbfixer.residue_registry import is_pdb_or_glycam_sugar
+
 
 def detect_ss_bonds(pdb_path):
     """Detect disulfide bonds from CONECT records between SG atoms, with
@@ -100,19 +102,8 @@ def detect_ss_bonds(pdb_path):
     return ss_residues
 
 
-# GLYCAM sugar residue detection
-_GLYCAM_LINKAGE = set('0123456789VWUZXYTSRQPvwuzxytsr')
-_GLYCAM_ANOMER = {'A', 'B'}
-_PDB_SUGARS = {'NAG', 'NDG', 'BGL', 'BMA', 'MAN', 'GAL', 'BGC', 'GLC',
-               'FUC', 'FUL', 'AFU', 'SIA', 'NGA', 'A2G', 'AMA', 'BGA'}
-
-
 def _is_glycam_sugar(resname):
-    if resname in _PDB_SUGARS:
-        return True
-    if len(resname) == 3 and resname[0] in _GLYCAM_LINKAGE and resname[2] in _GLYCAM_ANOMER:
-        return True
-    return False
+    return is_pdb_or_glycam_sugar(resname)
 
 
 def prepare_for_openmm(pdb_path, temp_path, extra_ss=None, strip_glycam_h=True,

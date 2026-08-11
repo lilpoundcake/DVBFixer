@@ -62,7 +62,7 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
     const candidates = [initialChainId, globalChainId].filter(Boolean) as string[]
     const valid = candidates.find(id => chains.find(c => c.id === id))
     setLocalChainId(valid ?? chains[0].id)
-  }, [chains, initialChainId, globalChainId])
+  }, [chains, initialChainId, globalChainId, localChainId])
 
   const activeChainId = localChainId
   const [dragStart, setDragStart] = useState<number | null>(null)

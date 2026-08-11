@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import argparse
 
+from dvbfixer.cli_types import positive_int
+
 AA3TO1 = {
     "ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C",
     "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I",
@@ -42,15 +44,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     modelling = p.add_argument_group("Modelling parameters")
     modelling.add_argument(
-        "-n", "--num-models", type=int, default=1,
+        "-n", "--num-models", type=positive_int, default=1,
         help="Number of initial models to generate (default: 1)"
     )
     modelling.add_argument(
-        "--num-loops", type=int, default=2,
+        "--num-loops", type=positive_int, default=2,
         help="Number of loop refinement models per initial model (default: 2)"
     )
     modelling.add_argument(
-        "--num-output", type=int, default=1, dest="num_output",
+        "--num-output", type=positive_int, default=1, dest="num_output",
         help="Number of top-ranked candidate models to save (default: 1; "
              "ceiling: num_models × num_loops). Output PDBs are sorted "
              "ascending by Modeller's molpdf score (best first). With "

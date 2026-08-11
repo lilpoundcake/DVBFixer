@@ -2,7 +2,11 @@ import { afterEach, describe, expect, it } from 'vitest'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { materializeModelInputs, parseFasta, parseSequenceArtifact, type HomologyProject } from './homology-api'
+import {
+  ensureHomologyStorage, loadHomologyProject, materializeModelInputs, parseFasta,
+  parseSequenceArtifact, saveHomologyProject, validatedModelArgs,
+  type HomologyProject,
+} from './homology-api'
 
 const temporaryDirectories: string[] = []
 
@@ -18,7 +22,80 @@ afterEach(() => {
   }
 })
 
+function project(id: string, name = id): HomologyProject {
+  const now = '2026-01-01T00:00:00.000Z'
+  return {
+    version: 1, id, name, targetFasta: '>A\nAGS\n', templates: [], engine: 'mafft',
+    alignmentGroups: [], modelOptions: { '--num-models': 5, '--md-level': 'fast' },
+    createdAt: now, updatedAt: now,
+  }
+}
+
 describe('homology project materialization', () => {
+  it('migrates alternate per-workspace layouts into canonical homology storage idempotently', () => {
+    const root = temporaryDirectory()
+    const alternate = path.join(root, 'homology_projects', 'legacy')
+    fs.mkdirSync(alternate, { recursive: true })
+    fs.writeFileSync(path.join(alternate, 'homology-project.json'), JSON.stringify(project('legacy')))
+    fs.mkdirSync(path.join(root, 'homology'), { recursive: true })
+    fs.writeFileSync(path.join(root, 'homology', 'flat.json'), JSON.stringify(project('flat')))
+
+    expect(ensureHomologyStorage(root)).toBe(path.join(root, 'homology'))
+    expect(loadHomologyProject(root, 'legacy').name).toBe('legacy')
+    expect(loadHomologyProject(root, 'flat').name).toBe('flat')
+    const before = fs.readdirSync(path.join(root, 'homology')).sort()
+    ensureHomologyStorage(root)
+    expect(fs.readdirSync(path.join(root, 'homology')).sort()).toEqual(before)
+    expect(fs.existsSync(path.join(alternate, 'homology-project.json'))).toBe(true)
+  })
+
+  it('preserves canonical projects and records conflicting alternate data once', () => {
+    const root = temporaryDirectory()
+    saveHomologyProject(root, project('shared', 'Canonical'))
+    const alternate = path.join(root, 'homology-projects', 'shared')
+    fs.mkdirSync(alternate, { recursive: true })
+    fs.writeFileSync(path.join(alternate, 'homology-project.json'), JSON.stringify(project('shared', 'Alternate')))
+
+    ensureHomologyStorage(root)
+    expect(loadHomologyProject(root, 'shared').name).toBe('Canonical')
+    const conflicts = path.join(root, 'homology', '.migration-conflicts')
+    expect(fs.readdirSync(conflicts)).toHaveLength(1)
+    expect(JSON.parse(fs.readFileSync(path.join(conflicts, fs.readdirSync(conflicts)[0]), 'utf8')).name).toBe('Alternate')
+    ensureHomologyStorage(root)
+    expect(fs.readdirSync(conflicts)).toHaveLength(1)
+  })
+
+  it('skips corrupt migration sources and reports corrupt canonical projects', () => {
+    const root = temporaryDirectory()
+    const alternate = path.join(root, 'homology_projects', 'broken')
+    fs.mkdirSync(alternate, { recursive: true })
+    fs.writeFileSync(path.join(alternate, 'homology-project.json'), '{broken')
+    expect(() => ensureHomologyStorage(root)).not.toThrow()
+    expect(fs.existsSync(path.join(root, 'homology', 'broken', 'homology-project.json'))).toBe(false)
+
+    const canonical = path.join(root, 'homology', 'bad')
+    fs.mkdirSync(canonical, { recursive: true })
+    fs.writeFileSync(path.join(canonical, 'homology-project.json'), JSON.stringify({ id: 'bad' }))
+    expect(() => loadHomologyProject(root, 'bad')).toThrow(/invalid homology project/)
+  })
+
+  it('writes project JSON atomically in canonical storage', () => {
+    const root = temporaryDirectory()
+    const saved = saveHomologyProject(root, project('atomic'))
+    expect(saved.updatedAt).toBeTruthy()
+    const directory = path.join(root, 'homology', 'atomic')
+    expect(fs.readdirSync(directory)).toEqual(['homology-project.json'])
+  })
+
+  it('accepts only bounded, supported model options', () => {
+    expect(validatedModelArgs({ '--num-models': 8, '--md-level': 'slow' })).toEqual([
+      '--num-models', '8', '--md-level', 'slow',
+    ])
+    expect(() => validatedModelArgs({ '-o': '/tmp/escape' })).toThrow(/unsupported homology model option/)
+    expect(() => validatedModelArgs({ '--num-models': 0 })).toThrow(/integer from 1 to 1000/)
+    expect(() => validatedModelArgs({ '--md-level': 'arbitrary' })).toThrow(/unsupported value/)
+  })
+
   it('parses multiple target chains and rejects duplicate ids', () => {
     expect(parseFasta('>A\nAGS\n>B\nTT\n')).toEqual([
       { id: 'A', sequence: 'AGS' }, { id: 'B', sequence: 'TT' },
@@ -47,6 +124,15 @@ ATOM B 1 SER
     expect(parseSequenceArtifact(cif)).toEqual([
       { id: 'A', sequence: 'AG', length: 2 },
       { id: 'B', sequence: 'S', length: 1 },
+    ])
+  })
+
+  it('returns sequence data suitable for template-chain identity calculations', () => {
+    const root = temporaryDirectory()
+    const pdb = path.join(root, 'template.pdb')
+    fs.writeFileSync(pdb, 'SEQRES   1 A    4  ALA CYS ASP GLU\nEND\n')
+    expect(parseSequenceArtifact(pdb)).toEqual([
+      { id: 'A', sequence: 'ACDE', length: 4 },
     ])
   })
 

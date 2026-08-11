@@ -591,7 +591,7 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
             # Per-residue H check: PDBFixer's findMissingAtoms only counts
             # heavy atoms, so a protein residue with all its heavy atoms but
             # zero H (e.g. a user-edited LYN with no hydrogens; common after
-            # text-level renaming tools like `dvbfixer glycam` or after a
+            # text-level renaming tools like `dvbfixer convert` or after a
             # mutation that didn't run addHydrogens) won't trigger the
             # branch above. createSystem then fails with a "template X does
             # not match residue Y" error. Detect this case and run
@@ -1069,7 +1069,10 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     if n_stripped > 0:
         # Strip solvent from minimized result first
         if not args.no_solvent:
-            min_topology, min_positions = strip_solvent(min_topology, min_positions)
+            min_topology, min_positions = strip_solvent(
+                min_topology, min_positions,
+                getattr(args, "_preserved_water_keys", None),
+            )
 
         # Merge: use minimized positions for protein atoms, original for HETATM
         # Match by (chain, resid, parent_resname, atomname) since
@@ -1131,10 +1134,22 @@ def minimize(topology, positions, new_atom_indices, args, amber_renames=None):
     return min_topology, min_positions
 
 
-def strip_solvent(topology, positions):
-    """Remove water and ions from the final structure."""
+def _water_residue_key(residue):
+    return (residue.chain.id, residue.id, residue.insertionCode.strip())
+
+
+def strip_solvent(topology, positions, preserve_water_keys=None):
+    """Remove temporary solvent while optionally retaining input waters."""
     modeller = Modeller(topology, positions)
-    modeller.deleteWater()
+    preserve_water_keys = preserve_water_keys or set()
+    water_names = {'HOH', 'WAT', 'TIP3', 'TIP', 'SOL', 'T3P', 'T4P', 'T5P'}
+    waters_to_delete = [
+        residue for residue in modeller.topology.residues()
+        if residue.name.upper() in water_names
+        and _water_residue_key(residue) not in preserve_water_keys
+    ]
+    if waters_to_delete:
+        modeller.delete(waters_to_delete)
 
     ions_to_delete = []
     for res in modeller.topology.residues():
@@ -1294,6 +1309,12 @@ def main(argv=None):
             Path(_pdb_load_path).unlink(missing_ok=True)
     topology = pdb.topology
     positions = pdb.positions
+    water_names = {'HOH', 'WAT', 'TIP3', 'TIP', 'SOL', 'T3P', 'T4P', 'T5P'}
+    args._preserved_water_keys = (
+        {_water_residue_key(residue) for residue in topology.residues()
+         if residue.name.upper() in water_names}
+        if getattr(args, "keep_water", False) else set()
+    )
 
     # OpenMM's PDBFile.__init__ unconditionally calls
     # Topology.createDisulfideBonds() on every load (pdbfile.py), a pure
@@ -1348,7 +1369,9 @@ def main(argv=None):
     # in the splice path only when n_stripped > 0; we redo it here as a
     # safety net for purely protein inputs.
     if not args.no_solvent:
-        final_topology, final_positions = strip_solvent(final_topology, final_positions)
+        final_topology, final_positions = strip_solvent(
+            final_topology, final_positions, args._preserved_water_keys,
+        )
 
     # Optional refinement passes — auto-parametrize any heterogen via xtb
     # GFN-FF or OpenBabel MMFF94. These don't need user-provided FF params.

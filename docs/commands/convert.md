@@ -2,8 +2,6 @@
 
 [← command index](index.md) · [← README](../../README.md)
 
-> Previously called `dvbfixer glycam` — the old name still works and emits a deprecation notice.
-
 Bidirectional converter for sugar nomenclature AND protein protonation variants. Both directions are idempotent — running on already-correct input is a no-op.
 
 **Default direction (`--to-amber`)** — converts PDB / CHARMM-named input to AMBER-friendly naming:
@@ -136,7 +134,7 @@ Bidirectional converter for BOTH sugar nomenclature AND protein protonation vari
 
 **Reverse (`--to-charmm`)**: GLYCAM/AMBER → CHARMM. Strips the GLYCAM linkage character, inverts atom-name maps, drops ROH/OME caps, reverts NLN/OLS/OLT→ASN/SER/THR. Output uses 3-char PDB sugar codes (NAG/NDG/BMA/MAN/GAL/FUL/SIA/...) accepted natively by CHARMM-GUI and by `dvbfixer top --ff charmm` (which maps them to CHARMM RTP names via `PDB_TO_CARB`). Linkage info preserved via CONECT records. Also renames AMBER protonation variants to CHARMM (HID→HSD, HIE→HSE, HIP→HSP, ASH→ASPP, GLH→GLUP, LYN→LSN with HZ2→HZ1, HZ3→HZ2 atom rename; CYX→CYS for disulfide-bonded; CYM stays as CYM since CHARMM36 has a `[ CYM ]` residue). Default output suffix: `_charmm`.
 
-**Idempotent both ways**: input already in the target convention is left unchanged. Input with the "wrong" FF naming (e.g. AMBER LYN in a structure being converted with `--to-charmm`) is correctly renamed to the target. The CLI accepts the legacy command name `dvbfixer glycam` and emits a one-line deprecation notice.
+**Idempotent both ways**: input already in the target convention is left unchanged. Input with the "wrong" FF naming (e.g. AMBER LYN in a structure being converted with `--to-charmm`) is correctly renamed to the target.
 
 **4-char CHARMM resname I/O** (`_parse_pdb` + `_format_atom_line`): CHARMM-GUI 4-char names (ASPP/GLUP/BGLC/AGLC/BMAN/AMAN/BGAL/AGAL/BFUC/AFUC/BGLCNA/AGLCNA/BGALNA/AGALNA/ANE5/ANE5AC/CER1/CER160/...) extend into PDB col 21 (the standard chain-ID col). The parser detects them via the `_CHARMM_4CHAR_RESNAMES` set and reads chain from col 21 in that case (vs col 22 for 3-char). The writer's `_format_atom_line` builds `f" {resname[:4]:<4s}"` for 4-char resnames (altLoc space + 4-char without gap) or `f" {resname:>3s} "` for 3-char (altLoc + 3-char + gap), then appends chain at col 21 in both cases.
 

@@ -2,6 +2,8 @@
 
 A suite of Python CLI tools for preparing PDB (Protein Data Bank) structural biology files. Handles common issues with PDB files from MD simulations and the PDB database: missing chain IDs, antibody insertion codes, missing loops/residues, loop rebuilding with Modeller, multi-template homology modeling, energy minimization with selective restraints, protonation state assignment, GROMACS topology generation, GLYCAM glycoprotein transplanting, small molecule parametrization (GAFF2), and glycan conformational clustering from MD trajectories.
 
+Current release: **0.7.28**.
+
 This README is the root of a manual-style documentation tree. Each subcommand has its own page under [`docs/commands/`](docs/commands/index.md); the [pipelines](docs/pipelines.md) page collects end-to-end recipes. For design notes see [`ARCHITECTURE.md`](ARCHITECTURE.md); for opinionated recipes and gotchas see [`BEST_PRACTICES.md`](BEST_PRACTICES.md).
 
 ## Quick start
@@ -15,7 +17,7 @@ dvbfixer --help
 
 ## DVBfixer GUI
 
-The `dvbfixer-gui` branch includes a React/Mol* workspace under [`gui/`](gui/).
+The repository includes a React/Mol* workspace under [`gui/`](gui/).
 It exposes every CLI command through forms generated from the argparse surface,
 indexes structure and non-structure artifacts, and adds a persistent
 multi-template Homology workflow with MSA editing and Modeller template masks.
@@ -30,7 +32,9 @@ npm run dev:no-db
 
 The GUI uses `gui/structures/` by default. Point it at an existing Tarantino or
 DVBfixer workspace without copying data by setting `DVBFIXER_GUI_DATA_DIR`.
-Set `DVBFIXER_CMD` when the executable is not directly on `PATH`.
+Set `DVBFIXER_EXECUTABLE` when the executable is not directly on `PATH`. If it
+needs a fixed argument prefix, provide `DVBFIXER_ARGS` as a JSON string array
+(for example `["-m", "dvbfixer"]` with a Python executable).
 
 Full install instructions (including the Modeller license step) are in [`docs/installation.md`](docs/installation.md).
 
@@ -93,6 +97,8 @@ status in its own `--help` and command guide; see the complete
 
 Batch processing continues after individual failures by default and prints a
 success/failure summary. Add `--fail-fast` to stop at the first failure.
+Shared batch options are matched by their complete names: a command's
+`-o`/`--output` is never treated as an abbreviation for `--output-dir`.
 For `diagnose`, exit status 1 means the analysis completed but found at least
 one ERROR-severity structural issue; batch output labels these as `FINDINGS`
 rather than execution failures and points to the per-structure report.
@@ -108,6 +114,11 @@ chain so the first retained protein residue is 1 while preserving internal
 gaps and relative heterogen numbering. ZBS applies this only to its completed
 structure, immediately before postflight diagnose, so intermediate `.dat`
 restraint identifiers remain stable.
+
+Invalid counts, iteration limits, distances, radii, and cutoffs are rejected by
+the command-line parser before a workflow starts. Structured selectors such as
+`pull --bond`/`--anchor` and `top --ss`/`--his`/`--protonate` likewise fail with
+a usage message when their shape, residue number, or state is invalid.
 
 ## Pipelines
 

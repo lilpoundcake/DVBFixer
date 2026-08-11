@@ -163,7 +163,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     diagnostics = parser.add_argument_group("Diagnostics")
     diagnostics.add_argument("--list-engines", action="store_true",
                              help="Print detected alignment engines and exit")
-    diagnostics.add_argument("-v", "--verbose", action="store_true")
+    diagnostics.add_argument("-v", "--verbose", action="store_true",
+                             help="Print the alignment command and progress details")
     from dvbfixer.batch import add_runtime_help
     add_runtime_help(parser)
     return parser.parse_args(argv)

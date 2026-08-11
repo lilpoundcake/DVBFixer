@@ -141,17 +141,6 @@ def test_zbs_cli_propka_flags_exist() -> None:
     assert args.his_default == "HID"
     assert args.cys_ss_pka == 9.5
 
-
-def test_zbs_skip_protonate_maps_to_no_propka_no_protassign() -> None:
-    """--skip-protonate (deprecated) should now flip propka+protassign
-    to False for backward compat."""
-    from dvbfixer.zbs import parse_args
-
-    args = parse_args(["dummy.pdb", "--skip-protonate"])
-    assert args.propka is False
-    assert args.protassign is False
-
-
 # Real fragment from tests/fixtures/8cz8/8cz8_t_u.pdb, chain E residues 370-372 —
 # HIS 371's entire imidazole ring (CG/ND1/CD2/CE1/NE2) is genuinely
 # missing in the deposited structure (crystallographic disorder), only

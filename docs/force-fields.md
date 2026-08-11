@@ -109,7 +109,7 @@ If the new FF has residue names that unambiguously identify it, extend the marke
 
 ## `--ff` for `top` (GROMACS topology)
 
-Applies to: `top` **only**. Different namespace — it doesn't load OpenMM XML files. Instead, it parses **bundled GROMACS FF directories** at `FF/amber99sb-ildn-lipid21.ff/` and `FF/charmm36_ljpme-jul2022.ff/` via the RTP parser in `rtp_parser.py`.
+Applies to: `top` **only**. Different namespace — it doesn't load OpenMM XML files. Instead, it parses the **bundled GROMACS FF directories** via the RTP parser in `rtp_parser.py`. A source/editable checkout uses `FF/amber99sb-ildn-lipid21.ff/` and `FF/charmm36_ljpme-jul2022.ff/`; a wheel installs the same trees under the active environment's `share/dvbfixer/FF/` directory and resolves them automatically.
 
 | `top --ff` value | What it loads                                          |
 |------------------|--------------------------------------------------------|
@@ -128,7 +128,7 @@ Applies to: `top` **only**. Different namespace — it doesn't load OpenMM XML f
 | Auto-detection         | Yes (this doc)                                                   | No — user picks                                |
 | `charmm` maps to       | `charmm36.xml` + water XML                                       | Full bundled CHARMM36 RTP directory            |
 
-The two are separate because they consume completely different file formats: OpenMM parses XML; GROMACS parses `.rtp` / `.atp` / `.itp`. The bundled GROMACS FF dirs let dvbfixer emit topologies that don't need any external FF installation on the target machine.
+The two are separate because they consume completely different file formats: OpenMM parses XML; GROMACS parses `.rtp` / `.atp` / `.itp`. The bundled GROMACS FF dirs let dvbfixer emit topologies that don't need any external FF installation on the target machine. CI builds both wheel and source distribution, installs the wheel into a clean environment, and verifies that the AMBER and CHARMM roots and their core RTP/ITP files resolve there.
 
 ## Handling arbitrary unknown ligands
 

@@ -17,6 +17,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt'
 import HubIcon from '@mui/icons-material/Hub'
 import WarningIcon from '@mui/icons-material/Warning'
 import FolderIcon from '@mui/icons-material/Folder'
+import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import InfoIcon from '@mui/icons-material/Info'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
 import BuildIcon from '@mui/icons-material/Build'
@@ -30,7 +31,7 @@ import Tooltip from '@mui/material/Tooltip'
 import { MolstarViewer } from './components/MolstarViewer'
 import { SequenceViewer } from './components/SequenceViewer'
 import { FileLoader } from './components/FileLoader'
-import { ProjectLibrary } from './components/ProjectLibrary'
+import { ProjectLibrary, WorkspacePanel } from './components/ProjectLibrary'
 import { StructureInfo } from './components/StructureInfo'
 import { ElementsTable } from './components/ElementsTable'
 import { InteractionsPanel } from './components/InteractionsPanel'
@@ -47,6 +48,7 @@ import { useSelectionStore } from './stores/selectionStore'
 import { useMolstarSync } from './hooks/useMolstarSync'
 import { useSequenceSync } from './hooks/useSequenceSync'
 import { useCameraSync } from './hooks/useCameraSync'
+import { useWorkspaceStore } from './stores/workspaceStore'
 
 const PANEL_TYPES = [
   { component: 'viewer', name: '3D Structure', icon: <ViewInArIcon sx={{ fontSize: 16 }} /> },
@@ -62,6 +64,7 @@ const PANEL_TYPES = [
   { component: 'antibody-engineer', name: 'Antibody Engineer', icon: <BiotechIcon sx={{ fontSize: 16 }} /> },
   { component: 'mutations', name: 'Mutations', icon: <EditNoteIcon sx={{ fontSize: 16 }} /> },
   { component: 'library', name: 'Library', icon: <FolderIcon sx={{ fontSize: 16 }} /> },
+  { component: 'workspace', name: 'Workspace', icon: <FolderOpenIcon sx={{ fontSize: 16 }} /> },
   { component: 'info', name: 'Info', icon: <InfoIcon sx={{ fontSize: 16 }} /> },
   { component: 'settings', name: 'Settings', icon: <SettingsIcon sx={{ fontSize: 16 }} /> },
 ]
@@ -90,6 +93,7 @@ const layoutJson: IJsonModel = {
             weight: 55,
             children: [
               { type: 'tab', name: 'Library', component: 'library' },
+              { type: 'tab', name: 'Workspace', component: 'workspace' },
             ],
           },
           {
@@ -157,6 +161,7 @@ function App() { // @dsp obj-a1000002
   const error = useStructureStore((s) => s.error)
   const fileName = useStructureStore((s) => s.fileName)
   const clearSelection = useSelectionStore((s) => s.clearSelection)
+  const initializeWorkspace = useWorkspaceStore((s) => s.initialize)
 
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
   const [menuTabSetId, setMenuTabSetId] = useState<string | null>(null)
@@ -164,6 +169,10 @@ function App() { // @dsp obj-a1000002
   useMolstarSync()
   useSequenceSync()
   useCameraSync()
+
+  useEffect(() => {
+    initializeWorkspace().catch(() => {})
+  }, [initializeWorkspace])
 
   useEffect(() => {
     const openTextViewer = () => {
@@ -208,6 +217,7 @@ function App() { // @dsp obj-a1000002
       case 'sequence': return <SequenceViewer />
       case 'text-viewer': return <TextFileViewer />
       case 'library': return <ProjectLibrary />
+      case 'workspace': return <WorkspacePanel />
       case 'info': return <StructureInfo />
       case 'elements': return <ElementsTable />
       case 'interactions': return <InteractionsPanel />

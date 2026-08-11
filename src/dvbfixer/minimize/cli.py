@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import argparse
 
+from dvbfixer.cli_types import nonnegative_float, nonnegative_int, positive_float, positive_int
+
 DEFAULT_FF = "auto"
 DEFAULT_PH = 7.0
 DEFAULT_PADDING = 1.0  # nm
@@ -62,18 +64,21 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                          "downloaders / VMD.")
 
     physics = p.add_argument_group("Physics / restraints")
-    physics.add_argument("--padding", type=float, default=DEFAULT_PADDING,
+    physics.add_argument("--padding", type=positive_float, default=DEFAULT_PADDING,
                          help=f"Solvent padding in nm (default: {DEFAULT_PADDING})")
     physics.add_argument("--no-solvent", action="store_true",
                          help="Minimize in vacuum (no solvent box)")
-    physics.add_argument("--restraint-k", type=float, default=DEFAULT_RESTRAINT_K,
+    physics.add_argument("--restraint-k", type=nonnegative_float, default=DEFAULT_RESTRAINT_K,
                          help=f"Restraint force constant for original atoms in kcal/mol/A^2 (default: {DEFAULT_RESTRAINT_K})")
-    physics.add_argument("--weak-k", type=float, default=DEFAULT_WEAK_K,
+    physics.add_argument("--weak-k", type=nonnegative_float, default=DEFAULT_WEAK_K,
                          help=f"Restraint force constant for added backbone atoms in kcal/mol/A^2 (default: {DEFAULT_WEAK_K})")
-    physics.add_argument("--max-iter", type=int, default=DEFAULT_MAX_ITER,
+    physics.add_argument("--max-iter", type=nonnegative_int, default=DEFAULT_MAX_ITER,
                          help=f"Max minimization iterations per phase (default: {DEFAULT_MAX_ITER})")
 
     content = p.add_argument_group("Content selection")
+    content.add_argument("--keep-water", action="store_true",
+                         help="Keep waters that were present in the input PDB. "
+                              "Temporary solvent added for minimization is still removed.")
     content.add_argument("--strip-heterogens", dest="keep_heterogens",
                          action="store_false", default=True,
                          help="Strip heterogens before minimization, restore coords after "
@@ -93,7 +98,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                              "force field as a refinement pass. Auto-parametrizes any "
                              "organic molecule (sugars, ligands) without templates. "
                              "Requires `xtb` binary in PATH. Slower but higher quality.")
-    refine.add_argument("--xtb-cycles", type=int, default=200,
+    refine.add_argument("--xtb-cycles", type=positive_int, default=200,
                         help="Max xtb optimization cycles (default: 200)")
     refine.add_argument("--obminimize-refine", action="store_true",
                         help="After OpenMM minimization, run OpenBabel obminimize "
@@ -104,7 +109,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help="OpenBabel force field for --obminimize-refine (default: UFF — "
                              "handles N-glycosidic linkages correctly; MMFF94s mistypes the "
                              "anomeric C as sp2 giving 120° angles instead of 109°)")
-    refine.add_argument("--obminimize-steps", type=int, default=500,
+    refine.add_argument("--obminimize-steps", type=positive_int, default=500,
                         help="OpenBabel minimization steps (default: 500)")
     refine.add_argument("--refine-heterogens-only", action="store_true",
                         help="Restrict xtb/obminimize refinement to heterogen "

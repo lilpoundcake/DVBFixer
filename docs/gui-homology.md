@@ -27,7 +27,7 @@ for executable names and platform-specific commands. Check discovery with:
 dvbfixer msa --list-engines
 ```
 
-## Projects and persistence
+## Workspaces and Homology projects
 
 A Library entry is a workspace, not merely a directory. It owns imported
 files, active viewer A/B files, tool state, Homology projects, generated runs,
@@ -37,14 +37,17 @@ and output artifacts. Its on-disk layout is:
 gui/structures/projects/<workspace-id>/
 ├── workspace.json
 ├── files/
-├── homology_projects/<homology-project-id>/
+├── homology/<homology-project-id>/
 └── runs/dvb_homology_<timestamp>/
 ```
 
 Helper inputs, manifests, fitted intermediates, and stdout/stderr logs remain
 on disk but are hidden from ordinary file pickers. Visible files can be
-renamed, reordered, selected with Shift or Cmd/Ctrl, and moved to recoverable
-workspace trash. Text-like artifacts open in the read-only **Text Files** tab.
+renamed, reordered, selected with Shift or Cmd/Ctrl, downloaded, and moved to
+recoverable workspace trash. Drag handles show the insertion position, and the
+Workspace toolbar can hide non-PDB files without changing their stored order.
+Library workspace downloads are `.tar.gz` archives. Text-like artifacts open
+in the read-only **Text Files** tab.
 
 ## Workflow
 
@@ -61,18 +64,20 @@ longer describe the same sequence.
 
 ### 2. Templates
 
-Load a structure in viewer A and press **Add active 3D template**, or choose a
-workspace structure from the template row. Select:
-
-- the source structure chain;
-- the target chain that chain should model.
+Press **+ Add new** to create a template row. The active viewer structure is
+selected when available; otherwise choose a workspace structure from the row.
+Choose the target chain from the selector above the template list. Rows shown
+below belong to that target-chain group. After choosing a structure, the GUI
+automatically selects its chain with the highest global pairwise identity to
+the target. Every chain option shows its identity percentage and remains
+manually selectable.
 
 The same structure can be added more than once with different chains. For a
 multi-chain target, every target-chain group must contain a chain from the
 first template structure. This common reference preserves the relative
 orientation of the chains in the final mosaic.
 
-### 3. Sequence alignment
+### 3. Alignment
 
 Generate the MSA with MAFFT, MUSCLE 5, or Clustal Omega. Each target chain is
 aligned only with template chains assigned to that target. When several
@@ -101,11 +106,17 @@ Paint residues on every template row:
 - drag: select a continuous range;
 - Shift-click: extend from the newest anchor while retaining older ranges;
 - Cmd/Ctrl/Option-click: add or remove a residue and establish a new anchor;
-- **Select all** / **Clear**: change the row mask explicitly.
+- **Select all** / **Clear**: set the persisted modeling mask to the whole row
+  or no residues;
+- **Use selection as modeling span**: copy the transient selection into the
+  persisted modeling mask.
 
 Selecting an alignment residue loads its structure into viewer A when needed
 and highlights the corresponding residue in 3D. Selections made in viewer A
-are synchronized back to the active template row.
+are synchronized back to the active template row while the link button is
+enabled. Unlinking keeps the alignment and 3D selections independent.
+Transient selection never changes a modeling mask by itself, and clearing a
+3D selection does not erase the persisted mask.
 
 Masks are zero-based, half-open alignment-column ranges internally. Template
 insertions aligned against a target gap cannot contribute a target residue.

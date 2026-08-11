@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -21,11 +21,15 @@ import RedoIcon from '@mui/icons-material/Redo'
 import UndoIcon from '@mui/icons-material/Undo'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
+import LinkIcon from '@mui/icons-material/Link'
+import LinkOffIcon from '@mui/icons-material/LinkOff'
 import { useStructureStore } from '../stores/structureStore'
 import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
 import { useSelectionStore } from '../stores/selectionStore'
-import { comparisonToReference, consensusFor, updateColumnSelection } from '../lib/homology-alignment'
+import { alignmentColumnsForResidues, alignmentColumnsToSpans, comparisonToReference, consensusFor, updateColumnSelection } from '../lib/homology-alignment'
+import { bestMatchingChainId, chainIdentityLabel, targetSequences } from '../lib/homology-templates'
 import { residueClass, RESIDUE_CLASS_COLORS } from '../lib/residue-codes'
+import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 
 interface TemplateSelection {
   id: string
@@ -63,7 +67,8 @@ interface HomologyProject {
 }
 interface ProjectSummary { id: string; name: string; updatedAt: string }
 interface EngineStatus { available: boolean; path: string | null }
-interface ParsedChain { id: string; length: number }
+interface ParsedChain { id: string; length: number; sequence: string }
+interface TransientAlignmentSelection { anchor: number; columns: number[] }
 
 
 function targetChainIds(fasta: string): string[] {
@@ -79,12 +84,12 @@ function cloneGroups(groups: AlignmentGroup[]): AlignmentGroup[] {
 
 const ALIGNMENT_LABEL_WIDTH = 270
 
-function AlignmentCells({ label, sequence, annotation = false }: { label: string; sequence: string; annotation?: boolean }) {
-  return <Box sx={{ display: 'flex', minWidth: 'max-content', mb: 0.5 }}>
+function AlignmentCells({ label, sequence, annotation = false }: { label: ReactNode; sequence: string; annotation?: boolean }) {
+  return <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 'max-content', mb: annotation ? 0.15 : 0.5 }}>
     <Box sx={{ position: 'sticky', left: 0, zIndex: 3, bgcolor: 'background.paper', width: ALIGNMENT_LABEL_WIDTH, flexShrink: 0, px: 1 }}>
       <Typography variant="caption" color="text.secondary">{label}</Typography>
     </Box>
-    {Array.from(sequence).map((character, column) => <Box key={column} sx={{ width: 16, height: 18, textAlign: 'center', fontSize: annotation ? 11 : 12, fontWeight: character === '*' ? 800 : 400, color: character === '*' ? 'primary.main' : 'text.secondary' }}>{character}</Box>)}
+    {Array.from(sequence).map((character, column) => <Box key={column} sx={{ width: 16, height: annotation ? 13 : 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, textAlign: 'center', fontSize: annotation ? 9 : 12, fontWeight: character === '*' ? 800 : 400, color: character === '*' ? 'primary.main' : 'text.secondary' }}>{character}</Box>)}
   </Box>
 }
 
@@ -96,16 +101,18 @@ export function HomologyPanel() {
   const [targetSource, setTargetSource] = useState('')
   const [parsePreview, setParsePreview] = useState<Array<{ id: string; sequence: string; length: number; selected: boolean }>>([])
   const [activeTargetChain, setActiveTargetChain] = useState('')
+  const [selectionSyncEnabled, setSelectionSyncEnabled] = useState(true)
   const [tab, setTab] = useState(0)
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [saved, setSaved] = useState(true)
-  const [selection, setSelection] = useState<Record<string, { start: number; end: number }>>({})
+  const [selection, setSelection] = useState<Record<string, TransientAlignmentSelection>>({})
   const [undo, setUndo] = useState<AlignmentGroup[][]>([])
   const [redo, setRedo] = useState<AlignmentGroup[][]>([])
   const alignmentImportRef = useRef<HTMLInputElement>(null)
   const alignmentDragRef = useRef<{ groupIndex: number; rowId: string; anchor: number; moved: boolean } | null>(null)
+  const projectRequestRef = useRef(0)
   const primaryFile = useStructureStore(state => state.fileName)
   const primaryChain = useStructureStore(state => state.activeChainId)
 
@@ -125,71 +132,89 @@ export function HomologyPanel() {
 
   const refreshProjects = useCallback(async () => {
     if (!activeWorkspaceId) { setProjects([]); return }
+    const workspaceId = activeWorkspaceId
     const response = await fetch(`/api/homology/projects?workspaceId=${encodeURIComponent(activeWorkspaceId)}`, { cache: 'no-store' })
     if (!response.ok) throw new Error(`Projects: HTTP ${response.status}`)
-    setProjects(await response.json() as ProjectSummary[])
+    const list = await response.json() as ProjectSummary[]
+    if (useWorkspaceStore.getState().active?.id !== workspaceId) return
+    setProjects(list)
+    return list
   }, [activeWorkspaceId])
 
   const loadProject = useCallback(async (id: string) => {
+    const request = ++projectRequestRef.current
+    const workspaceId = activeWorkspaceId
     setBusy('Loading project')
     try {
-      if (!activeWorkspaceId) return
-      const response = await fetch(`/api/homology/projects/${encodeURIComponent(id)}?workspaceId=${encodeURIComponent(activeWorkspaceId)}`, { cache: 'no-store' })
+      if (!workspaceId) return
+      const response = await fetch(`/api/homology/projects/${encodeURIComponent(id)}?workspaceId=${encodeURIComponent(workspaceId)}`, { cache: 'no-store' })
       const body = await response.json() as HomologyProject & { error?: string }
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      if (request !== projectRequestRef.current || useWorkspaceStore.getState().active?.id !== workspaceId) return
       setProject(body)
+      setSelection({})
       setUndo([])
       setRedo([])
       setSaved(true)
     } finally {
-      setBusy('')
+      if (request === projectRequestRef.current) setBusy('')
     }
   }, [activeWorkspaceId])
 
   const createProject = useCallback(async () => {
+    const request = ++projectRequestRef.current
+    const workspaceId = activeWorkspaceId
     setBusy('Creating project')
     setError('')
     try {
-      if (!activeWorkspaceId) return
-      const response = await fetch('/api/homology/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workspaceId: activeWorkspaceId }) })
+      if (!workspaceId) return
+      const response = await fetch('/api/homology/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workspaceId }) })
       const body = await response.json() as HomologyProject & { error?: string }
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      if (request !== projectRequestRef.current || useWorkspaceStore.getState().active?.id !== workspaceId) return
       setProject(body)
+      setSelection({})
       await refreshProjects()
       setSaved(true)
     } catch (reason: any) {
       setError(reason.message || String(reason))
     } finally {
-      setBusy('')
+      if (request === projectRequestRef.current) setBusy('')
     }
   }, [activeWorkspaceId, refreshProjects])
 
   useEffect(() => {
-    if (!activeWorkspaceId) { setProject(null); return }
+    const request = ++projectRequestRef.current
+    setProject(null)
+    setSelection({})
+    setProjects([])
+    setChainsByFile({})
+    if (!activeWorkspaceId) return
     refreshProjects()
-      .then(async () => {
-        const response = await fetch(`/api/homology/projects?workspaceId=${encodeURIComponent(activeWorkspaceId)}`, { cache: 'no-store' })
-        const list = await response.json() as ProjectSummary[]
+      .then(async (list = []) => {
+        if (request !== projectRequestRef.current) return
         const preferred = (useWorkspaceStore.getState().active?.toolState?.homology as any)?.projectId
         const selected = list.find(item => item.id === preferred) || list[0]
         if (selected) await loadProject(selected.id)
         else await createProject()
       })
-      .catch(reason => setError(reason.message || String(reason)))
+      .catch(reason => { if (request === projectRequestRef.current) setError(reason.message || String(reason)) })
+    return () => { projectRequestRef.current = request + 1 }
   }, [activeWorkspaceId, createProject, loadProject, refreshProjects])
 
   useEffect(() => {
     const state = activeWorkspace?.toolState?.homology as any
     setTab(typeof state?.tab === 'number' ? state.tab : 0)
     setActiveTargetChain(state?.activeTargetChain || '')
+    setSelectionSyncEnabled(state?.selectionSyncEnabled !== false)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeWorkspaceId])
 
   useEffect(() => {
     if (!activeWorkspace || !project) return
-    updateWorkspaceToolState('homology', { projectId: project.id, tab, activeTargetChain })
+    updateWorkspaceToolState('homology', { projectId: project.id, tab, activeTargetChain, selectionSyncEnabled })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project?.id, tab, activeTargetChain])
+  }, [project?.id, tab, activeTargetChain, selectionSyncEnabled])
 
   useEffect(() => {
     fetch('/api/homology/engines', { cache: 'no-store' })
@@ -221,6 +246,14 @@ export function HomologyPanel() {
   }, [])
 
   const targetChains = useMemo(() => targetChainIds(project?.targetFasta || ''), [project?.targetFasta])
+  const targetSequenceByChain = useMemo(
+    () => targetSequences(project?.targetFasta || ''),
+    [project?.targetFasta],
+  )
+  const visibleTemplates = useMemo(
+    () => (project?.templates || []).filter(template => template.targetChain === activeTargetChain),
+    [activeTargetChain, project?.templates],
+  )
   const targetSourceSupported = /\.(pdb|cif|mmcif|fasta|fa|faa|pir|aln|txt)$/i.test(targetSource)
 
   useEffect(() => {
@@ -228,11 +261,13 @@ export function HomologyPanel() {
   }, [activeTargetChain, targetChains])
 
   const fetchChains = useCallback(async (file: string): Promise<ParsedChain[]> => {
-    if (!activeWorkspaceId || !file) return []
+    const workspaceId = activeWorkspaceId
+    if (!workspaceId || !file) return []
     if (chainsByFile[file]) return chainsByFile[file]
-    const response = await fetch('/api/homology/chains', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workspaceId: activeWorkspaceId, file }) })
+    const response = await fetch('/api/homology/chains', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workspaceId, file }) })
     const body = await response.json() as ParsedChain[] & { error?: string }
     if (!response.ok) throw new Error((body as any).error || `HTTP ${response.status}`)
+    if (useWorkspaceStore.getState().active?.id !== workspaceId) return []
     setChainsByFile(current => ({ ...current, [file]: body }))
     return body
   }, [activeWorkspaceId, chainsByFile])
@@ -241,15 +276,30 @@ export function HomologyPanel() {
     for (const template of project?.templates || []) fetchChains(template.file).catch(() => {})
   }, [fetchChains, project?.templates])
 
-  const addTemplate = () => {
-    if (!project || !primaryFile || !activeWorkspace?.artifacts.some(item => item.file === primaryFile)) return
+  const addTemplate = async () => {
+    if (!project) return
+    const activeIsWorkspaceStructure = !!primaryFile && artifacts.some(
+      item => item.file === primaryFile && item.kind === 'structure',
+    )
+    const file = activeIsWorkspaceStructure ? primaryFile : ''
+    let chain = activeIsWorkspaceStructure ? primaryChain || '' : ''
+    if (file) {
+      try {
+        const chains = await fetchChains(file)
+        chain = bestMatchingChainId(
+          chains,
+          targetSequenceByChain[activeTargetChain] || '',
+          chain,
+        )
+      } catch (reason: any) {
+        setError(reason.message || String(reason))
+        chain = ''
+      }
+    }
     const template: TemplateSelection = {
-      id: crypto.randomUUID(), file: primaryFile, chain: primaryChain || '', targetChain: targetChains[0] || 'A',
+      id: crypto.randomUUID(), file, chain, targetChain: activeTargetChain || targetChains[0] || '',
     }
     update({ templates: [...project.templates, template] })
-    fetchChains(primaryFile).then(chains => {
-      if (!template.chain || !chains.some(chain => chain.id === template.chain)) updateTemplate(template.id, { chain: chains[0]?.id || '' })
-    }).catch(reason => setError(reason.message || String(reason)))
   }
 
   const updateTemplate = (id: string, patch: Partial<TemplateSelection>) => {
@@ -289,7 +339,11 @@ export function HomologyPanel() {
   const changeTemplateFile = async (template: TemplateSelection, file: string) => {
     try {
       const chains = await fetchChains(file)
-      updateTemplate(template.id, { file, chain: chains[0]?.id || '' })
+      const chain = bestMatchingChainId(
+        chains,
+        targetSequenceByChain[template.targetChain] || '',
+      )
+      updateTemplate(template.id, { file, chain })
       if (project) update({ alignmentGroups: [] })
     } catch (reason: any) { setError(reason.message || String(reason)) }
   }
@@ -302,34 +356,24 @@ export function HomologyPanel() {
     const data = await plugin.builders.data.rawData({ data: await response.text(), label: template.file })
     const trajectory = await plugin.builders.structure.parseTrajectory(data, /\.(cif|mmcif)$/i.test(template.file) ? 'mmcif' : 'pdb')
     await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default')
+    const artifact = activeWorkspace.artifacts.find(item => item.file === template.file)
+    if (artifact) useStructureStore.getState().setMeta(structureMetaFromArtifact(artifact))
     setFileName(template.file)
     useWorkspaceStore.getState().update({ primaryFile: template.file })
   }
 
-  const selectTemplateColumns = async (groupIndex: number, row: AlignmentRow, column: number,
+  const selectTemplateColumns = async (row: AlignmentRow, column: number,
     event: Pick<ReactMouseEvent, 'shiftKey' | 'ctrlKey' | 'metaKey' | 'altKey'>,
     explicitAnchor?: number, sync3d = true) => {
     if (!project || row.kind !== 'template') return
     const template = project.templates.find(item => item.id === row.templateId)
     if (!template || row.sequence[column] === '-') return
-    const current = project.alignmentGroups[groupIndex].masks[row.id] || []
-    const selectedColumns: number[] = []
-    for (const span of current) for (let index = span.start; index < span.end; index++) selectedColumns.push(index)
-    const anchor = explicitAnchor ?? selection[row.id]?.start ?? column
+    const selectedColumns = selection[row.id]?.columns || []
+    const anchor = explicitAnchor ?? selection[row.id]?.anchor ?? column
     const mode = event.shiftKey ? 'extend' : event.ctrlKey || event.metaKey || event.altKey ? 'toggle' : 'replace'
     const ordered = updateColumnSelection(selectedColumns, row.sequence, column, anchor, mode)
-    const spans: AlignmentSpan[] = []
-    for (const value of ordered) {
-      const last = spans[spans.length - 1]
-      if (last && last.end === value) last.end = value + 1
-      else spans.push({ start: value, end: value + 1 })
-    }
-    const next = cloneGroups(project.alignmentGroups)
-    next[groupIndex].masks[row.id] = spans
-    next[groupIndex].maskModes = { ...(next[groupIndex].maskModes || {}), [row.id]: 'ranges' }
-    commitGroups(next)
-    setSelection(currentSelection => ({ ...currentSelection, [row.id]: { start: column, end: column + 1 } }))
-    if (!sync3d) return
+    setSelection(currentSelection => ({ ...currentSelection, [row.id]: { anchor: column, columns: ordered } }))
+    if (!sync3d || !selectionSyncEnabled) return
     try {
       await loadTemplateInPrimary(template)
       let residueIndex = 0
@@ -342,12 +386,22 @@ export function HomologyPanel() {
   }
 
   const moveGap = (groupIndex: number, row: AlignmentRow, direction: -1 | 1) => {
-    const column = selection[row.id]?.start ?? row.sequence.indexOf('-')
+    const column = selection[row.id]?.anchor ?? row.sequence.indexOf('-')
     const other = column + direction
     if (column < 0 || other < 0 || other >= row.sequence.length || row.sequence[column] !== '-' || row.sequence[other] === '-') return
     const chars = row.sequence.split(''); [chars[column], chars[other]] = [chars[other], chars[column]]
     editRow(groupIndex, row.id, chars.join(''))
-    setSelection(current => ({ ...current, [row.id]: { start: other, end: other + 1 } }))
+    setSelection(current => ({ ...current, [row.id]: { anchor: other, columns: [other] } }))
+  }
+
+  const applySelectionAsModelingSpan = (groupIndex: number, row: AlignmentRow) => {
+    if (!project || row.kind !== 'template') return
+    const columns = (selection[row.id]?.columns || []).filter(column => row.sequence[column] !== '-')
+    if (!columns.length) return
+    const next = cloneGroups(project.alignmentGroups)
+    next[groupIndex].masks[row.id] = alignmentColumnsToSpans(columns)
+    next[groupIndex].maskModes = { ...(next[groupIndex].maskModes || {}), [row.id]: 'ranges' }
+    commitGroups(next)
   }
 
   const addGapColumn = (groupIndex: number, column: number) => {
@@ -402,7 +456,7 @@ export function HomologyPanel() {
   }
 
   useEffect(() => {
-    if (!project || tab !== 2 || !primaryFile || !activeTargetChain) return
+    if (!selectionSyncEnabled || !project || tab !== 2 || !primaryFile || !activeTargetChain) return
     const groupIndex = project.alignmentGroups.findIndex(group => group.chainId === activeTargetChain)
     if (groupIndex < 0) return
     const group = project.alignmentGroups[groupIndex]
@@ -411,27 +465,21 @@ export function HomologyPanel() {
     const row = group.rows.find(item => item.templateId === template.id)
     if (!row) return
     const selectedOrdinals = new Set([...selected3dResidues.values()].filter(item => item.chainId === template.chain).map(item => item.seqId))
-    if (!selectedOrdinals.size) return
-    const columns: number[] = []
-    let ordinal = 0
-    for (let column = 0; column < row.sequence.length; column++) {
-      if (row.sequence[column] !== '-') { ordinal++; if (selectedOrdinals.has(ordinal)) columns.push(column) }
-    }
-    const spans: AlignmentSpan[] = []
-    for (const column of columns) {
-      const last = spans[spans.length - 1]
-      if (last?.end === column) last.end = column + 1
-      else spans.push({ start: column, end: column + 1 })
-    }
-    const mode = 'ranges'
-    if (JSON.stringify(group.masks[row.id] || []) === JSON.stringify(spans) && group.maskModes?.[row.id] === mode) return
-    const next = cloneGroups(project.alignmentGroups)
-    next[groupIndex].masks[row.id] = spans
-    next[groupIndex].maskModes = { ...(next[groupIndex].maskModes || {}), [row.id]: mode }
-    commitGroups(next)
+    const columns = alignmentColumnsForResidues(row.sequence, selectedOrdinals)
+    setSelection(current => {
+      const previous = current[row.id]
+      if (!columns.length) {
+        if (!previous) return current
+        const next = { ...current }
+        delete next[row.id]
+        return next
+      }
+      if (previous?.anchor === columns[columns.length - 1] && previous.columns.length === columns.length && previous.columns.every((value, index) => value === columns[index])) return current
+      return { ...current, [row.id]: { anchor: columns[columns.length - 1], columns } }
+    })
   // Selection synchronization intentionally tracks the active structure and workflow snapshot.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected3dResidues, primaryFile, activeTargetChain, tab])
+  }, [selected3dResidues, primaryFile, activeTargetChain, selectionSyncEnabled, tab])
 
   const editRow = (groupIndex: number, rowId: string, sequence: string) => {
     if (!project) return
@@ -545,7 +593,6 @@ export function HomologyPanel() {
       const body = await response.json() as { error?: string; outputFile?: string; stderr?: string }
       if (!response.ok) throw new Error(body.error || body.stderr || `HTTP ${response.status}`)
       setMessage(`Model complete: ${body.outputFile}`)
-      useStructureStore.getState().bumpLibraryVersion()
       await reloadWorkspace()
     } catch (reason: any) {
       setError(reason.message || String(reason))
@@ -569,8 +616,8 @@ export function HomologyPanel() {
         <Tooltip title="New project"><IconButton onClick={createProject}><AddIcon /></IconButton></Tooltip>
         <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>{saved ? 'Saved' : 'Saving…'}</Typography>
       </Box>
-      <Tabs value={tab} onChange={(_event, value) => setTab(value)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tab label="1 Target" /><Tab label="2 Templates" /><Tab label="3 Alignment" /><Tab label="4 Model" />
+      <Tabs value={tab} onChange={(_event, value) => setTab(value)} sx={{ minHeight: 30, borderBottom: 1, borderColor: 'divider', '& .MuiTab-root': { minHeight: 30, py: 0.25, px: 1.25, fontSize: '0.72rem', textTransform: 'none' } }}>
+        <Tab label="1. Target" /><Tab label="2. Templates" /><Tab label="3. Alignment" /><Tab label="4. Model" />
       </Tabs>
       <Box sx={{ flex: 1, overflow: 'auto', p: 1.5 }}>
         {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
@@ -612,9 +659,15 @@ export function HomologyPanel() {
 
         {tab === 1 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button startIcon={<AddIcon />} variant="outlined" onClick={addTemplate}
-                disabled={!primaryFile || !activeWorkspace?.artifacts.some(item => item.file === primaryFile)}>Add active 3D template</Button>
+            <Box sx={{ display: 'flex', gap: 1, position: 'sticky', top: 0, zIndex: 5, py: 0.5 }}>
+              <Button startIcon={<AddIcon />} variant="outlined" onClick={addTemplate}>Add new</Button>
+              <FormControl size="small" sx={{ minWidth: 160 }}>
+                <InputLabel>Target chain</InputLabel>
+                <Select label="Target chain" value={activeTargetChain} disabled={!targetChains.length}
+                  onChange={event => setActiveTargetChain(event.target.value)}>
+                  {targetChains.map(chain => <MenuItem key={chain} value={chain}>{chain}</MenuItem>)}
+                </Select>
+              </FormControl>
               <Button startIcon={<AccountTreeIcon />} variant="outlined" onClick={() => callProjectAction('salign')} disabled={busy !== '' || project.templates.length < 2}>Structural align</Button>
               <Button variant="contained" onClick={() => callProjectAction('align')} disabled={busy !== '' || !targetChains.length || !project.templates.length}>Generate MSA</Button>
               <FormControl size="small" sx={{ minWidth: 150 }}>
@@ -626,16 +679,15 @@ export function HomologyPanel() {
                 </Select>
               </FormControl>
             </Box>
-            {project.templates.map(template => (
-              <Box key={template.id} sx={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 1fr) 100px 160px 40px', gap: 1, alignItems: 'center' }}>
+            {visibleTemplates.map(template => (
+              <Box key={template.id} sx={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 1fr) minmax(180px, 260px) 40px', gap: 1, alignItems: 'center' }}>
                 <FormControl size="small"><InputLabel>Structure</InputLabel><Select label="Structure" value={template.file} onChange={event => changeTemplateFile(template, event.target.value)}>
                   {artifacts.filter(item => item.kind === 'structure').map(item => <MenuItem key={item.file} value={item.file}>{item.name || item.file}</MenuItem>)}
                 </Select></FormControl>
                 <FormControl size="small"><InputLabel>Chain</InputLabel><Select label="Chain" value={template.chain} onChange={event => updateTemplate(template.id, { chain: event.target.value })}>
-                  {(chainsByFile[template.file] || []).map(chain => <MenuItem key={chain.id} value={chain.id}>{chain.id} · {chain.length} aa</MenuItem>)}
-                </Select></FormControl>
-                <FormControl size="small"><InputLabel>Target chain</InputLabel><Select label="Target chain" value={template.targetChain} onChange={event => updateTemplate(template.id, { targetChain: event.target.value })}>
-                  {targetChains.map(chain => <MenuItem key={chain} value={chain}>{chain}</MenuItem>)}
+                  {(chainsByFile[template.file] || []).map(chain => <MenuItem key={chain.id} value={chain.id}>
+                    {chainIdentityLabel(chain.id, chain.length, targetSequenceByChain[template.targetChain] || '', chain.sequence)}
+                  </MenuItem>)}
                 </Select></FormControl>
                 <IconButton onClick={() => update({ templates: project.templates.filter(item => item.id !== template.id) })}><DeleteIcon /></IconButton>
               </Box>
@@ -645,7 +697,7 @@ export function HomologyPanel() {
 
         {tab === 2 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', position: 'sticky', top: 0, zIndex: 5, py: 0.5 }}>
               <input ref={alignmentImportRef} hidden type="file" accept=".fasta,.fa,.faa,.aln" onChange={event => importAlignment(event.target.files?.[0])} />
               {targetChains.length > 1 && <FormControl size="small" sx={{ minWidth: 180 }}><InputLabel>Target chain</InputLabel>
                 <Select label="Target chain" value={activeTargetChain} onChange={event => setActiveTargetChain(event.target.value)}>
@@ -654,6 +706,11 @@ export function HomologyPanel() {
               </FormControl>}
               <Tooltip title="Undo alignment edit"><span><IconButton disabled={!undo.length} onClick={undoAlignment}><UndoIcon /></IconButton></span></Tooltip>
               <Tooltip title="Redo alignment edit"><span><IconButton disabled={!redo.length} onClick={redoAlignment}><RedoIcon /></IconButton></span></Tooltip>
+              <Tooltip title={selectionSyncEnabled ? 'Alignment and 3D residue selections are linked; click to unlock' : 'Alignment and 3D residue selections are independent; click to link'}>
+                <IconButton onClick={() => setSelectionSyncEnabled(enabled => !enabled)} color={selectionSyncEnabled ? 'primary' : 'default'}>
+                  {selectionSyncEnabled ? <LinkIcon /> : <LinkOffIcon />}
+                </IconButton>
+              </Tooltip>
               <Button onClick={() => callProjectAction('align')} disabled={busy !== ''}>Reset from {project.engine}</Button>
               <Button onClick={() => alignmentImportRef.current?.click()}>Import aligned FASTA</Button>
               <Button onClick={exportAlignment} disabled={!project.alignmentGroups.length}>Export alignment</Button>
@@ -664,7 +721,7 @@ export function HomologyPanel() {
               const lengths = new Set(group.rows.map(row => row.sequence.length))
               const consensus = consensusFor(group.rows)
               const reference = group.rows.find(row => row.kind === 'target')?.sequence || ''
-              const activeColumn = Object.values(selection)[0]?.start ?? 0
+              const activeColumn = Object.values(selection)[0]?.anchor ?? 0
               return (
                 <Box key={group.chainId} sx={{ border: 1, borderColor: lengths.size === 1 ? 'divider' : 'error.main', borderRadius: 1 }}>
                   <Box sx={{ px: 1, py: 0.75, display: 'flex', alignItems: 'center', gap: 1, borderBottom: 1, borderColor: 'divider' }}>
@@ -679,46 +736,52 @@ export function HomologyPanel() {
                       <AlignmentCells label="consensus" sequence={consensus} annotation />
                       {group.rows.map(row => {
                         const masks = group.masks[row.id] || []
-                        return <Box key={row.id} sx={{ mb: 0.75 }}>
+                        const template = row.kind === 'template'
+                          ? project.templates.find(item => item.id === row.templateId)
+                          : undefined
+                        const sourceName = template?.file.split('/').pop() || template?.label || row.id
+                        const rowLabel = row.kind === 'target' ? `target: ${row.id}` : `template: ${sourceName}`
+                        return <Box key={row.id} sx={{ mb: 1.5 }}>
+                          {row.kind === 'template' && <AlignmentCells label={<Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                            <Button size="small" onClick={() => { const next = cloneGroups(project.alignmentGroups); next[groupIndex].masks[row.id] = []; next[groupIndex].maskModes = { ...(next[groupIndex].maskModes || {}), [row.id]: 'all' }; commitGroups(next) }}>Select all</Button>
+                            <Button size="small" onClick={() => { const next = cloneGroups(project.alignmentGroups); next[groupIndex].masks[row.id] = []; next[groupIndex].maskModes = { ...(next[groupIndex].maskModes || {}), [row.id]: 'none' }; commitGroups(next) }}>Clear</Button>
+                            <Button size="small" disabled={!selection[row.id]?.columns.length} onClick={() => applySelectionAsModelingSpan(groupIndex, row)}>Use selection as modeling span</Button>
+                          </Box>} sequence={comparisonToReference(reference, row.sequence)} annotation />}
                           <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 'max-content' }}>
                             <Box sx={{ position: 'sticky', left: 0, zIndex: 2, bgcolor: 'background.paper', width: ALIGNMENT_LABEL_WIDTH, flexShrink: 0, px: 1, display: 'flex', alignItems: 'center', gap: 0.25, overflow: 'hidden' }}>
-                              <Chip size="small" color={row.kind === 'target' ? 'primary' : 'default'} label={`${row.kind}: ${row.id.slice(0, 14)}`} sx={{ maxWidth: 190 }} />
+                              <Chip size="small" color={row.kind === 'target' ? 'primary' : 'default'} label={rowLabel} sx={{ maxWidth: 220 }} />
                               <Tooltip title="Move selected gap left"><span><Button size="small" sx={{ minWidth: 24, px: 0.25 }} onClick={() => moveGap(groupIndex, row, -1)}>←</Button></span></Tooltip>
                               <Tooltip title="Move selected gap right"><span><Button size="small" sx={{ minWidth: 24, px: 0.25 }} onClick={() => moveGap(groupIndex, row, 1)}>→</Button></span></Tooltip>
                             </Box>
                             {Array.from(row.sequence).map((character, column) => {
                               const mode = group.maskModes?.[row.id] || (masks.length ? 'ranges' : 'all')
-                              const selected = row.kind === 'template' && (mode === 'all' ? character !== '-' : mode === 'ranges' && masks.some(mask => column >= mask.start && column < mask.end))
+                              const modelSelected = row.kind === 'template' && (mode === 'all' ? character !== '-' : mode === 'ranges' && masks.some(mask => column >= mask.start && column < mask.end))
+                              const transientSelected = selection[row.id]?.columns.includes(column) === true
                               const comparison = row.kind === 'template' ? comparisonToReference(reference, row.sequence)[column] : '*'
+                              const targetMatch = row.kind === 'template' && comparison === '*'
                               const color = character === '-' ? '#9e9e9e' : RESIDUE_CLASS_COLORS[residueClass(character)]
-                              return <Tooltip key={column} title={`${row.kind} ${row.id} · column ${column + 1}`}>
+                              return <Tooltip key={column} title={`${rowLabel} · column ${column + 1}`}>
                                 <Box component="button" onMouseDown={event => {
                                   event.preventDefault()
-                                  setSelection(current => ({ ...current, [row.id]: { start: column, end: column + 1 } }))
+                                  if (row.kind !== 'template') setSelection(current => ({ ...current, [row.id]: { anchor: column, columns: [column] } }))
                                   if (row.kind === 'template' && character !== '-') {
                                     alignmentDragRef.current = { groupIndex, rowId: row.id, anchor: column, moved: false }
-                                    selectTemplateColumns(groupIndex, row, column, event, undefined, true).catch(() => {})
+                                    selectTemplateColumns(row, column, event, undefined, true).catch(() => {})
                                   }
                                 }} onMouseEnter={event => {
                                   const drag = alignmentDragRef.current
                                   if (row.kind !== 'template' || character === '-' || !drag || drag.groupIndex !== groupIndex || drag.rowId !== row.id || !(event.buttons & 1)) return
                                   drag.moved = true
-                                  selectTemplateColumns(groupIndex, row, column, { shiftKey: true, ctrlKey: false, metaKey: false, altKey: false }, drag.anchor, false).catch(() => {})
+                                  selectTemplateColumns(row, column, { shiftKey: true, ctrlKey: false, metaKey: false, altKey: false }, drag.anchor, false).catch(() => {})
                                 }} onMouseUp={() => {
                                   const drag = alignmentDragRef.current
                                   if (row.kind !== 'template' || !drag || drag.groupIndex !== groupIndex || drag.rowId !== row.id) return
                                   alignmentDragRef.current = null
-                                  if (drag.moved) selectTemplateColumns(groupIndex, row, column, { shiftKey: true, ctrlKey: false, metaKey: false, altKey: false }, drag.anchor, true).catch(() => {})
-                                }} sx={{ width: 16, height: 22, p: 0, border: 0, borderBottom: selection[row.id]?.start === column ? '2px solid' : comparison === '×' ? '2px solid #ef5350' : '2px solid transparent', borderColor: selection[row.id]?.start === column ? 'primary.main' : undefined, bgcolor: selected ? 'primary.main' : comparison === '×' ? '#ffebee' : character === '-' ? 'grey.100' : 'transparent', color: selected ? 'primary.contrastText' : color, fontWeight: comparison === '×' ? 700 : 500, fontFamily: 'inherit', fontSize: 12, cursor: character === '-' ? 'default' : 'pointer' }}>{character}</Box>
+                                  if (drag.moved) selectTemplateColumns(row, column, { shiftKey: true, ctrlKey: false, metaKey: false, altKey: false }, drag.anchor, true).catch(() => {})
+                                }} sx={{ width: 16, height: 22, p: 0, border: 0, borderBottom: selection[row.id]?.anchor === column ? '2px solid' : comparison === '×' ? '2px solid #ef5350' : '2px solid transparent', borderColor: selection[row.id]?.anchor === column ? 'primary.main' : undefined, bgcolor: modelSelected ? 'primary.main' : targetMatch ? '#f7fbf3' : comparison === '×' ? '#ffebee' : character === '-' ? 'grey.100' : 'transparent', color: modelSelected ? 'primary.contrastText' : color, boxShadow: transientSelected ? 'inset 0 0 0 2px #263f78' : 'none', fontWeight: targetMatch ? 800 : comparison === '×' ? 600 : 500, fontFamily: 'inherit', fontSize: 12, cursor: character === '-' ? 'default' : 'pointer' }}>{character}</Box>
                               </Tooltip>
                             })}
                           </Box>
-                          {row.kind === 'template' && <AlignmentCells label={`${row.id.slice(0, 18)} vs target`} sequence={comparisonToReference(reference, row.sequence)} annotation />}
-                          {row.kind === 'template' && <Box sx={{ ml: `${ALIGNMENT_LABEL_WIDTH}px`, display: 'flex', gap: 0.5, mt: 0.25 }}>
-                            <Button size="small" onClick={() => { const next = cloneGroups(project.alignmentGroups); next[groupIndex].masks[row.id] = []; next[groupIndex].maskModes = { ...(next[groupIndex].maskModes || {}), [row.id]: 'all' }; commitGroups(next) }}>Select all</Button>
-                            <Button size="small" onClick={() => { const next = cloneGroups(project.alignmentGroups); next[groupIndex].masks[row.id] = []; next[groupIndex].maskModes = { ...(next[groupIndex].maskModes || {}), [row.id]: 'none' }; commitGroups(next) }}>Clear</Button>
-                            <Typography variant="caption" color="text.secondary">{group.maskModes?.[row.id] === 'none' ? 'No residues selected' : masks.length ? `${masks.length} selected run(s)` : 'Whole row selected'}</Typography>
-                          </Box>}
                         </Box>
                       })}
                     </Box>

@@ -8,6 +8,11 @@ Commands that accept directory input document it on their own page; see the
 shared [Batch mode guide](../batch-mode.md) for supported tools and failure
 behavior.
 
+The dispatcher, generated CLI reference, and GUI command schema share one
+declarative registry for command names, modules, workflow categories, batch
+support, output behavior, and accepted success codes. Adding or changing a
+public command therefore updates all three surfaces from the same contract.
+
 | Command | What it does | Workflow group |
 |---------|--------------|----------------|
 | [`cluster`](cluster.md) | Glycan conformational clustering from MD trajectories (GFDB-style) | Analysis |

@@ -6,7 +6,7 @@ Runs the complete preparation workflow in one command: **renumber → model → 
 
 Since 0.7.7, PROPKA + MolProbity Reduce run **inside** the prepare step — PROPKA drives pKa-dependent variant renames (ASH/GLH/HIP/LYN/CYM/CYX) and Reduce picks the HIS tautomer (HID/HIE) + flags ASN/GLN amide flips. There is no separate `protonate` step and no second minimize pass; the older 7-step design (`... → minimize → protonate --no-hydrogens → minimize → protonate` name-restore) was dropped because `--no-hydrogens` left existing H atoms in the wrong positions relative to the newly-assigned variant names. `minimize` preserves AMBER variant names on write via its own capture-restore path, so no separate name-restore step is needed either. Standalone `dvbfixer protonate` still exists as a post-hoc re-protonation tool (e.g. to re-run PROPKA/Reduce on an already-prepared PDB at a different pH).
 
-Intermediate files are cleaned up by default — use `--keep-interim` to preserve them. The `.dat` file flows from model (gap atoms) through prepare (merged with PDBFixer additions) to minimize (selective restraints). Water is removed by default. Each step can be skipped individually. `--dry-run` prints the planned steps + output filenames without running anything.
+Intermediate files are cleaned up by default — use `--keep-interim` to preserve them. The `.dat` file flows from model (gap atoms) through prepare (merged with PDBFixer additions) to minimize (selective restraints). Water is removed by default. With `--keep-water`, crystallographic input waters are forwarded through renumber, model, prepare, and minimize and remain in the final structure; the minimize stage preserves those input waters rather than keeping any temporary solvent box it creates. Each step can be skipped individually. `--dry-run` prints the planned steps + output filenames without running anything.
 
 ## Pipeline
 
@@ -69,7 +69,7 @@ Organised by which pipeline step each flag flows into.
 | `--ph` | 7.0 | pH for protonation and hydrogen addition (used by prepare, minimize) |
 | `--ff` | `auto` | Force field forwarded to prepare / minimize. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. See [force-fields.md](../force-fields.md). |
 | `--atom-naming` | `gromacs` | Atom-naming convention for the final output PDB: `gromacs` (HZ3→HZ1 on LYN, O→OC2, OXT→OC1) or `standard` (keep IUPAC/AMBER-native names). Propagated to prepare + minimize. |
-| `--keep-water` | off | Keep water molecules (removed by default) |
+| `--keep-water` | off | Preserve crystallographic input waters through every enabled stage and in the final structure. Temporary minimization solvent is not retained. |
 | `--no-infer-conect` | off | Skip auto CONECT inference in model/prepare/minimize |
 | `--keep-interim` | off | Keep all intermediate files (default: only final output) |
 | `--dry-run` | off | Print the planned pipeline steps + output filenames without running anything |
@@ -130,7 +130,7 @@ Organised by which pipeline step each flag flows into.
 
 ## How it works
 
-Full pipeline in 4 steps: renumber → model → prepare → minimize. Interim files are deleted by default (`--keep-interim` to preserve). PROPKA + MolProbity Reduce run inside prepare (0.7.7+) — there is no separate protonate stage and no second minimize pass. `minimize`'s own capture-restore path preserves AMBER variant names on write, so no name-restore step is needed after minimize either. Water removed by default. `.dat` flows from model → prepare (merged) → minimize.
+Full pipeline in 4 steps: renumber → model → prepare → minimize. Interim files are deleted by default (`--keep-interim` to preserve). PROPKA + MolProbity Reduce run inside prepare (0.7.7+) — there is no separate protonate stage and no second minimize pass. `minimize`'s own capture-restore path preserves AMBER variant names on write, so no name-restore step is needed after minimize either. Water is removed by default; `--keep-water` preserves the input waters end to end without retaining the temporary minimization solvent box. `.dat` flows from model → prepare (merged) → minimize.
 
 **`--align-to-input` / `--no-align-to-input`** (default ON): after every pipeline step, `_maybe_align(out)` runs `dvbfixer.align.kabsch_align_pdb(out, original_input, out, selection='backbone')` in-place. Kabsch rotation + translation is computed on backbone atoms (N/CA/C/O of standard AAs) matched by `(chain, resseq, icode, atomname)` and applied to EVERY atom in the file — protein + heterogens stay in a consistent relative frame with the user's original input, no accumulated rigid-body drift from successive OpenMM minimizations. Alignment is pure numpy (~30 lines in `align.py`), no extra deps. Legacy behaviour (each step's output in its own frame) via `--no-align-to-input`. No standalone `dvbfixer align` subcommand — kept as a pipeline-internal helper per user preference.
 

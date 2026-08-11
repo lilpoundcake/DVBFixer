@@ -112,10 +112,6 @@ interface StructureState {
   /** Monotonic counter. Increment to signal "clear all selections everywhere"
    *  (3D viewers + alignment panel etc.). Components watch via useEffect. */
   clearAllSignal: number
-  /** Monotonic counter for library mutations (meta edits, star toggles,
-   *  DVBFixer runs, manual disk changes). StructureLibrary watches this and
-   *  re-fetches /structures/index.json whenever it changes. */
-  libraryVersion: number
 
   setPlugin: (plugin: PluginUIContext | null) => void
   setSecondaryPlugin: (plugin: PluginUIContext | null) => void
@@ -135,8 +131,6 @@ interface StructureState {
   setAlignmentLabelMode: (mode: AlignmentLabelMode) => void
   /** Bump clearAllSignal — components subscribed via useEffect will reset their state. */
   fireClearAll: () => void
-  /** Bump libraryVersion — StructureLibrary re-fetches index.json. */
-  bumpLibraryVersion: () => void
   reset: () => void
 }
 
@@ -171,7 +165,6 @@ export const useStructureStore = create<StructureState>((set, get) => ({ // @dsp
   autoOrientOnLoad: loadPersistedAutoOrient(),
   alignmentLabelMode: loadAlignmentLabelMode(),
   clearAllSignal: 0,
-  libraryVersion: 0,
 
   setPlugin: (plugin) => set({ plugin }),
   setSecondaryPlugin: (plugin) => set({
@@ -209,7 +202,6 @@ export const useStructureStore = create<StructureState>((set, get) => ({ // @dsp
     set({ alignmentLabelMode: mode })
   },
   fireClearAll: () => set(s => ({ clearAllSignal: s.clearAllSignal + 1 })),
-  bumpLibraryVersion: () => set(s => ({ libraryVersion: s.libraryVersion + 1 })),
   reset: () => set({
     chains: [],
     secondaryChains: [],

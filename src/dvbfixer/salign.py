@@ -8,6 +8,8 @@ import shutil
 import tempfile
 from pathlib import Path
 
+from dvbfixer.cli_types import positive_float
+
 
 def parse_template_spec(spec: str) -> tuple[Path, str | None]:
     """Parse ``PDB[:CHAIN]`` while still accepting paths containing colons."""
@@ -234,14 +236,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     io.add_argument("--fit-dir", help="Optional directory for fitted/superposed PDB files")
     alignment = parser.add_argument_group("Alignment")
     alignment.add_argument("--fit-atoms", default="CA", help="Atoms used for fitting (default: CA)")
-    alignment.add_argument("--rms-cutoff", type=float, default=3.5,
+    alignment.add_argument("--rms-cutoff", type=positive_float, default=3.5,
                            help="RMS cutoff in angstroms (default: 3.5)")
     alignment.add_argument("--engine", choices=["biopython", "modeller"], default="biopython",
                            help="Structural fitting engine (default: biopython)")
     alignment.add_argument("--msa-engine", choices=["auto", "mafft", "muscle", "clustalo"], default="auto",
                            help="Sequence correspondence engine used by biopython (default: auto)")
     diagnostics = parser.add_argument_group("Diagnostics")
-    diagnostics.add_argument("-v", "--verbose", action="store_true")
+    diagnostics.add_argument("-v", "--verbose", action="store_true",
+                             help="Print structural-alignment progress and diagnostics")
     from dvbfixer.batch import add_runtime_help
     add_runtime_help(parser)
     return parser.parse_args(argv)

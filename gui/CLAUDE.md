@@ -29,14 +29,14 @@ optional Node-side dev backend (Vite middleware) for DVBFixer pipeline runs
 and a PostgreSQL-backed Mutations DB. It loads PDB/mmCIF files and provides
 a dockable multi-panel workspace:
 
-The Library is project-based. `server/workspace-api.ts` owns versioned
+The Library lists workspaces. `server/workspace-api.ts` owns versioned
 manifests below `structures/projects/<id>/`; `stores/workspaceStore.ts` is the
-frontend source of truth for the active project. Imports and every workflow
-request must carry `workspaceId` and resolve paths inside that project. Do not
+frontend source of truth for the active workspace. Imports and every workflow
+request must carry `workspaceId` and resolve paths inside that workspace. Do not
 reintroduce global `/structures/index.json` selectors in workflow panels.
 Artifacts marked `hidden` are reproducibility helpers and must not appear in
-the project tree or workflow selectors. Workspace/file deletion is recoverable:
-the API moves targets to `_workspace_trash/` or the project's `.trash/` rather
+the workspace file list or workflow selectors. Workspace/file deletion is recoverable:
+the API moves targets to `_workspace_trash/` or the workspace's `.trash/` rather
 than unlinking them.
 
 - **3D Structure (primary + optional secondary)**: two independent Mol*
@@ -67,11 +67,11 @@ than unlinking them.
   tagging, HC/LC chain dropdown, free-form Properties notes column, and
   drag-drop row reordering (persisted via `display_order`). Auto-mirrored
   to a git-tracked `mutations.json` backup at repo root.
-- **Library**: hierarchical tree of pre-loaded structures with starring
+- **Library**: ordered list of workspaces; files live in the separate Workspace panel
 - **Info**: stats summary at the top, single-field metadata (Name + Notes),
   and an **Equivalent chains** section that auto-groups multimeric copies
-  via sequence identity (with optional manual override persisted in
-  `index.json`)
+  via sequence identity (with optional manual override persisted on the
+  active workspace artifact)
 - **Settings**: app-wide preferences (auto-orient-on-load toggle + Alignment
   source-label toggle [File / Name]; all persisted in `localStorage`)
 
@@ -109,9 +109,9 @@ Settings. Sequence panels keep their own chain selection.
 ### Data Flow
 
 ```
-Library / FileLoader ─┐
-                      ├─→ primary plugin   → extractChains/Elements/Meta → structureStore (chains, elements, meta)
-                      └─→ secondary plugin → extractChains              → structureStore (secondaryChains)
+Workspace files / FileLoader ─┐
+                              ├─→ primary plugin   → extractChains/Elements/Meta → structureStore (chains, elements, meta)
+                              └─→ secondary plugin → extractChains              → structureStore (secondaryChains)
                                                 ↓
             structureStore + selectionStore ────┼────────────────────────────────────┐
                                                 │                                    │
@@ -126,7 +126,7 @@ Library / FileLoader ─┐
 
 `MolstarViewer` takes `slot: 'primary' | 'secondary'` and each renders its own
 independent `PluginUIContext`. Both plugins are kept in `structureStore`
-(`plugin`, `secondaryPlugin`). Library and FileLoader honor `loadTargetSlot`
+(`plugin`, `secondaryPlugin`). Workspace files and FileLoader honor `loadTargetSlot`
 ('primary' | 'secondary') to choose where to load. The secondary viewer
 publishes only its chains (for cross-structure Alignment) — it doesn't touch
 elements / meta / Interactions.
@@ -134,19 +134,15 @@ elements / meta / Interactions.
 **Tab-close cleanup** — when the user closes a 3D Structure tab,
 `MolstarViewer`'s effect-cleanup disposes the plugin AND clears, for that
 slot, the store's plugin/chains/fileName. Without the `fileName` clear,
-the Library's A/B chip would remain stuck on whichever structure was last
-loaded into that viewer even though the viewer no longer exists.
+the Workspace panel's A/B chip would remain stuck on whichever structure was last
+    loaded into that viewer even though the viewer no longer exists.
 Additionally, when the SECONDARY slot is torn down and
 `loadTargetSlot === 'secondary'`, the cleanup snaps it back to
-`'primary'` — otherwise the Library's A/B toggle would silently stay on
+`'primary'` — otherwise the Workspace panel's A/B toggle would silently stay on
 B (its UI is gated on `secondaryPlugin`, so it disappears with the
-viewer), every subsequent Library click would bail out with *"Open a
-'3D Structure (B)' tab first"*, and the user would be trapped unable to
-load anything into A. `StructureLibrary` also runs a defensive
-`useEffect` watchdog over `(secondaryPlugin, loadTargetSlot)` that
-performs the same snap-back, as a belt-and-braces safety net for any
-code path that disposes the secondary plugin without going through
-`MolstarViewer`'s cleanup.
+viewer), every subsequent workspace-file click would bail out with *"Open a
+    '3D Structure (B)' tab first"*, and the user would be trapped unable to
+    load anything into A.
 
 Post-load, each viewer (a) hides the water component, (b) swaps the **ion**
 component's default ball-and-stick representation for `spacefill` so each ion
@@ -204,124 +200,15 @@ on first structure load" is also suppressed. We compensate in
 Both branches suppress camera sync during the fit so the other viewer
 doesn't mirror the fit motion.
 
-### Structure Library (with hierarchy + starring)
+### Workspace Library and files
 
-`structures/` folder at project root is the local database. `vite.config.ts`
-has a custom Vite plugin (`serve-structures`) that recursively scans
-subfolders, **skips `.*` and `_*` directories**, and merges `index.json`
-entries with auto-detected files. It also **auto-prunes** stale `index.json`
-entries whose file no longer exists on disk and **strips orphan `parent`
-references** — but only when the parent file is genuinely missing from
-the filesystem (checked against `onDisk`, NOT against the subset of files
-that happen to live in `index.json`). This matters when a user drops a
-PDB into `structures/` without curating `index.json` and then runs
-DVBFixer on it: the input is auto-detected, the DVBFixer output entry's
-`parent` points at that auto-detected file, and the orphan-pruner must
-NOT strip the link.
-
-Auto-detected entries preserve the filename's actual case
-(`mystructure.pdb` → `"mystructure"`, not `"MYSTRUCTURE"`). The same
-rule applies to the `PUT /api/library/meta` and `POST /api/library/star`
-auto-promote fallbacks server-side.
-
-Entries in `structures/index.json` are a discriminated union:
-- `kind: 'structure'` (default — missing `kind` implies structure) — has
-  `file`, `name`, optional `parent` (lineage), `command`, `starred`, etc.
-- `kind: 'folder'` — has `id` (`fld_*` or the synthetic `__root__`),
-  `name`, `children: string[]` (ordered list of entry ids — folder ids
-  OR structure file paths).
-
-**Two nesting dimensions** in the Library tree:
-1. **Folder containment** (user-controlled, drag-droppable). Each folder's
-   `children` array is the authoritative ordering of *top-level* entries
-   inside that folder. A synthetic `__root__` folder always exists; its
-   `children` is the library's top-level layout.
-2. **Lineage** (automatic, read-only by default). A structure with
-   `parent: 'X.pdb'` is rendered nested under X.pdb. Lineage children
-   CAN also be moved into folders by the user — when they are, the
-   frontend computes `placedInFolder` (union of every `folder.children`)
-   and suppresses default lineage rendering for any structure that's
-   explicitly placed, so it shows ONLY in the folder it was moved to.
-   `parent` is preserved as informative metadata regardless. DVBFixer
-   / Antibody Engineer pipelines keep writing `parent` as before.
-
-**Drag-drop** uses `@dnd-kit/core` + `@dnd-kit/sortable`. Every row
-(folders, top-level structures, AND lineage children rendered under
-their parent) is a `useSortable` item; each carries `data: { type:
-'folder' | 'structure' }`. Drop semantics handled in `handleDragEnd`:
-- Drop a STRUCTURE on a FOLDER → move INTO that folder (append).
-- Drop on any sibling entry → insert BEFORE that sibling in its
-  container. Lets you reorder folders alongside each other and
-  structures within a folder.
-- Cycle prevention: refuse to move a folder inside itself or any
-  descendant.
-Every drop fires `PATCH /api/library/move` then `bumpLibraryVersion()`.
-
-**Active-viewer chip (A / B) bubbles up to lineage roots**. The chip
-appears on the row whose `file` matches `fileName` AND on the lineage
-root that contains that file in its lineage tree. So when the user
-clicks a root with a starred descendant, the load redirects to the
-descendant but BOTH the root and the descendant show the active-viewer
-chip — the user sees a marker on the row they clicked. Walk is gated to
-lineage roots only (`!structure.parent`); intermediate lineage entries
-don't pick up the chip.
-
-**Backend folder routes** (in `server/api-plugin.ts`):
-- `POST /api/library/folder { name, parentFolderId? }` → creates folder,
-  appends to parent's `children` (or `__root__` if omitted).
-- `PATCH /api/library/folder/:id { name }` → rename.
-- `DELETE /api/library/folder/:id` → remove folder; promote its
-  `children` up into the parent at the folder's current position.
-- `PATCH /api/library/move { entryId, toFolderId?, beforeId? }` →
-  relocate / reorder. `toFolderId` defaults to `__root__`; omitting
-  `beforeId` appends to end. Refuses to move a folder into itself or a
-  descendant (cycle prevention).
-
-**Scanner migration** (`vite.config.ts:scanStructuresDir`):
-- Folder entries (no on-disk file) survive the `onDisk` prune.
-- The synthetic `__root__` folder is auto-created on first scan if
-  missing.
-- Any entry not currently placed in any folder's `children` array gets
-  appended to `__root__.children` (preserves legacy layouts on first
-  run, auto-adopts newly-dropped on-disk files).
-- Stale entry ids in `folder.children` are stripped (entry deleted or
-  file removed from disk).
-
-**Everything starts collapsed by default** except `__root__` itself
-(implicit). Folders use `FolderIcon` (closed) / `FolderOpenIcon`
-(expanded), tinted amber. Inline-rename on double-click on a folder
-name. Delete-folder icon button on the right; promotes children up.
-
-The `StructureLibrary` component renders the result as an expandable
-tree. Users explicitly open folders / lineage parents via the chevron.
-
-Starring: each row has a star icon.
-- `POST /api/library/star { file }` flips the `starred` flag in `index.json`.
-- Only one starred entry per family (root + descendants). Starring unstars siblings.
-- The tree structure is NOT modified by starring — it's just a flag.
-- When the user clicks a **family root** that has no `starred` itself but a
-  descendant is starred, the library loads the starred descendant instead.
-- The family root row shows an orange `⭐ → <name>` hint chip in that case.
-  The hint chip is gated on `depth === 0 && !entry.starred` only — `entry.parent`
-  is NOT checked, so even an entry that *was* a child but became a root via
-  orphan-parent cleanup still gets the chip.
-
-**Per-entry metadata** — each library entry's `name`, `organism`, `method`,
-`resolution`, `description` are persisted in `index.json` and edited via
-the Info panel:
-- `StructureLibrary.loadStructureRaw` populates the store's `meta` from the
-  loaded entry's fields, so switching structures swaps the Info display.
-- `MolstarViewer` post-load extracts `name` / `method` from the PDB header
-  ONLY as a fallback — if the entry already has these set, they're kept.
-- `StructureInfo` debounces edits 500 ms and PUTs to `/api/library/meta`,
-  then bumps `libraryVersion` so the Library row re-renders with the
-  updated name/description.
-
-**Reactive refresh** — `structureStore.libraryVersion` is a monotonic
-counter. Any mutation (star toggle, meta edit, DVBFixer Run, etc.) calls
-`bumpLibraryVersion()`. `StructureLibrary`'s fetch effect depends on this
-counter, so the library re-fetches `index.json` automatically. No manual
-refresh needed.
+`ProjectLibrary.tsx` renders two active panels: Library is the ordered list
+of workspaces, while Workspace shows the active manifest's visible artifacts.
+Both use dedicated drag handles and persist ordering through the workspace API.
+Artifact metadata lives directly in `workspace.json` and is edited through the
+revisioned artifact-metadata endpoint. Legacy `structures/index.json` data is
+used only by the one-time workspace migration; there is no legacy structure
+tree frontend.
 
 ### Mol* Integration
 
@@ -481,27 +368,16 @@ without flipping the toggle. Selection / 3D sync continue to use the canonical
   multiple groups → error) and `unknown` (chain id not present → error).
   Chains left out become implicit singletons. `[Cancel]` discards local
   edits.
-- **Persistence.** `StructureMeta.equivalentChains?: string[][]` is part
-  of the existing META_FIELDS debounced-PUT pipeline. `undefined` means
-  "auto-detect, don't persist"; an array (incl. `[]`) is a manual
-  override. The PUT body sends `null` when the field is undefined; the
-  backend honors `null` as "delete this key from `index.json`" so the
-  Reset button actually removes the persisted override rather than
-  leaving an empty array.
-- **Load path.** `StructureLibrary.loadStructureRaw` reads
-  `entry.equivalentChains` into `setMeta(...)` so manual overrides
-  survive structure switches and page reloads.
-
-  It also resolves `allotype` and `iggSubtype` through
-  `inheritFromLineage(entries, entry, field)` — a small helper that
-  returns the entry's own value when set, otherwise walks the `parent`
-  chain (cycle-safe) until it finds the first non-empty value. This
-  read-time fallback complements the write-time inheritance in
-  `server/antibody-pipeline.ts` + the DVBFixer route: even older
-  entries (created before the inherit-at-write rule landed) and entries
-  produced by future tools that forget to propagate will still display
-  the right identity tags in the Info panel, as long as some ancestor
-  has them set.
+- **Persistence.** `StructureInfo` saves `equivalentChains` through the
+  revision-aware workspace artifact metadata endpoint. `undefined` means
+  "auto-detect, don't persist"; an array (including `[]`) is a manual override,
+  and `null` removes the persisted field. A successful PATCH replaces the
+  active manifest with the server's incremented revision; a stale revision is
+  shown as a conflict instead of overwriting newer edits.
+- **Load path.** Every workspace artifact load applies the artifact's complete
+  metadata snapshot through `structureMetaFromArtifact(...)`. This preserves
+  manual overrides across structure switches and clears fields omitted by the
+  next artifact so metadata cannot leak between structures.
 
 ### Alignment Panel (`src/components/AlignmentPanel.tsx`, `src/lib/alignment.ts`)
 
@@ -591,8 +467,8 @@ handler.
 ### DVBFixer Panel + Backend
 
 **Frontend** (`src/components/DVBFixerPanel.tsx`): MUI Tabs (one per
-sub-command), input file picker filtered from `structures/index.json`, flag
-form auto-generated from the spec fetched at runtime from `GET /api/dvbfixer-spec`.
+sub-command), input file picker sourced from active workspace artifacts, and a
+flag form generated from the spec fetched at runtime from `GET /api/dvbfixer-spec`.
 Per-flag controls map by `type`: bool → Checkbox, select → Select,
 number/text → TextField.
 
@@ -602,11 +478,12 @@ an input yet (`userPickedInputRef.current === false`) OR the current selection
 is empty, the picker mirrors the active structure. Selecting from the dropdown
 sets `userPickedInputRef.current = true` and stops the auto-mirror.
 
-**Auto-open output** — on successful run, the panel `await plugin.clear()`s the
-primary viewer and loads the output file directly (`rawData` → `parseTrajectory`
-→ `applyPreset('default')`), bumps `libraryVersion`, sets `fileName` to the
-output, and resets `userPickedInputRef` so the next run's input mirrors the new
-active structure. Failures leave the viewer untouched.
+**Managed jobs and output** — Run posts to `/api/jobs`. The panel restores an
+active workspace job after remount, follows state through EventSource with a
+polling fallback, exposes Cancel, and shows terminal logs. On success it reloads
+workspace artifacts, loads structure output into viewer A, and resets
+`userPickedInputRef` so the next command uses that output. Failures leave the
+viewer untouched.
 
 **Model tab — per-chain FASTA input.** The `model` sub-tab renders a
 custom section above the flag controls: one multi-line input per
@@ -648,20 +525,11 @@ PDB.
 
 **Backend** (`server/api-plugin.ts`, a Vite middleware plugin):
 - `GET /api/dvbfixer-spec` — returns `COMMANDS` from `server/dvbfixer-spec.ts`.
-- `POST /api/dvbfixer/:command` — body `{ inputFile, values, fastaContent? }`.
-  Spawns the CLI (env `DVBFIXER_CMD`, default `'dvbfixer'`; can be a multi-token
-  command like `'micromamba run -n tarantino dvbfixer'` — split on whitespace).
-  Output: `structures/dvb_<command>_<timestamp>/<input>_<command>.pdb`. When
-  `fastaContent` is non-empty (used by the model tab), it's written to
-  `<outDir>/<inputBase>.fasta` and `--fasta <abspath>` is injected into the
-  args (overriding any user-typed `--fasta` value).
-  - **Success**: entry appended to `structures/index.json` with `parent`
-    pointing to the input file → library renders parent → child. The
-    new entry also inherits `allotype` and `iggSubtype` from the input
-    entry when those tags are set (write-time propagation).
-  - **Failure** (non-zero exit): output folder moved to
-    `structures/_dvb_failed/<subdir>` (underscore prefix → scanner skips it).
-    Response includes `movedTo`.
+- `POST /api/jobs` starts a workspace-scoped DVBFixer job. `GET /api/jobs`
+  restores active jobs after a panel reload, job detail/events report status
+  and logs, and `DELETE /api/jobs/:id` requests cancellation. Successful output
+  files are registered as workspace artifacts; the frontend reloads the active
+  manifest and opens the primary output when appropriate.
 - `GET / POST / PUT / DELETE /api/mutations[/:id]` — CRUD for the
   `mutations` table; auto-creates the table on first connection. Returns 503
   if `DATABASE_URL` is unset.
@@ -669,18 +537,10 @@ PDB.
   mutationIds: number[], equivalentChainsMap?, manualChainsByMutationId?, hasGlycan: boolean, scheme:
   'EU'|'Kabat' }`. Streams `data: <JSON>\n\n` events. See the dedicated
   Antibody Engineer architecture section above.
-- `POST /api/library/star { file }` — toggles `starred` flag in `index.json` (one starred per family).
-- `POST /api/library/folder { name, parentFolderId? }` — create a new folder
-  (appended to parent's children, or `__root__` if omitted).
-- `PATCH /api/library/folder/:id { name }` — rename folder.
-- `DELETE /api/library/folder/:id` — delete folder; children migrate up to parent.
-- `PATCH /api/library/move { entryId, toFolderId?, beforeId? }` — move / reorder
-  any entry (folder OR structure) by file path or folder id.
-- `PUT /api/library/meta { file, name?, organism?, method?, resolution?, description?, iggSubtype?, allotype?, equivalentChains? }` — persists
-  per-entry metadata edits into `index.json`. Promotes auto-detected files to manual entries on
-  demand. Only patches the whitelisted fields — other entry fields (`id`, `parent`, `starred`, etc.) are
-  preserved. **`null` is treated as "delete this key"** so the Info panel's `Reset` button can
-  remove a manual `equivalentChains` override and fall back to auto-detection.
+- `PATCH /api/workspaces/:workspaceId/artifacts/:artifactId/metadata` updates
+  whitelisted artifact metadata against the current manifest revision and
+  returns the full incremented manifest. Optional fields accept `null` for
+  removal; stale revisions return 409.
 - `GET /api/status` — `{ dvbfixer, databaseConfigured, databaseConnected }`.
 
 **Spec format** (`server/dvbfixer-spec.ts`):
@@ -950,12 +810,9 @@ expands each bucket using the user's `meta.equivalentChains` override
 chain, every other chain in the group gets promoted to the same type.
 Backend receives the resolved map and trusts it.
 
-**Library integration** — the rich final entry's `parent` set to the
-ORIGINAL input means the Library tree shows `FcRn.pdb → "FcRn — YTE"`
-as a direct child, regardless of how many intermediate steps the
-pipeline ran. Intermediate outputs become children of the previous
-step's output (deep but discoverable). `bumpLibraryVersion()` is called
-on completion to force a re-fetch.
+**Workspace integration** — final and intermediate outputs are registered as
+workspace artifacts. Completion reloads the active manifest so new files become
+available without a legacy global-library refresh signal.
 
 ### Settings (`src/components/SettingsPanel.tsx`)
 
@@ -983,10 +840,10 @@ The panel renders one MUI control per preference (`Switch` for booleans,
 immediately via the matching `persistX` / `loadPersistedX` helpers at
 the top of `structureStore.ts`.
 
-`AlignmentPanel` fetches `/structures/index.json` on mount and on every
-`libraryVersion` bump, builds a `Map<file, name>`, and exposes
-`labelFor(filePath)` to render the right value per the mode. This
-works for both primary (A) and secondary (B) viewer structures.
+`AlignmentPanel` builds its file-to-name map directly from the active
+workspace's artifacts. Info edits update the same revisioned manifest, so both
+primary (A) and secondary (B) source labels react without a legacy library
+refresh signal.
 
 Discoverable in the default layout's left column (paired with Info) as
 of the latest layout update; also accessible via the `+` menu.
@@ -1006,7 +863,8 @@ we check `Loci.isEmpty(event.current.loci)` ourselves (NOT `isEmptyLoci(loci)`
 - **MUI v9 only**: `@mui/material`, `@mui/icons-material`, `@mui/x-data-grid`. No Tailwind, no shadcn.
 - **TypeScript strict**: `noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`, `erasableSyntaxOnly` all on.
 - **`@` alias** → `src/` (in `vite.config.ts`).
-- **structures/** is auto-scanned recursively, skipping `.*` and `_*` directories. `index.json` is auto-pruned on every scan.
+- **Workspace manifests are authoritative** for visible artifacts; hidden
+  bookkeeping files must not enter file pickers or the Workspace panel.
 - **The frontend never imports from `server/`** — it talks to the backend over HTTP. The DVBFixer spec is fetched at runtime from `/api/dvbfixer-spec`.
 - **`pg` is loaded lazily** server-side via dynamic import; missing pg or unset `DATABASE_URL` doesn't break the app.
 - **postinstall** `scripts/fix-native-deps.mjs` installs the right platform-specific `@rollup/rollup-*` binding.
@@ -1045,10 +903,10 @@ src/
   index.css, molstar-theme.scss # FlexLayout vars + Mol* SCSS skin
 
   components/
-    MolstarViewer.tsx           # Mol* init per slot, color theme registration, post-load (hide water, ions→spacefill, OrientAxes gated on autoOrientOnLoad). Cleanup on tab close: dispose plugin AND clear store's fileName/secondaryFileName + chains for that slot so the Library's A/B chip disappears.
+    MolstarViewer.tsx           # Mol* init per slot, color theme registration, post-load (hide water, ions→spacefill, OrientAxes gated on autoOrientOnLoad). Cleanup disposes the plugin and clears that slot's filename/chains.
     SequenceViewer.tsx          # Monospace residue grid, drag-select, missing-SEQRES gap rendering, validated chain init, Structure/Sequence numbering toggle
-    StructureLibrary.tsx        # Tree of folders + structures, drag-drop reorder + cross-folder move (@dnd-kit), starring, A/B slot toggle, descendant-starred hint chip
-    StructureInfo.tsx           # Stats summary at top, metadata (Name + IgG Subtype + Allotype) + Notes, EquivalentChainsSection (auto-detect via NW + trimmed identity, manual override persisted in index.json)
+    ProjectLibrary.tsx          # Library workspace list + active Workspace files, drag handles, filtering, A/B load selector, downloads, rename/trash
+    StructureInfo.tsx           # Stats and revision-aware workspace-artifact metadata, including equivalent-chain override
     ElementsTable.tsx           # Tree, visibility toggles, row-click camera focus (sync-suppressed), "Show Interface"
     InteractionsPanel.tsx       # Computed contacts, focused-chain banner
     ClashesPanel.tsx            # VdW-overlap clash table: severity filter, Group-by-residue toggle (expandable groups), row-click → residue sticks + severity-colored dashed clash line via measurement.addDistance
@@ -1083,10 +941,10 @@ src/
     residue-color-theme.ts      # Mol* ColorTheme: carbons by residue class, others CPK
 
 server/
-  api-plugin.ts                 # Vite middleware: /api/dvbfixer/*, /api/mutations, /api/library/{star,meta,folder,move}, /api/antibody-engineer/run (SSE), /api/status. Exports runDvbfixer + getPg + writeSSEHeaders + sseSend for reuse.
-  workspace-api.ts              # Workspace CRUD/import/files/rename/recoverable trash
+  api-plugin.ts                 # Vite middleware: managed DVBFixer jobs, mutations, workspace APIs, antibody engineering, and status routes.
+  workspace-api.ts              # Revisioned workspace/artifact CRUD, contained file serving, recoverable trash, and legacy-index migrations
   homology-api.ts               # Homology project persistence; writes CLI template plans and registers run artifacts
-  antibody-pipeline.ts          # Multi-step DVBFixer orchestrator: expandMutations, validateNoDuplicateTargets, pipelineSteps (glycan-7 vs no-glycan-5), engineerChecksum dedup, runEngineerPipeline (intermediate + final index.json entries, _engineer_failed/ rollback)
+  antibody-pipeline.ts          # Multi-step DVBFixer orchestrator: expandMutations, validateNoDuplicateTargets, pipelineSteps, checksum dedup, and workspace artifact registration.
   dvbfixer-spec.ts              # CommandDef[] for split/renumber/model/prepare/minimize/protonate/convert (was `glycam` in older DVBFixer). renumber.--scheme options: seqres/kabat/chothia/imgt/martin/eu/aho. convert exposes --to-amber + --to-charmm + --no-roh. minimize + protonate `--ff` is a select-multi dropdown of OpenMM bundles (AMBER19/AMBER14/GLYCAM/CHARMM36 presets, empty = DVBFixer auto-pick). minimize defaults `--no-solvent` to ON (vacuum minimization is the common case in the AE pipeline + most user runs). prepare exposes --no-infer-conect. model exposes --num-output (top-N candidate save count; with N>1 the auxiliary _2.pdb/_3.pdb outputs stay on disk and Tarantino only auto-loads the first). Removed from UI: model --keep-workdir, minimize --dat/--padding/--platform, protonate --cys-disulfide-pka, protonate --protassign (DVBFixer now defaults it ON). Hidden flags are still valid on the CLI.
 
 scripts/
@@ -1094,8 +952,8 @@ scripts/
   fix-native-deps.mjs           # postinstall
   set-modeller-key.sh           # Writes Modeller license into config.py
 
-structures/                     # Manifest (index.json with parent/starred/equivalentChains/mutationIds/_engineerChecksum), pdb files, dvb_<cmd>_<ts>/ outputs, _dvb_failed/ for single-command failures, _engineer_failed/ for Antibody Engineer pipeline failures
+structures/projects/<id>/       # workspace.json plus files/, runs/, homology/, recoverable .trash/, and legacy migration recovery sources
 mutations.json                  # Git-tracked backup of the postgres `mutations` table. Auto-written after every CRUD, auto-seeded on empty table.
 docker-compose.yml              # postgres:16-alpine, service `db`
-vite.config.ts                  # apiPlugin + serve-structures (recursive scan, prune stale, strip orphan parents only when parent file is genuinely off-disk, preserve filename case, synthesise __root__ folder, auto-adopt new files into __root__.children, prune stale folder-children refs, skip `.*`/`_*`)
+vite.config.ts                  # React + API plugins; workspace files are served only through the contained workspace file route
 ```

@@ -1,10 +1,12 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ViteDevServer } from 'vite'
 import crypto from 'node:crypto'
+import { isDeepStrictEqual } from 'node:util'
 import fs from 'node:fs'
 import path from 'node:path'
 import { runDvbfixerArgs } from './dvbfixer-runner'
-import { workspaceRoot } from './workspace-api'
+import { loadWorkspace, saveWorkspace, workspaceRoot, writeJsonAtomic } from './workspace-api'
+import { errorStatus, readRequestBody } from './request-body'
 
 export interface TemplateSelection {
   id: string
@@ -57,12 +59,7 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
 }
 
 function readBody(req: IncomingMessage): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = []
-    req.on('data', chunk => chunks.push(chunk))
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
-    req.on('error', reject)
-  })
+  return readRequestBody(req).then(body => body.toString('utf8'))
 }
 
 function safeId(id: string): string {
@@ -77,31 +74,121 @@ function resolveArtifact(root: string, relative: string): string {
   if (rel.startsWith('..') || path.isAbsolute(rel) || !fs.existsSync(resolved)) {
     throw new Error(`artifact not found: ${relative}`)
   }
-  return resolved
+  const realRoot = fs.realpathSync(root)
+  const realResolved = fs.realpathSync(resolved)
+  const realRelative = path.relative(realRoot, realResolved)
+  if (realRelative.startsWith('..') || path.isAbsolute(realRelative)) {
+    throw new Error(`artifact not found: ${relative}`)
+  }
+  return realResolved
+}
+
+const MD_LEVELS = new Set(['none', 'fast', 'slow', 'very_slow', 'slow_large'])
+
+export function validatedModelArgs(options: Record<string, unknown> | null | undefined): string[] {
+  const values = options || {}
+  const unknown = Object.keys(values).filter(flag => flag !== '--num-models' && flag !== '--md-level')
+  if (unknown.length) throw new Error(`unsupported homology model option: ${unknown[0]}`)
+  const args: string[] = []
+  if (values['--num-models'] !== undefined && values['--num-models'] !== '') {
+    const count = values['--num-models']
+    if (typeof count !== 'number' || !Number.isInteger(count) || count < 1 || count > 1000) {
+      throw new Error('--num-models must be an integer from 1 to 1000')
+    }
+    args.push('--num-models', String(count))
+  }
+  if (values['--md-level'] !== undefined && values['--md-level'] !== '') {
+    const level = values['--md-level']
+    if (typeof level !== 'string' || !MD_LEVELS.has(level)) {
+      throw new Error('--md-level has an unsupported value')
+    }
+    args.push('--md-level', level)
+  }
+  return args
+}
+
+function normalizedProject(value: unknown, expectedId?: string): HomologyProject {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('homology project must be a JSON object')
+  const project = value as Partial<HomologyProject>
+  if (typeof project.id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(project.id)) throw new Error('homology project has an invalid id')
+  if (expectedId && project.id !== expectedId) throw new Error(`homology project id ${project.id} does not match directory ${expectedId}`)
+  if (typeof project.name !== 'string' || typeof project.targetFasta !== 'string') throw new Error('homology project is missing name or targetFasta')
+  if (!Array.isArray(project.templates) || !Array.isArray(project.alignmentGroups)) throw new Error('homology project has invalid templates or alignments')
+  if (!['mafft', 'muscle', 'clustalo'].includes(String(project.engine))) throw new Error('homology project has an invalid MSA engine')
+  if (!project.modelOptions || typeof project.modelOptions !== 'object' || Array.isArray(project.modelOptions)) throw new Error('homology project has invalid model options')
+  if (typeof project.createdAt !== 'string' || typeof project.updatedAt !== 'string') throw new Error('homology project is missing timestamps')
+  return { ...project, version: 1 } as HomologyProject
+}
+
+function readProjectFile(file: string, expectedId?: string): HomologyProject {
+  try {
+    return normalizedProject(JSON.parse(fs.readFileSync(file, 'utf8')), expectedId)
+  } catch (error: any) {
+    throw new Error(`invalid homology project ${file}: ${error?.message || String(error)}`)
+  }
+}
+
+function migrationCandidates(directory: string): string[] {
+  if (!fs.existsSync(directory)) return []
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    if (entry.isDirectory()) {
+      const nested = path.join(directory, entry.name, 'homology-project.json')
+      return fs.existsSync(nested) ? [nested] : []
+    }
+    return entry.isFile() && entry.name.endsWith('.json') ? [path.join(directory, entry.name)] : []
+  })
+}
+
+/** Migrate all known per-workspace layouts without overwriting canonical data. */
+export function ensureHomologyStorage(root: string): string {
+  const canonical = path.join(root, 'homology')
+  fs.mkdirSync(canonical, { recursive: true })
+  const alternateRoots = [path.join(root, 'homology_projects'), path.join(root, 'homology-projects')]
+  const candidates = [
+    ...alternateRoots.flatMap(migrationCandidates),
+    ...fs.readdirSync(canonical, { withFileTypes: true })
+      .filter(entry => entry.isFile() && entry.name.endsWith('.json'))
+      .map(entry => path.join(canonical, entry.name)),
+  ]
+  for (const source of candidates) {
+    let project: HomologyProject
+    try { project = readProjectFile(source) } catch { continue }
+    const destination = path.join(canonical, safeId(project.id), 'homology-project.json')
+    if (!fs.existsSync(destination)) {
+      writeJsonAtomic(destination, project)
+      continue
+    }
+    let same = false
+    try { same = isDeepStrictEqual(readProjectFile(destination, project.id), project) } catch { /* preserve both */ }
+    if (same) continue
+    const digest = crypto.createHash('sha256').update(fs.readFileSync(source)).digest('hex').slice(0, 12)
+    const conflict = path.join(canonical, '.migration-conflicts', `${project.id}-${digest}.json`)
+    if (!fs.existsSync(conflict)) writeJsonAtomic(conflict, project)
+  }
+  return canonical
 }
 
 function projectRoot(root: string): string {
-  const directory = path.join(root, 'homology_projects')
-  fs.mkdirSync(directory, { recursive: true })
-  return directory
+  return ensureHomologyStorage(root)
 }
 
 function projectPath(root: string, id: string): string {
   return path.join(projectRoot(root), safeId(id), 'homology-project.json')
 }
 
-function saveProject(root: string, project: HomologyProject): HomologyProject {
+export function saveHomologyProject(root: string, project: HomologyProject): HomologyProject {
+  normalizedProject(project, project.id)
   const file = projectPath(root, project.id)
   fs.mkdirSync(path.dirname(file), { recursive: true })
   const next = { ...project, version: 1 as const, updatedAt: new Date().toISOString() }
-  fs.writeFileSync(file, `${JSON.stringify(next, null, 2)}\n`)
+  writeJsonAtomic(file, next)
   return next
 }
 
-function loadProject(root: string, id: string): HomologyProject {
+export function loadHomologyProject(root: string, id: string): HomologyProject {
   const file = projectPath(root, id)
   if (!fs.existsSync(file)) throw new Error(`project not found: ${id}`)
-  return JSON.parse(fs.readFileSync(file, 'utf8')) as HomologyProject
+  return readProjectFile(file, id)
 }
 
 export function parseFasta(text: string): Array<{ id: string; sequence: string }> {
@@ -254,7 +341,7 @@ async function alignProject(root: string, project: HomologyProject): Promise<Hom
     })
     groups.push({ chainId: record.id, rows, masks: {}, maskModes: Object.fromEntries(rows.filter(row => row.kind === 'template').map(row => [row.id, 'all'])) })
   }
-  return saveProject(root, { ...project, alignmentGroups: groups })
+  return saveHomologyProject(root, { ...project, alignmentGroups: groups })
 }
 
 interface PdbResidue { key: string; chain: string; number: string; aa: string; lines: string[] }
@@ -389,7 +476,9 @@ function registerRun(root: string, project: HomologyProject, files: string[]): s
   const relativeFiles = files.map(file => path.relative(root, file).replace(/\\/g, '/'))
   const primary = relativeFiles.find(file => file.endsWith('.pdb')) || relativeFiles[0]
   if (!primary) return ''
-  const manifest = JSON.parse(fs.readFileSync(path.join(root, 'workspace.json'), 'utf8'))
+  const dataRoot = path.dirname(path.dirname(root))
+  const workspaceId = path.basename(root)
+  const manifest = loadWorkspace(dataRoot, workspaceId)
   for (const relative of relativeFiles) manifest.artifacts.push({
     id: crypto.randomUUID(), file: relative,
     name: relative === primary ? `${project.name} → homology` : path.basename(relative),
@@ -399,7 +488,7 @@ function registerRun(root: string, project: HomologyProject, files: string[]): s
       path.basename(relative).startsWith('_') || (relative.endsWith('.pdb') && relative !== primary && !path.basename(relative).startsWith(sanitize(project.name || 'target'))),
   })
   manifest.toolState = { ...manifest.toolState, lastHomologyRun: { projectId: project.id, files: relativeFiles } }
-  fs.writeFileSync(path.join(root, 'workspace.json'), `${JSON.stringify(manifest, null, 2)}\n`)
+  saveWorkspace(dataRoot, manifest)
   return primary
 }
 
@@ -409,22 +498,18 @@ async function modelProject(root: string, project: HomologyProject): Promise<unk
   const fasta = path.join(runDir, 'target.fasta')
   fs.writeFileSync(fasta, parseFasta(project.targetFasta).map(record => `>${record.id}\n${record.sequence.replace(/[-*]/g, '')}\n`).join(''))
   const plan = path.join(runDir, 'template-plan.json')
-  fs.writeFileSync(plan, `${JSON.stringify({
+  writeJsonAtomic(plan, {
     templates: project.templates.map(template => ({
       id: template.id, path: resolveArtifact(root, template.file), chain: template.chain,
       targetChain: template.targetChain,
     })),
     alignmentGroups: project.alignmentGroups,
-  }, null, 2)}\n`)
+  })
   const prefix = path.join(runDir, sanitize(project.name || 'target'))
   const args = [fasta, '--template-plan', plan, '-o', prefix]
-  for (const [flag, value] of Object.entries(project.modelOptions || {})) {
-    if (value === '' || value === false || value === null || value === undefined) continue
-    if (value === true) args.push(flag)
-    else args.push(flag, String(value))
-  }
+  args.push(...validatedModelArgs(project.modelOptions))
   const result = await runDvbfixerArgs('homology', args, runDir)
-  fs.writeFileSync(path.join(runDir, 'run.json'), `${JSON.stringify({ projectId: project.id, args, exitCode: result.code }, null, 2)}\n`)
+  writeJsonAtomic(path.join(runDir, 'run.json'), { projectId: project.id, args, exitCode: result.code })
   fs.writeFileSync(path.join(runDir, 'stdout.log'), result.stdout)
   fs.writeFileSync(path.join(runDir, 'stderr.log'), result.stderr)
   const files = listFiles(runDir)
@@ -467,7 +552,7 @@ async function structurallyAlignGroups(root: string, project: HomologyProject): 
       template.fittedFile = path.relative(root, candidate).replace(/\\/g, '/')
     })
   }
-  return saveProject(root, { ...project, templates, structuralAlignment: outputs })
+  return saveHomologyProject(root, { ...project, templates, structuralAlignment: outputs })
 }
 
 export function registerHomologyApi(server: ViteDevServer, root: string): void {
@@ -482,7 +567,7 @@ export function registerHomologyApi(server: ViteDevServer, root: string): void {
         const projects = fs.readdirSync(projectRoot(storageRoot), { withFileTypes: true })
           .filter(entry => entry.isDirectory())
           .flatMap(entry => {
-            try { return [loadProject(storageRoot, entry.name)] } catch { return [] }
+            try { return [loadHomologyProject(storageRoot, entry.name)] } catch { return [] }
           })
           .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
           .map(project => ({ id: project.id, name: project.name, updatedAt: project.updatedAt }))
@@ -502,7 +587,9 @@ export function registerHomologyApi(server: ViteDevServer, root: string): void {
         if (!body.workspaceId || !body.file) return sendJson(res, 400, { error: 'workspaceId and file are required' })
         const file = resolveArtifact(workspaceRoot(root, body.workspaceId), body.file)
         const records = parseSequenceArtifact(file)
-        return sendJson(res, 200, parts[0] === 'chains' ? records.map(record => ({ id: record.id, length: record.length })) : { records })
+        return sendJson(res, 200, parts[0] === 'chains'
+          ? records.map(record => ({ id: record.id, length: record.length, sequence: record.sequence }))
+          : { records })
       }
       if (req.method === 'POST' && parts[0] === 'projects' && !parts[1]) {
         const request = JSON.parse(await readBody(req) || '{}') as { workspaceId?: string }
@@ -515,21 +602,21 @@ export function registerHomologyApi(server: ViteDevServer, root: string): void {
             '--num-models': 5, '--md-level': 'fast',
           }, createdAt: now, updatedAt: now,
         }
-        return sendJson(res, 201, saveProject(storageRoot, project))
+        return sendJson(res, 201, saveHomologyProject(storageRoot, project))
       }
       if (parts[0] === 'projects' && parts[1] && req.method === 'GET') {
         if (!queryWorkspace) return sendJson(res, 400, { error: 'workspaceId is required' })
-        return sendJson(res, 200, loadProject(workspaceRoot(root, queryWorkspace), parts[1]))
+        return sendJson(res, 200, loadHomologyProject(workspaceRoot(root, queryWorkspace), parts[1]))
       }
       if (parts[0] === 'projects' && parts[1] && req.method === 'PUT') {
         const incoming = JSON.parse(await readBody(req)) as HomologyProject
         const workspaceId = (incoming as any).workspaceId as string
         if (!workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
         const storageRoot = workspaceRoot(root, workspaceId)
-        const current = loadProject(storageRoot, parts[1])
+        const current = loadHomologyProject(storageRoot, parts[1])
         const { workspaceId: _workspaceId, ...clean } = incoming as any
         void _workspaceId
-        return sendJson(res, 200, saveProject(storageRoot, { ...clean, id: current.id, createdAt: current.createdAt, version: 1 }))
+        return sendJson(res, 200, saveHomologyProject(storageRoot, { ...clean, id: current.id, createdAt: current.createdAt, version: 1 }))
       }
       if (req.method === 'POST' && parts[0] === 'align') {
         const incoming = JSON.parse(await readBody(req)) as HomologyProject & { workspaceId?: string }
@@ -555,7 +642,7 @@ export function registerHomologyApi(server: ViteDevServer, root: string): void {
       }
       return next()
     } catch (error: any) {
-      return sendJson(res, 500, { error: error?.message || String(error) })
+      return sendJson(res, errorStatus(error), { error: error?.message || String(error) })
     }
   })
 }

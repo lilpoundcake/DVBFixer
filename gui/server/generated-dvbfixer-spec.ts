@@ -934,6 +934,30 @@ export const GENERATED_COMMANDS = [
         "default": false
       },
       {
+        "flag": "--cap-termini",
+        "dest": "cap_termini",
+        "label": "Cap Termini",
+        "type": "bool",
+        "group": "Content selection",
+        "help": "Add a neutral ACE N-cap and NME C-cap to protein chains. By default every protein chain is capped; use --cap-chain to restrict the selection.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--cap-chain",
+        "dest": "cap_chain",
+        "label": "Cap Chain",
+        "type": "text",
+        "group": "Content selection",
+        "help": "Protein chain to cap (repeatable). Use '_' for a blank chain ID. Only meaningful with --cap-termini.",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
         "flag": "--mutate",
         "dest": "mutate",
         "label": "Mutate",
@@ -986,7 +1010,9 @@ export const GENERATED_COMMANDS = [
           "--no-heterogen-h",
           "--smiles",
           "--rename",
-          "--no-infer-conect"
+          "--no-infer-conect",
+          "--cap-termini",
+          "--cap-chain"
         ]
       },
       {
@@ -1157,6 +1183,18 @@ export const GENERATED_COMMANDS = [
         "repeatable": false,
         "multi": false,
         "default": 1000
+      },
+      {
+        "flag": "--keep-water",
+        "dest": "keep_water",
+        "label": "Keep Water",
+        "type": "bool",
+        "group": "Content selection",
+        "help": "Keep waters that were present in the input PDB. Temporary solvent added for minimization is still removed.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
       },
       {
         "flag": "--strip-heterogens",
@@ -1344,6 +1382,7 @@ export const GENERATED_COMMANDS = [
       {
         "name": "Content selection",
         "fields": [
+          "--keep-water",
           "--strip-heterogens",
           "--rebuild-h",
           "--rename",
@@ -2074,6 +2113,7 @@ export const GENERATED_COMMANDS = [
         "label": "Verbose",
         "type": "bool",
         "group": "Diagnostics",
+        "help": "Print detailed transplant progress and diagnostics",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -3192,6 +3232,7 @@ export const GENERATED_COMMANDS = [
         "label": "Verbose",
         "type": "bool",
         "group": "Diagnostics",
+        "help": "Print the alignment command and progress details",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -3321,6 +3362,7 @@ export const GENERATED_COMMANDS = [
         "label": "Verbose",
         "type": "bool",
         "group": "Diagnostics",
+        "help": "Print structural-alignment progress and diagnostics",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -3533,6 +3575,7 @@ export const GENERATED_COMMANDS = [
         "label": "Format",
         "type": "select",
         "group": "options",
+        "help": "Report format (default: text)",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -3679,18 +3722,6 @@ export const GENERATED_COMMANDS = [
         "type": "bool",
         "group": "Pipeline skip flags",
         "help": "Skip the minimize step",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      },
-      {
-        "flag": "--skip-protonate",
-        "dest": "skip_protonate",
-        "label": "Skip Protonate",
-        "type": "bool",
-        "group": "Pipeline skip flags",
-        "help": "[deprecated] The protonate step no longer runs as a separate pipeline stage — PROPKA + Reduce are integrated into prepare (0.7.7+). Kept for backward compat: mapped to `--no-propka --no-protassign` on prepare.",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -3850,6 +3881,30 @@ export const GENERATED_COMMANDS = [
         "repeatable": false,
         "multi": false,
         "default": false
+      },
+      {
+        "flag": "--cap-termini",
+        "dest": "cap_termini",
+        "label": "Cap Termini",
+        "type": "bool",
+        "group": "Prepare step",
+        "help": "Add neutral ACE/NME caps during prepare. Applies to all protein chains unless --cap-chain is supplied.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--cap-chain",
+        "dest": "cap_chain",
+        "label": "Cap Chain",
+        "type": "text",
+        "group": "Prepare step",
+        "help": "Protein chain to cap (repeatable; '_' means blank chain).",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
       },
       {
         "flag": "--no-solvent",
@@ -4134,8 +4189,7 @@ export const GENERATED_COMMANDS = [
           "--skip-renumber",
           "--skip-model",
           "--skip-prepare",
-          "--skip-minimize",
-          "--skip-protonate"
+          "--skip-minimize"
         ]
       },
       {
@@ -4157,7 +4211,9 @@ export const GENERATED_COMMANDS = [
           "--no-heterogen-h",
           "--smiles",
           "--mutate",
-          "--rename"
+          "--rename",
+          "--cap-termini",
+          "--cap-chain"
         ]
       },
       {

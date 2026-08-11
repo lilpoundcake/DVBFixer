@@ -6,6 +6,8 @@ from pathlib import Path
 
 import numpy as np
 
+from dvbfixer.cli_types import nonnegative_int, positive_float
+
 CHAIN_IDS = (
     list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     + list("abcdefghijklmnopqrstuvwxyz")
@@ -85,11 +87,11 @@ def parse_args(argv=None):
 
     detection = p.add_argument_group("Chain-break detection")
     detection.add_argument(
-        "-d", "--distance-cutoff", type=float, default=DEFAULT_DISTANCE_CUTOFF,
+        "-d", "--distance-cutoff", type=positive_float, default=DEFAULT_DISTANCE_CUTOFF,
         help=f"C->N peptide bond cutoff in angstroms (default: {DEFAULT_DISTANCE_CUTOFF})"
     )
     detection.add_argument(
-        "-g", "--gap-cutoff", type=float, default=DEFAULT_GAP_CUTOFF,
+        "-g", "--gap-cutoff", type=positive_float, default=DEFAULT_GAP_CUTOFF,
         help=f"Min nearest-atom distance between consecutive residues to call a break "
              f"when C/N atoms are missing (default: {DEFAULT_GAP_CUTOFF} A)"
     )
@@ -98,7 +100,7 @@ def parse_args(argv=None):
         help="Disable all distance-based detection, use only residue numbering"
     )
     detection.add_argument(
-        "--max-chains", type=int, default=DEFAULT_MAX_CHAIN_THRESHOLD,
+        "--max-chains", type=nonnegative_int, default=DEFAULT_MAX_CHAIN_THRESHOLD,
         help=f"When more than this many chains are detected, do NOT assign "
              f"chain IDs to small-molecule chains (ions, ligands, lipids, "
              f"single-residue HETATMs) — they stay with blank chain ID. "

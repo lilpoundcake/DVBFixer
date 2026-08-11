@@ -20,6 +20,8 @@ import argparse
 import sys
 from pathlib import Path
 
+from dvbfixer.cli_types import nonnegative_float, nonnegative_int, positive_int
+
 
 class PostflightError(RuntimeError):
     """The final structure could not pass or complete validation."""
@@ -68,23 +70,17 @@ def parse_args(argv=None):
                       help="Skip the prepare step")
     skip.add_argument("--skip-minimize", action="store_true",
                       help="Skip the minimize step")
-    skip.add_argument("--skip-protonate", action="store_true",
-                      help="[deprecated] The protonate step no longer runs "
-                           "as a separate pipeline stage — PROPKA + Reduce "
-                           "are integrated into prepare (0.7.7+). Kept for "
-                           "backward compat: mapped to "
-                           "`--no-propka --no-protassign` on prepare.")
 
     model_grp = p.add_argument_group("Model step (Modeller)")
     model_grp.add_argument("--fasta", help="FASTA file with complete sequence(s) for model step")
     model_grp.add_argument("--no-terminal", action="store_true",
                            help="Do not model missing N/C terminal residues; "
                                 "rebuild only gaps between observed anchors")
-    model_grp.add_argument("--num-loops", type=int, default=2,
+    model_grp.add_argument("--num-loops", type=positive_int, default=2,
                            help="Number of loop models (default: 2)")
     model_grp.add_argument("--md-level", choices=["none", "fast", "slow", "very_slow", "slow_large"],
                            default="fast", help="Modeller MD refinement level (default: fast)")
-    model_grp.add_argument("--num-output", type=int, default=1, dest="num_output",
+    model_grp.add_argument("--num-output", type=positive_int, default=1, dest="num_output",
                            help="Save top-N candidate models from Modeller (default: 1). "
                                 "With N>1, the model step writes <stem>_model_1.pdb, "
                                 "..._2.pdb, ... zbs picks _1 (best) for downstream.")
@@ -138,9 +134,9 @@ def parse_args(argv=None):
     minz.add_argument("--rebuild-h", action="store_true",
                       help="Force --rebuild-h on the minimize step (default: off; "
                            "prepare already produced correct H via PROPKA/Reduce)")
-    minz.add_argument("--restraint-k", type=float, default=100.0,
+    minz.add_argument("--restraint-k", type=nonnegative_float, default=100.0,
                       help="Restraint force constant for original atoms (default: 100)")
-    minz.add_argument("--max-iter", type=int, default=1000,
+    minz.add_argument("--max-iter", type=nonnegative_int, default=1000,
                       help="Max minimization iterations per phase (default: 1000)")
     minz.add_argument("--refine", choices=["none", "xtb", "obminimize"], default="none",
                       help="Post-minimize refinement pass in the minimize step "
@@ -236,15 +232,6 @@ def parse_args(argv=None):
             p.error("--smiles cannot be used with --strip-heterogens")
         if not args.heterogen_h:
             p.error("--smiles cannot be used with --no-heterogen-h")
-
-    # Deprecated --skip-protonate → forward as --no-propka --no-protassign
-    # to prepare (0.7.7+: there is no separate protonate step).
-    if getattr(args, 'skip_protonate', False):
-        print("  [zbs] --skip-protonate is deprecated (no separate "
-              "protonate step since 0.7.7); mapping to --no-propka "
-              "--no-protassign on prepare.", file=sys.stderr)
-        args.propka = False
-        args.protassign = False
 
     return args
 
@@ -453,6 +440,8 @@ def _run_pipeline(args, input_path):
         prepare_argv.extend(["--cys-ss-pka", str(args.cys_ss_pka)])
         if not args.keep_heterogens:
             prepare_argv.append("--strip-heterogens")
+        if args.keep_water:
+            prepare_argv.append("--keep-water")
         if not args.heterogen_h:
             prepare_argv.append("--no-heterogen-h")
         for mapping in args.smiles:
@@ -497,6 +486,8 @@ def _run_pipeline(args, input_path):
                          "--atom-naming", args.atom_naming]
         if args.no_solvent:
             minimize_argv.append("--no-solvent")
+        if args.keep_water:
+            minimize_argv.append("--keep-water")
         if args.rebuild_h:
             minimize_argv.append("--rebuild-h")
         if not args.keep_heterogens:

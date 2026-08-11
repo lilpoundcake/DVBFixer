@@ -56,7 +56,7 @@ Content selection:
                         before transplant).
 
 Diagnostics:
-  -v, --verbose
+  -v, --verbose         Print detailed transplant progress and diagnostics
 
 Global logging:
   --log-file PATH       Append all stdout/stderr (including child tools) to

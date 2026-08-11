@@ -11,6 +11,8 @@ import Tooltip from '@mui/material/Tooltip'
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong'
 import ClearIcon from '@mui/icons-material/Clear'
 import { useStructureStore } from '../stores/structureStore'
+import { useWorkspaceStore } from '../stores/workspaceStore'
+import { workspaceArtifactNameMap } from '../lib/workspace-metadata'
 import { threeToOne } from '../lib/residue-codes'
 import { alignSequences, chainToSequence } from '../lib/alignment'
 import {
@@ -66,26 +68,8 @@ export function AlignmentPanel() {
   const primaryPlugin = useStructureStore((s) => s.plugin)
   const secondaryPlugin = useStructureStore((s) => s.secondaryPlugin)
   const alignmentLabelMode = useStructureStore((s) => s.alignmentLabelMode)
-  const libraryVersion = useStructureStore((s) => s.libraryVersion)
-
-  // file → name lookup from structures/index.json so the source-labels
-  // block can display the metadata name when the user selects that mode
-  // in Settings. Re-fetched whenever libraryVersion bumps (Info-panel
-  // meta edit, star toggle, DVBFixer run, etc.).
-  const [fileNameMap, setFileNameMap] = useState<Map<string, string>>(new Map())
-  useEffect(() => {
-    fetch('/structures/index.json', { cache: 'no-store' })
-      .then(r => r.ok ? r.json() : [])
-      .then((entries: Array<{ file?: string; name?: string; kind?: string }>) => {
-        const m = new Map<string, string>()
-        for (const e of entries) {
-          if (e.kind === 'folder') continue
-          if (e.file && e.name) m.set(e.file, e.name)
-        }
-        setFileNameMap(m)
-      })
-      .catch(() => {})
-  }, [libraryVersion])
+  const workspaceArtifacts = useWorkspaceStore((s) => s.active?.artifacts || [])
+  const fileNameMap = useMemo(() => workspaceArtifactNameMap(workspaceArtifacts), [workspaceArtifacts])
 
   // Resolve a source label (file path or metadata name) based on the
   // alignmentLabelMode setting. Falls back to the file path when no name
@@ -334,7 +318,7 @@ export function AlignmentPanel() {
     }
     window.addEventListener('mouseup', up)
     return () => window.removeEventListener('mouseup', up)
-  }, [])
+  }, [pushToViewer, seqIdsBetween])
 
   const cameraSyncEnabled = useStructureStore((s) => s.cameraSyncEnabled)
   const setCameraSyncEnabled = useStructureStore((s) => s.setCameraSyncEnabled)

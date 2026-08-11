@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import inspect
 from pathlib import Path
 
 import pytest
 
+from dvbfixer.ffutils import create_forcefield_with_openff
 from dvbfixer.ffutils.ff_names import (
     PROTONATION_AMBER_TO_CHARMM,
     apply_variants_to_pdb_text,
@@ -27,6 +29,16 @@ END
 """
 
 
+def test_forcefield_factory_has_no_compatibility_keyword_sink() -> None:
+    signature = inspect.signature(create_forcefield_with_openff)
+    assert "small_mol_ff" not in signature.parameters
+    assert "extra_molecules" not in signature.parameters
+    assert all(
+        parameter.kind is not inspect.Parameter.VAR_KEYWORD
+        for parameter in signature.parameters.values()
+    )
+
+
 def test_amber_target_rewrites_variants(tmp_path: Path) -> None:
     pdb = tmp_path / "in.pdb"
     pdb.write_text(_CANONICAL_PDB)
@@ -38,7 +50,7 @@ def test_amber_target_rewrites_variants(tmp_path: Path) -> None:
         ("A", "40"): "HID",
     }
     n = apply_variants_to_pdb_text(pdb, renames, target_ff="amber",
-                                    include_gromacs_lyn=False)
+                                    include_gromacs_shifts=False)
     assert n >= 5
     text = pdb.read_text()
     assert " HIE A   5" in text
@@ -48,12 +60,12 @@ def test_amber_target_rewrites_variants(tmp_path: Path) -> None:
     assert " HID A  40" in text
 
 
-def test_amber_target_gromacs_lyn_rename(tmp_path: Path) -> None:
+def test_amber_target_gromacs_shifts_rename_lyn(tmp_path: Path) -> None:
     """LYN HZ3 → HZ1 is applied by default under target_ff='amber'."""
     pdb = tmp_path / "in.pdb"
     pdb.write_text(_CANONICAL_PDB)
     n = apply_variants_to_pdb_text(pdb, {}, target_ff="amber",
-                                    include_gromacs_lyn=True)
+                                    include_gromacs_shifts=True)
     assert n >= 1
     text = pdb.read_text()
     assert " HZ1 LYN A  30" in text
@@ -61,12 +73,12 @@ def test_amber_target_gromacs_lyn_rename(tmp_path: Path) -> None:
     assert " HZ3 LYN A  30" not in text  # renamed
 
 
-def test_amber_target_gromacs_lyn_off(tmp_path: Path) -> None:
-    """include_gromacs_lyn=False keeps ff14SB HZ2 + HZ3."""
+def test_amber_target_gromacs_shifts_off(tmp_path: Path) -> None:
+    """include_gromacs_shifts=False keeps ff14SB HZ2 + HZ3."""
     pdb = tmp_path / "in.pdb"
     pdb.write_text(_CANONICAL_PDB)
     apply_variants_to_pdb_text(pdb, {}, target_ff="amber",
-                                include_gromacs_lyn=False)
+                                include_gromacs_shifts=False)
     text = pdb.read_text()
     assert " HZ2 LYN A  30" in text
     assert " HZ3 LYN A  30" in text
@@ -108,7 +120,7 @@ def test_no_renames_no_variants_no_change(tmp_path: Path) -> None:
     pdb = tmp_path / "in.pdb"
     plain = "ATOM      1  N   ALA A   1      10.000  10.000  10.000  1.00  0.00           N\nEND\n"
     pdb.write_text(plain)
-    n = apply_variants_to_pdb_text(pdb, {}, include_gromacs_lyn=False)
+    n = apply_variants_to_pdb_text(pdb, {}, include_gromacs_shifts=False)
     assert n == 0
     assert pdb.read_text() == plain
 

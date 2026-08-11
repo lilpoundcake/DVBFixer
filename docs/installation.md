@@ -10,6 +10,13 @@ micromamba activate dvbfixer
 pip install -e .
 ```
 
+For a non-editable installation, build or install the wheel normally. Release
+wheels include the AMBER99SB-ILDN/Lipid21 and CHARMM36 GROMACS force-field
+trees used by `dvbfixer top`; no repository checkout or separate GROMACS force
+field installation is required. At runtime they resolve under the active
+environment's `share/dvbfixer/FF/` directory. Editable installs continue to use
+the checkout's top-level `FF/` directory.
+
 `environment.yml` pins `python >=3.11,<3.14`. The upper bound is required:
 propka 3.5.1 (used by `protonate` / `prepare`) reads the dataclass attribute
 `self.__annotations__` at the instance level, which Python 3.14's PEP 649/749
@@ -114,6 +121,13 @@ After installation, `dvbfixer` is available as a CLI command:
 
 ```bash
 dvbfixer <command> [options]
+```
+
+Confirm that the installed executable and package metadata agree:
+
+```bash
+dvbfixer --version
+# dvbfixer 0.7.28
 ```
 
 Or without activating the environment:
