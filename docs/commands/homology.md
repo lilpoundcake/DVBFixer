@@ -89,3 +89,9 @@ sidecar for downstream `prepare`/`minimize`.
 
 ## How it works
 Multi-template homology modeling with Modeller. Takes a target FASTA (multi-chain) and one or more template PDB files. Auto-aligns target to templates via Modeller's `align2d` (or `salign` with `--salign`). Builds model with `automodel` or `LoopModel` using multiple `knowns`. Point mutations handled naturally by differing target sequence from templates. Post-processing restores chain IDs and residue numbering. Writes `.dat` file for downstream `prepare`/`minimize` restraints. `--prepare` and `--minimize` flags run the full pipeline automatically. Antibody mode (`--antibody`): uses ANARCI for Kabat/IMGT numbering, CDR detection, VH/VL/CH/CL domain classification, and auto-mapping of Fv from one template + constant domains from another. Dependencies: Modeller (required), ANARCI (for `--antibody` mode).
+
+## Batch mode
+
+`homology` does not support directory batch input because each run requires an
+explicit query, templates, and alignment relationship. Run it once per modeling
+job. See the [batch support matrix](../batch-mode.md#support-by-tool).

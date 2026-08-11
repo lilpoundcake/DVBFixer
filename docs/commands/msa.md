@@ -46,3 +46,9 @@ a different command-line interface. Run `dvbfixer msa --list-engines` to see
 the executable paths detected by the CLI. Full conda, Homebrew, Linux, Windows,
 and standalone-binary instructions are in the
 [installation guide](../installation.md#multiple-sequence-alignment-executables).
+
+## Batch mode
+
+`msa` does not support directory batch input. Its explicit sequence inputs
+already form one multiple-alignment job. See the
+[batch support matrix](../batch-mode.md#support-by-tool).

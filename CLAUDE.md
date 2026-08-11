@@ -232,8 +232,10 @@ call bare `dvbfixer` resolve it. See
 - **Unified CLI runtime options**: `cli.py` removes `--log-file` and batch
   arguments before subcommand parsing. `runtime.tee_output` captures Python and
   inherited child-process stdout/stderr at file-descriptor level. Every parser
-  calls `batch.add_runtime_help`; the GUI generator excludes the informational
-  `Global logging` and `Batch mode` groups.
+  calls `batch.add_runtime_help`; every tool's help therefore states whether
+  directory batch input is supported. Supported tools show the four batch keys;
+  unsupported tools show an explicit status description. The GUI generator
+  excludes the informational `Global logging` and `Batch mode` groups.
 - **Final numbering normalization**: public spelling is `--number-from-1` on
   renumber/model/zbs. ZBS applies it only after copying the final output and
   before postflight diagnose, never to intermediate `.dat` identifiers. Model

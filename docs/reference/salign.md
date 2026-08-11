@@ -41,4 +41,8 @@ Diagnostics:
 Global logging:
   --log-file PATH       Append all stdout/stderr (including child tools) to
                         PATH while still printing it
+
+Batch mode:
+  This command does not support directory batch input. Run it once per
+  input, or use a supported pipeline command.
 ```

@@ -45,3 +45,9 @@ dvbfixer salign template1.pdb:A template2.pdb:H \
 The default engine needs MAFFT, MUSCLE 5, or Clustal Omega on `PATH`; see the
 [installation guide](../installation.md#multiple-sequence-alignment-executables).
 Only `--engine modeller` requires a working Modeller installation and license.
+
+## Batch mode
+
+`salign` does not support directory batch input. Its explicitly selected
+structures or sequences comprise one alignment job. See the
+[batch support matrix](../batch-mode.md#support-by-tool).

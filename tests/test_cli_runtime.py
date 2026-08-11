@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import argparse
 import os
 import subprocess
 import sys
 from pathlib import Path
+
+from dvbfixer.batch import add_runtime_help
 
 
 def test_log_file_tees_python_and_child_streams(tmp_path: Path) -> None:
@@ -38,6 +41,20 @@ def test_cli_run_header_goes_to_stderr_and_log(tmp_path: Path) -> None:
         capture_output=True, text=True, check=True,
         env={**os.environ, "PYTHONPATH": str(Path(__file__).parents[1] / "src")},
     )
-    assert "=== dvbfixer 0.7.23" in result.stderr
-    assert "=== dvbfixer 0.7.23" in log.read_text()
+    assert "=== dvbfixer 0.7.24" in result.stderr
+    assert "=== dvbfixer 0.7.24" in log.read_text()
 
+
+def test_runtime_help_states_batch_support_for_every_tool() -> None:
+    supported = argparse.ArgumentParser()
+    add_runtime_help(supported, batch=True)
+    supported_help = supported.format_help()
+    assert "Batch mode:" in supported_help
+    assert "--input-dir DIR" in supported_help
+
+    unsupported = argparse.ArgumentParser()
+    add_runtime_help(unsupported)
+    unsupported_help = unsupported.format_help()
+    assert "Batch mode:" in unsupported_help
+    assert "does not support directory batch input" in unsupported_help
+    assert "--input-dir" not in unsupported_help

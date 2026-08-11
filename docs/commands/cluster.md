@@ -78,3 +78,9 @@ Crystallographic convention (IUPAC):
 
 ## How it works
 Clusters glycan conformations from MD trajectories using glycosidic torsion angle RMSD (GFDB method). Auto-detects glycosidic linkages from topology, extracts phi/psi/omega torsion angles (crystallographic convention: phi=O5-C1-Ox-C'x, psi=C1-Ox-C'x-C'(x-1), omega for 1→6 linkages), builds circular-RMSD distance matrix, runs GROMOS-style clustering. Handles both CHARMM36 and GLYCAM force field naming. Sialic acid uses C2 anomeric carbon and O6 ring oxygen. Two modes: `--mode global` (cluster all torsions simultaneously) and `--mode per-linkage` (cluster each linkage independently, combine into compound states — default, better at capturing per-linkage conformational variation). Representative structures are medoids (real frames closest to circular mean), aligned by Kabsch superposition on root sugar (auto-detected) or protein attachment point. Output: torsion CSV, cluster assignments CSV, JSON/text summary, representative PDBs (multi-MODEL or separate), interactive plotly HTML plots (Ramachandran + free energy surface, time series, population bar chart). Dependencies: MDAnalysis, numpy, plotly (for plots).
+
+## Batch mode
+
+`cluster` does not support directory batch input because it operates on an
+explicitly selected trajectory or structure set. Invoke it separately for each
+dataset. See the [batch support matrix](../batch-mode.md#support-by-tool).

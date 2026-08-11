@@ -85,9 +85,11 @@ dvbfixer zbs --input-dir structures --output-dir fixed \
 
 Supported commands are `split`, `renumber`, `model`, `pull`, `prepare`,
 `minimize`, `protonate`, `rename`, `convert`, `conect`, `puppet`, `diagnose`,
-and `zbs`. Commands with multiple semantic inputs or multi-file topology
-outputs (`transplant`, `cluster`, `parametrize`, and `top`) remain explicit
-single-run workflows.
+and `zbs`. The remaining tools (`top`, `transplant`, `cluster`, `parametrize`,
+`homology`, `msa`, `salign`, and `doctor`) remain explicit single-run workflows
+because they have no per-structure directory operation. Every tool states its
+status in its own `--help` and command guide; see the complete
+[batch support matrix](docs/batch-mode.md#support-by-tool).
 
 Batch processing continues after individual failures by default and prints a
 success/failure summary. Add `--fail-fast` to stop at the first failure.

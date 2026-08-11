@@ -8,6 +8,15 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.7.24] — 2026-08-11
+
+### Changed
+
+- Every subcommand now has a dedicated Batch mode section in both `--help` and
+  its command guide. Unsupported tools explicitly explain that directory input
+  is unavailable instead of silently omitting batch information.
+- The batch guide now contains a complete support matrix for all 21 tools.
+
 ## [0.7.23] — 2026-08-11
 
 ### Added
