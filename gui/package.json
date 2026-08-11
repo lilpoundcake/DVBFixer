@@ -1,7 +1,7 @@
 {
   "name": "dvbfixer-gui",
   "private": true,
-  "version": "0.7.28",
+  "version": "0.8.0",
   "description": "Graphical workspace for DVBfixer structure preparation and homology modeling",
   "type": "module",
   "scripts": {

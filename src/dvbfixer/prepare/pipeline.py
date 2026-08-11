@@ -1520,6 +1520,25 @@ def main(argv=None):
 
     write_dat(dat, dat_path)
 
+    # AMBER protein XMLs do not provide combined N/C-terminal templates for
+    # protonated ASH/GLH or neutral LYN/CYM.  Preserve those states when the
+    # end is explicitly ACE/NME-capped; otherwise revert to the supported
+    # parent residue and keep the PDB and restraint sidecar consistent.
+    if _ff_target == "amber":
+        from dvbfixer.ffutils.artificial_terminals import (
+            normalize_fasta_truncated_terminal_variants,
+        )
+
+        changed = normalize_fasta_truncated_terminal_variants(
+            output_path, dat_path=dat_path, force_field=_ff_target,
+        )
+        for chain, resid, old, parent in changed:
+            print(
+                f"  WARNING: AMBER has no uncapped terminal {old} template; "
+                f"changed {chain}:{resid} to {parent}. Use --cap-termini to "
+                "preserve terminal protonation."
+            )
+
     # Clean up the deletion-cleaned temp file (if one was created)
     if deletion_path != Path(args.input).resolve() and deletion_path != Path(args.input):
         try:

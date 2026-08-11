@@ -8,6 +8,19 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.8.0] — 2026-08-11
+
+### Fixed
+
+- Revert unsupported AMBER protonation variants (`ASH`, `GLH`, `LYN`, and
+  `CYM`) at uncapped protein chain ends to their standard parent residues,
+  updating both the PDB and `.dat` handoff and warning the user. Explicit
+  ACE/NME caps preserve protonation, and CHARMM terminal protonation is left
+  unchanged.
+- Prevent `zbs --no-terminal --fasta` from carrying a protonated artificial
+  coordinate endpoint into AMBER minimization when the complete FASTA extends
+  beyond the observed structure.
+
 ## [0.7.28] — 2026-08-11
 
 ### Fixed

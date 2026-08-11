@@ -41,8 +41,8 @@ def test_cli_run_header_goes_to_stderr_and_log(tmp_path: Path) -> None:
         capture_output=True, text=True, check=True,
         env={**os.environ, "PYTHONPATH": str(Path(__file__).parents[1] / "src")},
     )
-    assert "=== dvbfixer 0.7.28" in result.stderr
-    assert "=== dvbfixer 0.7.28" in log.read_text()
+    assert "=== dvbfixer 0.8.0" in result.stderr
+    assert "=== dvbfixer 0.8.0" in log.read_text()
 
 
 def test_runtime_help_states_batch_support_for_every_tool() -> None:
