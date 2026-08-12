@@ -8,6 +8,24 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.8.1] — 2026-08-12
+
+### Fixed
+
+- Diagnose writes human-readable Unicode in JSON reports instead of escaped
+  sequences such as `\\u2014` and `\\u00c5`.
+- Batch ZBS intermediates are written below `--output-dir` rather than beside
+  source structures in `--input-dir`.
+- FASTA chain identifiers remain case-sensitive, allowing distinct chains such
+  as `D` and `d` in the same structure.
+- A missing `--cap-chain` selection warns and is skipped instead of aborting
+  the preparation pipeline.
+- CONECT inference accepts peptide C–N links only between consecutive residues
+  in the same chain and sanitizes inherited records, preventing false external
+  carbon bonds and OpenMM `addHydrogens` template failures.
+- Diagnose checks each explicit PDB chain independently, so a normal boundary
+  such as `A/GLY86` to `B/MET1` is not reported as an internal chain break.
+
 ## [0.8.0] — 2026-08-11
 
 ### Fixed

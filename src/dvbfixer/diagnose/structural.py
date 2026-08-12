@@ -214,44 +214,52 @@ def check_chain_breaks(
             return False
         return True
 
+    # Diagnose only internal breaks. Existing PDB chain-ID transitions are
+    # already explicit boundaries and must never be compared as consecutive
+    # residues (e.g. A/GLY86 followed by B/MET1). Keep file order within each
+    # chain because the shared split helper intentionally ignores chain IDs
+    # for its separate empirical-splitting use case.
+    lines_by_chain: dict[str, list[str]] = {}
     with open(pdb_path) as f:
-        lines = [ln for ln in f if _keep(ln)]
+        for line in f:
+            if _keep(line):
+                lines_by_chain.setdefault(line[21], []).append(line)
 
-    try:
-        breaks = find_chain_breaks(
-            lines,
-            distance_cutoff=DEFAULT_DISTANCE_CUTOFF,
-            gap_cutoff=DEFAULT_GAP_CUTOFF,
-            use_distance=True,
-        )
-    except Exception:
-        return findings
-
-    # `find_chain_breaks` returns a list of atom-index break points; for
-    # each one we look up the (chain, resid) at that position.
-    for idx in breaks:
-        if idx == 0 or idx > len(lines):
+    for chain_lines in lines_by_chain.values():
+        try:
+            breaks = find_chain_breaks(
+                chain_lines,
+                distance_cutoff=DEFAULT_DISTANCE_CUTOFF,
+                gap_cutoff=DEFAULT_GAP_CUTOFF,
+                use_distance=True,
+            )
+        except Exception:
             continue
-        prev = lines[idx - 1]
-        curr = lines[idx] if idx < len(lines) else lines[-1]
-        chain = curr[21]
-        resid = curr[22:26].strip()
-        icode = curr[26].strip() if len(curr) > 26 else ""
-        resname = curr[17:20].strip()
-        prev_chain = prev[21]
-        prev_resid = prev[22:26].strip()
-        prev_resname = prev[17:20].strip()
-        findings.append(Finding(
-            severity=Severity.WARNING,
-            category="chain_break",
-            chain=chain,
-            resid=_resid_str(resid, icode),
-            resname=resname,
-            message=f"chain break after {prev_chain}/{prev_resname}{prev_resid} "
-                    f"(prev-C to curr-N distance jump or resSeq reset)",
-            fix_hint="dvbfixer model (if the gap is real) OR "
-                     "dvbfixer split (if it's actually a chain boundary)",
-        ))
+
+        # `find_chain_breaks` returns atom-index break points; index zero is
+        # the normal start of this chain, while later indices are findings.
+        for idx in breaks:
+            if idx == 0 or idx >= len(chain_lines):
+                continue
+            prev = chain_lines[idx - 1]
+            curr = chain_lines[idx]
+            chain = curr[21]
+            resid = curr[22:26].strip()
+            icode = curr[26].strip() if len(curr) > 26 else ""
+            resname = curr[17:20].strip()
+            prev_chain = prev[21]
+            prev_resid = prev[22:26].strip()
+            prev_resname = prev[17:20].strip()
+            findings.append(Finding(
+                severity=Severity.WARNING,
+                category="chain_break",
+                chain=chain,
+                resid=_resid_str(resid, icode),
+                resname=resname,
+                message=f"chain break after {prev_chain}/{prev_resname}{prev_resid} "
+                        f"(prev-C to curr-N distance jump or resSeq reset)",
+                fix_hint="dvbfixer model (if the gap is real)",
+            ))
     return findings
 
 

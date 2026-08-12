@@ -13,7 +13,9 @@ input:
 
 - **Structural integrity** — missing atoms, missing residues,
   missing terminals, coincident atoms, misplaced hydrogens, altLoc
-  conflicts, chain breaks, insertion codes.
+  conflicts, internal chain breaks, insertion codes. Existing PDB chain-ID
+  transitions are treated as explicit boundaries and are not reported as
+  breaks.
 - **Chemistry / bond geometry** — valence violations, bond-length
   outliers, cis peptides, non-planar amides, Cα chirality.
 - **Steric analysis** — all-atom clashes using OpenMM's neighbor

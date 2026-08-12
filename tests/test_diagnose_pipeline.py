@@ -188,6 +188,34 @@ def test_water_included_when_flag_set(
     assert "HOH" in out
 
 
+def test_chain_transition_is_not_reported_as_internal_break(tmp_workdir: Path) -> None:
+    """An explicit A -> B transition is a boundary, not a broken chain."""
+    from dvbfixer.diagnose.structural import check_chain_breaks
+
+    pdb = tmp_workdir / "two_chains.pdb"
+    pdb.write_text("""\
+ATOM      1  N   GLY A  86       0.000   0.000   0.000  1.00  0.00           N
+ATOM      2  CA  GLY A  86       1.400   0.000   0.000  1.00  0.00           C
+ATOM      3  C   GLY A  86       2.800   0.000   0.000  1.00  0.00           C
+ATOM      4  O   GLY A  86       3.800   0.000   0.000  1.00  0.00           O
+TER
+ATOM      5  N   MET B   1      30.000   0.000   0.000  1.00  0.00           N
+ATOM      6  CA  MET B   1      31.400   0.000   0.000  1.00  0.00           C
+ATOM      7  C   MET B   1      32.800   0.000   0.000  1.00  0.00           C
+ATOM      8  O   MET B   1      33.800   0.000   0.000  1.00  0.00           O
+TER
+END
+""")
+    assert check_chain_breaks(pdb) == []
+
+    same_chain = tmp_workdir / "broken_chain.pdb"
+    same_chain.write_text(pdb.read_text().replace("MET B   1", "MET A   1"))
+    findings = check_chain_breaks(same_chain)
+    assert len(findings) == 1
+    assert findings[0].chain == "A"
+    assert "after A/GLY86" in findings[0].message
+
+
 def test_clash_cutoff_bad_value_raises(
     tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
