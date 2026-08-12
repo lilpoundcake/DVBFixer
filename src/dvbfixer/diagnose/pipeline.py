@@ -233,7 +233,9 @@ def main(argv: list[str] | None = None) -> None:
                 "hydrogen_geometry_review_recommended": bool(chirality_repairs),
             },
         }
-        report_text = json.dumps(payload, indent=2)
+        # Reports are user-facing artifacts, not an ASCII transport format.
+        # Keep Å, em dashes, arrows, and non-Latin path characters readable.
+        report_text = json.dumps(payload, indent=2, ensure_ascii=False)
     else:
         report_text = format_report(
             str(input_path), n_atoms, n_residues, n_chains, findings,

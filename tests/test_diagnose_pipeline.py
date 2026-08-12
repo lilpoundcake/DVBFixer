@@ -241,6 +241,18 @@ def test_json_output_is_valid(
         }
 
 
+def test_json_output_keeps_unicode_readable(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    in_pdb = tmp_workdir / "Ångström.pdb"
+    in_pdb.write_text(_BROKEN_HG_ON_OXT)
+    _run([str(in_pdb), "--format", "json"])
+    out = capsys.readouterr().out
+    assert "Ångström" in out
+    assert "\\u00c5" not in out
+    assert "\\u2014" not in out
+
+
 def test_json_reports_persistent_chirality_repair_history(
     tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

@@ -328,6 +328,22 @@ def _apply_filter(bonds, atoms, by_serial):
         'TYR', 'VAL',
     }
     out = set()
+    # File-order neighbours define the only ordinary peptide links we allow.
+    # A distance bonder can otherwise connect the N of one residue to the C
+    # of any spatially close residue, producing OpenMM's misleading "1 C atom
+    # too many" template error during addHydrogens.
+    protein_order = []
+    seen_residues = set()
+    for atom in atoms:
+        key = _residue_key(atom)
+        if atom['resname'] in PROTEIN_RESIDUES and key not in seen_residues:
+            seen_residues.add(key)
+            protein_order.append(key)
+    peptide_pairs = {
+        (left, right)
+        for left, right in zip(protein_order, protein_order[1:])
+        if left[0] == right[0]
+    }
     for lo, hi in bonds:
         a = by_serial.get(lo)
         b = by_serial.get(hi)
@@ -368,6 +384,9 @@ def _apply_filter(bonds, atoms, by_serial):
                 and b['resname'] in PROTEIN_RESIDUES):
             names = {a['name'], b['name']}
             if names != {'C', 'N'}:
+                continue
+            c_atom, n_atom = (a, b) if a['name'] == 'C' else (b, a)
+            if (_residue_key(c_atom), _residue_key(n_atom)) not in peptide_pairs:
                 continue
         out.add((lo, hi))
     return out
@@ -486,6 +505,9 @@ def infer_conect_records(pdb_path, *, preserve_existing=True,
         return sorted(existing)
 
     existing = _parse_existing_conect(pdb_path) if preserve_existing else set()
+    # Sanitize inherited CONECT too: a false bond inferred by an earlier
+    # pipeline stage must not become permanently trusted on the next pass.
+    existing = _apply_filter(existing, atoms, by_serial)
 
     inferred = _openbabel_bonds(pdb_path)
     used_fallback = False
@@ -633,5 +655,4 @@ def _materialise_inferred_pdb(pdb_path, *, verbose=False):
             pass
     atexit.register(_cleanup)
     return tmp_path
-
 

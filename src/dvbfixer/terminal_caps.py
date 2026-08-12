@@ -154,7 +154,9 @@ def add_terminal_caps_to_pdb(
         missing = requested - available
         if missing:
             labels = ", ".join("_" if c == " " else c for c in sorted(missing))
-            raise ValueError(f"--cap-chain selection not found among protein chains: {labels}")
+            print(f"WARNING: --cap-chain selection not found among protein chains: "
+                  f"{labels}; continuing without those chain(s)")
+            requested -= missing
 
     max_serial = max((serial for r in residues for serial, _ in r.atoms.values()),
                      default=0)

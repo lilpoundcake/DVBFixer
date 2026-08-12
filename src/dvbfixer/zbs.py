@@ -271,7 +271,8 @@ def _print_dry_run(args, input_path, final_output):
 
     def _line(name, out_suffix, notes=""):
         nonlocal step
-        out = str(input_path.with_stem(input_path.stem + out_suffix))
+        out = str((final_output.parent / f"{input_path.stem}{out_suffix}")
+                  .with_suffix(input_path.suffix))
         line = f"  {step}. {name:12s} → {Path(out).name}"
         if notes:
             line += f"   ({notes})"
@@ -328,12 +329,17 @@ def _run_pipeline(args, input_path):
         _print_dry_run(args, input_path, final_output)
         return
 
+    # Derive every named intermediate beside the final output.  This is
+    # especially important in --input-dir mode: the source tree must remain
+    # read-only while all run artifacts live below --output-dir.
+    artifact_base = final_output.parent / input_path.stem
     current = str(input_path)
     step_num = 0
     interim_files = []  # files to clean up unless --keep-interim
 
     def step_output(name):
-        path = str(input_path.with_stem(input_path.stem + f"_{name}"))
+        path = str(artifact_base.with_name(artifact_base.name + f"_{name}")
+                   .with_suffix(input_path.suffix))
         interim_files.append(path)
         # Also track .dat files that steps may produce
         interim_files.append(str(Path(path).with_suffix('.dat')))
@@ -408,7 +414,8 @@ def _run_pipeline(args, input_path):
         # zbs picks the best (_1) for the downstream pipeline; other candidates
         # remain on disk for the user to inspect.
         if args.num_output > 1:
-            multi_out = str(input_path.with_stem(input_path.stem + "_model_1"))
+            multi_out = str(artifact_base.with_name(artifact_base.name + "_model_1")
+                            .with_suffix(input_path.suffix))
             if Path(multi_out).exists():
                 interim_files.append(multi_out)
                 interim_files.append(str(Path(multi_out).with_suffix('.dat')))

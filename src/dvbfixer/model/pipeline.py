@@ -61,15 +61,15 @@ def _chain_ids_from_header(header, description=None):
         m = _RCSB_CHAINS.search(description)
         if m:
             chains = re.split(r'[,\s]+', m.group(1).strip())
-            return [c.upper() for c in chains if c]
+            return [c for c in chains if c]
     h = header.strip()
     m = _MULTI_CHAIN_SUFFIX.search(h)
     if m:
-        return [c.upper() for c in m.group(1).split('_') if c]
+        return [c for c in m.group(1).split('_') if c]
     for pat in _CHAIN_PATTERNS:
         m = pat.search(h)
         if m:
-            return [m.group(1).upper()]
+            return [m.group(1)]
     return []
 
 

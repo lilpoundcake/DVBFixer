@@ -49,6 +49,15 @@ def test_cap_builder_adds_both_caps_and_is_idempotent(tmp_path: Path) -> None:
     assert add_terminal_caps_to_pdb(capped) == capped
 
 
+def test_missing_cap_chain_warns_and_continues(tmp_path: Path, capsys) -> None:
+    from dvbfixer.terminal_caps import add_terminal_caps_to_pdb
+
+    output = add_terminal_caps_to_pdb(_input(tmp_path), chain_ids=["Z"])
+    assert output.exists()
+    assert " ACE " not in output.read_text()
+    assert "not found among protein chains: Z" in capsys.readouterr().out
+
+
 @pytest.mark.parametrize(
     "xmls",
     [
