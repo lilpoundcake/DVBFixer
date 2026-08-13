@@ -263,6 +263,26 @@ def check_chain_breaks(
     return findings
 
 
+def check_duplicate_chain_coordinates(pdb_path: str | Path) -> list[Finding]:
+    """Warn about coordinate-identical protein chains in one PDB model."""
+    from dvbfixer.pdbutils.duplicates import duplicate_protein_chain_coordinates
+
+    return [
+        Finding(
+            severity=Severity.WARNING,
+            category="duplicate_chain_coordinates",
+            chain=right,
+            resid="*",
+            resname="*",
+            message=(f"protein chains {left} and {right} have identical coordinates "
+                     f"for all {atom_count} protein atoms; frames may have been "
+                     "concatenated without MODEL/ENDMDL separators"),
+            fix_hint="restore MODEL/ENDMDL records or remove the duplicate chain before minimize",
+        )
+        for left, right, atom_count in duplicate_protein_chain_coordinates(pdb_path)
+    ]
+
+
 def check_insertion_codes(pdb_path: str | Path) -> list[Finding]:
     """Report residues carrying insertion codes.
 
@@ -379,6 +399,7 @@ def run_all(
     findings.extend(check_misplaced_hydrogens(topology, positions))
     findings.extend(check_altloc_conflicts(pdb_path))
     findings.extend(check_chain_breaks(pdb_path, include_water=include_water))
+    findings.extend(check_duplicate_chain_coordinates(pdb_path))
     findings.extend(check_insertion_codes(pdb_path))
     findings.extend(check_seqres_vs_atom(pdb_path))
     return findings

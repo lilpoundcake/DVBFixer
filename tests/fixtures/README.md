@@ -26,6 +26,9 @@ verify that none of the source fixtures changed accidentally.
 | `3ry6.pdb` | `test/3ry6/3ry6.pdb` | Under-annotated four-site glycoprotein |
 | `glycosilated_mAb_CHARMM.pdb` | `test/glycosilated_mAb_Charmm-GUI/conf.pdb` | CHARMM-GUI glycoprotein topology input |
 | `numbering/*` | `test/numbering_problem/*` | 8B01 bound/unbound structures and reference FASTA |
+| `c_glh/*` | `test/C_GLH/{8cde_t_u.pdb,8cde_renamed.fasta}` | Terminal GLH/capping preparation regression input and companion FASTA |
+| `warnings/*` | `test/warnings/{8ct6_t_b.pdb,8ct6_renamed.fasta}` | Real addHydrogens/connectivity-warning input and companion FASTA |
+| `overlap/8dis_t_u.pdb` | `test/overlap/8dis_t_u.pdb` | Coordinate-identical chains `d`/`D` caused by missing MODEL/ENDMDL separators |
 
 ## 1VCU ligand chemistry
 

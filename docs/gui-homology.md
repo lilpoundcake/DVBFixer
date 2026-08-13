@@ -12,6 +12,12 @@ The GUI is an editor and orchestrator. Structural fitting, mask resolution,
 mosaic construction, PIR generation, and modeling are implemented by the
 Python `dvbfixer homology --template-plan` workflow.
 
+Target, Templates, Alignment, and Model use the same compact toolbar geometry:
+32-pixel controls, consistent action widths and spacing, and an opaque panel
+background without toolbar outline boxes. The two Mol* viewers display the
+basename of their independently loaded structure directly over the viewport;
+the full workspace path remains available as the label title.
+
 ## Requirements
 
 - A working DVBfixer environment on the GUI server's `PATH`.

@@ -1173,6 +1173,15 @@ def main(argv=None):
         print(f"File not found: {input_path}", file=sys.stderr)
         sys.exit(1)
 
+    from dvbfixer.pdbutils.duplicates import duplicate_protein_chain_coordinates
+    for left, right, atom_count in duplicate_protein_chain_coordinates(input_path):
+        print(
+            f"WARNING: protein chains {left} and {right} have identical coordinates "
+            f"for all {atom_count} protein atoms. The file may contain merged frames "
+            "without MODEL/ENDMDL separators; minimize may fail. Restore model "
+            "separators or remove the duplicate chain before continuing."
+        )
+
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_minimized")
 
     if not args.no_infer_conect:

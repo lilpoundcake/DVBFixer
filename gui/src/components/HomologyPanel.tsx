@@ -19,7 +19,6 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import RedoIcon from '@mui/icons-material/Redo'
 import UndoIcon from '@mui/icons-material/Undo'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
@@ -69,6 +68,39 @@ interface ProjectSummary { id: string; name: string; updatedAt: string }
 interface EngineStatus { available: boolean; path: string | null }
 interface ParsedChain { id: string; length: number; sequence: string }
 interface TransientAlignmentSelection { anchor: number; columns: number[] }
+
+const homologyToolbarSx = {
+  display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap',
+  position: 'sticky', top: 0, zIndex: 5, px: 1, py: 0.5,
+  minHeight: 40, bgcolor: 'background.paper',
+  '& .MuiButton-root': { width: 160, minWidth: 160, height: 32, flexShrink: 0 },
+  '& .MuiFormControl-root': { width: 160, minWidth: 160, flexShrink: 0 },
+  '& .MuiInputBase-root': { height: 32 },
+  '& .MuiInputLabel-root:not(.MuiInputLabel-shrink)': {
+    transform: 'translate(14px, 5px) scale(1)',
+  },
+  '& .MuiInputLabel-root.MuiInputLabel-shrink': {
+    transform: 'translate(14px, -8px) scale(0.75)',
+  },
+  '& .MuiSelect-select, & .MuiInputBase-input': {
+    display: 'flex', alignItems: 'center', py: '5px', boxSizing: 'border-box',
+  },
+  '& .MuiIconButton-root': { width: 32, height: 32, flexShrink: 0 },
+} as const
+
+const projectToolbarSx = {
+  px: 1, py: 0.75, display: 'flex', gap: 1, alignItems: 'center',
+  minHeight: 48, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper',
+  '& .MuiInputBase-root': { height: 32 },
+  '& .MuiIconButton-root': { width: 32, height: 32 },
+} as const
+
+const toolbarControlSx = { width: 160, minWidth: 160 } as const
+const targetSourceControlSx = { width: 320, minWidth: 320 } as const
+const toolbarTooltipWrapperSx = {
+  display: 'inline-flex', width: 160, height: 32, flexShrink: 0,
+} as const
+const primaryActionSx = { width: 160, minWidth: 160, height: 32, alignSelf: 'center' } as const
 
 
 function targetChainIds(fasta: string): string[] {
@@ -605,18 +637,18 @@ export function HomologyPanel() {
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ px: 1, py: 0.75, display: 'flex', gap: 1, alignItems: 'center', borderBottom: 1, borderColor: 'divider' }}>
-        <FormControl size="small" sx={{ minWidth: 220 }}>
+      <Box sx={projectToolbarSx}>
+        <FormControl size="small" sx={{ width: 220, minWidth: 220 }}>
           <InputLabel>Project</InputLabel>
           <Select label="Project" value={project.id} onChange={event => loadProject(event.target.value)}>
             {projects.map(item => <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>)}
           </Select>
         </FormControl>
-        <TextField size="small" label="Project name" value={project.name} onChange={event => update({ name: event.target.value })} />
+        <TextField size="small" sx={{ width: 220 }} label="Project name" value={project.name} onChange={event => update({ name: event.target.value })} />
         <Tooltip title="New project"><IconButton onClick={createProject}><AddIcon /></IconButton></Tooltip>
         <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>{saved ? 'Saved' : 'Saving…'}</Typography>
       </Box>
-      <Tabs value={tab} onChange={(_event, value) => setTab(value)} sx={{ minHeight: 30, borderBottom: 1, borderColor: 'divider', '& .MuiTab-root': { minHeight: 30, py: 0.25, px: 1.25, fontSize: '0.72rem', textTransform: 'none' } }}>
+      <Tabs value={tab} onChange={(_event, value) => setTab(value)} sx={{ minHeight: 30, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper', '& .MuiTab-root': { minHeight: 30, py: 0.25, px: 1.25, fontSize: '0.72rem', textTransform: 'none' } }}>
         <Tab label="1. Target" /><Tab label="2. Templates" /><Tab label="3. Alignment" /><Tab label="4. Model" />
       </Tabs>
       <Box sx={{ flex: 1, overflow: 'auto', p: 1.5 }}>
@@ -627,14 +659,14 @@ export function HomologyPanel() {
         {tab === 0 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Typography variant="body2">Enter one FASTA record per target chain. Sequence residues are edited here; the alignment tab edits gaps only.</Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <FormControl size="small" sx={{ minWidth: 320 }}><InputLabel>Workspace file</InputLabel>
+            <Box sx={homologyToolbarSx}>
+              <FormControl size="small" sx={targetSourceControlSx}><InputLabel>Workspace file</InputLabel>
                 <Select label="Workspace file" value={targetSource} onChange={event => setTargetSource(event.target.value)}>
                   {artifacts.map(item => <MenuItem key={item.file} value={item.file}>{item.name || item.file} · {item.file}</MenuItem>)}
                 </Select>
               </FormControl>
               <Tooltip title={targetSource && !targetSourceSupported ? 'This file type does not contain a supported protein sequence' : 'Parse protein sequences into Target FASTA'}>
-                <span><Button variant="outlined" onClick={parseTargetSource} disabled={!targetSource || !targetSourceSupported || busy !== ''}>Parse sequence</Button></span>
+                <Box component="span" sx={toolbarTooltipWrapperSx}><Button sx={primaryActionSx} variant="outlined" onClick={parseTargetSource} disabled={!targetSource || !targetSourceSupported || busy !== ''}>Parse sequence</Button></Box>
               </Tooltip>
             </Box>
             {!!parsePreview.length && <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1, p: 1 }}>
@@ -659,9 +691,9 @@ export function HomologyPanel() {
 
         {tab === 1 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Box sx={{ display: 'flex', gap: 1, position: 'sticky', top: 0, zIndex: 5, py: 0.5 }}>
+            <Box sx={homologyToolbarSx}>
               <Button startIcon={<AddIcon />} variant="outlined" onClick={addTemplate}>Add new</Button>
-              <FormControl size="small" sx={{ minWidth: 160 }}>
+              <FormControl size="small" sx={toolbarControlSx}>
                 <InputLabel>Target chain</InputLabel>
                 <Select label="Target chain" value={activeTargetChain} disabled={!targetChains.length}
                   onChange={event => setActiveTargetChain(event.target.value)}>
@@ -669,8 +701,8 @@ export function HomologyPanel() {
                 </Select>
               </FormControl>
               <Button startIcon={<AccountTreeIcon />} variant="outlined" onClick={() => callProjectAction('salign')} disabled={busy !== '' || project.templates.length < 2}>Structural align</Button>
-              <Button variant="contained" onClick={() => callProjectAction('align')} disabled={busy !== '' || !targetChains.length || !project.templates.length}>Generate MSA</Button>
-              <FormControl size="small" sx={{ minWidth: 150 }}>
+              <Button sx={primaryActionSx} variant="contained" onClick={() => callProjectAction('align')} disabled={busy !== '' || !targetChains.length || !project.templates.length}>Generate MSA</Button>
+              <FormControl size="small" sx={toolbarControlSx}>
                 <InputLabel>MSA engine</InputLabel>
                 <Select label="MSA engine" value={project.engine} onChange={event => update({ engine: event.target.value as HomologyProject['engine'] })}>
                   <MenuItem value="mafft" disabled={engines.mafft?.available === false}>MAFFT{engines.mafft?.available === false ? ' (missing)' : ''}</MenuItem>
@@ -697,7 +729,7 @@ export function HomologyPanel() {
 
         {tab === 2 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', position: 'sticky', top: 0, zIndex: 5, py: 0.5 }}>
+            <Box sx={homologyToolbarSx}>
               <input ref={alignmentImportRef} hidden type="file" accept=".fasta,.fa,.faa,.aln" onChange={event => importAlignment(event.target.files?.[0])} />
               {targetChains.length > 1 && <FormControl size="small" sx={{ minWidth: 180 }}><InputLabel>Target chain</InputLabel>
                 <Select label="Target chain" value={activeTargetChain} onChange={event => setActiveTargetChain(event.target.value)}>
@@ -793,16 +825,18 @@ export function HomologyPanel() {
         )}
 
         {tab === 3 && (
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 1.5 }}>
-            <TextField size="small" type="number" label="Models" value={project.modelOptions['--num-models'] ?? 5}
-              onChange={event => update({ modelOptions: { ...project.modelOptions, '--num-models': Number(event.target.value) } })} />
-            <FormControl size="small"><InputLabel>MD refinement</InputLabel><Select label="MD refinement" value={project.modelOptions['--md-level'] ?? 'fast'}
-              onChange={event => update({ modelOptions: { ...project.modelOptions, '--md-level': event.target.value } })}>
-              {['none', 'fast', 'slow', 'very_slow', 'slow_large'].map(level => <MenuItem key={level} value={level}>{level}</MenuItem>)}
-            </Select></FormControl>
-            <Button variant="contained" startIcon={busy ? <CircularProgress size={14} /> : <PlayArrowIcon />}
-              onClick={runModel} disabled={busy !== '' || !project.alignmentGroups.length}>Run Modeller</Button>
-            <Typography variant="caption" color="text.secondary" sx={{ gridColumn: '1 / -1' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={homologyToolbarSx}>
+              <TextField sx={toolbarControlSx} size="small" type="number" label="Models" value={project.modelOptions['--num-models'] ?? 5}
+                onChange={event => update({ modelOptions: { ...project.modelOptions, '--num-models': Number(event.target.value) } })} />
+              <FormControl size="small" sx={toolbarControlSx}><InputLabel>MD refinement</InputLabel><Select label="MD refinement" value={project.modelOptions['--md-level'] ?? 'fast'}
+                onChange={event => update({ modelOptions: { ...project.modelOptions, '--md-level': event.target.value } })}>
+                {['none', 'fast', 'slow', 'very_slow', 'slow_large'].map(level => <MenuItem key={level} value={level}>{level}</MenuItem>)}
+              </Select></FormControl>
+              <Button sx={primaryActionSx} variant="contained"
+                onClick={runModel} disabled={busy !== '' || !project.alignmentGroups.length}>Run Modeller</Button>
+            </Box>
+            <Typography variant="caption" color="text.secondary">
               Selected spans are assembled from the fitted structures into one coordinate-preserving mosaic template before Modeller runs. At overlapping columns, the earlier template in the Templates tab has precedence. Rows without masks use their complete aligned coverage.
             </Typography>
           </Box>

@@ -29,9 +29,13 @@ export function MolstarViewer({ slot = 'primary' }: MolstarViewerProps) { // @ds
   const setError = useStructureStore((s) => s.setError)
   const setFileName = useStructureStore((s) => s.setFileName)
   const setSecondaryFileName = useStructureStore((s) => s.setSecondaryFileName)
+  const primaryFileName = useStructureStore((s) => s.fileName)
+  const secondaryFileName = useStructureStore((s) => s.secondaryFileName)
 
   const isPrimary = slot === 'primary'
   const setPluginForSlot = isPrimary ? setPlugin : setSecondaryPlugin
+  const loadedFileName = isPrimary ? primaryFileName : secondaryFileName
+  const displayedFileName = loadedFileName?.split(/[\\/]/).pop() || null
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -289,8 +293,25 @@ export function MolstarViewer({ slot = 'primary' }: MolstarViewerProps) { // @ds
 
   return (
     <div
-      ref={containerRef}
       style={{ width: '100%', height: '100%', position: 'relative' }}
-    />
+    >
+      <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+      {displayedFileName && (
+        <div
+          title={loadedFileName || displayedFileName}
+          style={{
+            position: 'absolute', top: 8, left: 83, zIndex: 20,
+            maxWidth: 'calc(100% - 91px)', padding: '4px 8px',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            borderRadius: 4, background: 'rgba(240, 243, 247, 0.92)',
+            color: '#1a1a2e', fontSize: 12, fontWeight: 600,
+            boxShadow: '0 1px 4px rgba(26, 26, 46, 0.18)',
+            pointerEvents: 'none',
+          }}
+        >
+          {displayedFileName}
+        </div>
+      )}
+    </div>
   )
 }

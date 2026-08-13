@@ -16,6 +16,12 @@ input:
   conflicts, internal chain breaks, insertion codes. Existing PDB chain-ID
   transitions are treated as explicit boundaries and are not reported as
   breaks.
+
+Diagnose also warns when two protein chains have the same atom identities and
+coordinates throughout. This usually indicates that coordinate frames were
+concatenated into one PDB without `MODEL` / `ENDMDL` separators. Such merged
+structures should be split or corrected before minimization.
+
 - **Chemistry / bond geometry** — valence violations, bond-length
   outliers, cis peptides, non-planar amides, Cα chirality.
 - **Steric analysis** — all-atom clashes using OpenMM's neighbor
@@ -60,8 +66,8 @@ dvbfixer diagnose input.pdb -v
   atoms, coincident atoms, valence violations, hard clashes with
   ≥ 0.5 Å vdW overlap).
 - **WARNING** — tolerated by the pipeline but suspect (moderate
-  clashes 0.4 – 0.5 Å overlap, altLoc conflicts, chain breaks,
-  near-cis peptides).
+  clashes, altLoc conflicts, internal chain breaks, near-cis peptides,
+  and coordinate-identical protein chains that suggest merged frames).
 - **INFO** — noted for user review (insertion codes on antibody
   CDRs, cis-PRO — natural but worth flagging).
 
@@ -70,9 +76,11 @@ dvbfixer diagnose input.pdb -v
 ```
 usage: dvbfixer diagnose [-h] [-o OUTPUT]
                          [--only {all,structural,chemistry,steric}]
-                         [--severity {ERROR,WARNING,INFO}]
-                         [--include-water]
-                         [--format {text,json}] [-v]
+                         [--severity {ERROR,WARNING,INFO}] [--include-water]
+                         [--clash-mode {bioluminate,chimerax,molprobity}]
+                         [--clash-cutoff WARN,ERROR] [--format {text,json}]
+                         [-v] [--log-file PATH] [--input-dir DIR]
+                         [--output-dir DIR] [--recursive] [--fail-fast]
                          input
 ```
 
@@ -90,7 +98,11 @@ Notable non-default behaviours:
   detected. Use `dvbfixer split` if you need per-frame analysis.
 - **JSON output** is available via `--format json` — a
   machine-readable list of findings suitable for CI gating or
-  scripted post-processing.
+  scripted post-processing. Unicode is emitted directly, so Å, arrows,
+  em dashes, and non-Latin input paths remain readable.
+- **Coordinate-identical chains** are compared by protein residue/atom
+  identity and coordinates to PDB precision. Equal sequences at different
+  positions are legitimate homomers and are not flagged.
 
 Every report includes `D-isomer error: YES`, `NO`, or `NOT CHECKED`. Inputs
 carrying a DVBFixer emergency-reflection REMARK also list the repaired

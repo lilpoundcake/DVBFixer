@@ -75,6 +75,11 @@ chemistry backends.
 
 The [command index](docs/commands/index.md) groups the same commands by workflow stage.
 
+Warnings and errors are printed with prominent terminal markers (and color on
+interactive terminals). Every non-informational command repeats unique
+warnings and errors in a diagnostic summary at the end of the run; `--log-file`
+captures the same markers and summary without terminal escape codes.
+
 ## Batch mode: folder input
 
 Batch mode runs the selected single-structure command independently on every
@@ -107,7 +112,10 @@ rather than execution failures and points to the per-structure report.
 
 Every command accepts `--log-file PATH`. DVBFixer appends a versioned UTC run
 header and tees stdout/stderr from Python and child tools to that file while
-retaining normal terminal output.
+retaining normal terminal output. Warning/error lines receive prominent plain
+markers in logs and colored markers on interactive terminals. Every run ends
+with a deduplicated diagnostic summary, including an explicit zero-count block
+for clean runs.
 
 `renumber`, `model`, and `zbs` accept `--number-from-1`. It shifts each final
 chain so the first retained protein residue is 1 while preserving internal

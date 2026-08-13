@@ -45,6 +45,23 @@ def test_cli_run_header_goes_to_stderr_and_log(tmp_path: Path) -> None:
     assert "=== dvbfixer 0.8.1" in log.read_text()
 
 
+def test_warnings_are_emphasized_and_summarized(tmp_path: Path) -> None:
+    script = (
+        "from dvbfixer.runtime import tee_output; "
+        "ctx=tee_output(None); ctx.__enter__(); "
+        "print('WARNING: suspicious structure', flush=True); "
+        "ctx.__exit__(None,None,None)"
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", script], capture_output=True, text=True, check=True,
+        env={**os.environ, "PYTHONPATH": str(Path(__file__).parents[1] / "src")},
+    )
+    combined = result.stdout + result.stderr
+    assert "!!! WARNING !!!" in combined
+    assert "DIAGNOSTIC SUMMARY: 0 error(s), 1 warning(s)" in combined
+    assert "[WARNING] WARNING: suspicious structure" in combined
+
+
 def test_runtime_help_states_batch_support_for_every_tool() -> None:
     supported = argparse.ArgumentParser()
     add_runtime_help(supported, batch=True)

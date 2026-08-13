@@ -10,6 +10,23 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [0.8.1] — 2026-08-12
 
+### Added
+
+- Diagnose and minimize warn when complete protein chains have identical atom
+  identities and coordinates, indicating frames likely concatenated without
+  `MODEL` / `ENDMDL` separators.
+- Unified CLI output emphasizes warnings/errors and repeats unique diagnostics
+  in an end-of-run summary block.
+- Mol* viewports show the basename of the structure loaded independently into
+  each viewer.
+
+### Changed
+
+- Homology Target, Templates, Alignment, and Model subtabs share compact,
+  consistently aligned, opaque toolbars.
+- Production inputs for the C-terminal GLH, addHydrogens warning, and
+  overlapping-chain regressions are tracked under `tests/fixtures/`.
+
 ### Fixed
 
 - Diagnose writes human-readable Unicode in JSON reports instead of escaped

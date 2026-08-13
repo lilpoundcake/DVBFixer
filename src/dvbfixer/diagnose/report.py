@@ -63,6 +63,7 @@ _CATEGORY_HEADINGS: dict[str, str] = {
     "misplaced_hydrogen": "Structural integrity",
     "altloc_conflict": "Structural integrity",
     "chain_break": "Structural integrity",
+    "duplicate_chain_coordinates": "Structural integrity",
     "insertion_codes": "Structural integrity",
     "seqres_gap": "Structural integrity",
     # Chemistry
@@ -93,6 +94,7 @@ _FIX_TOOL: dict[str, str] = {
     "misplaced_hydrogen": "dvbfixer prepare",
     "altloc_conflict": "manual: pick one altLoc",
     "chain_break": "dvbfixer model  (if it's a real gap)",
+    "duplicate_chain_coordinates": "manual: restore MODEL/ENDMDL records or remove the duplicate chain",
     "insertion_codes": "dvbfixer renumber  (if renumbering is desired)",
     "seqres_gap": "dvbfixer model",
     "valence": "manual: inspect input; may need CONECT cleanup",
