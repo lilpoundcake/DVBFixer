@@ -102,7 +102,7 @@ length; the toolbar adds or removes full gap columns.
 ```
 git clone <repo-url>
 cd DVBFixer/gui
-npm install --legacy-peer-deps
+npm install
 npm run dev:no-db
 ```
 
@@ -148,7 +148,7 @@ connection.
 
 ```
 cd gui
-npm install --legacy-peer-deps
+npm install
 micromamba activate dvbfixer   # so `dvbfixer` is on PATH
 npm run dev
 ```

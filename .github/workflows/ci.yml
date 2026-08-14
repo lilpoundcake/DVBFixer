@@ -130,7 +130,10 @@ jobs:
           cache-dependency-path: gui/package-lock.json
       - name: Install GUI dependencies
         working-directory: gui
-        run: npm ci --legacy-peer-deps
+        run: npm ci
+      - name: Audit GUI dependencies
+        working-directory: gui
+        run: npm audit --audit-level=high
       - name: Lint, test, typecheck, and build GUI
         working-directory: gui
         run: |

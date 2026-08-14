@@ -8,6 +8,22 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.8.3] — 2026-08-14
+
+### Changed
+
+- GUI dependency locks use patched releases that clear the npm security audit,
+  including Vite 6.4.3, without forced or major-version upgrades.
+- GUI installation and CI no longer use the obsolete `--legacy-peer-deps`
+  workaround, and CI rejects high/critical npm advisories.
+- npm install-script policy explicitly permits the pinned esbuild verifier while
+  denying optional native watcher builds and Scarf installation telemetry.
+
+### Security
+
+- Scarf analytics are disabled explicitly in addition to blocking its
+  postinstall script, preventing third-party installation metadata reporting.
+
 ## [0.8.2] — 2026-08-14
 
 ### Changed
