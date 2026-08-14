@@ -201,7 +201,10 @@ def _build_variants(topology, amber_renames):
         if key not in amber_renames and not ic:
             key = (res.chain.id, res.id, '')
         if key in amber_renames:
-            variants.append(amber_renames[key])
+            # OpenMM names the no-SH hydrogen state CYX for both disulfide
+            # CYS and free thiolate.  CYM is restored after H placement.
+            from dvbfixer.ffutils.variants import openmm_hydrogen_variant
+            variants.append(openmm_hydrogen_variant(amber_renames[key]))
             has_any = True
         else:
             variants.append(None)

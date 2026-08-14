@@ -29,6 +29,30 @@ Runs PROPKA3 to predict per-residue pKa values, then renames titratable residues
 | CYS | pKa < pH | CYM | Deprotonated thiolate |
 | LYS | pKa < pH | LYN | Neutral |
 
+### Cysteine: `CYS`, `CYM`, and `CYX`
+
+`--cys-disulfide-pka` does **not** set or override a cysteine's predicted
+pKa. It only recognizes PROPKA's unusually high disulfide sentinel. With the
+default value `99.99`, each cysteine is classified independently as follows:
+
+- predicted pKa below `--ph` → `CYM`, a deprotonated free thiolate with no SG
+  hydrogen;
+- predicted pKa at or above `--cys-disulfide-pka` → `CYX`, the AMBER
+  disulfide state;
+- otherwise → ordinary protonated `CYS` with an SG hydrogen.
+
+Explicit/inferred SG–SG connectivity takes precedence and assigns both bonded
+cysteines as `CYX`. To disable all pKa-driven states, including `CYM`, use
+`--no-propka`; changing `--cys-disulfide-pka` does not disable thiolate
+assignment.
+
+OpenMM calls every cysteine hydrogen state without SG–H `CYX`, even when the
+chemical state is a free thiolate. Dvbfixer therefore passes `CYM` internally
+as `CYX` only while placing hydrogens, then restores `CYM` before selecting the
+AMBER force-field template and writing the output. Thus a final `CYM` name is
+intentional and retains the thiolate charge model; it is not evidence that the
+disulfide threshold was ignored.
+
 ## Usage
 
 ```bash
@@ -55,7 +79,7 @@ dvbfixer protonate input.pdb --his-default HID
 | `-o`, `--output` | `<input>_prot.pdb` | Output file path |
 | `--ph` | 7.0 | Target pH |
 | `--his-default` | HIE | Default neutral HIS tautomer (HIE or HID) |
-| `--cys-disulfide-pka` | 99.99 | pKa threshold for CYS -> CYX assignment (matches PROPKA's disulfide sentinel) |
+| `--cys-disulfide-pka` | 99.99 | Disulfide-sentinel cutoff for CYS → CYX; does not override predicted pKa or disable pKa < pH → CYM. |
 | `--protassign` / `--no-protassign` | **ON** | Run MolProbity Reduce to optimise HIS tautomers and detect ASN/GLN side-chain flips (see below). Pass `--no-protassign` to disable |
 | `--protassign-binary` | auto | Override path to the `reduce` binary |
 | `--no-hydrogens` | off | Only rename residues, do not add/fix hydrogen atoms |

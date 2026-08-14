@@ -104,6 +104,36 @@ def test_directory_continues_by_default_and_prints_clear_summary(tmp_path: Path,
     output = capsys.readouterr().out
     assert "Batch mode completed: 0 succeeded, 2 failed, 0 not processed" in output
     assert "Batch failed for" not in output
+    assert "command exited with status 1" in output
+    assert "How to fix:" in output
+
+
+def test_directory_summary_retains_command_error_and_explains_fasta_chain_mismatch(
+    tmp_path: Path, capsys,
+):
+    (tmp_path / "8cxi_t_b.pdb").write_text("END\n")
+
+    def fail(_argv):
+        print(
+            "Error: FASTA missing sequences for chain(s): A. "
+            "FASTA has: B, D, E. PDB has: A.",
+            file=__import__("sys").stderr,
+        )
+        raise SystemExit(1)
+
+    with pytest.raises(SystemExit, match="1"):
+        run_directory(
+            "zbs", fail,
+            Namespace(input_dir=str(tmp_path), output_dir=None,
+                      recursive=False, fail_fast=False),
+            ["--fasta", "chains.fasta"],
+        )
+
+    output = capsys.readouterr()
+    combined = output.out + output.err
+    assert "Cause: FASTA missing sequences for chain(s): A" in combined
+    assert "Rename/add the FASTA header for every listed PDB chain" in combined
+    assert "Chain IDs are case-sensitive" in combined
 
 
 def test_fail_fast_stops_after_first_failure(tmp_path: Path):

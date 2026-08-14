@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import io
+import re
+import sys
 from collections.abc import Callable, Sequence
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 from dvbfixer.command_registry import COMMAND_REGISTRY
@@ -13,6 +17,73 @@ OUTPUT_SUFFIXES = {
     for command in COMMAND_REGISTRY
     if command.batch_output_suffix is not None
 }
+
+
+class _Mirror(io.TextIOBase):
+    """Forward command output unchanged while retaining it for failure summaries."""
+
+    def __init__(self, target: io.TextIOBase) -> None:
+        self.target = target
+        self.parts: list[str] = []
+
+    def write(self, text: str) -> int:
+        self.parts.append(text)
+        return self.target.write(text)
+
+    def flush(self) -> None:
+        self.target.flush()
+
+    def isatty(self) -> bool:
+        return self.target.isatty()
+
+    def fileno(self) -> int:
+        return self.target.fileno()
+
+    def captured(self) -> str:
+        return "".join(self.parts)
+
+
+_ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
+
+
+def _last_reported_error(output: str) -> str | None:
+    """Return the last useful command error, without runtime decoration."""
+    candidates: list[str] = []
+    for raw_line in output.splitlines():
+        line = _ANSI_ESCAPE.sub("", raw_line).strip()
+        line = re.sub(r"^!!!\s+ERROR\s+!!!\s*", "", line, flags=re.IGNORECASE)
+        match = re.match(r"(?:Error|ERROR):\s*(.+)", line)
+        if match:
+            candidates.append(match.group(1).strip())
+    return candidates[-1] if candidates else None
+
+
+def _failure_advice(reason: str) -> str:
+    """Give an actionable next step for common failures, plus a safe fallback."""
+    lower = reason.lower()
+    if "fasta missing sequences for chain" in lower:
+        return (
+            "The PDB contains a protein chain with no matching FASTA record. "
+            "Rename/add the FASTA header for every listed PDB chain, or omit --fasta "
+            "if sequence-guided modeling is not required. Chain IDs are case-sensitive."
+        )
+    if "fasta" in lower and ("invalid" in lower or "header" in lower):
+        return "Correct the FASTA formatting and chain identifiers, then rerun."
+    if "illegal variant for cys" in lower:
+        return (
+            "The selected cysteine protonation/disulfide variant is incompatible with "
+            "its current bonding. Check CYS/CYX/CYM naming and disulfide connectivity."
+        )
+    if "no template found for residue" in lower:
+        return (
+            "The force field cannot match this residue's atoms or external bonds. "
+            "Check residue naming, terminal state, CONECT records, and missing atoms."
+        )
+    if "not found" in lower or "does not exist" in lower:
+        return "Check that the referenced file or directory exists and is readable."
+    if "no chains found" in lower or "no recognized chains" in lower:
+        return "The input has no recognized molecular chains; inspect PDB ATOM/HETATM records and chain IDs."
+    return "Review this error and the detailed output above, correct the input or options, then rerun."
 
 
 def extract_batch_options(argv: Sequence[str]) -> tuple[argparse.Namespace, list[str]]:
@@ -83,7 +154,7 @@ def run_directory(
     if not inputs:
         raise SystemExit(f"No supported structure files found in {input_dir}")
 
-    failures: list[tuple[Path, str]] = []
+    failures: list[tuple[Path, str, str]] = []
     diagnostic_findings: list[tuple[Path, Path]] = []
     successes = 0
     policy = "stop at first failure" if options.fail_fast else "continue after failures"
@@ -101,8 +172,11 @@ def run_directory(
                 suffix = "_diagnose.json"
         output_path = destination_dir / f"{input_path.stem}{suffix}"
         print(f"[{index}/{len(inputs)}] {relative}")
+        stdout_capture = _Mirror(sys.stdout)
+        stderr_capture = _Mirror(sys.stderr)
         try:
-            command_main([str(input_path), *command_argv, "-o", str(output_path)])
+            with redirect_stdout(stdout_capture), redirect_stderr(stderr_capture):
+                command_main([str(input_path), *command_argv, "-o", str(output_path)])
         except SystemExit as exc:
             code = exc.code if isinstance(exc.code, int) else (0 if exc.code is None else 1)
             if code == 0:
@@ -115,13 +189,18 @@ def run_directory(
                 if options.fail_fast:
                     break
                 continue
-            reason = (f"command exit status {code}" if isinstance(exc.code, int)
-                      else str(exc.code))
-            failures.append((relative, reason))
-            print(f"  FAILED: {relative} ({reason}; see error above)")
+            captured = stdout_capture.captured() + "\n" + stderr_capture.captured()
+            reported = _last_reported_error(captured)
+            reason = reported or (
+                f"command exited with status {code}" if isinstance(exc.code, int)
+                else str(exc.code)
+            )
+            advice = _failure_advice(reason)
+            failures.append((relative, reason, advice))
+            print(f"  FAILED: {relative}: {reason}")
         except Exception as exc:  # isolate each structure from failures in the others
             reason = f"{type(exc).__name__}: {exc}"
-            failures.append((relative, reason))
+            failures.append((relative, reason, _failure_advice(reason)))
             print(f"  FAILED: {relative} ({reason})")
         else:
             successes += 1
@@ -132,9 +211,13 @@ def run_directory(
         processed = successes + len(diagnostic_findings) + len(failures)
         print(f"Batch mode completed: {successes} succeeded, "
               f"{len(failures)} failed, {len(inputs) - processed} not processed.")
-        print("Failed structures:")
-        for path, reason in failures:
-            print(f"  - {path}: {reason}")
+        print("\n" + "=" * 60)
+        print("FAILED STRUCTURES - CAUSES AND NEXT STEPS")
+        print("=" * 60)
+        for path, reason, advice in failures:
+            print(f"  {path}")
+            print(f"    Cause: {reason}")
+            print(f"    How to fix: {advice}")
         raise SystemExit(1)
     if diagnostic_findings:
         processed = successes + len(diagnostic_findings)

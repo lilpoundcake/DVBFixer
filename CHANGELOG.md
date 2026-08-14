@@ -8,6 +8,25 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.8.2] — 2026-08-14
+
+### Changed
+
+- Batch failures retain the command's concrete error and end with per-structure
+  causes and actionable next steps instead of only numeric exit statuses.
+- Cysteine protonation documentation and CLI help now distinguish the
+  disulfide-sentinel cutoff from ordinary pH-driven `CYS` → `CYM` assignment.
+- GUI dependencies use MUI Material and Icons 7.3.11, satisfying the supported
+  peer range of MUI X Data Grid 8.28.6.
+
+### Fixed
+
+- Diagnose clash messages identify both atoms explicitly and JSON findings
+  include structured chain/residue/atom details for the clash partner.
+- Free cysteine thiolate `CYM` is translated to OpenMM's equivalent no-SH
+  hydrogen state `CYX` during hydrogen placement, then restored to `CYM` for
+  AMBER template selection and output, preventing `Illegal variant ... CYM`.
+
 ## [0.8.1] — 2026-08-12
 
 ### Added

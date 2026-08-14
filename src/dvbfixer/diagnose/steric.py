@@ -347,6 +347,7 @@ def clashes_python(
                     else Severity.WARNING)
         chain_i, resid_i = _res_loc(ai.residue)
         chain_j, resid_j = _res_loc(aj.residue)
+        loc_i = f"{chain_i}/{ai.residue.name}{resid_i}:{ai.name}"
         loc_j = f"{chain_j}/{aj.residue.name}{resid_j}:{aj.name}"
         findings.append(Finding(
             severity=severity,
@@ -355,9 +356,17 @@ def clashes_python(
             resid=resid_i,
             resname=ai.residue.name,
             atom=ai.name,
-            message=f"clashes with {loc_j} — overlap {overlap:.2f} Å "
+            message=f"{loc_i} clashes with partner {loc_j} — overlap {overlap:.2f} Å "
                     f"(d={d:.2f} Å, vdW sum {ri + rj:.2f} Å)",
             fix_hint="dvbfixer minimize (relaxes non-bonded interactions)",
+            extra={
+                "clash_partner": {
+                    "chain": chain_j,
+                    "resid": resid_j,
+                    "resname": aj.residue.name,
+                    "atom": aj.name,
+                }
+            },
         ))
     return findings
 
@@ -434,6 +443,7 @@ def clashes_probe(
 
         chain_i, resid_i, resname_i, atom_i = _parse(src_field)
         chain_j, resid_j, resname_j, atom_j = _parse(trg_field)
+        loc_i = f"{chain_i or '?'}/{resname_i or '?'}{resid_i or '?'}:{atom_i or '?'}"
         loc_j = f"{chain_j}/{resname_j}{resid_j}:{atom_j}"
         findings.append(Finding(
             severity=severity,
@@ -442,9 +452,17 @@ def clashes_probe(
             resid=resid_i or "?",
             resname=resname_i or "?",
             atom=atom_i or "?",
-            message=f"clashes with {loc_j} — overlap {overlap:.2f} Å "
+            message=f"{loc_i} clashes with partner {loc_j} — overlap {overlap:.2f} Å "
                     f"(via MolProbity probe)",
             fix_hint="dvbfixer minimize",
+            extra={
+                "clash_partner": {
+                    "chain": chain_j or "?",
+                    "resid": resid_j or "?",
+                    "resname": resname_j or "?",
+                    "atom": atom_j or "?",
+                }
+            },
         ))
     return findings
 

@@ -11,6 +11,8 @@ from dvbfixer.ffutils.variants import (
     AMBER_VARIANT_TO_PARENT,
     CHARMM_VARIANT_TO_PARENT,
     VARIANT_TO_PARENT,
+    build_variants_list,
+    openmm_hydrogen_variant,
     restore_variants_post_addhydrogens,
     scan_variant_names,
     text_rename_variants_to_parent,
@@ -59,6 +61,18 @@ def test_variant_tables_cover_expected_names() -> None:
 def test_variant_tables_do_not_overlap() -> None:
     """No name appears in both AMBER and CHARMM tables (would create ambiguity)."""
     assert not set(AMBER_VARIANT_TO_PARENT) & set(CHARMM_VARIANT_TO_PARENT)
+
+
+def test_cym_uses_openmm_cyx_hydrogen_state_but_keeps_chemical_name() -> None:
+    assert openmm_hydrogen_variant("CYM") == "CYX"
+    assert openmm_hydrogen_variant("CYX") == "CYX"
+    assert openmm_hydrogen_variant("HIE") == "HIE"
+
+    top = _FakeTopology([_FakeResidue("A", "60", "CYS")])
+    saved = {("A", "60", ""): "CYM"}
+    assert build_variants_list(top, saved) == ["CYX"]
+    restore_variants_post_addhydrogens(top, saved)
+    assert top.residues()[0].name == "CYM"
 
 
 def test_scan_variant_names_finds_cyx(hinge_ch3_glycosylated_pdb: Path) -> None:

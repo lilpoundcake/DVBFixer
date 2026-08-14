@@ -122,7 +122,7 @@ def findings_to_dict_list(findings: list[Finding]) -> list[dict[str, Any]]:
     ordered = sorted(findings, key=Finding.sort_key)
     out: list[dict[str, Any]] = []
     for f in ordered:
-        out.append({
+        item: dict[str, Any] = {
             "severity": f.severity.value,
             "category": f.category,
             "chain": f.chain,
@@ -131,7 +131,10 @@ def findings_to_dict_list(findings: list[Finding]) -> list[dict[str, Any]]:
             "atom": f.atom,
             "message": f.message,
             "fix_hint": f.fix_hint,
-        })
+        }
+        if f.extra:
+            item["details"] = f.extra
+        out.append(item)
     return out
 
 

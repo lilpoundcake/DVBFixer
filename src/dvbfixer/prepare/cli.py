@@ -64,10 +64,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                          "AND Reduce didn't place either HD1 or HE2 "
                          "(rare — deprotonated HIS). Default: HIE.")
     ff.add_argument("--cys-ss-pka", type=float, default=99.99,
-                    help="PROPKA pKa threshold above which CYS is "
-                         "assumed to be in a disulfide bond and renamed "
-                         "to CYX (default: 99.99, matching PROPKA's sentinel). "
-                         "Explicit CONECT-detected SS pairs override PROPKA regardless.")
+                    help="PROPKA disulfide-sentinel cutoff for CYS -> CYX "
+                         "(default: 99.99). This does not override predicted "
+                         "pKa: pKa below --ph still gives thiolate CYM. Explicit "
+                         "CONECT-detected SS pairs override PROPKA regardless.")
     ff.add_argument("--backend", choices=["tleap-reduce", "legacy"],
                     default="legacy",
                     help="Prep backend. 'legacy' (default): PDBFixer + "

@@ -1,7 +1,7 @@
 {
   "name": "dvbfixer-gui",
   "private": true,
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Graphical workspace for DVBfixer structure preparation and homology modeling",
   "type": "module",
   "scripts": {
@@ -23,8 +23,8 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^9.0.0",
-    "@mui/material": "^9.0.0",
+    "@mui/icons-material": "^7.3.11",
+    "@mui/material": "^7.3.11",
     "@mui/x-data-grid": "^8.28.6",
     "@rollup/wasm-node": "^4.60.1",
     "@types/pg": "^8.20.0",

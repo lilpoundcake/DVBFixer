@@ -41,10 +41,10 @@ pH-driven decisions:
                         Default neutral HIS tautomer when pKa < pH (default:
                         HIE = Ne2 protonated)
   --cys-disulfide-pka CYS_DISULFIDE_PKA
-                        PROPKA pKa threshold above which CYS is assumed to be
-                        in a disulfide bond and renamed to CYX (default:
-                        99.99, matching PROPKA's sentinel). No-op under --no-
-                        propka.
+                        PROPKA disulfide-sentinel cutoff for CYS -> CYX
+                        (default: 99.99). This does not override predicted
+                        pKa: pKa below --ph still gives thiolate CYM. No-op
+                        under --no-propka.
 
 Protonation engines:
   --backend {tleap-reduce,legacy}

@@ -72,6 +72,18 @@ CHARMM_VARIANTS: frozenset[str] = frozenset(CHARMM_VARIANT_TO_PARENT.keys())
 ALL_VARIANTS: frozenset[str] = AMBER_VARIANTS | CHARMM_VARIANTS
 
 
+def openmm_hydrogen_variant(variant: str | None) -> str | None:
+    """Translate a chemical residue state to OpenMM's hydrogen-state name.
+
+    OpenMM calls both sulfur states without ``HG`` ``CYX``: that name covers
+    a disulfide cysteine and a free thiolate.  AMBER distinguishes the latter
+    as ``CYM`` for force-field template/charge selection.  Therefore CYM must
+    be passed to ``Modeller.addHydrogens`` as CYX, then restored to CYM before
+    system creation and output.
+    """
+    return "CYX" if variant == "CYM" else variant
+
+
 ReskeyText = tuple[str, str, str]  # (chain, resseq, icode) as strings, whitespace-stripped
 SavedMap = dict[ReskeyText, str]
 
@@ -184,7 +196,7 @@ def build_variants_list(
         variant = saved.get(key)
         if variant is None and not ic:
             variant = saved.get((res.chain.id, str(res.id), ""))
-        variants.append(variant)
+        variants.append(openmm_hydrogen_variant(variant))
         if variant is not None:
             hit = True
     return variants if hit else None

@@ -111,6 +111,10 @@ def test_true_cc_clash_still_error() -> None:
     assert len(findings) == 1
     assert findings[0].severity == Severity.ERROR
     assert findings[0].category == "clash"
+    assert "clashes with partner" in findings[0].message
+    assert findings[0].extra["clash_partner"] == {
+        "chain": "X", "resid": "2", "resname": "LG2", "atom": "C1",
+    }
 
 
 def _make_two_residue_topology(

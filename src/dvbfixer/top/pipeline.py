@@ -388,7 +388,8 @@ def _add_protonation_hydrogens(protein_chains, pdb_path, ff_type, verbose=False)
                             if r.resseq == rseq:
                                 r.resname = std
             else:
-                vlist.append(var)
+                from dvbfixer.ffutils.variants import openmm_hydrogen_variant
+                vlist.append(openmm_hydrogen_variant(var))
         if skipped_terminals:
             import warnings
             for var, cid, rseq in skipped_terminals:

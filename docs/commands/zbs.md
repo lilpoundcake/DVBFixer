@@ -109,7 +109,7 @@ Organised by which pipeline step each flag flows into.
 | `--no-propka` | off | Skip PROPKA3 during prepare; Reduce (`--protassign`) becomes the only source of HIS tautomer picks and ASN/GLN flip detection. Combined with `--no-protassign`, leaves variants = `--mutate` only. |
 | `--no-protassign` | off | Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip detection) during prepare. Default: run Reduce. |
 | `--his-default` | `HIE` | Default HIS tautomer when PROPKA says neutral AND Reduce didn't place either HD1 or HE2 (`HIE` or `HID`) |
-| `--cys-ss-pka` | 99.99 | PROPKA pKa threshold above which CYS is assumed disulfide-bonded and renamed to CYX (matches PROPKA's sentinel value). Explicit CONECT-detected SS pairs override PROPKA regardless. |
+| `--cys-ss-pka` | 99.99 | Disulfide-sentinel cutoff for CYS → CYX; it does not override predicted pKa, so pKa < pH still produces thiolate CYM. Explicit SG–SG bonds override PROPKA. |
 
 ### `minimize` (step 4)
 | Flag | Default | Description |

@@ -727,7 +727,7 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
     #
     # OpenMM variant names: 'HIE', 'HID', 'HIP' for HIS; 'ASH' for ASP;
     # 'GLH' for GLU; 'CYX' for CYS (disulfide). None = auto-detect by pH.
-    _OPENMM_VARIANTS = {'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYX', 'LYN'}
+    _OPENMM_VARIANTS = {'HIE', 'HID', 'HIP', 'ASH', 'GLH', 'CYX', 'CYM', 'LYN'}
 
     # Merge PROPKA + Reduce output (extra_variants, 3-tuple keys) with
     # user --mutate / raw-text-captured overrides (variant_overrides,
@@ -751,7 +751,8 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
         _var = variant_overrides.get(key3) or variant_overrides.get(
             (res.chain.id, str(res.id), ''))
         if _var and _var in _OPENMM_VARIANTS:
-            variants.append(_var)
+            from dvbfixer.ffutils.variants import openmm_hydrogen_variant
+            variants.append(openmm_hydrogen_variant(_var))
             if verbose:
                 print(f"  {res.name} {res.chain.id}:{res.id} → variant {_var}")
         elif res.name == 'HIS':

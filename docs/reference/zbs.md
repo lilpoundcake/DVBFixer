@@ -143,10 +143,10 @@ Protonation (PROPKA + Reduce, inside prepare):
                         Default HIS tautomer when PROPKA says neutral AND
                         Reduce didn't place either HD1 or HE2. Default: HIE.
   --cys-ss-pka CYS_SS_PKA
-                        PROPKA pKa threshold above which CYS is assumed to be
-                        in a disulfide bond and renamed to CYX (default:
-                        99.99, matching PROPKA's sentinel). Explicit CONECT-
-                        detected SS pairs override PROPKA regardless.
+                        PROPKA disulfide-sentinel cutoff for CYS -> CYX
+                        (default: 99.99). This does not override predicted
+                        pKa: pKa below --ph still gives thiolate CYM. Explicit
+                        CONECT-detected SS pairs override PROPKA regardless.
 
 Pipeline behaviour:
   --keep-water          Keep water molecules in output (default: remove)

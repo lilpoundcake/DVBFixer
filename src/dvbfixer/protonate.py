@@ -59,9 +59,9 @@ def parse_args(argv=None):
     )
     ph.add_argument(
         "--cys-disulfide-pka", type=float, default=99.99,
-        help="PROPKA pKa threshold above which CYS is assumed to be in a disulfide "
-             "bond and renamed to CYX (default: 99.99, matching PROPKA's sentinel). "
-             "No-op under --no-propka."
+        help="PROPKA disulfide-sentinel cutoff for CYS -> CYX (default: 99.99). "
+             "This does not override predicted pKa: pKa below --ph still gives "
+             "thiolate CYM. No-op under --no-propka."
     )
 
     p.add_argument(
@@ -476,7 +476,8 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
         icode = res.insertionCode.strip() if hasattr(res, 'insertionCode') else ''
         key = (chain, resnum, icode)
         if key in renames:
-            variants.append(renames[key])
+            from dvbfixer.ffutils.variants import openmm_hydrogen_variant
+            variants.append(openmm_hydrogen_variant(renames[key]))
         else:
             variants.append(None)
 
@@ -538,7 +539,8 @@ def _add_hydrogens_to_output(input_path, output_path, args, renames):
             icode = res.insertionCode.strip() if hasattr(res, 'insertionCode') else ''
             key = (chain, resnum, icode)
             if key in renames:
-                variants.append(renames[key])
+                from dvbfixer.ffutils.variants import openmm_hydrogen_variant
+                variants.append(openmm_hydrogen_variant(renames[key]))
             else:
                 variants.append(None)
     finally:

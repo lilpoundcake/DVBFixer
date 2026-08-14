@@ -51,10 +51,10 @@ Force field / pH:
                         Reduce didn't place either HD1 or HE2 (rare —
                         deprotonated HIS). Default: HIE.
   --cys-ss-pka CYS_SS_PKA
-                        PROPKA pKa threshold above which CYS is assumed to be
-                        in a disulfide bond and renamed to CYX (default:
-                        99.99, matching PROPKA's sentinel). Explicit CONECT-
-                        detected SS pairs override PROPKA regardless.
+                        PROPKA disulfide-sentinel cutoff for CYS -> CYX
+                        (default: 99.99). This does not override predicted
+                        pKa: pKa below --ph still gives thiolate CYM. Explicit
+                        CONECT-detected SS pairs override PROPKA regardless.
   --backend {tleap-reduce,legacy}
                         Prep backend. 'legacy' (default): PDBFixer +
                         Modeller.addHydrogens; handles glycans, ligands,
