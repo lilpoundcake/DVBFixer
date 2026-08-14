@@ -13,6 +13,11 @@ describe('generated DVBfixer command schema', () => {
     expect(prepare.flags.find(field => field.flag === '--strip-heterogens')?.default).toBe(false)
     expect(prepare.flags.map(field => field.flag)).toContain('--cap-termini')
     expect(prepare.flags.map(field => field.flag)).toContain('--cap-chain')
+    expect(prepare.flags.find(field => field.dest === 'propka')?.label).toBe('PROPKA')
+    expect(prepare.flags.find(field => field.dest === 'protassign')?.label).toBe('ProtAssign')
+    const protonate = GENERATED_COMMANDS.find(command => command.name === 'protonate')!
+    expect(protonate.flags.find(field => field.dest === 'protassign_binary')?.label)
+      .toBe('ProtAssign Binary')
     const model = GENERATED_COMMANDS.find(command => command.name === 'model')!
     expect(model.flags.find(field => field.flag === '--pin-input')).toMatchObject({
       default: true, falseFlag: '--no-pin-input',

@@ -24,7 +24,7 @@ import { useStructureStore } from '../stores/structureStore'
 import { chainToSequence } from '../lib/alignment'
 import { filterSequenceableChains } from '../lib/chain-grouping'
 import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
-import { isActiveManagedJob, managedJobStatusLabel, selectRestoredManagedJob, type ManagedJobRecord } from '../lib/managed-jobs'
+import { createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, selectRestoredManagedJob, type ManagedJobRecord } from '../lib/managed-jobs'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 
 // Re-declare the spec types here (mirrors server/dvbfixer-spec.ts) so the
@@ -516,7 +516,13 @@ export function DVBFixerPanel() {
       const res = await fetch('/api/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspaceId: workspace?.id, inputFile, inputs: runInputs, values: activeValues, fastaContent }),
+        body: JSON.stringify(createManagedJobRequest(activeCmd.name, {
+          workspaceId: workspace.id,
+          inputFile,
+          inputs: runInputs,
+          values: activeValues,
+          fastaContent,
+        })),
       })
       const body = await res.json() as ManagedJobRecord & { error?: string }
       if (!res.ok) {

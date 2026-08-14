@@ -236,6 +236,9 @@ async function executeJob(
 
 export function createManagedJob(dataRoot: string, request: ManagedJobRequest): ManagedJobRecord {
   if (!request.workspaceId) throw httpError(400, 'workspaceId is required')
+  if (typeof request.command !== 'string' || !request.command.trim()) {
+    throw httpError(400, 'command is required')
+  }
   loadWorkspace(dataRoot, request.workspaceId)
   if (!COMMANDS.some(command => command.name === request.command)) throw httpError(400, `unknown command: ${request.command}`)
   const id = crypto.randomUUID()

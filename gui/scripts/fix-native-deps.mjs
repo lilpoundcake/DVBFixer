@@ -6,12 +6,13 @@
  * Supports: macOS arm64/x64, Linux arm64/x64
  */
 import { execSync } from 'child_process'
-import { existsSync } from 'fs'
+import { createRequire } from 'module'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
+const require = createRequire(import.meta.url)
 
 const ROLLUP_BINDINGS = {
   'darwin-arm64': '@rollup/rollup-darwin-arm64',
@@ -28,8 +29,12 @@ if (!pkg) {
   process.exit(0)
 }
 
-if (existsSync(join(root, 'node_modules', pkg))) {
+try {
+  require.resolve(pkg, { paths: [root] })
   process.exit(0)
+} catch {
+  // npm can leave an empty optional-dependency directory behind. Resolve the
+  // actual native entry point instead of trusting directory existence.
 }
 
 console.log(`[postinstall] Installing ${pkg} for ${key}...`)

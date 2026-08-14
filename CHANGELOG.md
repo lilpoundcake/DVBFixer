@@ -24,6 +24,15 @@ best-effort summaries; consult `git log` for exact provenance.
 - Scarf analytics are disabled explicitly in addition to blocking its
   postinstall script, preventing third-party installation metadata reporting.
 
+### Fixed
+
+- The GUI managed-job request includes the selected DVBfixer command, avoiding
+  `unknown command: undefined` when starting a run.
+- Generated GUI fields use the correct `PROPKA` and `ProtAssign` names, and the
+  native Rollup repair verifies the binding itself rather than its directory.
+- Homology toolbars and subtab headers no longer render a separate colored
+  background behind their controls.
+
 ## [0.8.2] — 2026-08-14
 
 ### Changed

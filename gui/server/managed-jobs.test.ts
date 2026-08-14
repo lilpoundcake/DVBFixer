@@ -53,6 +53,15 @@ afterEach(() => {
 })
 
 describe('managed DVBfixer jobs', () => {
+  it('reports a missing command clearly', () => {
+    const dataRoot = root()
+    const workspace = listWorkspaces(dataRoot)[0]
+    expect(() => createManagedJob(dataRoot, {
+      workspaceId: workspace.id,
+      command: undefined as unknown as string,
+    })).toThrow('command is required')
+  })
+
   it('persists a successful fake-CLI lifecycle and logs', async () => {
     const dataRoot = root()
     const workspace = listWorkspaces(dataRoot)[0]

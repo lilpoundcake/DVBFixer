@@ -26,6 +26,11 @@ OUTPUT_EXTENSIONS = {
     command.name: command.output_extension for command in COMMAND_REGISTRY
 }
 OUTPUT_MODES = {command.name: command.output_mode for command in COMMAND_REGISTRY}
+FIELD_LABELS = {
+    "propka": "PROPKA",
+    "protassign": "ProtAssign",
+    "protassign_binary": "ProtAssign Binary",
+}
 
 
 class _Captured(Exception):
@@ -78,7 +83,7 @@ def _field(action: argparse.Action, group: str) -> dict:
     result = {
         "flag": flag,
         "dest": action.dest,
-        "label": action.dest.replace("_", " ").title(),
+        "label": FIELD_LABELS.get(action.dest, action.dest.replace("_", " ").title()),
         "type": field_type,
         "group": group,
         "help": action.help if action.help is not argparse.SUPPRESS else None,

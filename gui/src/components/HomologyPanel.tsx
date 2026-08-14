@@ -71,8 +71,7 @@ interface TransientAlignmentSelection { anchor: number; columns: number[] }
 
 const homologyToolbarSx = {
   display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap',
-  position: 'sticky', top: 0, zIndex: 5, px: 1, py: 0.5,
-  minHeight: 40, bgcolor: 'background.paper',
+  px: 1, py: 0.5, minHeight: 40,
   '& .MuiButton-root': { width: 160, minWidth: 160, height: 32, flexShrink: 0 },
   '& .MuiFormControl-root': { width: 160, minWidth: 160, flexShrink: 0 },
   '& .MuiInputBase-root': { height: 32 },
@@ -90,7 +89,7 @@ const homologyToolbarSx = {
 
 const projectToolbarSx = {
   px: 1, py: 0.75, display: 'flex', gap: 1, alignItems: 'center',
-  minHeight: 48, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper',
+  minHeight: 48, borderBottom: 1, borderColor: 'divider',
   '& .MuiInputBase-root': { height: 32 },
   '& .MuiIconButton-root': { width: 32, height: 32 },
 } as const
@@ -648,7 +647,7 @@ export function HomologyPanel() {
         <Tooltip title="New project"><IconButton onClick={createProject}><AddIcon /></IconButton></Tooltip>
         <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>{saved ? 'Saved' : 'Saving…'}</Typography>
       </Box>
-      <Tabs value={tab} onChange={(_event, value) => setTab(value)} sx={{ minHeight: 30, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper', '& .MuiTab-root': { minHeight: 30, py: 0.25, px: 1.25, fontSize: '0.72rem', textTransform: 'none' } }}>
+      <Tabs value={tab} onChange={(_event, value) => setTab(value)} sx={{ minHeight: 30, borderBottom: 1, borderColor: 'divider', '& .MuiTab-root': { minHeight: 30, py: 0.25, px: 1.25, fontSize: '0.72rem', textTransform: 'none' } }}>
         <Tab label="1. Target" /><Tab label="2. Templates" /><Tab label="3. Alignment" /><Tab label="4. Model" />
       </Tabs>
       <Box sx={{ flex: 1, overflow: 'auto', p: 1.5 }}>
@@ -729,7 +728,16 @@ export function HomologyPanel() {
 
         {tab === 2 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Box sx={homologyToolbarSx}>
+            <Box sx={{
+              ...homologyToolbarSx,
+              minHeight: 27,
+              py: 0,
+              '& .MuiButton-root': { ...homologyToolbarSx['& .MuiButton-root'], height: 24 },
+              '& .MuiIconButton-root': { ...homologyToolbarSx['& .MuiIconButton-root'], width: 24, height: 24 },
+              '& .MuiInputBase-root': { height: 24 },
+              '& .MuiInputLabel-root:not(.MuiInputLabel-shrink)': { transform: 'translate(14px, 1px) scale(1)' },
+              '& .MuiSelect-select, & .MuiInputBase-input': { py: '1px' },
+            }}>
               <input ref={alignmentImportRef} hidden type="file" accept=".fasta,.fa,.faa,.aln" onChange={event => importAlignment(event.target.files?.[0])} />
               {targetChains.length > 1 && <FormControl size="small" sx={{ minWidth: 180 }}><InputLabel>Target chain</InputLabel>
                 <Select label="Target chain" value={activeTargetChain} onChange={event => setActiveTargetChain(event.target.value)}>

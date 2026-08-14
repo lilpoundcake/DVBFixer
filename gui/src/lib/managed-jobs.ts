@@ -18,6 +18,23 @@ export interface ManagedJobRecord {
   error?: string
 }
 
+export interface ManagedJobRequestPayload {
+  workspaceId: string
+  command: string
+  inputFile: string
+  inputs: Record<string, string | string[]>
+  values: Record<string, unknown>
+  fastaContent: string
+}
+
+/** Build the managed-job wire payload with the selected command included. */
+export function createManagedJobRequest(
+  command: string,
+  request: Omit<ManagedJobRequestPayload, 'command'>,
+): ManagedJobRequestPayload {
+  return { ...request, command }
+}
+
 export function isActiveManagedJob(job: ManagedJobRecord | null | undefined): boolean {
   return job?.status === 'queued' || job?.status === 'running'
 }

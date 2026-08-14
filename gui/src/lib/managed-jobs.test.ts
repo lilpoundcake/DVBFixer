@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isActiveManagedJob, managedJobStatusLabel, selectRestoredManagedJob, type ManagedJobRecord } from './managed-jobs'
+import { createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, selectRestoredManagedJob, type ManagedJobRecord } from './managed-jobs'
 
 function job(status: ManagedJobRecord['status'], id = status): ManagedJobRecord {
   return {
@@ -12,6 +12,13 @@ function job(status: ManagedJobRecord['status'], id = status): ManagedJobRecord 
 }
 
 describe('managed job UI helpers', () => {
+  it('includes the selected command in the managed-job request', () => {
+    expect(createManagedJobRequest('prepare', {
+      workspaceId: 'workspace-1', inputFile: 'input.pdb', inputs: {},
+      values: {}, fastaContent: '',
+    })).toMatchObject({ command: 'prepare', workspaceId: 'workspace-1' })
+  })
+
   it('restores an active job ahead of a newer terminal record', () => {
     expect(selectRestoredManagedJob([job('succeeded'), job('running')])?.status).toBe('running')
     expect(selectRestoredManagedJob([])).toBeNull()
