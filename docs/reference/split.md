@@ -19,7 +19,8 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB or GRO file
+  input                 Input PDB, PDBx/mmCIF, crystallographic CIF, or GRO
+                        file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_split.pdb)
   --assembly ID|all     Extract one REMARK 350 biological assembly, or all

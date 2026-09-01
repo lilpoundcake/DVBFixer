@@ -34,7 +34,7 @@ class CommandSpec:
 
 
 COMMAND_REGISTRY: tuple[CommandSpec, ...] = (
-    CommandSpec("split", "dvbfixer.split_chains", "Split chains empirically or extract PDB biological assemblies", "Structure preparation", batch_output_suffix="_split.pdb"),
+    CommandSpec("split", "dvbfixer.split_chains", "Split chains empirically or extract deposited biological assemblies", "Structure preparation", batch_output_suffix="_split.pdb"),
     CommandSpec("renumber", "dvbfixer.renumber", "Renumber residues using FASTA or SEQRES alignment", "Structure preparation", batch_output_suffix="_renum.pdb"),
     CommandSpec("model", "dvbfixer.model", "Rebuild missing loops/gaps with Modeller", "Structure preparation", batch_output_suffix="_model.pdb"),
     CommandSpec("pull", "dvbfixer.pull", "Pull atoms together to form a bond (geometry-only)", "Refinement", batch_output_suffix="_pulled.pdb"),
@@ -42,9 +42,9 @@ COMMAND_REGISTRY: tuple[CommandSpec, ...] = (
     CommandSpec("minimize", "dvbfixer.minimize", "Energy-minimize with OpenMM using selective restraints", "Refinement", batch_output_suffix="_minimized.pdb"),
     CommandSpec("protonate", "dvbfixer.protonate", "Set protonation states using PROPKA3 pKa predictions", "Refinement", batch_output_suffix="_prot.pdb"),
     CommandSpec("rename", "dvbfixer.rename", "Rename non-canonical residues (AMBER/CHARMM) to standard names", "Utilities", batch_output_suffix="_canon.pdb"),
-    CommandSpec("top", "dvbfixer.top", "Generate GROMACS .itp/.top topology files from PDB", "Topology & chemistry", output_extension=".top"),
-    CommandSpec("transplant", "dvbfixer.transplant", "Transplant molecules from donor PDB to acceptor PDB", "Glycoprotein preparation"),
-    CommandSpec("puppet", "dvbfixer.puppet", "Strip PDB to backbone-only polyglycine model", "Utilities", batch_output_suffix="_puppet.pdb"),
+    CommandSpec("top", "dvbfixer.top", "Generate GROMACS .itp/.top topology files from a structure", "Topology & chemistry", output_extension=".top"),
+    CommandSpec("transplant", "dvbfixer.transplant", "Transplant molecules between donor and acceptor structures", "Glycoprotein preparation"),
+    CommandSpec("puppet", "dvbfixer.puppet", "Strip a structure to a backbone-only polyglycine model", "Utilities", batch_output_suffix="_puppet.pdb"),
     CommandSpec("convert", "dvbfixer.glycam", "Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants)", "Glycoprotein preparation", batch_output_suffix="_converted.pdb"),
     CommandSpec("conect", "dvbfixer.conect", "Add inferred CONECT records (SS bonds, glycosidic links, glycosylation)", "Utilities", batch_output_suffix="_conect.pdb"),
     CommandSpec("cluster", "dvbfixer.cluster", "Cluster glycan conformations from MD trajectory", "Analysis", output_extension="", output_mode="directory"),

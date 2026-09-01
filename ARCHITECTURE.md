@@ -826,6 +826,15 @@ Each subcommand exposes `parse_args(argv=None)` and `main(argv=None)`.
 to the matching module's `main()`. Entry point in `pyproject.toml`:
 `dvbfixer = "dvbfixer.cli:main"`.
 
+Before a scientific command is dispatched, `structure_input.py` normalizes
+every existing `.cif`/`.mmcif` path argument to a temporary PDB beneath the
+resolved output/work directory. Gemmi handles PDBx/mmCIF, including sequences,
+connections, and assembly metadata; Open Babel handles fractional-coordinate
+small-molecule CIF. Valid one-character author chain IDs are preserved and
+long IDs are deterministically mapped before fixed-column serialization. The
+command then runs entirely on PDB as before, and mapping remarks are propagated
+to generated PDB outputs. This boundary is also used by directory batch runs.
+
 Before dispatch, shared runtime arguments are removed from the command argv.
 `--log-file` enters an fd-level tee so Python output and inherited subprocess
 streams reach both the terminal and an append-only log. Actual runs begin with

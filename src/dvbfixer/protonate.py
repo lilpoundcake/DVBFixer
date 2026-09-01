@@ -45,7 +45,7 @@ def parse_args(argv=None):
     )
 
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file")
+    io.add_argument("input", help="Input PDB, PDBx/mmCIF, or crystallographic CIF file")
     io.add_argument("-o", "--output", help="Output PDB file (default: <input>_prot.pdb)")
 
     ph = p.add_argument_group("pH-driven decisions")

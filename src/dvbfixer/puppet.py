@@ -40,7 +40,7 @@ def parse_args(argv=None):
         description='Strip PDB to backbone-only polyglycine model.',
     )
     io = p.add_argument_group('Input / output')
-    io.add_argument('input', help='Input PDB file')
+    io.add_argument('input', help='Input PDB or PDBx/mmCIF file')
     io.add_argument('-o', '--output', help='Output PDB (default: <input>_puppet.pdb)')
 
     content = p.add_argument_group('Content selection')

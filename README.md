@@ -1,6 +1,6 @@
 # dvbfixer
 
-A suite of Python CLI tools for preparing PDB (Protein Data Bank) structural biology files. Handles common issues with PDB files from MD simulations and the PDB database: missing chain IDs, antibody insertion codes, missing loops/residues, loop rebuilding with Modeller, multi-template homology modeling, energy minimization with selective restraints, protonation state assignment, GROMACS topology generation, GLYCAM glycoprotein transplanting, small molecule parametrization (GAFF2), and glycan conformational clustering from MD trajectories.
+A suite of Python CLI tools for preparing PDB and CIF structural biology files. Handles common issues with structures from MD simulations and structural databases: missing chain IDs, antibody insertion codes, missing loops/residues, loop rebuilding with Modeller, multi-template homology modeling, energy minimization with selective restraints, protonation state assignment, GROMACS topology generation, GLYCAM glycoprotein transplanting, small molecule parametrization (GAFF2), and glycan conformational clustering from MD trajectories.
 
 Current release: **0.8.3**.
 
@@ -37,6 +37,11 @@ needs a fixed argument prefix, provide `DVBFIXER_ARGS` as a JSON string array
 (for example `["-m", "dvbfixer"]` with a Python executable).
 
 Full install instructions (including the Modeller license step) are in [`docs/installation.md`](docs/installation.md).
+
+Commands accept PDBx/mmCIF and small-molecule crystallographic CIF as input,
+normalize them to a validated internal PDB, and retain the existing PDB output
+contracts. See [CIF structure input](docs/cif-input.md) for chain-ID mapping,
+metadata preservation, and fixed-column PDB limits.
 
 ## Testing
 

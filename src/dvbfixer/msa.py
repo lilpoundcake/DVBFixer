@@ -159,7 +159,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     alignment.add_argument("--format", choices=["fasta", "pir"], default="fasta",
                            help="Output alignment format (default: fasta)")
     alignment.add_argument("--template", action="append", default=[],
-                           help="Append sequences extracted from PDB[:CHAIN] (repeatable)")
+                           help="Append sequences extracted from PDB-or-CIF[:CHAIN] (repeatable)")
     diagnostics = parser.add_argument_group("Diagnostics")
     diagnostics.add_argument("--list-engines", action="store_true",
                              help="Print detected alignment engines and exit")

@@ -51,7 +51,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
 
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file")
+    io.add_argument("input", help="Input PDB, PDBx/mmCIF, or crystallographic CIF file")
     io.add_argument("-o", "--output",
                     help="Write report to file (default: stdout)")
 

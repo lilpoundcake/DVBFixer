@@ -23,6 +23,24 @@ propka 3.5.1 (used by `protonate` / `prepare`) reads the dataclass attribute
 change makes raise `AttributeError`, crashing the PROPKA step. Do not loosen
 the cap.
 
+NumPy is constrained to `<2.5` even when the environment itself uses Python
+3.12 or 3.13. DVBfixer's mypy gate deliberately checks the Python 3.11 API
+baseline, while NumPy 2.5 dropped Python 3.11 and publishes stubs containing
+Python 3.12-only syntax. For an existing environment that reports a mypy
+`Type statement is only supported in Python 3.12` error from `numpy/*.pyi`, run:
+
+```bash
+python -m pip install --upgrade "numpy<2.5"
+```
+
+## CIF conversion backends
+
+PDBx/mmCIF input uses Gemmi; small-molecule crystallographic CIF uses Open
+Babel. Both are installed by `environment.yml`, and pip installations declare
+`gemmi` plus the prebuilt `openbabel-wheel` explicitly. Verify the active
+environment with `python -c "import gemmi; from openbabel import openbabel"`.
+If only PDB input is used, the conversion layer is not invoked.
+
 ## Multiple-sequence alignment executables
 
 `dvbfixer msa`, `dvbfixer homology --template-plan`, and the GUI Homology

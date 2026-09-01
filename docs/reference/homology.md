@@ -23,7 +23,8 @@ options:
 Input / output:
   fasta                 Target sequence FASTA (multi-chain, one >header per
                         chain)
-  --template TEMPLATE   Template PDB file (repeatable, at least 1)
+  --template TEMPLATE   Template PDB or PDBx/mmCIF file (repeatable, at least
+                        1)
   --template-plan TEMPLATE_PLAN
                         JSON template-chain selection plan; fits and merges
                         selected parts into one known

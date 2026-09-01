@@ -24,7 +24,7 @@ Alignment:
   --engine {auto,mafft,muscle,clustalo}
                         Alignment engine (default: auto; prefers MAFFT)
   --format {fasta,pir}  Output alignment format (default: fasta)
-  --template TEMPLATE   Append sequences extracted from PDB[:CHAIN]
+  --template TEMPLATE   Append sequences extracted from PDB-or-CIF[:CHAIN]
                         (repeatable)
 
 Diagnostics:

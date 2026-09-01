@@ -38,8 +38,8 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB file (use --fasta when SEQRES is absent or
-                        incomplete)
+  input                 Input PDB or PDBx/mmCIF file (use --fasta when polymer
+                        sequence metadata is absent or incomplete)
   -o OUTPUT, --output OUTPUT
                         Final output PDB file (default: <input>_zbs.pdb)
 

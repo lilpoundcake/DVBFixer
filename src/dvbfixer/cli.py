@@ -22,7 +22,7 @@ def print_help() -> None:
     print("  --log-file PATH  Append all output to PATH while retaining the terminal")
     print("\nBatch mode (runs a command independently on each structure;")
     print("continues after per-file failures by default):")
-    print("  --input-dir DIR      Process every .pdb/.ent structure in DIR")
+    print("  --input-dir DIR      Process every .pdb/.ent/.cif/.mmcif structure in DIR")
     print("  --output-dir DIR     Batch output directory")
     print("  --recursive          Include subdirectories")
     print("  --fail-fast          Stop after the first failed structure")
@@ -53,6 +53,10 @@ def main() -> None:
 
     module_name = get_command(command).module
     cmd_main = import_module(module_name).main
+    from dvbfixer.structure_input import run_with_normalized_inputs
+
+    def normalized_main(arguments: list[str]) -> object:
+        return run_with_normalized_inputs(command, cmd_main, arguments)
 
     from dvbfixer.runtime import run_header, tee_output
 
@@ -63,11 +67,11 @@ def main() -> None:
         if batch_options.input_dir:
             from dvbfixer.batch import run_directory
 
-            run_directory(command, cmd_main, batch_options, argv)
+            run_directory(command, normalized_main, batch_options, argv)
         else:
             if batch_options.output_dir or batch_options.recursive or batch_options.fail_fast:
                 raise SystemExit("--output-dir, --recursive, and --fail-fast require --input-dir")
-            cmd_main(argv)
+            normalized_main(argv)
 
 
 if __name__ == "__main__":

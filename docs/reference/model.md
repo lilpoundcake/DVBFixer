@@ -23,7 +23,8 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB file (must contain SEQRES or use --fasta)
+  input                 Input PDB or PDBx/mmCIF file (must contain polymer
+                        sequence metadata or use --fasta)
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_model.pdb)
   --fasta FASTA         FASTA file with complete sequence(s). Headers must

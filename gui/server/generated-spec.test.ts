@@ -8,6 +8,7 @@ describe('generated DVBfixer command schema', () => {
     expect(GENERATED_COMMANDS.map(command => command.name)).toContain('salign')
     expect(GENERATED_COMMANDS.map(command => command.name)).toContain('msa')
     const prepare = GENERATED_COMMANDS.find(command => command.name === 'prepare')!
+    expect(prepare.inputs[0].help).toMatch(/CIF/)
     expect(prepare.groups.map(group => group.name)).toContain('Mutations')
     expect(prepare.flags.map(field => field.flag)).toContain('--smiles')
     expect(prepare.flags.find(field => field.flag === '--strip-heterogens')?.default).toBe(false)

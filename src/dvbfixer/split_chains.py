@@ -77,7 +77,7 @@ def parse_args(argv=None):
         "from REMARK 350 BIOMT records."
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB or GRO file")
+    io.add_argument("input", help="Input PDB, PDBx/mmCIF, crystallographic CIF, or GRO file")
     io.add_argument("-o", "--output", help="Output PDB file (default: <input>_split.pdb)")
     io.add_argument(
         "--assembly", metavar="ID|all",

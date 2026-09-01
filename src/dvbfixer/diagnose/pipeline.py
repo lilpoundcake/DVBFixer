@@ -210,10 +210,12 @@ def main(argv: list[str] | None = None) -> None:
     n_atoms = sum(1 for _ in topology.atoms())
     n_residues = sum(1 for _ in topology.residues())
     n_chains = sum(1 for _ in topology.chains())
+    from dvbfixer.structure_input import display_structure_path
+    report_input_path = display_structure_path(input_path)
 
     if args.output_format == "json":
         payload = {
-            "input": str(input_path),
+            "input": str(report_input_path),
             "n_models": n_models if n_models > 1 else 1,
             "n_atoms": n_atoms,
             "n_residues": n_residues,
@@ -238,7 +240,7 @@ def main(argv: list[str] | None = None) -> None:
         report_text = json.dumps(payload, indent=2, ensure_ascii=False)
     else:
         report_text = format_report(
-            str(input_path), n_atoms, n_residues, n_chains, findings,
+            str(report_input_path), n_atoms, n_residues, n_chains, findings,
             chirality_checked=chirality_checked,
             chirality_repairs=chirality_repairs,
         )

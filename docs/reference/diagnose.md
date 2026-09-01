@@ -23,7 +23,7 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB file
+  input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
   -o OUTPUT, --output OUTPUT
                         Write report to file (default: stdout)
 

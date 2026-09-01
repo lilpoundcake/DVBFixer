@@ -1,7 +1,7 @@
 # Batch mode
 
 Batch mode runs one supported single-structure command independently for every
-`.pdb` or `.ent` file in a directory (`split` also accepts `.gro`). Outputs are
+`.pdb`, `.ent`, `.cif`, or `.mmcif` file in a directory (`split` also accepts `.gro`). Outputs are
 written under a separate directory; `--recursive` preserves relative paths and
 processing continues after individual failures unless `--fail-fast` is used.
 
@@ -30,7 +30,7 @@ an invalid shared invocation cannot fail differently from file to file.
 
 | Tool | Batch input | Notes |
 |---|---:|---|
-| `split` | Yes | Accepts PDB, ENT, and GRO files. |
+| `split` | Yes | Accepts PDB, ENT, CIF/mmCIF, and GRO files. |
 | `renumber` | Yes | Renumbers each structure independently. |
 | `model` | Yes | Models each structure independently. |
 | `pull` | Yes | Pulls each structure independently. |

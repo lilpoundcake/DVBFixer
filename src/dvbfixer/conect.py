@@ -28,7 +28,7 @@ def parse_args(argv=None):
         description='Infer and write CONECT records for a PDB file.',
     )
     io = parser.add_argument_group('Input / output')
-    io.add_argument('input', help='Input PDB file')
+    io.add_argument('input', help='Input PDB, PDBx/mmCIF, or crystallographic CIF file')
     io.add_argument('-o', '--output',
                     help='Output PDB file (default: <input>_conect.pdb)')
     io.add_argument('--force', action='store_true',

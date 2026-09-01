@@ -36,7 +36,7 @@ def parse_args(argv=None):
         "separate protonate stage.",
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file (use --fasta when SEQRES is absent or incomplete)")
+    io.add_argument("input", help="Input PDB or PDBx/mmCIF file (use --fasta when polymer sequence metadata is absent or incomplete)")
     io.add_argument("-o", "--output", help="Final output PDB file (default: <input>_zbs.pdb)")
 
     ff = p.add_argument_group("Force field")

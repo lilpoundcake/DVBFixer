@@ -31,7 +31,7 @@ options:
                         (HB2/HB3, HZ1/HZ2/HZ3, O/OXT, plain H).
 
 Input / output:
-  input                 Input PDB file
+  input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_prot.pdb)
 

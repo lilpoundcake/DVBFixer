@@ -34,7 +34,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "during minimization.",
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file")
+    io.add_argument("input", help="Input PDB, PDBx/mmCIF, or crystallographic CIF file")
     io.add_argument("-o", "--output", help="Output PDB file (default: <input>_prepared.pdb)")
     io.add_argument("--dat", help="Restraint data file path (default: <output>.dat)")
 

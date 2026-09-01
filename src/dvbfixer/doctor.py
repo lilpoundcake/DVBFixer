@@ -15,6 +15,7 @@ PYTHON_PACKAGES = {
     "OpenMM": "openmm", "PDBFixer": "pdbfixer", "Modeller": "modeller",
     "MDAnalysis": "MDAnalysis", "PROPKA": "propka", "ParmEd": "parmed",
     "ACPYPE": "acpype", "Open Babel Python": "openbabel", "RDKit": "rdkit",
+    "Gemmi": "gemmi",
 }
 EXECUTABLES = {
     "antechamber": "antechamber", "parmchk2": "parmchk2", "tleap": "tleap",
@@ -31,7 +32,10 @@ def _package_status(module: str) -> dict[str, Any]:
         spec = None
     status: dict[str, Any] = {"available": spec is not None}
     if spec is not None:
-        distribution = {"openmm": "OpenMM", "MDAnalysis": "MDAnalysis"}.get(module, module)
+        distribution = {
+            "openmm": "OpenMM", "MDAnalysis": "MDAnalysis",
+            "openbabel": "openbabel-wheel",
+        }.get(module, module)
         try:
             status["version"] = importlib.metadata.version(distribution)
         except importlib.metadata.PackageNotFoundError:

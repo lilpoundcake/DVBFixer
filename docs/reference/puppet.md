@@ -16,7 +16,7 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB file
+  input                 Input PDB or PDBx/mmCIF file
   -o OUTPUT, --output OUTPUT
                         Output PDB (default: <input>_puppet.pdb)
 

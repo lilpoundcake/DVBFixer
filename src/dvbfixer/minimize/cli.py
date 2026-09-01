@@ -29,7 +29,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "PDBFixer .dat file) are free to relax.",
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file")
+    io.add_argument("input", help="Input PDB, PDBx/mmCIF, or crystallographic CIF file")
     io.add_argument("-o", "--output", help="Output minimized PDB (default: <input>_minimized.pdb)")
     io.add_argument("--dat", help="Restraint data file from 'dvbfixer prepare' (default: <input>.dat)")
 

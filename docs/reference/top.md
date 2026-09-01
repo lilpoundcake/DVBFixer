@@ -20,7 +20,7 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB file
+  input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
   -o OUTPUT, --output OUTPUT
                         Output .top file (default: topol.top)
   --pdb PDB             Output PDB file with topology-matched atom names

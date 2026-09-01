@@ -21,7 +21,7 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB file
+  input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
   -o OUTPUT, --output OUTPUT
                         Output PDB (default: <input>_pulled.pdb)
 

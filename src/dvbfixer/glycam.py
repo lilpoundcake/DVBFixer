@@ -1062,7 +1062,7 @@ def parse_args(argv=None):
         "running the tool on already-correct input is a no-op.",
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file")
+    io.add_argument("input", help="Input PDB, PDBx/mmCIF, or crystallographic CIF file")
     io.add_argument("-o", "--output",
                     help="Output PDB file (default: <input>_amber.pdb in "
                          "the default direction, <input>_charmm.pdb with "

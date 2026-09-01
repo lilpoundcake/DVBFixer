@@ -34,7 +34,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "then uses Modeller's loop modeling to fill them."
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file (must contain SEQRES or use --fasta)")
+    io.add_argument("input", help="Input PDB or PDBx/mmCIF file (must contain polymer sequence metadata or use --fasta)")
     io.add_argument("-o", "--output", help="Output PDB file (default: <input>_model.pdb)")
     io.add_argument(
         "--fasta", help="FASTA file with complete sequence(s). Headers must encode "

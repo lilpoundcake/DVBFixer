@@ -95,6 +95,12 @@ makes instance `__annotations__` raise `AttributeError`, which crashes
 `python -c "from propka.parameters import Parameters; Parameters().__annotations__"`
 returns a dict on <3.14, raises on 3.14.
 
+**NumPy is pinned `<2.5` while mypy targets Python 3.11.** NumPy 2.5 dropped
+Python 3.11 and its stubs contain Python 3.12-only `type` statements, so mypy
+cannot parse them under the repository's `python_version = "3.11"` baseline.
+Keep the constraint synchronized in `pyproject.toml`, `environment.yml`, and
+CI until the project's minimum Python version becomes 3.12.
+
 **On macOS Docker / VirtioFS, create the env on the container's native
 overlay filesystem, not on a host bind mount.** `/home/agent` here is a
 `fakeowner` (macOS `/Users`) bind mount that is case-insensitive and
@@ -238,6 +244,13 @@ call bare `dvbfixer` resolve it. See
   directory batch input is supported. Supported tools show the four batch keys;
   unsupported tools show an explicit status description. The GUI generator
   excludes the informational `Global logging` and `Batch mode` groups.
+- **CIF is normalized once at the CLI boundary.** `structure_input.py` uses
+  Gemmi for PDBx/mmCIF and Open Babel for small-molecule crystallographic CIF,
+  writes a validated temporary PDB below the output/work directory, and then
+  calls the existing command unchanged. Preserve valid single-character chain
+  IDs; map only incompatible IDs and propagate `CIF_CHAIN_MAP` remarks. Do not
+  add ad-hoc CIF readers inside scientific pipelines or silently truncate data
+  that exceeds fixed-column PDB limits.
 - **Final numbering normalization**: public spelling is `--number-from-1` on
   renumber/model/zbs. ZBS applies it only after copying the final output and
   before postflight diagnose, never to intermediate `.dat` identifiers. Model

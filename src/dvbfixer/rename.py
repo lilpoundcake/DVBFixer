@@ -35,7 +35,7 @@ def parse_args(argv=None):
         "CHARMM (HSD/HSE/HSP), and MSE to their canonical forms.",
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file")
+    io.add_argument("input", help="Input PDB, PDBx/mmCIF, or crystallographic CIF file")
     io.add_argument("-o", "--output", help="Output PDB file (default: <input>_canon.pdb)")
 
     diag = p.add_argument_group("Diagnostics")

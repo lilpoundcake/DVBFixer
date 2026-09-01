@@ -40,6 +40,8 @@ def test_directory_runs_each_pdb_and_preserves_subdirectories(tmp_path: Path):
     nested.mkdir(parents=True)
     (source / "a.pdb").write_text("END\n")
     (nested / "b.ent").write_text("END\n")
+    (source / "c.cif").write_text("data_c\n")
+    (nested / "d.mmcif").write_text("data_d\n")
     (source / "ignore.txt").write_text("not a structure\n")
     output = tmp_path / "results"
     calls = []
@@ -58,11 +60,18 @@ def test_directory_runs_each_pdb_and_preserves_subdirectories(tmp_path: Path):
 
     assert calls == [
         [str(source / "a.pdb"), "--no-solvent", "-o", str(output / "a_zbs.pdb")],
+        [str(source / "c.cif"), "--no-solvent", "-o", str(output / "c_zbs.pdb")],
         [
             str(nested / "b.ent"),
             "--no-solvent",
             "-o",
             str(output / "nested" / "b_zbs.pdb"),
+        ],
+        [
+            str(nested / "d.mmcif"),
+            "--no-solvent",
+            "-o",
+            str(output / "nested" / "d_zbs.pdb"),
         ],
     ]
 

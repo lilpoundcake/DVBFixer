@@ -26,7 +26,7 @@ jobs:
           # via pytest.importorskip.
           python -m pip install --upgrade pip
           pip install ruff mypy pytest pytest-xdist
-          pip install numpy scipy biopython MDAnalysis
+          pip install "numpy<2.5" scipy biopython MDAnalysis
 
       - name: ruff check
         run: ruff check src/dvbfixer

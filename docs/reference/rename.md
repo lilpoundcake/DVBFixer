@@ -18,7 +18,7 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB file
+  input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
   -o OUTPUT, --output OUTPUT
                         Output PDB file (default: <input>_canon.pdb)
 

@@ -5,7 +5,7 @@ channels:
   - salilab
 dependencies:
   - python >=3.11,<3.14
-  - numpy
+  - numpy <2.5       # mypy targets Python 3.11; NumPy 2.5 stubs require 3.12
   - scipy
   - openmm >=8.1
   - pdbfixer >=1.9
@@ -13,6 +13,7 @@ dependencies:
   - openff-toolkit
   - rdkit
   - biopython
+  - gemmi >=0.7.5   # loss-aware PDBx/mmCIF -> internal PDB conversion
   - mdanalysis
   - modeller
   - parmed

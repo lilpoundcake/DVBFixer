@@ -19,11 +19,13 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  acceptor              Acceptor PDB file (receives molecules)
-  --donor DONOR         Donor PDB: original residues extracted from acceptor
-                        (used for alignment and identifying replacement sites)
-  --graft GRAFT         Graft PDB: modified donor + added molecules (e.g.
-                        GLYCAM output). If omitted, donor is used as graft.
+  acceptor              Acceptor PDB or CIF file (receives molecules)
+  --donor DONOR         Donor PDB or CIF: original residues extracted from
+                        acceptor (used for alignment and identifying
+                        replacement sites)
+  --graft GRAFT         Graft PDB or CIF: modified donor + added molecules
+                        (e.g. GLYCAM output). If omitted, donor is used as
+                        graft.
   -o OUTPUT, --output OUTPUT
                         Output PDB (default: <acceptor>_transplant.pdb)
 

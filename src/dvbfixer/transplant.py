@@ -584,12 +584,12 @@ def parse_args(argv=None):
                     "Aligns via Kabsch superposition on donor CA atoms.",
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("acceptor", help="Acceptor PDB file (receives molecules)")
+    io.add_argument("acceptor", help="Acceptor PDB or CIF file (receives molecules)")
     io.add_argument("--donor", required=True,
-                    help="Donor PDB: original residues extracted from acceptor "
+                    help="Donor PDB or CIF: original residues extracted from acceptor "
                          "(used for alignment and identifying replacement sites)")
     io.add_argument("--graft",
-                    help="Graft PDB: modified donor + added molecules "
+                    help="Graft PDB or CIF: modified donor + added molecules "
                          "(e.g. GLYCAM output). If omitted, donor is used as graft.")
     io.add_argument("-o", "--output",
                     help="Output PDB (default: <acceptor>_transplant.pdb)")

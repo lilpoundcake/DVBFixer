@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from dvbfixer.ffutils.dat import DatRecord
+from dvbfixer.ffutils.dat import AddedAtom, DatRecord, ResidueSummary
 from dvbfixer.model.pipeline import get_atom_sequence, parse_fasta
 from dvbfixer.sequence_alignment import align_observed_to_reference
 
@@ -67,6 +67,8 @@ def normalize_fasta_truncated_terminal_variants(
         names = [entry[2] for entry in all_residues.get(chain, [])]
         candidates = []
         if references is not None:
+            if not isinstance(reference, str):
+                continue
             observed = get_atom_sequence(lines, chain)
             alignment = align_observed_to_reference(observed, reference)
             if alignment is None:
@@ -128,7 +130,7 @@ def normalize_fasta_truncated_terminal_variants(
         for (chain, resid, icode), (_old, _parent, _hydrogens) in replacements.items():
             overrides.pop(f"{chain}:{resid}:{icode}", None)
         record.variant_overrides = overrides or None
-        cleaned = []
+        cleaned: list[AddedAtom] = []
         for atom in record.added_atoms:
             key = (
                 atom["chain"], atom["resid"],
@@ -139,14 +141,15 @@ def normalize_fasta_truncated_terminal_variants(
                 _old, parent, hydrogens = replacement
                 if atom["atom"] in hydrogens:
                     continue
-                atom = dict(atom)
-                atom["resname"] = parent
+                updated_atom = atom.copy()
+                updated_atom["resname"] = parent
+                atom = updated_atom
             cleaned.append(atom)
         record.added_atoms = cleaned
-        summary = {}
+        summary: dict[str, ResidueSummary] = {}
         for atom in cleaned:
-            key = f'{atom["chain"]}/{atom["resname"]}{atom["resid"]}'
-            bucket = summary.setdefault(key, {"heavy": 0, "hydrogen": 0})
+            summary_key = f'{atom["chain"]}/{atom["resname"]}{atom["resid"]}'
+            bucket = summary.setdefault(summary_key, {"heavy": 0, "hydrogen": 0})
             bucket["hydrogen" if atom.get("element") == "H" else "heavy"] += 1
         record.residue_summary = summary
         record.save(sidecar, verbose=False)

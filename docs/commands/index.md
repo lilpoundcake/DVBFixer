@@ -8,6 +8,10 @@ Commands that accept directory input document it on their own page; see the
 shared [Batch mode guide](../batch-mode.md) for supported tools and failure
 behavior.
 
+Structure inputs may be PDB, PDBx/mmCIF, or small-molecule crystallographic
+CIF unless a command documents a narrower molecular requirement. See the
+[CIF input guide](../cif-input.md) for conversion and chain-mapping behavior.
+
 The dispatcher, generated CLI reference, and GUI command schema share one
 declarative registry for command names, modules, workflow categories, batch
 support, output behavior, and accepted success codes. Adding or changing a
@@ -40,6 +44,7 @@ public command therefore updates all three surfaces from the same contract.
 ## See also
 
 - [Batch mode](../../README.md#batch-mode-folder-input) — folder processing for single-structure commands
+- [CIF input](../cif-input.md) — supported dialects, metadata, and PDB limits
 
 - [Force fields](../force-fields.md) — short-name aliases (`--ff amber`, `--ff charmm`, `--ff amber+glycam`, …), auto-detection rules, the two `--ff` namespaces
 - [Pipelines](../pipelines.md) — end-to-end recipes

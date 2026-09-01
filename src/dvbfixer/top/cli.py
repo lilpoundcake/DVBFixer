@@ -41,7 +41,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Generate GROMACS topology files from PDB",
     )
     io = parser.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file")
+    io.add_argument("input", help="Input PDB, PDBx/mmCIF, or crystallographic CIF file")
     io.add_argument("-o", "--output", help="Output .top file (default: topol.top)")
     io.add_argument("--pdb", help="Output PDB file with topology-matched atom names")
 

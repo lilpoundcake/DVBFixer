@@ -30,7 +30,7 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input PDB file
+  input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
   -o OUTPUT, --output OUTPUT
                         Output minimized PDB (default: <input>_minimized.pdb)
   --dat DAT             Restraint data file from 'dvbfixer prepare' (default:

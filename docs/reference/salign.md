@@ -18,7 +18,8 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  template              Template PDBs as PATH or PATH:CHAIN (at least two)
+  template              Template PDBs or CIFs as PATH or PATH:CHAIN (at least
+                        two)
   -o OUTPUT, --output OUTPUT
                         Output PIR alignment (default:
                         structural_alignment.pir)

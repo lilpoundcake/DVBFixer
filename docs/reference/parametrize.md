@@ -26,7 +26,7 @@ options:
   -h, --help            show this help message and exit
 
 Input / output:
-  input                 Input structure file (.pdb, .mol2, .sdf)
+  input                 Input structure file (.pdb, .cif, .mmcif, .mol2, .sdf)
   -o OUTPUT, --output OUTPUT
                         Output prefix (default: input stem)
   -n NAME, --name NAME  Molecule name for [ moleculetype ] (default: from

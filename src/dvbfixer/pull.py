@@ -57,7 +57,7 @@ def parse_args(argv=None):
         "(mass=0). Works with any residue type (glycans auto-parametrized via OpenFF).",
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file")
+    io.add_argument("input", help="Input PDB, PDBx/mmCIF, or crystallographic CIF file")
     io.add_argument("-o", "--output", help="Output PDB (default: <input>_pulled.pdb)")
 
     bonds = p.add_argument_group("Bond specification")

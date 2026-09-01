@@ -626,7 +626,7 @@ def parse_args(argv=None):
     io.add_argument('fasta',
                     help='Target sequence FASTA (multi-chain, one >header per chain)')
     io.add_argument('--template', action='append', default=[],
-                    help='Template PDB file (repeatable, at least 1)')
+                    help='Template PDB or PDBx/mmCIF file (repeatable, at least 1)')
     io.add_argument('--template-plan',
                     help='JSON template-chain selection plan; fits and merges selected parts into one known')
     io.add_argument('-o', '--output', default=None,

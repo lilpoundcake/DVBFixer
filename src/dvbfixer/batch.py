@@ -147,7 +147,7 @@ def run_directory(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     globber = input_dir.rglob if options.recursive else input_dir.glob
-    extensions = {".pdb", ".ent"}
+    extensions = {".pdb", ".ent", ".cif", ".mmcif"}
     if command == "split":
         extensions.add(".gro")
     inputs = sorted(p for p in globber("*") if p.is_file() and p.suffix.lower() in extensions)

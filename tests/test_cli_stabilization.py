@@ -32,6 +32,16 @@ def test_wheel_configuration_installs_bundled_gromacs_force_fields() -> None:
     assert data_files["share/dvbfixer/FF/charmm36_ljpme-jul2022.ff"]
 
 
+def test_numpy_constraint_matches_python_311_typecheck_baseline() -> None:
+    root = Path(__file__).parents[1]
+    config = tomllib.loads((root / "pyproject.toml").read_text())
+    dependencies = config["project"]["dependencies"]
+    environment = (root / "environment.yml").read_text()
+
+    assert "numpy<2.5" in dependencies
+    assert "- numpy <2.5" in environment
+
+
 def test_strip_solvent_can_retain_only_input_waters() -> None:
     openmm = pytest.importorskip("openmm")
     from openmm.app import PDBFile

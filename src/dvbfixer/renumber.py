@@ -32,7 +32,7 @@ def parse_args(argv=None):
         "insertion codes. Updates all PDB sections referencing residue numbers."
     )
     io = p.add_argument_group("Input / output")
-    io.add_argument("input", help="Input PDB file")
+    io.add_argument("input", help="Input PDB or PDBx/mmCIF file")
     io.add_argument("-o", "--output", help="Output PDB file (default: <input>_renum.pdb)")
     io.add_argument(
         "--fasta",

@@ -230,7 +230,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Align and superpose multiple structures with Biopython or Modeller SALIGN.",
     )
     io = parser.add_argument_group("Input / output")
-    io.add_argument("template", nargs="+", help="Template PDBs as PATH or PATH:CHAIN (at least two)")
+    io.add_argument("template", nargs="+", help="Template PDBs or CIFs as PATH or PATH:CHAIN (at least two)")
     io.add_argument("-o", "--output", default="structural_alignment.pir",
                     help="Output PIR alignment (default: structural_alignment.pir)")
     io.add_argument("--fit-dir", help="Optional directory for fitted/superposed PDB files")

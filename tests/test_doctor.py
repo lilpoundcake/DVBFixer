@@ -5,6 +5,8 @@ def test_capability_report_has_stable_sections():
     report = collect_capabilities()
     assert set(report) == {"python_packages", "executables", "openmm_platforms"}
     assert "OpenMM" in report["python_packages"]
+    assert report["python_packages"]["Gemmi"]["available"] is True
+    assert report["python_packages"]["Open Babel Python"]["available"] is True
     assert "tleap" in report["executables"]
     assert "MAFFT" in report["executables"]
     assert "MUSCLE" in report["executables"]

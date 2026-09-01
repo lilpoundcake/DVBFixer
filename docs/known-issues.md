@@ -2,6 +2,15 @@
 
 [← README](../README.md)
 
+- **Mypy must use NumPy `<2.5` while targeting Python 3.11.** NumPy 2.5
+  dropped Python 3.11 and its bundled stubs use Python 3.12-only `type`
+  statements. Running dvbfixer's Python 3.11-targeted mypy configuration from
+  a Python 3.12 environment with NumPy 2.5 therefore fails while parsing
+  `numpy/__init__.pyi`, before project files are checked. Project metadata,
+  `environment.yml`, and CI consistently constrain NumPy to `<2.5`. Repair an
+  existing environment with `python -m pip install --upgrade "numpy<2.5"`;
+  do not change mypy's `python_version = "3.11"` or hide NumPy's types.
+
 - **PROPKA 3.5.1 is incompatible with Python 3.14** — `dvbfixer
   protonate` (and the PROPKA step inside `prepare` / `zbs`) crashes with
   `AttributeError: 'Parameters' object has no attribute '__annotations__'`
@@ -42,7 +51,13 @@
   root. The micromamba binary itself runs fine from anywhere; only the
   prefix/cache location matters.
 
-- **CONECT records limited to atom serials ≤ 99999** (PDB v3.30 spec). Every dvbfixer CONECT writer uses fixed-width 5-char serial fields (`f"{serial:5d}"`), which is spec-compliant but silently produces malformed CONECT lines for systems with > 99999 atoms — adjacent 6-digit serial fields run together without a separator. Workarounds: (a) split the system, (b) renumber atoms to fit under 99999 (drop water/heterogens before topology export), (c) use mmCIF via an external tool if you need full-system connectivity in a large complex. Hybrid-36 encoding (BIOVIA/Phenix extension) is on the roadmap for a future release once a real user surfaces the need.
+- **CIF input still has PDB output limits.** CIF/mmCIF is normalized to an
+  internal PDB because downstream tools depend on fixed-column PDB records.
+  DVBfixer maps at most 62 chains and rejects atom serials, residue identifiers,
+  names, models, or coordinates that cannot be represented safely. It never
+  truncates them silently. See [CIF structure input](cif-input.md).
+
+- **CONECT records limited to atom serials ≤ 99999** (PDB v3.30 spec). Every dvbfixer CONECT writer uses fixed-width 5-char serial fields (`f"{serial:5d}"`), which is spec-compliant but silently produces malformed CONECT lines for systems with > 99999 atoms — adjacent 6-digit serial fields run together without a separator. Workarounds: (a) split the system, (b) renumber atoms to fit under 99999 (drop water/heterogens before topology export), (c) retain the original mmCIF in an external tool if you need full-system connectivity in a large complex. Hybrid-36 encoding (BIOVIA/Phenix extension) is on the roadmap for a future release once a real user surfaces the need.
 
 - **Default prep backend flipped back to `legacy` in 0.7.5** —
   `prepare` and `protonate` default to `--backend legacy`

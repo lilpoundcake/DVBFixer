@@ -10,6 +10,12 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [0.8.3] — 2026-08-14
 
+### Added
+
+- CLI, GUI, and batch structure inputs accept PDBx/mmCIF and crystallographic
+  CIF. Inputs are converted through Gemmi or Open Babel to a validated internal
+  PDB, with deterministic long-chain mapping and preserved assembly metadata.
+
 ### Changed
 
 - GUI dependency locks use patched releases that clear the npm security audit,
@@ -26,6 +32,8 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ### Fixed
 
+- NumPy is constrained below 2.5 so the Python 3.11 mypy baseline does not
+  attempt to parse Python 3.12-only syntax from newer NumPy stubs.
 - The GUI managed-job request includes the selected DVBfixer command, avoiding
   `unknown command: undefined` when starting a run.
 - Generated GUI fields use the correct `PROPKA` and `ProtAssign` names, and the

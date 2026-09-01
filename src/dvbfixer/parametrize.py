@@ -877,7 +877,7 @@ def parse_args(argv=None):
     )
 
     io = p.add_argument_group('Input / output')
-    io.add_argument('input', help='Input structure file (.pdb, .mol2, .sdf)')
+    io.add_argument('input', help='Input structure file (.pdb, .cif, .mmcif, .mol2, .sdf)')
     io.add_argument('-o', '--output', default=None,
                     help='Output prefix (default: input stem)')
     io.add_argument('-n', '--name', default=None,
