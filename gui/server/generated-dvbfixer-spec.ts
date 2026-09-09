@@ -92,18 +92,20 @@ export const GENERATED_COMMANDS = [
         "required": false,
         "repeatable": false,
         "multi": false,
+        "exclusiveGroup": "split:exclusive:0",
         "default": false
       },
       {
         "flag": "--no-renumber",
         "dest": "renumber",
-        "label": "Renumber",
+        "label": "No Renumber",
         "type": "bool",
         "group": "Content / renumbering",
         "help": "Keep original residue numbers (default in assembly mode)",
         "required": false,
         "repeatable": false,
         "multi": false,
+        "exclusiveGroup": "split:exclusive:0",
         "default": false
       },
       {
@@ -113,6 +115,18 @@ export const GENERATED_COMMANDS = [
         "type": "bool",
         "group": "Content / renumbering",
         "help": "Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--unique-molecule-chains",
+        "dest": "unique_molecule_chains",
+        "label": "Unique Molecule Chains",
+        "type": "bool",
+        "group": "Content / renumbering",
+        "help": "Give each connected non-solvent heterogen molecule a unique chain ID; polymer chains and CONECT serials are preserved",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -152,7 +166,8 @@ export const GENERATED_COMMANDS = [
         "fields": [
           "--renumber",
           "--no-renumber",
-          "--keep-water"
+          "--keep-water",
+          "--unique-molecule-chains"
         ]
       },
       {
@@ -464,7 +479,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--strip-heterogens",
         "dest": "keep_heterogens",
-        "label": "Keep Heterogens",
+        "label": "Strip Heterogens",
         "type": "bool",
         "group": "Content selection",
         "help": "Remove all HETATM records (ligands, sugars, ions, cofactors) before Modeller runs. Waters are also removed unless --keep-water is passed. Off by default — Modeller usually benefits from heterogen context for loop refinement, but in some cases (bad ligand geometry, ambiguous CONECT) they cause artifacts.",
@@ -876,7 +891,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--strip-heterogens",
         "dest": "keep_heterogens",
-        "label": "Keep Heterogens",
+        "label": "Strip Heterogens",
         "type": "bool",
         "group": "Content selection",
         "help": "Remove heterogens (sugars, ligands, ions) before processing (protein-only mode). Default: keep heterogens.",
@@ -888,7 +903,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--no-heterogen-h",
         "dest": "heterogen_h",
-        "label": "Heterogen H",
+        "label": "No Heterogen H",
         "type": "bool",
         "group": "Content selection",
         "help": "Skip hydrogen addition for heterogens (sugars/ligands).",
@@ -1097,6 +1112,18 @@ export const GENERATED_COMMANDS = [
         ]
       },
       {
+        "flag": "--extra-ff",
+        "dest": "extra_ff",
+        "label": "Extra Force Field",
+        "type": "text",
+        "group": "Force field",
+        "help": "Additional OpenMM XML force-field/template file; repeatable and loaded after the selected --ff files.",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
         "flag": "--parametrize-ligands",
         "dest": "parametrize_ligands",
         "label": "Parametrize Ligands",
@@ -1199,7 +1226,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--strip-heterogens",
         "dest": "keep_heterogens",
-        "label": "Keep Heterogens",
+        "label": "Strip Heterogens",
         "type": "bool",
         "group": "Content selection",
         "help": "Strip heterogens before minimization, restore coords after (protein-only mode). Default: minimize the whole system.",
@@ -1365,6 +1392,7 @@ export const GENERATED_COMMANDS = [
         "fields": [
           "--ph",
           "--ff",
+          "--extra-ff",
           "--parametrize-ligands",
           "--atom-naming"
         ]
@@ -1530,7 +1558,7 @@ export const GENERATED_COMMANDS = [
         "label": "ProtAssign",
         "type": "bool",
         "group": "Protonation engines",
-        "help": "Run MolProbity Reduce to optimise HIS tautomers (HID/HIE/HIP) and detect ASN/GLN side-chain flips based on local H-bond network. **Default ON** — gives every protonate run the same higher-quality H-network without remembering a flag. Pass --no-protassign to disable (PROPKA-only pH-driven decisions). Requires the `reduce` binary (bundled with AmberTools in the dvbfixer env).",
+        "help": "Run MolProbity Reduce to optimise HIS tautomers (HID/HIE/HIP) and detect ASN/GLN side-chain flips based on local H-bond network. **Default ON** — gives every protonate run the same higher-quality H-network without remembering a flag. Pass --no-protassign to disable (PROPKA-only pH-driven decisions). Requires the `reduce` binary (installed explicitly by the full dvbfixer environment).",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -2260,6 +2288,7 @@ export const GENERATED_COMMANDS = [
         "required": false,
         "repeatable": false,
         "multi": false,
+        "exclusiveGroup": "convert:exclusive:0",
         "default": false
       },
       {
@@ -2272,6 +2301,7 @@ export const GENERATED_COMMANDS = [
         "required": false,
         "repeatable": false,
         "multi": false,
+        "exclusiveGroup": "convert:exclusive:0",
         "default": false
       },
       {
@@ -3680,6 +3710,18 @@ export const GENERATED_COMMANDS = [
         "default": false
       },
       {
+        "flag": "--extra-ff",
+        "dest": "extra_ff",
+        "label": "Extra Force Field",
+        "type": "text",
+        "group": "Force field",
+        "help": "Additional OpenMM XML template/force-field file; repeatable and forwarded to minimize after --ff.",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
         "flag": "--skip-renumber",
         "dest": "skip_renumber",
         "label": "Skip Renumber",
@@ -3809,7 +3851,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--strip-heterogens",
         "dest": "keep_heterogens",
-        "label": "Keep Heterogens",
+        "label": "Strip Heterogens",
         "type": "bool",
         "group": "Prepare step",
         "help": "Strip heterogens before processing (protein-only pipeline). Default: keep heterogens through prepare and minimize the whole system.",
@@ -3837,7 +3879,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--no-heterogen-h",
         "dest": "heterogen_h",
-        "label": "Heterogen H",
+        "label": "No Heterogen H",
         "type": "bool",
         "group": "Prepare step",
         "help": "Skip hydrogen addition for heterogens in prepare (default: add H to heterogens BioLuminate-style).",
@@ -3986,7 +4028,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--no-propka",
         "dest": "propka",
-        "label": "PROPKA",
+        "label": "No PROPKA",
         "type": "bool",
         "group": "Protonation (PROPKA + Reduce, inside prepare)",
         "help": "Skip PROPKA3 during prepare. Reduce (--protassign) becomes the only source of HIS tautomer picks and ASN/GLN flip detection. Combining --no-propka with --no-protassign leaves variants=[--mutate only] — no pKa-driven ASH/GLH/HIP/LYN/CYM in output.",
@@ -3998,7 +4040,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--no-protassign",
         "dest": "protassign",
-        "label": "ProtAssign",
+        "label": "No ProtAssign",
         "type": "bool",
         "group": "Protonation (PROPKA + Reduce, inside prepare)",
         "help": "Skip MolProbity Reduce (HIS tautomer / ASN-GLN flip detection) during prepare. Default: run Reduce.",
@@ -4180,7 +4222,8 @@ export const GENERATED_COMMANDS = [
           "--ph",
           "--ff",
           "--atom-naming",
-          "--parametrize-ligands"
+          "--parametrize-ligands",
+          "--extra-ff"
         ]
       },
       {

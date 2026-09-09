@@ -42,6 +42,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                          "explicit list of OpenMM XML paths. Default: 'auto' — "
                          "detect from residue names in the input. "
                          "See docs/force-fields.md.")
+    ff.add_argument(
+        "--extra-ff", action="append", default=[], metavar="FILE",
+        help="Additional OpenMM XML force-field/template file; repeatable and "
+             "loaded after the selected --ff files.",
+    )
     ff.add_argument("--parametrize-ligands", action="store_true",
                     help="For each heterogen residue that lacks a template in "
                          "the resolved --ff, run GAFF2 + AM1-BCC parametrisation "

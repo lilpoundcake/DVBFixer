@@ -6,7 +6,8 @@
 
 ```
 usage: dvbfixer minimize [-h] [-o OUTPUT] [--dat DAT] [--ph PH]
-                         [--ff FF [FF ...]] [--parametrize-ligands]
+                         [--ff FF [FF ...]] [--extra-ff FILE]
+                         [--parametrize-ligands]
                          [--atom-naming {gromacs,standard}]
                          [--padding PADDING] [--no-solvent]
                          [--restraint-k RESTRAINT_K] [--weak-k WEAK_K]
@@ -42,6 +43,8 @@ Force field:
                         amber, amber+glycam, charmm, ...) or an explicit list
                         of OpenMM XML paths. Default: 'auto' — detect from
                         residue names in the input. See docs/force-fields.md.
+  --extra-ff FILE       Additional OpenMM XML force-field/template file;
+                        repeatable and loaded after the selected --ff files.
   --parametrize-ligands
                         For each heterogen residue that lacks a template in
                         the resolved --ff, run GAFF2 + AM1-BCC parametrisation

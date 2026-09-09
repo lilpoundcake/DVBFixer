@@ -21,7 +21,7 @@ import CancelIcon from '@mui/icons-material/CancelOutlined'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import { useStructureStore } from '../stores/structureStore'
-import { chainToSequence } from '../lib/alignment'
+import { alignSequences, chainToSequence } from '../lib/alignment'
 import { filterSequenceableChains } from '../lib/chain-grouping'
 import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
 import { createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, selectRestoredManagedJob, type ManagedJobRecord } from '../lib/managed-jobs'
@@ -46,6 +46,7 @@ interface FlagDef {
   repeatable?: boolean
   multi?: boolean
   falseFlag?: string
+  exclusiveGroup?: string
   name?: string
   nargs?: string | number | null
 }
@@ -115,7 +116,40 @@ function HighlightedFastaInput({
 }: HighlightedFastaInputProps) {
   const editorRef = useRef<HTMLTextAreaElement>(null)
   const underlayRef = useRef<HTMLDivElement>(null)
-  const isHighlighted = parsedSequence !== undefined && value === parsedSequence
+  const biologicalValue = value.replace(/\s+/g, '')
+  const [coverageMap, setCoverageMap] = useState<boolean[] | undefined>(presentMap)
+  useEffect(() => {
+    if (parsedSequence === undefined || presentMap === undefined) {
+      setCoverageMap(undefined)
+      return
+    }
+    if (biologicalValue.length === parsedSequence.length) {
+      setCoverageMap(presentMap)
+      return
+    }
+    // Affine alignment is O(m*n). Debounce ordinary edits and decline very
+    // large matrices instead of freezing the form.
+    if (biologicalValue.length * parsedSequence.length > 250_000) {
+      setCoverageMap(undefined)
+      return
+    }
+    const timer = window.setTimeout(() => {
+      const aligned = alignSequences(biologicalValue.toUpperCase(), parsedSequence.toUpperCase())
+      const mapped: boolean[] = []
+      let parsedIndex = 0
+      for (let column = 0; column < aligned.length; column++) {
+        const edited = aligned.alignedA[column]
+        const parsed = aligned.alignedB[column]
+        if (edited !== '-') {
+          mapped.push(parsed === '-' ? false : presentMap[parsedIndex] !== false)
+        }
+        if (parsed !== '-') parsedIndex++
+      }
+      setCoverageMap(mapped)
+    }, 180)
+    return () => window.clearTimeout(timer)
+  }, [biologicalValue, parsedSequence, presentMap])
+  const isHighlighted = coverageMap !== undefined
   const onScroll = useCallback(() => {
     if (underlayRef.current && editorRef.current) {
       underlayRef.current.scrollTop = editorRef.current.scrollTop
@@ -162,14 +196,20 @@ function HighlightedFastaInput({
           }}
         >
           {isHighlighted
-            ? Array.from(value).map((ch, i) => (
+            ? (() => {
+                let biologicalIndex = 0
+                return Array.from(value).map((ch, i) => {
+                  const index = /\s/.test(ch) ? -1 : biologicalIndex++
+                  return (
                 <span
                   key={i}
-                  style={presentMap?.[i] === false
+                  style={index >= 0 && coverageMap[index] === false
                     ? { color: '#b5bfcc', fontStyle: 'italic', fontWeight: 400 }
                     : undefined}
                 >{ch}</span>
-              ))
+                  )
+                })
+              })()
             : value || (
                 <span style={{ color: '#9ea7b3', fontStyle: 'italic' }}>
                   {placeholder ?? ''}
@@ -187,7 +227,7 @@ function HighlightedFastaInput({
             width: '100%', height: '100%',
             border: 'none', outline: 'none', resize: 'none',
             background: 'transparent', color: 'transparent',
-            caretColor: 'currentColor',
+            caretColor: '#1976d2',
             fontFamily: FONT, fontSize: FONT_SIZE, lineHeight: LINE_HEIGHT,
             padding: PADDING,
             whiteSpace: 'pre-wrap', wordBreak: 'break-all',
@@ -410,8 +450,20 @@ export function DVBFixerPanel() {
   useEffect(() => { setTabIdx(0) }, [category])
 
   const setFlagValue = useCallback((cmd: string, flag: string, v: any) => {
-    setValues(prev => ({ ...prev, [cmd]: { ...(prev[cmd] ?? {}), [flag]: v } }))
-  }, [])
+    const command = commands.find(item => item.name === cmd)
+    const selected = command?.flags.find(item => item.flag === flag)
+    setValues(prev => {
+      const next = { ...(prev[cmd] ?? {}), [flag]: v }
+      if (v && selected?.exclusiveGroup) {
+        for (const peer of command?.flags ?? []) {
+          if (peer.flag !== flag && peer.exclusiveGroup === selected.exclusiveGroup) {
+            next[peer.flag] = false
+          }
+        }
+      }
+      return { ...prev, [cmd]: next }
+    })
+  }, [commands])
 
   const setInputValue = useCallback((cmd: string, dest: string, value: string | string[]) => {
     setInputsByCommand(prev => ({ ...prev, [cmd]: { ...(prev[cmd] ?? {}), [dest]: value } }))

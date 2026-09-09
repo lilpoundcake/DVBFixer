@@ -588,6 +588,15 @@ The full suite needs the scientific stack and external executables from
 
 ## Current agent notes and recently established invariants
 
+- **Workspace autosaves track pending fields per workspace.** On a revision
+  conflict, rebase only pending fields and tool-panel entries onto the latest
+  manifest before retrying. Preserve newly registered artifacts and unrelated
+  panel state. Reload must preserve edits arriving during its GET and ignore
+  responses for a superseded workspace or revision.
+- **Diagnostic summaries require findings.** Clean runs emit no empty warning
+  banner. Preserve fd-level capture and summaries for actual warnings/errors,
+  including during exception cleanup.
+
 - **Release metadata is synchronized, not single-file.** `pyproject.toml` is
   authoritative, but a version bump must also update
   `src/dvbfixer/__init__.py`, `gui/package.json`, both root-package version

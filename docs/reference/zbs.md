@@ -7,9 +7,9 @@
 ```
 usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--atom-naming {gromacs,standard}] [--parametrize-ligands]
-                    [--skip-renumber] [--skip-model] [--skip-prepare]
-                    [--skip-minimize] [--fasta FASTA] [--no-terminal]
-                    [--num-loops NUM_LOOPS]
+                    [--extra-ff FILE] [--skip-renumber] [--skip-model]
+                    [--skip-prepare] [--skip-minimize] [--fasta FASTA]
+                    [--no-terminal] [--num-loops NUM_LOOPS]
                     [--md-level {none,fast,slow,very_slow,slow_large}]
                     [--num-output NUM_OUTPUT] [--pin-input | --no-pin-input]
                     [--strip-heterogens] [--backend {tleap-reduce,legacy}]
@@ -60,6 +60,8 @@ Force field:
                         Forward --parametrize-ligands to the minimize step
                         (GAFF2 + AM1-BCC for unknown ligands via antechamber).
                         See docs/force-fields.md.
+  --extra-ff FILE       Additional OpenMM XML template/force-field file;
+                        repeatable and forwarded to minimize after --ff.
 
 Pipeline skip flags:
   --skip-renumber       Skip the renumber step

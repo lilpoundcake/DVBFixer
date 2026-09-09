@@ -128,10 +128,11 @@ def tee_output(path: str | Path | None) -> Iterator[None]:
             summary.extend(f"  [{level}] {message}" for level, message in unique)
             summary.append("!" * 80)
             summary_bytes = ("\n".join(summary) + "\n").encode("utf-8")
-            os.write(saved[1], summary_bytes)
-            if log is not None:
-                log.write(summary_bytes)
-                log.flush()
+            if unique:
+                os.write(saved[1], summary_bytes)
+                if log is not None:
+                    log.write(summary_bytes)
+                    log.flush()
             os.close(saved[0])
             os.close(saved[1])
     finally:

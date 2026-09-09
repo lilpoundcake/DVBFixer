@@ -76,6 +76,25 @@ let initializePromise: Promise<void> | undefined
 let refreshGeneration = 0
 let activationGeneration = 0
 
+type LocalPatch = Partial<Pick<WorkspaceManifest, 'primaryFile' | 'secondaryFile' | 'toolState'>> & {
+  artifactOrder?: string[]
+}
+const pendingPatches = new Map<string, LocalPatch>()
+
+function mergeLocalPatch(workspace: WorkspaceManifest, patch: LocalPatch): WorkspaceManifest {
+  const { artifactOrder, toolState, ...fields } = patch
+  const byId = new Map(workspace.artifacts.map(artifact => [artifact.id, artifact]))
+  return {
+    ...workspace,
+    ...fields,
+    toolState: { ...workspace.toolState, ...toolState },
+    artifacts: artifactOrder
+      ? [...artifactOrder.flatMap(id => byId.has(id) ? [byId.get(id)!] : []),
+          ...workspace.artifacts.filter(artifact => !artifactOrder.includes(artifact.id))]
+      : workspace.artifacts,
+  }
+}
+
 function staleRequest(message: string): Error {
   const error = new Error(message)
   error.name = 'AbortError'
@@ -140,12 +159,17 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     // edits instead of silently cancelling the debounced save.
     if (saveTimer !== undefined || saveInFlight) await get().save()
     const id = get().active?.id
+    const generation = activationGeneration
     if (!id) return null
     const response = await fetch(`/api/workspaces/${encodeURIComponent(id)}`, { cache: 'no-store' })
     const body = await response.json() as WorkspaceManifest & { error?: string }
     if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
-    set(state => ({ active: body, revision: state.revision + 1 }))
-    return body
+    if (get().active?.id !== id || generation !== activationGeneration) return null
+    if (body.revision < get().active!.revision) return get().active
+    // Edits can arrive while the GET is pending; do not discard them.
+    const merged = mergeLocalPatch(body, pendingPatches.get(id) ?? {})
+    set(state => ({ active: merged, error: null, revision: state.revision + 1 }))
+    return merged
   },
   createWorkspace: async (name = 'Untitled workspace') => {
     const response = await fetch('/api/workspaces', {
@@ -166,6 +190,18 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (!response.ok) throw new Error(`Workspace reorder: HTTP ${response.status}`)
   },
   update: (patch) => {
+    const active = get().active
+    if (!active) return
+    const pending = { ...pendingPatches.get(active.id) }
+    if ('primaryFile' in patch) pending.primaryFile = patch.primaryFile
+    if ('secondaryFile' in patch) pending.secondaryFile = patch.secondaryFile
+    if (patch.artifacts) pending.artifactOrder = patch.artifacts.map(artifact => artifact.id)
+    if (patch.toolState) {
+      const changed = Object.fromEntries(Object.entries(patch.toolState)
+        .filter(([panel, value]) => value !== active.toolState[panel]))
+      pending.toolState = { ...pending.toolState, ...changed }
+    }
+    pendingPatches.set(active.id, pending)
     set(state => ({ active: state.active ? { ...state.active, ...patch } : null }))
     if (saveTimer !== undefined) window.clearTimeout(saveTimer)
     saveTimer = window.setTimeout(() => { get().save().catch(() => {}) }, 700)
@@ -186,23 +222,44 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       return saveInFlight
     }
     saveInFlight = (async () => {
+      let conflicts = 0
       do {
         saveRequested = false
         const active = get().active
         if (!active) return
+        const generation = activationGeneration
+        const pending = pendingPatches.get(active.id)
+        const patch = pending ? {
+          ...pending,
+          ...(pending.toolState ? { toolState: { ...active.toolState, ...pending.toolState } } : {}),
+        } : {
+          toolState: active.toolState,
+          primaryFile: active.primaryFile,
+          secondaryFile: active.secondaryFile,
+          artifactOrder: active.artifacts.map(artifact => artifact.id),
+        }
         const response = await fetch(`/api/workspaces/${encodeURIComponent(active.id)}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             revision: active.revision,
-            toolState: active.toolState,
-            primaryFile: active.primaryFile,
-            secondaryFile: active.secondaryFile,
-            artifactOrder: active.artifacts.map(artifact => artifact.id),
+            ...patch,
           }),
         })
         const body = await response.json() as WorkspaceManifest & { error?: string }
         if (!response.ok) {
+          if (response.status === 409 && pending && conflicts++ < 3) {
+            const latestResponse = await fetch(`/api/workspaces/${encodeURIComponent(active.id)}`, { cache: 'no-store' })
+            const latest = await latestResponse.json() as WorkspaceManifest & { error?: string }
+            if (!latestResponse.ok) throw new Error(latest.error || `HTTP ${latestResponse.status}`)
+            if (get().active?.id !== active.id || generation !== activationGeneration) return
+            set(state => ({
+              active: mergeLocalPatch(latest, pendingPatches.get(active.id) ?? {}),
+              revision: state.revision + 1,
+            }))
+            saveRequested = true
+            continue
+          }
           const detail = body.error || `HTTP ${response.status}`
           const error = response.status === 409
             ? `Workspace save conflict. Reload the workspace before saving again. ${detail}`
@@ -210,9 +267,12 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           set({ error })
           throw new Error(error)
         }
+        conflicts = 0
+        if (pendingPatches.get(active.id) === pending) pendingPatches.delete(active.id)
+        else if (pendingPatches.has(active.id)) saveRequested = true
         // A save response is only an acknowledgement. Preserve any newer
         // local edits and merge back just the concurrency token/timestamp.
-        set(state => state.active?.id === active.id
+        set(state => state.active?.id === active.id && generation === activationGeneration
           ? { active: { ...state.active, revision: body.revision, updatedAt: body.updatedAt }, error: null }
           : state)
         get().refresh().catch(() => {})

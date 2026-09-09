@@ -139,9 +139,9 @@ Running MolProbity Reduce for HIS tautomers + ASN/GLN flip optimisation...
     ...
 ```
 
-**Requires** the `reduce` binary. It's bundled with AmberTools (already
-in the dvbfixer env). If missing, install via
-`conda install -c conda-forge ambertools`, pass `--protassign-binary
+**Requires** the `reduce` binary. It is installed explicitly by the full
+dvbfixer environment and is not assumed to come from AmberTools. If missing,
+install `reduce` from conda-forge, pass `--protassign-binary
 PATH` to point at a local build, or pass `--no-protassign` to skip
 the optimisation (PROPKA-only mode).
 

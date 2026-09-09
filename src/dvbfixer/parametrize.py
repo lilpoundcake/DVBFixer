@@ -26,6 +26,38 @@ _FORMAT_MAP = {
     '.mol': 'mdl',
 }
 
+_METAL_ELEMENTS = frozenset({
+    "LI", "NA", "K", "RB", "CS", "MG", "CA", "SR", "BA", "MN", "FE",
+    "CO", "NI", "CU", "ZN", "CD", "HG", "AL", "GA", "IN", "PB",
+})
+
+
+def _validate_single_small_molecule_input(path: Path) -> None:
+    """Reject PDB inputs outside GAFF's isolated-small-molecule domain."""
+    if path.suffix.lower() != ".pdb":
+        return
+    residues: set[tuple[str, str, str]] = set()
+    metals: set[str] = set()
+    for line in path.read_text(errors="replace").splitlines():
+        if not line.startswith(("ATOM  ", "HETATM")):
+            continue
+        residues.add((line[21:22], line[22:26], line[26:27]))
+        element = line[76:78].strip().upper()
+        if element in _METAL_ELEMENTS:
+            metals.add(element)
+    if len(residues) > 1:
+        raise ValueError(
+            "parametrize accepts one isolated small-molecule component; this PDB "
+            f"contains {len(residues)} residues/components. Split the molecules and "
+            "parametrize them separately."
+        )
+    if metals:
+        raise ValueError(
+            "generic GAFF parametrization is not valid for metal-containing or "
+            f"metal-coordinated components (found {', '.join(sorted(metals))}). "
+            "Use a validated cofactor/metal parameter set instead."
+        )
+
 
 def _run_cmd(cmd, verbose=False, cwd=None):
     """Run a subprocess command. Returns (returncode, stdout, stderr)."""
@@ -966,6 +998,12 @@ def main(argv=None):
 
     if not input_path.exists():
         print(f"Error: {input_path} not found", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        _validate_single_small_molecule_input(input_path)
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
 
     output_prefix = args.output or input_path.stem

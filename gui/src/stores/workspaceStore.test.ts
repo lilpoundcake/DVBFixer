@@ -34,7 +34,50 @@ describe('workspace initialization', () => {
     })
   })
 
-  afterEach(() => vi.unstubAllGlobals())
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('rebases Split autosave after a job adds output without losing server state or newer edits', async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('window', globalThis)
+    useWorkspaceStore.setState({ active: { ...workspace, revision: 142 }, initialized: true })
+    const output = { id: 'split-output', file: 'split.pdb', name: 'Split', kind: 'structure' as const }
+    let latest = {
+      ...workspace, revision: 143, artifacts: [output], primaryFile: output.file,
+      toolState: { homology: { tab: 2 } } as WorkspaceManifest['toolState'],
+    }
+    const patches: any[] = []
+    vi.stubGlobal('fetch', vi.fn(async (input: string, init?: RequestInit) => {
+      if (input === '/api/workspaces') return jsonResponse([])
+      if (init?.method === 'PATCH') {
+        patches.push(JSON.parse(String(init.body)))
+        if (patches.length === 1) return new Response(JSON.stringify({ error: 'revision conflict' }), { status: 409 })
+        latest = { ...latest, revision: 144, toolState: patches[1].toolState }
+        return jsonResponse(latest)
+      }
+      // Simulate another edit while the conflict recovery GET is running.
+      if (latest.revision === 143) useWorkspaceStore.getState().updateToolState('dvbfixer', { command: 'split', renumber: false })
+      return jsonResponse(latest)
+    }))
+
+    useWorkspaceStore.getState().updateToolState('dvbfixer', { command: 'split', renumber: true })
+    await useWorkspaceStore.getState().reload()
+
+    expect(patches).toHaveLength(2)
+    expect(patches[1]).toEqual({
+      revision: 143,
+      toolState: { homology: { tab: 2 }, dvbfixer: { command: 'split', renumber: false } },
+    })
+    expect(useWorkspaceStore.getState().active).toMatchObject({
+      artifacts: [output], primaryFile: output.file,
+      toolState: patches[1].toolState,
+    })
+    expect(useWorkspaceStore.getState().error).toBeNull()
+    // Flush the timer scheduled by the edit inside the recovery request.
+    await useWorkspaceStore.getState().save()
+  })
 
   it('deduplicates concurrent initialization and activates the first workspace once', async () => {
     const fetchMock = vi.fn(async (input: string | URL | Request) => {

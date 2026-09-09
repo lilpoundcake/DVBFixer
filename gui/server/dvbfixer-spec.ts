@@ -15,6 +15,7 @@ export interface FlagDef {
   repeatable?: boolean
   multi?: boolean
   falseFlag?: string
+  exclusiveGroup?: string
   name?: string
   nargs?: string | number | null
 }

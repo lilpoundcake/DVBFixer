@@ -41,6 +41,9 @@ dvbfixer split input.pdb --no-distance
 # Keep original residue numbers
 dvbfixer split input.pdb --no-renumber
 
+# Give every retained non-solvent molecule its own chain identity
+dvbfixer split structure.pdb --unique-molecule-chains --no-renumber
+
 # Extract one biological assembly to an exact output path
 dvbfixer split 8XJ0.pdb --assembly 1 -o 8XJ0_AB.pdb
 
@@ -60,6 +63,7 @@ dvbfixer split 8XJ0.pdb --assembly all
 | `--no-distance` | off | Disable all distance-based detection |
 | `--renumber` / `--no-renumber` | mode-dependent | Empirical mode renumbers by default; assembly mode preserves deposited numbering by default. |
 | `--keep-water` | off | Keep water and ions in output (removed by default) |
+| `--unique-molecule-chains` | off | Preserve polymer chains and assign unique IDs to non-solvent heterogen molecules. Assembly metadata IDs are reserved, CONECT is preserved, and a REMARK 999 provenance record is added. |
 | `--max-chains` | 26 | Above this many detected chains, small-molecule chains (ions, ligands, lipids, single-residue HETATMs, glycan trees) get blank chain ID; only protein chains get IDs. |
 | `-v`, `--verbose` | off | Print detected chain info |
 
@@ -68,6 +72,7 @@ dvbfixer split 8XJ0.pdb --assembly all
 - [`renumber`](renumber.md) — SEQRES-based residue renumbering after chain splitting
 - [`model`](model.md) — rebuild missing loops in the split structure
 - [`zbs`](zbs.md) — full pipeline that includes splitting + renumbering + modeling
+- [Scientific domain model](../domain-model.md) — structure identity and parameterization invariants
 
 ## How it works
 Splits chains in PDB or GRO files lacking chain IDs (e.g. GROMACS output). GRO files are converted to PDB via MDAnalysis (preserves all residue names including protonation variants like GLUP, ASPP). Water, ions, and buffer particles (BUF/BUFF) are stripped before chain detection to prevent false breaks (`--keep-water` re-appends them). Three detection criteria:

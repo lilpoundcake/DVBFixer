@@ -132,7 +132,13 @@ The two are separate because they consume completely different file formats: Ope
 
 ## Handling arbitrary unknown ligands
 
-Standard AMBER19, AMBER14+GLYCAM, and CHARMM36 XMLs don't have templates for arbitrary drug-like molecules, cofactors, or non-standard ligands. Two orthogonal escape hatches:
+Standard force fields do not have templates for every deposited molecule. The
+safe route depends on the component, and a matching residue name alone is not
+enough: OpenMM must also match the exact atom and bond graph.
+
+Use repeatable `--extra-ff FILE` with `minimize` or `zbs` to append validated
+OpenMM XML parameters after the selected base force field. This is the intended
+route for retained complex cofactors and project-specific templates.
 
 ### Real force-field parameters — `minimize --parametrize-ligands`
 
@@ -148,7 +154,11 @@ dvbfixer minimize protein_with_ligand.pdb --parametrize-ligands -v
 - Uses AMBER GAFF2 + AM1-BCC charges via `antechamber`. Same charge model as `parametrize`'s default (`-c bcc`).
 - Cached on disk between runs (default cache: `~/.cache/dvbfixer/lig_params/`; override with `$DVBFIXER_LIG_CACHE`).
 - Requires `openmmforcefields`, `openff-toolkit`, and AmberTools (`antechamber`, `parmchk2`) in the env.
-- **Limitation**: cross-residue bonds between two ligand residues get no parameters. Same limitation as GLYCAM for glycan-glycan bonds. Works cleanly for **isolated** ligands (a bound small molecule, a cofactor, etc.).
+- **Scope**: isolated organic small molecules. Cross-residue bonds do not get
+  parameters. HEM, FAD, FMN, NAD, and related complex cofactors are rejected
+  from generic GAFF and require a validated `--extra-ff` template (or explicit
+  `--strip-heterogens`). Metal-containing components are also outside this
+  generic route.
 - Forwarded by `zbs --parametrize-ligands` to the minimize step. Since 0.7.10, `minimize` also auto-attempts this (non-strict) whenever an unknown heterogen is present, even without the flag.
 
 ### Universal-FF geometry refinement — `--xtb-refine` / `--obminimize-refine`
@@ -173,6 +183,7 @@ dvbfixer minimize input.pdb --obminimize-refine --refine-heterogens-only -v
 | Need                                                      | Use                                        |
 |-----------------------------------------------------------|--------------------------------------------|
 | Isolated ligand, want real FF params for MD               | `--parametrize-ligands`                    |
+| Heme, flavin, metal complex, or covalently attached cofactor | Validated `--extra-ff FILE`; otherwise strip explicitly |
 | Protein-ligand INTERFACE geometry matters (H-bonds, contacts) | `--parametrize-ligands` (whole system optimised together; do NOT rely on `--strip-heterogens` or `--refine-heterogens-only` which leave the interface unrelaxed) |
 | Just want the ligand's internal geometry to look sensible | `--xtb-refine` or `--obminimize-refine` (add `--refine-heterogens-only` for speed if interface geometry doesn't matter) |
 | Glycan tree with PDB names (NAG/BMA/MAN)                  | `dvbfixer convert --to-amber` first        |
@@ -180,6 +191,13 @@ dvbfixer minimize input.pdb --obminimize-refine --refine-heterogens-only -v
 | Glycan tree with GLYCAM names (4YB/UYB/…)                 | `--ff amber+glycam` (auto-detected)        |
 
 **About `--strip-heterogens` (opt-in) and its auto-fallback**: this mode runs the OpenMM minimize on protein only and splices the heterogens back at their raw INPUT coordinates. The protein has moved by then, so the protein-ligand interface (H-bonds, close contacts) can end up strained. The tool now emits a WARNING in both cases; if the interface matters to you, use `--parametrize-ligands` instead.
+
+Lipid residue names are particularly unsafe as template selectors. For
+example, a deposited LBN can describe POPC chemistry while using an entirely
+different atom-name scheme from an installed POPC template. DVBfixer applies
+generic connectivity-based phosphate and quaternary-ammonium charge rules when
+building an isolated ligand, but does not blindly rename such lipids. See the
+[parameterization policy](domain-model.md#parameterization-policy).
 
 ## Water models
 

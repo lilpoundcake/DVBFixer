@@ -210,6 +210,11 @@ def _convert_mmcif(source: Path, destination: Path) -> dict[str, str]:
     except Exception as exc:
         raise StructureInputError(f"cannot read PDBx/mmCIF {source}: {exc}") from exc
     _validate_mmcif_for_pdb(structure, source)
+    component_labels = [
+        quote(residue.subchain or "<blank>", safe="._-")
+        for model in structure for chain in model for residue in chain
+        if residue.het_flag != "A" and residue.name not in {"HOH", "WAT"}
+    ]
     chains = [chain.name for model in structure for chain in model]
     mapping = _chain_mapping(chains)
     for model in structure:
@@ -242,7 +247,11 @@ def _convert_mmcif(source: Path, destination: Path) -> dict[str, str]:
     except Exception as exc:
         raise StructureInputError(f"cannot represent {source} as PDB: {exc}") from exc
     _validate_pdb_text(text, source)
-    destination.write_text("".join(_mapping_remarks(mapping)) + text)
+    component_remarks = [
+        f"REMARK 999 DVBFIXER CIF_COMPONENT {label}\n"
+        for label in component_labels
+    ]
+    destination.write_text("".join(_mapping_remarks(mapping) + component_remarks) + text)
     return mapping
 
 

@@ -143,3 +143,21 @@ def test_ionizable_detector_generalizes_beyond_dan_epe() -> None:
     # its carbon (the amide N isn't a terminal O), must NOT be flagged.
     acetamide = Chem.AddHs(Chem.MolFromSmiles("CC(=O)N"))
     assert find_ionizable_terminal_oxygens_rdkit(acetamide) == set()
+
+
+def test_openbabel_assigns_quaternary_ammonium_charge_from_connectivity() -> None:
+    pytest.importorskip("openbabel", reason="needs Open Babel")
+    from openbabel import openbabel as ob
+
+    from dvbfixer.ffutils.ligand_valence import (
+        assign_ionizable_bond_orders_openbabel,
+    )
+
+    conversion = ob.OBConversion()
+    assert conversion.SetInFormat("smi")
+    molecule = ob.OBMol()
+    assert conversion.ReadString(molecule, "C[N](C)(C)C")
+    nitrogen = next(atom for atom in ob.OBMolAtomIter(molecule) if atom.GetAtomicNum() == 7)
+    nitrogen.SetFormalCharge(0)
+    assign_ionizable_bond_orders_openbabel(molecule)
+    assert nitrogen.GetFormalCharge() == 1

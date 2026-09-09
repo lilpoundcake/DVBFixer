@@ -8,8 +8,9 @@
 usage: dvbfixer split [-h] [-o OUTPUT] [--assembly ID|all]
                       [-d DISTANCE_CUTOFF] [-g GAP_CUTOFF] [--no-distance]
                       [--max-chains MAX_CHAINS] [--renumber | --no-renumber]
-                      [--keep-water] [-v] [--log-file PATH] [--input-dir DIR]
-                      [--output-dir DIR] [--recursive] [--fail-fast]
+                      [--keep-water] [--unique-molecule-chains] [-v]
+                      [--log-file PATH] [--input-dir DIR] [--output-dir DIR]
+                      [--recursive] [--fail-fast]
                       input
 
 Split chains empirically, or extract PDB biological assemblies from REMARK 350
@@ -51,6 +52,10 @@ Content / renumbering:
                         mode)
   --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
                         (default: remove)
+  --unique-molecule-chains
+                        Give each connected non-solvent heterogen molecule a
+                        unique chain ID; polymer chains and CONECT serials are
+                        preserved
 
 Diagnostics:
   -v, --verbose         Print detected chain info

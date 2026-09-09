@@ -70,8 +70,8 @@ Protonation engines:
                         every protonate run the same higher-quality H-network
                         without remembering a flag. Pass --no-protassign to
                         disable (PROPKA-only pH-driven decisions). Requires
-                        the `reduce` binary (bundled with AmberTools in the
-                        dvbfixer env).
+                        the `reduce` binary (installed explicitly by the full
+                        dvbfixer environment).
   --protassign-binary PROTASSIGN_BINARY
                         Override the `reduce` binary path (default: search
                         PATH, then the dvbfixer env's bin dir).

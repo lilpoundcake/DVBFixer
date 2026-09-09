@@ -1201,6 +1201,11 @@ def main(argv=None):
     )
     args.ff, _ff_alias, _ff_reason = resolve_ff(
         args.ff, args.input, verbose=args.verbose)
+    for extra_ff in getattr(args, "extra_ff", []):
+        extra_path = Path(extra_ff)
+        if not extra_path.is_file():
+            raise ValueError(f"--extra-ff file does not exist: {extra_ff}")
+        args.ff.append(str(extra_path))
 
     # CHARMM + PDB-standard sugars: process under amber+glycam
     # (charmm36.xml has no sugar templates); rewrite sugar residue
@@ -1284,6 +1289,8 @@ def main(argv=None):
     # NLN→ASN/OLS→SER/OLT→THR in place on the topology. Restore these on
     # the final output so the GLYCAM input names survive end-to-end.
     _glycam_orig_names = {}
+    from dvbfixer.lig_params import LigandParamError
+
     try:
         with open(input_path) as _gf:
             for _line in _gf:
@@ -1370,10 +1377,14 @@ def main(argv=None):
         print("No .dat file — all atoms get uniform strong restraints")
         new_atom_indices = set()
 
-    final_topology, final_positions = minimize(
-        topology, positions, new_atom_indices, args,
-        amber_renames=amber_renames,
-    )
+    try:
+        final_topology, final_positions = minimize(
+            topology, positions, new_atom_indices, args,
+            amber_renames=amber_renames,
+        )
+    except (LigandParamError, ValueError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
 
     # Strip solvent from output. When keep_heterogens is on, the splice-back
     # inside minimize was skipped, so solvent is still in the topology and

@@ -287,6 +287,28 @@ def build_ligand_generator(topology, positions, base_ff_templates, *,
             print("  [lig_params] no unknown-to-FF ligand residues")
         return None
 
+    from dvbfixer.domain.parameterization import (
+        ParameterizationRoute,
+        classify_parameterization,
+    )
+
+    unsupported = [
+        (chain, resid, name) for chain, resid, name in unknown
+        if classify_parameterization(name)
+        is ParameterizationRoute.UNSUPPORTED_COMPLEX_COFACTOR
+    ]
+    if unsupported:
+        detail = ", ".join(
+            f"{name} (chain {chain or '_'}, residue {resid})"
+            for chain, resid, name in unsupported
+        )
+        raise LigandParamError(
+            "retained complex cofactor(s) cannot be safely assigned generic GAFF "
+            f"parameters: {detail}. Supply a validated OpenMM template with "
+            "--extra-ff FILE, or remove them with --strip-heterogens. No coordinates "
+            "were minimized."
+        )
+
     try:
         from openff.toolkit import Molecule
         from openmmforcefields.generators import GAFFTemplateGenerator

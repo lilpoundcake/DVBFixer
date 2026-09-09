@@ -130,15 +130,17 @@ license. Register at <https://salilab.org/modeller/registration.html>, then:
 
 ```
 micromamba activate dvbfixer
-KEY=YOUR_LICENSE_KEY bash gui/scripts/set-modeller-key.sh
+MODELLER_LICENSE_KEY=YOUR_LICENSE_KEY bash gui/scripts/set-modeller-key.sh
 ```
 
-The helper finds `<env>/lib/modeller-*/modlib/modeller/config.py` and writes
-`license = r'YOUR_LICENSE_KEY'` into it (backing up the previous file).
-You can also pass an explicit prefix as the first arg:
+The helper finds `<env>/lib/modeller-*/modlib/modeller/config.py`, updates it
+atomically, validates the license with that environment's Python, and restores
+the previous configuration if validation fails. It never prints the key or
+leaves a key-bearing backup. You can also pass an explicit prefix as the first
+argument:
 
 ```
-KEY=YOUR_LICENSE_KEY bash scripts/set-modeller-key.sh /opt/conda/envs/tarantino
+MODELLER_LICENSE_KEY=YOUR_LICENSE_KEY bash gui/scripts/set-modeller-key.sh /opt/conda/envs/dvbfixer
 ```
 
 **2.** Start the app. PostgreSQL is auto-managed — if Docker is installed,
@@ -178,12 +180,23 @@ npm run dev
 
 ```
 export DVBFIXER_EXECUTABLE="micromamba"
-export DVBFIXER_ARGS='["run", "-n", "tarantino", "dvbfixer"]'
+export DVBFIXER_ARGS='["run", "-n", "dvbfixer", "dvbfixer"]'
 ```
 
 The DVBFixer tab is usable even without the env (it will just error on
 Run); the Mutations tab is usable even without DATABASE_URL or Docker
 (it will show a configuration message).
+
+In the Model command's **Sequences per chain** editor, residues present in the
+loaded coordinates retain structure-presence styling while sequences are
+edited. Substitutions update in linear time; insertions/deletions trigger a
+short-debounced affine alignment. Very large alignment matrices are skipped to
+keep the form responsive. Whitespace is ignored for biological indexing, and
+the editing caret remains visible over the highlight layer.
+
+Tool-form autosaves recover automatically when a completed job advances the
+workspace revision. Pending local fields are merged into the latest manifest,
+so newly registered output files and unrelated panel settings are preserved.
 
 ## Tech stack
 

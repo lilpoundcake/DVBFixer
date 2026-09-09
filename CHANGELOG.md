@@ -8,6 +8,34 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.8.4] — 2026-09-09
+
+### Fixed
+
+- Workspace autosaves recover from revision conflicts caused by tool output
+  registration. Recovery merges pending form edits into the latest workspace,
+  preserving output artifacts and unrelated panel state. Reload preserves edits
+  made while its request is pending and ignores superseded workspace responses.
+- Clean CLI runs no longer print an empty diagnostic summary. Warnings and
+  errors retain emphasis and their final summary, including in log files.
+- GUI negative switches describe the option actually sent to the CLI;
+  mutually exclusive switches clear their peers. The per-chain FASTA editor
+  has a visible caret and updates coordinate-presence highlighting after edits.
+- Modeller license setup uses the selected environment's Python, avoids
+  printing the key, and restores the previous configuration if validation fails.
+
+### Added
+
+- Opt-in `split --unique-molecule-chains` and scientific domain documentation.
+- Repeatable `--extra-ff FILE` for minimize and ZBS, early rejection of
+  unsupported complex cofactors from generic GAFF, and PDB input validation
+  for standalone small-molecule parametrization.
+- Connectivity-based quaternary-ammonium charge correction for ligand export.
+
+### Changed
+
+- The full environment explicitly requests Reduce and Node.js >=22.
+
 ## [0.8.3] — 2026-08-14
 
 ### Added

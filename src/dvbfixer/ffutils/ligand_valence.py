@@ -233,6 +233,20 @@ def assign_ionizable_bond_orders_openbabel(obmol: Any) -> None:
     """
     from openbabel import openbabel as ob
 
+    # A tetracoordinate nitrogen with four heavy-atom neighbours is a
+    # quaternary ammonium centre, not a neutral amine. This connectivity rule
+    # covers phosphatidylcholine headgroups (including LBN/POPC-like records)
+    # without relying on residue or atom names.
+    for atom in ob.OBMolAtomIter(obmol):
+        if atom.GetAtomicNum() != 7:
+            continue
+        heavy_degree = sum(
+            1 for neighbour in ob.OBAtomAtomIter(atom)
+            if neighbour.GetAtomicNum() != 1
+        )
+        if heavy_degree == 4:
+            atom.SetFormalCharge(1)
+
     for atom in ob.OBMolAtomIter(obmol):
         atomic_num = atom.GetAtomicNum()
         if atomic_num not in (6, 16, 15):

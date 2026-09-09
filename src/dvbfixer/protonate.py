@@ -103,8 +103,8 @@ def parse_args(argv=None):
              "network. **Default ON** — gives every protonate run the same "
              "higher-quality H-network without remembering a flag. Pass "
              "--no-protassign to disable (PROPKA-only pH-driven decisions). "
-             "Requires the `reduce` binary (bundled with AmberTools in the "
-             "dvbfixer env)."
+             "Requires the `reduce` binary (installed explicitly by the "
+             "full dvbfixer environment)."
     )
     engines.add_argument(
         "--protassign-binary", dest="protassign_binary", default=None,

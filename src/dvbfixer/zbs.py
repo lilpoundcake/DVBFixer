@@ -60,6 +60,11 @@ def parse_args(argv=None):
                     help="Forward --parametrize-ligands to the minimize "
                          "step (GAFF2 + AM1-BCC for unknown ligands via "
                          "antechamber). See docs/force-fields.md.")
+    ff.add_argument(
+        "--extra-ff", action="append", default=[], metavar="FILE",
+        help="Additional OpenMM XML template/force-field file; repeatable and "
+             "forwarded to minimize after --ff.",
+    )
 
     skip = p.add_argument_group("Pipeline skip flags")
     skip.add_argument("--skip-renumber", action="store_true",
@@ -505,6 +510,8 @@ def _run_pipeline(args, input_path):
             minimize_argv.append("--no-infer-conect")
         if args.parametrize_ligands:
             minimize_argv.append("--parametrize-ligands")
+        for extra_ff in args.extra_ff:
+            minimize_argv.extend(["--extra-ff", extra_ff])
         if args.refine == "xtb":
             minimize_argv.append("--xtb-refine")
         elif args.refine == "obminimize":

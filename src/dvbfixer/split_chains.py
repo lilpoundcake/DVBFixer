@@ -123,6 +123,11 @@ def parse_args(argv=None):
         "--keep-water", action="store_true",
         help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
     )
+    content.add_argument(
+        "--unique-molecule-chains", action="store_true",
+        help="Give each connected non-solvent heterogen molecule a unique chain ID; "
+             "polymer chains and CONECT serials are preserved"
+    )
 
     diag = p.add_argument_group("Diagnostics")
     diag.add_argument(
@@ -373,6 +378,10 @@ def main(argv=None):
                     lines, assemblies[identifier], CHAIN_IDS,
                     renumber=bool(args.renumber),
                 )
+                if args.unique_molecule_chains:
+                    from dvbfixer.molecule_chains import assign_unique_molecule_chains
+
+                    output_lines, _ = assign_unique_molecule_chains(output_lines, CHAIN_IDS)
                 rendered.append((output_path, output_lines))
         except (AssemblyError, OSError, ValueError) as exc:
             print(f"Biological assembly error: {exc}", file=sys.stderr)
@@ -448,6 +457,18 @@ def main(argv=None):
         chain_id_assignment=chain_id_assignment,
     )
 
+    unique_components = 0
+    if args.unique_molecule_chains:
+        from dvbfixer.molecule_chains import assign_unique_molecule_chains
+
+        try:
+            output_lines, unique_components = assign_unique_molecule_chains(
+                output_lines, CHAIN_IDS, source_lines=lines
+            )
+        except ValueError as exc:
+            print(f"Cannot assign unique molecule chains: {exc}", file=sys.stderr)
+            sys.exit(1)
+
     if args.keep_water and solvent_lines:
         end_idx = len(output_lines)
         for i, line in enumerate(output_lines):
@@ -464,7 +485,11 @@ def main(argv=None):
     with open(output_path, 'w') as f:
         f.writelines(output_lines)
 
-    print(f"Wrote {output_path} with {n_chains} chain(s)")
+    suffix = (
+        f", {unique_components} uniquely identified molecule(s)"
+        if args.unique_molecule_chains else ""
+    )
+    print(f"Wrote {output_path} with {n_chains} chain(s){suffix}")
 
 
 def _collect_atoms(lines, block_range=None):
@@ -741,6 +766,18 @@ def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
     # Trailing lines after last ENDMDL
     output_lines.extend(lines[prev_end:])
 
+    unique_components = 0
+    if args.unique_molecule_chains:
+        from dvbfixer.molecule_chains import assign_unique_molecule_chains
+
+        try:
+            output_lines, unique_components = assign_unique_molecule_chains(
+                output_lines, CHAIN_IDS, source_lines=lines
+            )
+        except ValueError as exc:
+            print(f"Cannot assign unique molecule chains: {exc}", file=sys.stderr)
+            sys.exit(1)
+
     # Re-append solvent only if --keep-water (one copy per MODEL would change
     # atom counts; for simplicity insert each MODEL's solvent inside its block
     # — but this requires re-walking. Skipping that complexity: append all
@@ -766,7 +803,9 @@ def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
     n_chains_first = len(per_model[0]["breaks"])
     if all_same:
         print(f"Wrote {output_path} with {n_models} MODEL(s), "
-              f"{n_chains_first} chain(s) per MODEL (consistent across MODELs)")
+              f"{n_chains_first} chain(s) per MODEL (consistent across MODELs)"
+              + (f", {unique_components} unique molecule component(s)"
+                 if args.unique_molecule_chains else ""))
     else:
         total = sum(len(m["breaks"]) for m in per_model)
         print(f"Wrote {output_path} with {n_models} MODEL(s), "

@@ -214,8 +214,8 @@ dvbfixer protonate input.pdb --no-protassign
 Adds ~1 second per chain. PROPKA still wins HIP decisions (charged-state,
 pKa-driven); Reduce only contributes HID-vs-HIE picks and the flip swaps.
 
-Requires the `reduce` binary (bundled with AmberTools in the dvbfixer
-env; install via `conda install -c conda-forge ambertools` if missing,
+Requires the `reduce` binary (an explicit package in the full dvbfixer
+environment; install `reduce` from conda-forge if missing,
 or pass `--no-protassign` to skip).
 
 ## Workflow 5 — GROMACS topology generation

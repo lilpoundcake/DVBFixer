@@ -26,6 +26,8 @@ def test_log_file_tees_python_and_child_streams(tmp_path: Path) -> None:
     )
     combined_terminal = result.stdout + result.stderr
     combined_log = log.read_text()
+    assert "DIAGNOSTIC SUMMARY" not in combined_terminal
+    assert "DIAGNOSTIC SUMMARY" not in combined_log
     for message in ("python-out", "python-err", "child-out", "child-err"):
         assert message in combined_terminal
         assert message in combined_log
@@ -41,8 +43,8 @@ def test_cli_run_header_goes_to_stderr_and_log(tmp_path: Path) -> None:
         capture_output=True, text=True, check=True,
         env={**os.environ, "PYTHONPATH": str(Path(__file__).parents[1] / "src")},
     )
-    assert "=== dvbfixer 0.8.3" in result.stderr
-    assert "=== dvbfixer 0.8.3" in log.read_text()
+    assert "=== dvbfixer 0.8.4" in result.stderr
+    assert "=== dvbfixer 0.8.4" in log.read_text()
 
 
 def test_warnings_are_emphasized_and_summarized(tmp_path: Path) -> None:

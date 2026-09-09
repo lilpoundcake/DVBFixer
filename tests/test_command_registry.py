@@ -54,3 +54,17 @@ def test_generators_use_the_same_registry_metadata() -> None:
     assert gen_gui_spec.OUTPUT_MODES == {
         command.name: command.output_mode for command in COMMAND_REGISTRY
     }
+
+
+def test_gui_schema_labels_negative_switches_by_actual_option() -> None:
+    from scripts.gen_gui_spec import command_schema
+
+    split = command_schema("split", COMMAND_BY_NAME["split"].description)
+    labels = {field["flag"]: field["label"] for field in split["flags"]}
+    assert labels["--no-renumber"] == "No Renumber"
+
+    zbs = command_schema("zbs", COMMAND_BY_NAME["zbs"].description)
+    labels = {field["flag"]: field["label"] for field in zbs["flags"]}
+    assert labels["--no-propka"] == "No PROPKA"
+    assert labels["--no-protassign"] == "No ProtAssign"
+    assert labels["--strip-heterogens"] == "Strip Heterogens"

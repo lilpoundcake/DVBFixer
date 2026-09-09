@@ -30,7 +30,23 @@ FIELD_LABELS = {
     "propka": "PROPKA",
     "protassign": "ProtAssign",
     "protassign_binary": "ProtAssign Binary",
+    "extra_ff": "Extra Force Field",
 }
+LABEL_ACRONYMS = {
+    "fasta": "FASTA",
+    "ff": "FF",
+    "msa": "MSA",
+    "pdb": "PDB",
+    "propka": "PROPKA",
+    "protassign": "ProtAssign",
+}
+
+
+def _humanize_option(option: str) -> str:
+    return " ".join(
+        LABEL_ACRONYMS.get(token, token.title())
+        for token in option.removeprefix("--").split("-")
+    )
 
 
 class _Captured(Exception):
@@ -62,7 +78,7 @@ def _plain_default(value):  # noqa: ANN001, ANN201
     return None
 
 
-def _field(action: argparse.Action, group: str) -> dict:
+def _field(action: argparse.Action, group: str, exclusive_group: str | None = None) -> dict:
     option_strings = list(action.option_strings)
     positive = next((item for item in option_strings if item.startswith("--") and not item.startswith("--no-")), None)
     flag = positive or next((item for item in option_strings if item.startswith("--")), None)
@@ -80,16 +96,25 @@ def _field(action: argparse.Action, group: str) -> dict:
         field_type = "artifact"
     else:
         field_type = "text"
+    label_from_option = (
+        isinstance(action, argparse._StoreFalseAction)
+        or (isinstance(action, argparse._StoreTrueAction) and flag.startswith("--no-"))
+    )
+    label = (
+        _humanize_option(flag)
+        if label_from_option else FIELD_LABELS.get(action.dest, action.dest.replace("_", " ").title())
+    )
     result = {
         "flag": flag,
         "dest": action.dest,
-        "label": FIELD_LABELS.get(action.dest, action.dest.replace("_", " ").title()),
+        "label": label,
         "type": field_type,
         "group": group,
         "help": action.help if action.help is not argparse.SUPPRESS else None,
         "required": bool(action.required),
         "repeatable": isinstance(action, argparse._AppendAction),
         "multi": action.nargs in ("+", "*") or (isinstance(action.nargs, int) and action.nargs > 1),
+        "exclusiveGroup": exclusive_group,
     }
     default = (_plain_default(action.default) if isinstance(action, argparse.BooleanOptionalAction)
                else False if is_bool else _plain_default(action.default))
@@ -111,6 +136,11 @@ def command_schema(name: str, description: str) -> dict:
     inputs: list[dict] = []
     flags: list[dict] = []
     has_output = False
+    exclusive_by_action: dict[argparse.Action, str] = {}
+    for index, exclusive in enumerate(parser._mutually_exclusive_groups):
+        identifier = f"{name}:exclusive:{index}"
+        for action in exclusive._group_actions:
+            exclusive_by_action[action] = identifier
     for group in parser._action_groups:
         if group.title in {"Global logging", "Batch mode"}:
             continue
@@ -121,7 +151,7 @@ def command_schema(name: str, description: str) -> dict:
             if action.dest == "output" or "--output" in action.option_strings:
                 has_output = True
                 continue
-            field = _field(action, group.title)
+            field = _field(action, group.title, exclusive_by_action.get(action))
             if action.option_strings:
                 flags.append(field)
                 group_fields.append(field["flag"])

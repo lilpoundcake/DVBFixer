@@ -23,13 +23,14 @@ dependencies:
   - mafft            # default multiple-sequence alignment engine for the GUI
   - muscle >=5       # optional high-accuracy MSA alternative
   - clustalo         # optional scalable MSA alternative
-  - nodejs >=20      # React/Node GUI under gui/
+  - nodejs >=22      # required by the Mol* GUI dependency
   - xtb              # GFN-FF/GFN-xTB universal FF for --xtb-refine
   - openbabel        # obminimize CLI for --obminimize-refine
-  - ambertools >=23  # tleap + reduce + pdb4amber for the deterministic
+  - ambertools >=23  # tleap + pdb4amber for the deterministic
                      # prep backend (dvbfixer.prep_backend). Replaces the
                      # PDBFixer.addMissingAtoms + Modeller.addHydrogens
                      # pair (both had upstream D-Cα / coincident-H bugs).
+  - reduce           # MolProbity hydrogen placement / ProtAssign-style decisions
   - pip
   - pip:
     - propka >=3.5
