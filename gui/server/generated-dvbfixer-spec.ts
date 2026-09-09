@@ -121,6 +121,18 @@ export const GENERATED_COMMANDS = [
         "default": false
       },
       {
+        "flag": "--keep-heterogens",
+        "dest": "keep_heterogens",
+        "label": "Keep Heterogens",
+        "type": "bool",
+        "group": "Content / renumbering",
+        "help": "Keep all input heterogens, including ligands, waters, ions and buffers. Preserve atom serials and retain solvent within each MODEL. Combine with --unique-molecule-chains to name non-solvent molecules.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
         "flag": "--unique-molecule-chains",
         "dest": "unique_molecule_chains",
         "label": "Unique Molecule Chains",
@@ -167,6 +179,7 @@ export const GENERATED_COMMANDS = [
           "--renumber",
           "--no-renumber",
           "--keep-water",
+          "--keep-heterogens",
           "--unique-molecule-chains"
         ]
       },

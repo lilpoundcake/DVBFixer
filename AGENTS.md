@@ -40,6 +40,8 @@ non-canonical residues.
 | Known issues + active workarounds | [`docs/known-issues.md`](docs/known-issues.md) |
 | Historical design notes, gotchas | [`docs/DESIGN_NOTES.md`](docs/DESIGN_NOTES.md) |
 | Installation + Modeller license | [`docs/installation.md`](docs/installation.md) |
+| Implemented domain policies | [`docs/domain-model.md`](docs/domain-model.md) |
+| Relaxation research and proposed benchmarks | [`docs/research/whole-complex-relaxation.md`](docs/research/whole-complex-relaxation.md) |
 | Force-field selection matrix | [`docs/force-fields.md`](docs/force-fields.md) |
 | Tracked structural test inputs, provenance, and checksums | [`tests/fixtures/README.md`](tests/fixtures/README.md) |
 
@@ -664,3 +666,14 @@ The full suite needs the scientific stack and external executables from
   `npm test -- --run`. Backend-focused changes should run their narrow pytest
   set first, then `pytest -m 'not slow' -q` when the scientific environment and
   time budget allow.
+
+- **Domain policies are partially integrated.** Reuse `domain.structure_identity`
+  for chain allocation and `domain.parameterization` for ligand routing. A
+  geometry-regularization backend is proposed research, not a shipped feature;
+  see [the research note](docs/research/whole-complex-relaxation.md).
+- **Empirical Split preserves input atom serials.** Never reserialize atoms
+  independently of CONECT endpoints. `--keep-heterogens` retains solvent inside
+  its MODEL; unique molecule IDs exclude solvent and protein HETATMs. Keep the
+  HELIX/SHEET remapping and endpoint-identity regression tests.
+- **`/test/` is ignored local experimentation.** Keep reviewed source fixtures
+  in `tests/fixtures/` with provenance and checksums, not duplicate tracked inputs.

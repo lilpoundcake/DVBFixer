@@ -198,6 +198,11 @@ Tool-form autosaves recover automatically when a completed job advances the
 workspace revision. Pending local fields are merged into the latest manifest,
 so newly registered output files and unrelated panel settings are preserved.
 
+Workspace files and tool outputs open as the complete first coordinate model.
+Mol* does not automatically select the first biological assembly: deposited
+assembly chain lists may exclude newly assigned ligand chains after Split.
+Other models and biological assemblies remain available through Mol* controls.
+
 ## Tech stack
 
 React 19, TypeScript 6, Vite 6, Mol*, MUI (Material UI v9, plus

@@ -350,7 +350,9 @@ export function DVBFixerPanel() {
       await plugin.clear()
       const data = await plugin.builders.data.rawData({ data: await response.text(), label: job.outputFile })
       const trajectory = await plugin.builders.structure.parseTrajectory(data, format as any)
-      await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default')
+      await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
+        structure: { name: 'model', params: {} },
+      })
       const artifact = refreshed?.artifacts.find(item => item.file === job.outputFile)
       if (artifact) useStructureStore.getState().setMeta(structureMetaFromArtifact(artifact))
       useStructureStore.getState().setFileName(job.outputFile)

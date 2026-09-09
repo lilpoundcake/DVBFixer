@@ -386,7 +386,9 @@ export function HomologyPanel() {
     await plugin.clear()
     const data = await plugin.builders.data.rawData({ data: await response.text(), label: template.file })
     const trajectory = await plugin.builders.structure.parseTrajectory(data, /\.(cif|mmcif)$/i.test(template.file) ? 'mmcif' : 'pdb')
-    await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default')
+    await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
+      structure: { name: 'model', params: {} },
+    })
     const artifact = activeWorkspace.artifacts.find(item => item.file === template.file)
     if (artifact) useStructureStore.getState().setMeta(structureMetaFromArtifact(artifact))
     setFileName(template.file)

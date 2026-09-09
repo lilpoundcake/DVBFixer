@@ -8,6 +8,31 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.8.5] — 2026-09-09
+
+### Fixed
+
+- Fixed Split changing atom serials without updating CONECT records. Empirical
+  splitting now preserves serials in every mode, preventing unrelated ligand
+  bonds from propagating into Model. Regression checks compare bond endpoints
+  through both Split and Model's bond-restoration routine.
+
+- Workspace viewers display the first complete coordinate model instead of
+  automatically filtering by deposited biological-assembly chain lists. Split
+  updates HELIX/SHEET references after residue and chain renumbering.
+
+- Added Split `--keep-heterogens` (GUI: Keep Heterogens) to retain all input
+  heterogens, including solvent, ions and buffers, within each MODEL and
+  preserve atom serials. Unique-chain assignment leaves retained solvent and
+  protein residues encoded as HETATM intact.
+
+### Documentation
+
+- Documented implemented domain policies, whole-complex minimization limits,
+  incomplete FAD inputs, and proposed relaxation benchmarks with sources.
+- Removed duplicate numbering inputs from tracking; canonical fixtures remain
+  under `tests/fixtures/`, and `/test/` is reserved for local experiments.
+
 ## [0.8.4] — 2026-09-09
 
 ### Fixed

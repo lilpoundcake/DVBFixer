@@ -159,11 +159,11 @@ dvbfixer minimize protein_with_ligand.pdb --parametrize-ligands -v
   from generic GAFF and require a validated `--extra-ff` template (or explicit
   `--strip-heterogens`). Metal-containing components are also outside this
   generic route.
-- Forwarded by `zbs --parametrize-ligands` to the minimize step. Since 0.7.10, `minimize` also auto-attempts this (non-strict) whenever an unknown heterogen is present, even without the flag.
+- Forwarded by `zbs --parametrize-ligands` to the minimize step. Since 0.7.10, `minimize` also auto-attempts this (non-strict) for eligible unknown organic heterogens, even without the flag. Unknown complex cofactors raise even in non-strict mode.
 
 ### Universal-FF geometry refinement — `--xtb-refine` / `--obminimize-refine`
 
-Different mechanism entirely. These are **post-minimize refinement passes** that run AFTER OpenMM finishes. They apply a universal force field (xtb GFN-FF; OpenBabel UFF / MMFF94 / GAFF) to the whole system or just the heterogens, purely on connectivity — **no template matching**, so no unknown-residue errors.
+Different mechanism entirely. These are **post-minimize refinement passes** that run AFTER OpenMM finishes. They apply a universal force field (xtb GFN-FF; OpenBabel UFF / MMFF94 / GAFF) to the whole system or just the heterogens, without OpenMM residue-template matching during the post-pass. They still require successful completion of the preceding OpenMM stage and valid input chemistry.
 
 ```bash
 # After OpenMM minimize, run xtb GFN-FF only on the heterogens
@@ -175,7 +175,7 @@ dvbfixer minimize input.pdb --obminimize-refine --refine-heterogens-only -v
 
 - **When to use**: sanity-check ligand geometry when you don't want to (or can't) generate real FF parameters. Also useful for glycan systems where sugar-sugar bonds have no OpenMM template — the refinement pass fixes strain that OpenMM couldn't touch.
 - Auto-switches to heterogens-only above 5000 atoms (whole-system xtb takes hours).
-- **`--refine-heterogens-only` interface caveat**: with the protein frozen, only the ligand's INTERNAL geometry is refined. Any pre-existing clash at the protein-ligand INTERFACE (contacts, H-bonds) will persist because the ligand can only slide sideways, not accommodate. Drop the flag for whole-system refinement when the interface matters.
+- **`--refine-heterogens-only` interface caveat**: with the protein frozen, only the ligand's INTERNAL geometry is refined. Protein-side accommodation is unavailable; ligand motion may relieve some contacts but does not provide joint interface relaxation. Drop the flag for whole-system refinement when the interface matters.
 - **NOT a replacement** for `--parametrize-ligands`: universal FFs are less accurate than GAFF2, and running xtb/UFF on a ligand doesn't give you MD-ready parameters — you still need real FF templates for a production MD run.
 
 ### Which to use?
@@ -233,3 +233,12 @@ dvbfixer minimize input.pdb --ff amber14-all.xml amber14/tip3p.xml -v
 # Whole pipeline with a specific FF
 dvbfixer zbs input.pdb --ff amber+glycam -v
 ```
+
+A force-field family name or a matching residue name is not proof of complete
+parameter coverage. Incomplete cofactors require an explicit structural repair
+decision as well as parameters; neither `--extra-ff` nor a universal-force-field
+post-pass supplies absent atoms. Current template screening starts from names,
+with atom/bond matching deferred to OpenMM. See the [domain boundaries](domain-model.md)
+and [relaxation research](research/whole-complex-relaxation.md) for the verified
+FAD example and proposed alternatives; geometry regularization is not a shipped
+minimization backend.

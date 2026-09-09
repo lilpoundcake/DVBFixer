@@ -13,3 +13,6 @@ leap.log
 !tests/fixtures/*.pdb
 !tests/fixtures/**/*.pdb
 *.dat
+
+# Local experiments; canonical regression inputs live in tests/fixtures/.
+/test/

@@ -778,7 +778,9 @@ async function loadOutputIntoPrimary(workspaceId: string, outputFile: string): P
     await plugin.clear()
     const data = await plugin.builders.data.rawData({ data: text, label: outputFile })
     const trajectory = await plugin.builders.structure.parseTrajectory(data, format as any)
-    await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default')
+    await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
+      structure: { name: 'model', params: {} },
+    })
     const artifact = useWorkspaceStore.getState().active?.artifacts.find(item => item.file === outputFile)
     if (artifact) useStructureStore.getState().setMeta(structureMetaFromArtifact(artifact))
     useStructureStore.getState().setFileName(outputFile)

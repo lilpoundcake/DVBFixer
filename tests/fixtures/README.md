@@ -30,6 +30,13 @@ verify that none of the source fixtures changed accidentally.
 | `warnings/*` | `test/warnings/{8ct6_t_b.pdb,8ct6_renamed.fasta}` | Real addHydrogens/connectivity-warning input and companion FASTA |
 | `overlap/8dis_t_u.pdb` | `test/overlap/8dis_t_u.pdb` | Coordinate-identical chains `d`/`D` caused by missing MODEL/ENDMDL separators |
 
+## 8UCD molecule retention and connectivity
+
+`rename_mols/structure.pdb` is the user-provided 8UCD preparation input copied
+unchanged from `test/rename_mols/structure.pdb`. Split regression tests verify
+that all 807 heterogen atoms (nine LBN/FAD/HEM residues) survive retention and
+unique-chain assignment with unchanged coordinates and serials.
+
 ## 1VCU ligand chemistry
 
 The optional-SMILES regression uses RCSB Chemical Component Dictionary

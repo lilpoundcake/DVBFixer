@@ -63,7 +63,9 @@ export function FileLoader() { // @dsp obj-a1000005
       await targetPlugin.clear()
       const data = await targetPlugin.builders.data.rawData({ data: text, label: file.name })
       const trajectory = await targetPlugin.builders.structure.parseTrajectory(data, format)
-      await targetPlugin.builders.structure.hierarchy.applyPreset(trajectory, 'default')
+      await targetPlugin.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
+        structure: { name: 'model', params: {} },
+      })
 
       if (loadTargetSlot === 'secondary') {
         setSecondaryFileName(artifact.file)

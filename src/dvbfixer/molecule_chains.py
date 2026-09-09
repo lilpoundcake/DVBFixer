@@ -9,7 +9,6 @@ from urllib.parse import unquote
 from dvbfixer.domain.structure_identity import allocate_chain_ids
 
 _ASSEMBLY_CHAINS = re.compile(r"CHAINS?:\s*(.+)$")
-_EXCLUDED_COMPONENTS = {"HOH", "WAT", "TIP", "TIP3", "SOL", "NA", "CL", "K", "MG", "CA", "ZN"}
 
 
 def _residue_key(line: str) -> tuple[str, str, str, str]:
@@ -35,16 +34,22 @@ def assign_unique_molecule_chains(
 ) -> tuple[list[str], int]:
     """Give each connected non-polymer component a unique PDB chain identifier.
 
-    Heterogen-to-heterogen CONECT records join residues into one molecule. Links
-    to polymer atoms are deliberately ignored for ownership. Waters and ions
-    have already been removed by the split pipeline and are never reassigned.
+    Waters, ions and protein residues written as HETATM are retained without
+    reassignment. PDB heterogens are identified by residue; mmCIF component
+    labels can group multiple residues.
     """
     hetero_residues: dict[tuple[str, str, str, str], list[int]] = defaultdict(list)
+    from dvbfixer.split_chains import SOLVENT_IONS, STANDARD_RESIDUES
+
+    excluded = SOLVENT_IONS | STANDARD_RESIDUES
     polymer_chains: set[str] = set()
     for line in lines:
         if line.startswith("ATOM  "):
             polymer_chains.add(line[21:22])
         elif line.startswith("HETATM"):
+            if line[17:20].strip() in excluded:
+                polymer_chains.add(line[21:22])
+                continue
             try:
                 serial = int(line[6:11])
             except ValueError:
@@ -83,11 +88,9 @@ def assign_unique_molecule_chains(
             else:
                 first_by_label[label] = key
 
-    # The legacy split renderer preserves CONECT records byte-for-byte while
-    # reserializing coordinates. Consequently those serials cannot safely be
-    # interpreted after rendering. PDB residue boundaries are therefore the
-    # conservative component boundary here. The mmCIF adapter can supply its
-    # authoritative label_asym grouping before this stage in a future writer.
+    # PDB residue boundaries are the current component boundary. Atom serials
+    # and CONECT endpoints remain unchanged through Split; mmCIF can supply
+    # authoritative label_asym grouping above.
 
     groups: dict[tuple[str, str, str, str], list[tuple[str, str, str, str]]] = defaultdict(list)
     for key in hetero_residues:
@@ -102,7 +105,7 @@ def assign_unique_molecule_chains(
     if source_lines is not None:
         source_residues = list(dict.fromkeys(
             _residue_key(line) for line in source_lines
-            if line.startswith("HETATM") and line[17:20].strip() not in _EXCLUDED_COMPONENTS
+            if line.startswith("HETATM") and line[17:20].strip() not in excluded
         ))
         if len(source_residues) == len(ordered_residues):
             source_target = {
@@ -113,7 +116,7 @@ def assign_unique_molecule_chains(
     inserted_remark = False
     for line in lines:
         new_line = line
-        if line.startswith("HETATM"):
+        if line.startswith("HETATM") and _residue_key(line) in replacement:
             new_line = line[:21] + replacement[_residue_key(line)] + line[22:]
         elif line.startswith("ANISOU"):
             key = _residue_key(line)

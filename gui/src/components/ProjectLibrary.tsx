@@ -84,7 +84,9 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
       const data = await target.builders.data.rawData({ data: await response.text(), label: artifact.file })
       const format = /\.(cif|mmcif)$/i.test(artifact.file) ? 'mmcif' : 'pdb'
       const trajectory = await target.builders.structure.parseTrajectory(data, format)
-      await target.builders.structure.hierarchy.applyPreset(trajectory, 'default')
+      await target.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
+        structure: { name: 'model', params: {} },
+      })
       if (slot === 'primary') {
         setMeta(structureMetaFromArtifact(artifact))
         setFileName(artifact.file)

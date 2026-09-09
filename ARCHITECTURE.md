@@ -1,5 +1,21 @@
 # dvbfixer architecture
 
+## Implemented domain boundaries
+
+`domain/structure_identity.py` owns immutable identity vocabulary and chain-ID
+allocation used by Split. `domain/parameterization.py` defines routing policy;
+`lig_params.py` uses it to reject unsupported complex cofactors from generic
+GAFF. File parsing, topology construction, atom matching, and minimization
+remain in their existing adapters and pipelines. These are focused uses of
+domain-driven design (DDD), not a completed domain-layer migration.
+
+OpenMM is the current minimizer. The optional xtb/OpenBabel passes run after it;
+`legacy` and `tleap-reduce` select preparation, not minimization. There is no
+geometry-dictionary regularization backend or shared backend capability
+negotiation. See [domain model](docs/domain-model.md) for current boundaries
+and [whole-complex relaxation research](docs/research/whole-complex-relaxation.md)
+for unimplemented alternatives and proposed benchmarks.
+
 ## Module structure
 
 ```

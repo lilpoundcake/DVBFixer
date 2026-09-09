@@ -124,6 +124,12 @@ def parse_args(argv=None):
         help="Keep water molecules (HOH, WAT, TIP3, SOL) in output (default: remove)"
     )
     content.add_argument(
+        "--keep-heterogens", action="store_true",
+        help="Keep all input heterogens, including ligands, waters, ions and buffers. "
+             "Preserve atom serials and retain solvent within each MODEL. "
+             "Combine with --unique-molecule-chains to name non-solvent molecules."
+    )
+    content.add_argument(
         "--unique-molecule-chains", action="store_true",
         help="Give each connected non-solvent heterogen molecule a unique chain ID; "
              "polymer chains and CONECT serials are preserved"
@@ -181,6 +187,61 @@ def set_resid(line, resid, icode=" "):
 
 def make_ter(serial, resname, chain_id, resid):
     return f"TER   {serial:>5d}      {resname:<3s} {chain_id}{resid:>4d}\n"
+
+
+def _remap_secondary_structure(source_lines, output_lines):
+    """Keep deposited cartoon annotations attached to the same residues."""
+    def protein_atoms(lines):
+        return [line for line in lines if is_atom_line(line)
+                and get_resname(line) in STANDARD_RESIDUES]
+
+    original = protein_atoms(source_lines)
+    rendered = protein_atoms(output_lines)
+    targets = {}
+    if len(original) == len(rendered):
+        for before, after in zip(original, rendered):
+            key = (before[21], *get_resid(before))
+            targets.setdefault(key, set()).add((after[21], *get_resid(after)))
+    fields = {
+        "HELIX ": [(19, 21, 25), (31, 33, 37)],
+        "SHEET ": [(21, 22, 26), (32, 33, 37), (49, 50, 54), (64, 65, 69)],
+    }
+    result = []
+    dropped = 0
+    for line in output_lines:
+        positions = fields.get(line[:6])
+        if positions is None:
+            result.append(line)
+            continue
+        chars = list(line)
+        endpoints = []
+        valid = True
+        for index, (chain, start, end) in enumerate(positions):
+            if index >= 2 and not line[start:end].strip():
+                continue
+            try:
+                key = (line[chain], int(line[start:end]), line[end])
+                candidates = targets.get(key, set())
+                if len(candidates) != 1:
+                    valid = False
+                    break
+                new_chain, number, icode = next(iter(candidates))
+            except (ValueError, IndexError):
+                valid = False
+                break
+            chars[chain] = new_chain
+            chars[start:end] = f"{number:4d}"
+            chars[end] = icode
+            if index < 2:
+                endpoints.append(new_chain)
+        if valid and len(set(endpoints)) == 1:
+            result.append("".join(chars))
+        else:
+            dropped += 1
+    if dropped:
+        print(f"WARNING: omitted {dropped} HELIX/SHEET record(s) whose residues "
+              "are absent, ambiguous or span newly split chains; recompute secondary structure.")
+    return result
 
 
 def find_model_blocks(lines):
@@ -423,6 +484,10 @@ def main(argv=None):
     atom_lines, atom_orig_indices, solvent_lines = _collect_atoms(lines, block_range)
 
     if not atom_lines:
+        if args.keep_heterogens and solvent_lines:
+            output_path.write_text("".join(lines))
+            print(f"Wrote {output_path}; all {len(solvent_lines)} solvent/ion atoms retained")
+            return
         print("No ATOM/HETATM records found.", file=sys.stderr)
         sys.exit(1)
 
@@ -455,6 +520,7 @@ def main(argv=None):
         lines, atom_lines, atom_orig_indices, chain_for_atom, break_set,
         resid_maps, renumber, start_serial=1,
         chain_id_assignment=chain_id_assignment,
+        keep_heterogens=args.keep_heterogens,
     )
 
     unique_components = 0
@@ -469,7 +535,7 @@ def main(argv=None):
             print(f"Cannot assign unique molecule chains: {exc}", file=sys.stderr)
             sys.exit(1)
 
-    if args.keep_water and solvent_lines:
+    if args.keep_water and not args.keep_heterogens and solvent_lines:
         end_idx = len(output_lines)
         for i, line in enumerate(output_lines):
             if line.startswith("END"):
@@ -482,6 +548,7 @@ def main(argv=None):
     if is_gro and (not output_lines or not output_lines[-1].startswith("END")):
         output_lines.append("END\n")
 
+    output_lines = _remap_secondary_structure(lines, output_lines)
     with open(output_path, 'w') as f:
         f.writelines(output_lines)
 
@@ -583,7 +650,7 @@ def _print_chain_summary(atom_lines, breaks, n_chains, resid_maps, renumber,
 
 def _render_block(lines, atom_lines, atom_orig_indices, chain_for_atom,
                    break_set, resid_maps, renumber, start_serial,
-                   chain_id_assignment, line_range=None):
+                   chain_id_assignment, line_range=None, keep_heterogens=False):
     """Emit output lines for a single block (whole file or one MODEL).
 
     `chain_id_assignment` is a sequence indexed by chain index; for single-block
@@ -597,10 +664,11 @@ def _render_block(lines, atom_lines, atom_orig_indices, chain_for_atom,
     orig_to_ai = {idx: ai for ai, idx in enumerate(atom_orig_indices)}
 
     output_lines = []
-    serial = start_serial
     for i in range(start, end):
         line = lines[i]
         if is_atom_line(line) and get_resname(line) in SOLVENT_IONS:
+            if keep_heterogens:
+                output_lines.append(line)
             continue
         if is_atom_line(line) and i in atom_orig_set:
             ai = orig_to_ai[i]
@@ -610,7 +678,8 @@ def _render_block(lines, atom_lines, atom_orig_indices, chain_for_atom,
             if renumber:
                 rid = get_resid(line)
                 new_line = set_resid(new_line, resid_maps[ci][rid], icode=" ")
-            new_line = new_line[:6] + f"{serial:5d}" + new_line[11:]
+            # CONECT records still refer to the input atom serials. Chain and
+            # residue renumbering must never change those serials independently.
             output_lines.append(new_line)
             next_ai = ai + 1
             # `break_set` only ever holds chain-START indices, so it never
@@ -619,11 +688,7 @@ def _render_block(lines, atom_lines, atom_orig_indices, chain_for_atom,
             # check, the final chain in the output never got a closing
             # TER record.
             if next_ai in break_set or next_ai == len(atom_orig_indices):
-                serial += 1
-                resname = get_resname(new_line)
-                resid = int(new_line[22:26].strip())
-                output_lines.append(make_ter(serial, resname, chain_id, resid))
-            serial += 1
+                output_lines.append("TER\n")
         elif line.startswith("TER"):
             continue
         else:
@@ -649,12 +714,12 @@ def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
         atom_lines, atom_orig_indices, solvent_lines = _collect_atoms(
             lines, block_range=(m_start + 1, m_end)
         )
-        if not atom_lines:
+        if not atom_lines and not (args.keep_heterogens and solvent_lines):
             print(f"MODEL {label}: no ATOM/HETATM records.", file=sys.stderr)
             sys.exit(1)
         breaks = find_chain_breaks(
             atom_lines, args.distance_cutoff, args.gap_cutoff, use_distance
-        )
+        ) if atom_lines else []
         per_model.append({
             "label": label,
             "m_start": m_start,
@@ -757,6 +822,7 @@ def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
             break_set, resid_maps, renumber, start_serial=1,
             chain_id_assignment=chain_id_lists[i],
             line_range=(m["m_start"] + 1, m["m_end"]),
+            keep_heterogens=args.keep_heterogens,
         )
         output_lines.extend(block_out)
         output_lines.append(lines[m["m_end"]])  # ENDMDL line
@@ -782,7 +848,7 @@ def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
     # atom counts; for simplicity insert each MODEL's solvent inside its block
     # — but this requires re-walking. Skipping that complexity: append all
     # solvent before END once, matching single-block behaviour.)
-    if args.keep_water and any(all_solvent):
+    if args.keep_water and not args.keep_heterogens and any(all_solvent):
         end_idx = len(output_lines)
         for i, line in enumerate(output_lines):
             if line.startswith("END") and not line.startswith("ENDMDL"):
@@ -797,6 +863,7 @@ def _process_multi_model(lines, model_blocks, output_path, args, use_distance,
     if is_gro and (not output_lines or not output_lines[-1].startswith("END")):
         output_lines.append("END\n")
 
+    output_lines = _remap_secondary_structure(lines, output_lines)
     with open(output_path, 'w') as f:
         f.writelines(output_lines)
 
