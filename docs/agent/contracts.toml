@@ -33,7 +33,7 @@ test_files = [
 known_divergences = [
   "The tleap-reduce prepare/protonate early-return paths bypass the final naming helper.",
   "Terminal nucleic-acid hydroxyl naming remains unverified and is not claimed as supported.",
-  "The workspace HTTP adapter is Vite-hosted and has no authentication or cross-process manifest lock yet.",
+  "The workspace HTTP adapter has Vite and standalone local hosts but no authentication or cross-process manifest lock yet.",
 ]
 
 [contracts.dat-record-lifecycle]

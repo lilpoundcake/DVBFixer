@@ -1,5 +1,9 @@
 # API and DDD continuation context
 
+Current completion status is tracked in the canonical
+[implementation checklist](implementation-checklist.md). This file remains a
+historical handoff record rather than an implementation tracker.
+
 Last updated: 2026-09-18.
 
 Purpose: give a future coding session enough verified context to continue the
@@ -76,8 +80,8 @@ Tests already worth extending:
 
 ### Existing HTTP/backend implementation
 
-- `gui/server/api-plugin.ts` is the current composition root and Vite middleware
-  host.
+- `gui/server/api-routes.ts` is the shared composition root; `api-plugin.ts` and
+  `standalone.ts` are the Vite and Node hosts.
 - `gui/server/workspace-api.ts` owns versioned workspace manifests, contained
   paths, atomic writes, imports/downloads, and recoverable trash.
 - `gui/server/managed-jobs.ts` owns persisted job records, one active run per
@@ -86,14 +90,13 @@ Tests already worth extending:
   output-size bounds, and process-group termination.
 - `gui/server/command-args.ts` allowlists command arguments from generated
   definitions.
-- `gui/server/api-plugin.ts` still contains a duplicate synchronous generic
+- `gui/server/api-routes.ts` still contains a duplicate synchronous generic
   `/api/dvbfixer/:command` path. The GUI primarily uses managed jobs.
-- The server has no formal OpenAPI document, API version, shared runtime schema
-  system, authentication, or workspace authorization.
+- The naming API has TypeBox runtime schemas and OpenAPI; legacy routes remain
+  unversioned, and the server has no authentication or workspace authorization.
 - Active locks and SSE subscribers are process-local, so the job system is not
   ready for multi-instance deployment.
-- The production GUI build is viewer-only; the backend is not shipped outside
-  Vite development middleware.
+- The build ships a loopback-default standalone host for the GUI and APIs.
 
 Relevant backend tests:
 
@@ -149,11 +152,12 @@ Decisions still requiring maintainer agreement:
 
 ## Recommended next implementation session
 
-Phases 2 and the core Phase 3 naming vertical slice are implemented. Continue
-with production hosting and the remaining cross-cutting API concerns.
+Phases 2, the core Phase 3 naming slice, and the local standalone host are
+implemented. Continue with the remaining security and distributed-systems
+concerns.
 
-1. Extract route composition from Vite into a host-neutral Node application.
-2. Add authentication and principal-to-workspace authorization.
+1. Add authentication and principal-to-workspace authorization.
+2. Add a restrictive CORS policy, upload/workspace quotas, and global limits.
 3. Add structured request logs, metrics, audit retention, and a generated client.
 4. Add a storage-level manifest lock or compare-and-swap before multi-instance
    deployment.

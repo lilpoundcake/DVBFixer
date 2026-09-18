@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { runDvbfixerArgs } from './dvbfixer-runner'
+import {
+  resetDvbfixerProcessAdmission, runDvbfixerArgs, shutdownDvbfixerProcesses,
+} from './dvbfixer-runner'
 
 const originalEnvironment = {
   executable: process.env.DVBFIXER_EXECUTABLE,
@@ -7,6 +9,7 @@ const originalEnvironment = {
 }
 
 afterEach(() => {
+  resetDvbfixerProcessAdmission()
   for (const [key, value] of Object.entries({
     DVBFIXER_EXECUTABLE: originalEnvironment.executable,
     DVBFIXER_ARGS: originalEnvironment.args,
@@ -45,5 +48,19 @@ describe('DVBfixer runner', () => {
     expect(result.code).not.toBe(0)
     expect(result.stderr).toContain('timed out')
     expect(Date.now() - started).toBeLessThan(1_000)
+  })
+
+  it('terminates active processes during server shutdown', async () => {
+    useNode("process.on('SIGTERM', () => {}); setInterval(() => {}, 1000)")
+    const running = runDvbfixerArgs(
+      'doctor', [], process.cwd(), { timeoutMs: 10_000, killGraceMs: 30 },
+    )
+    await new Promise(resolve => setTimeout(resolve, 30))
+    await shutdownDvbfixerProcesses()
+    const result = await running
+    expect(result.code).not.toBe(0)
+    expect(result.stderr).toContain('server shutdown')
+    const rejected = await runDvbfixerArgs('doctor', [])
+    expect(rejected).toMatchObject({ code: -1, stderr: expect.stringContaining('shutting down') })
   })
 })

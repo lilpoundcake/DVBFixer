@@ -312,6 +312,8 @@ verification = [
 status = "partial"
 context = "docs/agent/contexts/workflow-execution.md"
 start = [
+  "gui/server/api-routes.ts::registerApiRoutes",
+  "gui/server/standalone.ts::createStandaloneServer",
   "gui/server/api-plugin.ts::apiPlugin",
   "gui/server/workspace-api.ts::registerWorkspaceApi",
   "gui/server/managed-jobs.ts::registerManagedJobApi",
@@ -325,13 +327,15 @@ contracts = ["workspace-manifest-artifact-identity"]
 invariants = ["INV-API-WORKSPACE-CONTAINMENT", "INV-API-BOUNDED-BODY"]
 change_group = "gui-api-surface"
 test_files = [
+  "gui/server/api-routes.test.ts",
+  "gui/server/standalone.test.ts",
   "gui/server/request-body.test.ts",
   "gui/server/workspace-api.test.ts",
   "gui/server/managed-jobs.test.ts",
   "gui/server/dvbfixer-runner.test.ts",
 ]
 verification = [
-  "cd gui && npm test -- --run server/request-body.test.ts server/workspace-api.test.ts server/managed-jobs.test.ts server/dvbfixer-runner.test.ts",
+  "cd gui && npm test -- --run server/api-routes.test.ts server/standalone.test.ts server/request-body.test.ts server/workspace-api.test.ts server/managed-jobs.test.ts server/dvbfixer-runner.test.ts",
   "cd gui && npm run typecheck",
 ]
 

@@ -34,6 +34,11 @@ npm ci
 npm run dev:no-db
 ```
 
+For a built local server with the same API routes, run `npm run build` followed
+by `npm start`. It binds to loopback by default; see the
+[GUI deployment notes](gui/README.md#build-for-production) for configuration
+and current security limitations.
+
 The GUI uses `gui/structures/` by default. Point it at an existing Tarantino or
 DVBfixer workspace without copying data by setting `DVBFIXER_GUI_DATA_DIR`.
 Set `DVBFIXER_EXECUTABLE` when the executable is not directly on `PATH`. If it

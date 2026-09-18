@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { ViteDevServer } from 'vite'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { Value } from '@sinclair/typebox/value'
+import type { ApiRouteHost } from './http-types'
 import { acquireWorkspaceRun } from './managed-jobs'
 import {
   ApiErrorSchema,
@@ -307,7 +307,7 @@ function sendError(res: ServerResponse, error: unknown, requestId: string): void
 }
 
 export function registerNamingApi(
-  server: ViteDevServer,
+  server: ApiRouteHost,
   dataRoot: string,
   runner: NamingRunner = runDvbfixerArgs,
 ): void {

@@ -1,5 +1,8 @@
 # DVBFixer API roadmap
 
+Completion status is tracked in the canonical
+[implementation checklist](implementation-checklist.md).
+
 Status: implementation in progress. The Phase 1 pure naming service is
 implemented; dedicated CLI and HTTP adapters are not.
 
@@ -32,8 +35,8 @@ residue names to the spellings expected by GROMACS force fields.
 
 The repository already has most of an API application shell:
 
-- `gui/server/api-plugin.ts` composes workspace, Homology, managed-job, health,
-  mutation, and command routes as Vite development middleware.
+- `gui/server/api-routes.ts` composes workspace, Homology, managed-job, health,
+  mutation, and command routes for both Vite and the standalone Node host.
 - `gui/server/managed-jobs.ts` persists workspace-scoped jobs, logs, status,
   cancellation, and server-sent events.
 - `gui/server/workspace-api.ts` provides versioned manifests, atomic writes,
@@ -43,10 +46,10 @@ The repository already has most of an API application shell:
 - `src/dvbfixer/command_registry.py` is the authoritative command inventory;
   `scripts/gen_gui_spec.py` derives the GUI command schema from argparse.
 
-The current HTTP layer is not a production API. It is hosted only by Vite,
-has no authentication or authorization, is unversioned, has no OpenAPI
-contract, and stores active job locks and SSE subscribers in process memory.
-The static GUI build does not include this backend.
+The naming route is versioned and publishes OpenAPI, and the build includes a
+loopback-default standalone server. The wider HTTP layer is not yet a public
+production API: it has no authentication or authorization, most legacy routes
+are unversioned, and active job locks and SSE subscribers remain process-local.
 
 ## Recommended architecture
 
@@ -399,7 +402,7 @@ using an internal Python function.
 
 ### Phase 3: versioned HTTP vertical slice
 
-Core naming slice implemented on 2026-09-18: the Vite-hosted Node adapter uses
+Core naming slice implemented on 2026-09-18: the shared Node adapter uses
 TypeBox runtime schemas, publishes OpenAPI 3.1, resolves source artifacts by ID,
 validates bounded CLI reports and output digests, preserves concurrent manifest
 updates by reloading before publication, and records reproducible provenance.
@@ -415,6 +418,13 @@ Exit criterion: the route passes contract, security, provenance, and concurrent
 manifest tests and is usable by the GUI through a generated client.
 
 ### Phase 4: standalone server
+
+Core host slice implemented on 2026-09-18: all existing routes compose through
+`api-routes.ts`, Vite is a thin adapter, and the bundled loopback-default Node
+server serves the built client plus APIs with validated configuration, static
+and data-root separation, graceful HTTP/resource shutdown, and tracked child
+process termination. Authentication, authorization, CORS, quotas, and
+multi-instance coordination remain before public deployment.
 
 - Extract route composition from `api-plugin.ts` into a host-neutral module.
 - Add a production Node entry point with graceful shutdown and configuration.

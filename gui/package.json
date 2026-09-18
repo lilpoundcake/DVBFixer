@@ -4,6 +4,9 @@
   "version": "0.8.5",
   "description": "Graphical workspace for DVBfixer structure preparation and homology modeling",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scarfSettings": {
     "enabled": false
   },
@@ -19,7 +22,11 @@
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f db",
-    "build": "tsc -b && vite build",
+    "build": "npm run typecheck && npm run build:client && npm run build:server && npm run smoke:server",
+    "build:client": "vite build",
+    "build:server": "esbuild server/standalone.ts --bundle --platform=node --format=esm --target=node22 --packages=external --sourcemap --outfile=dist-server/server.js",
+    "start": "node --enable-source-maps dist-server/server.js",
+    "smoke:server": "node scripts/smoke-standalone.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest run",
@@ -38,20 +45,25 @@
     "@rollup/wasm-node": "^4.60.1",
     "@sinclair/typebox": "^0.34.52",
     "@types/pg": "^8.20.0",
+    "connect": "^3.7.0",
     "flexlayout-react": "^0.8.19",
     "molstar": "^5.8.0",
     "pg": "^8.21.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sass": "^1.99.0",
+    "serve-static": "^2.2.1",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "@types/connect": "^3.4.38",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/serve-static": "^2.2.0",
     "@vitejs/plugin-react": "^4.7.0",
+    "esbuild": "^0.25.12",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",

@@ -20,7 +20,7 @@ it must not reproduce preparation, modeling, or chemistry policy.
 
 Current behavior covers synchronous CLI dispatch, directory batch execution,
 the in-process ZBS pipeline, CIF normalization at the CLI boundary, revisioned
-GUI workspaces, and managed jobs hosted by Vite development middleware.
+GUI workspaces, and managed jobs hosted through shared Node route composition.
 
 The current HTTP routes are local application infrastructure, not a supported
 production API. Authentication, authorization, API versioning, OpenAPI,
@@ -135,6 +135,8 @@ already exited.
 - `workspace-api.ts` adapts workspace-relative paths and manifests to local
   filesystem storage.
 - `api-plugin.ts` is a Vite composition adapter, not a production server.
+- `api-routes.ts` is the host-neutral composition root; `api-plugin.ts` is its
+  thin Vite adapter and `standalone.ts` is the loopback-default Node host.
 - `naming-api.ts` is the synchronous artifact-ID-based V1 naming adapter;
   `naming-api-schema.ts` supplies its runtime and OpenAPI contracts.
 
@@ -181,12 +183,14 @@ job record, restoration, SSE lifecycle, or cancellation endpoint.
 - Cancellation and timeout have process-kill escalation but no durable
   `cancellation-requested` state.
 - The static GUI build does not ship these Vite backend routes.
+- The standalone build ships all routes but is not an authenticated public
+  service. Non-loopback binding requires an explicit insecure acknowledgment.
 
 ## Proposed Work
 
-The proposals in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md) are
-not current behavior. Extract route composition into a host-neutral Node
-application with a standalone production entry point; retain Vite only as a
+The remaining proposals in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md)
+are not current behavior. Add authentication, workspace authorization, CORS,
+quotas, and storage-level concurrency control; retain Vite only as a
 development host.
 
 Publish runtime-validated `/api/v1` contracts and generated OpenAPI. Authenticate

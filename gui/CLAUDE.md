@@ -11,10 +11,11 @@ npm run dev:no-db    # Skip docker postgres; just run vite (Mutations tab will s
 npm run db:up        # Start the postgres container (docker compose up -d db)
 npm run db:down      # Stop & remove the container (postgres volume persists)
 npm run db:logs      # Tail postgres container logs
-npm run build        # Type-check (tsc -b) then build static dist/ (includes structures/)
+npm run build        # Type-check and build dist/ plus dist-server/server.js
+npm start            # Run the built loopback standalone GUI + API server
 npm run typecheck    # Type-check only
 npm run lint         # ESLint
-npm run preview      # Serve the built dist/ locally
+npm run preview      # Frontend-only Vite preview (no APIs)
 ```
 
 `scripts/dev.mjs` is the smart launcher: if `DATABASE_URL` is set it skips
@@ -511,7 +512,7 @@ wiped by Clear / input-switch.
 On Run, `buildFastaContent()` assembles a valid FASTA string from the
 non-empty chain boxes (60-char-wrapped lines, `>{inputBase}_{chainId}`
 headers) and ships it as `fastaContent` in the request body. The
-backend (`/api/dvbfixer/:command` route in `server/api-plugin.ts`)
+backend (`/api/dvbfixer/:command` route in `server/api-routes.ts`)
 writes the content to `<outDir>/<inputBase>.fasta` and injects
 `--fasta <abspath>` into the CLI args — overriding any user-typed
 `--fasta` value. The materialised FASTA stays beside the output PDB so
@@ -523,7 +524,7 @@ Alert tells the user to load the structure first; they can still leave
 the boxes empty and let DVBFixer fall back to SEQRES from the input
 PDB.
 
-**Backend** (`server/api-plugin.ts`, a Vite middleware plugin):
+**Backend** (`server/api-routes.ts`, shared Node route composition):
 - `GET /api/dvbfixer-spec` — returns `COMMANDS` from `server/dvbfixer-spec.ts`.
 - `POST /api/jobs` starts a workspace-scoped DVBFixer job. `GET /api/jobs`
   restores active jobs after a panel reload, job detail/events report status
@@ -547,7 +548,7 @@ PDB.
 - `FlagDef.type`: `'bool' | 'number' | 'text' | 'select'`
 - `FlagDef.repeatable: true` — comma-split UI input becomes `--flag v1 --flag v2 --flag v3` (used by `--mutate`).
 - `FlagDef.multi: true` — value is whitespace-split and emitted as a single `--flag v1 v2 v3` (argparse `nargs='+'`). Works with both `type: 'text'` and `type: 'select'`; the latter lets a dropdown preset like `"amber19/protein.ff19SB.xml amber19/tip3p.xml"` resolve to the right multi-arg CLI form. Used by `--ff` (minimize + protonate).
-- Empty string in any `select`'s `options` is preserved as the "default" choice and the backend (`api-plugin.ts:202`) drops empty values before arg-building, so DVBFixer's built-in defaults apply.
+- Empty string in any `select`'s `options` is preserved as the "default" choice and the backend drops empty values before arg-building, so DVBFixer's built-in defaults apply.
 
 ### Mutations Panel + PostgreSQL
 
@@ -735,7 +736,7 @@ subclasses with hinge-length gaps that can't be indexed by simple offset.
   final `status: 'complete'` event and close.
 
 **SSE route** (`POST /api/antibody-engineer/run`, in
-`server/api-plugin.ts`). Body: `{ inputFile, mutationIds, equivalentChainsMap,
+`server/api-routes.ts`). Body: `{ inputFile, mutationIds, equivalentChainsMap,
 hasGlycan, scheme }`. Headers: `Content-Type: text/event-stream` +
 `Cache-Control: no-cache` + `X-Accel-Buffering: no` (via the exported
 `writeSSEHeaders` helper). Each event is one `data: <JSON>\n\n` chunk
@@ -941,7 +942,9 @@ src/
     residue-color-theme.ts      # Mol* ColorTheme: carbons by residue class, others CPK
 
 server/
-  api-plugin.ts                 # Vite middleware: managed DVBFixer jobs, mutations, workspace APIs, antibody engineering, and status routes.
+  api-routes.ts                 # Host-neutral composition: jobs, mutations, workspaces, naming, antibody engineering, and status routes
+  api-plugin.ts                 # Thin Vite development adapter over api-routes
+  standalone.ts                 # Loopback-default Node HTTP + static client host
   workspace-api.ts              # Revisioned workspace/artifact CRUD, contained file serving, recoverable trash, and legacy-index migrations
   homology-api.ts               # Homology project persistence; writes CLI template plans and registers run artifacts
   antibody-pipeline.ts          # Multi-step DVBFixer orchestrator: expandMutations, validateNoDuplicateTargets, pipelineSteps, checksum dedup, and workspace artifact registration.

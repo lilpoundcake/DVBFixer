@@ -1,9 +1,11 @@
 # DVBFixer API
 
-DVBFixer exposes an initial versioned HTTP operation through the GUI's Node/Vite
-server. The current route is a development and local-workspace boundary, not yet
-a standalone production service: authentication, principal-to-workspace
-authorization, CORS policy, and multi-instance locking remain planned work.
+DVBFixer exposes an initial versioned HTTP operation through a host-neutral Node
+route composition shared by the Vite development adapter and the bundled
+standalone server. The standalone host is a local-workspace boundary, not yet an
+internet-facing production service: authentication, principal-to-workspace
+authorization, CORS policy, quotas, and multi-instance locking remain planned
+work.
 
 The OpenAPI 3.1 document is available at:
 
@@ -87,3 +89,22 @@ The JSON body uses the shared 2 MiB request limit. Naming-specific defaults are:
 The subprocess receives `SIGTERM` on timeout and escalates to `SIGKILL` after a
 short grace period. Failed operation directories move below `runs/_failed` and
 are never registered as visible artifacts.
+
+## Standalone Host
+
+From `gui/`, build and start the browser client and API together:
+
+```bash
+npm run build
+npm start
+```
+
+The server defaults to `127.0.0.1:5173`, serves only the built `dist/` tree as
+static content, and keeps workspace files behind contained API routes. Unknown
+`/api/*` paths return JSON `404` responses rather than the SPA shell. Shutdown
+stops accepting requests, cancels tracked DVBFixer subprocesses with signal
+escalation, drains HTTP work, and then closes PostgreSQL.
+
+Remote binding requires `DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit
+acknowledgment. It remains unsupported for untrusted networks until the planned
+security controls are implemented.

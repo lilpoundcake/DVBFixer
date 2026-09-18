@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { ViteDevServer } from 'vite'
 import crypto from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import fs from 'node:fs'
@@ -7,6 +6,7 @@ import path from 'node:path'
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import { loadWorkspace, saveWorkspace, workspaceRoot, writeJsonAtomic } from './workspace-api'
 import { errorStatus, readRequestBody } from './request-body'
+import type { ApiRouteHost } from './http-types'
 
 export interface TemplateSelection {
   id: string
@@ -555,7 +555,7 @@ async function structurallyAlignGroups(root: string, project: HomologyProject): 
   return saveHomologyProject(root, { ...project, templates, structuralAlignment: outputs })
 }
 
-export function registerHomologyApi(server: ViteDevServer, root: string): void {
+export function registerHomologyApi(server: ApiRouteHost, root: string): void {
   server.middlewares.use('/api/homology', async (req, res, next) => {
     try {
       const requestUrl = new URL(req.url || '/', 'http://localhost')

@@ -1,5 +1,8 @@
 # LLM-oriented domain documentation roadmap
 
+Completion status is tracked in the canonical
+[implementation checklist](implementation-checklist.md).
+
 Status: implemented; future additions are demand-driven maintenance.
 
 This roadmap applies selected Domain-Driven Design practices to create a compact

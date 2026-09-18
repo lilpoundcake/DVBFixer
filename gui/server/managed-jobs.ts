@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { ViteDevServer } from 'vite'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -7,6 +6,7 @@ import { buildArgs } from './command-args'
 import { COMMANDS } from './dvbfixer-spec'
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import { errorStatus, readRequestBody } from './request-body'
+import type { ApiRouteHost } from './http-types'
 import {
   loadWorkspace, resolveWorkspaceFile, saveWorkspace, workspaceRoot, writeJsonAtomic,
 } from './workspace-api'
@@ -43,6 +43,20 @@ export interface ManagedJobRequest {
 interface ActiveRun { owner: string; controller?: AbortController }
 const activeRuns = new Map<string, ActiveRun>()
 const subscribers = new Map<string, Set<ServerResponse>>()
+let acceptingManagedJobs = true
+
+export function resetManagedJobAdmission(): void {
+  acceptingManagedJobs = true
+}
+
+export function shutdownManagedJobs(): void {
+  acceptingManagedJobs = false
+  for (const run of activeRuns.values()) run.controller?.abort()
+  for (const responses of subscribers.values()) {
+    for (const response of responses) response.end()
+  }
+  subscribers.clear()
+}
 
 function httpError(statusCode: number, message: string): Error & { statusCode: number } {
   const error = new Error(message) as Error & { statusCode: number }
@@ -235,6 +249,7 @@ async function executeJob(
 }
 
 export function createManagedJob(dataRoot: string, request: ManagedJobRequest): ManagedJobRecord {
+  if (!acceptingManagedJobs) throw httpError(503, 'server is shutting down')
   if (!request.workspaceId) throw httpError(400, 'workspaceId is required')
   if (typeof request.command !== 'string' || !request.command.trim()) {
     throw httpError(400, 'command is required')
@@ -276,7 +291,7 @@ function sendJson(response: ServerResponse, status: number, body: unknown): void
   response.end(JSON.stringify(body))
 }
 
-export function registerManagedJobApi(server: ViteDevServer, dataRoot: string): void {
+export function registerManagedJobApi(server: ApiRouteHost, dataRoot: string): void {
   server.middlewares.use('/api/jobs', async (request: IncomingMessage, response: ServerResponse, next) => {
     try {
       const url = new URL(request.url || '/', 'http://localhost')

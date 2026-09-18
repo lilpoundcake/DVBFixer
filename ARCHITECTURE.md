@@ -1255,5 +1255,12 @@ by manifest artifact ID, invokes the non-destructive Python `atom-names` command
 validates its bounded JSON report and output digest, then re-reads the latest
 manifest before registering exactly one output. `naming-api-schema.ts` is the
 shared TypeBox source for runtime validation and `GET /api/v1/openapi.json`.
-Scientific naming policy remains in Python. The Vite host is not yet a
-production server and does not provide authentication or cross-process locking.
+Scientific naming policy remains in Python.
+
+`gui/server/api-routes.ts` is the host-neutral API composition root.
+`api-plugin.ts` is a thin Vite development adapter, while `standalone.ts` uses
+Node HTTP and Connect to serve the complete API plus the built `dist/` client.
+The standalone process defaults to loopback, rejects overlapping static/data
+roots, terminates tracked DVBFixer children during shutdown, drains HTTP, then
+closes PostgreSQL. It is single-process and does not yet provide authentication,
+authorization, CORS, quotas, or cross-process workspace locking.

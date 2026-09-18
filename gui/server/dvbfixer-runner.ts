@@ -1,5 +1,24 @@
 import { spawn } from 'node:child_process'
 
+interface ActiveProcess {
+  terminate(reason: string): void
+  completed: Promise<void>
+}
+
+const activeProcesses = new Set<ActiveProcess>()
+let acceptingProcesses = true
+
+export function resetDvbfixerProcessAdmission(): void {
+  acceptingProcesses = true
+}
+
+export async function shutdownDvbfixerProcesses(): Promise<void> {
+  acceptingProcesses = false
+  const processes = [...activeProcesses]
+  for (const process of processes) process.terminate('DVBfixer run stopped by server shutdown')
+  await Promise.all(processes.map(process => process.completed))
+}
+
 export interface DvbfixerRunOptions {
   timeoutMs?: number
   maxOutputBytes?: number
@@ -34,6 +53,9 @@ export function runDvbfixerArgs(
   cwd = process.cwd(),
   options: DvbfixerRunOptions = {},
 ): Promise<{ code: number; stdout: string; stderr: string }> {
+  if (!acceptingProcesses) {
+    return Promise.resolve({ code: -1, stdout: '', stderr: 'DVBfixer server is shutting down' })
+  }
   const { executable, prefix } = commandConfiguration()
   const commandArgs = [...prefix, command, ...args]
   const timeoutMs = options.timeoutMs ?? Number(process.env.DVBFIXER_TIMEOUT_MS || 30 * 60_000)
@@ -45,12 +67,19 @@ export function runDvbfixerArgs(
     let settled = false
     let terminationReason = ''
     let killTimer: ReturnType<typeof setTimeout> | undefined
+    let completeProcess: (() => void) | undefined
+    const active: ActiveProcess = {
+      terminate: reason => terminate(reason),
+      completed: new Promise<void>(completed => { completeProcess = completed }),
+    }
     const finish = (code: number) => {
       if (settled) return
       settled = true
       clearTimeout(timer)
       if (killTimer) clearTimeout(killTimer)
       options.signal?.removeEventListener('abort', abort)
+      activeProcesses.delete(active)
+      completeProcess?.()
       resolve({ code, stdout, stderr: terminationReason ? `${stderr}\n${terminationReason}`.trim() : stderr })
     }
     const terminate = (reason: string) => {
@@ -69,6 +98,7 @@ export function runDvbfixerArgs(
     }
     const abort = () => terminate('DVBfixer run cancelled')
     const timer = setTimeout(() => terminate(`DVBfixer run timed out after ${timeoutMs} ms`), timeoutMs)
+    activeProcesses.add(active)
     options.signal?.addEventListener('abort', abort, { once: true })
     if (options.signal?.aborted) abort()
     child.stdout.on('data', (data: Buffer) => { stdout = appendBounded(stdout, data, maxOutputBytes) })

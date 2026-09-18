@@ -141,8 +141,9 @@ helper. Treat this as a known backend discrepancy.
 - Nucleic-acid terminal hydroxyl naming is not fully validated.
 - `--atom-naming standard` suppresses shifts; it is not a reverse converter.
 - The `tleap-reduce` early-return paths still bypass the final naming adapter.
-- The HTTP adapter is Vite-hosted and unauthenticated; production hosting,
-  authorization, and cross-process locking are not implemented.
+- The HTTP adapter is available through Vite and the standalone local host but
+  remains unauthenticated; authorization and cross-process locking are not
+  implemented.
 
 ## Proposed Work
 

@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist-server
 *.local
 
 # Vendored DVBFixer install (cloned by the user, not part of this repo)

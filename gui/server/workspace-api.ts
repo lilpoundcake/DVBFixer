@@ -1,11 +1,11 @@
 import type { ServerResponse } from 'node:http'
-import type { ViteDevServer } from 'vite'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { Readable } from 'node:stream'
 import zlib from 'node:zlib'
 import { errorStatus, MAX_UPLOAD_BODY_BYTES, readRequestBody } from './request-body'
+import type { ApiRouteHost } from './http-types'
 
 export interface WorkspaceArtifact {
   id: string
@@ -735,7 +735,7 @@ export function listWorkspaces(dataRoot: string): WorkspaceManifest[] {
   })
 }
 
-export function registerWorkspaceApi(server: ViteDevServer, dataRoot: string): void {
+export function registerWorkspaceApi(server: ApiRouteHost, dataRoot: string): void {
   ensureRetiredWorkspaceIndexMigration(dataRoot)
   server.middlewares.use('/api/workspaces', async (req, res, next) => {
     try {

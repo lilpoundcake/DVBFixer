@@ -1,8 +1,9 @@
 # DVBfixer GUI
 
 Local graphical workspace for DVBfixer, protein structures, multiple alignment,
-and homology modeling. It runs in the browser with a Node-side development
-backend and an optional PostgreSQL-backed mutations table.
+and homology modeling. It runs in the browser with a Node backend hosted by
+Vite during development or by the bundled standalone server, plus an optional
+PostgreSQL-backed mutations table.
 
 The backend invokes `dvbfixer` from `PATH` by default. Configure an alternate
 binary with `DVBFIXER_EXECUTABLE` and an optional fixed JSON argument array in
@@ -167,6 +168,8 @@ so subsequent runs are instant.
 | `npm run db:up`     | Start the postgres container                          |
 | `npm run db:down`   | Stop & remove the container (volume persists)         |
 | `npm run db:logs`   | Tail postgres logs                                    |
+| `npm run build`     | Build the browser client and standalone Node server   |
+| `npm start`         | Serve the built client and APIs on one local origin   |
 
 **Override** the auto-setup by exporting `DATABASE_URL` yourself before
 `npm run dev` — the script detects an existing value and skips Docker:
@@ -207,7 +210,8 @@ Other models and biological assemblies remain available through Mol* controls.
 
 React 19, TypeScript 6, Vite 6, Mol*, MUI (Material UI v9, plus
 `@mui/x-data-grid`), flexlayout-react, Zustand. PostgreSQL via `pg`
-(loaded lazily; optional). Vite middleware backend (`server/api-plugin.ts`).
+(loaded lazily; optional). Host-neutral API composition is in
+`server/api-routes.ts`; Vite and the standalone Node server are adapters.
 
 ## Panels
 
@@ -305,16 +309,31 @@ routes are not served.
 npm run build
 ```
 
-Output goes to `dist/`. Serve it with any static file server:
+The browser client is written to `dist/` and the Node server bundle to
+`dist-server/server.js`. Start both the GUI and API on one origin with:
 
 ```
-npx serve dist
+npm start
 ```
 
-Note: the production build is **viewer-only**. The DVBFixer and Mutations
-backends are dev-time Vite middleware in `server/api-plugin.ts` — they
-don't ship in the static build. To run those in production, host a Node
-server that re-uses the plugin (or port the routes).
+The standalone server defaults to `127.0.0.1:5173`. Configuration:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DVBFIXER_HOST` | `127.0.0.1` | Listen address |
+| `DVBFIXER_PORT` | `5173` | Listen port |
+| `DVBFIXER_GUI_DATA_DIR` | `<gui>/structures` | Workspace storage |
+| `DVBFIXER_STATIC_DIR` | `<gui>/dist` | Built browser client |
+| `DVBFIXER_SHUTDOWN_GRACE_MS` | `10000` | HTTP drain deadline |
+
+Non-loopback binding is rejected unless
+`DVBFIXER_ALLOW_INSECURE_REMOTE=1` is set explicitly. This acknowledgment does
+not add security: authentication, workspace authorization, CORS, quotas, and
+multi-instance locking are not implemented. Use the standalone server only on
+a trusted local host until those controls ship. Loopback mode also rejects
+non-loopback HTTP `Host` headers to prevent DNS rebinding from bypassing the
+local-only boundary. `npm run preview` remains a frontend-only Vite preview and
+does not host the APIs.
 
 ## Notes
 
