@@ -1,11 +1,14 @@
 schema_version = 1
 verified_on = "2026-09-18"
-verified_at_commit = "425f290eb85760246766f1d1500e51672c640b2d"
+verified_at_commit = "5478403ee139cb8e4245e84eef1ed3927417e863"
 
 [change_groups.protein-variant-identity]
 parallel_policy = "exclusive-owner"
 reason = "Residue identity, variant restoration, hydrogen placement, and sidecar semantics must remain synchronized."
 files = [
+  "src/dvbfixer/domain/__init__.py",
+  "src/dvbfixer/domain/force_field_naming.py",
+  "src/dvbfixer/force_field_naming.py",
   "src/dvbfixer/ffutils/ff_names.py",
   "src/dvbfixer/ffutils/variants.py",
   "src/dvbfixer/ffutils/dat.py",
@@ -21,8 +24,9 @@ files = [
 status = "partial"
 context = "docs/agent/contexts/force-field-naming.md"
 start = [
+  "src/dvbfixer/force_field_naming.py::convert_force_field_naming",
+  "src/dvbfixer/domain/force_field_naming.py::atom_name_policy",
   "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text",
-  "src/dvbfixer/ffutils/ff_names.py::_effective_amber_rename_map",
 ]
 callers = [
   "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
@@ -36,16 +40,18 @@ invariants = [
   "INV-IDENTITY-ICODE",
   "INV-NAMING-IDEMPOTENT",
   "INV-NAMING-NO-COLLISION",
+  "INV-NAMING-MODEL-POLICY",
 ]
 change_group = "protein-variant-identity"
 test_files = [
+  "tests/test_force_field_naming.py",
   "tests/test_ff_names.py",
   "tests/test_variants_gromacs_lyn.py",
   "tests/test_prepare_icode_variants.py",
   "tests/test_terminal_caps.py",
 ]
 verification = [
-  "pytest -q tests/test_ff_names.py tests/test_variants_gromacs_lyn.py tests/test_prepare_icode_variants.py tests/test_terminal_caps.py",
+  "pytest -q tests/test_force_field_naming.py tests/test_ff_names.py tests/test_variants_gromacs_lyn.py tests/test_prepare_icode_variants.py tests/test_terminal_caps.py tests/test_scientific_domain.py",
 ]
 
 [tasks.add-public-command]

@@ -1,6 +1,7 @@
 # DVBFixer API roadmap
 
-Status: proposed, not implemented.
+Status: implementation in progress. The Phase 1 pure naming service is
+implemented; dedicated CLI and HTTP adapters are not.
 
 This plan turns the existing local GUI middleware into a supported,
 versioned HTTP API. The first vertical slice is conversion of PDB atom and
@@ -225,24 +226,28 @@ Stable error codes should include `INVALID_VARIANT`, `NAMING_COLLISION`,
 
 ### Python application boundary
 
-Refactor the current file-mutating helper behind typed, transport-independent
-contracts. Names are illustrative and should be finalized during implementation.
+The file-mutating helper now delegates to these typed, transport-independent
+contracts (abridged here):
 
 ```python
 @dataclass(frozen=True)
 class NamingConversionRequest:
     pdb_text: str
-    target_force_field: Literal["amber", "charmm"]
-    target_profile: Literal["gromacs"]
+    target: ForceFieldTarget
+    profile: NamingProfile = NamingProfile.GROMACS
     variant_overrides: tuple[VariantOverride, ...] = ()
 
 @dataclass(frozen=True)
 class NamingConversionResult:
     pdb_text: str
-    changes: tuple[NamingChange, ...]
+    model: int
+    changes: tuple[CoordinateNamingChange, ...]
+    summary: NamingConversionSummary
     diagnostics: tuple[NamingDiagnostic, ...]
 
-def convert_pdb_naming(request: NamingConversionRequest) -> NamingConversionResult:
+def convert_force_field_naming(
+    request: NamingConversionRequest,
+) -> NamingConversionResult:
     ...
 ```
 
@@ -262,22 +267,23 @@ Required design properties:
 
 ### Correctness work required before exposure
 
-Treat these as API blockers rather than documenting current accidental
-behavior as a public contract:
+These were identified as API blockers. Phase 1 resolved items 1-6 and 9 in the
+pure service; items 7-8 remain before broader workflow exposure:
 
-1. Add model-aware terminal detection or reject multi-model input.
-2. Detect source and target atom-name collisions per residue.
-3. Define and test `ANISOU` and `TER` consistency when corresponding atom or
+1. **Implemented:** reject multi-model input before conversion.
+2. **Implemented:** detect source and target atom-name collisions per residue.
+3. **Implemented:** update correlated `ANISOU` and parseable full `TER` labels when corresponding atom or
    residue names change.
-4. Make CHARMM four-character residue parsing and repeat conversion idempotent.
-5. Make CHARMM `LYN`/`LSN` hydrogen-pair conversion idempotent.
-6. Remove ambiguous two-tuple variant fallback from the new public service;
+4. **Implemented:** make CHARMM four-character residue parsing and repeat conversion idempotent.
+5. **Implemented:** make CHARMM `LYN`/`LSN` hydrogen-pair conversion idempotent.
+6. **Implemented:** remove ambiguous two-tuple variant fallback from the new public service;
    preserve insertion codes explicitly.
 7. Add end-to-end tests for nucleic-acid names and document unverified terminal
    5-prime/3-prime hydroxyl cases as unsupported until validated.
 8. Decide whether the `tleap-reduce` preparation backend must honor the same
    naming option. Current early returns bypass the final naming helper.
-9. Ensure failures leave both source and destination untouched.
+9. **Implemented:** ensure service failures produce no transformed result and
+   compatibility-adapter failures leave the source untouched.
 
 ### CLI adapter
 
@@ -366,6 +372,12 @@ Exit criterion: current behavior and intended V1 behavior are distinguishable
 in tests and ADRs.
 
 ### Phase 1: naming application service
+
+Core status: implemented on 2026-09-18 in
+`dvbfixer.force_field_naming.convert_force_field_naming`, with typed domain
+vocabulary in `dvbfixer.domain.force_field_naming` and the existing in-place
+helper retained as an atomic compatibility adapter. Dedicated CLI/HTTP exposure
+remains in later phases.
 
 - Introduce typed request/result/diagnostic models.
 - Extract a pure conversion function from `apply_variants_to_pdb_text`.

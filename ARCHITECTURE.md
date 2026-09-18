@@ -5,9 +5,14 @@
 `domain/structure_identity.py` owns immutable identity vocabulary and chain-ID
 allocation used by Split. `domain/parameterization.py` defines routing policy;
 `lig_params.py` uses it to reject unsupported complex cofactors from generic
-GAFF. File parsing, topology construction, atom matching, and minimization
-remain in their existing adapters and pipelines. These are focused uses of
-domain-driven design (DDD), not a completed domain-layer migration.
+GAFF. `domain/force_field_naming.py` owns naming vocabulary and policy, while
+`force_field_naming.py` provides the pure PDB text conversion service with
+typed request/result/error contracts. `ffutils/ff_names.py` is the atomic
+in-place compatibility adapter used by existing pipelines. Naming changes
+representation only and does not establish force-field template or bond
+compatibility. Topology construction, atom matching, and minimization remain in
+their existing adapters and pipelines. These are focused uses of domain-driven
+design (DDD), not a completed domain-layer migration.
 
 OpenMM is the current minimizer. The optional xtb/OpenBabel passes run after it;
 `legacy` and `tleap-reduce` select preparation, not minimization. There is no
@@ -25,6 +30,9 @@ src/dvbfixer/
 ├── cli.py              103 lines   — single entry point, dispatches to subcommand main()
 ├── command_registry.py            — authoritative public command/module/category/batch/output metadata
 ├── cli_types.py                   — shared argparse numeric and structured-selector validators
+├── force_field_naming.py          — pure typed PDB naming conversion application service
+├── domain/                        — scientific value objects and policies: structure identity,
+│                                     parameterization routing, and force-field naming
 ├── __init__.py          24 lines   — __version__, MDAnalysis warning filters
 │
 │   STRUCTURE PREP PIPELINE (composable subcommands)

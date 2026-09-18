@@ -1,12 +1,13 @@
 schema_version = 1
 verified_on = "2026-09-18"
-verified_at_commit = "425f290eb85760246766f1d1500e51672c640b2d"
+verified_at_commit = "5478403ee139cb8e4245e84eef1ed3927417e863"
 
 [contracts.pdb-force-field-naming]
 status = "partial"
-owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
-description = "In-place fixed-column PDB rewrite that restores protonation variants and applies target force-field atom naming."
+owner = "src/dvbfixer/force_field_naming.py::convert_force_field_naming"
+description = "Pure PDB text conversion with typed target/override input, preflight validation, structured per-atom changes, stable errors, and a transformed-text result."
 producers = [
+  "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text",
   "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
   "src/dvbfixer/minimize/pipeline.py::minimize",
   "src/dvbfixer/protonate.py::main",
@@ -15,20 +16,20 @@ consumers = [
   "src/dvbfixer/top/pipeline.py::main",
   "external GROMACS tooling",
 ]
-identity_keys = ["chain", "residue_number", "insertion_code", "atom_name"]
-source_mutation = "The current helper rewrites its input path in place."
-commit_behavior = "The current helper writes the complete transformed text only when at least one line changes; it is not an atomic replace."
-failure_behavior = "Validation is limited; target-name collisions and cross-MODEL terminal classification are not rejected."
+identity_keys = ["model", "chain", "residue_number", "insertion_code", "alternate_location", "atom_name"]
+source_mutation = "The pure service does not mutate its input; the legacy path adapter atomically replaces its path only after successful conversion."
+commit_behavior = "The service validates the complete naming plan before rendering. The compatibility adapter writes a same-directory temporary file and atomically replaces changed output; no-op conversion performs no write."
+failure_behavior = "Malformed supported records, invalid or ambiguous variants, multiple MODEL blocks, unsupported directions, and target-name collisions raise stable NamingConversionError codes before transformed output is committed."
 test_files = [
+  "tests/test_force_field_naming.py",
   "tests/test_ff_names.py",
   "tests/test_variants_gromacs_lyn.py",
   "tests/test_terminal_caps.py",
 ]
 known_divergences = [
-  "Terminal classification groups by chain but not MODEL.",
-  "ANISOU and TER labels are not rewritten with corresponding ATOM/HETATM records.",
-  "Four-character CHARMM residue names are not cleanly parsed on a second pass.",
   "The tleap-reduce prepare/protonate early-return paths bypass the final naming helper.",
+  "Terminal nucleic-acid hydroxyl naming remains unverified and is not claimed as supported.",
+  "No dedicated CLI or HTTP adapter exposes the pure service yet.",
 ]
 
 [contracts.dat-record-lifecycle]

@@ -25,9 +25,10 @@ Documents created in this pass:
 - this continuation context
 - [`../agent/`](../agent/) knowledge maps and Force-field Naming context
 
-No scientific production code, CLI arguments, or generated references were
-changed. Documentation validation, its focused test, and the lightweight CI
-check were added.
+The initial planning pass changed no scientific production code. The follow-up
+DDD slice now implements the pure naming application service and legacy file
+adapter described below. CLI arguments and generated references remain
+unchanged; documentation validation and its lightweight CI check remain active.
 
 ## Verified current state
 
@@ -51,16 +52,15 @@ Important distinction:
 - It does not perform GROMACS-compatible atom naming.
 - Do not expose or rename that operation as the planned naming conversion.
 
-### Known naming risks found during discovery
+### Naming risks and implementation status
 
-- Terminal detection is chain-aware but not `MODEL`-aware.
-- Public two-tuple variant keys can match insertion-code siblings through a
-  fallback; new contracts must require insertion code explicitly.
-- Target atom-name collisions are not rejected.
-- `ANISOU` and `TER` labels are not rewritten with changed atom/residue labels.
-- Four-character CHARMM residue names are written through a PDB compromise but
-  later parsing reads the three-character slice, threatening idempotence.
-- CHARMM `LYN` to `LSN` atom-pair conversion is not safely repeatable.
+- The pure service rejects multiple `MODEL` blocks before conversion.
+- The pure service requires typed three-field residue identity. The legacy
+  wrapper accepts two-tuples only as exact blank-insertion-code identities.
+- Target atom-name collisions are rejected during preflight validation.
+- Correlated `ANISOU` and parseable full `TER` labels are updated consistently.
+- Four-character CHARMM residue names and `LYN` to `LSN` atom-pair conversion
+  are idempotent under repeated conversion with the same overrides.
 - End-to-end nucleic-acid naming coverage is incomplete; terminal hydroxyl
   cases are explicitly unverified.
 - `standard` suppresses shifts; it is not a reverse conversion from existing
@@ -144,9 +144,6 @@ Decisions still requiring maintainer agreement:
 - Final command name (`atom-names` is only a candidate).
 - Runtime schema/OpenAPI library for the TypeScript server.
 - Authentication model and principal-to-workspace authorization.
-- Whether multi-model PDB is supported in V1 or rejected.
-- Exact convention for four-character CHARMM residue names.
-- Whether `ANISOU` and `TER` are rewritten or unsupported when affected.
 - Whether direct upload/download conversion is needed in V1 or only after the
   workspace-artifact vertical slice.
 - Whether explicit variant overrides are accepted inline, by JSON artifact, or
@@ -154,30 +151,30 @@ Decisions still requiring maintainer agreement:
 
 ## Recommended next implementation session
 
-Start with Phase 0 and Phase 1 of the API roadmap, not the HTTP route.
+Continue with Phase 2 of the API roadmap, then the versioned HTTP route.
 
-1. Read `docs/plans/api-roadmap.md` and accept or revise the open decisions.
-2. Write ADRs for the naming boundary, command name, Node/Python split, and
-   multi-model policy.
-3. Add failing tests for model awareness, collisions, insertion codes,
-   four-character CHARMM idempotence, and record consistency.
-4. Extract `convert_pdb_naming` as a pure function with typed request/result,
-   per-change records, and diagnostics.
-5. Keep `apply_variants_to_pdb_text` as a compatibility wrapper while migrating
-   prepare/minimize/protonate incrementally.
-6. Run focused tests, then the non-slow suite and strict checks.
+1. Record the accepted naming boundary and multi-model policy in an ADR and
+   finalize the dedicated command name.
+2. Add the dedicated non-destructive CLI adapter with explicit input/output,
+   variant JSON, dry-run, and JSON report support.
+3. Register the command and regenerate CLI/GUI specifications.
+4. Add subprocess-level tests proving source preservation and no destination on
+   unsafe input.
+5. Build the workspace-scoped `/api/v1` route over that application/command
+   boundary, never over the in-place compatibility wrapper.
+6. Run focused command and naming tests plus generated-file checks.
 
-Do not begin by adding an HTTP handler around
-`apply_variants_to_pdb_text`. Its in-place behavior, weak result contract, and
-known edge cases are unsuitable as a public API boundary.
+Do not add an HTTP handler around `apply_variants_to_pdb_text`. It remains an
+in-place compatibility adapter; public adapters must use the pure naming
+application boundary and create a new output artifact.
 
 ## Likely code touch points
 
 Python core and CLI:
 
+- `src/dvbfixer/domain/force_field_naming.py`
+- `src/dvbfixer/force_field_naming.py`
 - `src/dvbfixer/ffutils/ff_names.py`
-- a new naming application module, location to be decided after the bounded
-  context ADR
 - `src/dvbfixer/command_registry.py`
 - `src/dvbfixer/cli.py`
 - `src/dvbfixer/prepare/pipeline.py`
@@ -256,5 +253,8 @@ For documentation-only changes, validate relative Markdown links and inspect
 - Agent-map foundation, seven contexts, core artifact contracts, high-risk task
   groups, and cross-cutting invariants: implemented.
 - Continuation context: complete.
-- API implementation: not started.
-- Accepted API ADRs: not started; create only after decisions are approved.
+- API implementation: Phase 1 pure naming application service implemented;
+  dedicated CLI and HTTP adapters not started.
+- Accepted API ADRs: not started; the implemented service establishes the
+  technical naming boundary and V1 multi-model policy, which should be recorded
+  before the public command ships.

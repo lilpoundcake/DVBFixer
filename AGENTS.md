@@ -670,7 +670,10 @@ The full suite needs the scientific stack and external executables from
   time budget allow.
 
 - **Domain policies are partially integrated.** Reuse `domain.structure_identity`
-  for chain allocation and `domain.parameterization` for ligand routing. A
+  for chain allocation, `domain.parameterization` for ligand routing, and
+  `domain.force_field_naming` plus the pure `force_field_naming` application
+  service for residue/atom naming. Keep path mutation in the legacy adapter and
+  future workspace/artifact concerns outside the scientific service. A
   geometry-regularization backend is proposed research, not a shipped feature;
   see [the research note](docs/research/whole-complex-relaxation.md).
 - **Empirical Split preserves input atom serials.** Never reserialize atoms

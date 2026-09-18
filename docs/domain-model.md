@@ -53,14 +53,39 @@ to a force-field template.
 Gemmi, OpenMM, Open Babel, OpenFF, and AmberTools are adapters around these
 decisions, not part of the domain model.
 
+## Force-field naming
+
+`dvbfixer.domain.force_field_naming` owns target/profile vocabulary, explicit
+variant identity, naming rules, mapping policy, and stable conversion error
+codes. `dvbfixer.force_field_naming.convert_force_field_naming` is the pure
+application service: it accepts PDB text and typed options, validates the whole
+conversion plan, and returns transformed text with per-atom changes, summary
+counts, diagnostics, and model identity.
+
+Explicit overrides take precedence over recognized source variants. Canonical
+names such as `HIS` never cause the service to invent a protonation state.
+Residue identity preserves case-sensitive chain ID, residue number, and
+insertion code; reports additionally preserve model, alternate location, atom
+serial, and atom name. V1 rejects multi-model input before rendering, rejects
+target-name collisions, and keeps four-character CHARMM and LYN/LSN conversion
+idempotent. Naming conversion changes representation only: it does not select
+protonation, parameterize a molecule, or prove force-field template/bond
+compatibility.
+
+Existing prepare, minimize, and protonate callers use
+`ffutils.ff_names.apply_variants_to_pdb_text`, an atomic in-place compatibility
+adapter over the pure service. A future API adapter will create a new workspace
+artifact instead of using this mutating wrapper.
+
 ## Integration limits
 
-DDD is partially integrated: chain allocation and the complex-cofactor routing
-guard are active callers of the domain policies. The five route names are a
-policy vocabulary, not five completed backend implementations. Unknown-residue
-screening currently uses the loaded template names; OpenMM subsequently checks
-atom/bond compatibility. The presence of an XML template name therefore does
-not establish that an incomplete or differently bonded residue can be used.
+DDD is partially integrated: chain allocation, the complex-cofactor routing
+guard, and force-field naming are active domain/application boundaries. The
+five parameterization route names are a policy vocabulary, not five completed
+backend implementations. Unknown-residue screening currently uses the loaded
+template names; OpenMM subsequently checks atom/bond compatibility. The
+presence of an XML template name therefore does not establish that an
+incomplete or differently bonded residue can be used.
 
 There is no general component-completeness validator, metal/redox-state resolver,
 or domain service for whole-complex geometry regularization. PDB multi-residue

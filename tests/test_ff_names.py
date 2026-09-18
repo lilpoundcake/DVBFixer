@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from dvbfixer.domain.force_field_naming import NamingConversionError, NamingErrorCode
 from dvbfixer.ffutils import create_forcefield_with_openff
 from dvbfixer.ffutils.ff_names import (
     PROTONATION_AMBER_TO_CHARMM,
@@ -330,3 +331,85 @@ def test_two_chain_nterminal_detection_per_chain(tmp_path: Path) -> None:
     # BOTH chains' first residue should have H → H1.
     assert " H1  ALA A   1" in text
     assert " H1  ALA B   1" in text
+
+
+def test_legacy_two_tuple_does_not_match_insertion_code_sibling(tmp_path: Path) -> None:
+    pdb = tmp_path / "in.pdb"
+    pdb.write_text(
+        "ATOM      1  N   HIS A   7      10.000  10.000  10.000  1.00  0.00           N\n"
+        "ATOM      2  N   HIS A   7B     11.000  10.000  10.000  1.00  0.00           N\n"
+    )
+    apply_variants_to_pdb_text(
+        pdb, {("A", "7"): "HIE"}, target_ff="amber", include_gromacs_shifts=False
+    )
+    lines = pdb.read_text().splitlines()
+    assert lines[0][17:20].strip() == "HIE"
+    assert lines[1][17:20].strip() == "HIS"
+
+
+def test_validation_failure_leaves_source_untouched(tmp_path: Path) -> None:
+    pdb = tmp_path / "in.pdb"
+    source = (
+        "ATOM      1  HB1 LYS A   1      10.000  10.000  10.000  1.00  0.00           H\n"
+        "ATOM      2  HB3 LYS A   1      11.000  10.000  10.000  1.00  0.00           H\n"
+    )
+    pdb.write_text(source)
+    with pytest.raises(NamingConversionError) as caught:
+        apply_variants_to_pdb_text(pdb, {}, target_ff="amber")
+    assert caught.value.code is NamingErrorCode.NAMING_COLLISION
+    assert pdb.read_text() == source
+
+
+def test_noop_does_not_replace_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from dvbfixer.ffutils import ff_names
+
+    pdb = tmp_path / "in.pdb"
+    pdb.write_text("END\n")
+
+    def unexpected_replace(source: str, destination: str | Path) -> None:
+        raise AssertionError(f"unexpected replacement: {source} -> {destination}")
+
+    monkeypatch.setattr(ff_names.os, "replace", unexpected_replace)
+    assert apply_variants_to_pdb_text(pdb, {}) == 0
+
+
+def test_changed_file_uses_same_directory_atomic_replace(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from dvbfixer.ffutils import ff_names
+
+    pdb = tmp_path / "in.pdb"
+    pdb.write_text(_CANONICAL_PDB)
+    replacements: list[tuple[Path, Path]] = []
+    real_replace = ff_names.os.replace
+
+    def recording_replace(source: str, destination: str | Path) -> None:
+        replacements.append((Path(source), Path(destination)))
+        real_replace(source, destination)
+
+    monkeypatch.setattr(ff_names.os, "replace", recording_replace)
+    apply_variants_to_pdb_text(
+        pdb,
+        {("A", "5"): "HIE"},
+        target_ff="amber",
+        include_gromacs_shifts=False,
+    )
+    assert replacements == [(replacements[0][0], pdb)]
+    assert replacements[0][0].parent == pdb.parent
+
+
+def test_atomic_replace_preserves_symlink_path(tmp_path: Path) -> None:
+    target = tmp_path / "target.pdb"
+    target.write_text(_CANONICAL_PDB)
+    link = tmp_path / "input.pdb"
+    link.symlink_to(target.name)
+
+    apply_variants_to_pdb_text(
+        link,
+        {("A", "5"): "HIE"},
+        target_ff="amber",
+        include_gromacs_shifts=False,
+    )
+
+    assert link.is_symlink()
+    assert " HIE A   5" in target.read_text()

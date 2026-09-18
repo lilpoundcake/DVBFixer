@@ -1,28 +1,29 @@
 schema_version = 1
 verified_on = "2026-09-18"
-verified_at_commit = "425f290eb85760246766f1d1500e51672c640b2d"
+verified_at_commit = "5478403ee139cb8e4245e84eef1ed3927417e863"
 
 [invariants.INV-NAMING-PRESERVE-STRUCTURE]
 status = "implemented"
 statement = "Force-field naming conversion preserves coordinates, atom serials, occupancy, B-factor, element, chain ID, residue number, and insertion code."
-owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
+owner = "src/dvbfixer/force_field_naming.py::convert_force_field_naming"
 enforcement = [
-  "src/dvbfixer/ffutils/ff_names.py::_rewrite_atom_line",
+  "src/dvbfixer/force_field_naming.py::_rewrite_labels",
+  "src/dvbfixer/force_field_naming.py::convert_force_field_naming",
 ]
 failure_mode = "A representation-only conversion would silently change molecular identity or geometry."
-test_files = ["tests/test_ff_names.py", "tests/test_rename.py"]
-known_exceptions = ["ANISOU and TER consistency is not currently enforced."]
+test_files = ["tests/test_force_field_naming.py", "tests/test_ff_names.py", "tests/test_rename.py"]
+known_exceptions = []
 
 [invariants.INV-NAMING-EXPLICIT-VARIANTS]
 status = "implemented"
 statement = "A canonical residue name such as HIS does not by itself justify inventing a protonation variant."
-owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
+owner = "src/dvbfixer/force_field_naming.py::convert_force_field_naming"
 enforcement = [
-  "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text",
+  "src/dvbfixer/force_field_naming.py::_target_for_atom",
   "src/dvbfixer/ffutils/variants.py::scan_variant_names",
 ]
 failure_mode = "The conversion could choose an unsupported tautomer or protonation state."
-test_files = ["tests/test_ff_names.py"]
+test_files = ["tests/test_force_field_naming.py", "tests/test_ff_names.py"]
 known_exceptions = []
 
 [invariants.INV-IDENTITY-ICODE]
@@ -31,35 +32,45 @@ statement = "Residue-keyed variant data preserves chain, residue number, and ins
 owner = "src/dvbfixer/ffutils/dat.py::DatRecord"
 enforcement = [
   "src/dvbfixer/ffutils/ff_names.py::_split_key",
+  "src/dvbfixer/force_field_naming.py::NamingConversionRequest",
   "src/dvbfixer/ffutils/dat.py::DatRecord",
 ]
 failure_mode = "A variant can be applied to or overwrite an insertion-code sibling."
 test_files = ["tests/test_prepare_icode_variants.py", "tests/test_ff_names.py"]
 known_exceptions = [
-  "apply_variants_to_pdb_text still accepts legacy two-tuple keys and falls back by chain/residue number.",
+  "The compatibility adapter accepts legacy two-tuples as exact blank-insertion-code identities; the pure service accepts only typed three-field identities.",
   "Not every pipeline-local residue map has migrated to a three-part identity.",
 ]
 
 [invariants.INV-NAMING-IDEMPOTENT]
-status = "known-gap"
+status = "implemented"
 statement = "Repeating a naming conversion with the same target produces byte-identical output."
-owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
-enforcement = ["src/dvbfixer/ffutils/ff_names.py::_effective_amber_rename_map"]
-failure_mode = "Repeated pipeline stages can continue renaming atoms or corrupt four-character residue identities."
-test_files = ["tests/test_ff_names.py", "tests/test_variants_gromacs_lyn.py"]
-known_exceptions = [
-  "CHARMM LYN/LSN hydrogen-pair conversion is not safely idempotent.",
-  "Four-character CHARMM residue names are not cleanly parsed by the current three-character read slice.",
+owner = "src/dvbfixer/force_field_naming.py::convert_force_field_naming"
+enforcement = [
+  "src/dvbfixer/domain/force_field_naming.py::atom_name_policy",
+  "src/dvbfixer/force_field_naming.py::_residue_name",
 ]
+failure_mode = "Repeated pipeline stages can continue renaming atoms or corrupt four-character residue identities."
+test_files = ["tests/test_force_field_naming.py", "tests/test_ff_names.py", "tests/test_variants_gromacs_lyn.py"]
+known_exceptions = []
 
 [invariants.INV-NAMING-NO-COLLISION]
-status = "missing"
+status = "implemented"
 statement = "No two source atoms resolve to the same target atom identity during naming conversion."
-owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
-enforcement = []
+owner = "src/dvbfixer/force_field_naming.py::convert_force_field_naming"
+enforcement = ["src/dvbfixer/force_field_naming.py::convert_force_field_naming"]
 failure_mode = "The output can contain duplicate atom names within a residue."
-test_files = []
-known_exceptions = ["The current helper does not validate target-name collisions before writing."]
+test_files = ["tests/test_force_field_naming.py", "tests/test_ff_names.py"]
+known_exceptions = []
+
+[invariants.INV-NAMING-MODEL-POLICY]
+status = "implemented"
+statement = "Naming conversion either isolates every MODEL or rejects multi-model input before producing output; V1 rejects more than one MODEL block."
+owner = "src/dvbfixer/force_field_naming.py::convert_force_field_naming"
+enforcement = ["src/dvbfixer/force_field_naming.py::convert_force_field_naming"]
+failure_mode = "Residues from separate coordinate models could be combined for terminal classification or atom-name collision checks."
+test_files = ["tests/test_force_field_naming.py"]
+known_exceptions = []
 
 [invariants.INV-PARAM-COMPLEX-COFACTOR-GUARD]
 status = "implemented"
