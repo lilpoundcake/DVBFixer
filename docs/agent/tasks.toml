@@ -1,0 +1,495 @@
+schema_version = 1
+verified_on = "2026-09-18"
+verified_at_commit = "425f290eb85760246766f1d1500e51672c640b2d"
+
+[change_groups.protein-variant-identity]
+parallel_policy = "exclusive-owner"
+reason = "Residue identity, variant restoration, hydrogen placement, and sidecar semantics must remain synchronized."
+files = [
+  "src/dvbfixer/ffutils/ff_names.py",
+  "src/dvbfixer/ffutils/variants.py",
+  "src/dvbfixer/ffutils/dat.py",
+  "src/dvbfixer/ffutils/artificial_terminals.py",
+  "src/dvbfixer/model/pipeline.py",
+  "src/dvbfixer/prepare/pipeline.py",
+  "src/dvbfixer/minimize/pipeline.py",
+  "src/dvbfixer/protonate.py",
+  "src/dvbfixer/homology.py",
+]
+
+[tasks.change-force-field-naming]
+status = "partial"
+context = "docs/agent/contexts/force-field-naming.md"
+start = [
+  "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text",
+  "src/dvbfixer/ffutils/ff_names.py::_effective_amber_rename_map",
+]
+callers = [
+  "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
+  "src/dvbfixer/minimize/pipeline.py::minimize",
+  "src/dvbfixer/protonate.py::main",
+]
+contracts = ["pdb-force-field-naming", "dat-record-lifecycle"]
+invariants = [
+  "INV-NAMING-PRESERVE-STRUCTURE",
+  "INV-NAMING-EXPLICIT-VARIANTS",
+  "INV-IDENTITY-ICODE",
+  "INV-NAMING-IDEMPOTENT",
+  "INV-NAMING-NO-COLLISION",
+]
+change_group = "protein-variant-identity"
+test_files = [
+  "tests/test_ff_names.py",
+  "tests/test_variants_gromacs_lyn.py",
+  "tests/test_prepare_icode_variants.py",
+  "tests/test_terminal_caps.py",
+]
+verification = [
+  "pytest -q tests/test_ff_names.py tests/test_variants_gromacs_lyn.py tests/test_prepare_icode_variants.py tests/test_terminal_caps.py",
+]
+
+[tasks.add-public-command]
+status = "implemented"
+context = "docs/agent/README.md"
+start = [
+  "src/dvbfixer/command_registry.py::COMMAND_REGISTRY",
+  "src/dvbfixer/cli.py::main",
+]
+callers = []
+contracts = []
+invariants = []
+change_group = "public-command-surface"
+test_files = ["tests/test_command_registry.py"]
+verification = [
+  "python scripts/gen_cli_reference.py --check",
+  "python scripts/gen_gui_spec.py --check",
+  "pytest -q tests/test_command_registry.py",
+]
+
+[change_groups.public-command-surface]
+parallel_policy = "exclusive-owner"
+reason = "Argparse, dispatch metadata, generated reference, and the GUI command schema must stay synchronized."
+files = [
+  "src/dvbfixer/command_registry.py",
+  "src/dvbfixer/cli.py",
+  "scripts/gen_cli_reference.py",
+  "scripts/gen_gui_spec.py",
+  "docs/reference",
+  "gui/server/generated-dvbfixer-spec.ts",
+]
+
+[tasks.change-structure-identity]
+status = "partial"
+context = "docs/agent/contexts/structure-identity.md"
+start = [
+  "src/dvbfixer/domain/structure_identity.py::ResidueRef",
+  "src/dvbfixer/domain/structure_identity.py::allocate_chain_ids",
+]
+callers = [
+  "src/dvbfixer/molecule_chains.py::assign_unique_molecule_chains",
+  "src/dvbfixer/structure_input.py::normalize_structure",
+  "src/dvbfixer/ffutils/dat.py::DatRecord",
+]
+contracts = ["cif-to-pdb-normalization", "dat-record-lifecycle"]
+invariants = ["INV-IDENTITY-ICODE", "INV-CIF-CHAIN-IDENTITY"]
+change_group = "structure-identity"
+test_files = [
+  "tests/test_scientific_domain.py",
+  "tests/test_structure_input.py",
+  "tests/test_split.py",
+]
+verification = [
+  "pytest -q tests/test_scientific_domain.py tests/test_structure_input.py tests/test_split.py",
+]
+
+[tasks.change-parameterization-routing]
+status = "partial"
+context = "docs/agent/contexts/parameterization.md"
+start = [
+  "src/dvbfixer/domain/parameterization.py::classify_parameterization",
+  "src/dvbfixer/lig_params.py::build_ligand_generator",
+  "src/dvbfixer/parametrize.py::main",
+]
+callers = [
+  "src/dvbfixer/minimize/pipeline.py::minimize",
+  "src/dvbfixer/top/acpype.py::run_acpype_mode",
+]
+contracts = ["topology-output-directory"]
+invariants = ["INV-PARAM-COMPLEX-COFACTOR-GUARD"]
+change_group = "parameterization-routing"
+test_files = [
+  "tests/test_scientific_domain.py",
+  "tests/test_parametrize_preflight.py",
+  "tests/test_minimize_by_input_class.py",
+]
+verification = [
+  "pytest -q tests/test_scientific_domain.py tests/test_parametrize_preflight.py tests/test_minimize_by_input_class.py",
+]
+
+[tasks.change-dat-schema]
+status = "partial"
+context = "docs/agent/contexts/structure-preparation.md"
+start = [
+  "src/dvbfixer/ffutils/dat.py::DatRecord",
+  "src/dvbfixer/ffutils/dat.py::DatRecord.merge",
+]
+callers = [
+  "src/dvbfixer/model/pipeline.py::main",
+  "src/dvbfixer/prepare/pipeline.py::main",
+  "src/dvbfixer/minimize/pipeline.py::main",
+  "src/dvbfixer/homology.py::main",
+]
+contracts = ["dat-record-lifecycle"]
+invariants = [
+  "INV-DAT-SCHEMA-CENTRALIZED",
+  "INV-DAT-MERGE-DOWNSTREAM-WINS",
+  "INV-IDENTITY-ICODE",
+]
+change_group = "protein-variant-identity"
+test_files = [
+  "tests/test_ffutils_dat.py",
+  "tests/test_prepare_icode_variants.py",
+  "tests/test_prepare_by_input_class.py",
+]
+verification = [
+  "pytest -q tests/test_ffutils_dat.py tests/test_prepare_icode_variants.py tests/test_prepare_by_input_class.py",
+]
+
+[tasks.change-missing-atom-rebuild-chirality]
+status = "partial"
+context = "docs/agent/contexts/structure-preparation.md"
+start = [
+  "src/dvbfixer/ffutils/geometry.py::rebuild_missing_atoms_with_retry",
+  "src/dvbfixer/ffutils/geometry.py::fix_ca_chirality",
+  "src/dvbfixer/ffutils/geometry.py::assert_all_l",
+]
+callers = [
+  "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
+  "src/dvbfixer/minimize/pipeline.py::minimize",
+  "src/dvbfixer/protonate.py::main",
+  "src/dvbfixer/top/pipeline.py",
+]
+contracts = ["dat-record-lifecycle"]
+invariants = [
+  "INV-REBUILD-SEEDED-RETRY",
+  "INV-PREP-MISSING-ATOM-ORDER",
+  "INV-CHIRALITY-ZERO-D",
+]
+change_group = "missing-atom-rebuild-chirality"
+test_files = [
+  "tests/test_seeded_atom_rebuild.py",
+  "tests/test_ffutils_chirality.py",
+  "tests/test_zbs_e2e.py",
+  "tests/test_zbs_shit_inputs.py",
+]
+verification = [
+  "pytest -q tests/test_ffutils_chirality.py tests/test_seeded_atom_rebuild.py",
+]
+
+[tasks.change-conect-inference]
+status = "partial"
+context = "docs/agent/contexts/structure-preparation.md"
+start = [
+  "src/dvbfixer/pdbutils/inference.py::infer_conect_records",
+  "src/dvbfixer/pdbutils/inference.py::_apply_filter",
+]
+callers = [
+  "src/dvbfixer/conect.py::main",
+  "src/dvbfixer/model/pipeline.py::main",
+  "src/dvbfixer/prepare/pipeline.py::main",
+  "src/dvbfixer/minimize/pipeline.py::main",
+  "src/dvbfixer/top/pipeline.py::main",
+  "src/dvbfixer/glycam.py::main",
+  "src/dvbfixer/transplant.py::main",
+]
+contracts = ["pdb-connectivity"]
+invariants = ["INV-CONECT-CHEMICAL-FILTER", "INV-CONECT-SS-ONE-PARTNER"]
+change_group = "conect-inference"
+test_files = [
+  "tests/test_conect.py",
+  "tests/test_conect_false_peptide.py",
+  "tests/test_minimize_bond_filter.py",
+  "tests/test_convert_glycam_roundtrip.py",
+]
+verification = [
+  "pytest -q tests/test_conect.py tests/test_conect_false_peptide.py tests/test_minimize_bond_filter.py tests/test_convert_glycam_roundtrip.py",
+]
+
+[tasks.change-topology-matching]
+status = "partial"
+context = "docs/agent/contexts/topology-generation.md"
+start = [
+  "src/dvbfixer/top/topology_builder.py::_match_atom_names",
+  "src/dvbfixer/top/topology_builder.py::_resolve_sugar_rtp",
+  "src/dvbfixer/top/topology_builder.py::TopologyBuilder",
+]
+callers = ["src/dvbfixer/top/pipeline.py::main"]
+contracts = ["pdb-connectivity", "topology-output-directory"]
+invariants = ["INV-TOPOLOGY-MATCHED-OUTPUT", "INV-TOPOLOGY-UNKNOWN-WARNS"]
+change_group = "topology-matching"
+test_files = [
+  "tests/test_top_pipeline_baseline.py",
+  "tests/test_top_merge_chains.py",
+  "tests/test_top_acpype.py",
+  "tests/test_sugar_name_tables.py",
+]
+verification = [
+  "pytest -q tests/test_top_pipeline_baseline.py tests/test_top_merge_chains.py tests/test_top_acpype.py tests/test_sugar_name_tables.py",
+]
+
+[tasks.change-diagnostics]
+status = "implemented"
+context = "docs/agent/contexts/diagnostics.md"
+start = [
+  "src/dvbfixer/diagnose/pipeline.py::main",
+  "src/dvbfixer/diagnose/report.py",
+]
+callers = [
+  "src/dvbfixer/cli.py::main",
+  "src/dvbfixer/zbs.py::_run_pipeline",
+]
+contracts = []
+invariants = ["INV-DIAGNOSE-REPORT-ONLY"]
+change_group = "diagnostic-reporting"
+test_files = [
+  "tests/test_diagnose_pipeline.py",
+  "tests/test_diagnose_report.py",
+  "tests/test_diagnose_chemistry.py",
+  "tests/test_duplicate_chain_coordinates.py",
+]
+verification = [
+  "pytest -q tests/test_diagnose_pipeline.py tests/test_diagnose_report.py tests/test_diagnose_chemistry.py tests/test_duplicate_chain_coordinates.py",
+]
+
+[tasks.change-workspace-persistence]
+status = "partial"
+context = "docs/agent/contexts/workflow-execution.md"
+start = [
+  "gui/server/workspace-api.ts::saveWorkspace",
+  "gui/server/workspace-api.ts::resolveWorkspaceFile",
+  "gui/src/stores/workspaceStore.ts::useWorkspaceStore",
+]
+callers = [
+  "gui/server/api-plugin.ts::apiPlugin",
+  "gui/server/managed-jobs.ts::registerManagedJobApi",
+  "gui/server/homology-api.ts::registerHomologyApi",
+  "gui/src/components/ProjectLibrary.tsx",
+]
+contracts = ["workspace-manifest-artifact-identity"]
+invariants = [
+  "INV-WORKSPACE-REVISION-REBASE",
+  "INV-WORKSPACE-ATOMIC-MANIFEST",
+  "INV-API-WORKSPACE-CONTAINMENT",
+]
+change_group = "workspace-manifest-persistence"
+test_files = [
+  "gui/server/workspace-api.test.ts",
+  "gui/src/stores/workspaceStore.test.ts",
+  "gui/server/managed-jobs.test.ts",
+]
+verification = [
+  "cd gui && npm test -- --run server/workspace-api.test.ts src/stores/workspaceStore.test.ts server/managed-jobs.test.ts",
+  "cd gui && npm run typecheck",
+]
+
+[tasks.add-api-endpoint]
+status = "partial"
+context = "docs/agent/contexts/workflow-execution.md"
+start = [
+  "gui/server/api-plugin.ts::apiPlugin",
+  "gui/server/workspace-api.ts::registerWorkspaceApi",
+  "gui/server/managed-jobs.ts::registerManagedJobApi",
+]
+callers = [
+  "gui/src/components/DVBFixerPanel.tsx",
+  "gui/src/components/AntibodyEngineerPanel.tsx",
+  "gui/src/stores/workspaceStore.ts::useWorkspaceStore",
+]
+contracts = ["workspace-manifest-artifact-identity"]
+invariants = ["INV-API-WORKSPACE-CONTAINMENT", "INV-API-BOUNDED-BODY"]
+change_group = "gui-api-surface"
+test_files = [
+  "gui/server/request-body.test.ts",
+  "gui/server/workspace-api.test.ts",
+  "gui/server/managed-jobs.test.ts",
+  "gui/server/dvbfixer-runner.test.ts",
+]
+verification = [
+  "cd gui && npm test -- --run server/request-body.test.ts server/workspace-api.test.ts server/managed-jobs.test.ts server/dvbfixer-runner.test.ts",
+  "cd gui && npm run typecheck",
+]
+
+[tasks.add-regression-fixture]
+status = "implemented"
+context = "docs/agent/README.md"
+start = ["tests/fixtures/README.md", "tests/fixtures/MANIFEST.sha256"]
+callers = []
+contracts = []
+invariants = ["INV-FIXTURE-PROVENANCE-CHECKSUM"]
+change_group = "tracked-fixture-set"
+test_files = ["tests/test_fixture_manifest.py"]
+verification = [
+  "sha256sum -c tests/fixtures/MANIFEST.sha256",
+  "pytest -q tests/test_fixture_manifest.py",
+]
+
+[tasks.change-cif-normalization]
+status = "partial"
+context = "docs/agent/contexts/workflow-execution.md"
+start = [
+  "src/dvbfixer/structure_input.py::normalize_structure",
+  "src/dvbfixer/structure_input.py::normalized_command_inputs",
+]
+callers = ["src/dvbfixer/cli.py::main", "src/dvbfixer/batch.py::run_directory"]
+contracts = ["cif-to-pdb-normalization"]
+invariants = ["INV-CIF-SINGLE-BOUNDARY", "INV-CIF-CHAIN-IDENTITY"]
+change_group = "cif-normalization"
+test_files = ["tests/test_structure_input.py", "tests/test_batch.py"]
+verification = ["pytest -q tests/test_structure_input.py tests/test_batch.py"]
+
+[tasks.change-zbs-option-propagation]
+status = "partial"
+context = "docs/agent/contexts/structure-preparation.md"
+start = ["src/dvbfixer/zbs.py::parse_args", "src/dvbfixer/zbs.py::_run_pipeline"]
+callers = ["src/dvbfixer/cli.py::main", "src/dvbfixer/batch.py::run_directory"]
+contracts = ["dat-record-lifecycle", "cif-to-pdb-normalization"]
+invariants = ["INV-ZBS-OPTION-PROPAGATION", "INV-ZBS-ARTIFACT-LOCATION"]
+change_group = "zbs-pipeline-options"
+test_files = [
+  "tests/test_cli_stabilization.py",
+  "tests/test_prepare_smiles.py",
+  "tests/test_terminal_caps.py",
+  "tests/test_zbs_postflight.py",
+  "tests/test_batch.py",
+]
+verification = [
+  "pytest -q tests/test_cli_stabilization.py tests/test_prepare_smiles.py tests/test_zbs_postflight.py tests/test_batch.py",
+  "python scripts/gen_cli_reference.py --check",
+  "python scripts/gen_gui_spec.py --check",
+]
+
+[change_groups.structure-identity]
+parallel_policy = "exclusive-owner"
+reason = "Identity changes must remain synchronized across PDB/mmCIF adapters and sidecars."
+files = [
+  "src/dvbfixer/domain/structure_identity.py",
+  "src/dvbfixer/molecule_chains.py",
+  "src/dvbfixer/structure_input.py",
+  "src/dvbfixer/ffutils/dat.py",
+  "src/dvbfixer/top/types.py",
+]
+
+[change_groups.parameterization-routing]
+parallel_policy = "exclusive-owner"
+reason = "Policy vocabulary and executable GAFF/native/user-template routing must not drift."
+files = [
+  "src/dvbfixer/domain/parameterization.py",
+  "src/dvbfixer/lig_params.py",
+  "src/dvbfixer/parametrize.py",
+  "src/dvbfixer/minimize/pipeline.py",
+  "src/dvbfixer/top/acpype.py",
+]
+
+[change_groups.missing-atom-rebuild-chirality]
+parallel_policy = "exclusive-owner"
+reason = "All rebuild callers and chirality safety nets must preserve deterministic L-only output."
+files = [
+  "src/dvbfixer/ffutils/geometry.py",
+  "src/dvbfixer/model/pipeline.py",
+  "src/dvbfixer/prepare/pipeline.py",
+  "src/dvbfixer/minimize/pipeline.py",
+  "src/dvbfixer/protonate.py",
+  "src/dvbfixer/top/pipeline.py",
+]
+
+[change_groups.conect-inference]
+parallel_policy = "exclusive-owner"
+reason = "Inference, filtering, remapping, and downstream consumers must share one connectivity policy."
+files = [
+  "src/dvbfixer/pdbutils/inference.py",
+  "src/dvbfixer/pdbutils/io.py",
+  "src/dvbfixer/conect.py",
+  "src/dvbfixer/model/pipeline.py",
+  "src/dvbfixer/prepare/pipeline.py",
+  "src/dvbfixer/minimize/pipeline.py",
+  "src/dvbfixer/top/pipeline.py",
+  "src/dvbfixer/glycam.py",
+  "src/dvbfixer/transplant.py",
+]
+
+[change_groups.topology-matching]
+parallel_policy = "exclusive-owner"
+reason = "Atom matching, templates, output coordinates, and emitted topology indices must agree."
+files = [
+  "src/dvbfixer/top/topology_builder.py",
+  "src/dvbfixer/top/types.py",
+  "src/dvbfixer/top/writers.py",
+  "src/dvbfixer/top/pipeline.py",
+  "src/dvbfixer/top/ff_data.py",
+  "src/dvbfixer/rtp_parser.py",
+]
+
+[change_groups.diagnostic-reporting]
+parallel_policy = "exclusive-owner"
+reason = "Finding semantics, exit status, output formats, and runtime summaries must stay aligned."
+files = [
+  "src/dvbfixer/diagnose",
+  "src/dvbfixer/runtime.py",
+  "src/dvbfixer/zbs.py",
+]
+
+[change_groups.workspace-manifest-persistence]
+parallel_policy = "exclusive-owner"
+reason = "Manifest revisions, server registration, and client rebase behavior form one concurrency contract."
+files = [
+  "gui/server/workspace-api.ts",
+  "gui/server/managed-jobs.ts",
+  "gui/server/homology-api.ts",
+  "gui/server/api-plugin.ts",
+  "gui/src/stores/workspaceStore.ts",
+  "gui/src/components/ProjectLibrary.tsx",
+  "gui/src/components/StructureInfo.tsx",
+]
+
+[change_groups.gui-api-surface]
+parallel_policy = "exclusive-owner"
+reason = "Route validation, bounded bodies, workspace resolution, jobs, and frontend callers must agree."
+files = [
+  "gui/server/api-plugin.ts",
+  "gui/server/request-body.ts",
+  "gui/server/managed-jobs.ts",
+  "gui/server/workspace-api.ts",
+  "gui/server/homology-api.ts",
+  "gui/server/dvbfixer-runner.ts",
+  "gui/server/command-args.ts",
+  "gui/src/components/DVBFixerPanel.tsx",
+]
+
+[change_groups.tracked-fixture-set]
+parallel_policy = "exclusive-owner"
+reason = "Source fixtures, provenance, checksums, and fixture helpers must be updated together."
+files = ["tests/fixtures", "tests/conftest.py", "tests/test_fixture_manifest.py"]
+
+[change_groups.cif-normalization]
+parallel_policy = "exclusive-owner"
+reason = "One boundary owns CIF conversion, identity mapping, selector translation, and cleanup."
+files = [
+  "src/dvbfixer/structure_input.py",
+  "src/dvbfixer/cli.py",
+  "src/dvbfixer/batch.py",
+  "src/dvbfixer/molecule_chains.py",
+]
+
+[change_groups.zbs-pipeline-options]
+parallel_policy = "exclusive-owner"
+reason = "Public ZBS options, stage forwarding, generated docs, and batch artifact placement must stay synchronized."
+files = [
+  "src/dvbfixer/zbs.py",
+  "src/dvbfixer/model/cli.py",
+  "src/dvbfixer/prepare/cli.py",
+  "src/dvbfixer/minimize/cli.py",
+  "src/dvbfixer/batch.py",
+  "src/dvbfixer/command_registry.py",
+  "docs/reference/zbs.md",
+  "gui/server/generated-dvbfixer-spec.ts",
+]

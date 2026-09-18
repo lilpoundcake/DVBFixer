@@ -1,3 +1,0 @@
-source: openbabel
-kind: external
-purpose: OpenBabel: pybel addh + obminimize universal-FF (UFF/MMFF94/GAFF) refinement.

@@ -58,6 +58,9 @@ jobs:
       - name: release versions in sync
         run: python scripts/check_versions.py
 
+      - name: agent documentation maps are valid
+        run: python scripts/check_agent_docs.py
+
   # Build the public artifacts and test the wheel from a clean, dependency-free
   # environment. This catches missing entry points and package data that an
   # editable install cannot detect.

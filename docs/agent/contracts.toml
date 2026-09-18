@@ -1,0 +1,239 @@
+schema_version = 1
+verified_on = "2026-09-18"
+verified_at_commit = "425f290eb85760246766f1d1500e51672c640b2d"
+
+[contracts.pdb-force-field-naming]
+status = "partial"
+owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
+description = "In-place fixed-column PDB rewrite that restores protonation variants and applies target force-field atom naming."
+producers = [
+  "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
+  "src/dvbfixer/minimize/pipeline.py::minimize",
+  "src/dvbfixer/protonate.py::main",
+]
+consumers = [
+  "src/dvbfixer/top/pipeline.py::main",
+  "external GROMACS tooling",
+]
+identity_keys = ["chain", "residue_number", "insertion_code", "atom_name"]
+source_mutation = "The current helper rewrites its input path in place."
+commit_behavior = "The current helper writes the complete transformed text only when at least one line changes; it is not an atomic replace."
+failure_behavior = "Validation is limited; target-name collisions and cross-MODEL terminal classification are not rejected."
+test_files = [
+  "tests/test_ff_names.py",
+  "tests/test_variants_gromacs_lyn.py",
+  "tests/test_terminal_caps.py",
+]
+known_divergences = [
+  "Terminal classification groups by chain but not MODEL.",
+  "ANISOU and TER labels are not rewritten with corresponding ATOM/HETATM records.",
+  "Four-character CHARMM residue names are not cleanly parsed on a second pass.",
+  "The tleap-reduce prepare/protonate early-return paths bypass the final naming helper.",
+]
+
+[contracts.dat-record-lifecycle]
+status = "partial"
+owner = "src/dvbfixer/ffutils/dat.py::DatRecord"
+description = "JSON sidecar carrying rebuilt-atom restraint identity, residue summaries, protonation variants, removed-residue metadata, and homology provenance from model/homology through prepare into minimize."
+producers = [
+  "src/dvbfixer/model/pipeline.py::main",
+  "src/dvbfixer/prepare/pipeline.py::main",
+  "src/dvbfixer/homology.py::main",
+]
+consumers = [
+  "src/dvbfixer/prepare/pipeline.py::main",
+  "src/dvbfixer/minimize/pipeline.py::main",
+]
+identity_keys = [
+  "added_atoms=(chain,resid,icode,atom)",
+  "variant_overrides=chain:resid:icode",
+  "removed_residues=(chain,resid,icode)",
+  "target_chains=case-sensitive target chain ID",
+]
+source_mutation = "DatRecord.merge mutates the downstream record in memory; writers create or replace their output sidecar, and numbering/terminal normalization can rewrite an existing sidecar."
+commit_behavior = "DatRecord.save derives total_added and writes JSON directly; added atoms merge by identity and downstream variant values win."
+failure_behavior = "JSON and filesystem errors propagate; there is no schema version, nested runtime validation, temporary write, fsync, or atomic replace."
+test_files = [
+  "tests/test_ffutils_dat.py",
+  "tests/test_prepare_icode_variants.py",
+  "tests/test_prepare_by_input_class.py",
+]
+known_divergences = [
+  "The no-gap model path can write legacy two-field variant keys.",
+  "DatRecord.merge does not merge templates or target_chains, so prepare can drop upstream homology provenance.",
+  "residue_summary omits insertion code and can combine insertion-code siblings.",
+  "removed_residues has no TypedDict, runtime validation, or documented deduplication identity.",
+]
+
+[contracts.cif-to-pdb-normalization]
+status = "partial"
+owner = "src/dvbfixer/structure_input.py::normalized_command_inputs"
+description = "Single CLI-boundary conversion of mmCIF or crystallographic CIF inputs into temporary validated PDBs, including chain-map translation of related selectors and helper files."
+producers = [
+  "src/dvbfixer/structure_input.py::normalize_structure",
+  "src/dvbfixer/structure_input.py::normalized_command_inputs",
+]
+consumers = [
+  "src/dvbfixer/cli.py::main",
+  "src/dvbfixer/batch.py::run_directory",
+  "src/dvbfixer/homology.py::main",
+]
+identity_keys = [
+  "chain_map=case-sensitive original CIF chain ID to one-character PDB chain ID",
+  "residue=(mapped_chain,residue_number,insertion_code)",
+  "atom=(mapped_chain,residue_number,insertion_code,atom_name,alternate_location)",
+]
+source_mutation = "The source CIF is not modified; temporary PDB, translated FASTA, and translated template-plan files are created below the output/work area."
+commit_behavior = "Temporary normalized inputs are removed on context exit; successful PDB outputs receive CIF_CHAIN_MAP remarks when IDs changed."
+failure_behavior = "Unrepresentable inputs fail at the CLI boundary, but failed conversion can leave created directories or a partial small-molecule destination."
+test_files = ["tests/test_structure_input.py", "tests/test_batch.py"]
+known_divergences = [
+  "Multiple CIF inputs are normalized independently and do not have one global chain allocator.",
+  "A failed command can append mapping remarks to a pre-existing explicit output candidate.",
+  "Only recognized chain-bearing selector grammars are translated.",
+  "CIF output is unsupported; fixed-column PDB limits are fatal.",
+]
+
+[contracts.pdb-connectivity]
+status = "partial"
+owner = "src/dvbfixer/pdbutils/inference.py::infer_conect_records"
+description = "Cross-stage connectivity contract combining explicit CONECT/LINK/SSBOND metadata with filtered coordinate-based inference."
+producers = [
+  "src/dvbfixer/pdbutils/inference.py::infer_conect_records",
+  "src/dvbfixer/conect.py::main",
+  "src/dvbfixer/model/pipeline.py::main",
+  "src/dvbfixer/structure_input.py::normalize_structure",
+]
+consumers = [
+  "src/dvbfixer/prepare/pipeline.py::main",
+  "src/dvbfixer/minimize/pipeline.py::main",
+  "src/dvbfixer/top/pipeline.py::main",
+  "src/dvbfixer/glycam.py::main",
+  "src/dvbfixer/transplant.py::main",
+]
+identity_keys = [
+  "CONECT=unordered pair of atom serials resolved to atom identity when serials change",
+  "LINK=(atom_name,altloc,resname,chain,residue_number,insertion_code)",
+  "SSBOND=(chain,residue_number,insertion_code)",
+]
+source_mutation = "Inference returns a pair set; materialization and commands write copies or explicit outputs, while renumber/model/transplant remap records during output rewriting."
+commit_behavior = "Existing and inferred pairs are filtered, stale serials are dropped, SG-SG pairs are reduced to one partner, and deterministic CONECT records are emitted."
+failure_behavior = "Open Babel failure falls back to distance inference; writers are generally direct and non-atomic."
+test_files = [
+  "tests/test_conect.py",
+  "tests/test_conect_false_peptide.py",
+  "tests/test_minimize_bond_filter.py",
+  "tests/test_renumber.py",
+  "tests/test_convert_glycam_roundtrip.py",
+]
+known_divergences = [
+  "LINK, SSBOND, and CONECT are not reconciled into one canonical graph.",
+  "Some topology glycan and protonation paths omit insertion code or alternate-location identity.",
+  "No atomic transaction spans coordinate records and connectivity metadata.",
+]
+
+[contracts.workspace-manifest-artifact-identity]
+status = "partial"
+owner = "gui/server/workspace-api.ts::WorkspaceManifest"
+description = "Workspace-scoped manifest and artifact registry with optimistic revisions, contained paths, server-owned artifact registration, pending-patch rebasing, and recoverable deletion."
+producers = [
+  "gui/server/workspace-api.ts::saveWorkspace",
+  "gui/server/managed-jobs.ts::registerManagedJobApi",
+  "gui/server/homology-api.ts::registerHomologyApi",
+  "gui/server/api-plugin.ts::apiPlugin",
+]
+consumers = [
+  "gui/src/stores/workspaceStore.ts::useWorkspaceStore",
+  "gui/src/components/ProjectLibrary.tsx",
+  "gui/src/components/StructureInfo.tsx",
+  "gui/src/components/DVBFixerPanel.tsx",
+]
+identity_keys = [
+  "workspace=(manifest.id,projects/id directory)",
+  "optimistic concurrency=(workspace.id,revision)",
+  "artifact metadata=artifact.id",
+  "artifact bytes and ancestry=workspace-relative artifact.file",
+]
+source_mutation = "Manifest saves increment revision; registrations append server records; autosaves rebase only pending client fields; deletes move targets to trash."
+commit_behavior = "Manifest JSON uses same-directory temporary write, fsync, and rename, but artifact bytes and manifest registration are separate transactions."
+failure_behavior = "Stale revision-aware writes return 409 and path containment rejects traversal/symlink escape; registration failure can leave unregistered files or stale records after a trash move."
+test_files = [
+  "gui/server/workspace-api.test.ts",
+  "gui/src/stores/workspaceStore.test.ts",
+  "gui/server/managed-jobs.test.ts",
+  "gui/server/homology-api.test.ts",
+]
+known_divergences = [
+  "Several server-side registrations and destructive endpoints are not compare-and-swap revision operations.",
+  "Artifact metadata uses IDs while primary selection, parent links, and some deduplication use file paths.",
+  "Artifact bytes plus manifest registration and trash plus manifest update are not atomic together.",
+]
+
+[contracts.homology-template-plan-mosaic]
+status = "implemented"
+owner = "src/dvbfixer/homology_plan.py::materialize_template_plan"
+description = "Materializes a template-selection plan into fitted templates, one coordinate-preserving mosaic PDB known, and its matching two-entry PIR."
+producers = [
+  "gui/src/components/HomologyPanel.tsx",
+  "gui/server/homology-api.ts::registerHomologyApi",
+  "src/dvbfixer/structure_input.py::normalized_command_inputs",
+  "src/dvbfixer/homology_plan.py::materialize_template_plan",
+]
+consumers = [
+  "src/dvbfixer/homology.py::main",
+  "gui/server/homology-api.ts::registerHomologyApi",
+]
+identity_keys = [
+  "template=templates[].id",
+  "target assignment=case-sensitive targetChain",
+  "mask=template row ID plus zero-based half-open alignment columns",
+  "mosaic residue=(allocated output PDB chain,target non-gap ordinal)",
+]
+source_mutation = "The plan and source templates are read-only; fitted structures, mosaic PDB, and matching PIR are written below the work directory."
+commit_behavior = "Earlier template rows win overlap; one mosaic and one matching PIR are produced; logical VH/VL map to distinct H/L PDB chains."
+failure_behavior = "Invalid plans or sequence/coordinate mismatches raise before Modeller, but direct writes can leave an unmatched partial work directory."
+test_files = [
+  "tests/test_homology_plan.py",
+  "tests/test_homology.py",
+  "tests/test_structure_input.py",
+  "gui/server/homology-api.test.ts",
+]
+known_divergences = [
+  "A duplicate TypeScript materializer remains exported and can mishandle VH/VL chain mapping; production modeling delegates to Python.",
+  "The plan has procedural validation but no explicit schema version.",
+]
+
+[contracts.topology-output-directory]
+status = "partial"
+owner = "src/dvbfixer/top/pipeline.py::main"
+description = "Output bundle and placement rules for RTP-based GROMACS topology generation and alternate ACPYPE export."
+producers = [
+  "src/dvbfixer/top/pipeline.py::main",
+  "src/dvbfixer/top/writers.py::write_top",
+  "src/dvbfixer/top/acpype.py::run_acpype_mode",
+]
+consumers = [
+  "external GROMACS tooling",
+  "gui/server/managed-jobs.ts::registerManagedJobApi",
+  "gui/server/api-plugin.ts::apiPlugin",
+]
+identity_keys = [
+  "bundle root=parent of explicit output topology",
+  "primary topology=exact output path or input-parent/topol.top",
+  "companion include=basename relative to bundle root",
+]
+source_mutation = "Input coordinates are unchanged; RTP mode writes companion files into the topology parent, while ACPYPE uses the output parent and stem as export directory and basename."
+commit_behavior = "Bundle files are written sequentially with relative includes; no staging directory, bundle manifest, or atomic directory rename is used."
+failure_behavior = "Failure can leave a partial bundle; unsupported chains may be omitted with warnings; RTP mode does not create a missing explicit output parent."
+test_files = [
+  "tests/test_top_pipeline_baseline.py",
+  "tests/test_top_merge_chains.py",
+  "tests/test_top_acpype.py",
+  "tests/test_terminal_caps.py",
+]
+known_divergences = [
+  "An explicit coordinate output can be outside the topology bundle.",
+  "RTP and ACPYPE interpret output naming differently.",
+  "Default output can overwrite conventional topology filenames beside the input.",
+  "Stale companion files are not removed and bundle completeness is not post-validated.",
+]

@@ -1,1 +1,0 @@
-obj-trnsplt — detect_ss_bonds, prepare_for_openmm, add_glycam_bonds, export_gromacs for --relax and --gromacs paths

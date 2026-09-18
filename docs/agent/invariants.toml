@@ -1,0 +1,303 @@
+schema_version = 1
+verified_on = "2026-09-18"
+verified_at_commit = "425f290eb85760246766f1d1500e51672c640b2d"
+
+[invariants.INV-NAMING-PRESERVE-STRUCTURE]
+status = "implemented"
+statement = "Force-field naming conversion preserves coordinates, atom serials, occupancy, B-factor, element, chain ID, residue number, and insertion code."
+owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
+enforcement = [
+  "src/dvbfixer/ffutils/ff_names.py::_rewrite_atom_line",
+]
+failure_mode = "A representation-only conversion would silently change molecular identity or geometry."
+test_files = ["tests/test_ff_names.py", "tests/test_rename.py"]
+known_exceptions = ["ANISOU and TER consistency is not currently enforced."]
+
+[invariants.INV-NAMING-EXPLICIT-VARIANTS]
+status = "implemented"
+statement = "A canonical residue name such as HIS does not by itself justify inventing a protonation variant."
+owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
+enforcement = [
+  "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text",
+  "src/dvbfixer/ffutils/variants.py::scan_variant_names",
+]
+failure_mode = "The conversion could choose an unsupported tautomer or protonation state."
+test_files = ["tests/test_ff_names.py"]
+known_exceptions = []
+
+[invariants.INV-IDENTITY-ICODE]
+status = "partial"
+statement = "Residue-keyed variant data preserves chain, residue number, and insertion code."
+owner = "src/dvbfixer/ffutils/dat.py::DatRecord"
+enforcement = [
+  "src/dvbfixer/ffutils/ff_names.py::_split_key",
+  "src/dvbfixer/ffutils/dat.py::DatRecord",
+]
+failure_mode = "A variant can be applied to or overwrite an insertion-code sibling."
+test_files = ["tests/test_prepare_icode_variants.py", "tests/test_ff_names.py"]
+known_exceptions = [
+  "apply_variants_to_pdb_text still accepts legacy two-tuple keys and falls back by chain/residue number.",
+  "Not every pipeline-local residue map has migrated to a three-part identity.",
+]
+
+[invariants.INV-NAMING-IDEMPOTENT]
+status = "known-gap"
+statement = "Repeating a naming conversion with the same target produces byte-identical output."
+owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
+enforcement = ["src/dvbfixer/ffutils/ff_names.py::_effective_amber_rename_map"]
+failure_mode = "Repeated pipeline stages can continue renaming atoms or corrupt four-character residue identities."
+test_files = ["tests/test_ff_names.py", "tests/test_variants_gromacs_lyn.py"]
+known_exceptions = [
+  "CHARMM LYN/LSN hydrogen-pair conversion is not safely idempotent.",
+  "Four-character CHARMM residue names are not cleanly parsed by the current three-character read slice.",
+]
+
+[invariants.INV-NAMING-NO-COLLISION]
+status = "missing"
+statement = "No two source atoms resolve to the same target atom identity during naming conversion."
+owner = "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text"
+enforcement = []
+failure_mode = "The output can contain duplicate atom names within a residue."
+test_files = []
+known_exceptions = ["The current helper does not validate target-name collisions before writing."]
+
+[invariants.INV-PARAM-COMPLEX-COFACTOR-GUARD]
+status = "implemented"
+statement = "Complex cofactors are not routed through generic isolated-ligand GAFF unless an explicit validated user template is supplied."
+owner = "src/dvbfixer/domain/parameterization.py::classify_parameterization"
+enforcement = ["src/dvbfixer/lig_params.py::build_ligand_generator"]
+failure_mode = "Coordination, covalent attachment, or redox state can be discarded by inappropriate generic parameterization."
+test_files = ["tests/test_scientific_domain.py", "tests/test_parametrize_preflight.py"]
+known_exceptions = ["The five route labels are policy vocabulary; they are not one fully integrated routing backend."]
+
+[invariants.INV-DAT-SCHEMA-CENTRALIZED]
+status = "partial"
+statement = "Pipeline .dat readers and writers use DatRecord, derive total_added, and preserve explicit identity fields."
+owner = "src/dvbfixer/ffutils/dat.py::DatRecord"
+enforcement = [
+  "src/dvbfixer/ffutils/dat.py::DatRecord.load",
+  "src/dvbfixer/ffutils/dat.py::DatRecord.to_dict",
+  "src/dvbfixer/ffutils/dat.py::DatRecord.added_keys",
+]
+failure_mode = "Hand-written JSON paths can drift in field shape, totals, optional fields, or identity."
+test_files = ["tests/test_ffutils_dat.py", "tests/test_prepare_icode_variants.py"]
+known_exceptions = ["A legacy no-gap model path can still construct a two-field variant identity."]
+
+[invariants.INV-DAT-MERGE-DOWNSTREAM-WINS]
+status = "implemented"
+statement = "DatRecord merge deduplicates added atoms by full key and lets downstream variant decisions win collisions."
+owner = "src/dvbfixer/ffutils/dat.py::DatRecord.merge"
+enforcement = ["src/dvbfixer/ffutils/dat.py::DatRecord.merge"]
+failure_mode = "Upstream decisions could overwrite later preparation decisions or duplicate restraint atoms."
+test_files = ["tests/test_ffutils_dat.py"]
+known_exceptions = ["templates and target_chains are not merged by the current implementation."]
+
+[invariants.INV-REBUILD-SEEDED-RETRY]
+status = "implemented"
+statement = "Missing-atom repair uses the shared seeded retry helper rather than direct unseeded PDBFixer rebuilding."
+owner = "src/dvbfixer/ffutils/geometry.py::rebuild_missing_atoms_with_retry"
+enforcement = [
+  "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
+  "src/dvbfixer/minimize/pipeline.py::minimize",
+  "src/dvbfixer/protonate.py::main",
+  "src/dvbfixer/top/pipeline.py",
+]
+failure_mode = "Unseeded Langevin escape can produce nondeterministic, clashing, or D-chiral rebuilt atoms."
+test_files = ["tests/test_seeded_atom_rebuild.py"]
+known_exceptions = ["After all attempts fail, downstream chirality and minimization safety nets remain necessary."]
+
+[invariants.INV-PREP-MISSING-ATOM-ORDER]
+status = "implemented"
+statement = "Prepare discovers missing atoms only after nonstandard replacement and heterogen removal rebuild the topology."
+owner = "src/dvbfixer/prepare/pipeline.py::run_pdbfixer"
+enforcement = ["src/dvbfixer/prepare/pipeline.py::run_pdbfixer"]
+failure_mode = "Stale residue-object keys can make PDBFixer silently add no missing atoms."
+test_files = ["tests/test_seeded_atom_rebuild.py", "tests/test_prepare_by_input_class.py"]
+known_exceptions = ["findMissingResidues may run earlier because its keys are positional."]
+
+[invariants.INV-CHIRALITY-ZERO-D]
+status = "partial"
+statement = "Every public prepared or minimized protein output must contain zero detectable D-C-alpha centers."
+owner = "src/dvbfixer/ffutils/geometry.py::assert_all_l"
+enforcement = [
+  "src/dvbfixer/ffutils/geometry.py::fix_ca_chirality",
+  "src/dvbfixer/ffutils/geometry.py::build_ca_chirality_force",
+  "src/dvbfixer/model/pipeline.py::main",
+  "src/dvbfixer/minimize/pipeline.py::minimize",
+]
+failure_mode = "D-C-alpha output is scientifically invalid for the supported L-protein workflow."
+test_files = [
+  "tests/test_ffutils_chirality.py",
+  "tests/test_zbs_e2e.py",
+  "tests/test_zbs_shit_inputs.py",
+]
+known_exceptions = ["Incomplete or degenerate centers are not measurable; final hard assertions are not uniform across every standalone backend path."]
+
+[invariants.INV-CONECT-CHEMICAL-FILTER]
+status = "implemented"
+statement = "Inherited and inferred connectivity is filtered against peptide order, residue chemistry, solvent, sugar-distance, and external-bond rules."
+owner = "src/dvbfixer/pdbutils/inference.py::_apply_filter"
+enforcement = [
+  "src/dvbfixer/pdbutils/inference.py::infer_conect_records",
+  "src/dvbfixer/pdbutils/inference.py::_domain_overrides",
+]
+failure_mode = "Proximity bonding can fabricate peptide, sugar, solvent, or extra external protein bonds."
+test_files = [
+  "tests/test_conect.py",
+  "tests/test_conect_false_peptide.py",
+  "tests/test_zbs_e2e.py",
+]
+known_exceptions = ["Coarse-grained inputs bypass new inference; some domain-specific paths retain separate bond harvest logic."]
+
+[invariants.INV-CONECT-SS-ONE-PARTNER]
+status = "implemented"
+statement = "Every cysteine-family SG atom has at most one SG-SG partner after connectivity inference or topology cleanup."
+owner = "src/dvbfixer/pdbutils/inference.py::_dedupe_ss_bonds"
+enforcement = [
+  "src/dvbfixer/pdbutils/inference.py::_dedupe_ss_bonds",
+  "src/dvbfixer/minimize/pipeline.py::_drop_spurious_inter_aa_bonds",
+]
+failure_mode = "Multiple sulfur partners cause invalid disulfide chemistry and force-field template failure."
+test_files = ["tests/test_minimize_bond_filter.py", "tests/test_zbs_e2e.py"]
+known_exceptions = ["Existing valid pairing has precedence; direct focused inference coverage remains limited."]
+
+[invariants.INV-TOPOLOGY-MATCHED-OUTPUT]
+status = "partial"
+statement = "The coordinate output atom set and naming remain aligned with generated topology atom indices and bonded terms."
+owner = "src/dvbfixer/top/topology_builder.py::TopologyBuilder"
+enforcement = [
+  "src/dvbfixer/top/topology_builder.py::_match_atom_names",
+  "src/dvbfixer/top/topology_builder.py::_resolve_sugar_rtp",
+  "src/dvbfixer/top/writers.py::write_pdb",
+]
+failure_mode = "Coordinates can refer to different atoms than the emitted topology."
+test_files = ["tests/test_top_pipeline_baseline.py", "tests/test_top_merge_chains.py"]
+known_exceptions = ["Missing RTP atoms may be skipped with charge redistribution; helper-level matching coverage is incomplete."]
+
+[invariants.INV-TOPOLOGY-UNKNOWN-WARNS]
+status = "implemented"
+statement = "A chain omitted because no topology route can handle it emits a warning naming the unsupported chain/residues."
+owner = "src/dvbfixer/top/pipeline.py::main"
+enforcement = ["src/dvbfixer/top/pipeline.py::main"]
+failure_mode = "Unsupported molecules can silently disappear from the topology molecules section."
+test_files = ["tests/test_top_pipeline_baseline.py"]
+known_exceptions = ["Warning and omission remain allowed; this invariant does not add arbitrary-ligand support."]
+
+[invariants.INV-DIAGNOSE-REPORT-ONLY]
+status = "implemented"
+statement = "Diagnose reports findings without mutating the analyzed structure."
+owner = "src/dvbfixer/diagnose/pipeline.py::main"
+enforcement = [
+  "src/dvbfixer/diagnose/pipeline.py::main",
+  "src/dvbfixer/diagnose/report.py",
+]
+failure_mode = "A quality-assessment command could silently alter evidence it is reporting."
+test_files = ["tests/test_diagnose_pipeline.py", "tests/test_diagnose_chemistry.py"]
+known_exceptions = ["CLI-boundary CIF normalization creates a temporary PDB adapter input but does not mutate the source."]
+
+[invariants.INV-WORKSPACE-REVISION-REBASE]
+status = "partial"
+statement = "On revision conflict, client autosave rebases only pending fields and tool panels over the latest manifest."
+owner = "gui/src/stores/workspaceStore.ts::useWorkspaceStore"
+enforcement = [
+  "gui/server/workspace-api.ts::assertWorkspaceRevision",
+  "gui/src/stores/workspaceStore.ts::useWorkspaceStore",
+]
+failure_mode = "Stale saves can erase registered artifacts, unrelated panel state, or edits arriving during reload."
+test_files = ["gui/src/stores/workspaceStore.test.ts", "gui/server/workspace-api.test.ts"]
+known_exceptions = ["Rename, import, deletion, and some server-side registrations are not revision-gated."]
+
+[invariants.INV-WORKSPACE-ATOMIC-MANIFEST]
+status = "implemented"
+statement = "Workspace manifest JSON is committed with same-directory temporary write, fsync, and rename."
+owner = "gui/server/workspace-api.ts::writeJsonAtomic"
+enforcement = ["gui/server/workspace-api.ts::saveWorkspace"]
+failure_mode = "Process interruption can leave truncated or invalid workspace.json."
+test_files = ["gui/server/workspace-api.test.ts"]
+known_exceptions = ["Artifact bytes and manifest registration are not one transaction."]
+
+[invariants.INV-API-WORKSPACE-CONTAINMENT]
+status = "implemented"
+statement = "Workspace workflow paths reject absolute paths, traversal, and symlink escape before file access or command execution."
+owner = "gui/server/workspace-api.ts::resolveWorkspaceFile"
+enforcement = [
+  "gui/server/workspace-api.ts::resolveWorkspaceFile",
+  "gui/server/managed-jobs.ts::registerManagedJobApi",
+  "gui/server/homology-api.ts::registerHomologyApi",
+]
+failure_mode = "An API request can read, overwrite, or execute against files outside its workspace."
+test_files = ["gui/server/workspace-api.test.ts", "gui/server/managed-jobs.test.ts"]
+known_exceptions = ["The legacy global artifact import route is not a workspace-scoped workflow boundary."]
+
+[invariants.INV-API-BOUNDED-BODY]
+status = "implemented"
+statement = "HTTP request bodies are read with explicit size limits."
+owner = "gui/server/request-body.ts::readRequestBody"
+enforcement = [
+  "gui/server/request-body.ts::readRequestBody",
+  "gui/server/workspace-api.ts::registerWorkspaceApi",
+  "gui/server/managed-jobs.ts::registerManagedJobApi",
+]
+failure_mode = "Unbounded buffering can exhaust server memory."
+test_files = ["gui/server/request-body.test.ts"]
+known_exceptions = ["The Vite middleware does not provide complete production quotas or rate limits."]
+
+[invariants.INV-FIXTURE-PROVENANCE-CHECKSUM]
+status = "implemented"
+statement = "Tracked scientific input fixtures have documented provenance and checksums, and do not depend on the ignored local test tree."
+owner = "tests/test_fixture_manifest.py::test_fixture_manifest_is_complete_and_matches_checksums"
+enforcement = [
+  "tests/fixtures/README.md",
+  "tests/fixtures/MANIFEST.sha256",
+  "tests/test_fixture_manifest.py",
+]
+failure_mode = "Tests can depend on untracked inputs or silently changed production structures."
+test_files = ["tests/test_fixture_manifest.py"]
+known_exceptions = ["Golden outputs require explicit justification and may need manifest-policy expansion."]
+
+[invariants.INV-CIF-SINGLE-BOUNDARY]
+status = "implemented"
+statement = "CIF input is normalized once at the CLI boundary; scientific pipelines consume the resulting PDB contract."
+owner = "src/dvbfixer/structure_input.py::normalized_command_inputs"
+enforcement = [
+  "src/dvbfixer/structure_input.py::normalize_structure",
+  "src/dvbfixer/structure_input.py::run_with_normalized_inputs",
+  "src/dvbfixer/cli.py::main",
+]
+failure_mode = "Pipeline-local CIF readers can map identity differently or silently lose fixed-column-incompatible data."
+test_files = ["tests/test_structure_input.py", "tests/test_batch.py"]
+known_exceptions = ["CIF output is unsupported; input exceeding PDB limits fails instead of truncating."]
+
+[invariants.INV-CIF-CHAIN-IDENTITY]
+status = "implemented"
+statement = "Compatible case-sensitive chain IDs are preserved; incompatible IDs are mapped consistently into selectors and helper files."
+owner = "src/dvbfixer/structure_input.py::_chain_mapping"
+enforcement = [
+  "src/dvbfixer/structure_input.py::_insert_mapping_remarks",
+  "src/dvbfixer/structure_input.py::normalized_command_inputs",
+]
+failure_mode = "Commands or helper files can refer to stale or conflated chain identities."
+test_files = ["tests/test_structure_input.py"]
+known_exceptions = ["Inputs requiring more portable IDs than PDB provides fail rather than truncate."]
+
+[invariants.INV-ZBS-OPTION-PROPAGATION]
+status = "partial"
+statement = "Every public ZBS option is forwarded to each intended pipeline stage and omitted from unrelated stages."
+owner = "src/dvbfixer/zbs.py::_run_pipeline"
+enforcement = ["src/dvbfixer/zbs.py::parse_args", "src/dvbfixer/zbs.py::_run_pipeline"]
+failure_mode = "ZBS behavior can differ from the equivalent explicit command sequence."
+test_files = [
+  "tests/test_cli_stabilization.py",
+  "tests/test_prepare_smiles.py",
+  "tests/test_terminal_caps.py",
+]
+known_exceptions = ["There is no exhaustive option-to-stage forwarding matrix test."]
+
+[invariants.INV-ZBS-ARTIFACT-LOCATION]
+status = "implemented"
+statement = "Batch ZBS intermediates and sidecars are written beside the final output, never into the source tree."
+owner = "src/dvbfixer/zbs.py::_run_pipeline"
+enforcement = ["src/dvbfixer/zbs.py::_run_pipeline", "src/dvbfixer/batch.py::run_directory"]
+failure_mode = "Batch execution can modify the source tree or break intermediate identity handoff."
+test_files = ["tests/test_batch.py", "tests/test_zbs_postflight.py"]
+known_exceptions = ["Failed pipelines can retain intermediates created before failure."]

@@ -41,6 +41,7 @@ non-canonical residues.
 | Historical design notes, gotchas | [`docs/DESIGN_NOTES.md`](docs/DESIGN_NOTES.md) |
 | Installation + Modeller license | [`docs/installation.md`](docs/installation.md) |
 | Implemented domain policies | [`docs/domain-model.md`](docs/domain-model.md) |
+| Agent task/contract/invariant map | [`docs/agent/README.md`](docs/agent/README.md) |
 | Relaxation research and proposed benchmarks | [`docs/research/whole-complex-relaxation.md`](docs/research/whole-complex-relaxation.md) |
 | Force-field selection matrix | [`docs/force-fields.md`](docs/force-fields.md) |
 | Tracked structural test inputs, provenance, and checksums | [`tests/fixtures/README.md`](tests/fixtures/README.md) |
@@ -576,6 +577,7 @@ pytest -m 'not slow' -q   # fast lane
 pytest                   # complete suite, including external-tool integrations
 ruff check src/dvbfixer   # style
 mypy src/dvbfixer/cli.py src/dvbfixer/ffutils src/dvbfixer/pdbutils src/dvbfixer/align.py
+python scripts/check_agent_docs.py  # agent task/contract/invariant maps
 ```
 
 The full suite needs the scientific stack and external executables from

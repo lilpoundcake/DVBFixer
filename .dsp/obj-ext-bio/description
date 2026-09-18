@@ -1,3 +1,0 @@
-source: biopython
-kind: external
-purpose: BioPython: SeqIO, pairwise alignment, PDB parsing helpers.

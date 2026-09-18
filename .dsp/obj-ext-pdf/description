@@ -1,3 +1,0 @@
-source: pdbfixer
-kind: external
-purpose: PDBFixer: missing heavy atoms + residues + hydrogens, mutation application.

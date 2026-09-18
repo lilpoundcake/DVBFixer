@@ -15,6 +15,8 @@ geometry-dictionary regularization backend or shared backend capability
 negotiation. See [domain model](docs/domain-model.md) for current boundaries
 and [whole-complex relaxation research](docs/research/whole-complex-relaxation.md)
 for unimplemented alternatives and proposed benchmarks.
+Coding agents should start with the [agent knowledge map](docs/agent/README.md)
+for task-to-symbol navigation, contracts, invariants, and safe delegation.
 
 ## Module structure
 

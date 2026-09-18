@@ -1,3 +1,0 @@
-source: openmmforcefields
-kind: external
-purpose: openmmforcefields: SMIRNOFFTemplateGenerator for auto-parametrization of unknown ligands via OpenFF.

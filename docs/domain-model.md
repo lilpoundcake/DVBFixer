@@ -4,6 +4,11 @@ DVBfixer uses a focused domain model where file-format details must not
 silently change molecular meaning. It is intentionally not a rewrite of the
 CLI, GUI, or external-tool adapters.
 
+Coding agents should use the [agent knowledge map](agent/README.md) for
+task-to-symbol navigation, contracts, invariant status, coupled change groups,
+and focused verification. This page remains the concise human summary of the
+currently implemented domain model.
+
 ## Structure identity
 
 `dvbfixer.domain.structure_identity` defines immutable atom, residue, and

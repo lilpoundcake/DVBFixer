@@ -1,3 +1,0 @@
-source: openff-toolkit
-kind: external
-purpose: OpenFF Toolkit: Molecule.from_smiles for SMIRNOFF auto-parametrization of PDB sugars.

@@ -1,3 +1,0 @@
-source: numpy
-kind: external
-purpose: NumPy: numeric arrays for Kabsch, geometry, restraint vectors.
