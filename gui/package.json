@@ -36,6 +36,7 @@
     "@mui/material": "^7.3.11",
     "@mui/x-data-grid": "^8.28.6",
     "@rollup/wasm-node": "^4.60.1",
+    "@sinclair/typebox": "^0.34.52",
     "@types/pg": "^8.20.0",
     "flexlayout-react": "^0.8.19",
     "molstar": "^5.8.0",

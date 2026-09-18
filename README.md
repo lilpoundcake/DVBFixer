@@ -25,6 +25,8 @@ indexes structure and non-structure artifacts, and adds a persistent
 multi-template Homology workflow with MSA editing and Modeller template masks.
 The complete workflow is documented in the
 [GUI Homology guide](docs/gui-homology.md).
+The initial workspace-scoped `/api/v1` naming operation and OpenAPI endpoint are
+documented in the [DVBFixer API guide](docs/api.md).
 
 ```bash
 cd gui

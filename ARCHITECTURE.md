@@ -1248,3 +1248,12 @@ global `/structures/index.json` scanner and `/api/library/{meta,star,folder,move
 routes have been removed. Legacy top-level and per-workspace indexes are read
 only by idempotent, non-destructive migrations and remain on disk as recovery
 sources.
+
+`gui/server/naming-api.ts` provides the first versioned API vertical slice:
+`POST /api/v1/workspaces/:workspaceId/naming-conversions`. It resolves an input
+by manifest artifact ID, invokes the non-destructive Python `atom-names` command,
+validates its bounded JSON report and output digest, then re-reads the latest
+manifest before registering exactly one output. `naming-api-schema.ts` is the
+shared TypeBox source for runtime validation and `GET /api/v1/openapi.json`.
+Scientific naming policy remains in Python. The Vite host is not yet a
+production server and does not provide authentication or cross-process locking.

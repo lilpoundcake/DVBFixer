@@ -17,6 +17,22 @@ export interface WorkspaceArtifact {
   iggSubtype?: string
   allotype?: string
   equivalentChains?: string[][]
+  namingProvenance?: {
+    operation: 'pdb-force-field-naming'
+    operationId: string
+    apiVersion: 1
+    reportSchemaVersion: 1
+    sourceArtifactId: string
+    sourceFile: string
+    sourceSha256: string
+    command: 'atom-names'
+    targetForceField: 'amber' | 'charmm'
+    profile: 'gromacs'
+    variantOverrides: Array<{ chainId: string; residueNumber: string; insertionCode: string; variant: string }>
+    reportSha256: string
+    outputSha256: string
+    dvbfixerVersion: string
+  }
 }
 
 export interface WorkspaceArtifactMetadataPatch {

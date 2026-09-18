@@ -10,6 +10,8 @@ files = [
   "src/dvbfixer/domain/force_field_naming.py",
   "src/dvbfixer/force_field_naming.py",
   "src/dvbfixer/atom_names.py",
+  "gui/server/naming-api.ts",
+  "gui/server/naming-api-schema.ts",
   "src/dvbfixer/ffutils/ff_names.py",
   "src/dvbfixer/ffutils/variants.py",
   "src/dvbfixer/ffutils/dat.py",
@@ -29,8 +31,10 @@ start = [
   "src/dvbfixer/domain/force_field_naming.py::atom_name_policy",
   "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text",
   "src/dvbfixer/atom_names.py::main",
+  "gui/server/naming-api.ts::executeNamingConversion",
 ]
 callers = [
+  "gui/server/naming-api.ts::executeNamingConversion",
   "src/dvbfixer/atom_names.py::main",
   "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
   "src/dvbfixer/minimize/pipeline.py::minimize",
@@ -47,6 +51,7 @@ invariants = [
 ]
 change_group = "protein-variant-identity"
 test_files = [
+  "gui/server/naming-api.test.ts",
   "tests/test_atom_names_cli.py",
   "tests/test_force_field_naming.py",
   "tests/test_ff_names.py",
@@ -56,6 +61,7 @@ test_files = [
 ]
 verification = [
   "pytest -q tests/test_atom_names_cli.py tests/test_force_field_naming.py tests/test_ff_names.py tests/test_variants_gromacs_lyn.py tests/test_prepare_icode_variants.py tests/test_terminal_caps.py tests/test_scientific_domain.py",
+  "cd gui && npm test -- --run server/naming-api.test.ts server/dvbfixer-runner.test.ts",
 ]
 
 [tasks.add-public-command]

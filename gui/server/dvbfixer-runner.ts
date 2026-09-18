@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process'
 export interface DvbfixerRunOptions {
   timeoutMs?: number
   maxOutputBytes?: number
+  killGraceMs?: number
   signal?: AbortSignal
 }
 
@@ -43,10 +44,12 @@ export function runDvbfixerArgs(
     let stderr = ''
     let settled = false
     let terminationReason = ''
+    let killTimer: ReturnType<typeof setTimeout> | undefined
     const finish = (code: number) => {
       if (settled) return
       settled = true
       clearTimeout(timer)
+      if (killTimer) clearTimeout(killTimer)
       options.signal?.removeEventListener('abort', abort)
       resolve({ code, stdout, stderr: terminationReason ? `${stderr}\n${terminationReason}`.trim() : stderr })
     }
@@ -56,6 +59,13 @@ export function runDvbfixerArgs(
       if (process.platform !== 'win32' && child.pid) {
         try { process.kill(-child.pid, 'SIGTERM') } catch { child.kill('SIGTERM') }
       } else child.kill('SIGTERM')
+      killTimer = setTimeout(() => {
+        if (settled) return
+        if (process.platform !== 'win32' && child.pid) {
+          try { process.kill(-child.pid, 'SIGKILL') } catch { child.kill('SIGKILL') }
+        } else child.kill('SIGKILL')
+      }, options.killGraceMs ?? 5_000)
+      killTimer.unref()
     }
     const abort = () => terminate('DVBfixer run cancelled')
     const timer = setTimeout(() => terminate(`DVBfixer run timed out after ${timeoutMs} ms`), timeoutMs)

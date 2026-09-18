@@ -30,6 +30,12 @@ explicit output, supports typed JSON variant overrides, dry-run validation, and
 a versioned JSON report. It calls the pure service directly rather than the
 in-place compatibility wrapper.
 
+The workspace-scoped HTTP adapter is
+`gui/server/naming-api.ts::executeNamingConversion`. It accepts an artifact ID,
+invokes `atom-names`, validates the report and digest, and registers a new
+artifact with naming provenance. TypeBox schemas and OpenAPI live in
+`gui/server/naming-api-schema.ts`.
+
 `dvbfixer rename` is outside this operation. It collapses variant residue names
 to canonical PDB parents and does not produce GROMACS atom naming.
 
@@ -46,6 +52,7 @@ to canonical PDB parents and does not produce GROMACS atom naming.
 | Collision rejection | implemented | `force_field_naming.py::convert_force_field_naming` | collision regressions in pure-service and adapter tests |
 | Multi-model V1 policy | implemented | `force_field_naming.py::convert_force_field_naming` | more than one `MODEL` is rejected before rendering |
 | Non-destructive CLI and JSON report | implemented | `atom_names.py::main` | `tests/test_atom_names_cli.py` |
+| Workspace-scoped V1 HTTP conversion | implemented | `naming-api.ts::executeNamingConversion` | `gui/server/naming-api.test.ts` |
 
 ## Entry Points
 
@@ -55,6 +62,7 @@ to canonical PDB parents and does not produce GROMACS atom naming.
 | Change legacy pipeline file adaptation | `ff_names.py::apply_variants_to_pdb_text` | `pdb-force-field-naming` |
 | Change protonation variant identity | `variants.py::scan_variant_names` | `dat-record-lifecycle` |
 | Change the public naming command | `atom_names.py::main` | `pdb-force-field-naming`, public command surface in `tasks.toml` |
+| Change the HTTP naming boundary | `naming-api.ts::executeNamingConversion` | `pdb-force-field-naming`, workspace containment and artifact publication |
 
 The complete task record and focused commands are in
 [`../tasks.toml`](../tasks.toml).
@@ -64,8 +72,8 @@ The complete task record and focused commands are in
 The authoritative contract records are in
 [`../contracts.toml`](../contracts.toml).
 
-`pdb-force-field-naming` is pure and is exposed through a CLI adapter suitable
-for the future HTTP boundary.
+`pdb-force-field-naming` is pure and is exposed through CLI and workspace HTTP
+adapters.
 The legacy wrapper still mutates a path for existing pipeline callers, but it
 validates first, performs no write on a no-op or failure, and commits changed
 text with a same-directory atomic replacement. An HTTP adapter must call the
@@ -112,7 +120,7 @@ helper. Treat this as a known backend discrepancy.
 - OpenMM is an upstream adapter that can canonicalize explicit variant names.
 - GROMACS force-field files are evidence for target spellings, not domain code.
 - `.dat` is the published pipeline language for preserving variant choices.
-- The future Node HTTP layer is a transport/workspace adapter and must not
+- The Node HTTP layer is a transport/workspace adapter and must not
   duplicate naming tables or scientific decisions.
 - `atom_names.py` owns CLI path validation, atomic output/report publication,
   and the camelCase report envelope.
@@ -133,14 +141,16 @@ helper. Treat this as a known backend discrepancy.
 - Nucleic-acid terminal hydroxyl naming is not fully validated.
 - `--atom-naming standard` suppresses shifts; it is not a reverse converter.
 - The `tleap-reduce` early-return paths still bypass the final naming adapter.
-- No workspace-scoped HTTP adapter exists yet.
+- The HTTP adapter is Vite-hosted and unauthenticated; production hosting,
+  authorization, and cross-process locking are not implemented.
 
 ## Proposed Work
 
 The API design is in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md).
-Phases 1 and 2 are implemented. The next slice is the workspace-scoped HTTP
-route over `dvbfixer atom-names`. Do not expose the in-place compatibility
-wrapper as an HTTP handler.
+Phases 1 and 2 and the core Phase 3 HTTP vertical slice are implemented. The
+next slice is production route composition, authentication/authorization, and
+observability. Do not expose the in-place compatibility wrapper as an HTTP
+handler.
 
 ## Focused Verification
 
@@ -149,4 +159,5 @@ pytest -q tests/test_atom_names_cli.py tests/test_force_field_naming.py tests/te
   tests/test_variants_gromacs_lyn.py tests/test_prepare_icode_variants.py \
   tests/test_terminal_caps.py tests/test_scientific_domain.py
 python scripts/check_agent_docs.py
+cd gui && npm test -- --run server/naming-api.test.ts server/dvbfixer-runner.test.ts
 ```

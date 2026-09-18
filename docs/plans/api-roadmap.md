@@ -399,6 +399,13 @@ using an internal Python function.
 
 ### Phase 3: versioned HTTP vertical slice
 
+Core naming slice implemented on 2026-09-18: the Vite-hosted Node adapter uses
+TypeBox runtime schemas, publishes OpenAPI 3.1, resolves source artifacts by ID,
+validates bounded CLI reports and output digests, preserves concurrent manifest
+updates by reloading before publication, and records reproducible provenance.
+Structured logs, metrics, a generated client, authentication, and a standalone
+production host remain in Phases 3-4.
+
 - Add runtime request/response schemas and the V1 route.
 - Use workspace artifact IDs and atomic artifact registration.
 - Generate an OpenAPI document from the same schemas.

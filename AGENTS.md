@@ -599,6 +599,11 @@ The full suite needs the scientific stack and external executables from
   manifest before retrying. Preserve newly registered artifacts and unrelated
   panel state. Reload must preserve edits arriving during its GET and ignore
   responses for a superseded workspace or revision.
+- **The V1 naming API resolves inputs by workspace artifact ID.**
+  `gui/server/naming-api.ts` must invoke `dvbfixer atom-names`, validate its
+  bounded report and output digest, re-read the latest manifest immediately
+  before publication, and register exactly one output with provenance. Dry runs
+  and all failures register nothing; Node must not duplicate naming science.
 - **Diagnostic summaries require findings.** Clean runs emit no empty warning
   banner. Preserve fd-level capture and summaries for actual warnings/errors,
   including during exception cleanup.

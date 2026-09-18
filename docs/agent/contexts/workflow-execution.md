@@ -106,6 +106,9 @@ already exited.
 - Scientific materialization stays in Python. TypeScript may validate,
   resolve, schedule, capture, and register, but must not duplicate science.
 - CLI CIF normalization remains the single format boundary.
+- The V1 naming route accepts a workspace artifact ID rather than a caller path,
+  validates the CLI report and digest, and re-reads the latest manifest before
+  registering exactly one output. Dry runs and failures register nothing.
 
 ## Callers
 
@@ -127,10 +130,13 @@ already exited.
 - `batch.py` adapts a directory into isolated single-input invocations.
 - `dvbfixer-runner.ts` adapts a command plus argv to a child process. It uses a
   configurable executable/prefix, bounded capture, timeout, abort signal, and
-  Unix process-group `SIGTERM` where available. It has no SIGKILL escalation.
+  Unix process-group `SIGTERM` where available, followed by `SIGKILL` after a
+  configurable grace period if the child does not exit.
 - `workspace-api.ts` adapts workspace-relative paths and manifests to local
   filesystem storage.
 - `api-plugin.ts` is a Vite composition adapter, not a production server.
+- `naming-api.ts` is the synchronous artifact-ID-based V1 naming adapter;
+  `naming-api-schema.ts` supplies its runtime and OpenAPI contracts.
 
 ## Side Effects
 
@@ -172,9 +178,8 @@ job record, restoration, SSE lifecycle, or cancellation endpoint.
   there is no durable worker reconciliation or resume.
 - Active-run locks and SSE subscribers exist only in memory, so multiple server
   instances can run conflicting work and cannot share events.
-- Cancellation and timeout send one termination signal with no escalation or
-  durable `cancellation-requested` state; completion still depends on child
-  close.
+- Cancellation and timeout have process-kill escalation but no durable
+  `cancellation-requested` state.
 - The static GUI build does not ship these Vite backend routes.
 
 ## Proposed Work

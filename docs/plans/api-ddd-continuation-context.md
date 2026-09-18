@@ -141,24 +141,22 @@ These are recommendations, not accepted ADRs:
 
 Decisions still requiring maintainer agreement:
 
-- Runtime schema/OpenAPI library for the TypeScript server.
 - Authentication model and principal-to-workspace authorization.
 - Whether direct upload/download conversion is needed in V1 or only after the
   workspace-artifact vertical slice.
-- Whether the HTTP route accepts explicit variant overrides inline, by JSON
-  artifact, or both. The CLI accepts a strict JSON file.
+- Whether the HTTP route should later accept a JSON override artifact in
+  addition to its implemented inline override array.
 
 ## Recommended next implementation session
 
-Phase 2 is implemented as `dvbfixer atom-names`. Continue with the versioned
-HTTP route.
+Phases 2 and the core Phase 3 naming vertical slice are implemented. Continue
+with production hosting and the remaining cross-cutting API concerns.
 
-1. Record the accepted naming boundary and multi-model policy in an ADR.
-2. Build the workspace-scoped `/api/v1` route over the application/command
-   boundary, never over the in-place compatibility wrapper.
-3. Add runtime request/response schemas and generate OpenAPI from them.
-4. Add route tests for workspace isolation, atomic artifact registration,
-   dry-run behavior, provenance, and subprocess failures.
+1. Extract route composition from Vite into a host-neutral Node application.
+2. Add authentication and principal-to-workspace authorization.
+3. Add structured request logs, metrics, audit retention, and a generated client.
+4. Add a storage-level manifest lock or compare-and-swap before multi-instance
+   deployment.
 
 Do not add an HTTP handler around `apply_variants_to_pdb_text`. It remains an
 in-place compatibility adapter; public adapters must use the pure naming

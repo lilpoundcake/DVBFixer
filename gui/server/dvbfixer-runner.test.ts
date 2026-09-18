@@ -37,9 +37,13 @@ describe('DVBfixer runner', () => {
   })
 
   it('terminates a timed-out process', async () => {
-    useNode('setInterval(() => {}, 1000)')
-    const result = await runDvbfixerArgs('doctor', [], process.cwd(), { timeoutMs: 30 })
+    useNode("process.on('SIGTERM', () => {}); setInterval(() => {}, 1000)")
+    const started = Date.now()
+    const result = await runDvbfixerArgs(
+      'doctor', [], process.cwd(), { timeoutMs: 30, killGraceMs: 30 },
+    )
     expect(result.code).not.toBe(0)
     expect(result.stderr).toContain('timed out')
+    expect(Date.now() - started).toBeLessThan(1_000)
   })
 })

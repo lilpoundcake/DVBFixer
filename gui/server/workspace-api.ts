@@ -32,6 +32,29 @@ export interface WorkspaceArtifact {
   engineerChecksum?: string
   hasGlycan?: boolean
   scheme?: 'EU' | 'Kabat'
+  namingProvenance?: NamingConversionProvenance
+}
+
+export interface NamingConversionProvenance {
+  operation: 'pdb-force-field-naming'
+  operationId: string
+  apiVersion: 1
+  reportSchemaVersion: 1
+  sourceArtifactId: string
+  sourceFile: string
+  sourceSha256: string
+  command: 'atom-names'
+  targetForceField: 'amber' | 'charmm'
+  profile: 'gromacs'
+  variantOverrides: Array<{
+    chainId: string
+    residueNumber: string
+    insertionCode: string
+    variant: string
+  }>
+  reportSha256: string
+  outputSha256: string
+  dvbfixerVersion: string
 }
 
 export interface WorkspaceArtifactMetadataPatch {
@@ -263,6 +286,26 @@ function sanitizeArtifactMetadata(artifact: WorkspaceArtifact): void {
   if (artifact.engineerChecksum !== undefined && typeof artifact.engineerChecksum !== 'string') delete artifact.engineerChecksum
   if (artifact.hasGlycan !== undefined && typeof artifact.hasGlycan !== 'boolean') delete artifact.hasGlycan
   if (artifact.scheme !== undefined && artifact.scheme !== 'EU' && artifact.scheme !== 'Kabat') delete artifact.scheme
+  if (artifact.namingProvenance !== undefined && !validNamingProvenance(artifact.namingProvenance)) delete artifact.namingProvenance
+}
+
+function validNamingProvenance(value: unknown): value is NamingConversionProvenance {
+  if (!value || typeof value !== 'object') return false
+  const item = value as Record<string, unknown>
+  return item.operation === 'pdb-force-field-naming' && item.command === 'atom-names' &&
+    item.apiVersion === 1 && item.reportSchemaVersion === 1 &&
+    typeof item.operationId === 'string' && typeof item.sourceArtifactId === 'string' &&
+    typeof item.sourceFile === 'string' && typeof item.sourceSha256 === 'string' &&
+    (item.targetForceField === 'amber' || item.targetForceField === 'charmm') &&
+    item.profile === 'gromacs' && Array.isArray(item.variantOverrides) &&
+    item.variantOverrides.every(override => {
+      if (!override || typeof override !== 'object') return false
+      const entry = override as Record<string, unknown>
+      return typeof entry.chainId === 'string' && typeof entry.residueNumber === 'string' &&
+        typeof entry.insertionCode === 'string' && typeof entry.variant === 'string'
+    }) &&
+    typeof item.reportSha256 === 'string' && typeof item.outputSha256 === 'string' &&
+    typeof item.dvbfixerVersion === 'string'
 }
 
 export function saveWorkspace(dataRoot: string, manifest: WorkspaceManifest): WorkspaceManifest {

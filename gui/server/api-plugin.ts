@@ -24,6 +24,7 @@ import { COMMANDS } from './dvbfixer-spec'
 import { buildArgs } from './command-args'
 import { acquireWorkspaceRun, registerManagedJobApi } from './managed-jobs'
 import { registerHomologyApi } from './homology-api'
+import { registerNamingApi } from './naming-api'
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import { loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, saveWorkspace, workspaceRoot } from './workspace-api'
 import { errorStatus, MAX_UPLOAD_BODY_BYTES, readRequestBody } from './request-body'
@@ -239,6 +240,7 @@ export function apiPlugin(): Plugin {
       registerWorkspaceApi(server, structuresDir)
       registerHomologyApi(server, structuresDir)
       registerManagedJobApi(server, structuresDir)
+      registerNamingApi(server, structuresDir)
 
       // ── Artifact import ────────────────────────────────────────────────
       server.middlewares.use('/api/artifacts/import', async (req, res, next) => {

@@ -14,6 +14,7 @@ producers = [
   "src/dvbfixer/protonate.py::main",
 ]
 consumers = [
+  "gui/server/naming-api.ts::executeNamingConversion",
   "src/dvbfixer/top/pipeline.py::main",
   "external GROMACS tooling",
 ]
@@ -22,6 +23,7 @@ source_mutation = "The pure service and atom-names CLI do not mutate their input
 commit_behavior = "The service validates the complete naming plan before rendering. The CLI stages report and output in their destination directories and publishes output last; the compatibility adapter atomically replaces changed output."
 failure_behavior = "Malformed supported records, invalid or ambiguous variants, multiple MODEL blocks, unsupported directions, target-name collisions, and CLI path conflicts fail without publishing a transformed output."
 test_files = [
+  "gui/server/naming-api.test.ts",
   "tests/test_force_field_naming.py",
   "tests/test_atom_names_cli.py",
   "tests/test_ff_names.py",
@@ -31,7 +33,7 @@ test_files = [
 known_divergences = [
   "The tleap-reduce prepare/protonate early-return paths bypass the final naming helper.",
   "Terminal nucleic-acid hydroxyl naming remains unverified and is not claimed as supported.",
-  "No workspace-scoped HTTP adapter exposes the pure service yet.",
+  "The workspace HTTP adapter is Vite-hosted and has no authentication or cross-process manifest lock yet.",
 ]
 
 [contracts.dat-record-lifecycle]
