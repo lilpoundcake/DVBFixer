@@ -14,6 +14,7 @@
 | `dvbfixer minimize` | [`minimize.md`](minimize.md) |
 | `dvbfixer protonate` | [`protonate.md`](protonate.md) |
 | `dvbfixer rename` | [`rename.md`](rename.md) |
+| `dvbfixer atom-names` | [`atom-names.md`](atom-names.md) |
 | `dvbfixer top` | [`top.md`](top.md) |
 | `dvbfixer transplant` | [`transplant.md`](transplant.md) |
 | `dvbfixer puppet` | [`puppet.md`](puppet.md) |

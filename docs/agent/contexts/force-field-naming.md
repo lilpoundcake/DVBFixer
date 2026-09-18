@@ -25,6 +25,11 @@ pipelines continue through
 `src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text`, an atomic
 in-place compatibility adapter over that service.
 
+`dvbfixer atom-names` is the non-destructive public adapter. It requires an
+explicit output, supports typed JSON variant overrides, dry-run validation, and
+a versioned JSON report. It calls the pure service directly rather than the
+in-place compatibility wrapper.
+
 `dvbfixer rename` is outside this operation. It collapses variant residue names
 to canonical PDB parents and does not produce GROMACS atom naming.
 
@@ -40,6 +45,7 @@ to canonical PDB parents and does not produce GROMACS atom naming.
 | Structured per-change report and stable failures | implemented | `NamingConversionResult`, `NamingConversionError` | `tests/test_force_field_naming.py` |
 | Collision rejection | implemented | `force_field_naming.py::convert_force_field_naming` | collision regressions in pure-service and adapter tests |
 | Multi-model V1 policy | implemented | `force_field_naming.py::convert_force_field_naming` | more than one `MODEL` is rejected before rendering |
+| Non-destructive CLI and JSON report | implemented | `atom_names.py::main` | `tests/test_atom_names_cli.py` |
 
 ## Entry Points
 
@@ -48,7 +54,7 @@ to canonical PDB parents and does not produce GROMACS atom naming.
 | Change force-field naming policy/service | `force_field_naming.py::convert_force_field_naming` | `pdb-force-field-naming`, `dat-record-lifecycle` |
 | Change legacy pipeline file adaptation | `ff_names.py::apply_variants_to_pdb_text` | `pdb-force-field-naming` |
 | Change protonation variant identity | `variants.py::scan_variant_names` | `dat-record-lifecycle` |
-| Add a public naming command | `command_registry.py::COMMAND_REGISTRY` | public command surface in `tasks.toml` |
+| Change the public naming command | `atom_names.py::main` | `pdb-force-field-naming`, public command surface in `tasks.toml` |
 
 The complete task record and focused commands are in
 [`../tasks.toml`](../tasks.toml).
@@ -58,7 +64,8 @@ The complete task record and focused commands are in
 The authoritative contract records are in
 [`../contracts.toml`](../contracts.toml).
 
-`pdb-force-field-naming` is pure and suitable for a future CLI/HTTP adapter.
+`pdb-force-field-naming` is pure and is exposed through a CLI adapter suitable
+for the future HTTP boundary.
 The legacy wrapper still mutates a path for existing pipeline callers, but it
 validates first, performs no write on a no-op or failure, and commits changed
 text with a same-directory atomic replacement. An HTTP adapter must call the
@@ -107,6 +114,8 @@ helper. Treat this as a known backend discrepancy.
 - `.dat` is the published pipeline language for preserving variant choices.
 - The future Node HTTP layer is a transport/workspace adapter and must not
   duplicate naming tables or scientific decisions.
+- `atom_names.py` owns CLI path validation, atomic output/report publication,
+  and the camelCase report envelope.
 
 ## Side Effects
 
@@ -124,20 +133,19 @@ helper. Treat this as a known backend discrepancy.
 - Nucleic-acid terminal hydroxyl naming is not fully validated.
 - `--atom-naming standard` suppresses shifts; it is not a reverse converter.
 - The `tleap-reduce` early-return paths still bypass the final naming adapter.
-- No dedicated public CLI or HTTP adapter exists yet.
+- No workspace-scoped HTTP adapter exists yet.
 
 ## Proposed Work
 
 The API design is in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md).
-Phase 1's pure typed boundary and safety validation are implemented. The next
-slice is a dedicated non-destructive CLI adapter with JSON reporting, followed
-by the workspace-scoped HTTP route. Do not expose the in-place compatibility
+Phases 1 and 2 are implemented. The next slice is the workspace-scoped HTTP
+route over `dvbfixer atom-names`. Do not expose the in-place compatibility
 wrapper as an HTTP handler.
 
 ## Focused Verification
 
 ```bash
-pytest -q tests/test_force_field_naming.py tests/test_ff_names.py \
+pytest -q tests/test_atom_names_cli.py tests/test_force_field_naming.py tests/test_ff_names.py \
   tests/test_variants_gromacs_lyn.py tests/test_prepare_icode_variants.py \
   tests/test_terminal_caps.py tests/test_scientific_domain.py
 python scripts/check_agent_docs.py

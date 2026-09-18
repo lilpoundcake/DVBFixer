@@ -141,28 +141,24 @@ These are recommendations, not accepted ADRs:
 
 Decisions still requiring maintainer agreement:
 
-- Final command name (`atom-names` is only a candidate).
 - Runtime schema/OpenAPI library for the TypeScript server.
 - Authentication model and principal-to-workspace authorization.
 - Whether direct upload/download conversion is needed in V1 or only after the
   workspace-artifact vertical slice.
-- Whether explicit variant overrides are accepted inline, by JSON artifact, or
-  both at the CLI boundary.
+- Whether the HTTP route accepts explicit variant overrides inline, by JSON
+  artifact, or both. The CLI accepts a strict JSON file.
 
 ## Recommended next implementation session
 
-Continue with Phase 2 of the API roadmap, then the versioned HTTP route.
+Phase 2 is implemented as `dvbfixer atom-names`. Continue with the versioned
+HTTP route.
 
-1. Record the accepted naming boundary and multi-model policy in an ADR and
-   finalize the dedicated command name.
-2. Add the dedicated non-destructive CLI adapter with explicit input/output,
-   variant JSON, dry-run, and JSON report support.
-3. Register the command and regenerate CLI/GUI specifications.
-4. Add subprocess-level tests proving source preservation and no destination on
-   unsafe input.
-5. Build the workspace-scoped `/api/v1` route over that application/command
+1. Record the accepted naming boundary and multi-model policy in an ADR.
+2. Build the workspace-scoped `/api/v1` route over the application/command
    boundary, never over the in-place compatibility wrapper.
-6. Run focused command and naming tests plus generated-file checks.
+3. Add runtime request/response schemas and generate OpenAPI from them.
+4. Add route tests for workspace isolation, atomic artifact registration,
+   dry-run behavior, provenance, and subprocess failures.
 
 Do not add an HTTP handler around `apply_variants_to_pdb_text`. It remains an
 in-place compatibility adapter; public adapters must use the pure naming

@@ -19,6 +19,7 @@ public command therefore updates all three surfaces from the same contract.
 
 | Command | What it does | Workflow group |
 |---------|--------------|----------------|
+| [`atom-names`](atom-names.md) | Convert PDB residue and atom names for AMBER/CHARMM GROMACS consumers without modifying the source | Utilities |
 | [`cluster`](cluster.md) | Glycan conformational clustering from MD trajectories (GFDB-style) | Analysis |
 | [`conect`](conect.md) | Infer missing CONECT records (SS, glycosidic, glycosylation) into a PDB | Utilities |
 | [`convert`](convert.md) | Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants); bidirectional | Glycoprotein prep |

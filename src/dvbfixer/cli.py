@@ -51,11 +51,15 @@ def main() -> None:
         print_help()
         sys.exit(1)
 
-    module_name = get_command(command).module
+    command_spec = get_command(command)
+    module_name = command_spec.module
     cmd_main = import_module(module_name).main
-    from dvbfixer.structure_input import run_with_normalized_inputs
 
     def normalized_main(arguments: list[str]) -> object:
+        if not command_spec.normalize_cif:
+            return cmd_main(arguments)
+        from dvbfixer.structure_input import run_with_normalized_inputs
+
         return run_with_normalized_inputs(command, cmd_main, arguments)
 
     from dvbfixer.runtime import run_header, tee_output

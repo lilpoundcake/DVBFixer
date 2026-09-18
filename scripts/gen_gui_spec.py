@@ -20,8 +20,9 @@ CATEGORIES = {command.name: command.category for command in COMMAND_REGISTRY}
 BATCH = {command.name for command in COMMAND_REGISTRY if command.batch}
 ARTIFACT_DESTS = {
     "input", "topology", "trajectory", "acceptor", "donor", "graft", "template",
-    "fasta", "alignment", "dat", "gaussian_log",
+    "fasta", "alignment", "dat", "gaussian_log", "variant_overrides",
 }
+HIDDEN_DESTS = {"report_json"}
 OUTPUT_EXTENSIONS = {
     command.name: command.output_extension for command in COMMAND_REGISTRY
 }
@@ -148,6 +149,8 @@ def command_schema(name: str, description: str) -> dict:
         for action in group._group_actions:
             if isinstance(action, argparse._HelpAction):
                 continue
+            if action.dest in HIDDEN_DESTS:
+                continue
             if action.dest == "output" or "--output" in action.option_strings:
                 has_output = True
                 continue
@@ -163,7 +166,7 @@ def command_schema(name: str, description: str) -> dict:
             groups.append({"name": group.title, "fields": group_fields})
     return {
         "name": name,
-        "label": name.replace("_", " ").title(),
+        "label": name.replace("_", " ").replace("-", " ").title(),
         "description": description,
         "category": command.category,
         "inputs": inputs,

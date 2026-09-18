@@ -287,9 +287,8 @@ pure service; items 7-8 remain before broader workflow exposure:
 
 ### CLI adapter
 
-Add a dedicated command rather than overloading `rename`. A candidate name is
-`dvbfixer atom-names`; the exact public spelling needs an ADR because command
-names are long-lived.
+The dedicated command is `dvbfixer atom-names`; it remains separate from
+`rename` and `convert` because command names and semantics are long-lived.
 
 The command should:
 
@@ -388,6 +387,8 @@ Exit criterion: the complete Python naming matrix passes without filesystem I/O
 in core tests, and the existing pipeline tests still pass.
 
 ### Phase 2: dedicated command adapter
+
+Status: implemented on 2026-09-18.
 
 - Add the command, JSON report, explicit output behavior, and documentation.
 - Register the command and regenerate `docs/reference/` and the GUI spec.

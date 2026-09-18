@@ -23,6 +23,10 @@ def test_command_registry_is_complete_and_unique() -> None:
     assert all(command.category for command in COMMAND_REGISTRY)
     assert all(command.success_codes for command in COMMAND_REGISTRY)
     assert "glycam" not in COMMAND_BY_NAME
+    assert COMMAND_BY_NAME["atom-names"].module == "dvbfixer.atom_names"
+    assert COMMAND_BY_NAME["atom-names"].category == "Utilities"
+    assert COMMAND_BY_NAME["atom-names"].normalize_cif is False
+    assert COMMAND_BY_NAME["atom-names"].batch is False
 
 
 def test_batch_suffixes_are_derived_from_command_registry() -> None:

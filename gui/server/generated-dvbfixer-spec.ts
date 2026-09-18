@@ -1760,6 +1760,125 @@ export const GENERATED_COMMANDS = [
     "specialized": false
   },
   {
+    "name": "atom-names",
+    "label": "Atom Names",
+    "description": "Convert PDB atom and residue names for a force field",
+    "category": "Utilities",
+    "inputs": [
+      {
+        "flag": "input",
+        "dest": "input",
+        "label": "Input",
+        "type": "artifact",
+        "group": "Input / output",
+        "help": "Input legacy PDB file (.pdb or .ent)",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "input",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--variant-overrides",
+        "dest": "variant_overrides",
+        "label": "Variant Overrides",
+        "type": "artifact",
+        "group": "Input / output",
+        "help": "JSON array of exact chain/residue/insertion-code variant overrides",
+        "required": false,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--target-ff",
+        "dest": "target_ff",
+        "label": "Target Ff",
+        "type": "select",
+        "group": "Naming conversion",
+        "help": "Target force-field naming family",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "options": [
+          "amber",
+          "charmm"
+        ]
+      },
+      {
+        "flag": "--profile",
+        "dest": "profile",
+        "label": "Profile",
+        "type": "select",
+        "group": "Naming conversion",
+        "help": "Target consumer naming profile",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "gromacs",
+        "options": [
+          "gromacs"
+        ]
+      },
+      {
+        "flag": "--dry-run",
+        "dest": "dry_run",
+        "label": "Dry Run",
+        "type": "bool",
+        "group": "Naming conversion",
+        "help": "Validate and report without writing output",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--verbose",
+        "dest": "verbose",
+        "label": "Verbose",
+        "type": "bool",
+        "group": "Diagnostics",
+        "help": "Print conversion summary",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      }
+    ],
+    "groups": [
+      {
+        "name": "Input / output",
+        "fields": [
+          "--variant-overrides"
+        ]
+      },
+      {
+        "name": "Naming conversion",
+        "fields": [
+          "--target-ff",
+          "--profile",
+          "--dry-run"
+        ]
+      },
+      {
+        "name": "Diagnostics",
+        "fields": [
+          "--verbose"
+        ]
+      }
+    ],
+    "outputExtension": ".pdb",
+    "outputMode": "file",
+    "hasOutput": true,
+    "outputKind": "artifact",
+    "batch": false,
+    "successCodes": [
+      0
+    ],
+    "specialized": false
+  },
+  {
     "name": "top",
     "label": "Top",
     "description": "Generate GROMACS .itp/.top topology files from a structure",

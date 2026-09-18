@@ -8,6 +8,7 @@ without loading the scientific stack.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Literal
 
@@ -27,6 +28,7 @@ class CommandSpec:
     output_kind: OutputKind = "artifact"
     success_codes: tuple[int, ...] = (0,)
     specialized: bool = False
+    normalize_cif: bool = True
 
     @property
     def batch(self) -> bool:
@@ -42,6 +44,7 @@ COMMAND_REGISTRY: tuple[CommandSpec, ...] = (
     CommandSpec("minimize", "dvbfixer.minimize", "Energy-minimize with OpenMM using selective restraints", "Refinement", batch_output_suffix="_minimized.pdb"),
     CommandSpec("protonate", "dvbfixer.protonate", "Set protonation states using PROPKA3 pKa predictions", "Refinement", batch_output_suffix="_prot.pdb"),
     CommandSpec("rename", "dvbfixer.rename", "Rename non-canonical residues (AMBER/CHARMM) to standard names", "Utilities", batch_output_suffix="_canon.pdb"),
+    CommandSpec("atom-names", "dvbfixer.atom_names", "Convert PDB atom and residue names for a force field", "Utilities", normalize_cif=False),
     CommandSpec("top", "dvbfixer.top", "Generate GROMACS .itp/.top topology files from a structure", "Topology & chemistry", output_extension=".top"),
     CommandSpec("transplant", "dvbfixer.transplant", "Transplant molecules between donor and acceptor structures", "Glycoprotein preparation"),
     CommandSpec("puppet", "dvbfixer.puppet", "Strip a structure to a backbone-only polyglycine model", "Utilities", batch_output_suffix="_puppet.pdb"),
@@ -65,7 +68,7 @@ def validate_command_registry() -> None:
     if len(COMMAND_BY_NAME) != len(COMMAND_REGISTRY):
         raise RuntimeError("duplicate command name in COMMAND_REGISTRY")
     for command in COMMAND_REGISTRY:
-        if not command.name.isidentifier() or not command.name.islower():
+        if re.fullmatch(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*", command.name) is None:
             raise RuntimeError(f"invalid command name: {command.name!r}")
         if not command.module.startswith("dvbfixer."):
             raise RuntimeError(f"invalid module for {command.name}: {command.module!r}")

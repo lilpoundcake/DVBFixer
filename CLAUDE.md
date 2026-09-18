@@ -6,7 +6,7 @@ Guidance for Claude Code (claude.ai/code) working in this repository.
 
 **dvbfixer** — a Python package providing CLI tools for preparing PDB
 (Protein Data Bank) structural biology files. Installed as a single
-`dvbfixer` command with 21 subcommands, plus the React/Node GUI in `gui/`.
+`dvbfixer` command with 22 subcommands, plus the React/Node GUI in `gui/`.
 
 ## Prep backends: `legacy` (default) vs `tleap-reduce` (opt-in)
 

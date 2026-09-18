@@ -7,6 +7,7 @@ status = "partial"
 owner = "src/dvbfixer/force_field_naming.py::convert_force_field_naming"
 description = "Pure PDB text conversion with typed target/override input, preflight validation, structured per-atom changes, stable errors, and a transformed-text result."
 producers = [
+  "src/dvbfixer/atom_names.py::main",
   "src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text",
   "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
   "src/dvbfixer/minimize/pipeline.py::minimize",
@@ -17,11 +18,12 @@ consumers = [
   "external GROMACS tooling",
 ]
 identity_keys = ["model", "chain", "residue_number", "insertion_code", "alternate_location", "atom_name"]
-source_mutation = "The pure service does not mutate its input; the legacy path adapter atomically replaces its path only after successful conversion."
-commit_behavior = "The service validates the complete naming plan before rendering. The compatibility adapter writes a same-directory temporary file and atomically replaces changed output; no-op conversion performs no write."
-failure_behavior = "Malformed supported records, invalid or ambiguous variants, multiple MODEL blocks, unsupported directions, and target-name collisions raise stable NamingConversionError codes before transformed output is committed."
+source_mutation = "The pure service and atom-names CLI do not mutate their input; the legacy path adapter atomically replaces its path only after successful conversion."
+commit_behavior = "The service validates the complete naming plan before rendering. The CLI stages report and output in their destination directories and publishes output last; the compatibility adapter atomically replaces changed output."
+failure_behavior = "Malformed supported records, invalid or ambiguous variants, multiple MODEL blocks, unsupported directions, target-name collisions, and CLI path conflicts fail without publishing a transformed output."
 test_files = [
   "tests/test_force_field_naming.py",
+  "tests/test_atom_names_cli.py",
   "tests/test_ff_names.py",
   "tests/test_variants_gromacs_lyn.py",
   "tests/test_terminal_caps.py",
@@ -29,7 +31,7 @@ test_files = [
 known_divergences = [
   "The tleap-reduce prepare/protonate early-return paths bypass the final naming helper.",
   "Terminal nucleic-acid hydroxyl naming remains unverified and is not claimed as supported.",
-  "No dedicated CLI or HTTP adapter exposes the pure service yet.",
+  "No workspace-scoped HTTP adapter exposes the pure service yet.",
 ]
 
 [contracts.dat-record-lifecycle]
