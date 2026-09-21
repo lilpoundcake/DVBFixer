@@ -148,7 +148,8 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Add authentication and principal-to-workspace authorization.
 - [x] Add restrictive CORS.
 - [x] Add upload and workspace limits plus process-wide child concurrency control.
-- [ ] Add request-rate limits and OS-level CPU, memory, and filesystem quotas.
+- [x] Add bounded process-local request-rate limits before authentication.
+- [ ] Add OS-level CPU, memory, and filesystem quotas.
 - [x] Document current local deployment and security boundaries.
 - [ ] Document a supported public deployment after security controls exist.
 - [ ] Add storage-level manifest locking or compare-and-swap.

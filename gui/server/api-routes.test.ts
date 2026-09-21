@@ -38,6 +38,7 @@ describe('host-neutral API composition', () => {
     expect(mounts).toEqual([
       '/api',
       '/api',
+      '/api',
       '/api/health',
       '/api/session',
       '/api/workspaces',

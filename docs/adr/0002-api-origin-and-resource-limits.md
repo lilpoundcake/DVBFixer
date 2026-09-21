@@ -36,6 +36,14 @@ Place a process-wide FIFO semaphore at the shared child-spawn boundary.
 request can be cancelled without spawning; shutdown rejects queued requests,
 terminates active children, and waits for permit release.
 
+Apply a bounded fixed-window request limiter before authentication. CORS invokes
+that same limiter before rejecting an Origin, while valid preflights terminate
+without admission. It keys only on the direct socket address, ignores forwarded
+headers, and defaults to 120 requests per minute. Invalid credentials, malformed
+preflights, rejected Origins, and public endpoints consume the same allowance. Return `429` when
+an address is exhausted and fail closed with `503` for new addresses when the
+10,000-entry process-local tracker is full.
+
 ## Consequences
 
 Vite and standalone behavior is consistent and invalid configuration fails at
@@ -43,7 +51,7 @@ startup. Every DVBFixer invocation shares one concurrency bound regardless of
 the route that requested it.
 
 These controls are intentionally single-process and application-level. They do
-not provide TLS, request-rate limiting, OS CPU or memory isolation, hard
+not provide TLS, OS CPU or memory isolation, hard
 filesystem quotas, or coordination across server instances. Child processes can
 create files before a publication-time workspace check; retained failed and
 trash files consume quota until an operator or future retention policy removes

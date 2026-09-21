@@ -26,9 +26,10 @@ The current HTTP routes are authenticated local application infrastructure, not
 a supported internet-facing production API. Static bearer principals,
 manifest-backed workspace authorization, the first versioned route, and OpenAPI
 are implemented. Restrictive CORS, bounded imports, workspace accounting, and a
-process-wide FIFO child limit are also implemented. Wider API versioning,
-rate/OS-level limits, multi-instance scheduling, and durable event delivery
-remain proposed.
+process-wide FIFO child limit are also implemented. A bounded pre-authentication
+direct-client request limiter protects every API route. Wider API versioning,
+OS-level limits, multi-instance scheduling, and durable event delivery remain
+proposed.
 
 ## Capabilities
 
@@ -197,7 +198,7 @@ job record, restoration, SSE lifecycle, or cancellation endpoint.
 ## Proposed Work
 
 The remaining proposals in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md)
-are not current behavior. Add rate and OS-level resource limits, audit retention,
+are not current behavior. Add OS-level resource limits, audit retention,
 and storage-level concurrency control; retain Vite only as a development host.
 
 Extend runtime-validated `/api/v1` contracts and generated OpenAPI beyond the

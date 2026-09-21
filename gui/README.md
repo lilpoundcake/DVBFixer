@@ -331,6 +331,9 @@ The standalone server defaults to `127.0.0.1:5173`. Configuration:
 | `DVBFIXER_GUI_MAX_UPLOAD_BYTES` | `268435456` | Maximum workspace import request body (256 MiB) |
 | `DVBFIXER_GUI_WORKSPACE_QUOTA_BYTES` | `5368709120` | Logical bytes per workspace (5 GiB); `0` disables the application quota |
 | `DVBFIXER_MAX_CONCURRENT_PROCESSES` | `1` | Process-wide FIFO limit for DVBFixer child processes (maximum 64) |
+| `DVBFIXER_RATE_LIMIT_REQUESTS` | `120` | Requests allowed per direct client address and window; `0` disables |
+| `DVBFIXER_RATE_LIMIT_WINDOW_MS` | `60000` | Fixed rate-limit window duration |
+| `DVBFIXER_RATE_LIMIT_MAX_KEYS` | `10000` | Maximum client addresses tracked per server process |
 
 Without auth configuration, loopback mode uses an implicit `local` principal
 and requires no browser token. Configured mode accepts 32-byte base64url bearer
@@ -343,7 +346,7 @@ Non-loopback binding requires both configured authentication and
 default; additional origins must be listed exactly in
 `DVBFIXER_CORS_ALLOWED_ORIGINS`. Upload size, workspace storage, and child-process
 concurrency have configurable application limits. These controls do not provide
-TLS, rate limiting, OS-level filesystem quotas, audit retention, or
+TLS, OS-level CPU/memory/filesystem quotas, audit retention, or
 multi-instance locking. Use the standalone server only on a trusted network
 until those controls ship. Loopback mode also rejects
 non-loopback HTTP `Host` headers to prevent DNS rebinding from bypassing the

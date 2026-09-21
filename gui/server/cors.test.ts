@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   CorsConfigError, createCorsMiddleware, parseCorsAllowedOrigins,
 } from './cors'
+import type { ApiNext } from './http-types'
 
 function request(options: {
   method?: string
@@ -142,6 +143,7 @@ describe('CORS middleware', () => {
 
     expect(next).toHaveBeenCalledOnce()
     expect(result.headers.get('access-control-allow-origin')).toBe('https://client.example.test')
+    expect(result.headers.get('access-control-expose-headers')).toContain('RateLimit-Remaining')
   })
 
   it('rejects null, malformed, untrusted, and duplicate Origin values', () => {
@@ -218,5 +220,27 @@ describe('CORS middleware', () => {
       expect(result.headers.has('access-control-allow-methods')).toBe(false)
       expect(result.headers.has('access-control-allow-headers')).toBe(false)
     }
+  })
+
+  it('admits rejected requests to the limiter but exempts valid preflight', () => {
+    const admission = vi.fn((_req: IncomingMessage, _res: ServerResponse, next: ApiNext) => next())
+    const validResponse = response()
+    createCorsMiddleware(['https://client.example.test'], admission)(request({
+      method: 'OPTIONS',
+      headers: [
+        ['Host', 'api.example.test'],
+        ['Origin', 'https://client.example.test'],
+        ['Access-Control-Request-Method', 'GET'],
+      ],
+    }), validResponse.response, vi.fn())
+    expect(validResponse.statusCode).toBe(204)
+    expect(admission).not.toHaveBeenCalled()
+
+    const invalidResponse = response()
+    createCorsMiddleware([], admission)(request({
+      method: 'OPTIONS', headers: [['Host', 'api.example.test']],
+    }), invalidResponse.response, vi.fn())
+    expect(admission).toHaveBeenCalledOnce()
+    expect(invalidResponse.statusCode).toBe(403)
   })
 })

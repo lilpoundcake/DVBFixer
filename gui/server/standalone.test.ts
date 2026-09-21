@@ -74,6 +74,9 @@ describe('standalone configuration', () => {
     expect(() => loadStandaloneConfig({
       DVBFIXER_MAX_CONCURRENT_PROCESSES: '65',
     }, temp())).toThrow(/at most 64/)
+    expect(() => loadStandaloneConfig({
+      DVBFIXER_RATE_LIMIT_WINDOW_MS: '999',
+    }, temp())).toThrow(/between 1000 and 3600000/)
   })
 
   it('fails before listening when the static client is absent', () => {
@@ -99,6 +102,26 @@ describe('standalone configuration', () => {
 })
 
 describe('standalone HTTP server', () => {
+  it('rate-limits by direct client address before authentication', async () => {
+    const config = fixture()
+    config.rateLimit = { requests: 2, windowMs: 60_000, maxKeys: 10 }
+    const instance = createStandaloneServer(config)
+    const address = await instance.start()
+    const base = `http://127.0.0.1:${address.port}`
+    try {
+      expect((await fetch(`${base}/api/health`, {
+        headers: { Origin: 'https://evil.example' },
+      })).status).toBe(403)
+      expect((await fetch(`${base}/api/health`)).status).toBe(200)
+      const limited = await fetch(`${base}/api/health`)
+      expect(limited.status).toBe(429)
+      expect(limited.headers.get('retry-after')).toBe('60')
+      expect(await limited.json()).toEqual({ error: 'rate limit exceeded' })
+    } finally {
+      await instance.close()
+    }
+  })
+
   it('enforces browser origins before authentication and handles preflight', async () => {
     const config = fixture()
     config.corsAllowedOrigins = ['https://client.example']

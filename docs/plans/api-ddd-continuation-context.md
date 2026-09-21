@@ -156,8 +156,8 @@ Phases 2, the core Phase 3 naming slice, the local standalone host, and static
 bearer/workspace authorization are implemented. Continue with the remaining
 security and distributed-systems concerns.
 
-1. Add rate and OS-level resource limits beyond the implemented restrictive
-   CORS, upload/workspace limits, and process-wide child concurrency control.
+1. Add OS-level resource limits beyond the implemented restrictive CORS,
+   request-rate, upload/workspace, and process-wide child concurrency controls.
 2. Add structured request logs, metrics, audit retention, and a generated client.
 3. Add a storage-level manifest lock or compare-and-swap before multi-instance
    deployment.

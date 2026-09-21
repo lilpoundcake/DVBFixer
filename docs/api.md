@@ -3,9 +3,9 @@
 DVBFixer exposes an initial versioned HTTP operation through a host-neutral Node
 route composition shared by the Vite development adapter and the bundled
 standalone server. Static bearer authentication and manifest-backed workspace
-authorization, restrictive browser-origin handling, workspace/upload limits,
-and process-wide child concurrency limits are available. The host is not yet an
-internet-facing production service: TLS, rate limiting, OS-level quotas, audit
+authorization, restrictive browser-origin handling, request-rate and workspace/
+upload limits, and process-wide child concurrency limits are available. The host
+is not yet an internet-facing production service: TLS, OS-level quotas, audit
 retention, and multi-instance locking remain planned work.
 
 The OpenAPI 3.1 document is available at:
@@ -116,6 +116,9 @@ The JSON body uses the shared 2 MiB request limit. General server defaults are:
 | `DVBFIXER_GUI_MAX_UPLOAD_BYTES` | 256 MiB | Maximum workspace import request body |
 | `DVBFIXER_GUI_WORKSPACE_QUOTA_BYTES` | 5 GiB | Logical bytes per workspace; `0` disables |
 | `DVBFIXER_MAX_CONCURRENT_PROCESSES` | 1 | FIFO child-process limit, from 1 through 64 |
+| `DVBFIXER_RATE_LIMIT_REQUESTS` | 120 | Requests per direct client address/window; `0` disables |
+| `DVBFIXER_RATE_LIMIT_WINDOW_MS` | 60,000 ms | Fixed rate-limit window, 1–3,600 seconds |
+| `DVBFIXER_RATE_LIMIT_MAX_KEYS` | 10,000 | Maximum tracked client addresses |
 
 Workspace accounting includes regular files in hidden, failed-run, and trash
 directories and refuses symlinks. Request-size failures return `413`; a
@@ -123,6 +126,19 @@ workspace publication that exceeds its quota returns `507`. The storage limit
 is an application-level, single-process steady-state check, not an OS filesystem
 quota. A child process can temporarily create data before publication checks,
 and multiple server instances do not coordinate limits.
+
+The request limiter runs before authentication. CORS invokes the same limiter
+before rejecting an Origin, so rejected Origins, invalid-token attempts, and
+public endpoints consume the same direct-address allowance. Valid CORS
+preflights terminate before admission; malformed and plain `OPTIONS` requests do
+not bypass it. Exhausted clients receive
+`429` with `Retry-After` and `RateLimit-*` headers. If the bounded address
+tracker is full, an untracked client receives `503`; active entries are never
+evicted to admit a new address. The server intentionally ignores forwarded-
+address headers. Allowed cross-origin responses expose the rate-limit headers.
+A reverse proxy therefore appears as one shared client and
+should enforce its own edge limit; do not disable the backend limit without an
+equivalent trusted control.
 
 Naming-specific defaults are:
 
@@ -172,5 +188,5 @@ escalation, drains HTTP work, and then closes PostgreSQL.
 
 Remote binding requires configured authentication and
 `DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit acknowledgment. It remains
-unsupported for untrusted networks until TLS, rate limiting, OS-level resource
+unsupported for untrusted networks until TLS, OS-level resource
 isolation, audit retention, and multi-instance controls are implemented.

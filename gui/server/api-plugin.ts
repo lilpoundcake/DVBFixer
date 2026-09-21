@@ -4,6 +4,7 @@ import { parseAuthConfig, resolveLegacyWorkspaceOwner } from './auth'
 import { parseCorsAllowedOrigins } from './cors'
 import { parseDvbfixerMaxConcurrentProcesses } from './dvbfixer-runner'
 import { parseStorageQuotaSettings } from './storage-quota'
+import { parseRateLimitConfig } from './rate-limit'
 
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
@@ -18,6 +19,7 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
       const authConfig = parseAuthConfig(environment)
       const corsAllowedOrigins = parseCorsAllowedOrigins(environment)
       const storageQuota = parseStorageQuotaSettings(environment)
+      const rateLimit = parseRateLimitConfig(environment)
       const maxConcurrentProcesses = parseDvbfixerMaxConcurrentProcesses(
         environment.DVBFIXER_MAX_CONCURRENT_PROCESSES,
       )
@@ -36,6 +38,7 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
         corsAllowedOrigins,
         storageQuota,
         maxConcurrentProcesses,
+        rateLimit,
       })
     },
   }

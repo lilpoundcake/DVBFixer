@@ -41,6 +41,7 @@ import {
   type AuthConfig,
 } from './auth'
 import { createCorsMiddleware, parseCorsAllowedOrigins } from './cors'
+import { createRateLimitMiddleware, parseRateLimitConfig, type RateLimitConfig } from './rate-limit'
 import {
   assertWorkspaceQuota, configureStorageQuota, WorkspaceQuotaExceededError,
   type StorageQuotaOptions,
@@ -261,6 +262,7 @@ export interface ApiRouteOptions {
   corsAllowedOrigins?: readonly string[]
   storageQuota?: StorageQuotaOptions
   maxConcurrentProcesses?: number
+  rateLimit?: RateLimitConfig
 }
 
 export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions): void {
@@ -268,6 +270,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       const authConfig = options.authConfig || parseAuthConfig(process.env)
       const legacyWorkspaceOwner = options.legacyWorkspaceOwner || resolveLegacyWorkspaceOwner(authConfig)
       const corsAllowedOrigins = options.corsAllowedOrigins || parseCorsAllowedOrigins(process.env)
+      const rateLimit = options.rateLimit || parseRateLimitConfig(process.env)
       configureStorageQuota(options.storageQuota)
       initializeDvbfixerProcessAdmission(
         options.maxConcurrentProcesses === undefined
@@ -279,7 +282,9 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       // can find `mutations.json` regardless of which working directory
       // the dev server was launched from.
       projectRoot = options.projectRoot
-      server.middlewares.use('/api', createCorsMiddleware(corsAllowedOrigins))
+      const rateLimitMiddleware = createRateLimitMiddleware(rateLimit)
+      server.middlewares.use('/api', createCorsMiddleware(corsAllowedOrigins, rateLimitMiddleware))
+      server.middlewares.use('/api', rateLimitMiddleware)
       server.middlewares.use('/api', createAuthMiddleware(authConfig))
       migrateWorkspaceOwnership(
         structuresDir,

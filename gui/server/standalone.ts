@@ -11,6 +11,7 @@ import { parseAuthConfig, resolveLegacyWorkspaceOwner, type AuthConfig } from '.
 import { parseCorsAllowedOrigins } from './cors'
 import { parseDvbfixerMaxConcurrentProcesses } from './dvbfixer-runner'
 import { parseStorageQuotaSettings, type StorageQuotaSettings } from './storage-quota'
+import { parseRateLimitConfig, type RateLimitConfig } from './rate-limit'
 
 export interface StandaloneConfig {
   host: string
@@ -24,6 +25,7 @@ export interface StandaloneConfig {
   corsAllowedOrigins: readonly string[]
   storageQuota: StorageQuotaSettings
   maxConcurrentProcesses: number
+  rateLimit: RateLimitConfig
 }
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost'])
@@ -86,6 +88,7 @@ export function loadStandaloneConfig(
     maxConcurrentProcesses: parseDvbfixerMaxConcurrentProcesses(
       environment.DVBFIXER_MAX_CONCURRENT_PROCESSES,
     ),
+    rateLimit: parseRateLimitConfig(environment),
   }
 }
 
@@ -164,6 +167,7 @@ export function createStandaloneApplication(config: StandaloneConfig): connect.S
     corsAllowedOrigins: config.corsAllowedOrigins,
     storageQuota: config.storageQuota,
     maxConcurrentProcesses: config.maxConcurrentProcesses,
+    rateLimit: config.rateLimit,
   })
   application.use('/api', (_request, response) => jsonNotFound(response))
   application.use(serveStatic(config.staticRoot, {

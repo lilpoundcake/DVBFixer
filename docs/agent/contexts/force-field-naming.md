@@ -150,7 +150,7 @@ helper. Treat this as a known backend discrepancy.
 The API design is in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md).
 Phases 1 and 2, the core Phase 3 HTTP vertical slice, route composition, and
 authentication/authorization, restrictive CORS, workspace limits, and process
-concurrency controls are implemented. Observability, rate/OS-level limits, and
+concurrency and request-rate controls are implemented. Observability, OS-level limits, and
 distributed coordination remain. Do not expose the in-place
 compatibility wrapper as an HTTP handler.
 

@@ -179,34 +179,47 @@ function handlePreflight(request: IncomingMessage, response: ServerResponse, ori
   return true
 }
 
-export function createCorsMiddleware(allowedOrigins: readonly string[]): ApiMiddleware {
+export function createCorsMiddleware(
+  allowedOrigins: readonly string[],
+  rejectedRequestAdmission?: ApiMiddleware,
+): ApiMiddleware {
   const allowlist = new Set(allowedOrigins)
   return (request, response, next) => {
+    const rejectAfterAdmission = () => {
+      if (rejectedRequestAdmission) {
+        return rejectedRequestAdmission(request, response, () => reject(request, response))
+      }
+      return reject(request, response)
+    }
     appendVaryOrigin(response)
     const origin = requestOrigin(request)
 
     if (origin === undefined) {
-      if (request.method === 'OPTIONS') reject(request, response)
+      if (request.method === 'OPTIONS') rejectAfterAdmission()
       else next()
       return
     }
     if (origin === null) {
-      reject(request, response)
+      rejectAfterAdmission()
       return
     }
 
     const sameOrigin = requestAuthority(request) === origin
     if (!sameOrigin && !allowlist.has(origin)) {
-      reject(request, response)
+      rejectAfterAdmission()
       return
     }
 
     if (request.method === 'OPTIONS') {
-      if (!handlePreflight(request, response, origin)) reject(request, response)
+      if (!handlePreflight(request, response, origin)) rejectAfterAdmission()
       return
     }
 
     response.setHeader('Access-Control-Allow-Origin', origin)
+    response.setHeader(
+      'Access-Control-Expose-Headers',
+      'RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, Retry-After',
+    )
     next()
   }
 }

@@ -270,7 +270,7 @@ enforcement = [
 ]
 failure_mode = "Unbounded buffering can exhaust server memory."
 test_files = ["gui/server/request-body.test.ts"]
-known_exceptions = ["Body and workspace limits are application-level controls; rate limits and OS-level CPU, memory, and filesystem quotas are not implemented."]
+known_exceptions = ["Body, request-rate, and workspace limits are process-local application controls; OS-level CPU, memory, and filesystem quotas are not implemented."]
 
 [invariants.INV-API-ORIGIN-POLICY]
 status = "implemented"
@@ -300,6 +300,18 @@ test_files = [
   "gui/server/dvbfixer-runner.test.ts",
 ]
 known_exceptions = ["Limits are process-local application controls, not distributed scheduling or OS-level resource isolation."]
+
+[invariants.INV-API-RATE-LIMIT]
+status = "implemented"
+statement = "Every API request except a valid CORS preflight consumes a bounded allowance keyed by the direct client address before authentication or rejection."
+owner = "gui/server/rate-limit.ts::createRateLimitMiddleware"
+enforcement = [
+  "gui/server/rate-limit.ts::parseRateLimitConfig",
+  "gui/server/api-routes.ts::registerApiRoutes",
+]
+failure_mode = "Unauthenticated or authenticated clients can exhaust request-processing capacity without a bounded admission policy."
+test_files = ["gui/server/rate-limit.test.ts", "gui/server/standalone.test.ts"]
+known_exceptions = ["The limiter is process-local, ignores forwarded addresses, and does not replace a trusted reverse-proxy or distributed rate limit."]
 
 [invariants.INV-FIXTURE-PROVENANCE-CHECKSUM]
 status = "implemented"
