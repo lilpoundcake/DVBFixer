@@ -147,6 +147,7 @@ export async function executeNamingConversion(
   request: NamingConversionRequest,
   runner: NamingRunner = runDvbfixerArgs,
   authorizePublication?: (workspace: ReturnType<typeof loadWorkspace>) => void,
+  signal?: AbortSignal,
 ): Promise<{ statusCode: 200 | 201; response: NamingConversionResponse }> {
   let initial
   try { initial = loadWorkspace(dataRoot, workspaceId) } catch {
@@ -194,10 +195,17 @@ export async function executeNamingConversion(
     if (request.dryRun) args.push('--dry-run')
 
     const run = await runner('atom-names', args, operationDirectory, {
-      timeoutMs: TIMEOUT_MS, maxOutputBytes: MAX_OUTPUT_BYTES, killGraceMs: 2_000,
+      timeoutMs: TIMEOUT_MS, maxOutputBytes: MAX_OUTPUT_BYTES, killGraceMs: 2_000, signal,
     })
     fs.writeFileSync(path.join(operationDirectory, 'stdout.log'), run.stdout)
     fs.writeFileSync(path.join(operationDirectory, 'stderr.log'), run.stderr)
+    if (!run.started && (run.failure === 'overloaded' || run.failure === 'shutdown')) {
+      throw new NamingApiError(
+        503,
+        run.failure === 'overloaded' ? 'SERVER_BUSY' : 'SERVER_SHUTTING_DOWN',
+        run.failure === 'overloaded' ? 'DVBFixer process queue is full' : 'DVBFixer server is shutting down',
+      )
+    }
     const parsed = parseReport(reportFile)
     validateReportRequest(parsed.report, request)
     if (run.code !== 0 || parsed.report.status !== 'success' || !parsed.report.result) {
@@ -367,13 +375,18 @@ export function registerNamingApi(
         }
       }
       authorize()
+      const controller = new AbortController()
+      const abortOnClose = () => { if (!res.writableFinished) controller.abort() }
+      if (typeof res.once === 'function') res.once('close', abortOnClose)
       const result = await executeNamingConversion(
         dataRoot,
         workspaceId,
         request,
         runner,
         () => { authorize() },
+        controller.signal,
       )
+      if (typeof res.removeListener === 'function') res.removeListener('close', abortOnClose)
       return sendJson(res, result.statusCode, result.response)
     } catch (error) {
       return sendError(res, error, requestId)

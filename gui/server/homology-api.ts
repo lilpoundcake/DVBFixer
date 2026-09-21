@@ -3,13 +3,20 @@ import crypto from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import fs from 'node:fs'
 import path from 'node:path'
-import { runDvbfixerArgs } from './dvbfixer-runner'
+import { runDvbfixerArgs, type DvbfixerRunResult } from './dvbfixer-runner'
 import {
   assertWorkspaceAccess, loadWorkspace, updateWorkspace, workspaceRoot, writeJsonAtomic,
 } from './workspace-api'
 import { errorStatus, readRequestBody } from './request-body'
 import { assertWorkspaceQuota } from './storage-quota'
 import type { ApiRouteHost } from './http-types'
+
+function assertRunAdmitted(result: DvbfixerRunResult): void {
+  if (result.started || (result.failure !== 'overloaded' && result.failure !== 'shutdown')) return
+  const error = new Error(result.stderr || 'DVBFixer process admission unavailable') as Error & { statusCode: number }
+  error.statusCode = 503
+  throw error
+}
 
 export interface TemplateSelection {
   id: string
@@ -320,6 +327,7 @@ async function alignProject(
   root: string,
   project: HomologyProject,
   authorizePublication: () => void = () => {},
+  signal?: AbortSignal,
 ): Promise<HomologyProject> {
   const records = parseFasta(project.targetFasta)
   const directory = path.dirname(projectPath(root, project.id))
@@ -338,7 +346,8 @@ async function alignProject(
       const source = resolveArtifact(root, template.file)
       args.push('--template', `${source}:${template.chain}`)
     }
-    const result = await runDvbfixerArgs('msa', args, directory)
+    const result = await runDvbfixerArgs('msa', args, directory, { signal })
+    assertRunAdmitted(result)
     if (result.code !== 0) throw new Error(result.stderr || result.stdout || `MSA failed for ${record.id}`)
     const aligned = parseAlignedFasta(output)
     const rows: AlignmentRow[] = aligned.map(row => {
@@ -517,6 +526,7 @@ async function modelProject(
   root: string,
   project: HomologyProject,
   authorizePublication: () => void = () => {},
+  signal?: AbortSignal,
 ): Promise<unknown> {
   const runDir = path.join(root, 'runs', `dvb_homology_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}`)
   fs.mkdirSync(runDir, { recursive: true })
@@ -533,7 +543,8 @@ async function modelProject(
   const prefix = path.join(runDir, sanitize(project.name || 'target'))
   const args = [fasta, '--template-plan', plan, '-o', prefix]
   args.push(...validatedModelArgs(project.modelOptions))
-  const result = await runDvbfixerArgs('homology', args, runDir)
+  const result = await runDvbfixerArgs('homology', args, runDir, { signal })
+  assertRunAdmitted(result)
   writeJsonAtomic(path.join(runDir, 'run.json'), { projectId: project.id, args, exitCode: result.code })
   fs.writeFileSync(path.join(runDir, 'stdout.log'), result.stdout)
   fs.writeFileSync(path.join(runDir, 'stderr.log'), result.stderr)
@@ -548,6 +559,7 @@ async function structurallyAlignGroups(
   root: string,
   project: HomologyProject,
   authorizePublication: () => void = () => {},
+  signal?: AbortSignal,
 ): Promise<HomologyProject> {
   const directory = path.dirname(projectPath(root, project.id))
   const templates: TemplateSelection[] = project.templates.map(template => ({ ...template, fittedFile: undefined }))
@@ -572,7 +584,8 @@ async function structurallyAlignGroups(
     const fitDir = path.join(directory, 'fitted', safeChain)
     const args = group.map(template => `${resolveArtifact(root, template.file)}:${template.chain}`)
     args.push('-o', output, '--fit-dir', fitDir, '--engine', 'biopython')
-    const result = await runDvbfixerArgs('salign', args, directory)
+    const result = await runDvbfixerArgs('salign', args, directory, { signal })
+    assertRunAdmitted(result)
     if (result.code !== 0) throw new Error(result.stderr || result.stdout || `structural alignment failed for target chain ${targetChain}`)
     outputs[targetChain] = path.relative(root, output).replace(/\\/g, '/')
     group.forEach((template, index) => {
@@ -593,6 +606,8 @@ export function registerHomologyApi(
 ): void {
   server.middlewares.use('/api/homology', async (req, res, next) => {
     try {
+      const controller = new AbortController()
+      res.once('close', () => { if (!res.writableFinished) controller.abort() })
       const principalId = principalSource(req)
       const authorize = (workspaceId: string, access: 'reader' | 'writer' = 'reader') => {
         const workspace = loadWorkspace(root, workspaceId, legacyOwnerPrincipalId)
@@ -621,7 +636,8 @@ export function registerHomologyApi(
         return sendJson(res, 200, projects)
       }
       if (req.method === 'GET' && parts[0] === 'engines') {
-        const result = await runDvbfixerArgs('msa', ['--list-engines'])
+        const result = await runDvbfixerArgs('msa', ['--list-engines'], process.cwd(), { signal: controller.signal })
+        assertRunAdmitted(result)
         const engines = Object.fromEntries(result.stdout.trim().split(/\r?\n/).filter(Boolean).map(line => {
           const [name, ...rest] = line.split(':')
           const executable = rest.join(':').trim()
@@ -670,7 +686,7 @@ export function registerHomologyApi(
         if (!incoming.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
         const { workspaceId, ...project } = incoming
         return sendJson(res, 200, await alignProject(
-          authorize(workspaceId, 'writer'), project, publicationGuard(workspaceId),
+          authorize(workspaceId, 'writer'), project, publicationGuard(workspaceId), controller.signal,
         ))
       }
       if (req.method === 'POST' && parts[0] === 'salign') {
@@ -680,7 +696,7 @@ export function registerHomologyApi(
         const storageRoot = authorize(workspaceId, 'writer')
         if (project.templates.length < 2) return sendJson(res, 400, { error: 'select at least two templates' })
         return sendJson(res, 200, await structurallyAlignGroups(
-          storageRoot, project, publicationGuard(workspaceId),
+          storageRoot, project, publicationGuard(workspaceId), controller.signal,
         ))
       }
       if (req.method === 'POST' && parts[0] === 'model') {
@@ -689,7 +705,7 @@ export function registerHomologyApi(
         const { workspaceId, ...project } = incoming
         const storageRoot = authorize(workspaceId, 'writer')
         const result = await modelProject(
-          storageRoot, project, publicationGuard(workspaceId),
+          storageRoot, project, publicationGuard(workspaceId), controller.signal,
         ) as { ok: boolean }
         return sendJson(res, result.ok ? 200 : 500, result)
       }

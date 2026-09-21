@@ -269,6 +269,7 @@ export interface ApiRouteOptions {
   corsAllowedOrigins?: readonly string[]
   storageQuota?: StorageQuotaOptions
   maxConcurrentProcesses?: number
+  maxQueuedProcesses?: number
   rateLimit?: RateLimitConfig
   accessLog?: AccessLogConfig
   metrics?: MetricsConfig
@@ -288,6 +289,9 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
         options.maxConcurrentProcesses === undefined
           ? process.env.DVBFIXER_MAX_CONCURRENT_PROCESSES
           : String(options.maxConcurrentProcesses),
+        options.maxQueuedProcesses === undefined
+          ? process.env.DVBFIXER_MAX_QUEUED_PROCESSES
+          : String(options.maxQueuedProcesses),
       )
       fs.mkdirSync(structuresDir, { recursive: true })
       mutationsBackupFile = path.resolve(options.projectRoot, options.mutationsBackupFile || 'mutations.json')
@@ -408,7 +412,11 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           const args = [...positional]
           if (def.hasOutput && def.outputMode !== 'stdout') args.push('-o', outputTarget)
           args.push(...buildArgs(command, values))
-          const result = await runDvbfixerArgs(command, args, outDir)
+          const controller = new AbortController()
+          const abortOnClose = () => { if (!res.writableFinished) controller.abort() }
+          res.once('close', abortOnClose)
+          const result = await runDvbfixerArgs(command, args, outDir, { signal: controller.signal })
+          res.removeListener('close', abortOnClose)
           if (def.outputMode === 'stdout' && result.stdout) {
             fs.writeFileSync(path.join(outDir, `${command}.${values['--format'] === 'json' ? 'json' : 'txt'}`), result.stdout)
           }
@@ -455,7 +463,9 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
               return workspace
             }, legacyWorkspaceOwner)
           }
-          sendJson(res, ok ? 200 : 500, {
+          const failureStatus = result.failure === 'overloaded' || result.failure === 'shutdown'
+            ? 503 : result.failure === 'timeout' ? 504 : 500
+          sendJson(res, ok ? 200 : failureStatus, {
             ok, command, outputFile, outputDir: `runs/${subdirName}`, artifacts: files,
             movedTo, stdout: result.stdout, stderr: result.stderr, exitCode: result.code,
           })
@@ -601,9 +611,21 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           const activeRoot = workspaceRoot(structuresDir, body.workspaceId)
           resolveWorkspaceFile(structuresDir, body.workspaceId, body.inputFile)
 
+          let aborted = false
+          const controller = new AbortController()
+          const abortPipeline = () => {
+            if (!res.writableFinished) {
+              aborted = true
+              controller.abort()
+            }
+          }
+          res.on('close', abortPipeline)
+          if (res.destroyed || res.closed) abortPipeline()
+
           // Dynamic imports so SSE-specific deps stay out of cold-path code.
           const { runEngineerPipeline, engineerChecksum, findCachedEntry } =
             await import('./antibody-pipeline')
+          if (aborted) return
 
           // Compute checksum + lookup cache. Cache hit = no pipeline run.
           const checksum = engineerChecksum({
@@ -615,8 +637,6 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
 
           assertWorkspaceQuota(activeRoot)
           writeSSEHeaders(res)
-          let aborted = false
-          req.on('close', () => { aborted = true })
 
           const workspaceBeforeRun = loadWorkspace(structuresDir, body.workspaceId, legacyWorkspaceOwner)
           const inputArtifact = workspaceBeforeRun.artifacts.find(artifact => artifact.file === body.inputFile)
@@ -662,6 +682,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
             inputMetadata: inputArtifact,
             onEvent: (e) => sseSend(res, e),
             isAborted: () => aborted,
+            signal: controller.signal,
             assertStorage: () => assertWorkspaceQuota(activeRoot),
           })
 

@@ -300,7 +300,7 @@ known_exceptions = ["Requests without Origin remain allowed for non-browser clie
 
 [invariants.INV-API-RESOURCE-LIMITS]
 status = "implemented"
-statement = "Workspace imports, logical workspace storage, and DVBFixer child concurrency have explicit configurable bounds."
+statement = "Workspace imports, logical workspace storage, active DVBFixer children, and waiting child-process admission have explicit configurable bounds."
 owner = "gui/server/storage-quota.ts"
 enforcement = [
   "gui/server/workspace-api.ts::registerWorkspaceApi",

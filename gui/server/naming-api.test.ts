@@ -293,6 +293,15 @@ describe('naming conversion application boundary', () => {
       .rejects.toMatchObject({ code: 'INVALID_CLI_REPORT' })
   })
 
+  it('reports queue saturation before attempting to parse a CLI report', async () => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    await expect(executeNamingConversion(dataRoot, 'workspace-a', request, async () => ({
+      code: -1, stdout: '', stderr: 'DVBfixer process queue is full',
+      started: false, failure: 'overloaded' as const,
+    }))).rejects.toMatchObject({ statusCode: 503, code: 'SERVER_BUSY' })
+  })
+
   it('rejects source symlinks that escape the workspace', async () => {
     const dataRoot = temp()
     workspace(dataRoot)

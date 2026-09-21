@@ -1,8 +1,10 @@
 import type { Plugin } from 'vite'
-import { registerApiRoutes } from './api-routes'
+import { registerApiRoutes, shutdownApiWork } from './api-routes'
 import { parseAuthConfig, resolveLegacyWorkspaceOwner } from './auth'
 import { parseCorsAllowedOrigins } from './cors'
-import { parseDvbfixerMaxConcurrentProcesses } from './dvbfixer-runner'
+import {
+  parseDvbfixerMaxConcurrentProcesses, parseDvbfixerMaxQueuedProcesses,
+} from './dvbfixer-runner'
 import { parseStorageQuotaSettings } from './storage-quota'
 import { parseRateLimitConfig } from './rate-limit'
 import { parseAccessLogConfig } from './request-observability'
@@ -27,6 +29,9 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
       const maxConcurrentProcesses = parseDvbfixerMaxConcurrentProcesses(
         environment.DVBFIXER_MAX_CONCURRENT_PROCESSES,
       )
+      const maxQueuedProcesses = parseDvbfixerMaxQueuedProcesses(
+        environment.DVBFIXER_MAX_QUEUED_PROCESSES,
+      )
       const configuredHost = server.config.server?.host
       const remotelyBound = configuredHost === true ||
         (typeof configuredHost === 'string' && !LOOPBACK_HOSTS.has(configuredHost))
@@ -43,10 +48,12 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
         corsAllowedOrigins,
         storageQuota,
         maxConcurrentProcesses,
+        maxQueuedProcesses,
         rateLimit,
         accessLog,
         metrics,
       })
     },
+    closeBundle: () => shutdownApiWork(),
   }
 }

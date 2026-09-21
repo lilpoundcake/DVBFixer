@@ -9,7 +9,7 @@ import { closeApiResources, registerApiRoutes, resetApiShutdown, shutdownApiWork
 import type { ApiRouteHost } from './http-types'
 import { parseAuthConfig, resolveLegacyWorkspaceOwner, type AuthConfig } from './auth'
 import { parseCorsAllowedOrigins } from './cors'
-import { parseDvbfixerMaxConcurrentProcesses } from './dvbfixer-runner'
+import { parseDvbfixerMaxConcurrentProcesses, parseDvbfixerMaxQueuedProcesses } from './dvbfixer-runner'
 import { parseStorageQuotaSettings, type StorageQuotaSettings } from './storage-quota'
 import { parseRateLimitConfig, type RateLimitConfig } from './rate-limit'
 import {
@@ -31,6 +31,7 @@ export interface StandaloneConfig {
   corsAllowedOrigins: readonly string[]
   storageQuota: StorageQuotaSettings
   maxConcurrentProcesses: number
+  maxQueuedProcesses: number
   rateLimit: RateLimitConfig
   deploymentResources: DeploymentResourceSettings
   accessLog: AccessLogConfig
@@ -101,6 +102,7 @@ export function loadStandaloneConfig(
     maxConcurrentProcesses: parseDvbfixerMaxConcurrentProcesses(
       environment.DVBFIXER_MAX_CONCURRENT_PROCESSES,
     ),
+    maxQueuedProcesses: parseDvbfixerMaxQueuedProcesses(environment.DVBFIXER_MAX_QUEUED_PROCESSES),
     rateLimit: parseRateLimitConfig(environment),
     deploymentResources: parseDeploymentResourceSettings(environment),
     accessLog: parseAccessLogConfig(environment),
@@ -185,6 +187,7 @@ export function createStandaloneApplication(config: StandaloneConfig): connect.S
     corsAllowedOrigins: config.corsAllowedOrigins,
     storageQuota: config.storageQuota,
     maxConcurrentProcesses: config.maxConcurrentProcesses,
+    maxQueuedProcesses: config.maxQueuedProcesses,
     rateLimit: config.rateLimit,
     accessLog: config.accessLog,
     metrics: config.metrics,

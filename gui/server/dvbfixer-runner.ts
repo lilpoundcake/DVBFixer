@@ -2,6 +2,8 @@ import { spawn } from 'node:child_process'
 
 const DEFAULT_MAX_CONCURRENT_PROCESSES = 1
 const MAX_CONCURRENT_PROCESSES = 64
+const DEFAULT_MAX_QUEUED_PROCESSES = 16
+const MAX_QUEUED_PROCESSES = 256
 const SHUTDOWN_MESSAGE = 'DVBfixer server is shutting down'
 
 export type DvbfixerRunFailure =
@@ -10,6 +12,7 @@ export type DvbfixerRunFailure =
   | 'timeout'
   | 'spawn-error'
   | 'nonzero-exit'
+  | 'overloaded'
 
 export interface DvbfixerRunResult {
   code: number
@@ -35,16 +38,21 @@ const activeProcesses = new Set<ActiveProcess>()
 const queuedRuns: QueuedRun[] = []
 let acceptingProcesses = true
 let activePermits = 0
+let maxQueuedProcesses = parseDvbfixerMaxQueuedProcesses(process.env.DVBFIXER_MAX_QUEUED_PROCESSES)
 
 export interface DvbfixerProcessAdmissionSnapshot {
   active: number
   queued: number
   limit: number
+  queueLimit: number
   accepting: boolean
 }
 
 export function getDvbfixerProcessAdmissionSnapshot(): DvbfixerProcessAdmissionSnapshot {
-  return { active: activePermits, queued: queuedRuns.length, limit: maxConcurrentProcesses, accepting: acceptingProcesses }
+  return {
+    active: activePermits, queued: queuedRuns.length, limit: maxConcurrentProcesses,
+    queueLimit: maxQueuedProcesses, accepting: acceptingProcesses,
+  }
 }
 
 export function parseDvbfixerMaxConcurrentProcesses(value: string | undefined): number {
@@ -59,30 +67,51 @@ export function parseDvbfixerMaxConcurrentProcesses(value: string | undefined): 
   return parsed
 }
 
+export function parseDvbfixerMaxQueuedProcesses(value: string | undefined): number {
+  if (value === undefined) return DEFAULT_MAX_QUEUED_PROCESSES
+  if (!/^[1-9]\d*$/.test(value)) throw new Error('DVBFIXER_MAX_QUEUED_PROCESSES must be a positive integer')
+  const parsed = Number(value)
+  if (!Number.isSafeInteger(parsed) || parsed > MAX_QUEUED_PROCESSES) {
+    throw new Error(`DVBFIXER_MAX_QUEUED_PROCESSES must be at most ${MAX_QUEUED_PROCESSES}`)
+  }
+  return parsed
+}
+
 let maxConcurrentProcesses = parseDvbfixerMaxConcurrentProcesses(
   process.env.DVBFIXER_MAX_CONCURRENT_PROCESSES,
 )
 
 export function resetDvbfixerProcessAdmission(
   maxProcesses = parseDvbfixerMaxConcurrentProcesses(process.env.DVBFIXER_MAX_CONCURRENT_PROCESSES),
+  maxQueued = parseDvbfixerMaxQueuedProcesses(process.env.DVBFIXER_MAX_QUEUED_PROCESSES),
 ): void {
   if (!Number.isSafeInteger(maxProcesses) || maxProcesses < 1 || maxProcesses > MAX_CONCURRENT_PROCESSES) {
     throw new Error(`DVBfixer process concurrency must be an integer between 1 and ${MAX_CONCURRENT_PROCESSES}`)
+  }
+  if (!Number.isSafeInteger(maxQueued) || maxQueued < 1 || maxQueued > MAX_QUEUED_PROCESSES) {
+    throw new Error(`DVBfixer process queue limit must be an integer between 1 and ${MAX_QUEUED_PROCESSES}`)
   }
   if (activePermits !== 0 || activeProcesses.size !== 0 || queuedRuns.length !== 0) {
     throw new Error('Cannot reset DVBfixer process admission until all work is drained')
   }
   maxConcurrentProcesses = maxProcesses
+  maxQueuedProcesses = maxQueued
   acceptingProcesses = true
 }
 
 export function initializeDvbfixerProcessAdmission(
   value: string | undefined = process.env.DVBFIXER_MAX_CONCURRENT_PROCESSES,
+  queuedValue: string | undefined = process.env.DVBFIXER_MAX_QUEUED_PROCESSES,
 ): void {
-  resetDvbfixerProcessAdmission(parseDvbfixerMaxConcurrentProcesses(value))
+  resetDvbfixerProcessAdmission(
+    parseDvbfixerMaxConcurrentProcesses(value), parseDvbfixerMaxQueuedProcesses(queuedValue),
+  )
 }
 
-function rejectionResult(message: string, failure: 'cancelled' | 'shutdown'): DvbfixerRunResult {
+function rejectionResult(
+  message: string,
+  failure: 'cancelled' | 'shutdown' | 'overloaded',
+): DvbfixerRunResult {
   return { code: -1, stdout: '', stderr: message, started: false, failure }
 }
 
@@ -151,6 +180,9 @@ export function runDvbfixerArgs(
   if (options.signal?.aborted) {
     return Promise.resolve(rejectionResult('DVBfixer run cancelled', 'cancelled'))
   }
+  if (activePermits >= maxConcurrentProcesses && queuedRuns.length >= maxQueuedProcesses) {
+    return Promise.resolve(rejectionResult('DVBfixer process queue is full', 'overloaded'))
+  }
 
   const { executable, prefix } = commandConfiguration()
   const commandArgs = [...prefix, command, ...args]
@@ -216,10 +248,14 @@ export function runDvbfixerArgs(
         resolve(result)
       }
       const signalChild = (signal: NodeJS.Signals) => {
-        if (!child || child.killed) return
+        if (!child) return
         if (process.platform !== 'win32' && child.pid) {
-          try { process.kill(-child.pid, signal) } catch { child.kill(signal) }
-        } else child.kill(signal)
+          try {
+            process.kill(-child.pid, signal)
+            return
+          } catch { /* fall back to the direct child when it is still alive */ }
+        }
+        if (child.exitCode === null && child.signalCode === null) child.kill(signal)
       }
       const terminate = (reason: string, failure: DvbfixerRunFailure) => {
         if (settled || terminationReason) return
@@ -231,7 +267,7 @@ export function runDvbfixerArgs(
         }
         signalChild('SIGTERM')
         killTimer = setTimeout(() => {
-          if (!settled) signalChild('SIGKILL')
+          signalChild('SIGKILL')
         }, options.killGraceMs ?? 5_000)
         killTimer.unref()
       }
@@ -262,7 +298,10 @@ export function runDvbfixerArgs(
         terminationReason = String(error)
         finish(-1, 'spawn-error')
       })
-      child.on('close', code => finish(code ?? -1))
+      child.on('close', code => {
+        if (terminationReason) signalChild('SIGKILL')
+        finish(code ?? -1)
+      })
     }
 
     options.signal?.addEventListener('abort', queued.abort, { once: true })
@@ -276,6 +315,7 @@ export function runDvbfixer(
   inputFile: string,
   outputFile: string,
   extraArgs: string[],
+  options: DvbfixerRunOptions = {},
 ): Promise<DvbfixerRunResult> {
-  return runDvbfixerArgs(command, [inputFile, '-o', outputFile, ...extraArgs])
+  return runDvbfixerArgs(command, [inputFile, '-o', outputFile, ...extraArgs], process.cwd(), options)
 }

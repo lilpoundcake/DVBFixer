@@ -79,6 +79,9 @@ describe('standalone configuration', () => {
       DVBFIXER_MAX_CONCURRENT_PROCESSES: '65',
     }, temp())).toThrow(/at most 64/)
     expect(() => loadStandaloneConfig({
+      DVBFIXER_MAX_QUEUED_PROCESSES: '257',
+    }, temp())).toThrow(/at most 256/)
+    expect(() => loadStandaloneConfig({
       DVBFIXER_RATE_LIMIT_WINDOW_MS: '999',
     }, temp())).toThrow(/between 1000 and 3600000/)
     expect(() => loadStandaloneConfig({

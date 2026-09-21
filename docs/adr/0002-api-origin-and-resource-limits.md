@@ -35,6 +35,9 @@ Place a process-wide FIFO semaphore at the shared child-spawn boundary.
 `DVBFIXER_MAX_CONCURRENT_PROCESSES` defaults to one and is capped at 64. A queued
 request can be cancelled without spawning; shutdown rejects queued requests,
 terminates active children, and waits for permit release.
+The waiting FIFO is capped separately by `DVBFIXER_MAX_QUEUED_PROCESSES`, which
+defaults to 16 and is capped at 256. Saturated admission rejects new work before
+spawning rather than retaining an unbounded request backlog.
 
 Apply a bounded fixed-window request limiter before authentication. CORS invokes
 that same limiter before rejecting an Origin, while valid preflights terminate

@@ -163,6 +163,7 @@ The JSON body uses the shared 2 MiB request limit. General server defaults are:
 | `DVBFIXER_GUI_MAX_UPLOAD_BYTES` | 256 MiB | Maximum workspace import request body |
 | `DVBFIXER_GUI_WORKSPACE_QUOTA_BYTES` | 5 GiB | Logical bytes per workspace; `0` disables |
 | `DVBFIXER_MAX_CONCURRENT_PROCESSES` | 1 | FIFO child-process limit, from 1 through 64 |
+| `DVBFIXER_MAX_QUEUED_PROCESSES` | 16 | Maximum waiting child-process requests, from 1 through 256 |
 | `DVBFIXER_RATE_LIMIT_REQUESTS` | 120 | Requests per direct client address/window; `0` disables |
 | `DVBFIXER_RATE_LIMIT_WINDOW_MS` | 60,000 ms | Fixed rate-limit window, 1–3,600 seconds |
 | `DVBFIXER_RATE_LIMIT_MAX_KEYS` | 10,000 | Maximum tracked client addresses |
@@ -203,6 +204,13 @@ address headers. Allowed cross-origin responses expose the rate-limit headers.
 A reverse proxy therefore appears as one shared client and
 should enforce its own edge limit; do not disable the backend limit without an
 equivalent trusted control.
+
+Child-process admission starts work immediately when a permit is available and
+otherwise waits FIFO up to `DVBFIXER_MAX_QUEUED_PROCESSES`. Further requests are
+rejected before spawning with an overload result; HTTP command and naming routes
+map that condition to `503`. Command timeouts begin after admission, not while
+waiting in the queue. Queue and concurrency limits are process-local rather than
+distributed scheduling controls.
 
 Naming-specific defaults are:
 

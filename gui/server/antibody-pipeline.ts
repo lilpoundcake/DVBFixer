@@ -66,6 +66,7 @@ export interface PipelineInput {
   inputMetadata?: { allotype?: string; iggSubtype?: string }
   onEvent: (e: SSEEvent) => void
   isAborted: () => boolean
+  signal?: AbortSignal
   assertStorage?: () => void
 }
 
@@ -348,7 +349,9 @@ export async function runEngineerPipeline(p: PipelineInput): Promise<Array<Index
 
     p.onEvent({ step: i + 1, total, name: step.command, status: 'running' })
 
-    const res = await runDvbfixer(step.command, currentInputAbs, outFileAbs, step.extraArgs)
+    const res = await runDvbfixer(
+      step.command, currentInputAbs, outFileAbs, step.extraArgs, { signal: p.signal },
+    )
     try {
       p.assertStorage?.()
     } catch (error) {

@@ -1271,3 +1271,8 @@ across both hosts. `deployment-limits.ts` supplies the standalone server's
 opt-in fail-closed check for the systemd/cgroup-v2 resource profile. TLS, audit
 retention, durable scheduling/event delivery, and distributed coordination
 remain deployment gaps.
+
+`dvbfixer-runner.ts` owns one process-wide active permit limit and bounded FIFO
+waiting queue. Vite and standalone initialize the same limits; both terminate
+tracked scientific children during host shutdown. Saturated queues reject work
+before process creation.

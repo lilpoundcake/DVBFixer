@@ -43,6 +43,8 @@ The supplied service defaults to `CPUQuota=200%`, `MemoryHigh=12G`,
 `MemoryMax=16G`, `MemorySwapMax=0`, `TasksMax=512`, and two private 8 GiB
 temporary filesystems. These are deployment examples, not universal scientific
 sizing recommendations. GPU memory is not controlled by the memory cgroup.
+The environment example also permits one active scientific child and 16 queued
+requests; size both values for measured workload and available memory.
 
 ## Fail-Closed Preflight
 

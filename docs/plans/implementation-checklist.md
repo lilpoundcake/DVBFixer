@@ -150,6 +150,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Add authentication and principal-to-workspace authorization.
 - [x] Add restrictive CORS.
 - [x] Add upload and workspace limits plus process-wide child concurrency control.
+- [x] Bound the process-wide child admission queue and reject overload before spawning.
 - [x] Add bounded process-local request-rate limits before authentication.
 - [ ] Add OS-level CPU, memory, and filesystem quotas.
   - [x] Add a fail-closed systemd/cgroup-v2 deployment profile and bounded-storage preflight.

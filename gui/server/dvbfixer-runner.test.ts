@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import {
   initializeDvbfixerProcessAdmission,
+  getDvbfixerProcessAdmissionSnapshot,
   parseDvbfixerMaxConcurrentProcesses,
+  parseDvbfixerMaxQueuedProcesses,
   resetDvbfixerProcessAdmission,
   runDvbfixerArgs,
   shutdownDvbfixerProcesses,
@@ -11,6 +13,7 @@ const originalEnvironment = {
   executable: process.env.DVBFIXER_EXECUTABLE,
   args: process.env.DVBFIXER_ARGS,
   maxConcurrentProcesses: process.env.DVBFIXER_MAX_CONCURRENT_PROCESSES,
+  maxQueuedProcesses: process.env.DVBFIXER_MAX_QUEUED_PROCESSES,
 }
 
 afterEach(async () => {
@@ -19,6 +22,7 @@ afterEach(async () => {
     DVBFIXER_EXECUTABLE: originalEnvironment.executable,
     DVBFIXER_ARGS: originalEnvironment.args,
     DVBFIXER_MAX_CONCURRENT_PROCESSES: originalEnvironment.maxConcurrentProcesses,
+    DVBFIXER_MAX_QUEUED_PROCESSES: originalEnvironment.maxQueuedProcesses,
   })) {
     if (value === undefined) delete process.env[key]
     else process.env[key] = value
@@ -87,6 +91,22 @@ describe('DVBfixer runner', () => {
     expect(starts).toEqual(['first'])
     await Promise.all([first, second, third])
     expect(starts).toEqual(['first', 'second', 'third'])
+  }, 15_000)
+
+  it('bounds the waiting queue and reports live admission pressure', async () => {
+    resetDvbfixerProcessAdmission(1, 2)
+    useNode('setTimeout(() => {}, Number(process.argv[1]))')
+    const first = runDvbfixerArgs('80', [])
+    const second = runDvbfixerArgs('0', [])
+    const third = runDvbfixerArgs('0', [])
+    await expect(runDvbfixerArgs('0', [])).resolves.toMatchObject({
+      code: -1, started: false, failure: 'overloaded', stderr: expect.stringContaining('queue is full'),
+    })
+    expect(getDvbfixerProcessAdmissionSnapshot()).toEqual({
+      active: 1, queued: 2, limit: 1, queueLimit: 2, accepting: true,
+    })
+    await Promise.all([first, second, third])
+    expect(getDvbfixerProcessAdmissionSnapshot()).toMatchObject({ active: 0, queued: 0 })
   }, 15_000)
 
   it('cancels a queued run without spawning it', async () => {
@@ -187,13 +207,19 @@ describe('DVBfixer runner', () => {
   it('strictly validates and initializes the concurrency configuration', async () => {
     expect(parseDvbfixerMaxConcurrentProcesses(undefined)).toBe(1)
     expect(parseDvbfixerMaxConcurrentProcesses('64')).toBe(64)
+    expect(parseDvbfixerMaxQueuedProcesses(undefined)).toBe(16)
+    expect(parseDvbfixerMaxQueuedProcesses('256')).toBe(256)
     for (const value of ['', '0', '-1', '1.5', ' 2', '2 ', '+2', '65', '9007199254740992']) {
       expect(() => parseDvbfixerMaxConcurrentProcesses(value)).toThrow(
         'DVBFIXER_MAX_CONCURRENT_PROCESSES',
       )
     }
+    for (const value of ['', '0', '-1', '1.5', ' 2', '2 ', '+2', '257', '9007199254740992']) {
+      expect(() => parseDvbfixerMaxQueuedProcesses(value)).toThrow('DVBFIXER_MAX_QUEUED_PROCESSES')
+    }
 
-    initializeDvbfixerProcessAdmission('2')
+    initializeDvbfixerProcessAdmission('2', '3')
+    expect(getDvbfixerProcessAdmissionSnapshot()).toMatchObject({ limit: 2, queueLimit: 3 })
     useNode('setTimeout(() => {}, 50)')
     const running = runDvbfixerArgs('doctor', [])
     expect(() => resetDvbfixerProcessAdmission(1)).toThrow('until all work is drained')
