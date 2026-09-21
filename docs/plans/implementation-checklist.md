@@ -15,13 +15,13 @@ partially complete, optional but not accepted, or not yet verified.
 
 ### Accepted Decisions
 
-- [ ] Accept an ADR making Node/TypeScript the HTTP, workspace, artifact, and job shell.
-- [ ] Accept an ADR making Python the sole owner of scientific naming policy.
-- [ ] Accept an ADR for host-neutral route composition rather than a duplicate Python web service.
-- [ ] Record `dvbfixer atom-names` as the dedicated naming command.
-- [ ] Record naming conversion as synchronous and long-running workflows as asynchronous jobs.
-- [ ] Record workspace artifact IDs as the only V1 server-side input reference.
-- [ ] Record the V1 policy rejecting multiple `MODEL` blocks.
+- [x] Accept an ADR making Node/TypeScript the HTTP, workspace, artifact, and job shell.
+- [x] Accept an ADR making Python the sole owner of scientific naming policy.
+- [x] Accept an ADR for host-neutral route composition rather than a duplicate Python web service.
+- [x] Record `dvbfixer atom-names` as the dedicated naming command.
+- [x] Record naming conversion as synchronous and long-running workflows as asynchronous jobs.
+- [x] Record workspace artifact IDs as the only V1 server-side input reference.
+- [x] Record the V1 policy rejecting multiple `MODEL` blocks.
 
 ### Open Maintainer Decisions
 
@@ -36,7 +36,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Add regression coverage for naming blockers 1-6 and 9 from the API roadmap.
 - [ ] Complete end-to-end nucleic-acid naming coverage.
 - [ ] Capture and document any still-needed representative golden inputs.
-- [ ] Complete ADR and test evidence distinguishing current behavior from intended V1 behavior.
+- [x] Complete ADR and test evidence distinguishing current behavior from intended V1 behavior.
 
 ## API Phase 1: Naming Application Service
 
@@ -73,8 +73,8 @@ partially complete, optional but not accepted, or not yet verified.
 
 - [ ] Verify every `GROMACS_AMBER_ATOM_RENAMES` mapping.
 - [ ] Verify AMBER and CHARMM caps and termini.
-- [ ] Verify exact coexistence of residues such as `H:82` and `H:82A`.
-- [ ] Verify one-residue and multi-chain proteins.
+- [x] Verify exact coexistence of residues such as `H:82` and `H:82A`.
+- [x] Verify one-residue and multi-chain proteins.
 - [ ] Verify byte-identical repeat conversion across all supported mappings.
 - [ ] Complete malformed-line coverage.
 - [ ] Complete `ATOM`, `HETATM`, `ANISOU`, `TER`, and untouched-record matrix coverage.
@@ -88,10 +88,10 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Call the pure naming service and keep the command distinct from `rename` and `convert`.
 - [x] Register the command and regenerate CLI and GUI command references.
 - [x] Add subprocess-level tests and deterministic conversion.
-- [ ] Explicitly verify source preservation at CLI level.
+- [x] Explicitly verify source preservation at CLI level.
 - [ ] Explicitly validate the report schema at CLI level.
-- [ ] Explicitly verify non-zero exit and no destination on unsafe input.
-- [ ] Explicitly verify the selected CIF boundary behavior.
+- [x] Explicitly verify non-zero exit and no destination on unsafe input.
+- [x] Explicitly verify the selected CIF boundary behavior.
 
 ## API Phase 3: Versioned Naming API
 
@@ -169,7 +169,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [ ] Retire the duplicate synchronous generic command route.
 - [ ] Classify every operation as a deterministic transform or managed workflow.
 - [ ] Keep minimization, modeling, and parameterization out of synchronous APIs.
-- [ ] Preserve cancellation for long-running operations.
+- [x] Preserve cancellation for long-running operations.
 - [ ] Generate clients and contract tests from OpenAPI.
 - [ ] Define API compatibility, versioning, and deprecation policy.
 - [ ] Add durable scheduling, state, and event delivery before horizontal scaling.
@@ -183,8 +183,8 @@ partially complete, optional but not accepted, or not yet verified.
 
 ## API-Wide Quality Gates
 
-- [ ] Use one runtime-schema source for every V1 route and OpenAPI description.
-- [ ] Ensure no public route accepts unrestricted filesystem paths.
+- [x] Use one runtime-schema source for every V1 route and OpenAPI description.
+- [x] Ensure no public route accepts unrestricted filesystem paths.
 - [x] Keep scientific naming policy implemented once in Python.
 - [ ] Record reproducible inputs, options, and versions for every output artifact.
 - [x] Enforce workspace ownership before path resolution.
