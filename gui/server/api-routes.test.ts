@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { apiPlugin } from './api-plugin'
-import { registerApiRoutes } from './api-routes'
+import { readServiceVersion, registerApiRoutes } from './api-routes'
 import type { ApiMiddleware } from './http-types'
 
 const temporaryDirectories: string[] = []
@@ -76,5 +76,17 @@ describe('host-neutral API composition', () => {
       config: { root: projectRoot, server: { host: '0.0.0.0' } },
       middlewares: host.middlewares,
     } as never)).toThrow(/AUTH_PRINCIPALS/)
+  })
+
+  it('requires authoritative package version metadata', () => {
+    const projectRoot = temp()
+    expect(readServiceVersion(projectRoot)).toBe('test')
+
+    fs.writeFileSync(path.join(projectRoot, 'package.json'), JSON.stringify({ version: '' }))
+    expect(() => readServiceVersion(projectRoot)).toThrow(/service version/)
+
+    fs.rmSync(path.join(projectRoot, 'package.json'))
+    const { host } = registrar()
+    expect(() => registerApiRoutes(host, { projectRoot })).toThrow(/service version/)
   })
 })

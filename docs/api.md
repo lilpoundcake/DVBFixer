@@ -99,8 +99,8 @@ omitted.
 
 A successful conversion returns `201` and registers exactly one new structure
 artifact. Its manifest metadata records the source artifact ID, request options,
-DVBFixer version, operation/report schema versions, and source/report/output
-SHA-256 digests. Helper reports, overrides, and logs are removed before
+hosting-service and DVBFixer package versions, operation/report schema versions,
+and source/report/output SHA-256 digests. Helper reports, overrides, and logs are removed before
 successful publication. A successful dry run returns `200`, includes the same conversion
 result and candidate digest, and does not change the manifest or retain output.
 

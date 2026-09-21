@@ -93,10 +93,11 @@ async function apiRequest(
   body = '',
   contentType = 'application/json',
   runner?: Parameters<typeof executeNamingConversion>[3],
+  serviceVersion = 'test-service',
 ) {
   let middleware: ((req: any, res: any, next: () => void) => Promise<void>) | undefined
   const server = { middlewares: { use: (_route: string, handler: typeof middleware) => { middleware = handler } } }
-  registerNamingApi(server as any, dataRoot, runner)
+  registerNamingApi(server as any, dataRoot, runner, undefined, undefined, serviceVersion)
   const incoming = Readable.from([body]) as Readable & {
     method: string; url: string; headers: Record<string, string>
   }
@@ -132,7 +133,9 @@ describe('naming conversion application boundary', () => {
     const dataRoot = temp()
     workspace(dataRoot)
 
-    const result = await executeNamingConversion(dataRoot, 'workspace-a', request, successfulRunner())
+    const result = await executeNamingConversion(
+      dataRoot, 'workspace-a', request, successfulRunner(), undefined, undefined, '9.9.9',
+    )
 
     expect(result.statusCode).toBe(201)
     expect(result.response.outputArtifact?.name).toBe('named.pdb')
@@ -143,6 +146,7 @@ describe('naming conversion application boundary', () => {
     expect(output.namingProvenance).toMatchObject({
       operation: 'pdb-force-field-naming', sourceArtifactId: 'source',
       targetForceField: 'amber', profile: 'gromacs', dvbfixerVersion: '0.8.5',
+      serviceVersion: '9.9.9',
     })
     expect(output.namingProvenance?.reportSha256).toMatch(/^[a-f0-9]{64}$/)
     expect(output.namingProvenance?.sourceSha256).toMatch(/^[a-f0-9]{64}$/)
@@ -598,7 +602,9 @@ describe('naming API transport contract', () => {
     expect(response.status).toBe(201)
     expect(response.body).toMatchObject({ status: 'succeeded', sourceArtifactId: 'source' })
     expect(response.body.outputArtifact.file).toMatch(/^runs\/naming_/)
-    expect(loadWorkspace(dataRoot, 'workspace-a').artifacts).toHaveLength(2)
+    const saved = loadWorkspace(dataRoot, 'workspace-a')
+    expect(saved.artifacts).toHaveLength(2)
+    expect(saved.artifacts[1].namingProvenance?.serviceVersion).toBe('test-service')
   })
 
   it('publishes OpenAPI from the runtime request schema', async () => {

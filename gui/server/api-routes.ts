@@ -260,6 +260,16 @@ function listRunFiles(root: string): string[] {
   return files.sort()
 }
 
+export function readServiceVersion(projectRoot: string): string {
+  try {
+    const value = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8')).version
+    if (typeof value === 'string' && value.length > 0) return value
+  } catch (error) {
+    throw new Error('GUI package metadata must contain a service version', { cause: error })
+  }
+  throw new Error('GUI package metadata must contain a service version')
+}
+
 export interface ApiRouteOptions {
   projectRoot: string
   dataRoot?: string
@@ -277,6 +287,7 @@ export interface ApiRouteOptions {
 
 export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions): void {
       const structuresDir = path.resolve(options.dataRoot || process.env.DVBFIXER_GUI_DATA_DIR || path.join(options.projectRoot, 'structures'))
+      const serviceVersion = readServiceVersion(options.projectRoot)
       const authConfig = options.authConfig || parseAuthConfig(process.env)
       const legacyWorkspaceOwner = options.legacyWorkspaceOwner || resolveLegacyWorkspaceOwner(authConfig)
       const corsAllowedOrigins = options.corsAllowedOrigins || parseCorsAllowedOrigins(process.env)
@@ -322,14 +333,10 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       )
       server.middlewares.use('/api/health', (req, res, next) => {
         if (req.method !== 'GET') return next()
-        let version = 'unknown'
-        try {
-          version = JSON.parse(fs.readFileSync(path.join(options.projectRoot, 'package.json'), 'utf8')).version || version
-        } catch { /* health remains available when package metadata is absent */ }
         let storageWritable = false
         try { fs.accessSync(structuresDir, fs.constants.R_OK | fs.constants.W_OK); storageWritable = true } catch { /* reported below */ }
         return sendJson(res, storageWritable ? 200 : 503, {
-          status: storageWritable ? 'ready' : 'degraded', version, storageWritable,
+          status: storageWritable ? 'ready' : 'degraded', version: serviceVersion, storageWritable,
           databaseConfigured: Boolean(process.env.DATABASE_URL), authenticationRequired: authConfig.enabled,
         })
       })
@@ -341,7 +348,9 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       registerWorkspaceApi(server, structuresDir, principalId, legacyWorkspaceOwner, !authConfig.enabled)
       registerHomologyApi(server, structuresDir, principalId, legacyWorkspaceOwner)
       registerManagedJobApi(server, structuresDir, principalId, legacyWorkspaceOwner)
-      registerNamingApi(server, structuresDir, runDvbfixerArgs, principalId, legacyWorkspaceOwner)
+      registerNamingApi(
+        server, structuresDir, runDvbfixerArgs, principalId, legacyWorkspaceOwner, serviceVersion,
+      )
 
       // ── Generic DVBfixer runner ────────────────────────────────────────
       server.middlewares.use('/api/dvbfixer', async (req, res, next) => {

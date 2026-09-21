@@ -120,7 +120,7 @@ partially complete, optional but not accepted, or not yet verified.
 ### Provenance, Observability, And Tests
 
 - [x] Record source, target, profile, overrides, report, and digest provenance.
-- [ ] Explicitly record command/service and DVBFixer package versions.
+- [x] Explicitly record command/service and DVBFixer package versions.
 - [x] Add server-owned request IDs and structured API access logs.
 - [x] Add bounded process-local service metrics.
 - [ ] Add durable audit events and retention.

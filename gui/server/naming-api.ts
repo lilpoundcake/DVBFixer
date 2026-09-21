@@ -211,6 +211,7 @@ export async function executeNamingConversion(
   runner: NamingRunner = runDvbfixerArgs,
   authorizePublication?: (workspace: ReturnType<typeof loadWorkspace>) => void,
   signal?: AbortSignal,
+  serviceVersion = 'unknown',
 ): Promise<{ statusCode: 200 | 201; response: NamingConversionResponse }> {
   const settings = namingSettings()
   let initial
@@ -353,7 +354,7 @@ export async function executeNamingConversion(
         sourceFile: sourceArtifact.file, sourceSha256, command: 'atom-names',
         targetForceField: request.target.forceField, profile: request.target.profile,
         variantOverrides: request.variantOverrides || [], reportSha256: sha256(parsed.bytes),
-        outputSha256: report.output.sha256, dvbfixerVersion: report.tool.version,
+        outputSha256: report.output.sha256, dvbfixerVersion: report.tool.version, serviceVersion,
       }
       outputArtifact = {
         id: crypto.randomUUID(), file: relativeOutput, name: path.basename(output),
@@ -461,6 +462,7 @@ export function registerNamingApi(
   runner: NamingRunner = runDvbfixerArgs,
   principalSource: (request: IncomingMessage) => string = () => 'local',
   legacyOwnerPrincipalId = 'local',
+  serviceVersion = 'unknown',
 ): void {
   server.middlewares.use('/api/v1', async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     const route = (req.url || '').split('?')[0]
@@ -516,6 +518,7 @@ export function registerNamingApi(
         runner,
         () => { authorize() },
         controller.signal,
+        serviceVersion,
       )
       if (typeof res.removeListener === 'function') res.removeListener('close', abortOnClose)
       return sendJson(res, result.statusCode, result.response)

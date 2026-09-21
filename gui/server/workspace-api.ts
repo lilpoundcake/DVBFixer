@@ -59,6 +59,8 @@ export interface NamingConversionProvenance {
   reportSha256: string
   outputSha256: string
   dvbfixerVersion: string
+  /** Optional only for manifests created before service-version provenance shipped. */
+  serviceVersion?: string
 }
 
 export interface WorkspaceArtifactMetadataPatch {
@@ -560,7 +562,8 @@ function validNamingProvenance(value: unknown): value is NamingConversionProvena
         typeof entry.insertionCode === 'string' && typeof entry.variant === 'string'
     }) &&
     typeof item.reportSha256 === 'string' && typeof item.outputSha256 === 'string' &&
-    typeof item.dvbfixerVersion === 'string'
+    typeof item.dvbfixerVersion === 'string' &&
+    (item.serviceVersion === undefined || typeof item.serviceVersion === 'string')
 }
 
 export function saveWorkspace(

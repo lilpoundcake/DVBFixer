@@ -40,6 +40,7 @@ export interface WorkspaceArtifact {
     reportSha256: string
     outputSha256: string
     dvbfixerVersion: string
+    serviceVersion?: string
   }
 }
 
