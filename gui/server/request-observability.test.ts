@@ -79,4 +79,19 @@ describe('request observability', () => {
     expect(() => response.emit('finish')).not.toThrow()
     expect(next).toHaveBeenCalledOnce()
   })
+
+  it('observes completion even when access logging is disabled', () => {
+    const { request, response } = exchange('/health')
+    const starts: unknown[] = []
+    const finishes: unknown[] = []
+    createRequestObservabilityMiddleware(
+      { enabled: false }, undefined, () => 1000,
+      { start: value => starts.push(value), finish: value => finishes.push(value) },
+    )(request, response, () => {})
+    response.emit('finish')
+    expect(starts).toEqual([{ method: 'POST', route: '/api/health' }])
+    expect(finishes).toEqual([{
+      method: 'POST', route: '/api/health', status: 201, durationSeconds: 0, outcome: 'completed',
+    }])
+  })
 })

@@ -137,6 +137,19 @@ the shared API composition, including CORS, rate-limit, authentication, public
 endpoint, route, and unknown-API responses. A standalone loopback Host-header
 rejection occurs before that boundary and is not included.
 
+## Metrics
+
+Set `DVBFIXER_METRICS=prometheus` to enable the protected `GET /api/metrics`
+endpoint. The default is `off`. It returns Prometheus text format with bounded
+HTTP request counters, route-only duration histograms, active-request gauges,
+and DVBFixer child-process active/queued/limit/admission gauges.
+
+Metrics never label by principal, request ID, client address, workspace,
+artifact, job, filename, raw path, query, command arguments, exception text, or
+subprocess output. The scrape excludes itself from HTTP metrics. Metrics are
+process-local and reset on restart; scrape each instance independently and
+aggregate externally. Scrapes remain authenticated and rate-limited.
+
 Scientific conversion failures use their stable Python error codes and HTTP
 `422`. Transport and workspace failures use API-specific codes. Unexpected
 subprocess and filesystem details are not returned to clients.
@@ -154,6 +167,7 @@ The JSON body uses the shared 2 MiB request limit. General server defaults are:
 | `DVBFIXER_RATE_LIMIT_WINDOW_MS` | 60,000 ms | Fixed rate-limit window, 1–3,600 seconds |
 | `DVBFIXER_RATE_LIMIT_MAX_KEYS` | 10,000 | Maximum tracked client addresses |
 | `DVBFIXER_ACCESS_LOG` | `off` | `off` or one-line `json` API access records on stdout |
+| `DVBFIXER_METRICS` | `off` | `off` or protected Prometheus metrics via `/api/metrics` |
 | `DVBFIXER_MUTATIONS_BACKUP_FILE` | `<gui>/mutations.json` | Mutable PostgreSQL backup; hardened deployments place it on bounded state |
 | `DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED` | `0` | Require the Linux cgroup/filesystem preflight when set to `1` |
 | `DVBFIXER_OS_DATA_FILESYSTEM_MAX_BYTES` | unset | Maximum dedicated data-filesystem capacity; required by the OS preflight |

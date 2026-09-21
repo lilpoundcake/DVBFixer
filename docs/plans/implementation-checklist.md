@@ -121,7 +121,8 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Record source, target, profile, overrides, report, and digest provenance.
 - [ ] Explicitly record command/service and DVBFixer package versions.
 - [x] Add server-owned request IDs and structured API access logs.
-- [ ] Add metrics, durable audit events, and retention.
+- [x] Add bounded process-local service metrics.
+- [ ] Add durable audit events and retention.
 - [ ] Generate a client from OpenAPI.
 - [ ] Verify stable validation and error envelopes across V1 routes.
 - [x] Add authentication and authorization tests after implementation.

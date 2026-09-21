@@ -73,6 +73,18 @@ records are operational access logs, not durable audit events. Do not grant log
 readers broader access than API operators merely because bodies and credentials
 are omitted.
 
+## Metrics
+
+The systemd example enables `DVBFIXER_METRICS=prometheus`. Scrape
+`GET /api/metrics` with a configured bearer credential in the `Authorization`
+header; never place credentials in the URL. The endpoint is rate-limited and
+available to every authenticated API principal because the current static-token
+model has no operator role.
+
+Metrics reset on restart. Scrape each server process independently and aggregate
+externally. Fixed labels omit principals, workspace identity, filenames, client
+addresses, and other scientific or tenant data.
+
 ## Acceptance
 
 Before treating a deployment as supported, test on the target host that CPU is

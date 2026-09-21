@@ -494,6 +494,7 @@ files = [
   "gui/server/deployment-limits.ts",
   "gui/server/api-routes.ts",
   "gui/server/request-observability.ts",
+  "gui/server/metrics.ts",
   "deploy/systemd",
   "docs/deployment.md",
   "docs/api.md",

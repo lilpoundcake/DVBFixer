@@ -36,6 +36,17 @@ const queuedRuns: QueuedRun[] = []
 let acceptingProcesses = true
 let activePermits = 0
 
+export interface DvbfixerProcessAdmissionSnapshot {
+  active: number
+  queued: number
+  limit: number
+  accepting: boolean
+}
+
+export function getDvbfixerProcessAdmissionSnapshot(): DvbfixerProcessAdmissionSnapshot {
+  return { active: activePermits, queued: queuedRuns.length, limit: maxConcurrentProcesses, accepting: acceptingProcesses }
+}
+
 export function parseDvbfixerMaxConcurrentProcesses(value: string | undefined): number {
   if (value === undefined) return DEFAULT_MAX_CONCURRENT_PROCESSES
   if (!/^[1-9]\d*$/.test(value)) {

@@ -28,7 +28,7 @@ import { registerHomologyApi } from './homology-api'
 import { registerNamingApi } from './naming-api'
 import {
   initializeDvbfixerProcessAdmission, resetDvbfixerProcessAdmission, runDvbfixerArgs,
-  shutdownDvbfixerProcesses,
+  shutdownDvbfixerProcesses, getDvbfixerProcessAdmissionSnapshot,
 } from './dvbfixer-runner'
 import {
   assertWorkspaceAccess, loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, updateWorkspace,
@@ -49,6 +49,7 @@ import {
 import {
   createRequestObservabilityMiddleware, parseAccessLogConfig, type AccessLogConfig,
 } from './request-observability'
+import { ApiMetrics, parseMetricsConfig, type MetricsConfig } from './metrics'
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
 
@@ -270,6 +271,7 @@ export interface ApiRouteOptions {
   maxConcurrentProcesses?: number
   rateLimit?: RateLimitConfig
   accessLog?: AccessLogConfig
+  metrics?: MetricsConfig
 }
 
 export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions): void {
@@ -279,6 +281,8 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       const corsAllowedOrigins = options.corsAllowedOrigins || parseCorsAllowedOrigins(process.env)
       const rateLimit = options.rateLimit || parseRateLimitConfig(process.env)
       const accessLog = options.accessLog || parseAccessLogConfig(process.env)
+      const metricsConfig = options.metrics || parseMetricsConfig(process.env)
+      const metrics = new ApiMetrics()
       configureStorageQuota(options.storageQuota)
       initializeDvbfixerProcessAdmission(
         options.maxConcurrentProcesses === undefined
@@ -288,10 +292,25 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       fs.mkdirSync(structuresDir, { recursive: true })
       mutationsBackupFile = path.resolve(options.projectRoot, options.mutationsBackupFile || 'mutations.json')
       const rateLimitMiddleware = createRateLimitMiddleware(rateLimit)
-      server.middlewares.use('/api', createRequestObservabilityMiddleware(accessLog))
+      server.middlewares.use('/api', createRequestObservabilityMiddleware(
+        accessLog, undefined, undefined, metricsConfig.enabled ? metrics : undefined,
+      ))
       server.middlewares.use('/api', createCorsMiddleware(corsAllowedOrigins, rateLimitMiddleware))
       server.middlewares.use('/api', rateLimitMiddleware)
       server.middlewares.use('/api', createAuthMiddleware(authConfig))
+      if (metricsConfig.enabled) server.middlewares.use('/api/metrics', (req, res) => {
+        if (req.method !== 'GET' && req.method !== 'HEAD') {
+          res.setHeader('Allow', 'GET, HEAD')
+          return sendJson(res, 405, { error: 'method not allowed' })
+        }
+        const body = Buffer.from(metrics.render(getDvbfixerProcessAdmissionSnapshot()))
+        res.statusCode = 200
+        res.setHeader('Content-Type', 'text/plain; version=0.0.4; charset=utf-8')
+        res.setHeader('Cache-Control', 'no-store')
+        res.setHeader('X-Content-Type-Options', 'nosniff')
+        res.setHeader('Content-Length', String(body.length))
+        res.end(req.method === 'HEAD' ? undefined : body)
+      })
       migrateWorkspaceOwnership(
         structuresDir,
         legacyWorkspaceOwner,

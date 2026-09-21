@@ -49,6 +49,7 @@ describe('standalone configuration', () => {
       mutationsBackupFile: path.join(root, 'mutations.json'),
       deploymentResources: { required: false },
       accessLog: { enabled: false },
+      metrics: { enabled: false },
     })
   })
 
@@ -84,6 +85,7 @@ describe('standalone configuration', () => {
       DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED: '1',
     }, temp())).toThrow(/TMPDIR/)
     expect(() => loadStandaloneConfig({ DVBFIXER_ACCESS_LOG: 'text' }, temp())).toThrow(/off or json/)
+    expect(() => loadStandaloneConfig({ DVBFIXER_METRICS: 'json' }, temp())).toThrow(/off or prometheus/)
   })
 
   it('fails before listening when the static client is absent', () => {
@@ -109,6 +111,37 @@ describe('standalone configuration', () => {
 })
 
 describe('standalone HTTP server', () => {
+  it('serves protected process-local Prometheus metrics when enabled', async () => {
+    const token = Buffer.alloc(32, 7).toString('base64url')
+    const config = fixture()
+    config.metrics = { enabled: true }
+    config.authConfig = parseAuthConfig(JSON.stringify({
+      version: 1,
+      principals: [{ id: 'operator', tokenSha256: crypto.createHash('sha256').update(token).digest('hex') }],
+    }))
+    config.legacyWorkspaceOwner = 'operator'
+    const instance = createStandaloneServer(config)
+    const address = await instance.start()
+    const base = `http://127.0.0.1:${address.port}`
+    try {
+      expect((await fetch(`${base}/api/metrics`)).status).toBe(401)
+      await fetch(`${base}/api/health`)
+      const response = await fetch(`${base}/api/metrics`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toBe('text/plain; version=0.0.4; charset=utf-8')
+      expect(response.headers.get('cache-control')).toBe('no-store')
+      const body = await response.text()
+      expect(body).toContain('dvbfixer_http_requests_total')
+      expect(body).toContain('route="/api/health"')
+      expect(body).not.toContain(token)
+      expect(body).not.toContain('operator')
+    } finally {
+      await instance.close()
+    }
+  })
+
   it('emits a redacted access record using the ingress route label', async () => {
     const config = fixture()
     config.accessLog = { enabled: true }

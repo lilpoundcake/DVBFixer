@@ -16,6 +16,7 @@ import {
   assertDeploymentResources, parseDeploymentResourceSettings, type DeploymentResourceSettings,
 } from './deployment-limits'
 import { parseAccessLogConfig, type AccessLogConfig } from './request-observability'
+import { parseMetricsConfig, type MetricsConfig } from './metrics'
 
 export interface StandaloneConfig {
   host: string
@@ -33,6 +34,7 @@ export interface StandaloneConfig {
   rateLimit: RateLimitConfig
   deploymentResources: DeploymentResourceSettings
   accessLog: AccessLogConfig
+  metrics: MetricsConfig
 }
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost'])
@@ -102,6 +104,7 @@ export function loadStandaloneConfig(
     rateLimit: parseRateLimitConfig(environment),
     deploymentResources: parseDeploymentResourceSettings(environment),
     accessLog: parseAccessLogConfig(environment),
+    metrics: parseMetricsConfig(environment),
   }
 }
 
@@ -184,6 +187,7 @@ export function createStandaloneApplication(config: StandaloneConfig): connect.S
     maxConcurrentProcesses: config.maxConcurrentProcesses,
     rateLimit: config.rateLimit,
     accessLog: config.accessLog,
+    metrics: config.metrics,
   })
   application.use('/api', (_request, response) => jsonNotFound(response))
   application.use(serveStatic(config.staticRoot, {

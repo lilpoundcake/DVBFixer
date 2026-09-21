@@ -357,6 +357,23 @@ test_files = [
 ]
 known_exceptions = ["Access logs are not durable audit events; standalone Host-header rejection occurs before the shared API boundary."]
 
+[invariants.INV-API-METRICS-CARDINALITY]
+status = "implemented"
+statement = "Optional Prometheus metrics use fixed low-cardinality labels and expose only process-local HTTP lifecycle and child-process admission state behind API authentication."
+owner = "gui/server/metrics.ts::ApiMetrics"
+enforcement = [
+  "gui/server/request-observability.ts::createRequestObservabilityMiddleware",
+  "gui/server/api-routes.ts::registerApiRoutes",
+  "gui/server/dvbfixer-runner.ts::getDvbfixerProcessAdmissionSnapshot",
+]
+failure_mode = "Metrics can disclose tenant or scientific identity, grow without bound, or report incorrect request/process pressure."
+test_files = [
+  "gui/server/metrics.test.ts",
+  "gui/server/request-observability.test.ts",
+  "gui/server/standalone.test.ts",
+]
+known_exceptions = ["Metrics reset on restart, are not aggregated across instances, and are readable by every authenticated principal because operator roles do not yet exist."]
+
 [invariants.INV-FIXTURE-PROVENANCE-CHECKSUM]
 status = "implemented"
 statement = "Tracked scientific input fixtures have documented provenance and checksums, and do not depend on the ignored local test tree."
