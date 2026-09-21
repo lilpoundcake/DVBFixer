@@ -48,15 +48,6 @@ jobs:
       - name: mypy (API surface)
         run: mypy src/dvbfixer/cli.py src/dvbfixer/ffutils src/dvbfixer/pdbutils src/dvbfixer/align.py
 
-      # These generators describe the public CLI and are intentionally checked
-      # in the lightweight lane so fork pull requests cannot merge stale GUI
-      # forms or command reference pages.
-      - name: docs reference in sync with argparse
-        run: python scripts/gen_cli_reference.py --check
-
-      - name: GUI command schema in sync with argparse
-        run: python scripts/gen_gui_spec.py --check
-
       - name: release versions in sync
         run: python scripts/check_versions.py
 
@@ -119,6 +110,14 @@ jobs:
         shell: bash -el {0}
         run: |
           pip install -e ".[dev]"
+
+      - name: docs reference in sync with argparse
+        shell: bash -el {0}
+        run: python scripts/gen_cli_reference.py --check
+
+      - name: GUI command schema in sync with argparse
+        shell: bash -el {0}
+        run: python scripts/gen_gui_spec.py --check
 
       - name: pytest (full lane)
         shell: bash -el {0}
