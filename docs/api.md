@@ -223,10 +223,15 @@ Naming-specific defaults are:
 | `DVBFIXER_NAMING_TIMEOUT_MS` | 60,000 ms | Subprocess timeout |
 
 These settings must be positive safe integers; the timeout may not exceed
-2,147,483,647 ms, Node's timer maximum. Source size is checked before the
-operation directory is created or a child process is admitted. The subprocess
-receives `SIGTERM` on timeout and escalates to `SIGKILL` after a short grace
-period; the API returns `504 NAMING_TIMEOUT`.
+2,147,483,647 ms, Node's timer maximum. The source is read through a bounded
+file descriptor before the operation directory or child-process admission is
+created. The command reads that private snapshot rather than the mutable
+workspace path, and publication still verifies that the workspace source has
+not changed. Generated output is bounded by the same byte limit before digest
+validation, then atomically replaced with those validated bytes inside the
+private operation directory. The subprocess receives `SIGTERM` on timeout and
+escalates to `SIGKILL` after a short grace period; the API returns `504
+NAMING_TIMEOUT`.
 
 Operation directories and the shared `runs/_failed` directory use mode `0700`
 on POSIX hosts. Server-owned logs, validated reports, and variant-override files
@@ -234,7 +239,8 @@ use mode `0600`. Successful publication removes those helpers, and a dry run
 removes the whole operation directory. Other failures retain the bounded stdout,
 stderr, report when available, overrides, and any partial output below
 `runs/_failed`; publication-stage failures restore diagnostics removed during
-the commit attempt. Failed runs are never registered as visible artifacts, are
+the commit attempt. Normal failure cleanup excludes the private source snapshot
+from retained data. Failed runs are never registered as visible artifacts, are
 counted against workspace quota, and currently remain until an operator removes
 them. A quota-exhaustion failure deletes its operation data instead of retaining
 more bytes.

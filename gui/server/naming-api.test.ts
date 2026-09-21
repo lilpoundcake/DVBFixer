@@ -50,6 +50,8 @@ function successfulRunner(options: {
   dryRun?: boolean
   beforeWrite?: () => void
   outputSha256?: string
+  outputBytes?: Buffer
+  outputSymlink?: string
   stdout?: string
   stderr?: string
 } = {}) {
@@ -57,10 +59,13 @@ function successfulRunner(options: {
     options.beforeWrite?.()
     const output = args[args.indexOf('-o') + 1]
     const reportFile = args[args.indexOf('--report-json') + 1]
-    const outputBytes = Buffer.from('ATOM      1  CA  ALA A   1      10.000  10.000  10.000  1.00 20.00           C  \nEND\n')
+    const outputBytes = options.outputBytes || Buffer.from('ATOM      1  CA  ALA A   1      10.000  10.000  10.000  1.00 20.00           C  \nEND\n')
     const digest = options.outputSha256 || await import('node:crypto').then(({ default: crypto }) =>
       crypto.createHash('sha256').update(outputBytes).digest('hex'))
-    if (!options.dryRun) fs.writeFileSync(output, outputBytes)
+    if (!options.dryRun) {
+      if (options.outputSymlink) fs.symlinkSync(options.outputSymlink, output)
+      else fs.writeFileSync(output, outputBytes)
+    }
     fs.writeFileSync(reportFile, JSON.stringify({
       schemaVersion: 1,
       operation: 'pdb-force-field-naming',
@@ -144,6 +149,10 @@ describe('naming conversion application boundary', () => {
     expect(output.namingProvenance?.outputSha256).toBe(result.response.output.sha256)
     expect(fs.readdirSync(path.join(workspaceRoot(dataRoot, 'workspace-a'), output.folder!)))
       .toEqual(['named.pdb'])
+    if (process.platform !== 'win32') {
+      expect(fs.statSync(path.join(workspaceRoot(dataRoot, 'workspace-a'), output.file)).mode & 0o777)
+        .toBe(0o600)
+    }
   })
 
   it('returns a dry-run report without changing the manifest or retaining output', async () => {
@@ -238,6 +247,33 @@ describe('naming conversion application boundary', () => {
     expect(fs.readFileSync(path.join(failedRun, 'stdout.log'), 'utf8')).toBe('conversion output')
     expect(fs.readFileSync(path.join(failedRun, 'stderr.log'), 'utf8')).toBe('conversion diagnostics')
     expect(fs.existsSync(path.join(failedRun, 'report.json'))).toBe(true)
+  })
+
+  it('executes against a private snapshot and rejects a concurrently changed source', async () => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const root = workspaceRoot(dataRoot, 'workspace-a')
+    const source = path.join(root, 'files', 'input.pdb')
+    const original = fs.readFileSync(source)
+    let runnerInput = ''
+    let runnerBytes = Buffer.alloc(0)
+    const delegate = successfulRunner()
+    const runner = async (...args: Parameters<typeof delegate>) => {
+      runnerInput = args[1][0]
+      runnerBytes = fs.readFileSync(runnerInput)
+      fs.writeFileSync(source, 'END\n')
+      return delegate(...args)
+    }
+
+    await expect(executeNamingConversion(dataRoot, 'workspace-a', request, runner))
+      .rejects.toMatchObject({ statusCode: 409, code: 'SOURCE_ARTIFACT_CHANGED' })
+
+    expect(runnerInput).not.toBe(source)
+    expect(path.basename(runnerInput)).toBe('.source.pdb')
+    expect(runnerBytes).toEqual(original)
+    const failedRoot = path.join(root, 'runs', '_failed')
+    const failedRun = path.join(failedRoot, fs.readdirSync(failedRoot)[0])
+    expect(fs.existsSync(path.join(failedRun, '.source.pdb'))).toBe(false)
   })
 
   it('deletes failure diagnostics that would leave the workspace over quota', async () => {
@@ -450,6 +486,48 @@ describe('naming conversion application boundary', () => {
       else process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES = previousLimit
     }
     expect(runs).toBe(1)
+  })
+
+  it('rejects generated output above the source-size limit before reading it', async () => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const root = workspaceRoot(dataRoot, 'workspace-a')
+    const sourceBytes = fs.statSync(path.join(root, 'files', 'input.pdb')).size
+    const previousLimit = process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES
+    process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES = String(sourceBytes)
+    try {
+      await expect(executeNamingConversion(
+        dataRoot,
+        'workspace-a',
+        request,
+        successfulRunner({ outputBytes: Buffer.alloc(sourceBytes + 1, 'x') }),
+      )).rejects.toMatchObject({ statusCode: 500, code: 'OUTPUT_TOO_LARGE' })
+    } finally {
+      if (previousLimit === undefined) delete process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES
+      else process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES = previousLimit
+    }
+    const failedRoot = path.join(root, 'runs', '_failed')
+    const failedRun = path.join(failedRoot, fs.readdirSync(failedRoot)[0])
+    expect(fs.existsSync(path.join(failedRun, '.source.pdb'))).toBe(false)
+    expect(loadWorkspace(dataRoot, 'workspace-a').artifacts).toHaveLength(1)
+  })
+
+  it.each(['regular', 'dangling'] as const)('rejects a child-created %s output symlink without retaining it', async target => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const root = workspaceRoot(dataRoot, 'workspace-a')
+    const outside = path.join(temp(), 'outside.pdb')
+    const content = 'END\n'
+    if (target === 'regular') fs.writeFileSync(outside, content)
+
+    await expect(executeNamingConversion(
+      dataRoot, 'workspace-a', request, successfulRunner({ outputSymlink: outside }),
+    )).rejects.toMatchObject({ statusCode: 500, code: 'UNSAFE_OUTPUT' })
+
+    if (target === 'regular') expect(fs.readFileSync(outside, 'utf8')).toBe(content)
+    const failedRoot = path.join(root, 'runs', '_failed')
+    const failedRun = path.join(failedRoot, fs.readdirSync(failedRoot)[0])
+    expect(() => fs.lstatSync(path.join(failedRun, 'named.pdb'))).toThrow()
   })
 
   it('rejects source symlinks that escape the workspace', async () => {

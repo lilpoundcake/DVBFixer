@@ -80,6 +80,45 @@ function sha256(content: Buffer): string {
   return crypto.createHash('sha256').update(content).digest('hex')
 }
 
+function readBoundedRegularFile(file: string, maxBytes: number): Buffer | null {
+  const beforeOpen = fs.lstatSync(file)
+  if (beforeOpen.isSymbolicLink() || !beforeOpen.isFile()) throw new Error('unsafe file type')
+  const flags = process.platform === 'win32'
+    ? fs.constants.O_RDONLY
+    : fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW
+  const descriptor = fs.openSync(file, flags)
+  try {
+    const opened = fs.fstatSync(descriptor)
+    if (!opened.isFile() || opened.dev !== beforeOpen.dev || opened.ino !== beforeOpen.ino) {
+      throw new Error('file changed while opening')
+    }
+    const chunks: Buffer[] = []
+    const chunkSize = Math.min(1024 * 1024, maxBytes + 1)
+    let total = 0
+    while (total <= maxBytes) {
+      const chunk = Buffer.allocUnsafe(chunkSize)
+      const bytesRead = fs.readSync(descriptor, chunk, 0, chunk.length, null)
+      if (bytesRead === 0) return Buffer.concat(chunks, total)
+      total += bytesRead
+      if (total > maxBytes) return null
+      chunks.push(Buffer.from(chunk.subarray(0, bytesRead)))
+    }
+    return null
+  } finally {
+    fs.closeSync(descriptor)
+  }
+}
+
+function replaceWithPrivateFile(file: string, content: Buffer): void {
+  const temporary = path.join(path.dirname(file), `.${path.basename(file)}.validated-${crypto.randomUUID()}`)
+  try {
+    writePrivateFile(temporary, content)
+    fs.renameSync(temporary, file)
+  } finally {
+    try { fs.rmSync(temporary, { force: true }) } catch { /* preserve the write or rename failure */ }
+  }
+}
+
 function schemaError(schema: Parameters<typeof Value.Errors>[0], value: unknown): string {
   const first = Value.Errors(schema, value).First()
   return first ? `${first.path || '/'} ${first.message}` : 'value does not match schema'
@@ -190,18 +229,31 @@ export async function executeNamingConversion(
   try { source = resolveWorkspaceFile(dataRoot, workspaceId, sourceArtifact.file) } catch {
     throw new NamingApiError(404, 'ARTIFACT_NOT_FOUND', 'input artifact file does not exist')
   }
-  const stat = fs.statSync(source)
-  if (!stat.isFile()) throw new NamingApiError(404, 'ARTIFACT_NOT_FOUND', 'input artifact is not a file')
-  if (stat.size > settings.maxSourceBytes) {
+  let sourceStat: fs.Stats
+  try { sourceStat = fs.lstatSync(source) } catch {
+    throw new NamingApiError(404, 'ARTIFACT_NOT_FOUND', 'input artifact file does not exist')
+  }
+  if (sourceStat.isSymbolicLink() || !sourceStat.isFile()) {
+    throw new NamingApiError(404, 'ARTIFACT_NOT_FOUND', 'input artifact is not a file')
+  }
+  if (sourceStat.size > settings.maxSourceBytes) {
     throw new NamingApiError(413, 'SOURCE_TOO_LARGE', `input artifact exceeds ${settings.maxSourceBytes} bytes`)
   }
-  const sourceSha256 = sha256(fs.readFileSync(source))
+  let sourceBytes: Buffer | null
+  try { sourceBytes = readBoundedRegularFile(source, settings.maxSourceBytes) } catch {
+    throw new NamingApiError(404, 'ARTIFACT_NOT_FOUND', 'input artifact file does not exist')
+  }
+  if (!sourceBytes) {
+    throw new NamingApiError(413, 'SOURCE_TOO_LARGE', `input artifact exceeds ${settings.maxSourceBytes} bytes`)
+  }
+  const sourceSha256 = sha256(sourceBytes)
 
   const operationId = crypto.randomUUID()
   const release = acquireWorkspaceRun(workspaceId, `naming-${operationId}`)
   if (!release) throw new NamingApiError(409, 'WORKSPACE_BUSY', 'another DVBFixer operation is running in this workspace')
   const root = workspaceRoot(dataRoot, workspaceId)
   const operationDirectory = path.join(root, 'runs', `naming_${operationId}`)
+  const sourceSnapshot = path.join(operationDirectory, '.source.pdb')
   const output = path.join(operationDirectory, outputName(request, sourceArtifact.file))
   const reportFile = path.join(operationDirectory, 'report.json')
   let retainedStdout: string | undefined
@@ -209,8 +261,9 @@ export async function executeNamingConversion(
   let retainedReport: Buffer | undefined
   try {
     fs.mkdirSync(operationDirectory, { recursive: false, mode: 0o700 })
+    writePrivateFile(sourceSnapshot, sourceBytes)
     const args = [
-      source, '-o', output,
+      sourceSnapshot, '-o', output,
       '--target-ff', request.target.forceField,
       '--profile', request.target.profile,
       '--report-json', reportFile,
@@ -271,13 +324,27 @@ export async function executeNamingConversion(
         throw new NamingApiError(500, 'CLI_REPORT_MISMATCH', 'dry run unexpectedly published an output')
       }
     } else {
-      if (!report.output.written || !fs.existsSync(output) || !fs.statSync(output).isFile()) {
+      let outputStat: fs.Stats | null = null
+      try { outputStat = fs.lstatSync(output) } catch { /* missing */ }
+      if (outputStat?.isSymbolicLink()) {
+        try { fs.rmSync(output, { force: true }) } catch { /* failure handling will quarantine the run */ }
+        throw new NamingApiError(500, 'UNSAFE_OUTPUT', 'atom-names output is not a private regular file')
+      }
+      if (!report.output.written || !outputStat?.isFile()) {
         throw new NamingApiError(500, 'MISSING_OUTPUT', 'atom-names did not publish the expected output')
       }
-      const outputBytes = fs.readFileSync(output)
+      let outputBytes: Buffer | null
+      try { outputBytes = readBoundedRegularFile(output, settings.maxSourceBytes) } catch {
+        try { fs.rmSync(output, { force: true }) } catch { /* failure handling will quarantine the run */ }
+        throw new NamingApiError(500, 'UNSAFE_OUTPUT', 'atom-names output is not a private regular file')
+      }
+      if (!outputBytes) {
+        throw new NamingApiError(500, 'OUTPUT_TOO_LARGE', 'atom-names output exceeds the configured source limit')
+      }
       if (!outputBytes.length || report.output.bytes !== outputBytes.length || report.output.sha256 !== sha256(outputBytes)) {
         throw new NamingApiError(500, 'OUTPUT_DIGEST_MISMATCH', 'atom-names output does not match its report')
       }
+      replaceWithPrivateFile(output, outputBytes)
       const relativeFolder = path.relative(root, operationDirectory).replace(/\\/g, '/')
       relativeOutput = path.relative(root, output).replace(/\\/g, '/')
       const provenance: NamingConversionProvenance = {
@@ -311,8 +378,11 @@ export async function executeNamingConversion(
       updateWorkspace(dataRoot, workspaceId, latest => {
         authorizePublication?.(latest)
         const currentSource = latest.artifacts.find(artifact => artifact.id === sourceArtifact.id)
+        let currentSourceBytes: Buffer | null = null
+        try { currentSourceBytes = readBoundedRegularFile(source, settings.maxSourceBytes) } catch { /* changed */ }
         if (!currentSource || currentSource.hidden || currentSource.kind !== 'structure' ||
-            currentSource.file !== sourceArtifact.file || sha256(fs.readFileSync(source)) !== sourceSha256) {
+            currentSource.file !== sourceArtifact.file || !currentSourceBytes ||
+            sha256(currentSourceBytes) !== sourceSha256) {
           throw new NamingApiError(409, 'SOURCE_ARTIFACT_CHANGED', 'input artifact changed during conversion')
         }
         if (latest.artifacts.some(artifact => artifact.file === relativeOutput)) {
@@ -326,8 +396,9 @@ export async function executeNamingConversion(
     return { statusCode: request.dryRun ? 200 : 201, response }
   } catch (error) {
     if (error instanceof WorkspaceQuotaExceededError) {
-      fs.rmSync(operationDirectory, { recursive: true, force: true })
+      try { fs.rmSync(operationDirectory, { recursive: true, force: true }) } catch { /* preserve the quota failure */ }
     } else {
+      try { fs.rmSync(sourceSnapshot, { force: true }) } catch { /* preserve the original failure */ }
       try {
         if (fs.existsSync(operationDirectory)) {
           if (retainedStdout !== undefined) writePrivateFile(path.join(operationDirectory, 'stdout.log'), retainedStdout)
@@ -345,7 +416,7 @@ export async function executeNamingConversion(
       let retainFailure = true
       try { assertWorkspaceQuota(root) } catch (quotaError) {
         if (quotaError instanceof WorkspaceQuotaExceededError) {
-          fs.rmSync(operationDirectory, { recursive: true, force: true })
+          try { fs.rmSync(operationDirectory, { recursive: true, force: true }) } catch { /* preserve the original failure */ }
           retainFailure = false
         }
       }

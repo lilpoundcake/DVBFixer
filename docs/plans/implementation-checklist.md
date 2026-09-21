@@ -115,6 +115,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Parse the report, validate output existence/digest, and publish against the current manifest revision.
 - [x] Return the output artifact and report.
 - [x] Define and verify retained failure-log behavior.
+- [ ] Add bounded retention or pruning for failed operation directories.
 
 ### Provenance, Observability, And Tests
 
