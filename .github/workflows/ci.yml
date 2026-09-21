@@ -103,12 +103,15 @@ jobs:
         with:
           environment-file: environment.yml
           environment-name: dvbfixer
+          # Generated argparse references use the Python 3.11 baseline.
+          create-args: python=3.11
           cache-environment: true
           cache-downloads: true
 
       - name: Install package + dev extras
         shell: bash -el {0}
         run: |
+          python -c 'import sys; assert sys.version_info[:2] == (3, 11)'
           pip install -e ".[dev]"
 
       - name: docs reference in sync with argparse
