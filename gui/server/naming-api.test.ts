@@ -611,7 +611,11 @@ describe('naming API transport contract', () => {
     const response = await apiRequest(temp(), 'GET', '/openapi.json')
     expect(response.status).toBe(200)
     expect(response.body).toEqual(JSON.parse(JSON.stringify(NAMING_OPENAPI_DOCUMENT)))
-    expect(Value.Check(NamingConversionRequestSchema, NAMING_REQUEST_EXAMPLE)).toBe(true)
+    const publishedExample = NAMING_OPENAPI_DOCUMENT
+      .paths['/api/v1/workspaces/{workspaceId}/naming-conversions']
+      .post.requestBody.content['application/json'].example
+    expect(publishedExample).toEqual(NAMING_REQUEST_EXAMPLE)
+    expect(Value.Check(NamingConversionRequestSchema, publishedExample)).toBe(true)
     expect(NAMING_OPENAPI_DOCUMENT.components.securitySchemes.bearerAuth).toEqual({
       type: 'http', scheme: 'bearer',
     })

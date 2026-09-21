@@ -129,7 +129,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Add authentication and authorization tests after implementation.
 - [x] Explicitly test path containment, source/request size limits, and naming timeouts.
 - [x] Test artifact lookup, dry runs, one-artifact publication, concurrent manifests, and failures.
-- [ ] Validate OpenAPI examples against runtime schemas.
+- [x] Validate OpenAPI examples against runtime schemas.
 
 ## API Phase 4: Standalone Server
 
