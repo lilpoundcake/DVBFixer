@@ -205,15 +205,17 @@ configuration validation, and cleanup on subsequent successful execution.
 - [x] Test status mappings for 400, 401, 403, 404, 409, 413, 415, 422, and 500.
 - [x] Stabilize documented naming error codes.
 - [x] Run release verification: GUI checks, focused Python tests, generated-file checks, agent-doc checks, and the non-slow Python suite.
-- [ ] Push the completed implementation and require every configured GitHub Actions CI check on that commit to pass.
+- [x] Push the completed implementation and require every configured GitHub Actions CI check on that commit to pass.
 
-Verification on 2026-09-21: focused naming tests (222 passed), non-slow Python
-suite (530 passed, 2 skipped for unavailable Modeller licensing, 26 deselected),
-GUI/server suite (218 passed), TypeScript, Ruff, mypy, agent-doc validation,
-generated GUI schema, and `git diff --check` passed. CLI references pass with the
-CI Python 3.11 environment; Python 3.13 changes argparse help formatting. This
-verification does not include licensed Modeller integrations or target-host
-public-deployment acceptance.
+Verification on 2026-09-21: the [post-push CI run for `cf56aaa`](https://github.com/lilpoundcake/DVBFixer/actions/runs/35661988827)
+passed all four configured jobs. The scientific lane reported 552 passed and
+3 skipped (no Modeller license); GUI reported 232 passed. Locally, the
+non-slow Python suite reported 533 passed and 3 skipped, and the Python 3.11
+fast-lane selection reported 220 passed. Ruff, mypy, TypeScript, generated
+CLI/GUI/OpenAPI files, agent-doc validation, and `git diff --check` passed.
+Python 3.13 changes argparse help formatting, so CI pins its scientific lane
+to Python 3.11. This verification does not include licensed Modeller
+integrations or target-host public-deployment acceptance.
 
 The versioned workflow API uses a durable workspace run lock, cross-process
 cancel markers, and persisted job-record polling for SSE on a shared local
