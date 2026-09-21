@@ -152,7 +152,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [ ] Add OS-level CPU, memory, and filesystem quotas.
 - [x] Document current local deployment and security boundaries.
 - [ ] Document a supported public deployment after security controls exist.
-- [ ] Add storage-level manifest locking or compare-and-swap.
+- [x] Add storage-level manifest locking or compare-and-swap.
 - [ ] Replace process-local locks and event subscribers for multi-instance operation.
 - [ ] Complete public-deployment smoke tests.
 

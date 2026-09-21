@@ -33,7 +33,7 @@ test_files = [
 known_divergences = [
   "The tleap-reduce prepare/protonate early-return paths bypass the final naming helper.",
   "Terminal nucleic-acid hydroxyl naming remains unverified and is not claimed as supported.",
-  "The workspace HTTP adapter authenticates static bearer principals but has no cross-process manifest lock yet.",
+  "Workspace manifest locking is same-host only and is not a distributed lease.",
 ]
 
 [contracts.dat-record-lifecycle]
@@ -140,7 +140,7 @@ known_divergences = [
 [contracts.workspace-manifest-artifact-identity]
 status = "partial"
 owner = "gui/server/workspace-api.ts::WorkspaceManifest"
-description = "Workspace-scoped manifest and artifact registry with principal ownership and reader/writer ACLs, optimistic revisions, contained paths, server-owned artifact registration, pending-patch rebasing, and recoverable deletion."
+description = "Workspace-scoped manifest and artifact registry with principal ownership and reader/writer ACLs, optimistic revisions, same-host cross-process locking, contained paths, server-owned artifact registration, pending-patch rebasing, and recoverable deletion."
 producers = [
   "gui/server/workspace-api.ts::saveWorkspace",
   "gui/server/managed-jobs.ts::registerManagedJobApi",
@@ -160,7 +160,7 @@ identity_keys = [
   "artifact bytes and ancestry=workspace-relative artifact.file",
 ]
 source_mutation = "Manifest saves increment revision; registrations append server records; autosaves rebase only pending client fields; deletes move targets to trash."
-commit_behavior = "Manifest JSON uses same-directory temporary write, fsync, and rename, but artifact bytes and manifest registration are separate transactions."
+commit_behavior = "Manifest mutations hold a same-host filesystem lock; JSON uses same-directory temporary write, fsync, and rename. Artifact bytes and manifest registration use rollback/cleanup rather than one filesystem transaction."
 failure_behavior = "Missing or invalid credentials return 401, hidden workspaces return 404, insufficient roles return 403, stale writes return 409, and path containment rejects traversal or symlink escape; registration failure can leave unregistered files."
 test_files = [
   "gui/server/workspace-api.test.ts",
@@ -171,7 +171,7 @@ test_files = [
   "gui/server/homology-api.test.ts",
 ]
 known_divergences = [
-  "Several server-side registrations and destructive endpoints are not compare-and-swap revision operations.",
+  "The filesystem lock does not coordinate multiple hosts or filesystems without local atomic rename semantics.",
   "Artifact metadata uses IDs while primary selection, parent links, and some deduplication use file paths.",
   "Artifact bytes plus manifest registration and trash plus manifest update are not atomic together.",
 ]

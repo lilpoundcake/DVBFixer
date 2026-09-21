@@ -10,11 +10,12 @@ import {
 import {
   applyArtifactMetadataPatch, applyWorkspaceAclPatch, applyWorkspacePatch, artifactResponseHeaders,
   assertWorkspaceAccess, assertWorkspaceRevision, canReadWorkspace, canWriteWorkspace, createWorkspace,
+  deleteWorkspace, deleteWorkspaceArtifact,
   ensureRetiredWorkspaceIndexMigration, ensureWorkspaceMetadataMigration, ensureWorkspaceMigration, isWorkspaceOwner,
   listWorkspaces, loadWorkspace, mergeClientWorkspaceUpdate, migrateWorkspaceOwnership, reorderWorkspaces,
   resolveWorkspaceFile, saveWorkspace,
   registerWorkspaceApi, WorkspaceAuthorizationError, WorkspaceRevisionConflictError, workspaceRole,
-  workspaceOrderPath, writeJsonAtomic, type WorkspaceManifest,
+  workspaceOrderPath, workspaceRoot, writeJsonAtomic, type WorkspaceManifest,
 } from './workspace-api'
 
 const temporaryDirectories: string[] = []
@@ -135,6 +136,21 @@ describe('workspace storage', () => {
     expect(saved.revision).toBe(workspace.revision + 1)
   })
 
+  it('compares the on-disk revision while holding the manifest lock', () => {
+    const root = temp()
+    ensureWorkspaceMigration(root)
+    const first = listWorkspaces(root)[0]
+    const stale = loadWorkspace(root, first.id)
+    const saved = saveWorkspace(root, { ...first, name: 'first writer' })
+
+    expect(() => saveWorkspace(root, { ...stale, name: 'stale writer' }))
+      .toThrow(WorkspaceRevisionConflictError)
+    expect(loadWorkspace(root, first.id)).toMatchObject({
+      revision: saved.revision,
+      name: 'first writer',
+    })
+  })
+
   it('checks replacement-aware manifest growth before writing', () => {
     const root = temp()
     ensureWorkspaceMigration(root)
@@ -180,10 +196,10 @@ describe('workspace storage', () => {
     const workspace = listWorkspaces(root)[0]
     const project = path.join(root, 'projects', workspace.id)
     const renameSync = fs.renameSync
-    let renameCalls = 0
     vi.spyOn(fs, 'renameSync').mockImplementation((oldPath, newPath) => {
-      renameCalls += 1
-      if (renameCalls === 2) throw new Error('simulated manifest publication failure')
+      if (path.resolve(String(newPath)) === path.join(project, 'workspace.json')) {
+        throw new Error('simulated manifest publication failure')
+      }
       return renameSync(oldPath, newPath)
     })
 
@@ -195,6 +211,79 @@ describe('workspace storage', () => {
     expect(loadWorkspace(root, workspace.id)).toMatchObject({ revision: workspace.revision, artifacts: [] })
     const files = fs.readdirSync(project, { recursive: true, encoding: 'utf8' })
     expect(files.some(file => file.endsWith('uploaded.pdb') || file.endsWith('.tmp'))).toBe(false)
+  })
+
+  it('restores an artifact when locked deletion cannot publish its manifest', () => {
+    const root = temp()
+    const created = createWorkspace(root, 'Delete rollback')
+    const project = workspaceRoot(root, created.id)
+    const source = path.join(project, 'files', 'input.pdb')
+    fs.writeFileSync(source, 'END\n')
+    const workspace = saveWorkspace(root, {
+      ...created,
+      artifacts: [{ id: 'input', file: 'files/input.pdb', name: 'input.pdb', kind: 'structure' }],
+    })
+    const renameSync = fs.renameSync
+    vi.spyOn(fs, 'renameSync').mockImplementation((oldPath, newPath) => {
+      if (path.resolve(String(newPath)) === path.join(project, 'workspace.json')) {
+        throw new Error('simulated delete publication failure')
+      }
+      return renameSync(oldPath, newPath)
+    })
+
+    expect(() => deleteWorkspaceArtifact(root, created.id, 'input', 'local'))
+      .toThrow('simulated delete publication failure')
+    expect(fs.readFileSync(source, 'utf8')).toBe('END\n')
+    expect(loadWorkspace(root, created.id)).toMatchObject({
+      revision: workspace.revision,
+      artifacts: [{ id: 'input' }],
+    })
+  })
+
+  it('does not let a stale revision-zero manifest resurrect a deleted workspace', () => {
+    const root = temp()
+    const created = createWorkspace(root, 'Deleted')
+    const stale = { ...created, revision: 0 }
+
+    deleteWorkspace(root, created.id, 'local')
+
+    expect(() => saveWorkspace(root, stale)).toThrow(WorkspaceRevisionConflictError)
+    expect(fs.existsSync(path.join(root, 'projects', created.id))).toBe(false)
+  })
+
+  it('finishes a committed workspace deletion interrupted before its move', () => {
+    const root = temp()
+    const created = createWorkspace(root, 'Interrupted delete')
+    const trashName = `${created.id}-pending-delete`
+    writeJsonAtomic(path.join(root, '.workspace-deletions', `${created.id}.json`), {
+      workspaceId: created.id,
+      trashName,
+      deletedAt: new Date().toISOString(),
+    })
+
+    registerWorkspaceApi({ middlewares: { use: () => {} } } as any, root)
+
+    expect(fs.existsSync(path.join(root, 'projects', created.id))).toBe(false)
+    expect(fs.existsSync(path.join(root, '_workspace_trash', trashName, 'workspace.json'))).toBe(true)
+  })
+
+  it('quarantines directories recreated by stale work after workspace deletion', () => {
+    const root = temp()
+    const created = createWorkspace(root, 'Late recreation')
+    deleteWorkspace(root, created.id, 'local')
+    const lateFile = path.join(root, 'projects', created.id, 'files', 'imports', 'late.pdb')
+    fs.mkdirSync(path.dirname(lateFile), { recursive: true })
+    fs.writeFileSync(lateFile, 'END\n')
+
+    expect(() => registerWorkspaceApi({ middlewares: { use: () => {} } } as any, root)).not.toThrow()
+
+    expect(fs.existsSync(path.join(root, 'projects', created.id))).toBe(false)
+    const trashEntries = fs.readdirSync(path.join(root, '_workspace_trash'))
+      .filter(entry => entry.startsWith(`${created.id}-`))
+    expect(trashEntries).toHaveLength(2)
+    expect(trashEntries.some(entry => fs.existsSync(
+      path.join(root, '_workspace_trash', entry, 'files', 'imports', 'late.pdb'),
+    ))).toBe(true)
   })
 
   it('migrates legacy index metadata onto a uniquely matching artifact once', () => {

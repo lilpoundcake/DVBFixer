@@ -39,7 +39,7 @@ proposed.
 | Per-file directory batch execution | implemented | `batch.py::run_directory` | continue by default or stop with `--fail-fast`; successful outputs remain |
 | CIF-to-PDB command boundary | implemented | `structure_input.py::normalized_command_inputs` | conversion fails before command execution; temporary normalized inputs are removed |
 | ZBS stage orchestration | implemented | `zbs.py::_run_pipeline` | aborts at the failing stage; existing intermediates can remain |
-| Revisioned workspace manifests | partial | `workspace-api.ts` | revision-aware writes return 409, but not every mutation is revision-gated |
+| Revisioned workspace manifests | implemented | `workspace-api.ts`, `workspace-lock.ts` | same-host writers serialize and stale client revisions return 409; locks are not distributed |
 | Persisted, cancellable local jobs | partial | `managed-jobs.ts` | snapshots and capped logs persist; locks and subscribers are process-local |
 | Duplicate synchronous GUI command route | deprecated | `api-plugin.ts` | failed run is moved under `runs/_failed` and is not registered |
 | Versioned production workflow API | proposed | API roadmap | not shipped |
@@ -175,12 +175,11 @@ job record, restoration, SSE lifecycle, or cancellation endpoint.
   job failure but a successful synchronous diagnostic result.
 - Managed SSE emits persisted job snapshots, not live stdout/stderr chunks;
   capped logs become files after process completion.
-- Workspace JSON replacement is atomic, but output-file creation plus manifest
-  registration is not one transaction. `saveWorkspace` itself does not compare
-  the on-disk revision, and managed-job publication carries no expected revision.
-- Workspace PUT/PATCH and metadata PATCH enforce revisions; rename, import,
-  deletion, and server-side artifact registration do not all accept/check an
-  expected revision.
+- Workspace JSON replacement is atomic and every manifest publisher holds a
+  same-host cross-process lock. `saveWorkspace` compares the caller revision to
+  the locked on-disk revision; additive server publishers mutate the locked
+  latest manifest. Output-file creation plus manifest registration remains a
+  compensating transaction rather than one filesystem transaction.
 - On server restart, loading an orphaned queued/running record marks it failed;
   there is no durable worker reconciliation or resume.
 - Active-run locks and SSE subscribers exist only in memory, so multiple server
@@ -192,14 +191,14 @@ job record, restoration, SSE lifecycle, or cancellation endpoint.
 - The static GUI build does not ship these Vite backend routes.
 - The standalone build ships all routes with static bearer authentication and
   workspace ACLs, restrictive CORS, application quotas, and child concurrency
-  limits, but remains unsuitable for untrusted networks without TLS, rate and
-  OS-level limits, audit retention, and distributed coordination.
+  limits, but remains unsuitable for untrusted networks without TLS, OS-level
+  limits, audit retention, and distributed scheduling/event coordination.
 
 ## Proposed Work
 
 The remaining proposals in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md)
-are not current behavior. Add OS-level resource limits, audit retention,
-and storage-level concurrency control; retain Vite only as a development host.
+are not current behavior. Add OS-level resource limits and audit retention;
+retain Vite only as a development host.
 
 Extend runtime-validated `/api/v1` contracts and generated OpenAPI beyond the
 naming slice. Preserve authentication and authorization before path resolution,

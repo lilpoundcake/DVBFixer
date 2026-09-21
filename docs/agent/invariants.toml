@@ -216,7 +216,7 @@ enforcement = [
 ]
 failure_mode = "Stale saves can erase registered artifacts, unrelated panel state, or edits arriving during reload."
 test_files = ["gui/src/stores/workspaceStore.test.ts", "gui/server/workspace-api.test.ts"]
-known_exceptions = ["Rename, import, deletion, and some server-side registrations are not revision-gated."]
+known_exceptions = ["Some destructive HTTP operations intentionally serialize against the latest manifest rather than requiring a client revision."]
 
 [invariants.INV-WORKSPACE-ATOMIC-MANIFEST]
 status = "implemented"
@@ -226,6 +226,20 @@ enforcement = ["gui/server/workspace-api.ts::saveWorkspace"]
 failure_mode = "Process interruption can leave truncated or invalid workspace.json."
 test_files = ["gui/server/workspace-api.test.ts"]
 known_exceptions = ["Artifact bytes and manifest registration are not one transaction."]
+
+[invariants.INV-WORKSPACE-MANIFEST-LOCK]
+status = "implemented"
+statement = "Every workspace manifest mutation is serialized by a same-host cross-process lock and compares or mutates the locked on-disk revision."
+owner = "gui/server/workspace-lock.ts::withWorkspaceManifestLock"
+enforcement = [
+  "gui/server/workspace-api.ts::saveWorkspace",
+  "gui/server/workspace-api.ts::updateWorkspace",
+  "gui/server/workspace-api.ts::deleteWorkspace",
+  "gui/server/workspace-api.ts::deleteWorkspaceArtifact",
+]
+failure_mode = "Concurrent server processes can lose artifact registrations, overwrite newer edits, or resurrect deleted workspaces."
+test_files = ["gui/server/workspace-lock.test.ts", "gui/server/workspace-api.test.ts"]
+known_exceptions = ["The lock relies on one host and a local filesystem with atomic rename; it is not a distributed lease."]
 
 [invariants.INV-API-WORKSPACE-CONTAINMENT]
 status = "implemented"

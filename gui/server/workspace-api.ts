@@ -9,6 +9,7 @@ import type { ApiRouteHost } from './http-types'
 import {
   assertWorkspaceQuota, storageQuotaSettings, WorkspaceQuotaExceededError,
 } from './storage-quota'
+import { withGlobalMigrationLock, withWorkspaceManifestLock } from './workspace-lock'
 
 export interface WorkspaceArtifact {
   id: string
@@ -142,6 +143,10 @@ export class WorkspaceAuthorizationError extends Error {
     this.name = 'WorkspaceAuthorizationError'
     this.statusCode = statusCode
   }
+}
+
+class WorkspaceArtifactMutationError extends Error {
+  readonly statusCode = 400
 }
 
 const ALLOWED = new Set([
@@ -314,6 +319,40 @@ function manifestPath(dataRoot: string, id: string): string {
   return path.join(workspaceRoot(dataRoot, id), 'workspace.json')
 }
 
+function workspaceDeletionMarker(dataRoot: string, id: string): string {
+  return path.join(dataRoot, '.workspace-deletions', `${safeId(id)}.json`)
+}
+
+function completePendingWorkspaceDeletionUnlocked(dataRoot: string, id: string): boolean {
+  const marker = workspaceDeletionMarker(dataRoot, id)
+  if (!fs.existsSync(marker)) return false
+  const record = JSON.parse(fs.readFileSync(marker, 'utf8')) as { workspaceId?: unknown; trashName?: unknown }
+  if (record.workspaceId !== id || typeof record.trashName !== 'string' ||
+      safeId(record.trashName) !== record.trashName || !record.trashName.startsWith(`${safeId(id)}-`)) {
+    throw new Error(`invalid workspace deletion marker: ${id}`)
+  }
+  const source = workspaceRoot(dataRoot, id)
+  if (!fs.existsSync(source)) return true
+  const trash = path.join(dataRoot, '_workspace_trash')
+  const destination = path.join(trash, record.trashName)
+  fs.mkdirSync(trash, { recursive: true })
+  const target = fs.existsSync(destination)
+    ? path.join(trash, `${record.trashName}-late-${crypto.randomUUID()}`)
+    : destination
+  fs.renameSync(source, target)
+  return true
+}
+
+function reconcilePendingWorkspaceDeletions(dataRoot: string): void {
+  const markerRoot = path.join(dataRoot, '.workspace-deletions')
+  if (!fs.existsSync(markerRoot)) return
+  for (const entry of fs.readdirSync(markerRoot, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.json')) continue
+    const id = entry.name.slice(0, -'.json'.length)
+    withWorkspaceManifestLock(dataRoot, id, () => completePendingWorkspaceDeletionUnlocked(dataRoot, id))
+  }
+}
+
 function validPrincipalId(value: unknown): value is string {
   return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(value)
 }
@@ -407,17 +446,17 @@ export function assertWorkspaceAccess(
   return role
 }
 
-export function loadWorkspace(
+function readWorkspace(
   dataRoot: string,
   id: string,
   legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
-): WorkspaceManifestV2 {
+): { workspace: WorkspaceManifestV2; wasLegacy: boolean } {
+  if (fs.existsSync(workspaceDeletionMarker(dataRoot, id))) throw new Error(`workspace not found: ${id}`)
   const file = manifestPath(dataRoot, id)
   if (!fs.existsSync(file)) throw new Error(`workspace not found: ${id}`)
   const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as WorkspaceManifest
   const wasLegacy = parsed.version === 1
   const workspace = manifestV2(parsed, legacyOwnerPrincipalId)
-  if (wasLegacy) writeJsonAtomic(file, workspace)
   workspace.revision = Number.isSafeInteger(workspace.revision) && workspace.revision >= 0
     ? workspace.revision : 0
   workspace.artifacts = Array.isArray(workspace.artifacts)
@@ -427,7 +466,21 @@ export function loadWorkspace(
     : []
   for (const artifact of workspace.artifacts) sanitizeArtifactMetadata(artifact)
   workspace.toolState = workspace.toolState && typeof workspace.toolState === 'object' ? workspace.toolState : {}
-  return workspace
+  return { workspace, wasLegacy }
+}
+
+export function loadWorkspace(
+  dataRoot: string,
+  id: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+): WorkspaceManifestV2 {
+  const loaded = readWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+  if (!loaded.wasLegacy) return loaded.workspace
+  return withWorkspaceManifestLock(dataRoot, id, () => {
+    const current = readWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+    if (current.wasLegacy) writeJsonAtomic(manifestPath(dataRoot, id), current.workspace)
+    return current.workspace
+  })
 }
 
 export function migrateWorkspaceOwnership(
@@ -440,27 +493,29 @@ export function migrateWorkspaceOwnership(
     if (!entry.isDirectory()) continue
     const file = manifestPath(dataRoot, entry.name)
     if (!fs.existsSync(file)) continue
-    const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as WorkspaceManifest
-    if (parsed.version === 1) {
-      writeJsonAtomic(file, manifestV2(
-        parsed,
-        legacyOwnerPrincipalId,
-        !authenticationEnabled && legacyOwnerPrincipalId === LOCAL_WORKSPACE_PRINCIPAL_ID,
-      ))
-      continue
-    }
-    const secured = manifestV2(parsed, legacyOwnerPrincipalId)
-    if (authenticationEnabled && secured.provisionalOwner === true) {
-      const { provisionalOwner: _provisionalOwner, ...withoutMarker } = secured
-      void _provisionalOwner
-      const migrated = {
-        ...withoutMarker,
-        ownerPrincipalId: legacyOwnerPrincipalId,
-        acl: secured.acl.filter(entry => entry.principalId !== legacyOwnerPrincipalId),
+    withWorkspaceManifestLock(dataRoot, entry.name, () => {
+      const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as WorkspaceManifest
+      if (parsed.version === 1) {
+        writeJsonAtomic(file, manifestV2(
+          parsed,
+          legacyOwnerPrincipalId,
+          !authenticationEnabled && legacyOwnerPrincipalId === LOCAL_WORKSPACE_PRINCIPAL_ID,
+        ))
+        return
       }
-      validateAcl(migrated.ownerPrincipalId, migrated.acl)
-      writeJsonAtomic(file, migrated)
-    }
+      const secured = manifestV2(parsed, legacyOwnerPrincipalId)
+      if (authenticationEnabled && secured.provisionalOwner === true) {
+        const { provisionalOwner: _provisionalOwner, ...withoutMarker } = secured
+        void _provisionalOwner
+        const migrated = {
+          ...withoutMarker,
+          ownerPrincipalId: legacyOwnerPrincipalId,
+          acl: secured.acl.filter(entry => entry.principalId !== legacyOwnerPrincipalId),
+        }
+        validateAcl(migrated.ownerPrincipalId, migrated.acl)
+        writeJsonAtomic(file, migrated)
+      }
+    })
   }
 }
 
@@ -514,17 +569,131 @@ export function saveWorkspace(
   legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
 ): WorkspaceManifestV2 {
   const secured = manifestV2(manifest, legacyOwnerPrincipalId)
-  const root = workspaceRoot(dataRoot, manifest.id)
-  fs.mkdirSync(path.join(root, 'files'), { recursive: true })
-  fs.mkdirSync(path.join(root, 'runs'), { recursive: true })
-  fs.mkdirSync(path.join(root, 'homology'), { recursive: true })
-  const revision = Number.isSafeInteger(secured.revision) && secured.revision >= 0 ? secured.revision : 0
-  const next: WorkspaceManifestV2 = { ...secured, version: 2, revision: revision + 1, updatedAt: new Date().toISOString() }
-  const file = manifestPath(dataRoot, manifest.id)
+  return withWorkspaceManifestLock(dataRoot, manifest.id, () => {
+    if (fs.existsSync(workspaceDeletionMarker(dataRoot, manifest.id))) {
+      completePendingWorkspaceDeletionUnlocked(dataRoot, manifest.id)
+      throw new WorkspaceRevisionConflictError(0, secured.revision)
+    }
+    const root = workspaceRoot(dataRoot, manifest.id)
+    const file = manifestPath(dataRoot, manifest.id)
+    let revision = 0
+    if (fs.existsSync(file)) {
+      const current = readWorkspace(dataRoot, manifest.id, legacyOwnerPrincipalId).workspace
+      assertWorkspaceRevision(current, secured.revision)
+      revision = current.revision
+    } else if (secured.revision !== 0) {
+      throw new WorkspaceRevisionConflictError(0, secured.revision)
+    }
+    fs.mkdirSync(path.join(root, 'files'), { recursive: true })
+    fs.mkdirSync(path.join(root, 'runs'), { recursive: true })
+    fs.mkdirSync(path.join(root, 'homology'), { recursive: true })
+    return publishWorkspaceUnlocked(root, file, secured, revision)
+  })
+}
+
+function publishWorkspaceUnlocked(
+  root: string,
+  file: string,
+  manifest: WorkspaceManifestV2,
+  revision: number,
+): WorkspaceManifestV2 {
+  const next: WorkspaceManifestV2 = {
+    ...manifest,
+    version: 2,
+    revision: revision + 1,
+    updatedAt: new Date().toISOString(),
+  }
   const existingBytes = fs.existsSync(file) ? fs.lstatSync(file).size : 0
   assertWorkspaceQuota(root, Math.max(0, jsonByteLength(next) - existingBytes))
   writeJsonAtomic(file, next)
   return next
+}
+
+export function updateWorkspace(
+  dataRoot: string,
+  id: string,
+  mutate: (current: WorkspaceManifestV2) => WorkspaceManifest,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+): WorkspaceManifestV2 {
+  return withWorkspaceManifestLock(dataRoot, id, () => {
+    const current = readWorkspace(dataRoot, id, legacyOwnerPrincipalId).workspace
+    const candidate = manifestV2(mutate(current), legacyOwnerPrincipalId)
+    if (candidate.id !== current.id || candidate.ownerPrincipalId !== current.ownerPrincipalId) {
+      throw new Error('workspace mutation cannot change immutable identity or owner')
+    }
+    return publishWorkspaceUnlocked(
+      workspaceRoot(dataRoot, id),
+      manifestPath(dataRoot, id),
+      candidate,
+      current.revision,
+    )
+  })
+}
+
+export function deleteWorkspace(
+  dataRoot: string,
+  id: string,
+  principalId: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+): void {
+  withWorkspaceManifestLock(dataRoot, id, () => {
+    if (completePendingWorkspaceDeletionUnlocked(dataRoot, id)) return
+    const workspace = readWorkspace(dataRoot, id, legacyOwnerPrincipalId).workspace
+    assertWorkspaceAccess(workspace, principalId, 'owner')
+    const trashName = `${safeId(id)}-${new Date().toISOString().replace(/[:.]/g, '-')}`
+    const marker = workspaceDeletionMarker(dataRoot, id)
+    writeJsonAtomic(marker, { workspaceId: id, trashName, deletedAt: new Date().toISOString() })
+    try {
+      completePendingWorkspaceDeletionUnlocked(dataRoot, id)
+    } catch (error) {
+      fs.rmSync(marker, { force: true })
+      throw error
+    }
+  })
+}
+
+export function deleteWorkspaceArtifact(
+  dataRoot: string,
+  id: string,
+  artifactId: string,
+  principalId: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+): boolean {
+  return withWorkspaceManifestLock(dataRoot, id, () => {
+    const workspace = readWorkspace(dataRoot, id, legacyOwnerPrincipalId).workspace
+    assertWorkspaceAccess(workspace, principalId, 'writer')
+    const artifactIndex = workspace.artifacts.findIndex(artifact => artifact.id === artifactId)
+    if (artifactIndex < 0) return false
+    const artifact = workspace.artifacts[artifactIndex]
+    if (isProtectedArtifactPath(artifact.file)) {
+      throw new WorkspaceArtifactMutationError('protected workspace metadata cannot be deleted')
+    }
+    const root = workspaceRoot(dataRoot, id)
+    const source = path.resolve(root, artifact.file)
+    const relativeSource = path.relative(root, source)
+    if (relativeSource.startsWith('..') || path.isAbsolute(relativeSource)) {
+      throw new WorkspaceArtifactMutationError(`invalid workspace path: ${artifact.file}`)
+    }
+    let destination: string | null = null
+    if (fs.existsSync(source)) {
+      const trash = path.join(root, '.trash')
+      fs.mkdirSync(trash, { recursive: true })
+      destination = path.join(trash, `${Date.now()}-${crypto.randomUUID()}-${path.basename(source)}`)
+      fs.renameSync(source, destination)
+    }
+    workspace.artifacts.splice(artifactIndex, 1)
+    if (workspace.primaryFile === artifact.file) workspace.primaryFile = null
+    if (workspace.secondaryFile === artifact.file) workspace.secondaryFile = null
+    try {
+      publishWorkspaceUnlocked(root, manifestPath(dataRoot, id), workspace, workspace.revision)
+    } catch (error) {
+      if (destination && fs.existsSync(destination) && !fs.existsSync(source)) {
+        fs.renameSync(destination, source)
+      }
+      throw error
+    }
+    return true
+  })
 }
 
 export function resolveWorkspaceFile(dataRoot: string, workspaceId: string, relative: string): string {
@@ -758,7 +927,7 @@ export function createWorkspace(
  * One-time compatibility migration. Files are copied before manifests are
  * published, so a failed migration never damages the legacy library.
  */
-export function ensureWorkspaceMigration(
+function ensureWorkspaceMigrationUnlocked(
   dataRoot: string,
   legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
   provisionalLocalOwner = false,
@@ -860,13 +1029,23 @@ export function ensureWorkspaceMigration(
   fs.writeFileSync(marker, `${new Date().toISOString()}\n`)
 }
 
-/** One-time, non-destructive import for installations migrated before artifact metadata existed. */
-export function ensureWorkspaceMetadataMigration(
+export function ensureWorkspaceMigration(
   dataRoot: string,
   legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
   provisionalLocalOwner = false,
 ): void {
-  ensureWorkspaceMigration(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
+  withGlobalMigrationLock(dataRoot, () => {
+    ensureWorkspaceMigrationUnlocked(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
+  })
+}
+
+/** One-time, non-destructive import for installations migrated before artifact metadata existed. */
+function ensureWorkspaceMetadataMigrationUnlocked(
+  dataRoot: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  provisionalLocalOwner = false,
+): void {
+  ensureWorkspaceMigrationUnlocked(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
   const marker = path.join(workspacesRoot(dataRoot), '.metadata-migrated-v1')
   if (fs.existsSync(marker)) return
   const index = path.join(dataRoot, 'index.json')
@@ -913,13 +1092,23 @@ export function ensureWorkspaceMetadataMigration(
   fs.writeFileSync(marker, `${new Date().toISOString()}\n`)
 }
 
-/** Import per-workspace runtime indexes created by older GUI releases. */
-export function ensureRetiredWorkspaceIndexMigration(
+export function ensureWorkspaceMetadataMigration(
   dataRoot: string,
   legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
   provisionalLocalOwner = false,
 ): void {
-  ensureWorkspaceMetadataMigration(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
+  withGlobalMigrationLock(dataRoot, () => {
+    ensureWorkspaceMetadataMigrationUnlocked(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
+  })
+}
+
+/** Import per-workspace runtime indexes created by older GUI releases. */
+function ensureRetiredWorkspaceIndexMigrationUnlocked(
+  dataRoot: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  provisionalLocalOwner = false,
+): void {
+  ensureWorkspaceMetadataMigrationUnlocked(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
   const marker = path.join(workspacesRoot(dataRoot), '.artifact-index-migrated-v1')
   if (fs.existsSync(marker)) return
   for (const directory of fs.readdirSync(workspacesRoot(dataRoot), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
@@ -962,6 +1151,16 @@ export function ensureRetiredWorkspaceIndexMigration(
     if (changed) saveWorkspace(dataRoot, workspace)
   }
   fs.writeFileSync(marker, `${new Date().toISOString()}\n`)
+}
+
+export function ensureRetiredWorkspaceIndexMigration(
+  dataRoot: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  provisionalLocalOwner = false,
+): void {
+  withGlobalMigrationLock(dataRoot, () => {
+    ensureRetiredWorkspaceIndexMigrationUnlocked(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
+  })
 }
 
 function allWorkspaces(
@@ -1024,6 +1223,7 @@ export function registerWorkspaceApi(
   legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
   provisionalLocalOwner = false,
 ): void {
+  reconcilePendingWorkspaceDeletions(dataRoot)
   ensureRetiredWorkspaceIndexMigration(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
   server.middlewares.use('/api/workspaces', async (req, res, next) => {
     try {
@@ -1065,13 +1265,7 @@ export function registerWorkspaceApi(
         return sendJson(res, 200, workspaceView(workspace, principalId))
       }
       if (parts.length === 1 && req.method === 'DELETE') {
-        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
-        assertWorkspaceAccess(workspace, principalId, 'owner')
-        const source = workspaceRoot(dataRoot, id)
-        const trash = path.join(dataRoot, '_workspace_trash')
-        fs.mkdirSync(trash, { recursive: true })
-        const destination = path.join(trash, `${safeId(id)}-${new Date().toISOString().replace(/[:.]/g, '-')}`)
-        fs.renameSync(source, destination)
+        deleteWorkspace(dataRoot, id, principalId, legacyOwnerPrincipalId)
         res.statusCode = 204
         return res.end()
       }
@@ -1153,27 +1347,9 @@ export function registerWorkspaceApi(
         return sendJson(res, 201, artifact)
       }
       if (parts[1] === 'artifacts' && parts[2] && req.method === 'DELETE') {
-        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
-        assertWorkspaceAccess(workspace, principalId, 'writer')
-        const artifactIndex = workspace.artifacts.findIndex(artifact => artifact.id === parts[2])
-        if (artifactIndex < 0) return sendJson(res, 404, { error: `artifact not found: ${parts[2]}` })
-        const artifact = workspace.artifacts[artifactIndex]
-        if (isProtectedArtifactPath(artifact.file)) return sendJson(res, 400, { error: 'protected workspace metadata cannot be deleted' })
-        const root = workspaceRoot(dataRoot, id)
-        const source = path.resolve(root, artifact.file)
-        const relativeSource = path.relative(root, source)
-        if (relativeSource.startsWith('..') || path.isAbsolute(relativeSource)) throw new Error(`invalid workspace path: ${artifact.file}`)
-        if (fs.existsSync(source)) {
-          const trash = path.join(root, '.trash')
-          fs.mkdirSync(trash, { recursive: true })
-          let destination = path.join(trash, `${Date.now()}-${path.basename(source)}`)
-          while (fs.existsSync(destination)) destination = path.join(trash, `${Date.now()}-${crypto.randomUUID().slice(0, 5)}-${path.basename(source)}`)
-          fs.renameSync(source, destination)
+        if (!deleteWorkspaceArtifact(dataRoot, id, parts[2], principalId, legacyOwnerPrincipalId)) {
+          return sendJson(res, 404, { error: `artifact not found: ${parts[2]}` })
         }
-        workspace.artifacts.splice(artifactIndex, 1)
-        if (workspace.primaryFile === artifact.file) workspace.primaryFile = null
-        if (workspace.secondaryFile === artifact.file) workspace.secondaryFile = null
-        saveWorkspace(dataRoot, workspace)
         res.statusCode = 204
         return res.end()
       }

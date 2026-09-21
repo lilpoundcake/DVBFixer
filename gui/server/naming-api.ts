@@ -22,7 +22,7 @@ import {
   assertWorkspaceAccess,
   loadWorkspace,
   resolveWorkspaceFile,
-  saveWorkspace,
+  updateWorkspace,
   workspaceRoot,
   writeJsonAtomic,
   type NamingConversionProvenance,
@@ -219,7 +219,7 @@ export async function executeNamingConversion(
     }
 
     let outputArtifact: WorkspaceArtifact | null = null
-    let manifestToPublish: ReturnType<typeof loadWorkspace> | null = null
+    let relativeOutput: string | null = null
     if (request.dryRun) {
       if (report.output.written || fs.existsSync(output)) {
         throw new NamingApiError(500, 'CLI_REPORT_MISMATCH', 'dry run unexpectedly published an output')
@@ -233,7 +233,7 @@ export async function executeNamingConversion(
         throw new NamingApiError(500, 'OUTPUT_DIGEST_MISMATCH', 'atom-names output does not match its report')
       }
       const relativeFolder = path.relative(root, operationDirectory).replace(/\\/g, '/')
-      const relativeOutput = path.relative(root, output).replace(/\\/g, '/')
+      relativeOutput = path.relative(root, output).replace(/\\/g, '/')
       const provenance: NamingConversionProvenance = {
         operation: 'pdb-force-field-naming', operationId, apiVersion: 1,
         reportSchemaVersion: 1, sourceArtifactId: sourceArtifact.id,
@@ -247,18 +247,6 @@ export async function executeNamingConversion(
         kind: 'structure', folder: relativeFolder, parent: sourceArtifact.file,
         command: 'atom-names', artifactType: 'naming-conversion', namingProvenance: provenance,
       }
-      const latest = loadWorkspace(dataRoot, workspaceId)
-      authorizePublication?.(latest)
-      const currentSource = latest.artifacts.find(artifact => artifact.id === sourceArtifact.id)
-      if (!currentSource || currentSource.hidden || currentSource.kind !== 'structure' ||
-          currentSource.file !== sourceArtifact.file || sha256(fs.readFileSync(source)) !== sourceSha256) {
-        throw new NamingApiError(409, 'SOURCE_ARTIFACT_CHANGED', 'input artifact changed during conversion')
-      }
-      if (latest.artifacts.some(artifact => artifact.file === relativeOutput)) {
-        throw new NamingApiError(409, 'OUTPUT_CONFLICT', 'output artifact path already exists')
-      }
-      latest.artifacts.push(outputArtifact)
-      manifestToPublish = latest
     }
 
     const response: NamingConversionResponse = {
@@ -272,9 +260,21 @@ export async function executeNamingConversion(
     if (!Value.Check(NamingConversionResponseSchema, response)) {
       throw new NamingApiError(500, 'INVALID_RESPONSE', schemaError(NamingConversionResponseSchema, response))
     }
-    if (manifestToPublish) {
+    if (outputArtifact && relativeOutput) {
       removeSuccessHelpers(operationDirectory, output)
-      saveWorkspace(dataRoot, manifestToPublish)
+      updateWorkspace(dataRoot, workspaceId, latest => {
+        authorizePublication?.(latest)
+        const currentSource = latest.artifacts.find(artifact => artifact.id === sourceArtifact.id)
+        if (!currentSource || currentSource.hidden || currentSource.kind !== 'structure' ||
+            currentSource.file !== sourceArtifact.file || sha256(fs.readFileSync(source)) !== sourceSha256) {
+          throw new NamingApiError(409, 'SOURCE_ARTIFACT_CHANGED', 'input artifact changed during conversion')
+        }
+        if (latest.artifacts.some(artifact => artifact.file === relativeOutput)) {
+          throw new NamingApiError(409, 'OUTPUT_CONFLICT', 'output artifact path already exists')
+        }
+        latest.artifacts.push(outputArtifact!)
+        return latest
+      })
     }
     if (request.dryRun) fs.rmSync(operationDirectory, { recursive: true, force: true })
     return { statusCode: request.dryRun ? 200 : 201, response }

@@ -5,7 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import {
-  assertWorkspaceAccess, loadWorkspace, saveWorkspace, workspaceRoot, writeJsonAtomic,
+  assertWorkspaceAccess, loadWorkspace, updateWorkspace, workspaceRoot, writeJsonAtomic,
 } from './workspace-api'
 import { errorStatus, readRequestBody } from './request-body'
 import { assertWorkspaceQuota } from './storage-quota'
@@ -494,18 +494,22 @@ function registerRun(
   if (!primary) return ''
   const dataRoot = path.dirname(path.dirname(root))
   const workspaceId = path.basename(root)
-  authorizePublication()
-  const manifest = loadWorkspace(dataRoot, workspaceId)
-  for (const relative of relativeFiles) manifest.artifacts.push({
-    id: crypto.randomUUID(), file: relative,
-    name: relative === primary ? `${project.name} → homology` : path.basename(relative),
-    kind: relative.endsWith('.pdb') ? 'structure' : 'artifact', artifactType: 'homology-model',
-    command: 'homology', folder: path.dirname(relative),
-    hidden: ['run.json', 'stdout.log', 'stderr.log', 'target.fasta', 'alignment.pir'].includes(path.basename(relative)) ||
-      path.basename(relative).startsWith('_') || (relative.endsWith('.pdb') && relative !== primary && !path.basename(relative).startsWith(sanitize(project.name || 'target'))),
+  updateWorkspace(dataRoot, workspaceId, manifest => {
+    authorizePublication()
+    for (const relative of relativeFiles) {
+      if (manifest.artifacts.some(artifact => artifact.file === relative)) continue
+      manifest.artifacts.push({
+        id: crypto.randomUUID(), file: relative,
+        name: relative === primary ? `${project.name} → homology` : path.basename(relative),
+        kind: relative.endsWith('.pdb') ? 'structure' : 'artifact', artifactType: 'homology-model',
+        command: 'homology', folder: path.dirname(relative),
+        hidden: ['run.json', 'stdout.log', 'stderr.log', 'target.fasta', 'alignment.pir'].includes(path.basename(relative)) ||
+          path.basename(relative).startsWith('_') || (relative.endsWith('.pdb') && relative !== primary && !path.basename(relative).startsWith(sanitize(project.name || 'target'))),
+      })
+    }
+    manifest.toolState = { ...manifest.toolState, lastHomologyRun: { projectId: project.id, files: relativeFiles } }
+    return manifest
   })
-  manifest.toolState = { ...manifest.toolState, lastHomologyRun: { projectId: project.id, files: relativeFiles } }
-  saveWorkspace(dataRoot, manifest)
   return primary
 }
 

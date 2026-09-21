@@ -31,7 +31,7 @@ import {
   shutdownDvbfixerProcesses,
 } from './dvbfixer-runner'
 import {
-  assertWorkspaceAccess, loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, saveWorkspace,
+  assertWorkspaceAccess, loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, updateWorkspace,
   migrateWorkspaceOwnership, workspaceRoot,
 } from './workspace-api'
 import { errorStatus, readRequestBody } from './request-body'
@@ -412,21 +412,23 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           const primaryRel = files.find(file => /\.(pdb|cif|mmcif)$/i.test(file)) || files[0] || ''
           const outputFile = primaryRel ? `runs/${subdirName}/${primaryRel}` : ''
           if (ok && outputFile) {
-            const workspace = loadWorkspace(structuresDir, body.workspaceId, legacyWorkspaceOwner)
-            assertWorkspaceAccess(workspace, principalId(req), 'writer')
             const parent = typeof suppliedInputs[def.inputs[0]?.dest] === 'string'
               ? suppliedInputs[def.inputs[0]?.dest] as string : undefined
-            for (const runFile of files) {
-              const relative = `runs/${subdirName}/${runFile}`
-              workspace.artifacts.push({
-                id: crypto.randomUUID(), file: relative,
-                name: relative === outputFile ? `${inputBase} → ${command}` : path.basename(runFile),
-                kind: /\.(pdb|cif|mmcif)$/i.test(relative) ? 'structure' : 'artifact',
-                artifactType: def.outputKind, parent, command, folder: `runs/${subdirName}`,
-                hidden: ['run.json', 'stdout.log', 'stderr.log'].includes(path.basename(runFile)) || path.basename(runFile).startsWith('_'),
-              })
-            }
-            saveWorkspace(structuresDir, workspace)
+            updateWorkspace(structuresDir, body.workspaceId, workspace => {
+              assertWorkspaceAccess(workspace, principalId(req), 'writer')
+              for (const runFile of files) {
+                const relative = `runs/${subdirName}/${runFile}`
+                if (workspace.artifacts.some(artifact => artifact.file === relative)) continue
+                workspace.artifacts.push({
+                  id: crypto.randomUUID(), file: relative,
+                  name: relative === outputFile ? `${inputBase} → ${command}` : path.basename(runFile),
+                  kind: /\.(pdb|cif|mmcif)$/i.test(relative) ? 'structure' : 'artifact',
+                  artifactType: def.outputKind, parent, command, folder: `runs/${subdirName}`,
+                  hidden: ['run.json', 'stdout.log', 'stderr.log'].includes(path.basename(runFile)) || path.basename(runFile).startsWith('_'),
+                })
+              }
+              return workspace
+            }, legacyWorkspaceOwner)
           }
           sendJson(res, ok ? 200 : 500, {
             ok, command, outputFile, outputDir: `runs/${subdirName}`, artifacts: files,
@@ -639,20 +641,21 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           })
 
           if (generated.length) {
-            const workspace = loadWorkspace(structuresDir, body.workspaceId, legacyWorkspaceOwner)
-            assertWorkspaceAccess(workspace, principalId(req), 'writer')
-            for (const entry of generated.filter(item => item.file && !workspace.artifacts.some(existing => existing.file === item.file))) {
-              workspace.artifacts.push({ id: crypto.randomUUID(), file: entry.file, name: entry.name || path.basename(entry.file),
-                kind: /\.(pdb|cif|mmcif)$/i.test(entry.file) ? 'structure' : 'artifact', command: entry.command,
-                parent: entry.parent, description: entry.description, allotype: entry.allotype,
-                iggSubtype: entry.iggSubtype,
-                ...('engineerChecksum' in entry ? {
-                  engineerChecksum: entry.engineerChecksum, mutationIds: entry.mutationIds,
-                  mutationsResolved: entry.mutationsResolved, hasGlycan: entry.hasGlycan, scheme: entry.scheme,
-                } : {}),
-              })
-            }
-            saveWorkspace(structuresDir, workspace)
+            updateWorkspace(structuresDir, body.workspaceId, workspace => {
+              assertWorkspaceAccess(workspace, principalId(req), 'writer')
+              for (const entry of generated.filter(item => item.file && !workspace.artifacts.some(existing => existing.file === item.file))) {
+                workspace.artifacts.push({ id: crypto.randomUUID(), file: entry.file, name: entry.name || path.basename(entry.file),
+                  kind: /\.(pdb|cif|mmcif)$/i.test(entry.file) ? 'structure' : 'artifact', command: entry.command,
+                  parent: entry.parent, description: entry.description, allotype: entry.allotype,
+                  iggSubtype: entry.iggSubtype,
+                  ...('engineerChecksum' in entry ? {
+                    engineerChecksum: entry.engineerChecksum, mutationIds: entry.mutationIds,
+                    mutationsResolved: entry.mutationsResolved, hasGlycan: entry.hasGlycan, scheme: entry.scheme,
+                  } : {}),
+                })
+              }
+              return workspace
+            }, legacyWorkspaceOwner)
           }
 
           res.end()

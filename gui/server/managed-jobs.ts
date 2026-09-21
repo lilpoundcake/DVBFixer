@@ -9,7 +9,7 @@ import { errorStatus, readRequestBody } from './request-body'
 import { assertWorkspaceQuota, WorkspaceQuotaExceededError } from './storage-quota'
 import type { ApiRouteHost } from './http-types'
 import {
-  assertWorkspaceAccess, loadWorkspace, resolveWorkspaceFile, saveWorkspace, workspaceRoot, writeJsonAtomic,
+  assertWorkspaceAccess, loadWorkspace, resolveWorkspaceFile, updateWorkspace, workspaceRoot, writeJsonAtomic,
 } from './workspace-api'
 
 export type ManagedJobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled'
@@ -192,21 +192,22 @@ function registerOutputs(dataRoot: string, record: ManagedJobRecord, inputBase: 
   const files = listFiles(directory).filter(file => !control.has(file))
   const primary = files.find(file => /\.(pdb|cif|mmcif)$/i.test(file)) || files[0] || null
   if (!primary) return record
-  const workspace = loadWorkspace(dataRoot, record.workspaceId)
-  assertWorkspaceAccess(workspace, record.requestedByPrincipalId, 'writer')
   const folder = path.relative(workspaceRoot(dataRoot, record.workspaceId), directory).replace(/\\/g, '/')
-  for (const file of files) {
-    const relative = `${folder}/${file}`
-    if (workspace.artifacts.some(artifact => artifact.file === relative)) continue
-    workspace.artifacts.push({
-      id: crypto.randomUUID(), file: relative,
-      name: file === primary ? `${inputBase} → ${record.command}` : path.basename(file),
-      kind: /\.(pdb|cif|mmcif)$/i.test(file) ? 'structure' : 'artifact',
-      artifactType: def.outputKind, command: record.command, folder,
-      hidden: path.basename(file).startsWith('_'),
-    })
-  }
-  saveWorkspace(dataRoot, workspace)
+  updateWorkspace(dataRoot, record.workspaceId, workspace => {
+    assertWorkspaceAccess(workspace, record.requestedByPrincipalId, 'writer')
+    for (const file of files) {
+      const relative = `${folder}/${file}`
+      if (workspace.artifacts.some(artifact => artifact.file === relative)) continue
+      workspace.artifacts.push({
+        id: crypto.randomUUID(), file: relative,
+        name: file === primary ? `${inputBase} → ${record.command}` : path.basename(file),
+        kind: /\.(pdb|cif|mmcif)$/i.test(file) ? 'structure' : 'artifact',
+        artifactType: def.outputKind, command: record.command, folder,
+        hidden: path.basename(file).startsWith('_'),
+      })
+    }
+    return workspace
+  })
   return { ...record, outputFile: `${folder}/${primary}` }
 }
 

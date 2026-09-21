@@ -6,7 +6,13 @@ standalone server. Static bearer authentication and manifest-backed workspace
 authorization, restrictive browser-origin handling, request-rate and workspace/
 upload limits, and process-wide child concurrency limits are available. The host
 is not yet an internet-facing production service: TLS, OS-level quotas, audit
-retention, and multi-instance locking remain planned work.
+retention, and distributed scheduling/event delivery remain planned work.
+
+Workspace manifest mutations use same-host cross-process filesystem locks and
+compare revisions against the locked on-disk manifest. This prevents concurrent
+Node processes sharing one local data root from losing manifest updates. The
+lock is not a distributed lease and does not support multiple hosts or
+filesystems without local atomic rename and reliable process identity.
 
 The OpenAPI 3.1 document is available at:
 
@@ -189,4 +195,5 @@ escalation, drains HTTP work, and then closes PostgreSQL.
 Remote binding requires configured authentication and
 `DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit acknowledgment. It remains
 unsupported for untrusted networks until TLS, OS-level resource
-isolation, audit retention, and multi-instance controls are implemented.
+isolation, audit retention, and distributed scheduling/event controls are
+implemented.

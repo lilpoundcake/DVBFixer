@@ -159,8 +159,9 @@ security and distributed-systems concerns.
 1. Add OS-level resource limits beyond the implemented restrictive CORS,
    request-rate, upload/workspace, and process-wide child concurrency controls.
 2. Add structured request logs, metrics, audit retention, and a generated client.
-3. Add a storage-level manifest lock or compare-and-swap before multi-instance
-   deployment.
+3. Replace process-local job scheduling and event subscribers with durable,
+   distributed coordination before multi-instance deployment. Same-host
+   manifest locking and on-disk revision comparison are implemented.
 
 Do not add an HTTP handler around `apply_variants_to_pdb_text`. It remains an
 in-place compatibility adapter; public adapters must use the pure naming
