@@ -141,17 +141,17 @@ helper. Treat this as a known backend discrepancy.
 - Nucleic-acid terminal hydroxyl naming is not fully validated.
 - `--atom-naming standard` suppresses shifts; it is not a reverse converter.
 - The `tleap-reduce` early-return paths still bypass the final naming adapter.
-- The HTTP adapter is available through Vite and the standalone local host but
-  remains unauthenticated; authorization and cross-process locking are not
-  implemented.
+- The HTTP adapter is available through Vite and the standalone host with static
+  bearer authentication and workspace ACL enforcement. Cross-process locking is
+  not implemented.
 
 ## Proposed Work
 
 The API design is in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md).
-Phases 1 and 2 and the core Phase 3 HTTP vertical slice are implemented. The
-next slice is production route composition, authentication/authorization, and
-observability. Do not expose the in-place compatibility wrapper as an HTTP
-handler.
+Phases 1 and 2, the core Phase 3 HTTP vertical slice, route composition, and
+authentication/authorization are implemented. Observability, restrictive CORS,
+quotas, and distributed coordination remain. Do not expose the in-place
+compatibility wrapper as an HTTP handler.
 
 ## Focused Verification
 

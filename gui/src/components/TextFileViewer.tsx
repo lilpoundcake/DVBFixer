@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
 import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
+import { apiFetch } from '../lib/api-client'
 
 export function TextFileViewer() {
   const preview = useWorkspaceStore(state => state.textPreview)
@@ -14,7 +15,7 @@ export function TextFileViewer() {
     if (!preview) { setText(''); setError(''); return }
     const controller = new AbortController()
     setLoading(true); setError('')
-    fetch(workspaceFileUrl(preview.workspaceId, preview.file), { cache: 'no-store', signal: controller.signal })
+    apiFetch(workspaceFileUrl(preview.workspaceId, preview.file), { cache: 'no-store', signal: controller.signal })
       .then(async response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.text() })
       .then(setText).catch(reason => { if (reason.name !== 'AbortError') setError(reason.message || String(reason)) })
       .finally(() => setLoading(false))

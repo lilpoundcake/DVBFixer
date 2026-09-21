@@ -6,6 +6,7 @@ import { useStructureStore } from '../stores/structureStore'
 import { useSelectionStore } from '../stores/selectionStore'
 import { useWorkspaceStore, workspaceFileUrl, type WorkspaceArtifact } from '../stores/workspaceStore'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
+import { apiFetch } from '../lib/api-client'
 
 function detectFormat(filename: string): 'pdb' | 'mmcif' {
   const lower = filename.toLowerCase()
@@ -48,14 +49,14 @@ export function FileLoader() { // @dsp obj-a1000005
     try {
       if (!activeWorkspace) throw new Error('Create or select a workspace before importing files')
       await saveWorkspace()
-      const upload = await fetch(`/api/workspaces/${encodeURIComponent(activeWorkspace.id)}/import`, {
+      const upload = await apiFetch(`/api/workspaces/${encodeURIComponent(activeWorkspace.id)}/import`, {
         method: 'POST', headers: { 'X-File-Name': encodeURIComponent(file.name) }, body: file,
       })
       const artifact = await upload.json() as WorkspaceArtifact & { error?: string }
       if (!upload.ok) throw new Error(artifact.error || `Import failed: HTTP ${upload.status}`)
       await reloadWorkspace()
       await refreshWorkspaces()
-      const response = await fetch(workspaceFileUrl(activeWorkspace.id, artifact.file), { cache: 'no-store' })
+      const response = await apiFetch(workspaceFileUrl(activeWorkspace.id, artifact.file), { cache: 'no-store' })
       if (!response.ok) throw new Error(`Imported file cannot be read: HTTP ${response.status}`)
       const text = await response.text()
       const format = detectFormat(artifact.file)

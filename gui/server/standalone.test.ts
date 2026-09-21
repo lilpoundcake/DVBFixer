@@ -3,12 +3,14 @@ import fs from 'node:fs'
 import http from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
+import crypto from 'node:crypto'
 import {
   createStandaloneApplication,
   createStandaloneServer,
   loadStandaloneConfig,
   type StandaloneConfig,
 } from './standalone'
+import { parseAuthConfig } from './auth'
 
 const temporaryDirectories: string[] = []
 
@@ -28,6 +30,7 @@ function fixture(): StandaloneConfig {
   return {
     host: '127.0.0.1', port: 0, projectRoot,
     dataRoot: path.join(projectRoot, 'structures'), staticRoot, shutdownGraceMs: 100,
+    authConfig: parseAuthConfig(undefined), legacyWorkspaceOwner: 'local',
   }
 }
 
@@ -50,8 +53,14 @@ describe('standalone configuration', () => {
     expect(() => loadStandaloneConfig({ DVBFIXER_PORT: 'nope' }, temp())).toThrow(/DVBFIXER_PORT/)
     expect(() => loadStandaloneConfig({ DVBFIXER_PORT: '65536' }, temp())).toThrow(/65535/)
     expect(() => loadStandaloneConfig({ DVBFIXER_HOST: '0.0.0.0' }, temp())).toThrow(/INSECURE_REMOTE/)
+    expect(() => loadStandaloneConfig({
+      DVBFIXER_HOST: '0.0.0.0', DVBFIXER_ALLOW_INSECURE_REMOTE: '1',
+    }, temp())).toThrow(/AUTH_PRINCIPALS/)
     expect(loadStandaloneConfig({
       DVBFIXER_HOST: '0.0.0.0', DVBFIXER_ALLOW_INSECURE_REMOTE: '1',
+      DVBFIXER_AUTH_PRINCIPALS: JSON.stringify({
+        version: 1, principals: [{ id: 'owner', tokenSha256: 'a'.repeat(64) }],
+      }),
     }, temp()).host).toBe('0.0.0.0')
   })
 
@@ -78,6 +87,80 @@ describe('standalone configuration', () => {
 })
 
 describe('standalone HTTP server', () => {
+  it('enforces workspace ownership and ACLs per authenticated principal', async () => {
+    const aliceToken = Buffer.alloc(32, 8).toString('base64url')
+    const bobToken = Buffer.alloc(32, 9).toString('base64url')
+    const config = fixture()
+    config.authConfig = parseAuthConfig(JSON.stringify({
+      version: 1,
+      principals: [
+        { id: 'alice', tokenSha256: crypto.createHash('sha256').update(aliceToken).digest('hex') },
+        { id: 'bob', tokenSha256: crypto.createHash('sha256').update(bobToken).digest('hex') },
+      ],
+    }))
+    config.legacyWorkspaceOwner = 'alice'
+    const instance = createStandaloneServer(config)
+    const address = await instance.start()
+    const base = `http://127.0.0.1:${address.port}`
+    const headers = (token: string) => ({
+      Authorization: `Bearer ${token}`, 'Content-Type': 'application/json',
+    })
+
+    const createdResponse = await fetch(`${base}/api/workspaces`, {
+      method: 'POST', headers: headers(aliceToken), body: JSON.stringify({ name: 'Alice workspace' }),
+    })
+    expect(createdResponse.status).toBe(201)
+    const created = await createdResponse.json() as { id: string; revision: number; effectiveRole: string }
+    expect(created.effectiveRole).toBe('owner')
+
+    const bobList = await fetch(`${base}/api/workspaces`, { headers: headers(bobToken) })
+    expect(await bobList.json()).toEqual([])
+    expect((await fetch(`${base}/api/workspaces/${created.id}`, { headers: headers(bobToken) })).status).toBe(404)
+
+    const acl = await fetch(`${base}/api/workspaces/${created.id}/acl`, {
+      method: 'PATCH', headers: headers(aliceToken),
+      body: JSON.stringify({ revision: created.revision, acl: [{ principalId: 'bob', role: 'reader' }] }),
+    })
+    expect(acl.status).toBe(200)
+    const shared = await acl.json() as { revision: number }
+    const bobRead = await fetch(`${base}/api/workspaces/${created.id}`, { headers: headers(bobToken) })
+    expect(bobRead.status).toBe(200)
+    expect(await bobRead.json()).toMatchObject({ effectiveRole: 'reader' })
+    const bobWrite = await fetch(`${base}/api/workspaces/${created.id}`, {
+      method: 'PATCH', headers: headers(bobToken),
+      body: JSON.stringify({ revision: shared.revision, toolState: {} }),
+    })
+    expect(bobWrite.status).toBe(403)
+
+    await instance.close()
+  })
+
+  it('requires a configured bearer token for protected APIs', async () => {
+    const token = Buffer.alloc(32, 7).toString('base64url')
+    const config = fixture()
+    config.authConfig = parseAuthConfig(JSON.stringify({
+      version: 1,
+      principals: [{ id: 'alice', tokenSha256: crypto.createHash('sha256').update(token).digest('hex') }],
+    }))
+    config.legacyWorkspaceOwner = 'alice'
+    const instance = createStandaloneServer(config)
+    const address = await instance.start()
+    const base = `http://127.0.0.1:${address.port}`
+
+    const health = await fetch(`${base}/api/health`)
+    expect(await health.json()).toMatchObject({ authenticationRequired: true })
+    const missing = await fetch(`${base}/api/session`)
+    expect(missing.status).toBe(401)
+    expect(missing.headers.get('www-authenticate')).toContain('Bearer')
+    const session = await fetch(`${base}/api/session`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    expect(session.status).toBe(200)
+    expect(await session.json()).toEqual({ principal: { id: 'alice' } })
+
+    await instance.close()
+  })
+
   it('serves the client and composed APIs and closes idempotently', async () => {
     const instance = createStandaloneServer(fixture())
     const address = await instance.start()

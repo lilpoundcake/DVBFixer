@@ -47,9 +47,10 @@ The repository already has most of an API application shell:
   `scripts/gen_gui_spec.py` derives the GUI command schema from argparse.
 
 The naming route is versioned and publishes OpenAPI, and the build includes a
-loopback-default standalone server. The wider HTTP layer is not yet a public
-production API: it has no authentication or authorization, most legacy routes
-are unversioned, and active job locks and SSE subscribers remain process-local.
+loopback-default standalone server. Static bearer principals and manifest-backed
+workspace ownership/ACLs are implemented. The wider HTTP layer is not yet a
+public production API: most legacy routes are unversioned, CORS and quotas are
+not hardened, and active job locks and SSE subscribers remain process-local.
 
 ## Recommended architecture
 
@@ -406,8 +407,8 @@ Core naming slice implemented on 2026-09-18: the shared Node adapter uses
 TypeBox runtime schemas, publishes OpenAPI 3.1, resolves source artifacts by ID,
 validates bounded CLI reports and output digests, preserves concurrent manifest
 updates by reloading before publication, and records reproducible provenance.
-Structured logs, metrics, a generated client, authentication, and a standalone
-production host remain in Phases 3-4.
+Structured logs, metrics, and a generated client remain. Authentication,
+workspace authorization, and the standalone host are implemented in Phase 4.
 
 - Add runtime request/response schemas and the V1 route.
 - Use workspace artifact IDs and atomic artifact registration.
@@ -423,8 +424,9 @@ Core host slice implemented on 2026-09-18: all existing routes compose through
 `api-routes.ts`, Vite is a thin adapter, and the bundled loopback-default Node
 server serves the built client plus APIs with validated configuration, static
 and data-root separation, graceful HTTP/resource shutdown, and tracked child
-process termination. Authentication, authorization, CORS, quotas, and
-multi-instance coordination remain before public deployment.
+process termination. Static bearer authentication and workspace authorization
+are implemented; CORS, quotas, TLS guidance, audit retention, and multi-instance
+coordination remain before public deployment.
 
 - Extract route composition from `api-plugin.ts` into a host-neutral module.
 - Add a production Node entry point with graceful shutdown and configuration.

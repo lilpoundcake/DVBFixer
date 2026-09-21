@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useWorkspaceStore, type WorkspaceManifest } from './workspaceStore'
+import { API_TOKEN_STORAGE_KEY } from '../lib/api-client'
 
 const workspace: WorkspaceManifest = {
-  version: 1,
+  version: 2,
   revision: 0,
   id: 'workspace-a',
   name: 'Workspace A',
@@ -12,6 +13,9 @@ const workspace: WorkspaceManifest = {
   secondaryFile: null,
   artifacts: [],
   toolState: {},
+  ownerPrincipalId: 'owner',
+  acl: [{ principalId: 'reader', role: 'reader' }],
+  effectiveRole: 'owner',
 }
 
 function jsonResponse(value: unknown): Response {
@@ -21,8 +25,25 @@ function jsonResponse(value: unknown): Response {
   })
 }
 
+function browserWindow(token: string | null = null) {
+  return {
+    location: { href: 'https://dvbfixer.test/' },
+    sessionStorage: { getItem: (key: string) => key === API_TOKEN_STORAGE_KEY ? token : null },
+    setTimeout: globalThis.setTimeout,
+    clearTimeout: globalThis.clearTimeout,
+  }
+}
+
 describe('workspace initialization', () => {
+  it('does not queue autosaves for a read-only workspace', () => {
+    const readOnly = { ...workspace, effectiveRole: 'reader' as const }
+    useWorkspaceStore.setState({ active: readOnly })
+    useWorkspaceStore.getState().updateToolState('dvbfixer', { inputFile: 'changed.pdb' })
+    expect(useWorkspaceStore.getState().active?.toolState).toEqual({})
+  })
+
   beforeEach(() => {
+    vi.stubGlobal('window', browserWindow())
     useWorkspaceStore.setState({
       workspaces: [],
       active: null,
@@ -41,7 +62,6 @@ describe('workspace initialization', () => {
 
   it('rebases Split autosave after a job adds output without losing server state or newer edits', async () => {
     vi.useFakeTimers()
-    vi.stubGlobal('window', globalThis)
     useWorkspaceStore.setState({ active: { ...workspace, revision: 142 }, initialized: true })
     const output = { id: 'split-output', file: 'split.pdb', name: 'Split', kind: 'structure' as const }
     let latest = {
@@ -80,7 +100,8 @@ describe('workspace initialization', () => {
   })
 
   it('deduplicates concurrent initialization and activates the first workspace once', async () => {
-    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+    vi.stubGlobal('window', browserWindow('workspace-token'))
+    const fetchMock = vi.fn(async (input: string | URL | Request, _init?: RequestInit) => {
       const url = String(input)
       if (url === '/api/workspaces') {
         return jsonResponse([{ id: workspace.id, name: workspace.name, updatedAt: workspace.updatedAt, artifactCount: 0 }])
@@ -97,6 +118,9 @@ describe('workspace initialization', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(useWorkspaceStore.getState()).toMatchObject({ initialized: true, active: workspace })
+    for (const [, init] of fetchMock.mock.calls) {
+      expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer workspace-token')
+    }
   })
 
   it('saves a narrow revisioned patch without replacing newer local state', async () => {

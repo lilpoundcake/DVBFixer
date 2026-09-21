@@ -314,6 +314,11 @@ describe('naming API transport contract', () => {
     expect(response.status).toBe(200)
     expect(response.body).toEqual(JSON.parse(JSON.stringify(NAMING_OPENAPI_DOCUMENT)))
     expect(Value.Check(NamingConversionRequestSchema, NAMING_REQUEST_EXAMPLE)).toBe(true)
+    expect(NAMING_OPENAPI_DOCUMENT.components.securitySchemes.bearerAuth).toEqual({
+      type: 'http', scheme: 'bearer',
+    })
+    expect(NAMING_OPENAPI_DOCUMENT.paths['/api/v1/workspaces/{workspaceId}/naming-conversions']
+      .post.security).toEqual([{ bearerAuth: [] }])
   })
 
   it('rejects unsupported media types and malformed or unknown request fields', async () => {

@@ -8,7 +8,7 @@ import { runDvbfixerArgs } from './dvbfixer-runner'
 import { errorStatus, readRequestBody } from './request-body'
 import type { ApiRouteHost } from './http-types'
 import {
-  loadWorkspace, resolveWorkspaceFile, saveWorkspace, workspaceRoot, writeJsonAtomic,
+  assertWorkspaceAccess, loadWorkspace, resolveWorkspaceFile, saveWorkspace, workspaceRoot, writeJsonAtomic,
 } from './workspace-api'
 
 export type ManagedJobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled'
@@ -28,6 +28,7 @@ export interface ManagedJobRecord {
   stderrLog: string
   outputDir: string
   outputFile: string | null
+  requestedByPrincipalId: string
   error?: string
 }
 
@@ -191,6 +192,7 @@ function registerOutputs(dataRoot: string, record: ManagedJobRecord, inputBase: 
   const primary = files.find(file => /\.(pdb|cif|mmcif)$/i.test(file)) || files[0] || null
   if (!primary) return record
   const workspace = loadWorkspace(dataRoot, record.workspaceId)
+  assertWorkspaceAccess(workspace, record.requestedByPrincipalId, 'writer')
   const folder = path.relative(workspaceRoot(dataRoot, record.workspaceId), directory).replace(/\\/g, '/')
   for (const file of files) {
     const relative = `${folder}/${file}`
@@ -217,6 +219,9 @@ async function executeJob(
   let current = record
   try {
     const directory = jobDirectory(dataRoot, record.workspaceId, record.id)
+    assertWorkspaceAccess(
+      loadWorkspace(dataRoot, record.workspaceId), record.requestedByPrincipalId, 'writer',
+    )
     const prepared = prepareArgs(dataRoot, request, directory)
     current = { ...current, args: prepared.args, status: 'running', startedAt: new Date().toISOString() }
     persistJob(dataRoot, current)
@@ -248,7 +253,11 @@ async function executeJob(
   }
 }
 
-export function createManagedJob(dataRoot: string, request: ManagedJobRequest): ManagedJobRecord {
+export function createManagedJob(
+  dataRoot: string,
+  request: ManagedJobRequest,
+  requestedByPrincipalId = 'local',
+): ManagedJobRecord {
   if (!acceptingManagedJobs) throw httpError(503, 'server is shutting down')
   if (!request.workspaceId) throw httpError(400, 'workspaceId is required')
   if (typeof request.command !== 'string' || !request.command.trim()) {
@@ -268,7 +277,7 @@ export function createManagedJob(dataRoot: string, request: ManagedJobRequest): 
     version: 1, id, workspaceId: request.workspaceId, status: 'queued',
     createdAt: now, startedAt: null, finishedAt: null, command: request.command, args: [],
     exitCode: null, stdoutLog: `${folder}/stdout.log`, stderrLog: `${folder}/stderr.log`,
-    outputDir: folder, outputFile: null,
+    outputDir: folder, outputFile: null, requestedByPrincipalId,
   }
   persistJob(dataRoot, record)
   void executeJob(dataRoot, record, request, controller, release)
@@ -291,21 +300,31 @@ function sendJson(response: ServerResponse, status: number, body: unknown): void
   response.end(JSON.stringify(body))
 }
 
-export function registerManagedJobApi(server: ApiRouteHost, dataRoot: string): void {
+export function registerManagedJobApi(
+  server: ApiRouteHost,
+  dataRoot: string,
+  principalSource: (request: IncomingMessage) => string = () => 'local',
+  legacyOwnerPrincipalId = 'local',
+): void {
   server.middlewares.use('/api/jobs', async (request: IncomingMessage, response: ServerResponse, next) => {
     try {
+      const principalId = principalSource(request)
       const url = new URL(request.url || '/', 'http://localhost')
       const parts = url.pathname.split('/').filter(Boolean)
       const workspaceId = url.searchParams.get('workspaceId') || ''
       if (request.method === 'POST' && parts.length === 0) {
         const body = JSON.parse((await readRequestBody(request)).toString('utf8') || '{}') as ManagedJobRequest
-        return sendJson(response, 202, createManagedJob(dataRoot, body))
+        assertWorkspaceAccess(loadWorkspace(dataRoot, body.workspaceId, legacyOwnerPrincipalId), principalId, 'writer')
+        return sendJson(response, 202, createManagedJob(dataRoot, body, principalId))
       }
       if (request.method === 'GET' && parts.length === 0) {
         if (!workspaceId) return sendJson(response, 400, { error: 'workspaceId is required' })
+        assertWorkspaceAccess(loadWorkspace(dataRoot, workspaceId, legacyOwnerPrincipalId), principalId)
         return sendJson(response, 200, listManagedJobs(dataRoot, workspaceId))
       }
       if (!workspaceId || !parts[0]) return sendJson(response, 400, { error: 'workspaceId and job id are required' })
+      const workspace = loadWorkspace(dataRoot, workspaceId, legacyOwnerPrincipalId)
+      assertWorkspaceAccess(workspace, principalId, request.method === 'DELETE' ? 'writer' : 'reader')
       if (request.method === 'GET' && parts[1] === 'events') {
         const record = getManagedJob(dataRoot, workspaceId, parts[0])
         response.writeHead(200, {

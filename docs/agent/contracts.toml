@@ -33,7 +33,7 @@ test_files = [
 known_divergences = [
   "The tleap-reduce prepare/protonate early-return paths bypass the final naming helper.",
   "Terminal nucleic-acid hydroxyl naming remains unverified and is not claimed as supported.",
-  "The workspace HTTP adapter has Vite and standalone local hosts but no authentication or cross-process manifest lock yet.",
+  "The workspace HTTP adapter authenticates static bearer principals but has no cross-process manifest lock yet.",
 ]
 
 [contracts.dat-record-lifecycle]
@@ -140,7 +140,7 @@ known_divergences = [
 [contracts.workspace-manifest-artifact-identity]
 status = "partial"
 owner = "gui/server/workspace-api.ts::WorkspaceManifest"
-description = "Workspace-scoped manifest and artifact registry with optimistic revisions, contained paths, server-owned artifact registration, pending-patch rebasing, and recoverable deletion."
+description = "Workspace-scoped manifest and artifact registry with principal ownership and reader/writer ACLs, optimistic revisions, contained paths, server-owned artifact registration, pending-patch rebasing, and recoverable deletion."
 producers = [
   "gui/server/workspace-api.ts::saveWorkspace",
   "gui/server/managed-jobs.ts::registerManagedJobApi",
@@ -161,9 +161,11 @@ identity_keys = [
 ]
 source_mutation = "Manifest saves increment revision; registrations append server records; autosaves rebase only pending client fields; deletes move targets to trash."
 commit_behavior = "Manifest JSON uses same-directory temporary write, fsync, and rename, but artifact bytes and manifest registration are separate transactions."
-failure_behavior = "Stale revision-aware writes return 409 and path containment rejects traversal/symlink escape; registration failure can leave unregistered files or stale records after a trash move."
+failure_behavior = "Missing or invalid credentials return 401, hidden workspaces return 404, insufficient roles return 403, stale writes return 409, and path containment rejects traversal or symlink escape; registration failure can leave unregistered files."
 test_files = [
   "gui/server/workspace-api.test.ts",
+  "gui/server/auth.test.ts",
+  "gui/server/standalone.test.ts",
   "gui/src/stores/workspaceStore.test.ts",
   "gui/server/managed-jobs.test.ts",
   "gui/server/homology-api.test.ts",

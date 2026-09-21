@@ -18,6 +18,7 @@ import {
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import { errorStatus, readRequestBody } from './request-body'
 import {
+  assertWorkspaceAccess,
   loadWorkspace,
   resolveWorkspaceFile,
   saveWorkspace,
@@ -143,6 +144,7 @@ export async function executeNamingConversion(
   workspaceId: string,
   request: NamingConversionRequest,
   runner: NamingRunner = runDvbfixerArgs,
+  authorizePublication?: (workspace: ReturnType<typeof loadWorkspace>) => void,
 ): Promise<{ statusCode: 200 | 201; response: NamingConversionResponse }> {
   let initial
   try { initial = loadWorkspace(dataRoot, workspaceId) } catch {
@@ -245,6 +247,7 @@ export async function executeNamingConversion(
         command: 'atom-names', artifactType: 'naming-conversion', namingProvenance: provenance,
       }
       const latest = loadWorkspace(dataRoot, workspaceId)
+      authorizePublication?.(latest)
       const currentSource = latest.artifacts.find(artifact => artifact.id === sourceArtifact.id)
       if (!currentSource || currentSource.hidden || currentSource.kind !== 'structure' ||
           currentSource.file !== sourceArtifact.file || sha256(fs.readFileSync(source)) !== sourceSha256) {
@@ -310,6 +313,8 @@ export function registerNamingApi(
   server: ApiRouteHost,
   dataRoot: string,
   runner: NamingRunner = runDvbfixerArgs,
+  principalSource: (request: IncomingMessage) => string = () => 'local',
+  legacyOwnerPrincipalId = 'local',
 ): void {
   server.middlewares.use('/api/v1', async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     const route = (req.url || '').split('?')[0]
@@ -338,7 +343,29 @@ export function registerNamingApi(
         throw new NamingApiError(400, 'INVALID_JSON', 'request body is not valid JSON')
       }
       const request = parseRequest(value)
-      const result = await executeNamingConversion(dataRoot, workspaceId, request, runner)
+      const principalId = principalSource(req)
+      const authorize = () => {
+        try {
+          const workspace = loadWorkspace(dataRoot, workspaceId, legacyOwnerPrincipalId)
+          assertWorkspaceAccess(workspace, principalId, 'writer')
+          return workspace
+        } catch (error) {
+          const status = errorStatus(error, 404)
+          throw new NamingApiError(
+            status === 403 ? 403 : 404,
+            status === 403 ? 'WORKSPACE_ACCESS_DENIED' : 'WORKSPACE_NOT_FOUND',
+            status === 403 ? 'workspace write access is required' : 'workspace does not exist',
+          )
+        }
+      }
+      authorize()
+      const result = await executeNamingConversion(
+        dataRoot,
+        workspaceId,
+        request,
+        runner,
+        () => { authorize() },
+      )
       return sendJson(res, result.statusCode, result.response)
     } catch (error) {
       return sendError(res, error, requestId)

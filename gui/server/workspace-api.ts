@@ -1,4 +1,4 @@
-import type { ServerResponse } from 'node:http'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -70,7 +70,8 @@ export interface WorkspaceArtifactMetadataPatch {
 }
 
 export interface WorkspaceManifest {
-  version: 1
+  /** Version 1 is accepted only as an ownerless legacy input and is migrated on load/save. */
+  version: 1 | 2
   /** Monotonically increasing optimistic-concurrency token. */
   revision: number
   id: string
@@ -81,7 +82,33 @@ export interface WorkspaceManifest {
   secondaryFile: string | null
   artifacts: WorkspaceArtifact[]
   toolState: Record<string, unknown>
+  ownerPrincipalId?: string
+  acl?: WorkspaceAclEntry[]
+  provisionalOwner?: boolean
 }
+
+export type WorkspaceAclRole = 'reader' | 'writer'
+export type WorkspaceRole = WorkspaceAclRole | 'owner'
+export type WorkspaceAccess = WorkspaceRole
+
+export interface WorkspaceAclEntry {
+  principalId: string
+  role: WorkspaceAclRole
+}
+
+export interface WorkspaceManifestV2 extends WorkspaceManifest {
+  version: 2
+  ownerPrincipalId: string
+  acl: WorkspaceAclEntry[]
+}
+
+export interface WorkspaceAclPatch {
+  revision: number
+  acl: WorkspaceAclEntry[]
+}
+
+/** Identity used by the local, non-authenticated GUI until an auth adapter supplies one. */
+export const LOCAL_WORKSPACE_PRINCIPAL_ID = 'local'
 
 export interface WorkspacePatch {
   revision: number
@@ -101,6 +128,16 @@ export class WorkspaceRevisionConflictError extends Error {
     this.name = 'WorkspaceRevisionConflictError'
     this.expectedRevision = expectedRevision
     this.receivedRevision = receivedRevision
+  }
+}
+
+export class WorkspaceAuthorizationError extends Error {
+  readonly statusCode: 403 | 404
+
+  constructor(statusCode: 403 | 404, message: string) {
+    super(message)
+    this.name = 'WorkspaceAuthorizationError'
+    this.statusCode = statusCode
   }
 }
 
@@ -136,19 +173,21 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(JSON.stringify(body))
 }
 
-function workspaceOrderPath(dataRoot: string): string {
-  return path.join(dataRoot, '.workspace-order.json')
+export function workspaceOrderPath(dataRoot: string, principalId = LOCAL_WORKSPACE_PRINCIPAL_ID): string {
+  if (principalId === LOCAL_WORKSPACE_PRINCIPAL_ID) return path.join(dataRoot, '.workspace-order.json')
+  const key = crypto.createHash('sha256').update(principalId).digest('hex').slice(0, 16)
+  return path.join(dataRoot, `.workspace-order-${key}.json`)
 }
 
-function readWorkspaceOrder(dataRoot: string): string[] {
+function readWorkspaceOrder(dataRoot: string, principalId = LOCAL_WORKSPACE_PRINCIPAL_ID): string[] {
   try {
-    const value = JSON.parse(fs.readFileSync(workspaceOrderPath(dataRoot), 'utf8'))
+    const value = JSON.parse(fs.readFileSync(workspaceOrderPath(dataRoot, principalId), 'utf8'))
     return Array.isArray(value) ? value.filter(item => typeof item === 'string') : []
   } catch { return [] }
 }
 
-function writeWorkspaceOrder(dataRoot: string, ids: string[]): void {
-  writeJsonAtomic(workspaceOrderPath(dataRoot), ids)
+function writeWorkspaceOrder(dataRoot: string, ids: string[], principalId = LOCAL_WORKSPACE_PRINCIPAL_ID): void {
+  writeJsonAtomic(workspaceOrderPath(dataRoot, principalId), ids)
 }
 
 export function writeJsonAtomic(file: string, value: unknown): void {
@@ -247,11 +286,110 @@ function manifestPath(dataRoot: string, id: string): string {
   return path.join(workspaceRoot(dataRoot, id), 'workspace.json')
 }
 
-export function loadWorkspace(dataRoot: string, id: string): WorkspaceManifest {
+function validPrincipalId(value: unknown): value is string {
+  return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(value)
+}
+
+function validateAcl(ownerPrincipalId: unknown, value: unknown): asserts value is WorkspaceAclEntry[] {
+  if (!validPrincipalId(ownerPrincipalId)) throw new Error('invalid workspace ownerPrincipalId')
+  if (!Array.isArray(value)) throw new Error('invalid workspace acl')
+  const seen = new Set<string>()
+  for (const candidate of value) {
+    if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
+      throw new Error('invalid workspace acl entry')
+    }
+    const entry = candidate as Record<string, unknown>
+    if (Object.keys(entry).some(key => key !== 'principalId' && key !== 'role') ||
+        !validPrincipalId(entry.principalId) ||
+        (entry.role !== 'reader' && entry.role !== 'writer')) {
+      throw new Error('invalid workspace acl entry')
+    }
+    if (entry.principalId === ownerPrincipalId) throw new Error('workspace owner must not appear in acl')
+    if (seen.has(entry.principalId)) throw new Error(`duplicate workspace acl principal: ${entry.principalId}`)
+    seen.add(entry.principalId)
+  }
+}
+
+function manifestV2(
+  manifest: WorkspaceManifest,
+  legacyOwnerPrincipalId: string,
+  provisionalOwner = false,
+): WorkspaceManifestV2 {
+  if (manifest.version === 1) {
+    if (manifest.ownerPrincipalId !== undefined || manifest.acl !== undefined ||
+        manifest.provisionalOwner !== undefined) {
+      throw new Error('version 1 workspace must not contain security fields')
+    }
+    if (!validPrincipalId(legacyOwnerPrincipalId)) throw new Error('invalid legacy workspace ownerPrincipalId')
+    return {
+      ...manifest,
+      version: 2,
+      ownerPrincipalId: legacyOwnerPrincipalId,
+      acl: [],
+      ...(provisionalOwner ? { provisionalOwner: true } : {}),
+    }
+  }
+  if (manifest.version !== 2) throw new Error(`unsupported workspace manifest version: ${String(manifest.version)}`)
+  validateAcl(manifest.ownerPrincipalId, manifest.acl)
+  if (manifest.provisionalOwner !== undefined && manifest.provisionalOwner !== true) {
+    throw new Error('invalid workspace provisionalOwner')
+  }
+  if (manifest.provisionalOwner === true &&
+      (manifest.ownerPrincipalId !== LOCAL_WORKSPACE_PRINCIPAL_ID || manifest.acl.length > 0)) {
+    throw new Error('provisional workspace owner must be local with an empty acl')
+  }
+  return manifest as WorkspaceManifestV2
+}
+
+export function workspaceRole(workspace: WorkspaceManifestV2, principalId: string): WorkspaceRole | null {
+  if (workspace.ownerPrincipalId === principalId) return 'owner'
+  return workspace.acl.find(entry => entry.principalId === principalId)?.role || null
+}
+
+function workspaceView(workspace: WorkspaceManifestV2, principalId: string): WorkspaceManifestV2 & { effectiveRole: WorkspaceRole } {
+  return { ...workspace, effectiveRole: assertWorkspaceAccess(workspace, principalId) }
+}
+
+export function canReadWorkspace(workspace: WorkspaceManifestV2, principalId: string): boolean {
+  return workspaceRole(workspace, principalId) !== null
+}
+
+export function canWriteWorkspace(workspace: WorkspaceManifestV2, principalId: string): boolean {
+  const role = workspaceRole(workspace, principalId)
+  return role === 'owner' || role === 'writer'
+}
+
+export function isWorkspaceOwner(workspace: WorkspaceManifestV2, principalId: string): boolean {
+  return workspaceRole(workspace, principalId) === 'owner'
+}
+
+export function assertWorkspaceAccess(
+  workspace: WorkspaceManifestV2,
+  principalId: string,
+  required: WorkspaceAccess = 'reader',
+): WorkspaceRole {
+  const role = validPrincipalId(principalId) ? workspaceRole(workspace, principalId) : null
+  if (role === null) throw new WorkspaceAuthorizationError(404, `workspace not found: ${workspace.id}`)
+  if (required === 'owner' && role !== 'owner') {
+    throw new WorkspaceAuthorizationError(403, 'workspace owner access required')
+  }
+  if (required === 'writer' && role === 'reader') {
+    throw new WorkspaceAuthorizationError(403, 'workspace writer access required')
+  }
+  return role
+}
+
+export function loadWorkspace(
+  dataRoot: string,
+  id: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+): WorkspaceManifestV2 {
   const file = manifestPath(dataRoot, id)
   if (!fs.existsSync(file)) throw new Error(`workspace not found: ${id}`)
-  const workspace = JSON.parse(fs.readFileSync(file, 'utf8')) as WorkspaceManifest
-  workspace.version = 1
+  const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as WorkspaceManifest
+  const wasLegacy = parsed.version === 1
+  const workspace = manifestV2(parsed, legacyOwnerPrincipalId)
+  if (wasLegacy) writeJsonAtomic(file, workspace)
   workspace.revision = Number.isSafeInteger(workspace.revision) && workspace.revision >= 0
     ? workspace.revision : 0
   workspace.artifacts = Array.isArray(workspace.artifacts)
@@ -262,6 +400,40 @@ export function loadWorkspace(dataRoot: string, id: string): WorkspaceManifest {
   for (const artifact of workspace.artifacts) sanitizeArtifactMetadata(artifact)
   workspace.toolState = workspace.toolState && typeof workspace.toolState === 'object' ? workspace.toolState : {}
   return workspace
+}
+
+export function migrateWorkspaceOwnership(
+  dataRoot: string,
+  legacyOwnerPrincipalId: string,
+  authenticationEnabled = false,
+): void {
+  const root = workspacesRoot(dataRoot)
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue
+    const file = manifestPath(dataRoot, entry.name)
+    if (!fs.existsSync(file)) continue
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as WorkspaceManifest
+    if (parsed.version === 1) {
+      writeJsonAtomic(file, manifestV2(
+        parsed,
+        legacyOwnerPrincipalId,
+        !authenticationEnabled && legacyOwnerPrincipalId === LOCAL_WORKSPACE_PRINCIPAL_ID,
+      ))
+      continue
+    }
+    const secured = manifestV2(parsed, legacyOwnerPrincipalId)
+    if (authenticationEnabled && secured.provisionalOwner === true) {
+      const { provisionalOwner: _provisionalOwner, ...withoutMarker } = secured
+      void _provisionalOwner
+      const migrated = {
+        ...withoutMarker,
+        ownerPrincipalId: legacyOwnerPrincipalId,
+        acl: secured.acl.filter(entry => entry.principalId !== legacyOwnerPrincipalId),
+      }
+      validateAcl(migrated.ownerPrincipalId, migrated.acl)
+      writeJsonAtomic(file, migrated)
+    }
+  }
 }
 
 const STRING_METADATA_FIELDS = [
@@ -308,13 +480,18 @@ function validNamingProvenance(value: unknown): value is NamingConversionProvena
     typeof item.dvbfixerVersion === 'string'
 }
 
-export function saveWorkspace(dataRoot: string, manifest: WorkspaceManifest): WorkspaceManifest {
+export function saveWorkspace(
+  dataRoot: string,
+  manifest: WorkspaceManifest,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+): WorkspaceManifestV2 {
+  const secured = manifestV2(manifest, legacyOwnerPrincipalId)
   const root = workspaceRoot(dataRoot, manifest.id)
   fs.mkdirSync(path.join(root, 'files'), { recursive: true })
   fs.mkdirSync(path.join(root, 'runs'), { recursive: true })
   fs.mkdirSync(path.join(root, 'homology'), { recursive: true })
-  const revision = Number.isSafeInteger(manifest.revision) && manifest.revision >= 0 ? manifest.revision : 0
-  const next = { ...manifest, version: 1 as const, revision: revision + 1, updatedAt: new Date().toISOString() }
+  const revision = Number.isSafeInteger(secured.revision) && secured.revision >= 0 ? secured.revision : 0
+  const next: WorkspaceManifestV2 = { ...secured, version: 2, revision: revision + 1, updatedAt: new Date().toISOString() }
   writeJsonAtomic(manifestPath(dataRoot, manifest.id), next)
   return next
 }
@@ -424,6 +601,23 @@ export function applyWorkspacePatch(current: WorkspaceManifest, patch: Workspace
   }
 }
 
+export function applyWorkspaceAclPatch(
+  current: WorkspaceManifestV2,
+  principalId: string,
+  patch: WorkspaceAclPatch,
+): WorkspaceManifestV2 {
+  assertWorkspaceAccess(current, principalId, 'owner')
+  assertWorkspaceRevision(current, patch.revision)
+  const unknown = Object.keys(patch).find(key => key !== 'revision' && key !== 'acl')
+  if (unknown) {
+    const error = new Error(`unsupported workspace ACL patch field: ${unknown}`) as Error & { statusCode: number }
+    error.statusCode = 400
+    throw error
+  }
+  validateAcl(current.ownerPrincipalId, patch.acl)
+  return { ...current, acl: patch.acl.map(entry => ({ ...entry })) }
+}
+
 export function applyArtifactMetadataPatch(
   current: WorkspaceManifest,
   artifactId: string,
@@ -514,11 +708,18 @@ function legacyMetadata(entry: Record<string, unknown>): Partial<WorkspaceArtifa
   return metadata
 }
 
-function createWorkspace(dataRoot: string, name: string): WorkspaceManifest {
+export function createWorkspace(
+  dataRoot: string,
+  name: string,
+  ownerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  provisionalOwner = false,
+): WorkspaceManifestV2 {
+  if (!validPrincipalId(ownerPrincipalId)) throw new Error('invalid workspace ownerPrincipalId')
   const now = new Date().toISOString()
   return saveWorkspace(dataRoot, {
-    version: 1, revision: 0, id: uniqueId(name), name, createdAt: now, updatedAt: now,
+    version: 2, revision: 0, id: uniqueId(name), name, createdAt: now, updatedAt: now,
     primaryFile: null, secondaryFile: null, artifacts: [], toolState: {},
+    ownerPrincipalId, acl: [], ...(provisionalOwner ? { provisionalOwner: true } : {}),
   })
 }
 
@@ -526,7 +727,11 @@ function createWorkspace(dataRoot: string, name: string): WorkspaceManifest {
  * One-time compatibility migration. Files are copied before manifests are
  * published, so a failed migration never damages the legacy library.
  */
-export function ensureWorkspaceMigration(dataRoot: string): void {
+export function ensureWorkspaceMigration(
+  dataRoot: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  provisionalLocalOwner = false,
+): void {
   const marker = path.join(workspacesRoot(dataRoot), '.migrated-v1')
   if (fs.existsSync(marker)) return
   const indexFile = path.join(dataRoot, 'index.json')
@@ -560,7 +765,10 @@ export function ensureWorkspaceMigration(dataRoot: string): void {
   const ownership = new Map<string, { workspaceId: string; relative: string }>()
   const createdWorkspaceIds: string[] = []
   for (const group of groups) {
-    const workspace = createWorkspace(dataRoot, group.name)
+    const workspace = createWorkspace(
+      dataRoot, group.name, legacyOwnerPrincipalId,
+      provisionalLocalOwner && legacyOwnerPrincipalId === LOCAL_WORKSPACE_PRINCIPAL_ID,
+    )
     createdWorkspaceIds.push(workspace.id)
     const artifacts: WorkspaceArtifact[] = []
     for (const { entry, folder } of group.files) {
@@ -597,7 +805,7 @@ export function ensureWorkspaceMigration(dataRoot: string): void {
         }
         const targetId = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] || createdWorkspaceIds[0]
         if (!targetId) continue
-        const targetWorkspace = loadWorkspace(dataRoot, targetId)
+        const targetWorkspace = loadWorkspace(dataRoot, targetId, legacyOwnerPrincipalId)
         for (const template of project.templates || []) {
           const owner = ownership.get(template.file)
           if (owner?.workspaceId === targetId) { template.file = owner.relative; continue }
@@ -622,8 +830,12 @@ export function ensureWorkspaceMigration(dataRoot: string): void {
 }
 
 /** One-time, non-destructive import for installations migrated before artifact metadata existed. */
-export function ensureWorkspaceMetadataMigration(dataRoot: string): void {
-  ensureWorkspaceMigration(dataRoot)
+export function ensureWorkspaceMetadataMigration(
+  dataRoot: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  provisionalLocalOwner = false,
+): void {
+  ensureWorkspaceMigration(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
   const marker = path.join(workspacesRoot(dataRoot), '.metadata-migrated-v1')
   if (fs.existsSync(marker)) return
   const index = path.join(dataRoot, 'index.json')
@@ -642,7 +854,7 @@ export function ensureWorkspaceMetadataMigration(dataRoot: string): void {
   }
   for (const directory of fs.readdirSync(workspacesRoot(dataRoot), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
     let workspace: WorkspaceManifest
-    try { workspace = loadWorkspace(dataRoot, directory.name) } catch { continue }
+    try { workspace = loadWorkspace(dataRoot, directory.name, legacyOwnerPrincipalId) } catch { continue }
     let changed = false
     for (const artifact of workspace.artifacts) {
       const exact = entries.filter(entry => {
@@ -671,8 +883,12 @@ export function ensureWorkspaceMetadataMigration(dataRoot: string): void {
 }
 
 /** Import per-workspace runtime indexes created by older GUI releases. */
-export function ensureRetiredWorkspaceIndexMigration(dataRoot: string): void {
-  ensureWorkspaceMetadataMigration(dataRoot)
+export function ensureRetiredWorkspaceIndexMigration(
+  dataRoot: string,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  provisionalLocalOwner = false,
+): void {
+  ensureWorkspaceMetadataMigration(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
   const marker = path.join(workspacesRoot(dataRoot), '.artifact-index-migrated-v1')
   if (fs.existsSync(marker)) return
   for (const directory of fs.readdirSync(workspacesRoot(dataRoot), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
@@ -683,7 +899,7 @@ export function ensureRetiredWorkspaceIndexMigration(dataRoot: string): void {
       const parsed = JSON.parse(fs.readFileSync(index, 'utf8'))
       if (Array.isArray(parsed)) entries = parsed.filter(entry => entry && typeof entry.file === 'string' && entry.kind !== 'folder')
     } catch { continue }
-    const workspace = loadWorkspace(dataRoot, directory.name)
+    const workspace = loadWorkspace(dataRoot, directory.name, legacyOwnerPrincipalId)
     let changed = false
     for (const entry of entries) {
       if (isProtectedArtifactPath(entry.file)) continue
@@ -717,13 +933,16 @@ export function ensureRetiredWorkspaceIndexMigration(dataRoot: string): void {
   fs.writeFileSync(marker, `${new Date().toISOString()}\n`)
 }
 
-export function listWorkspaces(dataRoot: string): WorkspaceManifest[] {
-  ensureRetiredWorkspaceIndexMigration(dataRoot)
+function allWorkspaces(
+  dataRoot: string,
+  legacyOwnerPrincipalId: string,
+  principalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+): WorkspaceManifestV2[] {
   const workspaces = fs.readdirSync(workspacesRoot(dataRoot), { withFileTypes: true })
     .filter(entry => entry.isDirectory())
-    .flatMap(entry => { try { return [loadWorkspace(dataRoot, entry.name)] } catch { return [] } })
+    .flatMap(entry => { try { return [loadWorkspace(dataRoot, entry.name, legacyOwnerPrincipalId)] } catch { return [] } })
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.name.localeCompare(b.name))
-  const order = readWorkspaceOrder(dataRoot)
+  const order = readWorkspaceOrder(dataRoot, principalId)
   const positions = new Map(order.map((id, index) => [id, index]))
   return workspaces.sort((a, b) => {
     const ai = positions.get(a.id)
@@ -735,33 +954,89 @@ export function listWorkspaces(dataRoot: string): WorkspaceManifest[] {
   })
 }
 
-export function registerWorkspaceApi(server: ApiRouteHost, dataRoot: string): void {
-  ensureRetiredWorkspaceIndexMigration(dataRoot)
+export function listWorkspaces(
+  dataRoot: string,
+  principalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+): WorkspaceManifestV2[] {
+  ensureRetiredWorkspaceIndexMigration(dataRoot, legacyOwnerPrincipalId)
+  return allWorkspaces(dataRoot, legacyOwnerPrincipalId, principalId)
+    .filter(workspace => canReadWorkspace(workspace, principalId))
+}
+
+export function reorderWorkspaces(
+  dataRoot: string,
+  ids: string[],
+  principalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+): string[] {
+  ensureRetiredWorkspaceIndexMigration(dataRoot, legacyOwnerPrincipalId)
+  const workspaces = allWorkspaces(dataRoot, legacyOwnerPrincipalId, principalId)
+  const existing = new Set(workspaces.map(workspace => workspace.id))
+  const readable = new Set(workspaces.filter(workspace => canReadWorkspace(workspace, principalId)).map(workspace => workspace.id))
+  const requested = ids.filter((id, index) => readable.has(id) && ids.indexOf(id) === index)
+  for (const workspace of workspaces) if (readable.has(workspace.id) && !requested.includes(workspace.id)) requested.push(workspace.id)
+
+  const stored = readWorkspaceOrder(dataRoot, principalId)
+    .filter((id, index, values) => existing.has(id) && values.indexOf(id) === index)
+  for (const workspace of workspaces) if (!stored.includes(workspace.id)) stored.push(workspace.id)
+  const nextVisible = requested[Symbol.iterator]()
+  const merged = stored.map(id => readable.has(id) ? nextVisible.next().value as string : id)
+  writeWorkspaceOrder(dataRoot, merged, principalId)
+  return requested
+}
+
+export function registerWorkspaceApi(
+  server: ApiRouteHost,
+  dataRoot: string,
+  principalSource: string | ((request: IncomingMessage) => string) = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  legacyOwnerPrincipalId = LOCAL_WORKSPACE_PRINCIPAL_ID,
+  provisionalLocalOwner = false,
+): void {
+  ensureRetiredWorkspaceIndexMigration(dataRoot, legacyOwnerPrincipalId, provisionalLocalOwner)
   server.middlewares.use('/api/workspaces', async (req, res, next) => {
     try {
+      const principalId = typeof principalSource === 'function' ? principalSource(req) : principalSource
       const parts = (req.url || '').split('?')[0].split('/').filter(Boolean).map(decodeURIComponent)
       if (!parts.length && req.method === 'GET') {
-        return sendJson(res, 200, listWorkspaces(dataRoot).map(({ id, name, updatedAt, artifacts }) => ({ id, name, updatedAt, artifactCount: artifacts.filter(artifact => !artifact.hidden).length })))
+        return sendJson(res, 200, listWorkspaces(dataRoot, principalId, legacyOwnerPrincipalId).map(workspace => ({
+          id: workspace.id,
+          name: workspace.name,
+          updatedAt: workspace.updatedAt,
+          artifactCount: workspace.artifacts.filter(artifact => !artifact.hidden).length,
+          effectiveRole: workspaceRole(workspace, principalId),
+        })))
       }
       if (!parts.length && req.method === 'POST') {
         const body = JSON.parse((await readRequestBody(req)).toString('utf8') || '{}')
-        const workspace = createWorkspace(dataRoot, String(body.name || 'Untitled workspace'))
-        writeWorkspaceOrder(dataRoot, [workspace.id, ...readWorkspaceOrder(dataRoot).filter(id => id !== workspace.id)])
-        return sendJson(res, 201, workspace)
+        const workspace = createWorkspace(
+          dataRoot,
+          String(body.name || 'Untitled workspace'),
+          principalId,
+          provisionalLocalOwner && principalId === LOCAL_WORKSPACE_PRINCIPAL_ID,
+        )
+        writeWorkspaceOrder(
+          dataRoot,
+          [workspace.id, ...readWorkspaceOrder(dataRoot, principalId).filter(id => id !== workspace.id)],
+          principalId,
+        )
+        return sendJson(res, 201, workspaceView(workspace, principalId))
       }
       if (parts[0] === 'order' && req.method === 'PATCH') {
         const body = JSON.parse((await readRequestBody(req)).toString('utf8') || '{}') as { ids?: string[] }
-        const existing = new Set(listWorkspaces(dataRoot).map(workspace => workspace.id))
-        const ids = (body.ids || []).filter((id, index, values) => existing.has(id) && values.indexOf(id) === index)
-        for (const id of existing) if (!ids.includes(id)) ids.push(id)
-        writeWorkspaceOrder(dataRoot, ids)
+        const ids = reorderWorkspaces(dataRoot, body.ids || [], principalId, legacyOwnerPrincipalId)
         return sendJson(res, 200, { ids })
       }
       const id = parts[0]
-      if (parts.length === 1 && req.method === 'GET') return sendJson(res, 200, loadWorkspace(dataRoot, id))
+      if (parts.length === 1 && req.method === 'GET') {
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId)
+        return sendJson(res, 200, workspaceView(workspace, principalId))
+      }
       if (parts.length === 1 && req.method === 'DELETE') {
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId, 'owner')
         const source = workspaceRoot(dataRoot, id)
-        if (!fs.existsSync(source)) return sendJson(res, 404, { error: `workspace not found: ${id}` })
         const trash = path.join(dataRoot, '_workspace_trash')
         fs.mkdirSync(trash, { recursive: true })
         const destination = path.join(trash, `${safeId(id)}-${new Date().toISOString().replace(/[:.]/g, '-')}`)
@@ -771,17 +1046,31 @@ export function registerWorkspaceApi(server: ApiRouteHost, dataRoot: string): vo
       }
       if (parts.length === 1 && req.method === 'PUT') {
         const incoming = JSON.parse((await readRequestBody(req)).toString('utf8')) as WorkspaceManifest
-        const current = loadWorkspace(dataRoot, id)
+        const current = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(current, principalId, 'writer')
         assertWorkspaceRevision(current, incoming.revision)
-        return sendJson(res, 200, saveWorkspace(dataRoot, mergeClientWorkspaceUpdate(current, incoming)))
+        return sendJson(res, 200, workspaceView(
+          saveWorkspace(dataRoot, mergeClientWorkspaceUpdate(current, incoming)), principalId,
+        ))
       }
       if (parts.length === 1 && req.method === 'PATCH') {
         const patch = JSON.parse((await readRequestBody(req)).toString('utf8')) as WorkspacePatch
-        const current = loadWorkspace(dataRoot, id)
-        return sendJson(res, 200, saveWorkspace(dataRoot, applyWorkspacePatch(current, patch)))
+        const current = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(current, principalId, 'writer')
+        return sendJson(res, 200, workspaceView(
+          saveWorkspace(dataRoot, applyWorkspacePatch(current, patch)), principalId,
+        ))
+      }
+      if (parts[1] === 'acl' && parts.length === 2 && req.method === 'PATCH') {
+        const patch = JSON.parse((await readRequestBody(req)).toString('utf8') || '{}') as WorkspaceAclPatch
+        const current = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        return sendJson(res, 200, workspaceView(
+          saveWorkspace(dataRoot, applyWorkspaceAclPatch(current, principalId, patch)), principalId,
+        ))
       }
       if (parts[1] === 'download' && req.method === 'GET') {
-        const workspace = loadWorkspace(dataRoot, id)
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId)
         const filename = `${workspace.name.replace(/[^a-zA-Z0-9._-]+/g, '_') || 'workspace'}.tar.gz`
         res.statusCode = 200
         res.setHeader('Content-Type', 'application/gzip')
@@ -790,14 +1079,17 @@ export function registerWorkspaceApi(server: ApiRouteHost, dataRoot: string): vo
         return Readable.from(workspaceArchive(dataRoot, workspace)).pipe(zlib.createGzip()).pipe(res)
       }
       if (parts[1] === 'rename' && req.method === 'PATCH') {
-        const workspace = loadWorkspace(dataRoot, id)
         const body = JSON.parse((await readRequestBody(req)).toString('utf8') || '{}')
         const name = String(body.name || '').trim()
         if (!name) return sendJson(res, 400, { error: 'workspace name cannot be empty' })
-        return sendJson(res, 200, saveWorkspace(dataRoot, { ...workspace, name }))
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId, 'writer')
+        return sendJson(res, 200, workspaceView(saveWorkspace(dataRoot, { ...workspace, name }), principalId))
       }
       if (parts[1] === 'import' && req.method === 'POST') {
-        const workspace = loadWorkspace(dataRoot, id)
+        assertWorkspaceAccess(
+          loadWorkspace(dataRoot, id, legacyOwnerPrincipalId), principalId, 'writer',
+        )
         const encoded = Array.isArray(req.headers['x-file-name']) ? req.headers['x-file-name'][0] : req.headers['x-file-name']
         const original = decodeURIComponent(encoded || '')
         const safe = path.basename(original).replace(/[^a-zA-Z0-9._-]+/g, '_')
@@ -805,6 +1097,8 @@ export function registerWorkspaceApi(server: ApiRouteHost, dataRoot: string): vo
         if (isProtectedArtifactPath(safe)) return sendJson(res, 400, { error: 'reserved workspace metadata filename' })
         const content = await readRequestBody(req, MAX_UPLOAD_BODY_BYTES)
         if (!content.length) return sendJson(res, 400, { error: 'uploaded artifact is empty' })
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId, 'writer')
         const directory = path.join(workspaceRoot(dataRoot, id), 'files', 'imports')
         fs.mkdirSync(directory, { recursive: true })
         let destination = path.join(directory, safe)
@@ -816,7 +1110,8 @@ export function registerWorkspaceApi(server: ApiRouteHost, dataRoot: string): vo
         return sendJson(res, 201, artifact)
       }
       if (parts[1] === 'artifacts' && parts[2] && req.method === 'DELETE') {
-        const workspace = loadWorkspace(dataRoot, id)
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId, 'writer')
         const artifactIndex = workspace.artifacts.findIndex(artifact => artifact.id === parts[2])
         if (artifactIndex < 0) return sendJson(res, 404, { error: `artifact not found: ${parts[2]}` })
         const artifact = workspace.artifacts[artifactIndex]
@@ -840,14 +1135,21 @@ export function registerWorkspaceApi(server: ApiRouteHost, dataRoot: string): vo
         return res.end()
       }
       if (parts[1] === 'artifacts' && parts[2] && parts[3] === 'rename' && req.method === 'PATCH') {
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId, 'writer')
         return sendJson(res, 410, { error: 'use the revisioned artifact metadata endpoint' })
       }
       if (parts[1] === 'artifacts' && parts[2] && parts[3] === 'metadata' && req.method === 'PATCH') {
-        const workspace = loadWorkspace(dataRoot, id)
         const patch = JSON.parse((await readRequestBody(req)).toString('utf8') || '{}') as WorkspaceArtifactMetadataPatch
-        return sendJson(res, 200, saveWorkspace(dataRoot, applyArtifactMetadataPatch(workspace, parts[2], patch)))
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId, 'writer')
+        return sendJson(res, 200, workspaceView(
+          saveWorkspace(dataRoot, applyArtifactMetadataPatch(workspace, parts[2], patch)), principalId,
+        ))
       }
       if (parts[1] === 'files' && parts.length >= 3 && req.method === 'GET') {
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId)
         const relative = parts.slice(2).join('/')
         const file = resolveWorkspaceFile(dataRoot, id, relative)
         const filename = path.basename(file)

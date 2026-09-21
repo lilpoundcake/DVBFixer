@@ -29,9 +29,16 @@ import { registerNamingApi } from './naming-api'
 import {
   resetDvbfixerProcessAdmission, runDvbfixerArgs, shutdownDvbfixerProcesses,
 } from './dvbfixer-runner'
-import { loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, saveWorkspace, workspaceRoot } from './workspace-api'
-import { errorStatus, MAX_UPLOAD_BODY_BYTES, readRequestBody } from './request-body'
+import {
+  assertWorkspaceAccess, loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, saveWorkspace,
+  migrateWorkspaceOwnership, workspaceRoot,
+} from './workspace-api'
+import { errorStatus, readRequestBody } from './request-body'
 import type { ApiRouteHost } from './http-types'
+import {
+  createAuthMiddleware, getApiPrincipal, parseAuthConfig, resolveLegacyWorkspaceOwner,
+  type AuthConfig,
+} from './auth'
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
 
@@ -220,10 +227,6 @@ function readBody(req: IncomingMessage): Promise<string> {
   return readRequestBody(req).then(body => body.toString('utf8'))
 }
 
-function readBuffer(req: IncomingMessage): Promise<Buffer> {
-  return readRequestBody(req, MAX_UPLOAD_BODY_BYTES)
-}
-
 function sendJson(res: ServerResponse, status: number, body: any) {
   res.statusCode = status
   res.setHeader('Content-Type', 'application/json')
@@ -247,15 +250,25 @@ function listRunFiles(root: string): string[] {
 export interface ApiRouteOptions {
   projectRoot: string
   dataRoot?: string
+  authConfig?: AuthConfig
+  legacyWorkspaceOwner?: string
 }
 
 export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions): void {
       const structuresDir = path.resolve(options.dataRoot || process.env.DVBFIXER_GUI_DATA_DIR || path.join(options.projectRoot, 'structures'))
+      const authConfig = options.authConfig || parseAuthConfig(process.env)
+      const legacyWorkspaceOwner = options.legacyWorkspaceOwner || resolveLegacyWorkspaceOwner(authConfig)
       fs.mkdirSync(structuresDir, { recursive: true })
       // Remember the repo root so the mutations backup writer / seeder
       // can find `mutations.json` regardless of which working directory
       // the dev server was launched from.
       projectRoot = options.projectRoot
+      server.middlewares.use('/api', createAuthMiddleware(authConfig))
+      migrateWorkspaceOwnership(
+        structuresDir,
+        legacyWorkspaceOwner,
+        authConfig.enabled,
+      )
       server.middlewares.use('/api/health', (req, res, next) => {
         if (req.method !== 'GET') return next()
         let version = 'unknown'
@@ -266,48 +279,18 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
         try { fs.accessSync(structuresDir, fs.constants.R_OK | fs.constants.W_OK); storageWritable = true } catch { /* reported below */ }
         return sendJson(res, storageWritable ? 200 : 503, {
           status: storageWritable ? 'ready' : 'degraded', version, storageWritable,
-          databaseConfigured: Boolean(process.env.DATABASE_URL),
+          databaseConfigured: Boolean(process.env.DATABASE_URL), authenticationRequired: authConfig.enabled,
         })
       })
-      registerWorkspaceApi(server, structuresDir)
-      registerHomologyApi(server, structuresDir)
-      registerManagedJobApi(server, structuresDir)
-      registerNamingApi(server, structuresDir)
-
-      // ── Artifact import ────────────────────────────────────────────────
-      server.middlewares.use('/api/artifacts/import', async (req, res, next) => {
-        if (req.method !== 'POST') return next()
-        try {
-          const encodedName = Array.isArray(req.headers['x-file-name'])
-            ? req.headers['x-file-name'][0] : req.headers['x-file-name']
-          const originalName = decodeURIComponent(encodedName || '')
-          const safeName = path.basename(originalName).replace(/[^a-zA-Z0-9._-]+/g, '_')
-          const allowed = new Set([
-            '.pdb', '.cif', '.mmcif', '.gro', '.fasta', '.fa', '.faa', '.pir', '.aln',
-            '.xtc', '.trr', '.dcd', '.tpr', '.mol2', '.sdf', '.top', '.itp', '.dat',
-            '.json', '.txt', '.html', '.csv', '.log',
-          ])
-          if (!safeName || !allowed.has(path.extname(safeName).toLowerCase())) {
-            return sendJson(res, 400, { error: `unsupported artifact type: ${originalName || '(unnamed)'}` })
-          }
-          const content = await readBuffer(req)
-          if (!content.length) return sendJson(res, 400, { error: 'uploaded artifact is empty' })
-          const importsDir = path.join(structuresDir, 'imports')
-          fs.mkdirSync(importsDir, { recursive: true })
-          let destination = path.join(importsDir, safeName)
-          if (fs.existsSync(destination)) {
-            const extension = path.extname(safeName)
-            const stem = path.basename(safeName, extension)
-            destination = path.join(importsDir, `${stem}_${Date.now()}${extension}`)
-          }
-          fs.writeFileSync(destination, content)
-          return sendJson(res, 201, {
-            file: path.relative(structuresDir, destination).replace(/\\/g, '/'), size: content.length,
-          })
-        } catch (error: any) {
-          return sendJson(res, errorStatus(error), { error: error?.message || String(error) })
-        }
+      server.middlewares.use('/api/session', (req, res, next) => {
+        if (req.method !== 'GET') return next()
+        return sendJson(res, 200, { principal: getApiPrincipal(req) })
       })
+      const principalId = (request: IncomingMessage) => getApiPrincipal(request).id
+      registerWorkspaceApi(server, structuresDir, principalId, legacyWorkspaceOwner, !authConfig.enabled)
+      registerHomologyApi(server, structuresDir, principalId, legacyWorkspaceOwner)
+      registerManagedJobApi(server, structuresDir, principalId, legacyWorkspaceOwner)
+      registerNamingApi(server, structuresDir, runDvbfixerArgs, principalId, legacyWorkspaceOwner)
 
       // ── Generic DVBfixer runner ────────────────────────────────────────
       server.middlewares.use('/api/dvbfixer', async (req, res, next) => {
@@ -324,6 +307,11 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
             fastaContent?: string
           }
           if (!body.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
+          assertWorkspaceAccess(
+            loadWorkspace(structuresDir, body.workspaceId, legacyWorkspaceOwner),
+            principalId(req),
+            'writer',
+          )
           const releaseRun = acquireWorkspaceRun(body.workspaceId, `sync-${crypto.randomUUID()}`)
           if (!releaseRun) return sendJson(res, 409, { error: 'another DVBfixer job is already running in this workspace' })
           try {
@@ -393,7 +381,8 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           const primaryRel = files.find(file => /\.(pdb|cif|mmcif)$/i.test(file)) || files[0] || ''
           const outputFile = primaryRel ? `runs/${subdirName}/${primaryRel}` : ''
           if (ok && outputFile) {
-            const workspace = loadWorkspace(structuresDir, body.workspaceId)
+            const workspace = loadWorkspace(structuresDir, body.workspaceId, legacyWorkspaceOwner)
+            assertWorkspaceAccess(workspace, principalId(req), 'writer')
             const parent = typeof suppliedInputs[def.inputs[0]?.dest] === 'string'
               ? suppliedInputs[def.inputs[0]?.dest] as string : undefined
             for (const runFile of files) {
@@ -545,6 +534,12 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           if (typeof body.hasGlycan !== 'boolean') return sendJson(res, 400, { error: 'hasGlycan required' })
           if (body.scheme !== 'EU' && body.scheme !== 'Kabat') return sendJson(res, 400, { error: 'scheme must be EU or Kabat' })
 
+          assertWorkspaceAccess(
+            loadWorkspace(structuresDir, body.workspaceId, legacyWorkspaceOwner),
+            principalId(req),
+            'writer',
+          )
+
           const activeRoot = workspaceRoot(structuresDir, body.workspaceId)
           resolveWorkspaceFile(structuresDir, body.workspaceId, body.inputFile)
 
@@ -564,7 +559,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           let aborted = false
           req.on('close', () => { aborted = true })
 
-          const workspaceBeforeRun = loadWorkspace(structuresDir, body.workspaceId)
+          const workspaceBeforeRun = loadWorkspace(structuresDir, body.workspaceId, legacyWorkspaceOwner)
           const inputArtifact = workspaceBeforeRun.artifacts.find(artifact => artifact.file === body.inputFile)
           const cached = findCachedEntry(activeRoot, workspaceBeforeRun.artifacts, body.inputFile, checksum)
           if (cached) {
@@ -611,7 +606,8 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           })
 
           if (generated.length) {
-            const workspace = loadWorkspace(structuresDir, body.workspaceId)
+            const workspace = loadWorkspace(structuresDir, body.workspaceId, legacyWorkspaceOwner)
+            assertWorkspaceAccess(workspace, principalId(req), 'writer')
             for (const entry of generated.filter(item => item.file && !workspace.artifacts.some(existing => existing.file === item.file))) {
               workspace.artifacts.push({ id: crypto.randomUUID(), file: entry.file, name: entry.name || path.basename(entry.file),
                 kind: /\.(pdb|cif|mmcif)$/i.test(entry.file) ? 'structure' : 'artifact', command: entry.command,
@@ -628,13 +624,9 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
 
           res.end()
         } catch (err: any) {
-          // SSE response may already be writing — try a final error frame.
-          try {
-            sseSend(res, { step: 0, total: 0, name: 'fatal', status: 'error', stderr: err?.message ?? String(err) })
-            res.end()
-          } catch {
-            sendJson(res, errorStatus(err), { error: err?.message ?? String(err) })
-          }
+          if (!res.headersSent) return sendJson(res, errorStatus(err), { error: err?.message ?? String(err) })
+          sseSend(res, { step: 0, total: 0, name: 'fatal', status: 'error', stderr: err?.message ?? String(err) })
+          res.end()
         }
       })
 

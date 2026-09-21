@@ -1,15 +1,31 @@
 import type { Plugin } from 'vite'
 import { registerApiRoutes } from './api-routes'
+import { parseAuthConfig, resolveLegacyWorkspaceOwner } from './auth'
 
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
 export { getPg, sseSend, writeSSEHeaders } from './api-routes'
 
-export function apiPlugin(): Plugin {
+const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost'])
+
+export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin {
   return {
     name: 'tarantino-api',
     configureServer(server) {
-      registerApiRoutes(server, { projectRoot: server.config.root })
+      const authConfig = parseAuthConfig(environment)
+      const configuredHost = server.config.server?.host
+      const remotelyBound = configuredHost === true ||
+        (typeof configuredHost === 'string' && !LOOPBACK_HOSTS.has(configuredHost))
+      if (remotelyBound && (!authConfig.enabled || environment.DVBFIXER_ALLOW_INSECURE_REMOTE !== '1')) {
+        throw new Error(
+          'remote Vite API hosting requires DVBFIXER_AUTH_PRINCIPALS and DVBFIXER_ALLOW_INSECURE_REMOTE=1',
+        )
+      }
+      registerApiRoutes(server, {
+        projectRoot: server.config.root,
+        authConfig,
+        legacyWorkspaceOwner: resolveLegacyWorkspaceOwner(authConfig, environment),
+      })
     },
   }
 }

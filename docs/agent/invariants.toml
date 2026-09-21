@@ -238,7 +238,26 @@ enforcement = [
 ]
 failure_mode = "An API request can read, overwrite, or execute against files outside its workspace."
 test_files = ["gui/server/workspace-api.test.ts", "gui/server/managed-jobs.test.ts"]
-known_exceptions = ["The legacy global artifact import route is not a workspace-scoped workflow boundary."]
+known_exceptions = []
+
+[invariants.INV-API-WORKSPACE-AUTHORIZATION]
+status = "implemented"
+statement = "Every non-public API request has an authenticated principal, and every workspace operation checks that principal's manifest role before resolving workspace paths or starting work."
+owner = "gui/server/auth.ts::createAuthMiddleware"
+enforcement = [
+  "gui/server/api-routes.ts::registerApiRoutes",
+  "gui/server/workspace-api.ts::assertWorkspaceAccess",
+  "gui/server/managed-jobs.ts::registerManagedJobApi",
+  "gui/server/homology-api.ts::registerHomologyApi",
+  "gui/server/naming-api.ts::registerNamingApi",
+]
+failure_mode = "An unauthenticated or unauthorized caller can enumerate, read, mutate, or execute against another principal's workspace."
+test_files = [
+  "gui/server/auth.test.ts",
+  "gui/server/workspace-api.test.ts",
+  "gui/server/standalone.test.ts",
+]
+known_exceptions = ["Active jobs and event subscribers remain process-local and are not safe for multi-instance deployment."]
 
 [invariants.INV-API-BOUNDED-BODY]
 status = "implemented"

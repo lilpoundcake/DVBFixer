@@ -604,8 +604,11 @@ The full suite needs the scientific stack and external executables from
   the shared route composition; Vite and `standalone.ts` are adapters. Keep
   static and workspace roots disjoint, return JSON for unknown API paths, and
   preserve shutdown ordering: stop intake, terminate tracked child processes,
-  drain HTTP, then close PostgreSQL. Remote binding remains explicitly insecure
-  until authentication and workspace authorization exist.
+  drain HTTP, then close PostgreSQL. `auth.ts` owns static bearer authentication;
+  workspace manifests own case-sensitive principal ownership and ACLs. Keep
+  credentials out of URLs, logs, manifests, and localStorage. Remote binding
+  still lacks TLS, restrictive CORS, quotas, audit retention, and multi-instance
+  coordination.
 - **Diagnostic summaries require findings.** Clean runs emit no empty warning
   banner. Preserve fd-level capture and summaries for actual warnings/errors,
   including during exception cleanup.

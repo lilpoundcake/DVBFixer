@@ -325,12 +325,19 @@ The standalone server defaults to `127.0.0.1:5173`. Configuration:
 | `DVBFIXER_GUI_DATA_DIR` | `<gui>/structures` | Workspace storage |
 | `DVBFIXER_STATIC_DIR` | `<gui>/dist` | Built browser client |
 | `DVBFIXER_SHUTDOWN_GRACE_MS` | `10000` | HTTP drain deadline |
+| `DVBFIXER_AUTH_PRINCIPALS` | unset | Versioned JSON principal IDs and SHA-256 token digests |
+| `DVBFIXER_LEGACY_WORKSPACE_OWNER` | inferred for one principal | Owner assigned to existing workspaces |
 
-Non-loopback binding is rejected unless
-`DVBFIXER_ALLOW_INSECURE_REMOTE=1` is set explicitly. This acknowledgment does
-not add security: authentication, workspace authorization, CORS, quotas, and
-multi-instance locking are not implemented. Use the standalone server only on
-a trusted local host until those controls ship. Loopback mode also rejects
+Without auth configuration, loopback mode uses an implicit `local` principal
+and requires no browser token. Configured mode accepts 32-byte base64url bearer
+tokens whose SHA-256 digests appear in `DVBFIXER_AUTH_PRINCIPALS`; the GUI keeps
+the entered token in `sessionStorage` only. See [the API guide](../docs/api.md#authentication)
+for generation and configuration.
+
+Non-loopback binding requires both configured authentication and
+`DVBFIXER_ALLOW_INSECURE_REMOTE=1`. Authentication does not provide TLS,
+restrictive CORS, quotas, audit retention, or multi-instance locking. Use the
+standalone server only on a trusted network until those controls ship. Loopback mode also rejects
 non-loopback HTTP `Host` headers to prevent DNS rebinding from bypassing the
 local-only boundary. `npm run preview` remains a frontend-only Vite preview and
 does not host the APIs.

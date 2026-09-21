@@ -38,6 +38,7 @@ import {
   verticalListSortingStrategy,
   SortableContext,
 } from '@dnd-kit/sortable'
+import { apiFetch } from '../lib/api-client'
 import { CSS } from '@dnd-kit/utilities'
 
 interface Mutation {
@@ -172,7 +173,7 @@ export function MutationsPanel() {
   const refresh = useCallback(() => {
     setLoading(true)
     setError(null)
-    fetch('/api/mutations')
+    apiFetch('/api/mutations')
       .then(async (r) => {
         if (!r.ok) {
           const body = await r.json().catch(() => ({}))
@@ -190,7 +191,7 @@ export function MutationsPanel() {
   const handleAdd = useCallback(async () => {
     setError(null)
     try {
-      const res = await fetch('/api/mutations', {
+      const res = await apiFetch('/api/mutations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chain: '', mutation_name: '', mutations: '', igg_subclass: '', properties: '' }),
@@ -209,7 +210,7 @@ export function MutationsPanel() {
   const handleDelete = useCallback(async (id: number) => {
     setError(null)
     try {
-      const res = await fetch(`/api/mutations/${id}`, { method: 'DELETE' })
+      const res = await apiFetch(`/api/mutations/${id}`, { method: 'DELETE' })
       if (!res.ok && res.status !== 204) {
         const body = await res.json().catch(() => ({}))
         throw new Error(body.error || `HTTP ${res.status}`)
@@ -231,7 +232,7 @@ export function MutationsPanel() {
     if (newRow.properties !== oldRow.properties) patch.properties = newRow.properties as string
     if (Object.keys(patch).length === 0) return oldRow
     try {
-      const res = await fetch(`/api/mutations/${id}`, {
+      const res = await apiFetch(`/api/mutations/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patch),
@@ -272,7 +273,7 @@ export function MutationsPanel() {
     // success (or rolls back via setError on failure).
     setRows(next)
     try {
-      const res = await fetch('/api/mutations/reorder', {
+      const res = await apiFetch('/api/mutations/reorder', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: next.map(r => r.id) }),

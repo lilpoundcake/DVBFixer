@@ -25,8 +25,8 @@ partially complete, optional but not accepted, or not yet verified.
 
 ### Open Maintainer Decisions
 
-- [ ] Select an authentication model.
-- [ ] Define principal-to-workspace authorization semantics.
+- [x] Select an authentication model.
+- [x] Define principal-to-workspace authorization semantics.
 - [ ] Decide whether V1 needs direct upload/download conversion.
 - [ ] Decide whether HTTP should accept a JSON override artifact as well as inline overrides.
 - [ ] Decide whether `tleap-reduce` must honor the force-field naming option.
@@ -106,8 +106,8 @@ partially complete, optional but not accepted, or not yet verified.
 
 ### Request And Artifact Transaction
 
-- [ ] Authenticate the caller.
-- [ ] Authorize the principal before workspace path resolution.
+- [x] Authenticate the caller.
+- [x] Authorize the principal before workspace path resolution.
 - [x] Validate the request body and resolve `inputArtifactId` through the manifest.
 - [ ] Explicitly verify accepted source artifact types.
 - [ ] Enforce source artifact size limits before execution.
@@ -123,7 +123,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [ ] Add request IDs, structured logs, metrics, audit fields, and retention.
 - [ ] Generate a client from OpenAPI.
 - [ ] Verify stable validation and error envelopes across V1 routes.
-- [ ] Add authentication and authorization tests after implementation.
+- [x] Add authentication and authorization tests after implementation.
 - [ ] Explicitly test path containment, source/request size limits, and naming timeouts.
 - [x] Test artifact lookup, dry runs, one-artifact publication, concurrent manifests, and failures.
 - [ ] Validate OpenAPI examples against runtime schemas.
@@ -145,7 +145,7 @@ partially complete, optional but not accepted, or not yet verified.
 
 ### Public Deployment Hardening
 
-- [ ] Add authentication and principal-to-workspace authorization.
+- [x] Add authentication and principal-to-workspace authorization.
 - [ ] Add restrictive CORS.
 - [ ] Add upload, workspace, concurrency, and resource quotas.
 - [x] Document current local deployment and security boundaries.
@@ -180,7 +180,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [ ] Ensure no public route accepts unrestricted filesystem paths.
 - [x] Keep scientific naming policy implemented once in Python.
 - [ ] Record reproducible inputs, options, and versions for every output artifact.
-- [ ] Enforce workspace ownership before path resolution.
+- [x] Enforce workspace ownership before path resolution.
 - [ ] Return structured reports for every exposed operation.
 - [ ] Require durable workflow state before horizontal scaling.
 - [ ] Adopt one common V1 error envelope and explicit compatibility policy.
@@ -221,4 +221,4 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Separate implemented behavior from vocabulary, proposals, research, and gaps.
 - [x] Surface unresolved contradictions instead of choosing silently.
 - [ ] Add context pages only when structured records cannot explain the concern.
-- [ ] Run agent-doc validation and `git diff --check` after every map change.
+- [x] Run agent-doc validation and `git diff --check` after every map change.

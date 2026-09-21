@@ -23,6 +23,7 @@ import { useStructureStore } from '../stores/structureStore'
 import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 import { identifyAntibodyChain, mapEuToAuthSeqId, parseMutation, mutateArgFor, type AntibodyClassification } from '../lib/antibody-numbering'
+import { apiFetch } from '../lib/api-client'
 
 interface StructureEntry {
   id: string
@@ -177,7 +178,7 @@ export function AntibodyEngineerPanel() {
   const [checked, setChecked] = useState<Set<number>>(new Set())
 
   useEffect(() => {
-    fetch('/api/mutations')
+    apiFetch('/api/mutations')
       .then(r => r.ok ? r.json() : [])
       .then((data: MutationRow[]) => setAllRows(data))
       .catch(() => {})
@@ -362,7 +363,7 @@ export function AntibodyEngineerPanel() {
     setProgress({ step: 0, total: 0, name: 'starting' })
     abortRef.current = new AbortController()
     try {
-      const res = await fetch('/api/antibody-engineer/run', {
+      const res = await apiFetch('/api/antibody-engineer/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
         body: JSON.stringify({
@@ -771,7 +772,7 @@ async function loadOutputIntoPrimary(workspaceId: string, outputFile: string): P
   const plugin = useStructureStore.getState().plugin
   if (!plugin) return
   try {
-    const fileRes = await fetch(workspaceFileUrl(workspaceId, outputFile))
+    const fileRes = await apiFetch(workspaceFileUrl(workspaceId, outputFile))
     if (!fileRes.ok) return
     const text = await fileRes.text()
     const format = outputFile.endsWith('.cif') || outputFile.endsWith('.mmcif') ? 'mmcif' : 'pdb'

@@ -2,10 +2,10 @@
 
 DVBFixer exposes an initial versioned HTTP operation through a host-neutral Node
 route composition shared by the Vite development adapter and the bundled
-standalone server. The standalone host is a local-workspace boundary, not yet an
-internet-facing production service: authentication, principal-to-workspace
-authorization, CORS policy, quotas, and multi-instance locking remain planned
-work.
+standalone server. Static bearer authentication and manifest-backed workspace
+authorization are available, but the host is not yet an internet-facing
+production service: TLS, restrictive CORS, quotas, audit retention, and
+multi-instance locking remain planned work.
 
 The OpenAPI 3.1 document is available at:
 
@@ -15,6 +15,36 @@ GET /api/v1/openapi.json
 
 Runtime validation and OpenAPI are generated from the same TypeBox schemas in
 `gui/server/naming-api-schema.ts`.
+
+## Authentication
+
+`GET /api/health` and `GET /api/v1/openapi.json` are public. Every other API
+route requires:
+
+```http
+Authorization: Bearer <43-character base64url token>
+```
+
+Missing or invalid credentials return `401` with `WWW-Authenticate: Bearer`.
+The protected `GET /api/session` endpoint returns the authenticated principal.
+Tokens are stored only in browser `sessionStorage` and are never sent in URLs.
+
+Configure token digests, not raw tokens:
+
+```bash
+node -e "const c=require('node:crypto');const t=c.randomBytes(32).toString('base64url');console.log('token:',t);console.log('sha256:',c.createHash('sha256').update(t).digest('hex'))"
+export DVBFIXER_AUTH_PRINCIPALS='{"version":1,"principals":[{"id":"alice","tokenSha256":"<sha256>"}]}'
+```
+
+Keep the printed token for the client and place only its digest in server
+configuration. With multiple principals, set
+`DVBFIXER_LEGACY_WORKSPACE_OWNER` to the principal that should own existing
+workspaces.
+
+Workspace manifests contain one owner and optional `reader`/`writer` ACL
+entries. Unlisted principals receive `404`; readers receive `403` for writes.
+Owners update sharing through the revisioned
+`PATCH /api/workspaces/{workspaceId}/acl` endpoint.
 
 ## Naming Conversion
 
@@ -105,6 +135,7 @@ static content, and keeps workspace files behind contained API routes. Unknown
 stops accepting requests, cancels tracked DVBFixer subprocesses with signal
 escalation, drains HTTP work, and then closes PostgreSQL.
 
-Remote binding requires `DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit
-acknowledgment. It remains unsupported for untrusted networks until the planned
-security controls are implemented.
+Remote binding requires configured authentication and
+`DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit acknowledgment. It remains
+unsupported for untrusted networks until TLS, restrictive CORS, quotas, audit
+retention, and multi-instance controls are implemented.

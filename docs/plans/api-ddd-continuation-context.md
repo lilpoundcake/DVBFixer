@@ -93,7 +93,8 @@ Tests already worth extending:
 - `gui/server/api-routes.ts` still contains a duplicate synchronous generic
   `/api/dvbfixer/:command` path. The GUI primarily uses managed jobs.
 - The naming API has TypeBox runtime schemas and OpenAPI; legacy routes remain
-  unversioned, and the server has no authentication or workspace authorization.
+  unversioned. Static bearer authentication and manifest-backed workspace
+  authorization are implemented.
 - Active locks and SSE subscribers are process-local, so the job system is not
   ready for multi-instance deployment.
 - The build ships a loopback-default standalone host for the GUI and APIs.
@@ -144,7 +145,6 @@ These are recommendations, not accepted ADRs:
 
 Decisions still requiring maintainer agreement:
 
-- Authentication model and principal-to-workspace authorization.
 - Whether direct upload/download conversion is needed in V1 or only after the
   workspace-artifact vertical slice.
 - Whether the HTTP route should later accept a JSON override artifact in
@@ -152,14 +152,13 @@ Decisions still requiring maintainer agreement:
 
 ## Recommended next implementation session
 
-Phases 2, the core Phase 3 naming slice, and the local standalone host are
-implemented. Continue with the remaining security and distributed-systems
-concerns.
+Phases 2, the core Phase 3 naming slice, the local standalone host, and static
+bearer/workspace authorization are implemented. Continue with the remaining
+security and distributed-systems concerns.
 
-1. Add authentication and principal-to-workspace authorization.
-2. Add a restrictive CORS policy, upload/workspace quotas, and global limits.
-3. Add structured request logs, metrics, audit retention, and a generated client.
-4. Add a storage-level manifest lock or compare-and-swap before multi-instance
+1. Add a restrictive CORS policy, upload/workspace quotas, and global limits.
+2. Add structured request logs, metrics, audit retention, and a generated client.
+3. Add a storage-level manifest lock or compare-and-swap before multi-instance
    deployment.
 
 Do not add an HTTP handler around `apply_variants_to_pdb_text`. It remains an

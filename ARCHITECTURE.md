@@ -1262,5 +1262,8 @@ Scientific naming policy remains in Python.
 Node HTTP and Connect to serve the complete API plus the built `dist/` client.
 The standalone process defaults to loopback, rejects overlapping static/data
 roots, terminates tracked DVBFixer children during shutdown, drains HTTP, then
-closes PostgreSQL. It is single-process and does not yet provide authentication,
-authorization, CORS, quotas, or cross-process workspace locking.
+closes PostgreSQL. `auth.ts` authenticates configured static bearer principals
+at the shared route boundary. Version 2 workspace manifests carry an owner and
+reader/writer ACL; authorization occurs before workspace path resolution. The
+host is still single-process and does not yet provide TLS, restrictive CORS,
+quotas, audit retention, or cross-process workspace locking.

@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { theme } from './theme'
 import './index.css'
 import App from './App'
+import { AuthGate } from './components/AuthGate'
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state: { error: Error | null } = { error: null }
@@ -28,7 +29,9 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <App />
+        <AuthGate>
+          <App />
+        </AuthGate>
       </ThemeProvider>
     </ErrorBoundary>
   </StrictMode>,

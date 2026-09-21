@@ -4,10 +4,13 @@ import os from 'node:os'
 import path from 'node:path'
 import { Readable } from 'node:stream'
 import {
-  applyArtifactMetadataPatch, applyWorkspacePatch, artifactResponseHeaders, assertWorkspaceRevision,
-  ensureRetiredWorkspaceIndexMigration, ensureWorkspaceMetadataMigration, ensureWorkspaceMigration, listWorkspaces, loadWorkspace,
-  mergeClientWorkspaceUpdate, resolveWorkspaceFile, saveWorkspace,
-  registerWorkspaceApi, WorkspaceRevisionConflictError, writeJsonAtomic, type WorkspaceManifest,
+  applyArtifactMetadataPatch, applyWorkspaceAclPatch, applyWorkspacePatch, artifactResponseHeaders,
+  assertWorkspaceAccess, assertWorkspaceRevision, canReadWorkspace, canWriteWorkspace, createWorkspace,
+  ensureRetiredWorkspaceIndexMigration, ensureWorkspaceMetadataMigration, ensureWorkspaceMigration, isWorkspaceOwner,
+  listWorkspaces, loadWorkspace, mergeClientWorkspaceUpdate, migrateWorkspaceOwnership, reorderWorkspaces,
+  resolveWorkspaceFile, saveWorkspace,
+  registerWorkspaceApi, WorkspaceAuthorizationError, WorkspaceRevisionConflictError, workspaceRole,
+  workspaceOrderPath, writeJsonAtomic, type WorkspaceManifest,
 } from './workspace-api'
 
 const temporaryDirectories: string[] = []
@@ -17,10 +20,10 @@ function temp(): string {
   return directory
 }
 
-async function apiRequest(root: string, method: string, url: string, body: unknown) {
+async function apiRequest(root: string, method: string, url: string, body: unknown, principalId = 'local') {
   let middleware: ((req: any, res: any, next: () => void) => Promise<void>) | undefined
   const server = { middlewares: { use: (_route: string, handler: typeof middleware) => { middleware = handler } } }
-  registerWorkspaceApi(server as any, root)
+  registerWorkspaceApi(server as any, root, principalId)
   const request = Readable.from([JSON.stringify(body)]) as Readable & {
     method: string; url: string; headers: Record<string, string>
   }
@@ -60,6 +63,22 @@ describe('workspace storage', () => {
     expect(project.artifacts[0].file).toMatch(/^files\//)
     expect(fs.existsSync(resolveWorkspaceFile(root, project.id, project.artifacts[0].file))).toBe(true)
     expect(() => resolveWorkspaceFile(root, project.id, '../index.json')).toThrow(/workspace artifact/)
+  })
+
+  it('transfers legacy-index workspaces created in local mode when authentication is enabled', () => {
+    const root = temp()
+    fs.writeFileSync(path.join(root, 'input.pdb'), 'END\n')
+    fs.writeFileSync(path.join(root, 'index.json'), JSON.stringify([
+      { id: '__root__', kind: 'folder', name: '__root__', children: ['input.pdb'] },
+      { id: 'input', file: 'input.pdb', name: 'Input', kind: 'structure' },
+    ]))
+    ensureWorkspaceMigration(root, 'local', true)
+    const local = listWorkspaces(root)[0]
+    expect(local).toMatchObject({ ownerPrincipalId: 'local', provisionalOwner: true })
+
+    migrateWorkspaceOwnership(root, 'alice', true)
+    expect(loadWorkspace(root, local.id)).toMatchObject({ ownerPrincipalId: 'alice' })
+    expect(loadWorkspace(root, local.id).provisionalOwner).toBeUndefined()
   })
 
   it('persists versioned workflow state', () => {
@@ -140,6 +159,145 @@ describe('workspace storage', () => {
     const loaded = loadWorkspace(root, 'legacy')
     expect(loaded.revision).toBe(0)
     expect(saveWorkspace(root, loaded).revision).toBe(1)
+  })
+
+  it('atomically migrates ownerless v1 manifests to v2 without changing revision or timestamps', () => {
+    const root = temp()
+    const project = path.join(root, 'projects', 'legacy')
+    fs.mkdirSync(project, { recursive: true })
+    const createdAt = '2024-01-02T03:04:05.000Z'
+    const updatedAt = '2024-06-07T08:09:10.000Z'
+    fs.writeFileSync(path.join(project, 'workspace.json'), JSON.stringify({
+      version: 1, revision: 17, id: 'legacy', name: 'Legacy', createdAt, updatedAt,
+      primaryFile: null, secondaryFile: null, artifacts: [], toolState: {},
+    }))
+
+    const loaded = loadWorkspace(root, 'legacy', 'legacy-owner')
+    expect(loaded).toMatchObject({
+      version: 2, revision: 17, createdAt, updatedAt, ownerPrincipalId: 'legacy-owner', acl: [],
+    })
+    expect(JSON.parse(fs.readFileSync(path.join(project, 'workspace.json'), 'utf8'))).toMatchObject({
+      version: 2, revision: 17, createdAt, updatedAt, ownerPrincipalId: 'legacy-owner', acl: [],
+    })
+    expect(fs.readdirSync(project)).toEqual(['workspace.json'])
+  })
+
+  it('transfers only the provisional local owner when configured authentication is enabled', () => {
+    const root = temp()
+    const local = createWorkspace(root, 'Local', 'local', true)
+    const intentionalLocal = createWorkspace(root, 'Intentional local', 'local')
+    const explicit = createWorkspace(root, 'Explicit', 'bob')
+    migrateWorkspaceOwnership(root, 'alice', true)
+    expect(loadWorkspace(root, local.id).ownerPrincipalId).toBe('alice')
+    expect(loadWorkspace(root, local.id).provisionalOwner).toBeUndefined()
+    expect(loadWorkspace(root, intentionalLocal.id).ownerPrincipalId).toBe('local')
+    expect(loadWorkspace(root, explicit.id).ownerPrincipalId).toBe('bob')
+  })
+
+  it('rejects malformed v2 security metadata without repairing or broadening access', () => {
+    const root = temp()
+    const project = path.join(root, 'projects', 'invalid')
+    fs.mkdirSync(project, { recursive: true })
+    const now = new Date().toISOString()
+    const base = {
+      version: 2, revision: 1, id: 'invalid', name: 'Invalid', createdAt: now, updatedAt: now,
+      primaryFile: null, secondaryFile: null, artifacts: [], toolState: {}, ownerPrincipalId: 'owner', acl: [],
+    }
+    const write = (security: Record<string, unknown>) => {
+      fs.writeFileSync(path.join(project, 'workspace.json'), JSON.stringify({ ...base, ...security }))
+    }
+
+    write({ ownerPrincipalId: undefined })
+    expect(() => loadWorkspace(root, 'invalid')).toThrow(/ownerPrincipalId/)
+    write({ acl: [{ principalId: 'reader', role: 'admin' }] })
+    expect(() => loadWorkspace(root, 'invalid')).toThrow(/acl entry/)
+    write({ acl: [{ principalId: 'reader', role: 'reader' }, { principalId: 'reader', role: 'writer' }] })
+    expect(() => loadWorkspace(root, 'invalid')).toThrow(/duplicate/)
+    write({ acl: [{ principalId: 'owner', role: 'writer' }] })
+    expect(() => loadWorkspace(root, 'invalid')).toThrow(/owner must not appear/)
+    write({ provisionalOwner: true })
+    expect(() => loadWorkspace(root, 'invalid')).toThrow(/provisional workspace owner/)
+    expect(() => migrateWorkspaceOwnership(root, 'alice', true)).toThrow(/provisional workspace owner/)
+    fs.writeFileSync(path.join(project, 'workspace.json'), JSON.stringify({
+      ...base, version: 1, ownerPrincipalId: undefined, acl: undefined, provisionalOwner: true,
+    }))
+    expect(() => loadWorkspace(root, 'invalid')).toThrow(/security fields/)
+  })
+
+  it('uses case-sensitive principals and distinguishes hidden from insufficient access', () => {
+    const root = temp()
+    const workspace = saveWorkspace(root, {
+      version: 2, revision: 0, id: 'secured', name: 'Secured', createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(), primaryFile: null, secondaryFile: null, artifacts: [], toolState: {},
+      ownerPrincipalId: 'Owner', acl: [
+        { principalId: 'Reader', role: 'reader' },
+        { principalId: 'reader', role: 'writer' },
+      ],
+    })
+
+    expect(workspaceRole(workspace, 'Owner')).toBe('owner')
+    expect(workspaceRole(workspace, 'owner')).toBeNull()
+    expect(canReadWorkspace(workspace, 'Reader')).toBe(true)
+    expect(canWriteWorkspace(workspace, 'Reader')).toBe(false)
+    expect(canWriteWorkspace(workspace, 'reader')).toBe(true)
+    expect(isWorkspaceOwner(workspace, 'Owner')).toBe(true)
+    expect(() => assertWorkspaceAccess(workspace, 'Reader', 'writer')).toThrow(WorkspaceAuthorizationError)
+    try { assertWorkspaceAccess(workspace, 'Reader', 'writer') } catch (error) {
+      expect((error as WorkspaceAuthorizationError).statusCode).toBe(403)
+    }
+    try { assertWorkspaceAccess(workspace, 'missing') } catch (error) {
+      expect((error as WorkspaceAuthorizationError).statusCode).toBe(404)
+    }
+  })
+
+  it('filters listings and preserves inaccessible workspace positions during visible reordering', () => {
+    const root = temp()
+    fs.mkdirSync(path.join(root, 'projects'), { recursive: true })
+    fs.writeFileSync(path.join(root, 'projects', '.migrated-v1'), 'done\n')
+    fs.writeFileSync(path.join(root, 'projects', '.metadata-migrated-v1'), 'done\n')
+    fs.writeFileSync(path.join(root, 'projects', '.artifact-index-migrated-v1'), 'done\n')
+    const alice = createWorkspace(root, 'Alice', 'alice')
+    const shared = saveWorkspace(root, {
+      ...createWorkspace(root, 'Shared', 'bob'), acl: [{ principalId: 'alice', role: 'reader' }],
+    })
+    const hidden = createWorkspace(root, 'Hidden', 'carol')
+    fs.writeFileSync(workspaceOrderPath(root, 'alice'), JSON.stringify([hidden.id, alice.id, shared.id]))
+
+    expect(listWorkspaces(root, 'alice').map(workspace => workspace.id)).toEqual([alice.id, shared.id])
+    expect(listWorkspaces(root, 'carol').map(workspace => workspace.id)).toEqual([hidden.id])
+    expect(reorderWorkspaces(root, [shared.id, alice.id], 'alice')).toEqual([shared.id, alice.id])
+    expect(JSON.parse(fs.readFileSync(workspaceOrderPath(root, 'alice'), 'utf8'))).toEqual([
+      hidden.id, shared.id, alice.id,
+    ])
+    expect(listWorkspaces(root, 'alice').map(workspace => workspace.id)).toEqual([shared.id, alice.id])
+  })
+
+  it('applies revisioned ACL replacement only for the owner and enforces it through the route', async () => {
+    const root = temp()
+    const workspace = saveWorkspace(root, {
+      ...createWorkspace(root, 'Secured', 'owner'), acl: [{ principalId: 'reader', role: 'reader' }],
+    })
+    expect(() => applyWorkspaceAclPatch(workspace, 'reader', {
+      revision: workspace.revision, acl: [],
+    })).toThrow(WorkspaceAuthorizationError)
+
+    const forbidden = await apiRequest(root, 'PATCH', `/${workspace.id}/acl`, {
+      revision: workspace.revision, acl: [],
+    }, 'reader')
+    expect(forbidden.status).toBe(403)
+    const hidden = await apiRequest(root, 'GET', `/${workspace.id}`, {}, 'outsider')
+    expect(hidden.status).toBe(404)
+
+    const updated = await apiRequest(root, 'PATCH', `/${workspace.id}/acl`, {
+      revision: workspace.revision,
+      acl: [{ principalId: 'writer', role: 'writer' }],
+    }, 'owner')
+    expect(updated.status).toBe(200)
+    expect(updated.body.revision).toBe(workspace.revision + 1)
+    expect(updated.body.acl).toEqual([{ principalId: 'writer', role: 'writer' }])
+    expect((await apiRequest(root, 'PATCH', `/${workspace.id}/acl`, {
+      revision: workspace.revision, acl: [],
+    }, 'owner')).status).toBe(409)
   })
 
   it('writes JSON atomically without leaving temporary files', () => {

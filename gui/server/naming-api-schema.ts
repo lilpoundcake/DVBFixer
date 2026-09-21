@@ -148,6 +148,7 @@ export const NAMING_OPENAPI_DOCUMENT = {
       post: {
         operationId: 'createNamingConversion',
         summary: 'Convert force-field residue and atom names',
+        security: [{ bearerAuth: [] }],
         parameters: [{
           name: 'workspaceId', in: 'path', required: true,
           schema: { type: 'string', pattern: '^[a-zA-Z0-9_-]+$' },
@@ -163,6 +164,8 @@ export const NAMING_OPENAPI_DOCUMENT = {
           '200': { description: 'Dry-run result', content: { 'application/json': { schema: { $ref: '#/components/schemas/NamingConversionResponse' } } } },
           '201': { description: 'Created naming artifact', content: { 'application/json': { schema: { $ref: '#/components/schemas/NamingConversionResponse' } } } },
           '400': { description: 'Invalid request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '401': { description: 'Missing or invalid bearer credential', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '403': { description: 'Workspace write access required', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
           '404': { description: 'Workspace or artifact not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
           '409': { description: 'Workspace operation conflict', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
           '413': { description: 'Request or source too large', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
@@ -175,6 +178,9 @@ export const NAMING_OPENAPI_DOCUMENT = {
     },
   },
   components: {
+    securitySchemes: {
+      bearerAuth: { type: 'http', scheme: 'bearer' },
+    },
     schemas: {
       NamingConversionRequest: openApiSchema(NamingConversionRequestSchema),
       NamingConversionResponse: openApiSchema(NamingConversionResponseSchema),

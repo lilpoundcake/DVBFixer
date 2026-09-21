@@ -6,7 +6,9 @@ import {
   cancelManagedJob, createManagedJob, getManagedJob, listManagedJobs,
   type ManagedJobRecord,
 } from './managed-jobs'
-import { ensureWorkspaceMigration, listWorkspaces, workspaceRoot } from './workspace-api'
+import {
+  createWorkspace, ensureWorkspaceMigration, listWorkspaces, loadWorkspace, saveWorkspace, workspaceRoot,
+} from './workspace-api'
 
 const directories: string[] = []
 const originalEnvironment = {
@@ -95,5 +97,28 @@ describe('managed DVBfixer jobs', () => {
     expect(finished.finishedAt).toBeTruthy()
     expect(fs.readFileSync(path.join(workspaceRoot(dataRoot, workspace.id), finished.stderrLog), 'utf8'))
       .toContain('cancelled')
+  })
+
+  it('does not publish outputs after the initiating writer loses access', async () => {
+    const dataRoot = root()
+    const workspace = saveWorkspace(dataRoot, {
+      ...createWorkspace(dataRoot, 'Secured', 'owner'),
+      acl: [{ principalId: 'writer', role: 'writer' }],
+      artifacts: [{ id: 'input', file: 'files/input.pdb', name: 'input.pdb', kind: 'structure' }],
+    })
+    const input = path.join(workspaceRoot(dataRoot, workspace.id), 'files', 'input.pdb')
+    fs.mkdirSync(path.dirname(input), { recursive: true })
+    fs.writeFileSync(input, 'END\n')
+    useNode("const fs=require('node:fs');const i=process.argv.indexOf('-o');setTimeout(()=>fs.writeFileSync(process.argv[i+1],'END\\n'),100)")
+    const created = createManagedJob(dataRoot, {
+      workspaceId: workspace.id, command: 'renumber', inputs: { input: 'files/input.pdb' },
+    }, 'writer')
+    const latest = loadWorkspace(dataRoot, workspace.id)
+    saveWorkspace(dataRoot, { ...latest, acl: [] })
+
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+    expect(finished.status).toBe('failed')
+    expect(finished.error).toContain('workspace not found')
+    expect(loadWorkspace(dataRoot, workspace.id).artifacts).toHaveLength(1)
   })
 })

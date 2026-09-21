@@ -29,6 +29,7 @@ import { useWorkspaceStore, workspaceFileUrl, type WorkspaceArtifact, type Works
 import { useSelectionStore } from '../stores/selectionStore'
 import { reorderVisibleArtifacts } from '../lib/workspace-order'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
+import { apiFetch, downloadApiBlob, openApiBlob } from '../lib/api-client'
 
 export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'workspace' }) {
   const uploadRef = useRef<HTMLInputElement>(null)
@@ -70,7 +71,7 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
       if (/\.(fasta|fa|faa|pir|aln|json|txt|html|csv|log|dat|top|itp|mdp|md|ya?ml|toml|xml|pml|py|sh|mol2|sdf)$/i.test(artifact.file)) {
         setTextPreview({ workspaceId: workspace.id, file: artifact.file, name: artifact.name })
         window.dispatchEvent(new Event('dvbfixer:open-text-viewer'))
-      } else window.open(workspaceFileUrl(workspace.id, artifact.file), '_blank', 'noopener,noreferrer')
+      } else await openApiBlob(workspaceFileUrl(workspace.id, artifact.file))
       return
     }
     const target = slot === 'primary' ? plugin : secondaryPlugin
@@ -78,7 +79,7 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
     setLoading(true); setError(null)
     if (slot === 'primary') clearSelection()
     try {
-      const response = await fetch(workspaceFileUrl(workspace.id, artifact.file))
+      const response = await apiFetch(workspaceFileUrl(workspace.id, artifact.file))
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       await target.clear()
       const data = await target.builders.data.rawData({ data: await response.text(), label: artifact.file })
@@ -118,7 +119,7 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
     try {
       await saveWorkspace()
       for (const file of Array.from(files)) {
-        const response = await fetch(`/api/workspaces/${encodeURIComponent(active.id)}/import`, {
+        const response = await apiFetch(`/api/workspaces/${encodeURIComponent(active.id)}/import`, {
           method: 'POST', headers: { 'X-File-Name': encodeURIComponent(file.name) }, body: file,
         })
         const body = await response.json().catch(() => ({}))
@@ -140,7 +141,7 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
         const targetIds = selectedArtifacts.has(target.id) ? [...selectedArtifacts] : [target.id]
         const artifacts = active.artifacts.filter(item => targetIds.includes(item.id))
         for (const artifact of artifacts) {
-          const response = await fetch(`/api/workspaces/${encodeURIComponent(active.id)}/artifacts/${encodeURIComponent(artifact.id)}`, { method: 'DELETE' })
+          const response = await apiFetch(`/api/workspaces/${encodeURIComponent(active.id)}/artifacts/${encodeURIComponent(artifact.id)}`, { method: 'DELETE' })
           if (!response.ok) {
             const body = await response.json().catch(() => ({}))
             throw new Error(body.error || `Delete failed for ${artifact.name}: HTTP ${response.status}`)
@@ -162,7 +163,7 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
       } else {
         const wasActive = active?.id === target.id
         if (wasActive) await saveWorkspace()
-        const response = await fetch(`/api/workspaces/${encodeURIComponent(target.id)}`, { method: 'DELETE' })
+        const response = await apiFetch(`/api/workspaces/${encodeURIComponent(target.id)}`, { method: 'DELETE' })
         if (!response.ok) {
           const body = await response.json().catch(() => ({}))
           throw new Error(body.error || `Delete failed: HTTP ${response.status}`)
@@ -190,7 +191,7 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
         await updateArtifactMetadata(target.id, { name })
       } else {
         await saveWorkspace()
-        const response = await fetch(`/api/workspaces/${encodeURIComponent(target.id)}/rename`, {
+        const response = await apiFetch(`/api/workspaces/${encodeURIComponent(target.id)}/rename`, {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
         })
         const body = await response.json().catch(() => ({}))
@@ -201,21 +202,22 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
     } catch (reason: any) { setError(reason.message || String(reason)) }
   }
 
-  const downloadContextItem = (target: NonNullable<typeof contextMenu>) => {
-    const anchor = document.createElement('a')
+  const downloadContextItem = async (target: NonNullable<typeof contextMenu>) => {
+    let url: string
+    let filename: string
     if (target.kind === 'workspace') {
-      anchor.href = `/api/workspaces/${encodeURIComponent(target.id)}/download`
+      url = `/api/workspaces/${encodeURIComponent(target.id)}/download`
+      filename = `${target.name.replace(/[^a-zA-Z0-9._-]+/g, '_') || 'workspace'}.tar.gz`
     } else {
       if (!active) return
       const artifact = active.artifacts.find(item => item.id === target.id)
       if (!artifact) return
-      anchor.href = workspaceFileUrl(active.id, artifact.file)
-      anchor.download = artifact.file.split('/').pop() || artifact.name
+      url = workspaceFileUrl(active.id, artifact.file)
+      filename = artifact.file.split('/').pop() || artifact.name
     }
-    document.body.appendChild(anchor)
-    anchor.click()
-    anchor.remove()
     setContextMenu(null)
+    try { await downloadApiBlob(url, filename) }
+    catch (reason: any) { setError(reason.message || String(reason)) }
   }
 
   const moveWorkspace = async (draggedId: string, targetId: string, position: 'before' | 'after') => {

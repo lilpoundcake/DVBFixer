@@ -7,6 +7,7 @@ import connect, { type NextFunction } from 'connect'
 import serveStatic from 'serve-static'
 import { closeApiResources, registerApiRoutes, resetApiShutdown, shutdownApiWork } from './api-routes'
 import type { ApiRouteHost } from './http-types'
+import { parseAuthConfig, resolveLegacyWorkspaceOwner, type AuthConfig } from './auth'
 
 export interface StandaloneConfig {
   host: string
@@ -15,6 +16,8 @@ export interface StandaloneConfig {
   dataRoot: string
   staticRoot: string
   shutdownGraceMs: number
+  authConfig: AuthConfig
+  legacyWorkspaceOwner: string
 }
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost'])
@@ -52,8 +55,12 @@ export function loadStandaloneConfig(
   const projectRoot = resolveSetting(defaultProjectRoot, environment.DVBFIXER_GUI_ROOT, '.')
   const host = (environment.DVBFIXER_HOST || '127.0.0.1').trim()
   if (!host) throw new Error('DVBFIXER_HOST must not be empty')
+  const authConfig = parseAuthConfig(environment)
   if (!LOOPBACK_HOSTS.has(host) && environment.DVBFIXER_ALLOW_INSECURE_REMOTE !== '1') {
     throw new Error('non-loopback DVBFIXER_HOST requires DVBFIXER_ALLOW_INSECURE_REMOTE=1')
+  }
+  if (!LOOPBACK_HOSTS.has(host) && !authConfig.enabled) {
+    throw new Error('non-loopback DVBFIXER_HOST requires DVBFIXER_AUTH_PRINCIPALS')
   }
   const port = integerSetting('DVBFIXER_PORT', environment.DVBFIXER_PORT, 5173, 0)
   if (port > 65535) throw new Error('DVBFIXER_PORT must be at most 65535')
@@ -66,6 +73,8 @@ export function loadStandaloneConfig(
     shutdownGraceMs: integerSetting(
       'DVBFIXER_SHUTDOWN_GRACE_MS', environment.DVBFIXER_SHUTDOWN_GRACE_MS, 10_000, 1,
     ),
+    authConfig,
+    legacyWorkspaceOwner: resolveLegacyWorkspaceOwner(authConfig, environment),
   }
 }
 
@@ -136,7 +145,12 @@ export function createStandaloneApplication(config: StandaloneConfig): connect.S
       },
     },
   }
-  registerApiRoutes(host, { projectRoot: config.projectRoot, dataRoot: config.dataRoot })
+  registerApiRoutes(host, {
+    projectRoot: config.projectRoot,
+    dataRoot: config.dataRoot,
+    authConfig: config.authConfig,
+    legacyWorkspaceOwner: config.legacyWorkspaceOwner,
+  })
   application.use('/api', (_request, response) => jsonNotFound(response))
   application.use(serveStatic(config.staticRoot, {
     index: false,

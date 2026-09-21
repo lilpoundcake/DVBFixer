@@ -4,7 +4,9 @@ import { isDeepStrictEqual } from 'node:util'
 import fs from 'node:fs'
 import path from 'node:path'
 import { runDvbfixerArgs } from './dvbfixer-runner'
-import { loadWorkspace, saveWorkspace, workspaceRoot, writeJsonAtomic } from './workspace-api'
+import {
+  assertWorkspaceAccess, loadWorkspace, saveWorkspace, workspaceRoot, writeJsonAtomic,
+} from './workspace-api'
 import { errorStatus, readRequestBody } from './request-body'
 import type { ApiRouteHost } from './http-types'
 
@@ -310,7 +312,11 @@ function listFiles(directory: string): string[] {
   return output
 }
 
-async function alignProject(root: string, project: HomologyProject): Promise<HomologyProject> {
+async function alignProject(
+  root: string,
+  project: HomologyProject,
+  authorizePublication: () => void = () => {},
+): Promise<HomologyProject> {
   const records = parseFasta(project.targetFasta)
   const directory = path.dirname(projectPath(root, project.id))
   const groups: AlignmentGroup[] = []
@@ -341,6 +347,7 @@ async function alignProject(root: string, project: HomologyProject): Promise<Hom
     })
     groups.push({ chainId: record.id, rows, masks: {}, maskModes: Object.fromEntries(rows.filter(row => row.kind === 'template').map(row => [row.id, 'all'])) })
   }
+  authorizePublication()
   return saveHomologyProject(root, { ...project, alignmentGroups: groups })
 }
 
@@ -472,12 +479,18 @@ export function materializeModelInputs(root: string, project: HomologyProject, r
   return { fasta, pir, fragments }
 }
 
-function registerRun(root: string, project: HomologyProject, files: string[]): string {
+function registerRun(
+  root: string,
+  project: HomologyProject,
+  files: string[],
+  authorizePublication: () => void,
+): string {
   const relativeFiles = files.map(file => path.relative(root, file).replace(/\\/g, '/'))
   const primary = relativeFiles.find(file => file.endsWith('.pdb')) || relativeFiles[0]
   if (!primary) return ''
   const dataRoot = path.dirname(path.dirname(root))
   const workspaceId = path.basename(root)
+  authorizePublication()
   const manifest = loadWorkspace(dataRoot, workspaceId)
   for (const relative of relativeFiles) manifest.artifacts.push({
     id: crypto.randomUUID(), file: relative,
@@ -492,7 +505,11 @@ function registerRun(root: string, project: HomologyProject, files: string[]): s
   return primary
 }
 
-async function modelProject(root: string, project: HomologyProject): Promise<unknown> {
+async function modelProject(
+  root: string,
+  project: HomologyProject,
+  authorizePublication: () => void = () => {},
+): Promise<unknown> {
   const runDir = path.join(root, 'runs', `dvb_homology_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}`)
   fs.mkdirSync(runDir, { recursive: true })
   const fasta = path.join(runDir, 'target.fasta')
@@ -513,13 +530,17 @@ async function modelProject(root: string, project: HomologyProject): Promise<unk
   fs.writeFileSync(path.join(runDir, 'stdout.log'), result.stdout)
   fs.writeFileSync(path.join(runDir, 'stderr.log'), result.stderr)
   const files = listFiles(runDir)
-  const outputFile = result.code === 0 ? registerRun(root, project, files) : ''
+  const outputFile = result.code === 0 ? registerRun(root, project, files, authorizePublication) : ''
   return { ok: result.code === 0, exitCode: result.code, stdout: result.stdout, stderr: result.stderr,
     outputFile, outputDir: path.relative(root, runDir).replace(/\\/g, '/'),
     artifacts: files.map(file => path.relative(root, file).replace(/\\/g, '/')) }
 }
 
-async function structurallyAlignGroups(root: string, project: HomologyProject): Promise<HomologyProject> {
+async function structurallyAlignGroups(
+  root: string,
+  project: HomologyProject,
+  authorizePublication: () => void = () => {},
+): Promise<HomologyProject> {
   const directory = path.dirname(projectPath(root, project.id))
   const templates: TemplateSelection[] = project.templates.map(template => ({ ...template, fittedFile: undefined }))
   const outputs: Record<string, string> = {}
@@ -552,18 +573,31 @@ async function structurallyAlignGroups(root: string, project: HomologyProject): 
       template.fittedFile = path.relative(root, candidate).replace(/\\/g, '/')
     })
   }
+  authorizePublication()
   return saveHomologyProject(root, { ...project, templates, structuralAlignment: outputs })
 }
 
-export function registerHomologyApi(server: ApiRouteHost, root: string): void {
+export function registerHomologyApi(
+  server: ApiRouteHost,
+  root: string,
+  principalSource: (request: IncomingMessage) => string = () => 'local',
+  legacyOwnerPrincipalId = 'local',
+): void {
   server.middlewares.use('/api/homology', async (req, res, next) => {
     try {
+      const principalId = principalSource(req)
+      const authorize = (workspaceId: string, access: 'reader' | 'writer' = 'reader') => {
+        const workspace = loadWorkspace(root, workspaceId, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId, access)
+        return workspaceRoot(root, workspaceId)
+      }
+      const publicationGuard = (workspaceId: string) => () => { authorize(workspaceId, 'writer') }
       const requestUrl = new URL(req.url || '/', 'http://localhost')
       const parts = requestUrl.pathname.split('/').filter(Boolean)
       const queryWorkspace = requestUrl.searchParams.get('workspaceId') || ''
       if (req.method === 'GET' && parts[0] === 'projects' && !parts[1]) {
         if (!queryWorkspace) return sendJson(res, 400, { error: 'workspaceId is required' })
-        const storageRoot = workspaceRoot(root, queryWorkspace)
+        const storageRoot = authorize(queryWorkspace)
         const projects = fs.readdirSync(projectRoot(storageRoot), { withFileTypes: true })
           .filter(entry => entry.isDirectory())
           .flatMap(entry => {
@@ -585,7 +619,7 @@ export function registerHomologyApi(server: ApiRouteHost, root: string): void {
       if (req.method === 'POST' && (parts[0] === 'parse-sequence' || parts[0] === 'chains')) {
         const body = JSON.parse(await readBody(req) || '{}') as { workspaceId?: string; file?: string }
         if (!body.workspaceId || !body.file) return sendJson(res, 400, { error: 'workspaceId and file are required' })
-        const file = resolveArtifact(workspaceRoot(root, body.workspaceId), body.file)
+        const file = resolveArtifact(authorize(body.workspaceId), body.file)
         const records = parseSequenceArtifact(file)
         return sendJson(res, 200, parts[0] === 'chains'
           ? records.map(record => ({ id: record.id, length: record.length, sequence: record.sequence }))
@@ -594,7 +628,7 @@ export function registerHomologyApi(server: ApiRouteHost, root: string): void {
       if (req.method === 'POST' && parts[0] === 'projects' && !parts[1]) {
         const request = JSON.parse(await readBody(req) || '{}') as { workspaceId?: string }
         if (!request.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
-        const storageRoot = workspaceRoot(root, request.workspaceId)
+        const storageRoot = authorize(request.workspaceId, 'writer')
         const now = new Date().toISOString()
         const project: HomologyProject = {
           version: 1, id: crypto.randomUUID(), name: 'Untitled homology project', targetFasta: '',
@@ -606,13 +640,13 @@ export function registerHomologyApi(server: ApiRouteHost, root: string): void {
       }
       if (parts[0] === 'projects' && parts[1] && req.method === 'GET') {
         if (!queryWorkspace) return sendJson(res, 400, { error: 'workspaceId is required' })
-        return sendJson(res, 200, loadHomologyProject(workspaceRoot(root, queryWorkspace), parts[1]))
+        return sendJson(res, 200, loadHomologyProject(authorize(queryWorkspace), parts[1]))
       }
       if (parts[0] === 'projects' && parts[1] && req.method === 'PUT') {
         const incoming = JSON.parse(await readBody(req)) as HomologyProject
         const workspaceId = (incoming as any).workspaceId as string
         if (!workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
-        const storageRoot = workspaceRoot(root, workspaceId)
+        const storageRoot = authorize(workspaceId, 'writer')
         const current = loadHomologyProject(storageRoot, parts[1])
         const { workspaceId: _workspaceId, ...clean } = incoming as any
         void _workspaceId
@@ -622,22 +656,28 @@ export function registerHomologyApi(server: ApiRouteHost, root: string): void {
         const incoming = JSON.parse(await readBody(req)) as HomologyProject & { workspaceId?: string }
         if (!incoming.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
         const { workspaceId, ...project } = incoming
-        return sendJson(res, 200, await alignProject(workspaceRoot(root, workspaceId), project))
+        return sendJson(res, 200, await alignProject(
+          authorize(workspaceId, 'writer'), project, publicationGuard(workspaceId),
+        ))
       }
       if (req.method === 'POST' && parts[0] === 'salign') {
         const incoming = JSON.parse(await readBody(req)) as HomologyProject & { workspaceId?: string }
         if (!incoming.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
         const { workspaceId, ...project } = incoming
-        const storageRoot = workspaceRoot(root, workspaceId)
+        const storageRoot = authorize(workspaceId, 'writer')
         if (project.templates.length < 2) return sendJson(res, 400, { error: 'select at least two templates' })
-        return sendJson(res, 200, await structurallyAlignGroups(storageRoot, project))
+        return sendJson(res, 200, await structurallyAlignGroups(
+          storageRoot, project, publicationGuard(workspaceId),
+        ))
       }
       if (req.method === 'POST' && parts[0] === 'model') {
         const incoming = JSON.parse(await readBody(req)) as HomologyProject & { workspaceId?: string }
         if (!incoming.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
         const { workspaceId, ...project } = incoming
-        const storageRoot = workspaceRoot(root, workspaceId)
-        const result = await modelProject(storageRoot, project) as { ok: boolean }
+        const storageRoot = authorize(workspaceId, 'writer')
+        const result = await modelProject(
+          storageRoot, project, publicationGuard(workspaceId),
+        ) as { ok: boolean }
         return sendJson(res, result.ok ? 200 : 500, result)
       }
       return next()

@@ -36,12 +36,13 @@ describe('host-neutral API composition', () => {
     registerApiRoutes(host, { projectRoot, dataRoot: path.join(projectRoot, 'data') })
 
     expect(mounts).toEqual([
+      '/api',
       '/api/health',
+      '/api/session',
       '/api/workspaces',
       '/api/homology',
       '/api/jobs',
       '/api/v1',
-      '/api/artifacts/import',
       '/api/dvbfixer',
       '/api/mutations',
       '/api/dvbfixer-spec',
@@ -62,5 +63,15 @@ describe('host-neutral API composition', () => {
 
     expect(mounts).toContain('/api/v1')
     expect(mounts).toContain('/api/workspaces')
+  })
+
+  it('rejects remotely bound Vite API hosting without authentication', () => {
+    const projectRoot = temp()
+    const { host } = registrar()
+    const plugin = apiPlugin({})
+    expect(() => plugin.configureServer?.({
+      config: { root: projectRoot, server: { host: '0.0.0.0' } },
+      middlewares: host.middlewares,
+    } as never)).toThrow(/AUTH_PRINCIPALS/)
   })
 })

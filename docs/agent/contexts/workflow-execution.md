@@ -22,9 +22,11 @@ Current behavior covers synchronous CLI dispatch, directory batch execution,
 the in-process ZBS pipeline, CIF normalization at the CLI boundary, revisioned
 GUI workspaces, and managed jobs hosted through shared Node route composition.
 
-The current HTTP routes are local application infrastructure, not a supported
-production API. Authentication, authorization, API versioning, OpenAPI,
-multi-instance scheduling, and durable event delivery are proposed only.
+The current HTTP routes are authenticated local application infrastructure, not
+a supported internet-facing production API. Static bearer principals,
+manifest-backed workspace authorization, the first versioned route, and OpenAPI
+are implemented. Restrictive CORS, quotas, wider API versioning, multi-instance
+scheduling, and durable event delivery remain proposed.
 
 ## Capabilities
 
@@ -183,20 +185,20 @@ job record, restoration, SSE lifecycle, or cancellation endpoint.
 - Cancellation and timeout have process-kill escalation but no durable
   `cancellation-requested` state.
 - The static GUI build does not ship these Vite backend routes.
-- The standalone build ships all routes but is not an authenticated public
-  service. Non-loopback binding requires an explicit insecure acknowledgment.
+- The standalone build ships all routes with static bearer authentication and
+  workspace ACLs, but remains unsuitable for untrusted networks without TLS,
+  restrictive CORS, quotas, audit retention, and distributed coordination.
 
 ## Proposed Work
 
 The remaining proposals in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md)
-are not current behavior. Add authentication, workspace authorization, CORS,
-quotas, and storage-level concurrency control; retain Vite only as a
-development host.
+are not current behavior. Add restrictive CORS, quotas, audit retention, and
+storage-level concurrency control; retain Vite only as a development host.
 
-Publish runtime-validated `/api/v1` contracts and generated OpenAPI. Authenticate
-callers, authorize workspace ownership before resolution, accept artifact IDs
-rather than server paths, add quotas/concurrency controls, request IDs,
-structured logs, metrics, and audit provenance.
+Extend runtime-validated `/api/v1` contracts and generated OpenAPI beyond the
+naming slice. Preserve authentication and authorization before path resolution,
+accept artifact IDs rather than server paths, and add quotas/concurrency
+controls, request IDs, structured logs, metrics, and audit provenance.
 
 For long-running workflows, persist scheduling and event delivery before
 horizontal scaling. Cancellation must have a durable requested/terminal model,

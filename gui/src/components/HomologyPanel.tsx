@@ -28,6 +28,7 @@ import { useSelectionStore } from '../stores/selectionStore'
 import { alignmentColumnsForResidues, alignmentColumnsToSpans, comparisonToReference, consensusFor, updateColumnSelection } from '../lib/homology-alignment'
 import { bestMatchingChainId, chainIdentityLabel, targetSequences } from '../lib/homology-templates'
 import { residueClass, RESIDUE_CLASS_COLORS } from '../lib/residue-codes'
+import { apiFetch } from '../lib/api-client'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 
 interface TemplateSelection {
@@ -164,7 +165,7 @@ export function HomologyPanel() {
   const refreshProjects = useCallback(async () => {
     if (!activeWorkspaceId) { setProjects([]); return }
     const workspaceId = activeWorkspaceId
-    const response = await fetch(`/api/homology/projects?workspaceId=${encodeURIComponent(activeWorkspaceId)}`, { cache: 'no-store' })
+    const response = await apiFetch(`/api/homology/projects?workspaceId=${encodeURIComponent(activeWorkspaceId)}`, { cache: 'no-store' })
     if (!response.ok) throw new Error(`Projects: HTTP ${response.status}`)
     const list = await response.json() as ProjectSummary[]
     if (useWorkspaceStore.getState().active?.id !== workspaceId) return
@@ -178,7 +179,7 @@ export function HomologyPanel() {
     setBusy('Loading project')
     try {
       if (!workspaceId) return
-      const response = await fetch(`/api/homology/projects/${encodeURIComponent(id)}?workspaceId=${encodeURIComponent(workspaceId)}`, { cache: 'no-store' })
+      const response = await apiFetch(`/api/homology/projects/${encodeURIComponent(id)}?workspaceId=${encodeURIComponent(workspaceId)}`, { cache: 'no-store' })
       const body = await response.json() as HomologyProject & { error?: string }
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       if (request !== projectRequestRef.current || useWorkspaceStore.getState().active?.id !== workspaceId) return
@@ -199,7 +200,7 @@ export function HomologyPanel() {
     setError('')
     try {
       if (!workspaceId) return
-      const response = await fetch('/api/homology/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workspaceId }) })
+      const response = await apiFetch('/api/homology/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workspaceId }) })
       const body = await response.json() as HomologyProject & { error?: string }
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       if (request !== projectRequestRef.current || useWorkspaceStore.getState().active?.id !== workspaceId) return
@@ -248,7 +249,7 @@ export function HomologyPanel() {
   }, [project?.id, tab, activeTargetChain, selectionSyncEnabled])
 
   useEffect(() => {
-    fetch('/api/homology/engines', { cache: 'no-store' })
+    apiFetch('/api/homology/engines', { cache: 'no-store' })
       .then(response => response.ok ? response.json() : {})
       .then((status: Record<string, EngineStatus>) => setEngines(status))
       .catch(() => setEngines({}))
@@ -258,7 +259,7 @@ export function HomologyPanel() {
     if (!project || saved) return
     const timer = window.setTimeout(async () => {
       try {
-        const response = await fetch(`/api/homology/projects/${encodeURIComponent(project.id)}`, {
+        const response = await apiFetch(`/api/homology/projects/${encodeURIComponent(project.id)}`, {
           method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...project, workspaceId: activeWorkspaceId }),
         })
         if (!response.ok) throw new Error(`Autosave: HTTP ${response.status}`)
@@ -295,7 +296,7 @@ export function HomologyPanel() {
     const workspaceId = activeWorkspaceId
     if (!workspaceId || !file) return []
     if (chainsByFile[file]) return chainsByFile[file]
-    const response = await fetch('/api/homology/chains', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workspaceId, file }) })
+    const response = await apiFetch('/api/homology/chains', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workspaceId, file }) })
     const body = await response.json() as ParsedChain[] & { error?: string }
     if (!response.ok) throw new Error((body as any).error || `HTTP ${response.status}`)
     if (useWorkspaceStore.getState().active?.id !== workspaceId) return []
@@ -343,7 +344,7 @@ export function HomologyPanel() {
     setBusy('Parsing sequence')
     setError('')
     try {
-      const response = await fetch('/api/homology/parse-sequence', {
+      const response = await apiFetch('/api/homology/parse-sequence', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ workspaceId: activeWorkspace.id, file: targetSource }),
       })
@@ -381,7 +382,7 @@ export function HomologyPanel() {
 
   const loadTemplateInPrimary = async (template: TemplateSelection) => {
     if (!activeWorkspace || !plugin || primaryFile === template.file) return
-    const response = await fetch(workspaceFileUrl(activeWorkspace.id, template.file))
+    const response = await apiFetch(workspaceFileUrl(activeWorkspace.id, template.file))
     if (!response.ok) throw new Error(`Unable to load template: HTTP ${response.status}`)
     await plugin.clear()
     const data = await plugin.builders.data.rawData({ data: await response.text(), label: template.file })
@@ -465,7 +466,7 @@ export function HomologyPanel() {
     setError('')
     setMessage('')
     try {
-      const response = await fetch(`/api/homology/${action}`, {
+      const response = await apiFetch(`/api/homology/${action}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...project, workspaceId: activeWorkspace?.id }),
       })
       const body = await response.json() as HomologyProject & { error?: string }
@@ -620,7 +621,7 @@ export function HomologyPanel() {
     setError('')
     setMessage('')
     try {
-      const response = await fetch('/api/homology/model', {
+      const response = await apiFetch('/api/homology/model', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...project, workspaceId: activeWorkspace?.id }),
       })
       const body = await response.json() as { error?: string; outputFile?: string; stderr?: string }

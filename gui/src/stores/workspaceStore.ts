@@ -1,4 +1,12 @@
 import { create } from 'zustand'
+import { apiFetch } from '../lib/api-client'
+
+export type WorkspaceAclRole = 'reader' | 'writer'
+
+export interface WorkspaceAclEntry {
+  principalId: string
+  role: WorkspaceAclRole
+}
 
 export interface WorkspaceArtifact {
   id: string
@@ -47,7 +55,7 @@ export interface WorkspaceArtifactMetadataPatch {
 }
 
 export interface WorkspaceManifest {
-  version: 1
+  version: 2
   revision: number
   id: string
   name: string
@@ -57,9 +65,19 @@ export interface WorkspaceManifest {
   secondaryFile: string | null
   artifacts: WorkspaceArtifact[]
   toolState: Record<string, any>
+  ownerPrincipalId: string
+  acl: WorkspaceAclEntry[]
+  provisionalOwner?: true
+  effectiveRole: 'reader' | 'writer' | 'owner'
 }
 
-interface WorkspaceSummary { id: string; name: string; updatedAt: string; artifactCount: number }
+interface WorkspaceSummary {
+  id: string
+  name: string
+  updatedAt: string
+  artifactCount: number
+  effectiveRole: 'reader' | 'writer' | 'owner'
+}
 
 interface WorkspaceState {
   workspaces: WorkspaceSummary[]
@@ -125,7 +143,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   workspaces: [], active: null, loading: false, error: null, initialized: false, revision: 0, textPreview: null,
   refresh: async () => {
     const generation = ++refreshGeneration
-    const response = await fetch('/api/workspaces', { cache: 'no-store' })
+    const response = await apiFetch('/api/workspaces', { cache: 'no-store' })
     if (!response.ok) throw new Error(`Workspaces: HTTP ${response.status}`)
     const workspaces = await response.json() as WorkspaceSummary[]
     if (generation === refreshGeneration) set({ workspaces })
@@ -159,7 +177,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (generation !== activationGeneration) throw staleRequest('Workspace activation was superseded')
     set({ loading: true, error: null })
     try {
-      const response = await fetch(`/api/workspaces/${encodeURIComponent(id)}`, { cache: 'no-store' })
+      const response = await apiFetch(`/api/workspaces/${encodeURIComponent(id)}`, { cache: 'no-store' })
       const body = await response.json() as WorkspaceManifest & { error?: string }
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       if (generation !== activationGeneration) throw staleRequest('Workspace activation was superseded')
@@ -177,7 +195,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     const id = get().active?.id
     const generation = activationGeneration
     if (!id) return null
-    const response = await fetch(`/api/workspaces/${encodeURIComponent(id)}`, { cache: 'no-store' })
+    const response = await apiFetch(`/api/workspaces/${encodeURIComponent(id)}`, { cache: 'no-store' })
     const body = await response.json() as WorkspaceManifest & { error?: string }
     if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
     if (get().active?.id !== id || generation !== activationGeneration) return null
@@ -188,7 +206,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     return merged
   },
   createWorkspace: async (name = 'Untitled workspace') => {
-    const response = await fetch('/api/workspaces', {
+    const response = await apiFetch('/api/workspaces', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
     })
     const body = await response.json() as WorkspaceManifest & { error?: string }
@@ -200,14 +218,14 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   reorderWorkspaces: async (ids) => {
     const byId = new Map(get().workspaces.map(workspace => [workspace.id, workspace]))
     set({ workspaces: ids.flatMap(id => byId.has(id) ? [byId.get(id)!] : []) })
-    const response = await fetch('/api/workspaces/order', {
+    const response = await apiFetch('/api/workspaces/order', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }),
     })
     if (!response.ok) throw new Error(`Workspace reorder: HTTP ${response.status}`)
   },
   update: (patch) => {
     const active = get().active
-    if (!active) return
+    if (!active || active.effectiveRole === 'reader') return
     const pending = { ...pendingPatches.get(active.id) }
     if ('primaryFile' in patch) pending.primaryFile = patch.primaryFile
     if ('secondaryFile' in patch) pending.secondaryFile = patch.secondaryFile
@@ -228,7 +246,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   },
   save: async () => {
     if (saveTimer !== undefined) { window.clearTimeout(saveTimer); saveTimer = undefined }
-    if (!get().active) return
+    if (!get().active || get().active?.effectiveRole === 'reader') return
     if (metadataWriteInFlight) {
       await metadataWriteInFlight
       return get().save()
@@ -254,7 +272,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           secondaryFile: active.secondaryFile,
           artifactOrder: active.artifacts.map(artifact => artifact.id),
         }
-        const response = await fetch(`/api/workspaces/${encodeURIComponent(active.id)}`, {
+        const response = await apiFetch(`/api/workspaces/${encodeURIComponent(active.id)}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -265,7 +283,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         const body = await response.json() as WorkspaceManifest & { error?: string }
         if (!response.ok) {
           if (response.status === 409 && pending && conflicts++ < 3) {
-            const latestResponse = await fetch(`/api/workspaces/${encodeURIComponent(active.id)}`, { cache: 'no-store' })
+            const latestResponse = await apiFetch(`/api/workspaces/${encodeURIComponent(active.id)}`, { cache: 'no-store' })
             const latest = await latestResponse.json() as WorkspaceManifest & { error?: string }
             if (!latestResponse.ok) throw new Error(latest.error || `HTTP ${latestResponse.status}`)
             if (get().active?.id !== active.id || generation !== activationGeneration) return
@@ -305,8 +323,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (metadataWriteInFlight) await metadataWriteInFlight
     const active = get().active
     if (!active) throw new Error('No active workspace')
+    if (active.effectiveRole === 'reader') throw new Error('This workspace is read-only')
     metadataWriteInFlight = (async () => {
-      const response = await fetch(`/api/workspaces/${encodeURIComponent(active.id)}/artifacts/${encodeURIComponent(artifactId)}/metadata`, {
+      const response = await apiFetch(`/api/workspaces/${encodeURIComponent(active.id)}/artifacts/${encodeURIComponent(artifactId)}/metadata`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ revision: active.revision, ...metadata }),

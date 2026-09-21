@@ -324,10 +324,11 @@ callers = [
   "gui/src/stores/workspaceStore.ts::useWorkspaceStore",
 ]
 contracts = ["workspace-manifest-artifact-identity"]
-invariants = ["INV-API-WORKSPACE-CONTAINMENT", "INV-API-BOUNDED-BODY"]
+invariants = ["INV-API-WORKSPACE-CONTAINMENT", "INV-API-WORKSPACE-AUTHORIZATION", "INV-API-BOUNDED-BODY"]
 change_group = "gui-api-surface"
 test_files = [
   "gui/server/api-routes.test.ts",
+  "gui/server/auth.test.ts",
   "gui/server/standalone.test.ts",
   "gui/server/request-body.test.ts",
   "gui/server/workspace-api.test.ts",

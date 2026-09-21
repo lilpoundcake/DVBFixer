@@ -26,6 +26,7 @@ import { filterSequenceableChains } from '../lib/chain-grouping'
 import { useWorkspaceStore, workspaceFileUrl } from '../stores/workspaceStore'
 import { createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, selectRestoredManagedJob, type ManagedJobRecord } from '../lib/managed-jobs'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
+import { apiFetch, apiSse } from '../lib/api-client'
 
 // Re-declare the spec types here (mirrors server/dvbfixer-spec.ts) so the
 // frontend doesn't have to import server/. The actual spec is fetched at
@@ -271,7 +272,7 @@ export function DVBFixerPanel() {
     setCancelling(false)
     if (!workspaceId) return
     const controller = new AbortController()
-    fetch(`/api/jobs?workspaceId=${encodeURIComponent(workspaceId)}`, { cache: 'no-store', signal: controller.signal })
+    apiFetch(`/api/jobs?workspaceId=${encodeURIComponent(workspaceId)}`, { cache: 'no-store', signal: controller.signal })
       .then(async response => {
         const body = await response.json() as ManagedJobRecord[] & { error?: string }
         if (!response.ok) throw new Error((body as any).error || `Jobs: HTTP ${response.status}`)
@@ -285,33 +286,36 @@ export function DVBFixerPanel() {
     return () => controller.abort()
   }, [workspace?.id])
 
-  // Stream state changes, with polling as a fallback for browsers/proxies
-  // where EventSource is unavailable or disconnected.
+  // Stream state changes, with polling as a fallback for proxies where the
+  // authenticated event stream is unavailable or disconnected.
   useEffect(() => {
     if (!activeJobId || !workspace?.id) return
     const workspaceId = workspace.id
     const jobId = activeJobId
     let disposed = false
-    let source: EventSource | null = null
+    const streamController = new AbortController()
     const apply = (next: ManagedJobRecord) => {
       if (!disposed && next.id === jobId && next.workspaceId === workspaceId) setJob(next)
     }
-    if (typeof EventSource !== 'undefined') {
-      source = new EventSource(`/api/jobs/${encodeURIComponent(jobId)}/events?workspaceId=${encodeURIComponent(workspaceId)}`)
-      source.onmessage = event => {
-        try { apply(JSON.parse(event.data) as ManagedJobRecord) } catch { /* polling remains available */ }
-      }
-      source.onerror = () => { source?.close(); source = null }
-    }
+    void (async () => {
+      try {
+        for await (const event of apiSse(
+          `/api/jobs/${encodeURIComponent(jobId)}/events?workspaceId=${encodeURIComponent(workspaceId)}`,
+          { cache: 'no-store', signal: streamController.signal },
+        )) {
+          try { apply(JSON.parse(event.data) as ManagedJobRecord) } catch { /* polling remains available */ }
+        }
+      } catch { /* polling remains available */ }
+    })()
     const poll = async () => {
       try {
-        const response = await fetch(`/api/jobs/${encodeURIComponent(jobId)}?workspaceId=${encodeURIComponent(workspaceId)}`, { cache: 'no-store' })
+        const response = await apiFetch(`/api/jobs/${encodeURIComponent(jobId)}?workspaceId=${encodeURIComponent(workspaceId)}`, { cache: 'no-store' })
         if (response.ok) apply(await response.json() as ManagedJobRecord)
       } catch { /* the next poll or SSE event can recover */ }
     }
     const timer = window.setInterval(() => { void poll() }, 1500)
     void poll()
-    return () => { disposed = true; source?.close(); window.clearInterval(timer) }
+    return () => { disposed = true; streamController.abort(); window.clearInterval(timer) }
   }, [activeJobId, workspace?.id])
 
   // Fetch terminal logs for the existing output pane.
@@ -319,7 +323,7 @@ export function DVBFixerPanel() {
     if (!job || isActiveManagedJob(job) || !workspace?.id) return
     const controller = new AbortController()
     Promise.all([job.stdoutLog, job.stderrLog].map(async file => {
-      const response = await fetch(workspaceFileUrl(workspace.id, file), { cache: 'no-store', signal: controller.signal })
+      const response = await apiFetch(workspaceFileUrl(workspace.id, file), { cache: 'no-store', signal: controller.signal })
       return response.ok ? response.text() : ''
     })).then(([stdout, stderr]) => {
       if (controller.signal.aborted) return
@@ -344,7 +348,7 @@ export function DVBFixerPanel() {
       if (job.status !== 'succeeded' || !job.outputFile || !/\.(pdb|cif|mmcif|gro)$/i.test(job.outputFile)) return
       const plugin = useStructureStore.getState().plugin
       if (!plugin) return
-      const response = await fetch(workspaceFileUrl(workspaceId, job.outputFile), { cache: 'no-store' })
+      const response = await apiFetch(workspaceFileUrl(workspaceId, job.outputFile), { cache: 'no-store' })
       if (!response.ok) throw new Error(`Output cannot be loaded: HTTP ${response.status}`)
       const format = /\.(cif|mmcif)$/i.test(job.outputFile) ? 'mmcif' : 'pdb'
       await plugin.clear()
@@ -362,7 +366,7 @@ export function DVBFixerPanel() {
   }, [job, reloadWorkspace, workspace?.id])
 
   const fetchSpec = useCallback(() => {
-    fetch(`/api/dvbfixer-spec?t=${Date.now()}`, { cache: 'no-store' })
+    apiFetch(`/api/dvbfixer-spec?t=${Date.now()}`, { cache: 'no-store' })
       .then(r => r.ok ? r.json() : Promise.reject(`spec ${r.status}`))
       .then((data: CommandDef[]) => {
         setCommands(data)
@@ -567,7 +571,7 @@ export function DVBFixerPanel() {
       // --fasta automatically. Empty string = nothing shipped (backend
       // ignores).
       const fastaContent = activeCmd.name === 'model' ? buildFastaContent() : ''
-      const res = await fetch('/api/jobs', {
+      const res = await apiFetch('/api/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(createManagedJobRequest(activeCmd.name, {
@@ -597,7 +601,7 @@ export function DVBFixerPanel() {
     setCancelling(true)
     setError(null)
     try {
-      const response = await fetch(`/api/jobs/${encodeURIComponent(job.id)}?workspaceId=${encodeURIComponent(workspace.id)}`, { method: 'DELETE' })
+      const response = await apiFetch(`/api/jobs/${encodeURIComponent(job.id)}?workspaceId=${encodeURIComponent(workspace.id)}`, { method: 'DELETE' })
       const body = await response.json() as ManagedJobRecord & { error?: string }
       if (!response.ok) throw new Error(body.error || `Cancel: HTTP ${response.status}`)
       setJob(body)
