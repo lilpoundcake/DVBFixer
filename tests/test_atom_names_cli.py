@@ -53,6 +53,41 @@ def _error_report(tmp_path: Path, text: str, *extra: object) -> dict[str, object
     return json.loads(report.read_text(encoding="utf-8"))
 
 
+def _assert_report_schema(payload: dict[str, object], status: str) -> None:
+    assert set(payload) == {
+        "schemaVersion", "operation", "status", "tool", "request", "output", "result", "error"
+    }
+    assert payload["schemaVersion"] == 1
+    assert payload["operation"] == "pdb-force-field-naming"
+    assert payload["status"] == status
+    tool = payload["tool"]
+    request_payload = payload["request"]
+    output = payload["output"]
+    assert isinstance(tool, dict)
+    assert isinstance(request_payload, dict)
+    assert isinstance(output, dict)
+    assert set(tool) == {"name", "version"}
+    assert set(request_payload) == {
+        "targetForceField", "profile", "dryRun", "variantOverrides"
+    }
+    assert set(output) == {"path", "written", "bytes", "sha256"}
+    if status == "success":
+        result = payload["result"]
+        assert isinstance(result, dict)
+        assert set(result) == {"model", "summary", "changes", "diagnostics"}
+        summary = result["summary"]
+        assert isinstance(summary, dict)
+        assert set(summary) == {
+            "changedAtoms", "changedResidues", "variantChanges", "atomNameChanges"
+        }
+        assert payload["error"] is None
+    else:
+        assert payload["result"] is None
+        error = payload["error"]
+        assert isinstance(error, dict)
+        assert set(error) == {"code", "category", "message", "details"}
+
+
 def test_parser_requires_output_and_target_and_exposes_only_gromacs() -> None:
     with pytest.raises(SystemExit) as missing:
         atom_names.parse_args(["input.pdb"])
@@ -94,6 +129,7 @@ def test_successful_conversion_preserves_source_and_writes_explicit_report(tmp_p
     assert source.read_bytes() == source_bytes
     assert output.read_text(encoding="latin-1").splitlines()[0][12:16].strip() == "HB1"
     payload = json.loads(report.read_text(encoding="utf-8"))
+    _assert_report_schema(payload, "success")
     assert payload["schemaVersion"] == 1
     assert payload["operation"] == "pdb-force-field-naming"
     assert payload["status"] == "success"
@@ -257,6 +293,7 @@ def test_invalid_and_duplicate_overrides_write_stable_error_report(
 )
 def test_conversion_failures_keep_stable_codes(tmp_path: Path, text: str, code: str) -> None:
     payload = _error_report(tmp_path, text)
+    _assert_report_schema(payload, "error")
     assert payload["status"] == "error"
     assert payload["result"] is None
     assert payload["error"]["code"] == code

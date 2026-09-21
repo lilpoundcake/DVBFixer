@@ -89,7 +89,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Register the command and regenerate CLI and GUI command references.
 - [x] Add subprocess-level tests and deterministic conversion.
 - [x] Explicitly verify source preservation at CLI level.
-- [ ] Explicitly validate the report schema at CLI level.
+- [x] Explicitly validate the report schema at CLI level.
 - [x] Explicitly verify non-zero exit and no destination on unsafe input.
 - [x] Explicitly verify the selected CIF boundary behavior.
 
