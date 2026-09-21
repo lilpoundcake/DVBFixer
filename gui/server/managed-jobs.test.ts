@@ -9,6 +9,10 @@ import {
 import {
   createWorkspace, ensureWorkspaceMigration, listWorkspaces, loadWorkspace, saveWorkspace, workspaceRoot,
 } from './workspace-api'
+import {
+  DEFAULT_MAX_UPLOAD_BYTES, DEFAULT_WORKSPACE_QUOTA_BYTES, initializeStorageQuota,
+  workspaceLogicalBytes,
+} from './storage-quota'
 
 const directories: string[] = []
 const originalEnvironment = {
@@ -44,6 +48,10 @@ async function terminal(
 }
 
 afterEach(() => {
+  initializeStorageQuota({
+    maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
+    workspaceQuotaBytes: DEFAULT_WORKSPACE_QUOTA_BYTES,
+  })
   for (const [key, value] of Object.entries({
     DVBFIXER_EXECUTABLE: originalEnvironment.executable,
     DVBFIXER_ARGS: originalEnvironment.args,
@@ -120,5 +128,44 @@ describe('managed DVBfixer jobs', () => {
     expect(finished.status).toBe('failed')
     expect(finished.error).toContain('workspace not found')
     expect(loadWorkspace(dataRoot, workspace.id).artifacts).toHaveLength(1)
+  })
+
+  it('removes generated payloads when a child exceeds the workspace quota', async () => {
+    const dataRoot = root()
+    const workspace = listWorkspaces(dataRoot)[0]
+    const workspaceDirectory = workspaceRoot(dataRoot, workspace.id)
+    initializeStorageQuota({
+      maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
+      workspaceQuotaBytes: workspaceLogicalBytes(workspaceDirectory) + 70 * 1024,
+    })
+    useNode("require('node:fs').writeFileSync('large.pdb','x'.repeat(100*1024))")
+
+    const created = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'doctor' })
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+
+    expect(finished.status).toBe('failed')
+    expect(finished.error).toContain('workspace quota exceeded')
+    const files = fs.readdirSync(path.join(workspaceDirectory, finished.outputDir), { recursive: true })
+    expect(files.some(file => String(file).endsWith('.pdb'))).toBe(false)
+  })
+
+  it('does not acquire the workspace run lock when quota admission fails', async () => {
+    const dataRoot = root()
+    const workspace = listWorkspaces(dataRoot)[0]
+    const workspaceDirectory = workspaceRoot(dataRoot, workspace.id)
+    initializeStorageQuota({
+      maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
+      workspaceQuotaBytes: workspaceLogicalBytes(workspaceDirectory) + 1,
+    })
+    expect(() => createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'doctor' }))
+      .toThrow(/workspace quota exceeded/)
+
+    initializeStorageQuota({
+      maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
+      workspaceQuotaBytes: DEFAULT_WORKSPACE_QUOTA_BYTES,
+    })
+    useNode('process.exit(0)')
+    const accepted = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'doctor' })
+    await expect(terminal(dataRoot, workspace.id, accepted.id)).resolves.toMatchObject({ status: 'succeeded' })
   })
 })

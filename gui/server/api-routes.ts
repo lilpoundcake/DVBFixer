@@ -27,7 +27,8 @@ import {
 import { registerHomologyApi } from './homology-api'
 import { registerNamingApi } from './naming-api'
 import {
-  resetDvbfixerProcessAdmission, runDvbfixerArgs, shutdownDvbfixerProcesses,
+  initializeDvbfixerProcessAdmission, resetDvbfixerProcessAdmission, runDvbfixerArgs,
+  shutdownDvbfixerProcesses,
 } from './dvbfixer-runner'
 import {
   assertWorkspaceAccess, loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, saveWorkspace,
@@ -39,6 +40,11 @@ import {
   createAuthMiddleware, getApiPrincipal, parseAuthConfig, resolveLegacyWorkspaceOwner,
   type AuthConfig,
 } from './auth'
+import { createCorsMiddleware, parseCorsAllowedOrigins } from './cors'
+import {
+  assertWorkspaceQuota, configureStorageQuota, WorkspaceQuotaExceededError,
+  type StorageQuotaOptions,
+} from './storage-quota'
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
 
@@ -252,17 +258,28 @@ export interface ApiRouteOptions {
   dataRoot?: string
   authConfig?: AuthConfig
   legacyWorkspaceOwner?: string
+  corsAllowedOrigins?: readonly string[]
+  storageQuota?: StorageQuotaOptions
+  maxConcurrentProcesses?: number
 }
 
 export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions): void {
       const structuresDir = path.resolve(options.dataRoot || process.env.DVBFIXER_GUI_DATA_DIR || path.join(options.projectRoot, 'structures'))
       const authConfig = options.authConfig || parseAuthConfig(process.env)
       const legacyWorkspaceOwner = options.legacyWorkspaceOwner || resolveLegacyWorkspaceOwner(authConfig)
+      const corsAllowedOrigins = options.corsAllowedOrigins || parseCorsAllowedOrigins(process.env)
+      configureStorageQuota(options.storageQuota)
+      initializeDvbfixerProcessAdmission(
+        options.maxConcurrentProcesses === undefined
+          ? process.env.DVBFIXER_MAX_CONCURRENT_PROCESSES
+          : String(options.maxConcurrentProcesses),
+      )
       fs.mkdirSync(structuresDir, { recursive: true })
       // Remember the repo root so the mutations backup writer / seeder
       // can find `mutations.json` regardless of which working directory
       // the dev server was launched from.
       projectRoot = options.projectRoot
+      server.middlewares.use('/api', createCorsMiddleware(corsAllowedOrigins))
       server.middlewares.use('/api', createAuthMiddleware(authConfig))
       migrateWorkspaceOwnership(
         structuresDir,
@@ -316,6 +333,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           if (!releaseRun) return sendJson(res, 409, { error: 'another DVBfixer job is already running in this workspace' })
           try {
           const activeWorkspaceRoot = workspaceRoot(structuresDir, body.workspaceId)
+          assertWorkspaceQuota(activeWorkspaceRoot)
           const suppliedInputs = { ...(body.inputs || {}) }
           if (body.inputFile && def.inputs[0] && suppliedInputs[def.inputs[0].dest] === undefined) {
             suppliedInputs[def.inputs[0].dest] = body.inputFile
@@ -363,6 +381,14 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           const result = await runDvbfixerArgs(command, args, outDir)
           if (def.outputMode === 'stdout' && result.stdout) {
             fs.writeFileSync(path.join(outDir, `${command}.${values['--format'] === 'json' ? 'json' : 'txt'}`), result.stdout)
+          }
+          try {
+            assertWorkspaceQuota(activeWorkspaceRoot)
+          } catch (error) {
+            if (error instanceof WorkspaceQuotaExceededError) {
+              fs.rmSync(outDir, { recursive: true, force: true })
+            }
+            throw error
           }
 
           const ok = def.successCodes.includes(result.code)
@@ -555,6 +581,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
             scheme: body.scheme,
           })
 
+          assertWorkspaceQuota(activeRoot)
           writeSSEHeaders(res)
           let aborted = false
           req.on('close', () => { aborted = true })
@@ -603,6 +630,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
             inputMetadata: inputArtifact,
             onEvent: (e) => sseSend(res, e),
             isAborted: () => aborted,
+            assertStorage: () => assertWorkspaceQuota(activeRoot),
           })
 
           if (generated.length) {

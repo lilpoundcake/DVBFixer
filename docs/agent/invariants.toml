@@ -270,7 +270,36 @@ enforcement = [
 ]
 failure_mode = "Unbounded buffering can exhaust server memory."
 test_files = ["gui/server/request-body.test.ts"]
-known_exceptions = ["The Vite middleware does not provide complete production quotas or rate limits."]
+known_exceptions = ["Body and workspace limits are application-level controls; rate limits and OS-level CPU, memory, and filesystem quotas are not implemented."]
+
+[invariants.INV-API-ORIGIN-POLICY]
+status = "implemented"
+statement = "Browser API requests are same-origin by default, with only explicitly configured exact origins allowed across origins."
+owner = "gui/server/cors.ts::createCorsMiddleware"
+enforcement = [
+  "gui/server/cors.ts::parseCorsAllowedOrigins",
+  "gui/server/api-routes.ts::registerApiRoutes",
+]
+failure_mode = "An untrusted browser origin can invoke authenticated API routes or invalid preflights can bypass policy."
+test_files = ["gui/server/cors.test.ts", "gui/server/api-routes.test.ts"]
+known_exceptions = ["Requests without Origin remain allowed for non-browser clients; CORS is not CSRF protection for non-browser credentials."]
+
+[invariants.INV-API-RESOURCE-LIMITS]
+status = "implemented"
+statement = "Workspace imports, logical workspace storage, and DVBFixer child concurrency have explicit configurable bounds."
+owner = "gui/server/storage-quota.ts"
+enforcement = [
+  "gui/server/workspace-api.ts::registerWorkspaceApi",
+  "gui/server/workspace-api.ts::saveWorkspace",
+  "gui/server/dvbfixer-runner.ts::runDvbfixerArgs",
+]
+failure_mode = "Uploads, retained workspace data, or child processes can exhaust host resources."
+test_files = [
+  "gui/server/storage-quota.test.ts",
+  "gui/server/workspace-api.test.ts",
+  "gui/server/dvbfixer-runner.test.ts",
+]
+known_exceptions = ["Limits are process-local application controls, not distributed scheduling or OS-level resource isolation."]
 
 [invariants.INV-FIXTURE-PROVENANCE-CHECKSUM]
 status = "implemented"

@@ -6,6 +6,7 @@ import { buildArgs } from './command-args'
 import { COMMANDS } from './dvbfixer-spec'
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import { errorStatus, readRequestBody } from './request-body'
+import { assertWorkspaceQuota, WorkspaceQuotaExceededError } from './storage-quota'
 import type { ApiRouteHost } from './http-types'
 import {
   assertWorkspaceAccess, loadWorkspace, resolveWorkspaceFile, saveWorkspace, workspaceRoot, writeJsonAtomic,
@@ -223,9 +224,16 @@ async function executeJob(
       loadWorkspace(dataRoot, record.workspaceId), record.requestedByPrincipalId, 'writer',
     )
     const prepared = prepareArgs(dataRoot, request, directory)
-    current = { ...current, args: prepared.args, status: 'running', startedAt: new Date().toISOString() }
+    current = { ...current, args: prepared.args }
     persistJob(dataRoot, current)
-    const result = await runDvbfixerArgs(record.command, prepared.args, directory, { signal: controller.signal })
+    const result = await runDvbfixerArgs(record.command, prepared.args, directory, {
+      signal: controller.signal,
+      onStart: () => {
+        current = { ...current, status: 'running', startedAt: new Date().toISOString() }
+        persistJob(dataRoot, current)
+      },
+    })
+    assertWorkspaceQuota(workspaceRoot(dataRoot, record.workspaceId))
     fs.writeFileSync(path.join(directory, 'stdout.log'), result.stdout)
     fs.writeFileSync(path.join(directory, 'stderr.log'), result.stderr)
     const cancelled = controller.signal.aborted
@@ -238,6 +246,11 @@ async function executeJob(
     }
     if (current.status === 'succeeded') current = registerOutputs(dataRoot, current, prepared.inputBase)
   } catch (error: any) {
+    if (error instanceof WorkspaceQuotaExceededError) {
+      const directory = jobDirectory(dataRoot, record.workspaceId, record.id)
+      fs.rmSync(directory, { recursive: true, force: true })
+      fs.mkdirSync(directory, { recursive: true })
+    }
     current = {
       ...current, status: controller.signal.aborted ? 'cancelled' : 'failed',
       finishedAt: new Date().toISOString(), error: error?.message || String(error),
@@ -265,6 +278,7 @@ export function createManagedJob(
   }
   loadWorkspace(dataRoot, request.workspaceId)
   if (!COMMANDS.some(command => command.name === request.command)) throw httpError(400, `unknown command: ${request.command}`)
+  assertWorkspaceQuota(workspaceRoot(dataRoot, request.workspaceId), 64 * 1024)
   const id = crypto.randomUUID()
   const controller = new AbortController()
   const release = acquireWorkspaceRun(request.workspaceId, id, controller)

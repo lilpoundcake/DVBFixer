@@ -4,8 +4,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { Readable } from 'node:stream'
 import zlib from 'node:zlib'
-import { errorStatus, MAX_UPLOAD_BODY_BYTES, readRequestBody } from './request-body'
+import { errorStatus, readRequestBody } from './request-body'
 import type { ApiRouteHost } from './http-types'
+import {
+  assertWorkspaceQuota, storageQuotaSettings, WorkspaceQuotaExceededError,
+} from './storage-quota'
 
 export interface WorkspaceArtifact {
   id: string
@@ -200,6 +203,31 @@ export function writeJsonAtomic(file: string, value: unknown): void {
   try {
     descriptor = fs.openSync(temporary, 'wx', 0o600)
     fs.writeFileSync(descriptor, `${JSON.stringify(value, null, 2)}\n`, 'utf8')
+    fs.fsyncSync(descriptor)
+    fs.closeSync(descriptor)
+    descriptor = undefined
+    fs.renameSync(temporary, file)
+  } catch (error) {
+    if (descriptor !== undefined) fs.closeSync(descriptor)
+    try { fs.unlinkSync(temporary) } catch { /* best-effort cleanup */ }
+    throw error
+  }
+}
+
+function jsonByteLength(value: unknown): number {
+  return Buffer.byteLength(`${JSON.stringify(value, null, 2)}\n`)
+}
+
+function writeBufferAtomic(file: string, content: Buffer): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true })
+  const temporary = path.join(
+    path.dirname(file),
+    `.${path.basename(file)}.${process.pid}.${crypto.randomUUID()}.tmp`,
+  )
+  let descriptor: number | undefined
+  try {
+    descriptor = fs.openSync(temporary, 'wx', 0o600)
+    fs.writeFileSync(descriptor, content)
     fs.fsyncSync(descriptor)
     fs.closeSync(descriptor)
     descriptor = undefined
@@ -492,7 +520,10 @@ export function saveWorkspace(
   fs.mkdirSync(path.join(root, 'homology'), { recursive: true })
   const revision = Number.isSafeInteger(secured.revision) && secured.revision >= 0 ? secured.revision : 0
   const next: WorkspaceManifestV2 = { ...secured, version: 2, revision: revision + 1, updatedAt: new Date().toISOString() }
-  writeJsonAtomic(manifestPath(dataRoot, manifest.id), next)
+  const file = manifestPath(dataRoot, manifest.id)
+  const existingBytes = fs.existsSync(file) ? fs.lstatSync(file).size : 0
+  assertWorkspaceQuota(root, Math.max(0, jsonByteLength(next) - existingBytes))
+  writeJsonAtomic(file, next)
   return next
 }
 
@@ -1095,18 +1126,30 @@ export function registerWorkspaceApi(
         const safe = path.basename(original).replace(/[^a-zA-Z0-9._-]+/g, '_')
         if (!safe || !ALLOWED.has(path.extname(safe).toLowerCase())) return sendJson(res, 400, { error: `unsupported artifact type: ${original}` })
         if (isProtectedArtifactPath(safe)) return sendJson(res, 400, { error: 'reserved workspace metadata filename' })
-        const content = await readRequestBody(req, MAX_UPLOAD_BODY_BYTES)
+        const content = await readRequestBody(req, storageQuotaSettings().maxUploadBytes)
         if (!content.length) return sendJson(res, 400, { error: 'uploaded artifact is empty' })
         const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
         assertWorkspaceAccess(workspace, principalId, 'writer')
-        const directory = path.join(workspaceRoot(dataRoot, id), 'files', 'imports')
+        const root = workspaceRoot(dataRoot, id)
+        const directory = path.join(root, 'files', 'imports')
         fs.mkdirSync(directory, { recursive: true })
         let destination = path.join(directory, safe)
         if (fs.existsSync(destination)) destination = path.join(directory, `${path.basename(safe, path.extname(safe))}_${Date.now()}${path.extname(safe)}`)
-        fs.writeFileSync(destination, content)
-        const relative = path.relative(workspaceRoot(dataRoot, id), destination).replace(/\\/g, '/')
+        const relative = path.relative(root, destination).replace(/\\/g, '/')
         const artifact = artifactFor(relative, 'imports')
-        saveWorkspace(dataRoot, { ...workspace, artifacts: [...workspace.artifacts, artifact] })
+        const nextManifest = { ...workspace, artifacts: [...workspace.artifacts, artifact] }
+        assertWorkspaceQuota(root, content.length)
+        let published = false
+        try {
+          writeBufferAtomic(destination, content)
+          published = true
+          saveWorkspace(dataRoot, nextManifest)
+        } catch (error) {
+          if (published) {
+            try { fs.unlinkSync(destination) } catch { /* best-effort cleanup */ }
+          }
+          throw error
+        }
         return sendJson(res, 201, artifact)
       }
       if (parts[1] === 'artifacts' && parts[2] && req.method === 'DELETE') {
@@ -1159,7 +1202,12 @@ export function registerWorkspaceApi(
       return next()
     } catch (error: any) {
       const fallback = /not found/.test(error?.message || '') ? 404 : 500
-      return sendJson(res, errorStatus(error, fallback), { error: error?.message || String(error) })
+      const body: Record<string, unknown> = { error: error?.message || String(error) }
+      if (error instanceof WorkspaceQuotaExceededError) {
+        body.code = error.code
+        body.details = error.details
+      }
+      return sendJson(res, errorStatus(error, fallback), body)
     }
   })
 }

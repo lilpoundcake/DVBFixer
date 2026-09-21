@@ -66,6 +66,7 @@ export interface PipelineInput {
   inputMetadata?: { allotype?: string; iggSubtype?: string }
   onEvent: (e: SSEEvent) => void
   isAborted: () => boolean
+  assertStorage?: () => void
 }
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -348,6 +349,12 @@ export async function runEngineerPipeline(p: PipelineInput): Promise<Array<Index
     p.onEvent({ step: i + 1, total, name: step.command, status: 'running' })
 
     const res = await runDvbfixer(step.command, currentInputAbs, outFileAbs, step.extraArgs)
+    try {
+      p.assertStorage?.()
+    } catch (error) {
+      for (const directory of createdDirs) fs.rmSync(directory, { recursive: true, force: true })
+      throw error
+    }
     if (res.code !== 0) {
       // Move every dir we created (including this one) to _engineer_failed/
       // so a partial pipeline doesn't pollute the library.

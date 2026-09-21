@@ -8,6 +8,9 @@ import serveStatic from 'serve-static'
 import { closeApiResources, registerApiRoutes, resetApiShutdown, shutdownApiWork } from './api-routes'
 import type { ApiRouteHost } from './http-types'
 import { parseAuthConfig, resolveLegacyWorkspaceOwner, type AuthConfig } from './auth'
+import { parseCorsAllowedOrigins } from './cors'
+import { parseDvbfixerMaxConcurrentProcesses } from './dvbfixer-runner'
+import { parseStorageQuotaSettings, type StorageQuotaSettings } from './storage-quota'
 
 export interface StandaloneConfig {
   host: string
@@ -18,6 +21,9 @@ export interface StandaloneConfig {
   shutdownGraceMs: number
   authConfig: AuthConfig
   legacyWorkspaceOwner: string
+  corsAllowedOrigins: readonly string[]
+  storageQuota: StorageQuotaSettings
+  maxConcurrentProcesses: number
 }
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost'])
@@ -75,6 +81,11 @@ export function loadStandaloneConfig(
     ),
     authConfig,
     legacyWorkspaceOwner: resolveLegacyWorkspaceOwner(authConfig, environment),
+    corsAllowedOrigins: parseCorsAllowedOrigins(environment),
+    storageQuota: parseStorageQuotaSettings(environment),
+    maxConcurrentProcesses: parseDvbfixerMaxConcurrentProcesses(
+      environment.DVBFIXER_MAX_CONCURRENT_PROCESSES,
+    ),
   }
 }
 
@@ -150,6 +161,9 @@ export function createStandaloneApplication(config: StandaloneConfig): connect.S
     dataRoot: config.dataRoot,
     authConfig: config.authConfig,
     legacyWorkspaceOwner: config.legacyWorkspaceOwner,
+    corsAllowedOrigins: config.corsAllowedOrigins,
+    storageQuota: config.storageQuota,
+    maxConcurrentProcesses: config.maxConcurrentProcesses,
   })
   application.use('/api', (_request, response) => jsonNotFound(response))
   application.use(serveStatic(config.staticRoot, {

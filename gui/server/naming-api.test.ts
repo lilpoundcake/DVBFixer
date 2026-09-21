@@ -12,6 +12,10 @@ import {
   type NamingConversionRequest,
 } from './naming-api-schema'
 import { loadWorkspace, saveWorkspace, workspaceRoot, type WorkspaceManifest } from './workspace-api'
+import {
+  DEFAULT_MAX_UPLOAD_BYTES, DEFAULT_WORKSPACE_QUOTA_BYTES, initializeStorageQuota,
+  workspaceLogicalBytes,
+} from './storage-quota'
 
 const temporaryDirectories: string[] = []
 
@@ -107,8 +111,14 @@ async function apiRequest(
   }
 }
 
-afterEach(() => temporaryDirectories.splice(0).forEach(directory =>
-  fs.rmSync(directory, { recursive: true, force: true })))
+afterEach(() => {
+  initializeStorageQuota({
+    maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
+    workspaceQuotaBytes: DEFAULT_WORKSPACE_QUOTA_BYTES,
+  })
+  temporaryDirectories.splice(0).forEach(directory =>
+    fs.rmSync(directory, { recursive: true, force: true }))
+})
 
 describe('naming conversion application boundary', () => {
   it('registers exactly one output with complete provenance', async () => {
@@ -183,6 +193,24 @@ describe('naming conversion application boundary', () => {
     expect(saved.revision).toBe(before.revision)
     expect(saved.artifacts).toHaveLength(1)
     expect(fs.readdirSync(path.join(workspaceRoot(dataRoot, 'workspace-a'), 'runs', '_failed'))).toHaveLength(1)
+  })
+
+  it('deletes operation data instead of retaining it when workspace quota is exhausted', async () => {
+    const dataRoot = temp()
+    const before = workspace(dataRoot)
+    const root = workspaceRoot(dataRoot, 'workspace-a')
+    const usedBefore = workspaceLogicalBytes(root)
+    initializeStorageQuota({
+      maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
+      workspaceQuotaBytes: usedBefore + 256,
+    })
+
+    await expect(executeNamingConversion(dataRoot, 'workspace-a', request, successfulRunner()))
+      .rejects.toThrow(/workspace quota exceeded/)
+
+    expect(loadWorkspace(dataRoot, 'workspace-a')).toMatchObject({ revision: before.revision })
+    expect(fs.existsSync(path.join(root, 'runs', '_failed'))).toBe(false)
+    expect(workspaceLogicalBytes(root)).toBe(usedBefore)
   })
 
   it('does not publish when the source artifact changes during conversion', async () => {
@@ -292,6 +320,33 @@ describe('naming conversion application boundary', () => {
 })
 
 describe('naming API transport contract', () => {
+  it('returns 507 and deletes generated data when publication exhausts quota', async () => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const root = workspaceRoot(dataRoot, 'workspace-a')
+    const usedBefore = workspaceLogicalBytes(root)
+    initializeStorageQuota({
+      maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
+      workspaceQuotaBytes: usedBefore + 256,
+    })
+
+    const response = await apiRequest(
+      dataRoot,
+      'POST',
+      '/workspaces/workspace-a/naming-conversions',
+      JSON.stringify(request),
+      'application/json',
+      successfulRunner(),
+    )
+
+    expect(response).toMatchObject({
+      status: 507,
+      body: { error: { code: 'WORKSPACE_QUOTA_EXCEEDED' } },
+    })
+    expect(workspaceLogicalBytes(root)).toBe(usedBefore)
+    expect(fs.existsSync(path.join(root, 'runs', '_failed'))).toBe(false)
+  })
+
   it('executes a valid request and returns the registered artifact', async () => {
     const dataRoot = temp()
     workspace(dataRoot)

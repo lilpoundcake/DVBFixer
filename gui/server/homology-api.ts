@@ -8,6 +8,7 @@ import {
   assertWorkspaceAccess, loadWorkspace, saveWorkspace, workspaceRoot, writeJsonAtomic,
 } from './workspace-api'
 import { errorStatus, readRequestBody } from './request-body'
+import { assertWorkspaceQuota } from './storage-quota'
 import type { ApiRouteHost } from './http-types'
 
 export interface TemplateSelection {
@@ -183,6 +184,9 @@ export function saveHomologyProject(root: string, project: HomologyProject): Hom
   const file = projectPath(root, project.id)
   fs.mkdirSync(path.dirname(file), { recursive: true })
   const next = { ...project, version: 1 as const, updatedAt: new Date().toISOString() }
+  const existingBytes = fs.existsSync(file) ? fs.lstatSync(file).size : 0
+  const nextBytes = Buffer.byteLength(`${JSON.stringify(next, null, 2)}\n`)
+  assertWorkspaceQuota(root, Math.max(0, nextBytes - existingBytes))
   writeJsonAtomic(file, next)
   return next
 }
@@ -589,9 +593,14 @@ export function registerHomologyApi(
       const authorize = (workspaceId: string, access: 'reader' | 'writer' = 'reader') => {
         const workspace = loadWorkspace(root, workspaceId, legacyOwnerPrincipalId)
         assertWorkspaceAccess(workspace, principalId, access)
-        return workspaceRoot(root, workspaceId)
+        const storageRoot = workspaceRoot(root, workspaceId)
+        if (access === 'writer') assertWorkspaceQuota(storageRoot)
+        return storageRoot
       }
-      const publicationGuard = (workspaceId: string) => () => { authorize(workspaceId, 'writer') }
+      const publicationGuard = (workspaceId: string) => () => {
+        const storageRoot = authorize(workspaceId, 'writer')
+        assertWorkspaceQuota(storageRoot)
+      }
       const requestUrl = new URL(req.url || '/', 'http://localhost')
       const parts = requestUrl.pathname.split('/').filter(Boolean)
       const queryWorkspace = requestUrl.searchParams.get('workspaceId') || ''

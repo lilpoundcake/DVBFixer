@@ -1,6 +1,9 @@
 import type { Plugin } from 'vite'
 import { registerApiRoutes } from './api-routes'
 import { parseAuthConfig, resolveLegacyWorkspaceOwner } from './auth'
+import { parseCorsAllowedOrigins } from './cors'
+import { parseDvbfixerMaxConcurrentProcesses } from './dvbfixer-runner'
+import { parseStorageQuotaSettings } from './storage-quota'
 
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
@@ -13,6 +16,11 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
     name: 'tarantino-api',
     configureServer(server) {
       const authConfig = parseAuthConfig(environment)
+      const corsAllowedOrigins = parseCorsAllowedOrigins(environment)
+      const storageQuota = parseStorageQuotaSettings(environment)
+      const maxConcurrentProcesses = parseDvbfixerMaxConcurrentProcesses(
+        environment.DVBFIXER_MAX_CONCURRENT_PROCESSES,
+      )
       const configuredHost = server.config.server?.host
       const remotelyBound = configuredHost === true ||
         (typeof configuredHost === 'string' && !LOOPBACK_HOSTS.has(configuredHost))
@@ -25,6 +33,9 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
         projectRoot: server.config.root,
         authConfig,
         legacyWorkspaceOwner: resolveLegacyWorkspaceOwner(authConfig, environment),
+        corsAllowedOrigins,
+        storageQuota,
+        maxConcurrentProcesses,
       })
     },
   }

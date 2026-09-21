@@ -425,14 +425,17 @@ Core host slice implemented on 2026-09-18: all existing routes compose through
 server serves the built client plus APIs with validated configuration, static
 and data-root separation, graceful HTTP/resource shutdown, and tracked child
 process termination. Static bearer authentication and workspace authorization
-are implemented; CORS, quotas, TLS guidance, audit retention, and multi-instance
-coordination remain before public deployment.
+are implemented. Restrictive CORS, bounded imports, logical workspace quotas,
+and process-wide child concurrency limits followed on 2026-09-21. TLS guidance,
+rate/OS-level limits, audit retention, and multi-instance coordination remain
+before public deployment.
 
 - Extract route composition from `api-plugin.ts` into a host-neutral module.
 - Add a production Node entry point with graceful shutdown and configuration.
 - Keep Vite as a thin development adapter over that composition root.
-- Add authentication, principal-to-workspace authorization, CORS policy,
-  upload/workspace quotas, global concurrency limits, and deployment docs.
+- Authentication, principal-to-workspace authorization, CORS policy,
+  upload/workspace limits, global process concurrency, and deployment docs are
+  implemented.
 
 Exit criterion: the API can run without Vite and passes deployment smoke tests.
 

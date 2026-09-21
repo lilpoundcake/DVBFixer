@@ -28,9 +28,9 @@ function fixture(): StandaloneConfig {
   fs.writeFileSync(path.join(staticRoot, 'index.html'), '<!doctype html><title>DVBFixer</title>')
   fs.writeFileSync(path.join(staticRoot, 'assets', 'app.js'), 'console.log("ok")')
   return {
-    host: '127.0.0.1', port: 0, projectRoot,
-    dataRoot: path.join(projectRoot, 'structures'), staticRoot, shutdownGraceMs: 100,
-    authConfig: parseAuthConfig(undefined), legacyWorkspaceOwner: 'local',
+    ...loadStandaloneConfig({}, projectRoot),
+    port: 0,
+    shutdownGraceMs: 100,
   }
 }
 
@@ -64,6 +64,18 @@ describe('standalone configuration', () => {
     }, temp()).host).toBe('0.0.0.0')
   })
 
+  it('validates CORS and resource limits before startup', () => {
+    expect(() => loadStandaloneConfig({
+      DVBFIXER_CORS_ALLOWED_ORIGINS: '',
+    }, temp())).toThrow(/must not be blank/)
+    expect(() => loadStandaloneConfig({
+      DVBFIXER_GUI_MAX_UPLOAD_BYTES: '0',
+    }, temp())).toThrow(/positive safe integer/)
+    expect(() => loadStandaloneConfig({
+      DVBFIXER_MAX_CONCURRENT_PROCESSES: '65',
+    }, temp())).toThrow(/at most 64/)
+  })
+
   it('fails before listening when the static client is absent', () => {
     const config = fixture()
     fs.unlinkSync(path.join(config.staticRoot, 'index.html'))
@@ -87,6 +99,33 @@ describe('standalone configuration', () => {
 })
 
 describe('standalone HTTP server', () => {
+  it('enforces browser origins before authentication and handles preflight', async () => {
+    const config = fixture()
+    config.corsAllowedOrigins = ['https://client.example']
+    const instance = createStandaloneServer(config)
+    const address = await instance.start()
+    const base = `http://127.0.0.1:${address.port}`
+    try {
+      const denied = await fetch(`${base}/api/health`, {
+        headers: { Origin: 'https://evil.example' },
+      })
+      expect(denied.status).toBe(403)
+      const preflight = await fetch(`${base}/api/workspaces`, {
+        method: 'OPTIONS',
+        headers: {
+          Origin: 'https://client.example',
+          'Access-Control-Request-Method': 'POST',
+          'Access-Control-Request-Headers': 'Authorization, Content-Type',
+        },
+      })
+      expect(preflight.status).toBe(204)
+      expect(preflight.headers.get('access-control-allow-origin')).toBe('https://client.example')
+      expect(preflight.headers.get('access-control-allow-methods')).toBe('POST')
+    } finally {
+      await instance.close()
+    }
+  })
+
   it('enforces workspace ownership and ACLs per authenticated principal', async () => {
     const aliceToken = Buffer.alloc(32, 8).toString('base64url')
     const bobToken = Buffer.alloc(32, 9).toString('base64url')

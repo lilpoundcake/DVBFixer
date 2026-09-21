@@ -1,8 +1,12 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { Readable } from 'node:stream'
+import {
+  DEFAULT_MAX_UPLOAD_BYTES, DEFAULT_WORKSPACE_QUOTA_BYTES, initializeStorageQuota,
+  workspaceLogicalBytes,
+} from './storage-quota'
 import {
   applyArtifactMetadataPatch, applyWorkspaceAclPatch, applyWorkspacePatch, artifactResponseHeaders,
   assertWorkspaceAccess, assertWorkspaceRevision, canReadWorkspace, canWriteWorkspace, createWorkspace,
@@ -42,7 +46,48 @@ async function apiRequest(root: string, method: string, url: string, body: unkno
   await ended
   return { status: response.statusCode, body: responseBody ? JSON.parse(responseBody) : null }
 }
-afterEach(() => temporaryDirectories.splice(0).forEach(directory => fs.rmSync(directory, { recursive: true, force: true })))
+
+async function importRequest(
+  root: string,
+  workspaceId: string,
+  content: Buffer,
+  quotaOptions: { maxUploadBytes: number; workspaceQuotaBytes: number },
+) {
+  initializeStorageQuota(quotaOptions)
+  let middleware: ((req: any, res: any, next: () => void) => Promise<void>) | undefined
+  const server = { middlewares: { use: (_route: string, handler: typeof middleware) => { middleware = handler } } }
+  registerWorkspaceApi(server as any, root, 'local', 'local', false)
+  const request = Readable.from([content]) as Readable & {
+    method: string; url: string; headers: Record<string, string>
+  }
+  request.method = 'POST'
+  request.url = `/${workspaceId}/import`
+  request.headers = {
+    'content-length': String(content.length),
+    'content-type': 'application/octet-stream',
+    'x-file-name': encodeURIComponent('uploaded.pdb'),
+  }
+  let responseBody = ''
+  let finish: (() => void) | undefined
+  const ended = new Promise<void>(resolve => { finish = resolve })
+  const response = {
+    statusCode: 0,
+    setHeader: () => {},
+    end: (value?: unknown) => { responseBody = value === undefined ? '' : String(value); finish?.() },
+  }
+  await middleware!(request as any, response as any, () => {})
+  await ended
+  return { status: response.statusCode, body: responseBody ? JSON.parse(responseBody) : null }
+}
+
+afterEach(() => {
+  vi.restoreAllMocks()
+  initializeStorageQuota({
+    maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
+    workspaceQuotaBytes: DEFAULT_WORKSPACE_QUOTA_BYTES,
+  })
+  temporaryDirectories.splice(0).forEach(directory => fs.rmSync(directory, { recursive: true, force: true }))
+})
 
 describe('workspace storage', () => {
   it('migrates top-level folders to projects and ungrouped files to Unsorted', () => {
@@ -88,6 +133,68 @@ describe('workspace storage', () => {
     const saved = saveWorkspace(root, { ...workspace, toolState: { dvbfixer: { inputFile: 'a.pdb' } } })
     expect(loadWorkspace(root, saved.id).toolState).toEqual({ dvbfixer: { inputFile: 'a.pdb' } })
     expect(saved.revision).toBe(workspace.revision + 1)
+  })
+
+  it('checks replacement-aware manifest growth before writing', () => {
+    const root = temp()
+    ensureWorkspaceMigration(root)
+    const workspace = listWorkspaces(root)[0]
+    const project = path.join(root, 'projects', workspace.id)
+    const before = workspaceLogicalBytes(project)
+    initializeStorageQuota({ maxUploadBytes: 1024, workspaceQuotaBytes: before + 16 })
+    expect(() => saveWorkspace(root, { ...workspace, toolState: { oversized: 'x'.repeat(1000) } }))
+      .toThrow(/workspace quota exceeded/)
+    expect(loadWorkspace(root, workspace.id).revision).toBe(workspace.revision)
+  })
+
+  it('distinguishes upload body limits from workspace quota failures without publishing files', async () => {
+    const root = temp()
+    ensureWorkspaceMigration(root)
+    const workspace = listWorkspaces(root)[0]
+    const project = path.join(root, 'projects', workspace.id)
+    const originalRevision = workspace.revision
+
+    const tooLarge = await importRequest(root, workspace.id, Buffer.from('12345'), {
+      maxUploadBytes: 4,
+      workspaceQuotaBytes: DEFAULT_WORKSPACE_QUOTA_BYTES,
+    })
+    expect(tooLarge.status).toBe(413)
+
+    const usedBytes = workspaceLogicalBytes(project)
+    const overQuota = await importRequest(root, workspace.id, Buffer.from('END\n'), {
+      maxUploadBytes: 1024,
+      workspaceQuotaBytes: usedBytes + 4,
+    })
+    expect(overQuota).toMatchObject({
+      status: 507,
+      body: { code: 'WORKSPACE_QUOTA_EXCEEDED' },
+    })
+    expect(loadWorkspace(root, workspace.id)).toMatchObject({ revision: originalRevision, artifacts: [] })
+    const files = fs.readdirSync(project, { recursive: true, encoding: 'utf8' })
+    expect(files.some(file => file.endsWith('uploaded.pdb') || file.endsWith('.tmp'))).toBe(false)
+  })
+
+  it('removes the published artifact and temporary files when manifest publication fails', async () => {
+    const root = temp()
+    ensureWorkspaceMigration(root)
+    const workspace = listWorkspaces(root)[0]
+    const project = path.join(root, 'projects', workspace.id)
+    const renameSync = fs.renameSync
+    let renameCalls = 0
+    vi.spyOn(fs, 'renameSync').mockImplementation((oldPath, newPath) => {
+      renameCalls += 1
+      if (renameCalls === 2) throw new Error('simulated manifest publication failure')
+      return renameSync(oldPath, newPath)
+    })
+
+    const response = await importRequest(root, workspace.id, Buffer.from('END\n'), {
+      maxUploadBytes: 1024,
+      workspaceQuotaBytes: DEFAULT_WORKSPACE_QUOTA_BYTES,
+    })
+    expect(response).toMatchObject({ status: 500, body: { error: 'simulated manifest publication failure' } })
+    expect(loadWorkspace(root, workspace.id)).toMatchObject({ revision: workspace.revision, artifacts: [] })
+    const files = fs.readdirSync(project, { recursive: true, encoding: 'utf8' })
+    expect(files.some(file => file.endsWith('uploaded.pdb') || file.endsWith('.tmp'))).toBe(false)
   })
 
   it('migrates legacy index metadata onto a uniquely matching artifact once', () => {

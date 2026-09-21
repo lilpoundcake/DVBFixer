@@ -2,7 +2,7 @@
 
 Status: partial
 
-Verified on: 2026-09-18
+Verified on: 2026-09-21
 
 Verified at commit: `425f290eb85760246766f1d1500e51672c640b2d`
 
@@ -25,8 +25,10 @@ GUI workspaces, and managed jobs hosted through shared Node route composition.
 The current HTTP routes are authenticated local application infrastructure, not
 a supported internet-facing production API. Static bearer principals,
 manifest-backed workspace authorization, the first versioned route, and OpenAPI
-are implemented. Restrictive CORS, quotas, wider API versioning, multi-instance
-scheduling, and durable event delivery remain proposed.
+are implemented. Restrictive CORS, bounded imports, workspace accounting, and a
+process-wide FIFO child limit are also implemented. Wider API versioning,
+rate/OS-level limits, multi-instance scheduling, and durable event delivery
+remain proposed.
 
 ## Capabilities
 
@@ -182,23 +184,27 @@ job record, restoration, SSE lifecycle, or cancellation endpoint.
   there is no durable worker reconciliation or resume.
 - Active-run locks and SSE subscribers exist only in memory, so multiple server
   instances can run conflicting work and cannot share events.
+- Workspace quotas are logical-byte publication checks, not OS filesystem
+  quotas; child output may exist before publication and failed/trash data counts.
 - Cancellation and timeout have process-kill escalation but no durable
   `cancellation-requested` state.
 - The static GUI build does not ship these Vite backend routes.
 - The standalone build ships all routes with static bearer authentication and
-  workspace ACLs, but remains unsuitable for untrusted networks without TLS,
-  restrictive CORS, quotas, audit retention, and distributed coordination.
+  workspace ACLs, restrictive CORS, application quotas, and child concurrency
+  limits, but remains unsuitable for untrusted networks without TLS, rate and
+  OS-level limits, audit retention, and distributed coordination.
 
 ## Proposed Work
 
 The remaining proposals in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md)
-are not current behavior. Add restrictive CORS, quotas, audit retention, and
-storage-level concurrency control; retain Vite only as a development host.
+are not current behavior. Add rate and OS-level resource limits, audit retention,
+and storage-level concurrency control; retain Vite only as a development host.
 
 Extend runtime-validated `/api/v1` contracts and generated OpenAPI beyond the
 naming slice. Preserve authentication and authorization before path resolution,
 accept artifact IDs rather than server paths, and add quotas/concurrency
-controls, request IDs, structured logs, metrics, and audit provenance.
+coordination across instances, request IDs, structured logs, metrics, and audit
+provenance.
 
 For long-running workflows, persist scheduling and event delivery before
 horizontal scaling. Cancellation must have a durable requested/terminal model,

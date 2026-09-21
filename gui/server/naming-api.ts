@@ -17,6 +17,7 @@ import {
 } from './naming-api-schema'
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import { errorStatus, readRequestBody } from './request-body'
+import { assertWorkspaceQuota, WorkspaceQuotaExceededError } from './storage-quota'
 import {
   assertWorkspaceAccess,
   loadWorkspace,
@@ -278,7 +279,11 @@ export async function executeNamingConversion(
     if (request.dryRun) fs.rmSync(operationDirectory, { recursive: true, force: true })
     return { statusCode: request.dryRun ? 200 : 201, response }
   } catch (error) {
-    try { moveToFailureArea(operationDirectory, root) } catch { /* preserve the original failure */ }
+    if (error instanceof WorkspaceQuotaExceededError) {
+      fs.rmSync(operationDirectory, { recursive: true, force: true })
+    } else {
+      try { moveToFailureArea(operationDirectory, root) } catch { /* preserve the original failure */ }
+    }
     throw error
   } finally {
     release()
@@ -297,7 +302,8 @@ function sendError(res: ServerResponse, error: unknown, requestId: string): void
   const status = apiError?.statusCode || errorStatus(error)
   const body = {
     error: {
-      code: apiError?.code || (status === 413 ? 'PAYLOAD_TOO_LARGE' : 'INTERNAL_ERROR'),
+      code: apiError?.code || (status === 413 ? 'PAYLOAD_TOO_LARGE'
+        : status === 507 ? 'WORKSPACE_QUOTA_EXCEEDED' : 'INTERNAL_ERROR'),
       message: apiError?.message || 'unexpected server error',
       ...(apiError?.details === undefined ? {} : { details: apiError.details }),
       requestId,
@@ -348,8 +354,10 @@ export function registerNamingApi(
         try {
           const workspace = loadWorkspace(dataRoot, workspaceId, legacyOwnerPrincipalId)
           assertWorkspaceAccess(workspace, principalId, 'writer')
+          assertWorkspaceQuota(workspaceRoot(dataRoot, workspaceId))
           return workspace
         } catch (error) {
+          if (error instanceof WorkspaceQuotaExceededError) throw error
           const status = errorStatus(error, 404)
           throw new NamingApiError(
             status === 403 ? 403 : 404,

@@ -3,9 +3,10 @@
 DVBFixer exposes an initial versioned HTTP operation through a host-neutral Node
 route composition shared by the Vite development adapter and the bundled
 standalone server. Static bearer authentication and manifest-backed workspace
-authorization are available, but the host is not yet an internet-facing
-production service: TLS, restrictive CORS, quotas, audit retention, and
-multi-instance locking remain planned work.
+authorization, restrictive browser-origin handling, workspace/upload limits,
+and process-wide child concurrency limits are available. The host is not yet an
+internet-facing production service: TLS, rate limiting, OS-level quotas, audit
+retention, and multi-instance locking remain planned work.
 
 The OpenAPI 3.1 document is available at:
 
@@ -108,7 +109,22 @@ subprocess and filesystem details are not returned to clients.
 
 ## Limits
 
-The JSON body uses the shared 2 MiB request limit. Naming-specific defaults are:
+The JSON body uses the shared 2 MiB request limit. General server defaults are:
+
+| Environment variable | Default | Purpose |
+|---|---:|---|
+| `DVBFIXER_GUI_MAX_UPLOAD_BYTES` | 256 MiB | Maximum workspace import request body |
+| `DVBFIXER_GUI_WORKSPACE_QUOTA_BYTES` | 5 GiB | Logical bytes per workspace; `0` disables |
+| `DVBFIXER_MAX_CONCURRENT_PROCESSES` | 1 | FIFO child-process limit, from 1 through 64 |
+
+Workspace accounting includes regular files in hidden, failed-run, and trash
+directories and refuses symlinks. Request-size failures return `413`; a
+workspace publication that exceeds its quota returns `507`. The storage limit
+is an application-level, single-process steady-state check, not an OS filesystem
+quota. A child process can temporarily create data before publication checks,
+and multiple server instances do not coordinate limits.
+
+Naming-specific defaults are:
 
 | Environment variable | Default | Purpose |
 |---|---:|---|
@@ -119,6 +135,25 @@ The JSON body uses the shared 2 MiB request limit. Naming-specific defaults are:
 The subprocess receives `SIGTERM` on timeout and escalates to `SIGKILL` after a
 short grace period. Failed operation directories move below `runs/_failed` and
 are never registered as visible artifacts.
+
+## Browser Origins
+
+Requests without an `Origin` header remain available to non-browser clients.
+Browser requests are allowed from the request's exact same origin. Configure
+additional origins as a bounded JSON array of exact canonical HTTP(S) origins:
+
+```bash
+export DVBFIXER_CORS_ALLOWED_ORIGINS='["https://structures.example.org"]'
+```
+
+When TLS terminates or `Host` is rewritten at a reverse proxy, list the public
+HTTPS origin explicitly; the backend does not trust forwarded scheme or host
+headers.
+
+Wildcard origins, `null`, credentials mode, private-network preflights, malformed
+or duplicate Origin headers, and unlisted cross-origin requests are rejected.
+Preflights permit only the API methods and the `Authorization`, `Content-Type`,
+`Accept`, and `X-File-Name` request headers.
 
 ## Standalone Host
 
@@ -137,5 +172,5 @@ escalation, drains HTTP work, and then closes PostgreSQL.
 
 Remote binding requires configured authentication and
 `DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit acknowledgment. It remains
-unsupported for untrusted networks until TLS, restrictive CORS, quotas, audit
-retention, and multi-instance controls are implemented.
+unsupported for untrusted networks until TLS, rate limiting, OS-level resource
+isolation, audit retention, and multi-instance controls are implemented.
