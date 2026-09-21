@@ -109,12 +109,12 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Authenticate the caller.
 - [x] Authorize the principal before workspace path resolution.
 - [x] Validate the request body and resolve `inputArtifactId` through the manifest.
-- [ ] Explicitly verify accepted source artifact types.
-- [ ] Enforce source artifact size limits before execution.
-- [ ] Verify operation-directory privacy and cleanup behavior.
+- [x] Explicitly verify accepted source artifact types.
+- [x] Enforce source artifact size limits before execution.
+- [x] Verify operation-directory privacy and cleanup behavior.
 - [x] Parse the report, validate output existence/digest, and publish against the current manifest revision.
 - [x] Return the output artifact and report.
-- [ ] Define and verify retained failure-log behavior.
+- [x] Define and verify retained failure-log behavior.
 
 ### Provenance, Observability, And Tests
 
@@ -126,7 +126,7 @@ partially complete, optional but not accepted, or not yet verified.
 - [ ] Generate a client from OpenAPI.
 - [ ] Verify stable validation and error envelopes across V1 routes.
 - [x] Add authentication and authorization tests after implementation.
-- [ ] Explicitly test path containment, source/request size limits, and naming timeouts.
+- [x] Explicitly test path containment, source/request size limits, and naming timeouts.
 - [x] Test artifact lookup, dry runs, one-artifact publication, concurrent manifests, and failures.
 - [ ] Validate OpenAPI examples against runtime schemas.
 

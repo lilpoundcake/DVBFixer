@@ -30,12 +30,29 @@ import {
   type WorkspaceArtifact,
 } from './workspace-api'
 
-const MAX_SOURCE_BYTES = Number(process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES || 50 * 1024 * 1024)
-const TIMEOUT_MS = Number(process.env.DVBFIXER_NAMING_TIMEOUT_MS || 60_000)
+const DEFAULT_MAX_SOURCE_BYTES = 50 * 1024 * 1024
+const DEFAULT_MAX_REPORT_BYTES = 20 * 1024 * 1024
+const DEFAULT_TIMEOUT_MS = 60_000
+const MAX_TIMEOUT_MS = 2_147_483_647
 const MAX_OUTPUT_BYTES = 1024 * 1024
 
-function maxReportBytes(): number {
-  return Number(process.env.DVBFIXER_NAMING_MAX_REPORT_BYTES || 20 * 1024 * 1024)
+function positiveIntegerSetting(name: string, fallback: number, maximum = Number.MAX_SAFE_INTEGER): number {
+  const value = process.env[name]
+  if (value === undefined) return fallback
+  if (!/^[1-9]\d*$/.test(value)) throw new Error(`${name} must be a positive integer`)
+  const parsed = Number(value)
+  if (!Number.isSafeInteger(parsed) || parsed > maximum) {
+    throw new Error(`${name} must be at most ${maximum}`)
+  }
+  return parsed
+}
+
+function namingSettings(): { maxSourceBytes: number; maxReportBytes: number; timeoutMs: number } {
+  return {
+    maxSourceBytes: positiveIntegerSetting('DVBFIXER_NAMING_MAX_SOURCE_BYTES', DEFAULT_MAX_SOURCE_BYTES),
+    maxReportBytes: positiveIntegerSetting('DVBFIXER_NAMING_MAX_REPORT_BYTES', DEFAULT_MAX_REPORT_BYTES),
+    timeoutMs: positiveIntegerSetting('DVBFIXER_NAMING_TIMEOUT_MS', DEFAULT_TIMEOUT_MS, MAX_TIMEOUT_MS),
+  }
 }
 
 type NamingRunner = typeof runDvbfixerArgs
@@ -83,12 +100,12 @@ function parseRequest(value: unknown): NamingConversionRequest {
   return value
 }
 
-function parseReport(file: string): { report: NamingCliReport; bytes: Buffer } {
+function parseReport(file: string, maxBytes: number): { report: NamingCliReport; bytes: Buffer } {
   let bytes: Buffer
   let value: unknown
   try {
     const stat = fs.statSync(file)
-    if (!stat.isFile() || stat.size > maxReportBytes()) {
+    if (!stat.isFile() || stat.size > maxBytes) {
       throw new NamingApiError(500, 'INVALID_CLI_REPORT', 'atom-names report is missing or exceeds the configured limit')
     }
     bytes = fs.readFileSync(file)
@@ -129,8 +146,15 @@ function outputName(request: NamingConversionRequest, sourceFile: string): strin
 function moveToFailureArea(operationDirectory: string, workspaceDirectory: string): void {
   if (!fs.existsSync(operationDirectory)) return
   const failed = path.join(workspaceDirectory, 'runs', '_failed')
-  fs.mkdirSync(failed, { recursive: true })
+  fs.mkdirSync(failed, { recursive: true, mode: 0o700 })
+  fs.chmodSync(failed, 0o700)
+  fs.chmodSync(operationDirectory, 0o700)
   fs.renameSync(operationDirectory, path.join(failed, path.basename(operationDirectory)))
+}
+
+function writePrivateFile(file: string, content: string | Buffer): void {
+  fs.writeFileSync(file, content, { mode: 0o600 })
+  fs.chmodSync(file, 0o600)
 }
 
 function removeSuccessHelpers(operationDirectory: string, output: string): void {
@@ -149,6 +173,7 @@ export async function executeNamingConversion(
   authorizePublication?: (workspace: ReturnType<typeof loadWorkspace>) => void,
   signal?: AbortSignal,
 ): Promise<{ statusCode: 200 | 201; response: NamingConversionResponse }> {
+  const settings = namingSettings()
   let initial
   try { initial = loadWorkspace(dataRoot, workspaceId) } catch {
     throw new NamingApiError(404, 'WORKSPACE_NOT_FOUND', 'workspace does not exist')
@@ -167,8 +192,8 @@ export async function executeNamingConversion(
   }
   const stat = fs.statSync(source)
   if (!stat.isFile()) throw new NamingApiError(404, 'ARTIFACT_NOT_FOUND', 'input artifact is not a file')
-  if (stat.size > MAX_SOURCE_BYTES) {
-    throw new NamingApiError(413, 'SOURCE_TOO_LARGE', `input artifact exceeds ${MAX_SOURCE_BYTES} bytes`)
+  if (stat.size > settings.maxSourceBytes) {
+    throw new NamingApiError(413, 'SOURCE_TOO_LARGE', `input artifact exceeds ${settings.maxSourceBytes} bytes`)
   }
   const sourceSha256 = sha256(fs.readFileSync(source))
 
@@ -179,8 +204,11 @@ export async function executeNamingConversion(
   const operationDirectory = path.join(root, 'runs', `naming_${operationId}`)
   const output = path.join(operationDirectory, outputName(request, sourceArtifact.file))
   const reportFile = path.join(operationDirectory, 'report.json')
+  let retainedStdout: string | undefined
+  let retainedStderr: string | undefined
+  let retainedReport: Buffer | undefined
   try {
-    fs.mkdirSync(operationDirectory, { recursive: false })
+    fs.mkdirSync(operationDirectory, { recursive: false, mode: 0o700 })
     const args = [
       source, '-o', output,
       '--target-ff', request.target.forceField,
@@ -190,23 +218,32 @@ export async function executeNamingConversion(
     if (request.variantOverrides?.length) {
       const overridesFile = path.join(operationDirectory, 'variant-overrides.json')
       writeJsonAtomic(overridesFile, request.variantOverrides)
+      fs.chmodSync(overridesFile, 0o600)
       args.push('--variant-overrides', overridesFile)
     }
     if (request.dryRun) args.push('--dry-run')
 
     const run = await runner('atom-names', args, operationDirectory, {
-      timeoutMs: TIMEOUT_MS, maxOutputBytes: MAX_OUTPUT_BYTES, killGraceMs: 2_000, signal,
+      timeoutMs: settings.timeoutMs, maxOutputBytes: MAX_OUTPUT_BYTES, killGraceMs: 2_000, signal,
     })
-    fs.writeFileSync(path.join(operationDirectory, 'stdout.log'), run.stdout)
-    fs.writeFileSync(path.join(operationDirectory, 'stderr.log'), run.stderr)
-    if (!run.started && (run.failure === 'overloaded' || run.failure === 'shutdown')) {
-      throw new NamingApiError(
-        503,
-        run.failure === 'overloaded' ? 'SERVER_BUSY' : 'SERVER_SHUTTING_DOWN',
-        run.failure === 'overloaded' ? 'DVBFixer process queue is full' : 'DVBFixer server is shutting down',
-      )
+    retainedStdout = run.stdout
+    retainedStderr = run.stderr
+    writePrivateFile(path.join(operationDirectory, 'stdout.log'), run.stdout)
+    writePrivateFile(path.join(operationDirectory, 'stderr.log'), run.stderr)
+    if (run.failure && run.failure !== 'nonzero-exit') {
+      const failures = {
+        overloaded: [503, 'SERVER_BUSY', 'DVBFixer process queue is full'],
+        shutdown: [503, 'SERVER_SHUTTING_DOWN', 'DVBFixer server is shutting down'],
+        timeout: [504, 'NAMING_TIMEOUT', 'atom-names timed out'],
+        cancelled: [499, 'REQUEST_CANCELLED', 'naming conversion was cancelled'],
+        'spawn-error': [500, 'SUBPROCESS_FAILED', 'atom-names could not be started'],
+      } as const
+      const [statusCode, code, message] = failures[run.failure]
+      throw new NamingApiError(statusCode, code, message)
     }
-    const parsed = parseReport(reportFile)
+    const parsed = parseReport(reportFile, settings.maxReportBytes)
+    fs.chmodSync(reportFile, 0o600)
+    retainedReport = parsed.bytes
     validateReportRequest(parsed.report, request)
     if (run.code !== 0 || parsed.report.status !== 'success' || !parsed.report.result) {
       const cliError = parsed.report.error
@@ -291,7 +328,30 @@ export async function executeNamingConversion(
     if (error instanceof WorkspaceQuotaExceededError) {
       fs.rmSync(operationDirectory, { recursive: true, force: true })
     } else {
-      try { moveToFailureArea(operationDirectory, root) } catch { /* preserve the original failure */ }
+      try {
+        if (fs.existsSync(operationDirectory)) {
+          if (retainedStdout !== undefined) writePrivateFile(path.join(operationDirectory, 'stdout.log'), retainedStdout)
+          if (retainedStderr !== undefined) writePrivateFile(path.join(operationDirectory, 'stderr.log'), retainedStderr)
+          if (retainedReport) writePrivateFile(reportFile, retainedReport)
+          if (request.variantOverrides?.length) {
+            const overridesFile = path.join(operationDirectory, 'variant-overrides.json')
+            if (!fs.existsSync(overridesFile)) {
+              writeJsonAtomic(overridesFile, request.variantOverrides)
+              fs.chmodSync(overridesFile, 0o600)
+            }
+          }
+        }
+      } catch { /* quarantine is still attempted if diagnostic restoration fails */ }
+      let retainFailure = true
+      try { assertWorkspaceQuota(root) } catch (quotaError) {
+        if (quotaError instanceof WorkspaceQuotaExceededError) {
+          fs.rmSync(operationDirectory, { recursive: true, force: true })
+          retainFailure = false
+        }
+      }
+      if (retainFailure) {
+        try { moveToFailureArea(operationDirectory, root) } catch { /* preserve the original failure */ }
+      }
     }
     throw error
   } finally {

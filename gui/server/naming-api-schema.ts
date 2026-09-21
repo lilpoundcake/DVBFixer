@@ -173,6 +173,7 @@ export const NAMING_OPENAPI_DOCUMENT = {
           '405': { description: 'Method not allowed', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
           '422': { description: 'Unsafe conversion', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
           '500': { description: 'Internal failure', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '504': { description: 'Naming conversion timed out', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
         },
       },
     },

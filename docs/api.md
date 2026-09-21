@@ -92,8 +92,10 @@ inside the named workspace with traversal and symlink containment checks.
 
 `variantOverrides`, `outputName`, and `dryRun` are optional. Overrides use exact,
 case-sensitive chain, residue-number, and insertion-code identity. V1 accepts
-PDB artifacts (`.pdb` or `.ent`) only. The server generates an output name when
-one is omitted.
+PDB artifacts (`.pdb` or `.ent`) only. The artifact must be a visible workspace
+`structure` whose contained source resolves to a regular file. Extension
+matching is case-insensitive. The server generates an output name when one is
+omitted.
 
 A successful conversion returns `201` and registers exactly one new structure
 artifact. Its manifest metadata records the source artifact ID, request options,
@@ -220,9 +222,22 @@ Naming-specific defaults are:
 | `DVBFIXER_NAMING_MAX_REPORT_BYTES` | 20 MiB | Maximum CLI report size |
 | `DVBFIXER_NAMING_TIMEOUT_MS` | 60,000 ms | Subprocess timeout |
 
-The subprocess receives `SIGTERM` on timeout and escalates to `SIGKILL` after a
-short grace period. Failed operation directories move below `runs/_failed` and
-are never registered as visible artifacts.
+These settings must be positive safe integers; the timeout may not exceed
+2,147,483,647 ms, Node's timer maximum. Source size is checked before the
+operation directory is created or a child process is admitted. The subprocess
+receives `SIGTERM` on timeout and escalates to `SIGKILL` after a short grace
+period; the API returns `504 NAMING_TIMEOUT`.
+
+Operation directories and the shared `runs/_failed` directory use mode `0700`
+on POSIX hosts. Server-owned logs, validated reports, and variant-override files
+use mode `0600`. Successful publication removes those helpers, and a dry run
+removes the whole operation directory. Other failures retain the bounded stdout,
+stderr, report when available, overrides, and any partial output below
+`runs/_failed`; publication-stage failures restore diagnostics removed during
+the commit attempt. Failed runs are never registered as visible artifacts, are
+counted against workspace quota, and currently remain until an operator removes
+them. A quota-exhaustion failure deletes its operation data instead of retaining
+more bytes.
 
 ## Browser Origins
 

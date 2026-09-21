@@ -50,6 +50,8 @@ function successfulRunner(options: {
   dryRun?: boolean
   beforeWrite?: () => void
   outputSha256?: string
+  stdout?: string
+  stderr?: string
 } = {}) {
   return async (_command: string, args: string[]) => {
     options.beforeWrite?.()
@@ -75,7 +77,7 @@ function successfulRunner(options: {
       },
       error: null,
     }))
-    return { code: 0, stdout: '', stderr: '' }
+    return { code: 0, stdout: options.stdout || '', stderr: options.stderr || '' }
   }
 }
 
@@ -217,6 +219,8 @@ describe('naming conversion application boundary', () => {
     const dataRoot = temp()
     workspace(dataRoot)
     const runner = successfulRunner({
+      stdout: 'conversion output',
+      stderr: 'conversion diagnostics',
       beforeWrite: () => {
         const latest = loadWorkspace(dataRoot, 'workspace-a')
         latest.artifacts[0].file = 'files/replaced.pdb'
@@ -229,6 +233,35 @@ describe('naming conversion application boundary', () => {
       .rejects.toMatchObject({ statusCode: 409, code: 'SOURCE_ARTIFACT_CHANGED' })
 
     expect(loadWorkspace(dataRoot, 'workspace-a').artifacts).toHaveLength(1)
+    const failedRoot = path.join(workspaceRoot(dataRoot, 'workspace-a'), 'runs', '_failed')
+    const failedRun = path.join(failedRoot, fs.readdirSync(failedRoot)[0])
+    expect(fs.readFileSync(path.join(failedRun, 'stdout.log'), 'utf8')).toBe('conversion output')
+    expect(fs.readFileSync(path.join(failedRun, 'stderr.log'), 'utf8')).toBe('conversion diagnostics')
+    expect(fs.existsSync(path.join(failedRun, 'report.json'))).toBe(true)
+  })
+
+  it('deletes failure diagnostics that would leave the workspace over quota', async () => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const root = workspaceRoot(dataRoot, 'workspace-a')
+    initializeStorageQuota({
+      maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
+      workspaceQuotaBytes: workspaceLogicalBytes(root) + 256,
+    })
+    const runner = successfulRunner({
+      stderr: 'x'.repeat(512),
+      beforeWrite: () => {
+        const latest = loadWorkspace(dataRoot, 'workspace-a')
+        latest.artifacts[0].file = 'files/replaced.pdb'
+        fs.writeFileSync(path.join(root, 'files', 'replaced.pdb'), 'END\n')
+        saveWorkspace(dataRoot, latest)
+      },
+    })
+
+    await expect(executeNamingConversion(dataRoot, 'workspace-a', request, runner))
+      .rejects.toMatchObject({ code: 'SOURCE_ARTIFACT_CHANGED' })
+
+    expect(fs.readdirSync(path.join(root, 'runs'))).toEqual([])
   })
 
   it('maps a stable CLI conversion error without registering an artifact', async () => {
@@ -300,6 +333,123 @@ describe('naming conversion application boundary', () => {
       code: -1, stdout: '', stderr: 'DVBfixer process queue is full',
       started: false, failure: 'overloaded' as const,
     }))).rejects.toMatchObject({ statusCode: 503, code: 'SERVER_BUSY' })
+  })
+
+  it('classifies timeouts before report parsing and retains private diagnostics', async () => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const previousTimeout = process.env.DVBFIXER_NAMING_TIMEOUT_MS
+    process.env.DVBFIXER_NAMING_TIMEOUT_MS = '123'
+    let observedTimeout: number | undefined
+    try {
+      await expect(executeNamingConversion(
+        dataRoot,
+        'workspace-a',
+        { ...request, variantOverrides: [{
+          chainId: 'A', residueNumber: '1', insertionCode: '', variant: 'HIE',
+        }] },
+        async (_command, _args, _cwd, options) => {
+          observedTimeout = options.timeoutMs
+          return {
+            code: -1, stdout: 'partial output', stderr: 'timed out',
+            started: true, failure: 'timeout' as const,
+          }
+        },
+      )).rejects.toMatchObject({ statusCode: 504, code: 'NAMING_TIMEOUT' })
+    } finally {
+      if (previousTimeout === undefined) delete process.env.DVBFIXER_NAMING_TIMEOUT_MS
+      else process.env.DVBFIXER_NAMING_TIMEOUT_MS = previousTimeout
+    }
+
+    expect(observedTimeout).toBe(123)
+    const root = workspaceRoot(dataRoot, 'workspace-a')
+    const failedRoot = path.join(root, 'runs', '_failed')
+    const failedRun = path.join(failedRoot, fs.readdirSync(failedRoot)[0])
+    expect(fs.readFileSync(path.join(failedRun, 'stdout.log'), 'utf8')).toBe('partial output')
+    expect(fs.readFileSync(path.join(failedRun, 'stderr.log'), 'utf8')).toBe('timed out')
+    expect(fs.existsSync(path.join(failedRun, 'variant-overrides.json'))).toBe(true)
+    if (process.platform !== 'win32') {
+      expect(fs.statSync(failedRoot).mode & 0o777).toBe(0o700)
+      expect(fs.statSync(failedRun).mode & 0o777).toBe(0o700)
+      expect(fs.statSync(path.join(failedRun, 'stdout.log')).mode & 0o777).toBe(0o600)
+      expect(fs.statSync(path.join(failedRun, 'stderr.log')).mode & 0o777).toBe(0o600)
+      expect(fs.statSync(path.join(failedRun, 'variant-overrides.json')).mode & 0o777).toBe(0o600)
+    }
+    expect(loadWorkspace(dataRoot, 'workspace-a').artifacts).toHaveLength(1)
+  })
+
+  it('rejects timeout settings above the Node timer range before execution', async () => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const previousTimeout = process.env.DVBFIXER_NAMING_TIMEOUT_MS
+    process.env.DVBFIXER_NAMING_TIMEOUT_MS = '2147483648'
+    let ran = false
+    try {
+      await expect(executeNamingConversion(dataRoot, 'workspace-a', request, async () => {
+        ran = true
+        return { code: 0, stdout: '', stderr: '', started: true }
+      })).rejects.toThrow('DVBFIXER_NAMING_TIMEOUT_MS must be at most 2147483647')
+    } finally {
+      if (previousTimeout === undefined) delete process.env.DVBFIXER_NAMING_TIMEOUT_MS
+      else process.env.DVBFIXER_NAMING_TIMEOUT_MS = previousTimeout
+    }
+    expect(ran).toBe(false)
+  })
+
+  it('accepts PDB extensions and rejects unsupported artifact types before execution', async () => {
+    const dataRoot = temp()
+    let manifest = workspace(dataRoot)
+    const root = workspaceRoot(dataRoot, 'workspace-a')
+    fs.renameSync(path.join(root, 'files', 'input.pdb'), path.join(root, 'files', 'input.ENT'))
+    manifest.artifacts[0].file = 'files/input.ENT'
+    manifest = saveWorkspace(dataRoot, manifest)
+    let runs = 0
+    const runner = async (...args: Parameters<ReturnType<typeof successfulRunner>>) => {
+      runs += 1
+      return successfulRunner()(...args)
+    }
+
+    await executeNamingConversion(dataRoot, 'workspace-a', request, runner)
+    expect(runs).toBe(1)
+
+    manifest = loadWorkspace(dataRoot, 'workspace-a')
+    manifest.artifacts[0].kind = 'artifact'
+    saveWorkspace(dataRoot, manifest)
+    await expect(executeNamingConversion(dataRoot, 'workspace-a', request, runner))
+      .rejects.toMatchObject({ statusCode: 415, code: 'UNSUPPORTED_SOURCE_FORMAT' })
+
+    manifest = loadWorkspace(dataRoot, 'workspace-a')
+    manifest.artifacts[0].kind = 'structure'
+    manifest.artifacts[0].file = 'files/input.cif'
+    fs.writeFileSync(path.join(root, 'files', 'input.cif'), 'data_test\n')
+    saveWorkspace(dataRoot, manifest)
+    await expect(executeNamingConversion(dataRoot, 'workspace-a', request, runner))
+      .rejects.toMatchObject({ statusCode: 415, code: 'UNSUPPORTED_SOURCE_FORMAT' })
+    expect(runs).toBe(1)
+  })
+
+  it('enforces the source limit before invoking the runner', async () => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const source = path.join(workspaceRoot(dataRoot, 'workspace-a'), 'files', 'input.pdb')
+    const sourceBytes = fs.statSync(source).size
+    const previousLimit = process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES
+    let runs = 0
+    const runner = async (...args: Parameters<ReturnType<typeof successfulRunner>>) => {
+      runs += 1
+      return successfulRunner()(...args)
+    }
+    try {
+      process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES = String(sourceBytes)
+      await executeNamingConversion(dataRoot, 'workspace-a', request, runner)
+      process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES = String(sourceBytes - 1)
+      await expect(executeNamingConversion(dataRoot, 'workspace-a', request, runner))
+        .rejects.toMatchObject({ statusCode: 413, code: 'SOURCE_TOO_LARGE' })
+    } finally {
+      if (previousLimit === undefined) delete process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES
+      else process.env.DVBFIXER_NAMING_MAX_SOURCE_BYTES = previousLimit
+    }
+    expect(runs).toBe(1)
   })
 
   it('rejects source symlinks that escape the workspace', async () => {
@@ -401,5 +551,14 @@ describe('naming API transport contract', () => {
     }))
     expect(unknown.status).toBe(400)
     expect(unknown.body.error.code).toBe('INVALID_REQUEST')
+  })
+
+  it('returns the V1 error envelope for an oversized request body', async () => {
+    const response = await apiRequest(
+      temp(), 'POST', '/workspaces/workspace-a/naming-conversions', 'x'.repeat(2 * 1024 * 1024 + 1),
+    )
+    expect(response.status).toBe(413)
+    expect(response.body.error.code).toBe('PAYLOAD_TOO_LARGE')
+    expect(response.body.error.requestId).toMatch(/^req_/)
   })
 })
