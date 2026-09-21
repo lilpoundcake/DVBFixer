@@ -334,6 +334,7 @@ The standalone server defaults to `127.0.0.1:5173`. Configuration:
 | `DVBFIXER_RATE_LIMIT_REQUESTS` | `120` | Requests allowed per direct client address and window; `0` disables |
 | `DVBFIXER_RATE_LIMIT_WINDOW_MS` | `60000` | Fixed rate-limit window duration |
 | `DVBFIXER_RATE_LIMIT_MAX_KEYS` | `10000` | Maximum client addresses tracked per server process |
+| `DVBFIXER_ACCESS_LOG` | `off` | `off` or structured one-line `json` API access records on stdout |
 | `DVBFIXER_MUTATIONS_BACKUP_FILE` | `<gui>/mutations.json` | Mutable PostgreSQL backup location |
 | `DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED` | `0` | Require the Linux systemd/cgroup-v2 resource preflight |
 | `DVBFIXER_OS_DATA_FILESYSTEM_MAX_BYTES` | unset | Maximum dedicated data-filesystem capacity when the preflight is enabled |

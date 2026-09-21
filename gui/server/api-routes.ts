@@ -46,6 +46,9 @@ import {
   assertWorkspaceQuota, configureStorageQuota, WorkspaceQuotaExceededError,
   type StorageQuotaOptions,
 } from './storage-quota'
+import {
+  createRequestObservabilityMiddleware, parseAccessLogConfig, type AccessLogConfig,
+} from './request-observability'
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
 
@@ -266,6 +269,7 @@ export interface ApiRouteOptions {
   storageQuota?: StorageQuotaOptions
   maxConcurrentProcesses?: number
   rateLimit?: RateLimitConfig
+  accessLog?: AccessLogConfig
 }
 
 export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions): void {
@@ -274,6 +278,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       const legacyWorkspaceOwner = options.legacyWorkspaceOwner || resolveLegacyWorkspaceOwner(authConfig)
       const corsAllowedOrigins = options.corsAllowedOrigins || parseCorsAllowedOrigins(process.env)
       const rateLimit = options.rateLimit || parseRateLimitConfig(process.env)
+      const accessLog = options.accessLog || parseAccessLogConfig(process.env)
       configureStorageQuota(options.storageQuota)
       initializeDvbfixerProcessAdmission(
         options.maxConcurrentProcesses === undefined
@@ -283,6 +288,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       fs.mkdirSync(structuresDir, { recursive: true })
       mutationsBackupFile = path.resolve(options.projectRoot, options.mutationsBackupFile || 'mutations.json')
       const rateLimitMiddleware = createRateLimitMiddleware(rateLimit)
+      server.middlewares.use('/api', createRequestObservabilityMiddleware(accessLog))
       server.middlewares.use('/api', createCorsMiddleware(corsAllowedOrigins, rateLimitMiddleware))
       server.middlewares.use('/api', rateLimitMiddleware)
       server.middlewares.use('/api', createAuthMiddleware(authConfig))

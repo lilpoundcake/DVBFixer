@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
 import http from 'node:http'
 import os from 'node:os'
@@ -48,6 +48,7 @@ describe('standalone configuration', () => {
       staticRoot: path.join(root, 'dist'),
       mutationsBackupFile: path.join(root, 'mutations.json'),
       deploymentResources: { required: false },
+      accessLog: { enabled: false },
     })
   })
 
@@ -82,6 +83,7 @@ describe('standalone configuration', () => {
     expect(() => loadStandaloneConfig({
       DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED: '1',
     }, temp())).toThrow(/TMPDIR/)
+    expect(() => loadStandaloneConfig({ DVBFIXER_ACCESS_LOG: 'text' }, temp())).toThrow(/off or json/)
   })
 
   it('fails before listening when the static client is absent', () => {
@@ -107,6 +109,28 @@ describe('standalone configuration', () => {
 })
 
 describe('standalone HTTP server', () => {
+  it('emits a redacted access record using the ingress route label', async () => {
+    const config = fixture()
+    config.accessLog = { enabled: true }
+    const lines: string[] = []
+    const log = vi.spyOn(console, 'log').mockImplementation(line => lines.push(String(line)))
+    const instance = createStandaloneServer(config)
+    const address = await instance.start()
+    try {
+      const response = await fetch(`http://127.0.0.1:${address.port}/api/health?secret=value`)
+      expect(response.status).toBe(200)
+      await new Promise(resolve => setImmediate(resolve))
+      const records = lines.map(line => { try { return JSON.parse(line) } catch { return null } })
+        .filter(record => record?.schema === 'dvbfixer.http_access.v1')
+      expect(records).toHaveLength(1)
+      expect(records[0]).toMatchObject({ route: '/api/health', status: 200, outcome: 'completed' })
+      expect(lines.join('\n')).not.toContain('secret=value')
+    } finally {
+      await instance.close()
+      log.mockRestore()
+    }
+  })
+
   it('rate-limits by direct client address before authentication', async () => {
     const config = fixture()
     config.rateLimit = { requests: 2, windowMs: 60_000, maxKeys: 10 }
@@ -114,12 +138,18 @@ describe('standalone HTTP server', () => {
     const address = await instance.start()
     const base = `http://127.0.0.1:${address.port}`
     try {
-      expect((await fetch(`${base}/api/health`, {
+      const denied = await fetch(`${base}/api/health`, {
         headers: { Origin: 'https://evil.example' },
-      })).status).toBe(403)
-      expect((await fetch(`${base}/api/health`)).status).toBe(200)
+      })
+      expect(denied.status).toBe(403)
+      expect(denied.headers.get('x-request-id')).toMatch(/^req_/)
+      const healthy = await fetch(`${base}/api/health`, { headers: { 'X-Request-Id': 'client-value' } })
+      expect(healthy.status).toBe(200)
+      expect(healthy.headers.get('x-request-id')).toMatch(/^req_/)
+      expect(healthy.headers.get('x-request-id')).not.toBe('client-value')
       const limited = await fetch(`${base}/api/health`)
       expect(limited.status).toBe(429)
+      expect(limited.headers.get('x-request-id')).toMatch(/^req_/)
       expect(limited.headers.get('retry-after')).toBe('60')
       expect(await limited.json()).toEqual({ error: 'rate limit exceeded' })
     } finally {
@@ -149,6 +179,8 @@ describe('standalone HTTP server', () => {
       expect(preflight.status).toBe(204)
       expect(preflight.headers.get('access-control-allow-origin')).toBe('https://client.example')
       expect(preflight.headers.get('access-control-allow-methods')).toBe('POST')
+      const allowed = await fetch(`${base}/api/health`, { headers: { Origin: 'https://client.example' } })
+      expect(allowed.headers.get('access-control-expose-headers')).toContain('X-Request-Id')
     } finally {
       await instance.close()
     }

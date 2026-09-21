@@ -115,6 +115,28 @@ All failures use a versioned error envelope with a request ID:
 }
 ```
 
+Every request reaching the shared `/api` composition receives a server-generated
+`X-Request-Id`; client-supplied values are ignored. V1 error envelopes reuse the
+same ID. Allowed cross-origin responses expose this header.
+
+## Access Logs
+
+Set `DVBFIXER_ACCESS_LOG=json` to emit one compact JSON record to stdout when an
+API response finishes or aborts. The default is `off`. Records use schema
+`dvbfixer.http_access.v1` and include the request ID, method, coarse route label,
+status, monotonic duration, completion outcome, and authenticated principal ID.
+
+Logs intentionally omit headers, bearer credentials, client addresses,
+forwarded headers, query strings, request/response bodies, workspace and
+artifact IDs, filenames, subprocess output, exception messages, and raw paths.
+Client-supplied request IDs are never trusted. Route labels are bounded templates
+or coarse API groups to avoid sensitive high-cardinality data.
+
+This is an API access log, not a durable authorization audit trail. It covers
+the shared API composition, including CORS, rate-limit, authentication, public
+endpoint, route, and unknown-API responses. A standalone loopback Host-header
+rejection occurs before that boundary and is not included.
+
 Scientific conversion failures use their stable Python error codes and HTTP
 `422`. Transport and workspace failures use API-specific codes. Unexpected
 subprocess and filesystem details are not returned to clients.
@@ -131,6 +153,7 @@ The JSON body uses the shared 2 MiB request limit. General server defaults are:
 | `DVBFIXER_RATE_LIMIT_REQUESTS` | 120 | Requests per direct client address/window; `0` disables |
 | `DVBFIXER_RATE_LIMIT_WINDOW_MS` | 60,000 ms | Fixed rate-limit window, 1–3,600 seconds |
 | `DVBFIXER_RATE_LIMIT_MAX_KEYS` | 10,000 | Maximum tracked client addresses |
+| `DVBFIXER_ACCESS_LOG` | `off` | `off` or one-line `json` API access records on stdout |
 | `DVBFIXER_MUTATIONS_BACKUP_FILE` | `<gui>/mutations.json` | Mutable PostgreSQL backup; hardened deployments place it on bounded state |
 | `DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED` | `0` | Require the Linux cgroup/filesystem preflight when set to `1` |
 | `DVBFIXER_OS_DATA_FILESYSTEM_MAX_BYTES` | unset | Maximum dedicated data-filesystem capacity; required by the OS preflight |

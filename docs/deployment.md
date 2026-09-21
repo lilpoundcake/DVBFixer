@@ -64,6 +64,15 @@ The flag is disabled by default so local macOS, Windows, Vite, and loopback
 development remain unchanged. Do not disable it in the resource-bounded systemd
 profile.
 
+## Access Log Retention
+
+The systemd example enables `DVBFIXER_ACCESS_LOG=json`; records go to stdout and
+therefore to the service journal. Configure journald forwarding, access control,
+rotation, retention, and deletion for the deployment. These redacted request
+records are operational access logs, not durable audit events. Do not grant log
+readers broader access than API operators merely because bodies and credentials
+are omitted.
+
 ## Acceptance
 
 Before treating a deployment as supported, test on the target host that CPU is

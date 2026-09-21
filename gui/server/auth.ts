@@ -1,6 +1,7 @@
-import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
+import { createHash, timingSafeEqual } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ApiMiddleware } from './http-types'
+import { ensureRequestId, setRequestPrincipal } from './request-observability'
 
 const AUTH_ENV_NAME = 'DVBFIXER_AUTH_PRINCIPALS'
 const LEGACY_OWNER_ENV_NAME = 'DVBFIXER_LEGACY_WORKSPACE_OWNER'
@@ -168,7 +169,7 @@ function isPublicRequest(request: IncomingMessage): boolean {
 
 function rejectUnauthorized(request: IncomingMessage, response: ServerResponse): void {
   const versioned = (request.url || '').startsWith('/v1/')
-  const requestId = versioned ? `req_${randomUUID()}` : null
+  const requestId = versioned ? ensureRequestId(request, response) : null
   const body = Buffer.from(JSON.stringify(versioned ? {
     error: { code: 'UNAUTHORIZED', message: 'Missing or invalid bearer credential', requestId },
   } : { error: 'Unauthorized' }))
@@ -186,6 +187,7 @@ export function createAuthMiddleware(config: AuthConfig): ApiMiddleware {
   if (config.mode === 'disabled') {
     return (request, _response, next) => {
       requestPrincipals.set(request, config.principal)
+      setRequestPrincipal(request, config.principal.id)
       next()
     }
   }
@@ -216,6 +218,7 @@ export function createAuthMiddleware(config: AuthConfig): ApiMiddleware {
     }
 
     requestPrincipals.set(request, configured[matchIndex].principal)
+    setRequestPrincipal(request, configured[matchIndex].principal.id)
     next()
   }
 }

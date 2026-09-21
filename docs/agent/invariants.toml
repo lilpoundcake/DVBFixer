@@ -339,6 +339,24 @@ failure_mode = "Unauthenticated or authenticated clients can exhaust request-pro
 test_files = ["gui/server/rate-limit.test.ts", "gui/server/standalone.test.ts"]
 known_exceptions = ["The limiter is process-local, ignores forwarded addresses, and does not replace a trusted reverse-proxy or distributed rate limit."]
 
+[invariants.INV-API-REQUEST-CORRELATION]
+status = "implemented"
+statement = "Every request reaching the shared API boundary receives one server-owned request ID, and optional structured access logs emit one redacted completion or abort record."
+owner = "gui/server/request-observability.ts::createRequestObservabilityMiddleware"
+enforcement = [
+  "gui/server/request-observability.ts::ensureRequestId",
+  "gui/server/api-routes.ts::registerApiRoutes",
+  "gui/server/auth.ts::createAuthMiddleware",
+  "gui/server/naming-api.ts::registerNamingApi",
+]
+failure_mode = "Security failures and workflow requests cannot be correlated, or logs expose credentials and scientific/workspace data."
+test_files = [
+  "gui/server/request-observability.test.ts",
+  "gui/server/auth.test.ts",
+  "gui/server/standalone.test.ts",
+]
+known_exceptions = ["Access logs are not durable audit events; standalone Host-header rejection occurs before the shared API boundary."]
+
 [invariants.INV-FIXTURE-PROVENANCE-CHECKSUM]
 status = "implemented"
 statement = "Tracked scientific input fixtures have documented provenance and checksums, and do not depend on the ignored local test tree."

@@ -17,6 +17,7 @@ import {
 } from './naming-api-schema'
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import { errorStatus, readRequestBody } from './request-body'
+import { ensureRequestId } from './request-observability'
 import { assertWorkspaceQuota, WorkspaceQuotaExceededError } from './storage-quota'
 import {
   assertWorkspaceAccess,
@@ -329,8 +330,7 @@ export function registerNamingApi(
     }
     const match = route.match(/^\/workspaces\/([^/]+)\/naming-conversions$/)
     if (!match) return next()
-    const requestId = `req_${crypto.randomUUID()}`
-    res.setHeader('X-Request-Id', requestId)
+    const requestId = ensureRequestId(req, res)
     if (req.method !== 'POST') return sendError(res, new NamingApiError(405, 'METHOD_NOT_ALLOWED', 'method not allowed'), requestId)
     if (!String(req.headers['content-type'] || '').toLowerCase().startsWith('application/json')) {
       return sendError(res, new NamingApiError(415, 'UNSUPPORTED_MEDIA_TYPE', 'Content-Type must be application/json'), requestId)

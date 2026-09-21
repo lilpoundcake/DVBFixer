@@ -5,6 +5,7 @@ import { parseCorsAllowedOrigins } from './cors'
 import { parseDvbfixerMaxConcurrentProcesses } from './dvbfixer-runner'
 import { parseStorageQuotaSettings } from './storage-quota'
 import { parseRateLimitConfig } from './rate-limit'
+import { parseAccessLogConfig } from './request-observability'
 
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
@@ -20,6 +21,7 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
       const corsAllowedOrigins = parseCorsAllowedOrigins(environment)
       const storageQuota = parseStorageQuotaSettings(environment)
       const rateLimit = parseRateLimitConfig(environment)
+      const accessLog = parseAccessLogConfig(environment)
       const maxConcurrentProcesses = parseDvbfixerMaxConcurrentProcesses(
         environment.DVBFIXER_MAX_CONCURRENT_PROCESSES,
       )
@@ -40,6 +42,7 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
         storageQuota,
         maxConcurrentProcesses,
         rateLimit,
+        accessLog,
       })
     },
   }

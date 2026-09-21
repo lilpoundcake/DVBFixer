@@ -39,6 +39,7 @@ describe('host-neutral API composition', () => {
       '/api',
       '/api',
       '/api',
+      '/api',
       '/api/health',
       '/api/session',
       '/api/workspaces',

@@ -218,7 +218,7 @@ export function createCorsMiddleware(
     response.setHeader('Access-Control-Allow-Origin', origin)
     response.setHeader(
       'Access-Control-Expose-Headers',
-      'RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, Retry-After',
+      'RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, Retry-After, X-Request-Id',
     )
     next()
   }

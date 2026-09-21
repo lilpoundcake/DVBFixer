@@ -407,13 +407,14 @@ Core naming slice implemented on 2026-09-18: the shared Node adapter uses
 TypeBox runtime schemas, publishes OpenAPI 3.1, resolves source artifacts by ID,
 validates bounded CLI reports and output digests, preserves concurrent manifest
 updates by reloading before publication, and records reproducible provenance.
-Structured logs, metrics, and a generated client remain. Authentication,
+Server-owned request IDs and structured API access logs are implemented.
+Metrics, durable audit events/retention, and a generated client remain. Authentication,
 workspace authorization, and the standalone host are implemented in Phase 4.
 
 - Add runtime request/response schemas and the V1 route.
 - Use workspace artifact IDs and atomic artifact registration.
 - Generate an OpenAPI document from the same schemas.
-- Add request IDs, structured logs, metrics, and audit fields.
+- Add request IDs and structured access logs; then metrics and durable audit fields.
 
 Exit criterion: the route passes contract, security, provenance, and concurrent
 manifest tests and is usable by the GUI through a generated client.
