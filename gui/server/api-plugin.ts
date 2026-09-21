@@ -33,6 +33,7 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
       }
       registerApiRoutes(server, {
         projectRoot: server.config.root,
+        mutationsBackupFile: environment.DVBFIXER_MUTATIONS_BACKUP_FILE,
         authConfig,
         legacyWorkspaceOwner: resolveLegacyWorkspaceOwner(authConfig, environment),
         corsAllowedOrigins,

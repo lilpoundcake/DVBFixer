@@ -32,7 +32,7 @@ import {
 } from './dvbfixer-runner'
 import {
   assertWorkspaceAccess, loadWorkspace, registerWorkspaceApi, resolveWorkspaceFile, updateWorkspace,
-  migrateWorkspaceOwnership, workspaceRoot,
+  migrateWorkspaceOwnership, workspaceRoot, writeJsonAtomic,
 } from './workspace-api'
 import { errorStatus, readRequestBody } from './request-body'
 import type { ApiRouteHost } from './http-types'
@@ -73,34 +73,36 @@ export function resetApiShutdown(): void {
   resetDvbfixerProcessAdmission()
 }
 
-// Project-root path used to locate the git-tracked mutations backup
-// (`mutations.json`). Set once by the Vite plugin's `configureServer`
-// hook; falls back to `process.cwd()` if a request races startup.
-let projectRoot: string | null = null
+// Configurable path for the mutations backup. Development defaults to the
+// git-tracked project-root file; hardened deployments keep it on bounded state.
+let mutationsBackupFile: string | null = null
+let mutationsBackupWrites: Promise<void> = Promise.resolve()
 
 function mutationsBackupPath(): string {
-  return path.join(projectRoot ?? process.cwd(), 'mutations.json')
+  return mutationsBackupFile ?? path.join(process.cwd(), 'mutations.json')
 }
 
 /**
- * Snapshot the full mutations table to `mutations.json` at repo root.
+ * Snapshot the full mutations table to the configured JSON backup.
  * Called after every successful CRUD write so the git-tracked backup
  * stays in sync with the live DB. Failures are warned but not fatal —
  * a dump miss is better than crashing the API.
  */
 async function dumpMutationsToBackup(pg: PgClient) {
-  try {
+  const write = mutationsBackupWrites.then(async () => {
     const { rows } = await pg.query(
       'SELECT id, chain, mutation_name, mutations, igg_subclass, properties, display_order FROM mutations ORDER BY display_order ASC, id ASC'
     )
-    fs.writeFileSync(mutationsBackupPath(), JSON.stringify(rows, null, 2) + '\n')
-  } catch (err) {
+    writeJsonAtomic(mutationsBackupPath(), rows)
+  }).catch(err => {
     console.warn('[api] failed to dump mutations backup:', err)
-  }
+  })
+  mutationsBackupWrites = write
+  await write
 }
 
 /**
- * If the mutations table is empty and a backup file exists at repo root,
+ * If the mutations table is empty and a configured backup file exists,
  * seed the table from it. Runs once on first connection — subsequent
  * runs find the table non-empty and skip. This means a fresh clone with
  * the committed `mutations.json` gets the team's mutation library
@@ -257,6 +259,7 @@ function listRunFiles(root: string): string[] {
 export interface ApiRouteOptions {
   projectRoot: string
   dataRoot?: string
+  mutationsBackupFile?: string
   authConfig?: AuthConfig
   legacyWorkspaceOwner?: string
   corsAllowedOrigins?: readonly string[]
@@ -278,10 +281,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           : String(options.maxConcurrentProcesses),
       )
       fs.mkdirSync(structuresDir, { recursive: true })
-      // Remember the repo root so the mutations backup writer / seeder
-      // can find `mutations.json` regardless of which working directory
-      // the dev server was launched from.
-      projectRoot = options.projectRoot
+      mutationsBackupFile = path.resolve(options.projectRoot, options.mutationsBackupFile || 'mutations.json')
       const rateLimitMiddleware = createRateLimitMiddleware(rateLimit)
       server.middlewares.use('/api', createCorsMiddleware(corsAllowedOrigins, rateLimitMiddleware))
       server.middlewares.use('/api', rateLimitMiddleware)

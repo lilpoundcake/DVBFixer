@@ -5,14 +5,20 @@ route composition shared by the Vite development adapter and the bundled
 standalone server. Static bearer authentication and manifest-backed workspace
 authorization, restrictive browser-origin handling, request-rate and workspace/
 upload limits, and process-wide child concurrency limits are available. The host
-is not yet an internet-facing production service: TLS, OS-level quotas, audit
-retention, and distributed scheduling/event delivery remain planned work.
+is not yet an internet-facing production service: TLS, target-host resource
+enforcement acceptance, audit retention, and distributed scheduling/event
+delivery remain planned work.
 
 Workspace manifest mutations use same-host cross-process filesystem locks and
 compare revisions against the locked on-disk manifest. This prevents concurrent
 Node processes sharing one local data root from losing manifest updates. The
 lock is not a distributed lease and does not support multiple hosts or
 filesystems without local atomic rename and reliable process identity.
+
+A Linux systemd/cgroup-v2 profile for aggregate OS resource containment is
+available in [`deployment.md`](deployment.md). Public deployment remains
+unsupported until the target host passes its privileged enforcement checks and
+the remaining TLS, audit, and durable-scheduling controls are supplied.
 
 The OpenAPI 3.1 document is available at:
 
@@ -125,6 +131,14 @@ The JSON body uses the shared 2 MiB request limit. General server defaults are:
 | `DVBFIXER_RATE_LIMIT_REQUESTS` | 120 | Requests per direct client address/window; `0` disables |
 | `DVBFIXER_RATE_LIMIT_WINDOW_MS` | 60,000 ms | Fixed rate-limit window, 1–3,600 seconds |
 | `DVBFIXER_RATE_LIMIT_MAX_KEYS` | 10,000 | Maximum tracked client addresses |
+| `DVBFIXER_MUTATIONS_BACKUP_FILE` | `<gui>/mutations.json` | Mutable PostgreSQL backup; hardened deployments place it on bounded state |
+| `DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED` | `0` | Require the Linux cgroup/filesystem preflight when set to `1` |
+| `DVBFIXER_OS_DATA_FILESYSTEM_MAX_BYTES` | unset | Maximum dedicated data-filesystem capacity; required by the OS preflight |
+| `DVBFIXER_OS_TEMP_FILESYSTEM_MAX_BYTES` | unset | Maximum capacity of each private `/tmp` and `/var/tmp`; required by the OS preflight |
+| `DVBFIXER_OS_CPU_QUOTA_PERCENT` | unset | Maximum accepted cgroup CPU quota percentage; required by the OS preflight |
+| `DVBFIXER_OS_MEMORY_MAX_BYTES` | unset | Maximum accepted cgroup memory limit; required by the OS preflight |
+| `DVBFIXER_OS_MEMORY_SWAP_MAX_BYTES` | unset | Maximum accepted cgroup swap limit; `0` disables swap; required by the OS preflight |
+| `DVBFIXER_OS_TASKS_MAX` | unset | Maximum accepted cgroup task limit; required by the OS preflight |
 
 Workspace accounting includes regular files in hidden, failed-run, and trash
 directories and refuses symlinks. Request-size failures return `413`; a
@@ -132,6 +146,13 @@ workspace publication that exceeds its quota returns `507`. The storage limit
 is an application-level, single-process steady-state check, not an OS filesystem
 quota. A child process can temporarily create data before publication checks,
 and multiple server instances do not coordinate limits.
+
+The opt-in OS preflight verifies cgroup CPU, memory, swap, and task limits
+against configured ceilings, a read-only root, a dedicated capacity-bounded
+data filesystem, bounded private temporary filesystems, and containment of
+mutable home/cache/backup paths. These limits
+apply to the whole service and all descendants, not independently per workspace
+or job. See [`deployment.md`](deployment.md).
 
 The request limiter runs before authentication. CORS invokes the same limiter
 before rejecting an Origin, so rejected Origins, invalid-token attempts, and
@@ -195,5 +216,5 @@ escalation, drains HTTP work, and then closes PostgreSQL.
 Remote binding requires configured authentication and
 `DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit acknowledgment. It remains
 unsupported for untrusted networks until TLS, OS-level resource
-isolation, audit retention, and distributed scheduling/event controls are
-implemented.
+enforcement is verified on the target host, audit retention, and distributed
+scheduling/event controls are implemented.

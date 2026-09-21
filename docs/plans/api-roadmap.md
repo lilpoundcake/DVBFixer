@@ -427,7 +427,9 @@ and data-root separation, graceful HTTP/resource shutdown, and tracked child
 process termination. Static bearer authentication and workspace authorization
 are implemented. Restrictive CORS, bounded imports, logical workspace quotas,
 and process-wide child concurrency limits followed on 2026-09-21. TLS guidance,
-OS-level limits, audit retention, and multi-instance coordination remain
+same-host cross-process manifest locking, and a fail-closed Linux systemd/cgroup
+resource profile followed on 2026-09-21. Privileged target-host enforcement
+tests, audit retention, and multi-instance scheduling/event coordination remain
 before public deployment.
 
 - Extract route composition from `api-plugin.ts` into a host-neutral module.

@@ -37,7 +37,8 @@ npm run dev:no-db
 For a built local server with the same API routes, run `npm run build` followed
 by `npm start`. It binds to loopback by default; see the
 [GUI deployment notes](gui/README.md#build-for-production) for configuration
-and current security limitations.
+and current security limitations. The Linux systemd/cgroup-v2 resource profile
+is documented in [`docs/deployment.md`](docs/deployment.md).
 
 The GUI uses `gui/structures/` by default. Point it at an existing Tarantino or
 DVBfixer workspace without copying data by setting `DVBFIXER_GUI_DATA_DIR`.

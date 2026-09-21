@@ -46,6 +46,8 @@ describe('standalone configuration', () => {
       projectRoot: root,
       dataRoot: path.join(root, 'structures'),
       staticRoot: path.join(root, 'dist'),
+      mutationsBackupFile: path.join(root, 'mutations.json'),
+      deploymentResources: { required: false },
     })
   })
 
@@ -77,6 +79,9 @@ describe('standalone configuration', () => {
     expect(() => loadStandaloneConfig({
       DVBFIXER_RATE_LIMIT_WINDOW_MS: '999',
     }, temp())).toThrow(/between 1000 and 3600000/)
+    expect(() => loadStandaloneConfig({
+      DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED: '1',
+    }, temp())).toThrow(/TMPDIR/)
   })
 
   it('fails before listening when the static client is absent', () => {

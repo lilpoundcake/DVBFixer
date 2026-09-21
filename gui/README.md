@@ -334,6 +334,14 @@ The standalone server defaults to `127.0.0.1:5173`. Configuration:
 | `DVBFIXER_RATE_LIMIT_REQUESTS` | `120` | Requests allowed per direct client address and window; `0` disables |
 | `DVBFIXER_RATE_LIMIT_WINDOW_MS` | `60000` | Fixed rate-limit window duration |
 | `DVBFIXER_RATE_LIMIT_MAX_KEYS` | `10000` | Maximum client addresses tracked per server process |
+| `DVBFIXER_MUTATIONS_BACKUP_FILE` | `<gui>/mutations.json` | Mutable PostgreSQL backup location |
+| `DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED` | `0` | Require the Linux systemd/cgroup-v2 resource preflight |
+| `DVBFIXER_OS_DATA_FILESYSTEM_MAX_BYTES` | unset | Maximum dedicated data-filesystem capacity when the preflight is enabled |
+| `DVBFIXER_OS_TEMP_FILESYSTEM_MAX_BYTES` | unset | Maximum private `/tmp` and `/var/tmp` capacity when the preflight is enabled |
+| `DVBFIXER_OS_CPU_QUOTA_PERCENT` | unset | Maximum accepted cgroup CPU quota percentage when the preflight is enabled |
+| `DVBFIXER_OS_MEMORY_MAX_BYTES` | unset | Maximum accepted cgroup memory limit when the preflight is enabled |
+| `DVBFIXER_OS_MEMORY_SWAP_MAX_BYTES` | unset | Maximum accepted cgroup swap limit when the preflight is enabled |
+| `DVBFIXER_OS_TASKS_MAX` | unset | Maximum accepted cgroup task limit when the preflight is enabled |
 
 Without auth configuration, loopback mode uses an implicit `local` principal
 and requires no browser token. Configured mode accepts 32-byte base64url bearer
@@ -345,10 +353,12 @@ Non-loopback binding requires both configured authentication and
 `DVBFIXER_ALLOW_INSECURE_REMOTE=1`. API requests enforce same-origin CORS by
 default; additional origins must be listed exactly in
 `DVBFIXER_CORS_ALLOWED_ORIGINS`. Upload size, workspace storage, and child-process
-concurrency have configurable application limits. These controls do not provide
-TLS, OS-level CPU/memory/filesystem quotas, audit retention, or
-multi-instance locking. Use the standalone server only on a trusted network
-until those controls ship. Loopback mode also rejects
+concurrency have configurable application limits. A fail-closed Linux
+systemd/cgroup-v2 resource profile is documented in
+[`docs/deployment.md`](../docs/deployment.md), but it must pass privileged checks
+on the target host. The server still does not provide TLS, audit retention, or
+distributed scheduling/event delivery. Use it only on a trusted network until
+those controls ship. Loopback mode also rejects
 non-loopback HTTP `Host` headers to prevent DNS rebinding from bypassing the
 local-only boundary. `npm run preview` remains a frontend-only Vite preview and
 does not host the APIs.

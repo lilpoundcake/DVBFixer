@@ -150,6 +150,8 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Add upload and workspace limits plus process-wide child concurrency control.
 - [x] Add bounded process-local request-rate limits before authentication.
 - [ ] Add OS-level CPU, memory, and filesystem quotas.
+  - [x] Add a fail-closed systemd/cgroup-v2 deployment profile and bounded-storage preflight.
+  - [ ] Run privileged kernel-enforcement acceptance tests on the target deployment host.
 - [x] Document current local deployment and security boundaries.
 - [ ] Document a supported public deployment after security controls exist.
 - [x] Add storage-level manifest locking or compare-and-swap.

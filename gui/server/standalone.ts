@@ -12,6 +12,9 @@ import { parseCorsAllowedOrigins } from './cors'
 import { parseDvbfixerMaxConcurrentProcesses } from './dvbfixer-runner'
 import { parseStorageQuotaSettings, type StorageQuotaSettings } from './storage-quota'
 import { parseRateLimitConfig, type RateLimitConfig } from './rate-limit'
+import {
+  assertDeploymentResources, parseDeploymentResourceSettings, type DeploymentResourceSettings,
+} from './deployment-limits'
 
 export interface StandaloneConfig {
   host: string
@@ -19,6 +22,7 @@ export interface StandaloneConfig {
   projectRoot: string
   dataRoot: string
   staticRoot: string
+  mutationsBackupFile: string
   shutdownGraceMs: number
   authConfig: AuthConfig
   legacyWorkspaceOwner: string
@@ -26,6 +30,7 @@ export interface StandaloneConfig {
   storageQuota: StorageQuotaSettings
   maxConcurrentProcesses: number
   rateLimit: RateLimitConfig
+  deploymentResources: DeploymentResourceSettings
 }
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost'])
@@ -72,12 +77,16 @@ export function loadStandaloneConfig(
   }
   const port = integerSetting('DVBFIXER_PORT', environment.DVBFIXER_PORT, 5173, 0)
   if (port > 65535) throw new Error('DVBFIXER_PORT must be at most 65535')
+  const dataRoot = resolveSetting(projectRoot, environment.DVBFIXER_GUI_DATA_DIR, 'structures')
   return {
     host,
     port,
     projectRoot,
-    dataRoot: resolveSetting(projectRoot, environment.DVBFIXER_GUI_DATA_DIR, 'structures'),
+    dataRoot,
     staticRoot: resolveSetting(projectRoot, environment.DVBFIXER_STATIC_DIR, 'dist'),
+    mutationsBackupFile: resolveSetting(
+      projectRoot, environment.DVBFIXER_MUTATIONS_BACKUP_FILE, 'mutations.json',
+    ),
     shutdownGraceMs: integerSetting(
       'DVBFIXER_SHUTDOWN_GRACE_MS', environment.DVBFIXER_SHUTDOWN_GRACE_MS, 10_000, 1,
     ),
@@ -89,6 +98,7 @@ export function loadStandaloneConfig(
       environment.DVBFIXER_MAX_CONCURRENT_PROCESSES,
     ),
     rateLimit: parseRateLimitConfig(environment),
+    deploymentResources: parseDeploymentResourceSettings(environment),
   }
 }
 
@@ -131,6 +141,7 @@ function canonicalFuturePath(candidate: string): string {
 
 export function createStandaloneApplication(config: StandaloneConfig): connect.Server {
   assertSeparatedRoots(config.staticRoot, config.dataRoot)
+  assertDeploymentResources(config.dataRoot, config.mutationsBackupFile, config.deploymentResources)
   const indexFile = path.join(config.staticRoot, 'index.html')
   if (!fs.existsSync(indexFile) || !fs.statSync(indexFile).isFile()) {
     throw new Error(`static client is missing: ${indexFile}; run npm run build:client`)
@@ -162,6 +173,7 @@ export function createStandaloneApplication(config: StandaloneConfig): connect.S
   registerApiRoutes(host, {
     projectRoot: config.projectRoot,
     dataRoot: config.dataRoot,
+    mutationsBackupFile: config.mutationsBackupFile,
     authConfig: config.authConfig,
     legacyWorkspaceOwner: config.legacyWorkspaceOwner,
     corsAllowedOrigins: config.corsAllowedOrigins,

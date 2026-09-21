@@ -284,7 +284,7 @@ enforcement = [
 ]
 failure_mode = "Unbounded buffering can exhaust server memory."
 test_files = ["gui/server/request-body.test.ts"]
-known_exceptions = ["Body, request-rate, and workspace limits are process-local application controls; OS-level CPU, memory, and filesystem quotas are not implemented."]
+known_exceptions = ["Body, request-rate, and workspace limits are process-local application controls; the optional OS boundary is aggregate per service, not per request or workspace."]
 
 [invariants.INV-API-ORIGIN-POLICY]
 status = "implemented"
@@ -314,6 +314,18 @@ test_files = [
   "gui/server/dvbfixer-runner.test.ts",
 ]
 known_exceptions = ["Limits are process-local application controls, not distributed scheduling or OS-level resource isolation."]
+
+[invariants.INV-API-OS-RESOURCE-BOUNDARY]
+status = "implemented"
+statement = "When OS resource enforcement is required, standalone startup fails unless cgroup CPU, memory, swap, and task limits meet configured ceilings and writable state is confined to dedicated bounded persistent and temporary filesystems."
+owner = "gui/server/deployment-limits.ts::assertDeploymentResources"
+enforcement = [
+  "gui/server/standalone.ts::createStandaloneApplication",
+  "deploy/systemd/dvbfixer.service",
+]
+failure_mode = "Scientific descendants can exhaust host CPU, memory, process slots, or root filesystem while operators believe a hard boundary exists."
+test_files = ["gui/server/deployment-limits.test.ts", "gui/server/standalone.test.ts"]
+known_exceptions = ["Kernel enforcement requires privileged target-host acceptance tests; limits are aggregate per service and do not constrain GPU memory or an external PostgreSQL service."]
 
 [invariants.INV-API-RATE-LIMIT]
 status = "implemented"

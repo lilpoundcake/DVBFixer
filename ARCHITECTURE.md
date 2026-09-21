@@ -1264,6 +1264,10 @@ The standalone process defaults to loopback, rejects overlapping static/data
 roots, terminates tracked DVBFixer children during shutdown, drains HTTP, then
 closes PostgreSQL. `auth.ts` authenticates configured static bearer principals
 at the shared route boundary. Version 2 workspace manifests carry an owner and
-reader/writer ACL; authorization occurs before workspace path resolution. The
-host is still single-process and does not yet provide TLS, restrictive CORS,
-quotas, audit retention, or cross-process workspace locking.
+reader/writer ACL; authorization occurs before workspace path resolution.
+Restrictive CORS, bounded requests/workspace publication, process admission,
+request-rate limiting, and same-host cross-process manifest locking are shared
+across both hosts. `deployment-limits.ts` supplies the standalone server's
+opt-in fail-closed check for the systemd/cgroup-v2 resource profile. TLS, audit
+retention, durable scheduling/event delivery, and distributed coordination
+remain deployment gaps.

@@ -486,6 +486,18 @@ files = [
   "gui/src/components/DVBFixerPanel.tsx",
 ]
 
+[change_groups.api-deployment-boundary]
+parallel_policy = "exclusive-owner"
+reason = "Standalone startup checks, service-manager limits, mutable state paths, and deployment claims must remain aligned."
+files = [
+  "gui/server/standalone.ts",
+  "gui/server/deployment-limits.ts",
+  "gui/server/api-routes.ts",
+  "deploy/systemd",
+  "docs/deployment.md",
+  "docs/api.md",
+]
+
 [change_groups.tracked-fixture-set]
 parallel_policy = "exclusive-owner"
 reason = "Source fixtures, provenance, checksums, and fixture helpers must be updated together."
