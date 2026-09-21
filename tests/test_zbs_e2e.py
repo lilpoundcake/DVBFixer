@@ -20,6 +20,11 @@ import subprocess
 from pathlib import Path
 
 import pytest
+try:
+    import modeller  # noqa: F401
+except Exception as exc:
+    pytest.skip(f"zbs needs a licensed Sali-lab MODELLER: {exc}", allow_module_level=True)
+
 from tests.conftest import (
     _SUGAR_NAMES,
     count_d_ca_residues,

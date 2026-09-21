@@ -31,13 +31,15 @@ jobs:
       - name: ruff check
         run: ruff check src/dvbfixer
 
-      - name: pytest (fast lane, no OpenMM)
+      - name: pytest (fast lane, pure naming and registry contracts)
         run: |
-          # Install the package itself in editable mode so `import dvbfixer` works.
-          # The seed tests avoid heavy deps; anything that needs OpenBabel/OpenMM
-          # is guarded with pytest.importorskip and will skip cleanly here.
+          # The full scientific environment runs the complete suite below.
+          # This lane selects contracts that do not import scientific backends.
           pip install --no-deps -e .
-          pytest tests/ -q -m "not slow"
+          pytest -q tests/test_force_field_naming.py tests/test_ff_names.py \
+            tests/test_atom_names_cli.py tests/test_scientific_domain.py \
+            tests/test_command_registry.py tests/test_fixture_manifest.py \
+            tests/test_sequence_alignment.py
 
       # mypy is REQUIRED on the API-surface modules as of Phase 3. Everything
       # in pyproject.toml's `[tool.mypy.overrides]` list runs strict; other
