@@ -27,15 +27,15 @@ partially complete, optional but not accepted, or not yet verified.
 
 - [x] Select an authentication model.
 - [x] Define principal-to-workspace authorization semantics.
-- [ ] Decide whether V1 needs direct upload/download conversion.
-- [ ] Decide whether HTTP should accept a JSON override artifact as well as inline overrides.
-- [ ] Decide whether `tleap-reduce` must honor the force-field naming option.
+- [x] Decide whether V1 needs direct upload/download conversion.
+- [x] Decide whether HTTP should accept a JSON override artifact as well as inline overrides.
+- [x] Decide whether `tleap-reduce` must honor the force-field naming option.
 
 ### Baseline Evidence
 
 - [x] Add regression coverage for naming blockers 1-6 and 9 from the API roadmap.
-- [ ] Complete end-to-end nucleic-acid naming coverage.
-- [ ] Capture and document any still-needed representative golden inputs.
+- [x] Complete end-to-end nucleic-acid naming coverage.
+- [x] Capture and document any still-needed representative golden inputs.
 - [x] Complete ADR and test evidence distinguishing current behavior from intended V1 behavior.
 
 ## API Phase 1: Naming Application Service
@@ -63,22 +63,28 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Preserve unrelated records and non-name atom fields.
 - [x] Support four-character CHARMM names and LYN/LSN hydrogen pairs idempotently.
 - [x] Remove ambiguous two-field override fallback from the public service.
-- [ ] Add end-to-end DNA and RNA naming tests.
-- [ ] Document unvalidated terminal 5-prime/3-prime hydroxyl cases as unsupported.
-- [ ] Resolve `tleap-reduce` naming parity.
+- [x] Add end-to-end DNA and RNA naming tests.
+- [x] Document unvalidated terminal 5-prime/3-prime hydroxyl cases as unsupported.
+- [x] Resolve `tleap-reduce` naming parity.
 - [x] Document `standard` as suppressing shifts, not reversing GROMACS names.
 - [x] Do not claim naming compatibility proves template or bond compatibility.
 
 ### Test Matrix
 
-- [ ] Verify every `GROMACS_AMBER_ATOM_RENAMES` mapping.
-- [ ] Verify AMBER and CHARMM caps and termini.
+- [x] Verify every `GROMACS_AMBER_ATOM_RENAMES` mapping.
+- [x] Verify AMBER and CHARMM caps and termini.
 - [x] Verify exact coexistence of residues such as `H:82` and `H:82A`.
 - [x] Verify one-residue and multi-chain proteins.
-- [ ] Verify byte-identical repeat conversion across all supported mappings.
-- [ ] Complete malformed-line coverage.
-- [ ] Complete `ATOM`, `HETATM`, `ANISOU`, `TER`, and untouched-record matrix coverage.
-- [ ] Verify empty/no-op conversion and report counts.
+- [x] Verify byte-identical repeat conversion across all supported mappings.
+- [x] Complete malformed-line coverage.
+- [x] Complete `ATOM`, `HETATM`, `ANISOU`, `TER`, and untouched-record matrix coverage.
+- [x] Verify empty/no-op conversion and report counts.
+
+Evidence: `tests/test_force_field_naming.py` checks independent expected AMBER
+spellings against the complete mapping inventory, both coordinate record types,
+caps/termini, variant directions/profiles, DNA/RNA, repeated conversion, malformed
+identity fields, correlated records, line endings, and report counts. This
+verifies naming transformations, not chemical template or bond compatibility.
 
 ## API Phase 2: Dedicated CLI Adapter
 
@@ -115,7 +121,11 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Parse the report, validate output existence/digest, and publish against the current manifest revision.
 - [x] Return the output artifact and report.
 - [x] Define and verify retained failure-log behavior.
-- [ ] Add bounded retention or pruning for failed operation directories.
+- [x] Add bounded retention or pruning for failed operation directories.
+
+Evidence: `gui/server/naming-retention.test.ts` and `naming-api.test.ts` verify
+age/count pruning, workspace and symlink isolation, retained diagnostics,
+configuration validation, and cleanup on subsequent successful execution.
 
 ### Provenance, Observability, And Tests
 
@@ -123,9 +133,9 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Explicitly record command/service and DVBFixer package versions.
 - [x] Add server-owned request IDs and structured API access logs.
 - [x] Add bounded process-local service metrics.
-- [ ] Add durable audit events and retention.
-- [ ] Generate a client from OpenAPI.
-- [ ] Verify stable validation and error envelopes across V1 routes.
+- [x] Add durable audit events and retention.
+- [x] Generate a client from OpenAPI.
+- [x] Verify stable validation and error envelopes across V1 routes.
 - [x] Add authentication and authorization tests after implementation.
 - [x] Explicitly test path containment, source/request size limits, and naming timeouts.
 - [x] Test artifact lookup, dry runs, one-artifact publication, concurrent manifests, and failures.
@@ -159,42 +169,58 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Document current local deployment and security boundaries.
 - [ ] Document a supported public deployment after security controls exist.
 - [x] Add storage-level manifest locking or compare-and-swap.
-- [ ] Replace process-local locks and event subscribers for multi-instance operation.
+- [x] Replace process-local locks and event subscribers for multi-instance operation.
 - [ ] Complete public-deployment smoke tests.
 
 ## API Phase 5: General DVBFixer API
 
 ### Route And Contract Policy
 
-- [ ] Version managed-job routes under `/api/v1`.
-- [ ] Retire the duplicate synchronous generic command route.
-- [ ] Classify every operation as a deterministic transform or managed workflow.
-- [ ] Keep minimization, modeling, and parameterization out of synchronous APIs.
+- [x] Version managed-job routes under `/api/v1`.
+- [x] Retire the duplicate synchronous generic command route.
+- [x] Classify every operation as a deterministic transform or managed workflow.
+- [x] Keep minimization, modeling, and parameterization out of synchronous APIs.
 - [x] Preserve cancellation for long-running operations.
-- [ ] Generate clients and contract tests from OpenAPI.
-- [ ] Define API compatibility, versioning, and deprecation policy.
-- [ ] Add durable scheduling, state, and event delivery before horizontal scaling.
+- [x] Generate clients and contract tests from OpenAPI.
+- [x] Define API compatibility, versioning, and deprecation policy.
+- [x] Add durable scheduling, state, and event delivery before horizontal scaling.
 
 ### Operation Rollout
 
-- [ ] Expose `diagnose`.
-- [ ] Expose `conect`.
-- [ ] Expose `renumber`.
-- [ ] Version or migrate managed `prepare`, `minimize`, `model`, and `zbs`.
+- [x] Expose `diagnose`.
+- [x] Expose `conect`.
+- [x] Expose `renumber`.
+- [x] Version or migrate managed `prepare`, `minimize`, `model`, and `zbs`.
 
 ## API-Wide Quality Gates
 
 - [x] Use one runtime-schema source for every V1 route and OpenAPI description.
 - [x] Ensure no public route accepts unrestricted filesystem paths.
 - [x] Keep scientific naming policy implemented once in Python.
-- [ ] Record reproducible inputs, options, and versions for every output artifact.
+- [x] Record reproducible inputs, options, and versions for every output artifact.
 - [x] Enforce workspace ownership before path resolution.
-- [ ] Return structured reports for every exposed operation.
-- [ ] Require durable workflow state before horizontal scaling.
-- [ ] Adopt one common V1 error envelope and explicit compatibility policy.
-- [ ] Test status mappings for 400, 401, 403, 404, 409, 413, 415, 422, and 500.
-- [ ] Stabilize documented naming error codes.
-- [ ] Run release verification: GUI checks, focused Python tests, generated-file checks, agent-doc checks, and the non-slow Python suite.
+- [x] Return structured reports for every exposed operation.
+- [x] Require durable workflow state before horizontal scaling.
+- [x] Adopt one common V1 error envelope and explicit compatibility policy.
+- [x] Test status mappings for 400, 401, 403, 404, 409, 413, 415, 422, and 500.
+- [x] Stabilize documented naming error codes.
+- [x] Run release verification: GUI checks, focused Python tests, generated-file checks, agent-doc checks, and the non-slow Python suite.
+- [ ] Push the completed implementation and require every configured GitHub Actions CI check on that commit to pass.
+
+Verification on 2026-09-21: focused naming tests (222 passed), non-slow Python
+suite (530 passed, 2 skipped for unavailable Modeller licensing, 26 deselected),
+GUI/server suite (218 passed), TypeScript, Ruff, mypy, agent-doc validation,
+generated GUI schema, and `git diff --check` passed. CLI references pass with the
+CI Python 3.11 environment; Python 3.13 changes argparse help formatting. This
+verification does not include licensed Modeller integrations or target-host
+public-deployment acceptance.
+
+The versioned workflow API uses a durable workspace run lock, cross-process
+cancel markers, and persisted job-record polling for SSE on a shared local
+filesystem. `docs/adr/0009-versioned-workflows-and-compatibility.md` defines
+the V1 error and deprecation policy. Horizontal scaling across multiple hosts
+remains explicitly unsupported until an external scheduler/state store exists;
+these checked workflow-state items cover one-host multi-process operation.
 
 ## DDD Documentation Roadmap
 
@@ -217,9 +243,9 @@ partially complete, optional but not accepted, or not yet verified.
 ### Phases 5-6: Tasks And Validation
 
 - [x] Index high-risk `.dat`, rebuild, CONECT, topology, workspace, API, and fixture changes.
-- [ ] Add new task records only when repeated high-risk work justifies them.
+- [x] Add new task records only when repeated high-risk work justifies them.
 - [x] Validate TOML, metadata, paths, Markdown, linked records, evidence, sections, and indexed pages.
-- [ ] Add symbol checks, stale-commit reporting, generated views, or PR checks only when justified.
+- [x] Add symbol checks, stale-commit reporting, generated views, or PR checks only when justified.
 - [x] Keep a general Python/TypeScript AST index out of the initial rollout.
 
 ### Ongoing Maintenance
@@ -228,5 +254,5 @@ partially complete, optional but not accepted, or not yet verified.
 - [x] Maintain shared maps, contexts, validator, and tests through one coordinating editor.
 - [x] Separate implemented behavior from vocabulary, proposals, research, and gaps.
 - [x] Surface unresolved contradictions instead of choosing silently.
-- [ ] Add context pages only when structured records cannot explain the concern.
+- [x] Add context pages only when structured records cannot explain the concern.
 - [x] Run agent-doc validation and `git diff --check` after every map change.

@@ -1,4 +1,5 @@
 import { Type, type Static, type TSchema } from '@sinclair/typebox'
+import { ManagedJobRecordSchema, ManagedJobRequestSchema } from './managed-jobs-schema'
 
 export const VariantOverrideSchema = Type.Object({
   chainId: Type.String({ minLength: 1, maxLength: 1 }),
@@ -177,6 +178,74 @@ export const NAMING_OPENAPI_DOCUMENT = {
         },
       },
     },
+    '/api/v1/workspaces/{workspaceId}/jobs': {
+      get: {
+        operationId: 'listManagedJobs', summary: 'List managed scientific jobs',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'workspaceId', in: 'path', required: true, schema: { type: 'string', pattern: '^[a-zA-Z0-9_-]+$' } }],
+        responses: {
+          '200': { description: 'Managed jobs', content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/ManagedJobRecord' } } } } },
+          '401': { description: 'Missing or invalid bearer credential', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '404': { description: 'Workspace not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+        },
+      },
+      post: {
+        operationId: 'createManagedJob', summary: 'Start an asynchronous scientific workflow',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'workspaceId', in: 'path', required: true, schema: { type: 'string', pattern: '^[a-zA-Z0-9_-]+$' } }],
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/ManagedJobRequest' } } } },
+        responses: {
+          '202': { description: 'Job accepted', content: { 'application/json': { schema: { $ref: '#/components/schemas/ManagedJobRecord' } } } },
+          '400': { description: 'Invalid request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '401': { description: 'Missing or invalid bearer credential', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '403': { description: 'Workspace write access required', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '404': { description: 'Workspace not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '409': { description: 'Workspace operation conflict', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '413': { description: 'Request too large', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '415': { description: 'Unsupported media type', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '422': { description: 'Unsupported operation', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '500': { description: 'Internal failure', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+        },
+      },
+    },
+    '/api/v1/workspaces/{workspaceId}/jobs/{jobId}': {
+      get: {
+        operationId: 'getManagedJob', summary: 'Get managed-job state', security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'workspaceId', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'jobId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+        ],
+        responses: {
+          '200': { description: 'Managed job', content: { 'application/json': { schema: { $ref: '#/components/schemas/ManagedJobRecord' } } } },
+          '404': { description: 'Workspace or job not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+        },
+      },
+      delete: {
+        operationId: 'cancelManagedJob', summary: 'Request managed-job cancellation', security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'workspaceId', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'jobId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+        ],
+        responses: {
+          '202': { description: 'Cancellation requested', content: { 'application/json': { schema: { $ref: '#/components/schemas/ManagedJobRecord' } } } },
+          '404': { description: 'Workspace or job not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+        },
+      },
+    },
+    '/api/v1/workspaces/{workspaceId}/jobs/{jobId}/events': {
+      get: {
+        operationId: 'streamManagedJobEvents', summary: 'Stream persisted managed-job state',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'workspaceId', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'jobId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+        ],
+        responses: {
+          '200': { description: 'Server-sent managed-job records', content: { 'text/event-stream': { schema: { type: 'string' } } } },
+          '404': { description: 'Workspace or job not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+        },
+      },
+    },
   },
   components: {
     securitySchemes: {
@@ -185,6 +254,8 @@ export const NAMING_OPENAPI_DOCUMENT = {
     schemas: {
       NamingConversionRequest: openApiSchema(NamingConversionRequestSchema),
       NamingConversionResponse: openApiSchema(NamingConversionResponseSchema),
+      ManagedJobRequest: openApiSchema(ManagedJobRequestSchema),
+      ManagedJobRecord: openApiSchema(ManagedJobRecordSchema),
       ApiError: openApiSchema(ApiErrorSchema),
     },
   },

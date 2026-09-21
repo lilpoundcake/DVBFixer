@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -120,6 +120,7 @@ async function apiRequest(
 }
 
 afterEach(() => {
+  vi.unstubAllEnvs()
   initializeStorageQuota({
     maxUploadBytes: DEFAULT_MAX_UPLOAD_BYTES,
     workspaceQuotaBytes: DEFAULT_WORKSPACE_QUOTA_BYTES,
@@ -129,6 +130,51 @@ afterEach(() => {
 })
 
 describe('naming conversion application boundary', () => {
+  it('bounds retained failures and prunes expired diagnostics on a later successful request', async () => {
+    vi.stubEnv('DVBFIXER_NAMING_FAILED_MAX_RUNS', '2')
+    vi.stubEnv('DVBFIXER_NAMING_FAILED_MAX_AGE_HOURS', '1')
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const root = workspaceRoot(dataRoot, 'workspace-a')
+    const failedRoot = path.join(root, 'runs', '_failed')
+    for (let index = 0; index < 3; index++) {
+      await expect(executeNamingConversion(dataRoot, 'workspace-a', request, async () => ({
+        code: -1, stdout: '', stderr: `failure ${index}`, started: true, failure: 'timeout' as const,
+      }))).rejects.toMatchObject({ code: 'NAMING_TIMEOUT' })
+      const retained = fs.readdirSync(failedRoot)
+      expect(retained).toHaveLength(Math.min(index + 1, 2))
+      // Make older retained runs unambiguously older than the next failure.
+      for (const name of retained) {
+        const stamp = new Date(Date.now() - (3 - index) * 1_000)
+        fs.utimesSync(path.join(failedRoot, name), stamp, stamp)
+      }
+    }
+    const retained = fs.readdirSync(failedRoot)
+    const logs = retained.map(name => fs.readFileSync(path.join(failedRoot, name, 'stderr.log'), 'utf8'))
+    expect(logs).toContain('failure 2')
+    expect(loadWorkspace(dataRoot, 'workspace-a').artifacts).toHaveLength(1)
+    for (const name of retained) fs.utimesSync(path.join(failedRoot, name), new Date(0), new Date(0))
+    const result = await executeNamingConversion(dataRoot, 'workspace-a', request, successfulRunner())
+    expect(fs.readdirSync(failedRoot)).toEqual([])
+    expect(result.statusCode).toBe(201)
+    expect(fs.existsSync(path.join(root, result.response.outputArtifact!.file))).toBe(true)
+    expect(loadWorkspace(dataRoot, 'workspace-a').artifacts).toHaveLength(2)
+  })
+
+  it.each([
+    ['DVBFIXER_NAMING_FAILED_MAX_RUNS', '0'],
+    ['DVBFIXER_NAMING_FAILED_MAX_RUNS', '1.5'],
+    ['DVBFIXER_NAMING_FAILED_MAX_AGE_HOURS', '-1'],
+    ['DVBFIXER_NAMING_FAILED_MAX_AGE_HOURS', '9007199254740991'],
+  ])('rejects invalid retention setting %s=%s before execution', async (setting, value) => {
+    vi.stubEnv(setting, value)
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const runner = vi.fn(successfulRunner())
+    await expect(executeNamingConversion(dataRoot, 'workspace-a', request, runner)).rejects.toThrow(setting)
+    expect(runner).not.toHaveBeenCalled()
+  })
+
   it('registers exactly one output with complete provenance', async () => {
     const dataRoot = temp()
     workspace(dataRoot)

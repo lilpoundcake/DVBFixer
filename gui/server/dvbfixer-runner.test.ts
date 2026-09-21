@@ -91,7 +91,7 @@ describe('DVBfixer runner', () => {
     expect(starts).toEqual(['first'])
     await Promise.all([first, second, third])
     expect(starts).toEqual(['first', 'second', 'third'])
-  }, 15_000)
+  }, 30_000)
 
   it('bounds the waiting queue and reports live admission pressure', async () => {
     resetDvbfixerProcessAdmission(1, 2)

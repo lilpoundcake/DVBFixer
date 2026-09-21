@@ -44,13 +44,13 @@ describe('host-neutral API composition', () => {
       '/api/session',
       '/api/workspaces',
       '/api/homology',
-      '/api/jobs',
       '/api/v1',
-      '/api/dvbfixer',
+      '/api/v1',
       '/api/mutations',
       '/api/dvbfixer-spec',
       '/api/antibody-engineer/run',
       '/api/status',
+      '/api/v1',
     ])
   })
 

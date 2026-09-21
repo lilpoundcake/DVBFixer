@@ -177,6 +177,34 @@ def test_latin1_noop_still_writes_distinct_identical_output(tmp_path: Path) -> N
     assert output.resolve() != source.resolve()
 
 
+@pytest.mark.parametrize(
+    ("residue", "source_names", "target_names"),
+    [
+        ("DA", ("H2'", "H2''", "H5'", "H5''"), ("H2'1", "H2'2", "H5'1", "H5'2")),
+        ("A", ("H2'", "H2''", "H5'", "H5''", "HO'2"), ("H2'1", "H2'2", "H5'1", "H5'2", "HO2'")),
+    ],
+)
+def test_cli_converts_dna_and_rna_atom_names(
+    tmp_path: Path,
+    residue: str,
+    source_names: tuple[str, ...],
+    target_names: tuple[str, ...],
+) -> None:
+    text = "".join(_atom(serial, name, residue) for serial, name in enumerate(source_names, 1))
+    source, output = _base_paths(tmp_path, text)
+    report = tmp_path / "report.json"
+
+    _invoke(source, "-o", output, "--target-ff", "amber", "--report-json", report)
+
+    assert tuple(line[12:16].strip() for line in output.read_text().splitlines()) == target_names
+    payload = json.loads(report.read_text())
+    _assert_report_schema(payload, "success")
+    assert payload["result"]["summary"]["changedAtoms"] == len(source_names)
+    assert {tuple(change["ruleIds"]) for change in payload["result"]["changes"]} == {
+        ("nucleic-acid-atom-name",)
+    }
+
+
 def test_dry_run_writes_only_report_with_candidate_digest(tmp_path: Path) -> None:
     source, output = _base_paths(tmp_path)
     report = tmp_path / "report.json"

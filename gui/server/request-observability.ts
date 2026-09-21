@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ApiMiddleware } from './http-types'
+import type { AuditEvent } from './audit-log'
 
 interface RequestContext {
   requestId: string
@@ -60,6 +61,9 @@ export function routeLabel(url: string | undefined): string {
   if (/^\/v1\/workspaces\/[^/]+\/naming-conversions$/.test(pathname)) {
     return '/api/v1/workspaces/:workspaceId/naming-conversions'
   }
+  if (/^\/v1\/workspaces\/[^/]+\/jobs(?:\/[^/]+(?:\/events)?)?$/.test(pathname)) {
+    return '/api/v1/workspaces/:workspaceId/jobs'
+  }
   const first = pathname.split('/').filter(Boolean)[0]
   const known = new Set(['workspaces', 'homology', 'jobs', 'dvbfixer', 'mutations', 'antibody-engineer'])
   if (first && known.has(first)) return `/api/${first}`
@@ -71,6 +75,7 @@ export function createRequestObservabilityMiddleware(
   sink: AccessLogSink = line => console.log(line),
   now: () => number = () => performance.now(),
   observer?: HttpObserver,
+  auditSink?: (event: AuditEvent) => void,
 ): ApiMiddleware {
   return (request, response, next) => {
     const requestId = ensureRequestId(request, response)
@@ -100,6 +105,16 @@ export function createRequestObservabilityMiddleware(
           principalId: context?.principalId ?? null,
         }
         if (config.enabled) try { sink(JSON.stringify(record)) } catch { /* logging must not affect requests */ }
+        if (auditSink && (route.startsWith('/api/v1/') || method !== 'GET' || status === 401 || status === 403)) {
+          try {
+            auditSink({
+              schema: 'dvbfixer.audit.v1', timestamp: record.timestamp, requestId,
+              method, route, status, outcome, principalId: record.principalId,
+            })
+          } catch (error) {
+            console.error('[audit] failed to persist event:', error)
+          }
+        }
       }
       response.once('finish', () => emit('completed'))
       response.once('close', () => emit(response.writableFinished ? 'completed' : 'aborted'))

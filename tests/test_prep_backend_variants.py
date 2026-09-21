@@ -469,3 +469,50 @@ TER      17      CYS A   7
     )
     assert result["renames"][("A", 5, "")] == "CYX"
     assert result["renames"][("A", 7, "")] == "CYX"
+
+
+@pytest.mark.parametrize(
+    ("atom_naming", "expected"),
+    [("gromacs", ["HZ2", "HZ1"]), ("standard", ["HZ2", "HZ3"])],
+)
+def test_tleap_output_honors_atom_naming(
+    tmp_path: Path, atom_naming: str, expected: list[str],
+) -> None:
+    from dvbfixer.prep_backend import apply_output_naming
+
+    pdb = tmp_path / "tleap-output.pdb"
+    pdb.write_text(
+        "ATOM      1  HZ2 LYN A  20      16.000  15.000  10.000  1.00  0.00           H\n"
+        "ATOM      2  HZ3 LYN A  20      15.000  16.000  10.000  1.00  0.00           H\n"
+        "END\n"
+    )
+
+    changed = apply_output_naming(
+        pdb, {("A", 20, ""): "LYN"}, atom_naming=atom_naming,
+    )
+
+    names = [
+        line[12:16].strip()
+        for line in pdb.read_text().splitlines()
+        if line.startswith("ATOM")
+    ]
+    assert names == expected
+    assert changed == (1 if atom_naming == "gromacs" else 0)
+
+
+def test_tleap_output_assigns_unique_serials_to_new_hydrogens(tmp_path: Path) -> None:
+    from dvbfixer.prep_backend import apply_output_naming
+
+    pdb = tmp_path / "reduce-output.pdb"
+    pdb.write_text(
+        "ATOM     14  N   ASP A   1      10.000  10.000  10.000  1.00  0.00           N\n"
+        "ATOM      0  H1  ASP A   1      10.000  11.000  10.000  1.00  0.00           H   new\n"
+        "ATOM      0  H2  ASP A   1      11.000  10.000  10.000  1.00  0.00           H   new\n"
+        "CONECT   14   14\nEND\n"
+    )
+
+    apply_output_naming(pdb, {}, atom_naming="standard")
+
+    lines = pdb.read_text().splitlines()
+    assert [int(line[6:11]) for line in lines if line.startswith("ATOM")] == [14, 15, 16]
+    assert lines[3] == "CONECT   14   14"

@@ -37,6 +37,21 @@ export interface WorkspaceArtifact {
   hasGlycan?: boolean
   scheme?: 'EU' | 'Kabat'
   namingProvenance?: NamingConversionProvenance
+  workflowProvenance?: WorkflowProvenance
+}
+
+export interface WorkflowProvenance {
+  apiVersion: 1
+  command: string
+  serviceVersion: string
+  dvbfixerVersion: string
+  request: {
+    inputs: Record<string, string | string[]>
+    values: Record<string, unknown>
+    fastaSha256: string | null
+  }
+  resolvedInputs: Array<{ artifactId: string | null; file: string; sha256: string }>
+  outputs: Array<{ artifactId: string; file: string; sha256: string }>
 }
 
 export interface NamingConversionProvenance {
@@ -544,6 +559,29 @@ function sanitizeArtifactMetadata(artifact: WorkspaceArtifact): void {
   if (artifact.hasGlycan !== undefined && typeof artifact.hasGlycan !== 'boolean') delete artifact.hasGlycan
   if (artifact.scheme !== undefined && artifact.scheme !== 'EU' && artifact.scheme !== 'Kabat') delete artifact.scheme
   if (artifact.namingProvenance !== undefined && !validNamingProvenance(artifact.namingProvenance)) delete artifact.namingProvenance
+  if (artifact.workflowProvenance !== undefined && !validWorkflowProvenance(artifact.workflowProvenance)) delete artifact.workflowProvenance
+}
+
+function validWorkflowProvenance(value: unknown): value is WorkflowProvenance {
+  if (!value || typeof value !== 'object') return false
+  const item = value as Record<string, unknown>
+  if (item.apiVersion !== 1 || typeof item.command !== 'string' ||
+      typeof item.serviceVersion !== 'string' || typeof item.dvbfixerVersion !== 'string' ||
+      !item.request || typeof item.request !== 'object' || !Array.isArray(item.resolvedInputs) ||
+      !Array.isArray(item.outputs)) return false
+  const request = item.request as Record<string, unknown>
+  if (!request.inputs || typeof request.inputs !== 'object' || !request.values ||
+      typeof request.values !== 'object' ||
+      (request.fastaSha256 !== null && typeof request.fastaSha256 !== 'string')) return false
+  const validDigest = (entry: unknown, output: boolean): boolean => {
+    if (!entry || typeof entry !== 'object') return false
+    const field = entry as Record<string, unknown>
+    return typeof field.file === 'string' && /^[a-f0-9]{64}$/.test(String(field.sha256)) &&
+      (output ? typeof field.artifactId === 'string'
+        : field.artifactId === null || typeof field.artifactId === 'string')
+  }
+  return item.resolvedInputs.every(entry => validDigest(entry, false)) &&
+    item.outputs.every(entry => validDigest(entry, true))
 }
 
 function validNamingProvenance(value: unknown): value is NamingConversionProvenance {

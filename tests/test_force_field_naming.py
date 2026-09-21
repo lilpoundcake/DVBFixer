@@ -236,6 +236,26 @@ def test_bytes_outside_supported_name_fields_are_preserved() -> None:
     assert changed[17:] == source[17:]
 
 
+@pytest.mark.parametrize(
+    ("residue", "source_names", "target_names"),
+    [
+        ("DA", ("H2'", "H2''", "H5'", "H5''"), ("H2'1", "H2'2", "H5'1", "H5'2")),
+        ("A", ("H2'", "H2''", "H5'", "H5''", "HO'2"), ("H2'1", "H2'2", "H5'1", "H5'2", "HO2'")),
+    ],
+)
+def test_end_to_end_dna_and_rna_atom_naming(
+    residue: str, source_names: tuple[str, ...], target_names: tuple[str, ...]
+) -> None:
+    text = "".join(_atom(serial, name, residue) for serial, name in enumerate(source_names, 1))
+
+    result = _convert(text, target=ForceFieldTarget.AMBER, profile=NamingProfile.GROMACS)
+
+    assert tuple(line[12:16].strip() for line in result.pdb_text.splitlines()) == target_names
+    assert result.summary.changed_atoms == len(source_names)
+    assert result.summary.changed_residues == 1
+    assert all(change.rule_ids == (NamingRuleId.NUCLEIC_ACID_ATOM_NAME,) for change in result.changes)
+
+
 @pytest.mark.parametrize("record", ["ATOM", "HETATM", "ANISOU"])
 def test_malformed_supported_records_fail_with_stable_code(record: str) -> None:
     with pytest.raises(NamingConversionError) as caught:
@@ -273,3 +293,199 @@ def test_unsupported_target_has_stable_error_code() -> None:
     with pytest.raises(NamingConversionError) as caught:
         NamingConversionRequest(pdb_text="END\n", target="opls")  # type: ignore[arg-type]
     assert caught.value.code is NamingErrorCode.UNSUPPORTED_NAMING_DIRECTION
+
+
+# Independent expected spellings: changing a production table must not silently
+# change the expected output of these application-boundary tests.
+_AMBER_CASES = [
+    (residue, source.split(), destination.split())
+    for residues, source, destination in [
+        ("ALA VAL THR", "CA", "CA"),
+        ("SER CYS CYX CYM ASN ASP ASH PHE TYR TRP HIS HID HIE HIP LEU", "HB2 HB3", "HB2 HB1"),
+        ("GLU GLH GLN MET", "HB2 HB3 HG2 HG3", "HB2 HB1 HG2 HG1"),
+        ("PRO HYP ARG", "HB2 HB3 HG2 HG3 HD2 HD3", "HB2 HB1 HG2 HG1 HD2 HD1"),
+        ("LYS", "HB2 HB3 HG2 HG3 HD2 HD3 HE2 HE3", "HB2 HB1 HG2 HG1 HD2 HD1 HE2 HE1"),
+        ("LYN", "HB2 HB3 HG2 HG3 HD2 HD3 HE2 HE3 HZ2 HZ3", "HB2 HB1 HG2 HG1 HD2 HD1 HE2 HE1 HZ2 HZ1"),
+        ("GLY", "HA2 HA3", "HA2 HA1"),
+        ("ILE", "HG12 HG13", "HG12 HG11"),
+        ("ACE", "C CH3 H1 H2 H3", "C CH3 HH31 HH32 HH33"),
+        ("NME", "N H C H1 H2 H3", "N H CH3 HH31 HH32 HH33"),
+    ]
+    for residue in residues.split()
+]
+
+
+@pytest.mark.parametrize(("residue", "source_names", "expected_names"), _AMBER_CASES)
+@pytest.mark.parametrize("record", ["ATOM", "HETATM"])
+def test_all_amber_mappings_and_repeat_conversion(
+    residue: str, source_names: list[str], expected_names: list[str], record: str,
+) -> None:
+    text = "".join(
+        _atom(serial, name, residue, record=record)
+        for serial, name in enumerate(source_names, 1)
+    )
+    first = _convert(text, target=ForceFieldTarget.AMBER, profile=NamingProfile.GROMACS)
+    assert [line[12:16].strip() for line in first.pdb_text.splitlines()] == expected_names
+    changed = sum(source != target for source, target in zip(source_names, expected_names))
+    assert asdict(first.summary) == {
+        "changed_atoms": changed, "changed_residues": int(changed > 0),
+        "variant_changes": 0, "atom_name_changes": changed,
+    }
+    second = _convert(first.pdb_text, target=ForceFieldTarget.AMBER, profile=NamingProfile.GROMACS)
+    assert second.pdb_text.encode() == first.pdb_text.encode()
+    assert second.changes == ()
+    assert not any(asdict(second.summary).values())
+
+
+def test_amber_matrix_covers_every_declared_mapping() -> None:
+    from dvbfixer.domain.force_field_naming import GROMACS_AMBER_ATOM_RENAMES
+
+    expected = {
+        residue: {source: target for source, target in zip(sources, targets) if source != target}
+        for residue, sources, targets in _AMBER_CASES
+    }
+    assert expected == GROMACS_AMBER_ATOM_RENAMES
+
+
+@pytest.mark.parametrize("target", list(ForceFieldTarget))
+@pytest.mark.parametrize("residue", ["ALA", "PRO", "HYP"])
+def test_termini_are_chain_local_and_idempotent(target: ForceFieldTarget, residue: str) -> None:
+    names = ["H2", "H3", "O", "OXT"] if residue in {"PRO", "HYP"} else ["H", "H2", "H3", "O", "OXT"]
+    expected = (
+        ["H2", "H1", "OC2", "OC1"] if residue in {"PRO", "HYP"}
+        else ["H1", "H2", "H3", "OC2", "OC1"]
+    ) if target is ForceFieldTarget.AMBER else ["HN" if name == "H" else name for name in names]
+    # Both case-distinct chains have a single residue, so each is both termini.
+    text = "".join(
+        _atom(chain_index * len(names) + index, name, residue, chain, 82, icode="A")
+        for chain_index, chain in enumerate(("H", "h"))
+        for index, name in enumerate(names, 1)
+    )
+    first = _convert(text, target=target, profile=NamingProfile.GROMACS)
+    assert [line[12:16].strip() for line in first.pdb_text.splitlines()] == expected * 2
+    assert _convert(first.pdb_text, target=target, profile=NamingProfile.GROMACS).pdb_text == first.pdb_text
+
+
+@pytest.mark.parametrize("target", list(ForceFieldTarget))
+def test_caps_do_not_make_the_internal_protein_residue_terminal(target: ForceFieldTarget) -> None:
+    residues = [("ACE", ["C", "H1", "H2", "H3"]), ("ALA", ["H", "O"]), ("NME", ["N", "H", "C", "H1", "H2", "H3"])]
+    text = ""
+    serial = 0
+    for number, (residue, names) in enumerate(residues, 1):
+        for name in names:
+            serial += 1
+            text += _atom(serial, name, residue, number=number)
+    first = _convert(text, target=target, profile=NamingProfile.GROMACS)
+    hydrogen = "HN" if target is ForceFieldTarget.CHARMM else "H"
+    assert [line[12:16].strip() for line in first.pdb_text.splitlines()] == [
+        "C", "HH31", "HH32", "HH33", hydrogen, "O", "N", hydrogen, "CH3", "HH31", "HH32", "HH33",
+    ]
+    assert _convert(first.pdb_text, target=target, profile=NamingProfile.GROMACS).pdb_text == first.pdb_text
+
+
+@pytest.mark.parametrize("residue", ["DA", "DC", "DG", "DT", "A", "C", "G", "U"])
+def test_all_nucleic_acid_mappings_repeat_without_changes(residue: str) -> None:
+    names = ["H2'", "H2''", "H5'", "H5''"]
+    expected = ["H2'1", "H2'2", "H5'1", "H5'2"]
+    if not residue.startswith("D"):
+        names.append("HO'2")
+        expected.append("HO2'")
+    text = "".join(_atom(index, name, residue) for index, name in enumerate(names, 1))
+    first = _convert(text, target=ForceFieldTarget.AMBER, profile=NamingProfile.GROMACS)
+    assert [line[12:16].strip() for line in first.pdb_text.splitlines()] == expected
+    second = _convert(first.pdb_text, target=ForceFieldTarget.AMBER, profile=NamingProfile.GROMACS)
+    assert second.pdb_text == first.pdb_text
+    assert second.changes == ()
+
+
+@pytest.mark.parametrize("text", ["", "END\n", "HEADER no coordinates\r\nREMARK unchanged"])
+@pytest.mark.parametrize("target", list(ForceFieldTarget))
+def test_empty_coordinate_input_is_a_byte_preserving_noop(text: str, target: ForceFieldTarget) -> None:
+    result = _convert(text, target=target, profile=NamingProfile.GROMACS)
+    assert result.pdb_text == text
+    assert result.changes == result.diagnostics == ()
+    assert not any(asdict(result.summary).values())
+
+
+@pytest.mark.parametrize("record", ["ATOM", "HETATM", "ANISOU"])
+@pytest.mark.parametrize(("start", "end", "replacement"), [
+    (6, 11, "abcde"), (22, 26, "oops"), (12, 16, "    "), (17, 21, "    "),
+])
+def test_malformed_identity_fields_report_the_line(
+    record: str, start: int, end: int, replacement: str,
+) -> None:
+    line = _atom(1, "N", "ALA", record=record)
+    text = "HEADER preserved\n" + line[:start] + replacement + line[end:]
+    with pytest.raises(NamingConversionError) as caught:
+        _convert(text)
+    assert caught.value.code is NamingErrorCode.MALFORMED_PDB
+    assert caught.value.details["line"] == 2
+    assert caught.value.details["record"] == record
+
+
+@pytest.mark.parametrize("model", ["MODEL\n", "MODEL     nope\n"])
+def test_malformed_model_number_is_rejected(model: str) -> None:
+    with pytest.raises(NamingConversionError) as caught:
+        _convert(model + _atom(1, "CA", "ALA") + "ENDMDL\n")
+    assert caught.value.code is NamingErrorCode.MALFORMED_PDB
+
+
+def test_duplicate_anisou_serial_is_rejected() -> None:
+    anisou = _atom(1, "CA", "ALA", record="ANISOU")
+    with pytest.raises(NamingConversionError) as caught:
+        _convert(_atom(1, "CA", "ALA") + anisou + anisou)
+    assert caught.value.code is NamingErrorCode.MALFORMED_PDB
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+def test_record_matrix_preserves_non_name_bytes_and_counts_coordinate_changes(newline: str) -> None:
+    lines = [
+        "HEADER untouched\n", "SEQRES   1 H    1  LYN\n", "MODEL        3\n",
+        _atom(1, "HZ2", "LYN", "H", 82, icode="A"),
+        _atom(1, "HZ2", "LYN", "H", 82, icode="A", record="ANISOU"),
+        _atom(2, "HZ3", "LYN", "H", 82, icode="A", record="HETATM"),
+        f"TER   {3:5d}      {'LYN':<3} H{82:4d}A\n",
+        "TER\n", "CONECT    1    2\n", "ENDMDL\n", "END",
+    ]
+    text = "".join(lines).replace("\n", newline)
+    result = _convert(text)
+    before = text.splitlines(keepends=True)
+    after = result.pdb_text.splitlines(keepends=True)
+    assert len(before) == len(after)
+    for index, (source, destination) in enumerate(zip(before, after)):
+        if index in {3, 4, 5, 6}:
+            assert destination[:12] == source[:12]
+            assert destination[16:17] == source[16:17]
+            assert destination[21:] == source[21:]
+            assert _resname(destination) == "LSN"
+        else:
+            assert destination == source
+    assert [after[index][12:16].strip() for index in (3, 4, 5)] == ["HZ1", "HZ1", "HZ2"]
+    assert asdict(result.summary) == {
+        "changed_atoms": 2, "changed_residues": 1, "variant_changes": 1, "atom_name_changes": 2,
+    }
+    assert _convert(result.pdb_text).pdb_text == result.pdb_text
+
+
+@pytest.mark.parametrize(("amber", "charmm"), [
+    ("HID", "HSD"), ("HIE", "HSE"), ("HIP", "HSP"), ("ASH", "ASPP"),
+    ("GLH", "GLUP"), ("LYN", "LSN"), ("CYM", "CYM"),
+])
+@pytest.mark.parametrize("target", list(ForceFieldTarget))
+@pytest.mark.parametrize("profile", list(NamingProfile))
+def test_variant_mappings_repeat_without_changes(
+    amber: str, charmm: str, target: ForceFieldTarget, profile: NamingProfile,
+) -> None:
+    source, expected = (amber, charmm) if target is ForceFieldTarget.CHARMM else (charmm, amber)
+    names = ["N", "CA", "H"]
+    if amber == "LYN":
+        names += ["HZ2", "HZ3"] if source == "LYN" else ["HZ1", "HZ2"]
+    text = "".join(_atom(index, name, source) for index, name in enumerate(names, 1))
+    first = _convert(text, target=target, profile=profile)
+    assert {_resname(line) for line in first.pdb_text.splitlines()} == {expected}
+    if amber == "LYN":
+        expected_pair = ["HZ2", "HZ3"] if target is ForceFieldTarget.AMBER and profile is NamingProfile.STANDARD else ["HZ1", "HZ2"]
+        assert [line[12:16].strip() for line in first.pdb_text.splitlines()][-2:] == expected_pair
+    second = _convert(first.pdb_text, target=target, profile=profile)
+    assert second.pdb_text == first.pdb_text
+    assert not any(asdict(second.summary).values())

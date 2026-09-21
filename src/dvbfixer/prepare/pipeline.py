@@ -958,9 +958,8 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
     """
     from dvbfixer.acpype_export import detect_ss_bonds
     from dvbfixer.ffutils.dat import DatRecord
-    from dvbfixer.ffutils.ff_names import apply_variants_to_pdb_text
     from dvbfixer.ffutils.geometry import find_d_residues
-    from dvbfixer.prep_backend import TleapError, run_prep
+    from dvbfixer.prep_backend import TleapError, apply_output_naming, run_prep
 
     # SS bond detection from CONECT (drives CYX assignment).
     try:
@@ -1015,12 +1014,14 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
               f"(minimize should catch): "
               + ", ".join(f"{c}/{n}{r}" for c, r, n, _ in _d[:5]))
 
-    # Note: intentionally NOT calling apply_variants_to_pdb_text here.
-    # That helper renames terminals to GROMACS conventions (OXT→OC1,
-    # O→OC2) which breaks OpenMM's ff19SB CLYS/CGLU/CGLN templates.
-    # Run apply_variants_to_pdb_text later in the pipeline (top / final
-    # export) when GROMACS naming is actually wanted.
-    _ = apply_variants_to_pdb_text  # noqa: F841 — kept import for future GROMACS export
+    # tleap itself requires native AMBER names. Apply the requested public
+    # output convention only after tleap, Reduce, and the chirality check.
+    apply_output_naming(
+        output_path,
+        result["renames"],
+        atom_naming=getattr(args, "atom_naming", "gromacs"),
+        verbose=args.verbose,
+    )
 
     # Emit .dat file. tleap adds heavy atoms deterministically, but we
     # don't have a per-atom "was this added" flag from tleap. Simplest

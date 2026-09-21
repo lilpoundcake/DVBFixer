@@ -167,7 +167,7 @@ describe('api client credentials', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const events = []
-    for await (const event of apiSse('/api/jobs/123/events', { method: 'POST' })) events.push(event)
+    for await (const event of apiSse('/api/v1/workspaces/a/jobs/123/events', { method: 'POST' })) events.push(event)
 
     expect(events).toEqual([
       { event: 'progress', id: '7', data: 'first\nsecond' },

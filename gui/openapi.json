@@ -1,0 +1,1221 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DVBFixer API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/workspaces/{workspaceId}/naming-conversions": {
+      "post": {
+        "operationId": "createNamingConversion",
+        "summary": "Convert force-field residue and atom names",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NamingConversionRequest"
+              },
+              "example": {
+                "inputArtifactId": "2a4d4d4e-2c82-4ea0-98ef-92df4cdd57f0",
+                "target": {
+                  "forceField": "amber",
+                  "profile": "gromacs"
+                },
+                "variantOverrides": [
+                  {
+                    "chainId": "H",
+                    "residueNumber": "82",
+                    "insertionCode": "A",
+                    "variant": "HIE"
+                  }
+                ],
+                "outputName": "complex_gromacs.pdb",
+                "dryRun": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dry-run result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NamingConversionResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created naming artifact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NamingConversionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Workspace write access required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or artifact not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Workspace operation conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request or source too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported media type or source format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unsafe conversion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Naming conversion timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspaces/{workspaceId}/jobs": {
+      "get": {
+        "operationId": "listManagedJobs",
+        "summary": "List managed scientific jobs",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Managed jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ManagedJobRecord"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createManagedJob",
+        "summary": "Start an asynchronous scientific workflow",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManagedJobRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Job accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedJobRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Workspace write access required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Workspace operation conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported media type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unsupported operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspaces/{workspaceId}/jobs/{jobId}": {
+      "get": {
+        "operationId": "getManagedJob",
+        "summary": "Get managed-job state",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Managed job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedJobRecord"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or job not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "cancelManagedJob",
+        "summary": "Request managed-job cancellation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Cancellation requested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedJobRecord"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or job not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspaces/{workspaceId}/jobs/{jobId}/events": {
+      "get": {
+        "operationId": "streamManagedJobEvents",
+        "summary": "Stream persisted managed-job state",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server-sent managed-job records",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or job not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "NamingConversionRequest": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "inputArtifactId",
+          "target"
+        ],
+        "properties": {
+          "inputArtifactId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "forceField",
+              "profile"
+            ],
+            "properties": {
+              "forceField": {
+                "anyOf": [
+                  {
+                    "const": "amber",
+                    "type": "string"
+                  },
+                  {
+                    "const": "charmm",
+                    "type": "string"
+                  }
+                ]
+              },
+              "profile": {
+                "const": "gromacs",
+                "type": "string"
+              }
+            }
+          },
+          "variantOverrides": {
+            "maxItems": 10000,
+            "type": "array",
+            "items": {
+              "additionalProperties": false,
+              "$id": "NamingVariantOverride",
+              "type": "object",
+              "required": [
+                "chainId",
+                "residueNumber",
+                "insertionCode",
+                "variant"
+              ],
+              "properties": {
+                "chainId": {
+                  "minLength": 1,
+                  "maxLength": 1,
+                  "type": "string"
+                },
+                "residueNumber": {
+                  "pattern": "^-?\\d+$",
+                  "type": "string"
+                },
+                "insertionCode": {
+                  "maxLength": 1,
+                  "type": "string"
+                },
+                "variant": {
+                  "anyOf": [
+                    {
+                      "const": "HID",
+                      "type": "string"
+                    },
+                    {
+                      "const": "HIE",
+                      "type": "string"
+                    },
+                    {
+                      "const": "HIP",
+                      "type": "string"
+                    },
+                    {
+                      "const": "ASH",
+                      "type": "string"
+                    },
+                    {
+                      "const": "GLH",
+                      "type": "string"
+                    },
+                    {
+                      "const": "CYX",
+                      "type": "string"
+                    },
+                    {
+                      "const": "CYM",
+                      "type": "string"
+                    },
+                    {
+                      "const": "LYN",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "outputName": {
+            "minLength": 5,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._ -]*\\.pdb$",
+            "type": "string"
+          },
+          "dryRun": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NamingConversionResponse": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operationId",
+          "status",
+          "sourceArtifactId",
+          "outputArtifact",
+          "output",
+          "result"
+        ],
+        "properties": {
+          "operationId": {
+            "type": "string"
+          },
+          "status": {
+            "const": "succeeded",
+            "type": "string"
+          },
+          "sourceArtifactId": {
+            "type": "string"
+          },
+          "outputArtifact": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "id",
+                  "file",
+                  "name",
+                  "kind"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "structure",
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "bytes",
+              "sha256"
+            ],
+            "properties": {
+              "bytes": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "sha256": {
+                "pattern": "^[a-f0-9]{64}$",
+                "type": "string"
+              }
+            }
+          },
+          "result": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "model",
+              "summary",
+              "changes",
+              "diagnostics"
+            ],
+            "properties": {
+              "model": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "summary": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "changedAtoms",
+                  "changedResidues",
+                  "variantChanges",
+                  "atomNameChanges"
+                ],
+                "properties": {
+                  "changedAtoms": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "changedResidues": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "variantChanges": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "atomNameChanges": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                }
+              },
+              "changes": {
+                "type": "array",
+                "items": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "model",
+                    "chainId",
+                    "residueNumber",
+                    "insertionCode",
+                    "alternateLocation",
+                    "atomSerial",
+                    "sourceResidueName",
+                    "targetResidueName",
+                    "sourceAtomName",
+                    "targetAtomName",
+                    "ruleIds"
+                  ],
+                  "properties": {
+                    "model": {
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "chainId": {
+                      "type": "string"
+                    },
+                    "residueNumber": {
+                      "type": "string"
+                    },
+                    "insertionCode": {
+                      "type": "string"
+                    },
+                    "alternateLocation": {
+                      "type": "string"
+                    },
+                    "atomSerial": {
+                      "type": "integer"
+                    },
+                    "sourceResidueName": {
+                      "type": "string"
+                    },
+                    "targetResidueName": {
+                      "type": "string"
+                    },
+                    "sourceAtomName": {
+                      "type": "string"
+                    },
+                    "targetAtomName": {
+                      "type": "string"
+                    },
+                    "ruleIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "diagnostics": {
+                "type": "array",
+                "items": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message",
+                    "residue"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "residue": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "chainId",
+                            "residueNumber",
+                            "insertionCode"
+                          ],
+                          "properties": {
+                            "chainId": {
+                              "type": "string"
+                            },
+                            "residueNumber": {
+                              "type": "string"
+                            },
+                            "insertionCode": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ManagedJobRequest": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "workspaceId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "command": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFile": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputs": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {
+                "anyOf": [
+                  {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "values": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          },
+          "fastaContent": {
+            "maxLength": 10485760,
+            "type": "string"
+          }
+        }
+      },
+      "ManagedJobRecord": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "id",
+          "workspaceId",
+          "status",
+          "createdAt",
+          "startedAt",
+          "finishedAt",
+          "command",
+          "args",
+          "exitCode",
+          "stdoutLog",
+          "stderrLog",
+          "outputDir",
+          "outputFile",
+          "requestedByPrincipalId"
+        ],
+        "properties": {
+          "version": {
+            "const": 1,
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "const": "queued",
+                "type": "string"
+              },
+              {
+                "const": "running",
+                "type": "string"
+              },
+              {
+                "const": "succeeded",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              },
+              {
+                "const": "cancelled",
+                "type": "string"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "startedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "command": {
+            "type": "string"
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "exitCode": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stdoutLog": {
+            "type": "string"
+          },
+          "stderrLog": {
+            "type": "string"
+          },
+          "outputDir": {
+            "type": "string"
+          },
+          "outputFile": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requestedByPrincipalId": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "provenance": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "apiVersion",
+              "command",
+              "serviceVersion",
+              "dvbfixerVersion",
+              "request",
+              "resolvedInputs",
+              "outputs"
+            ],
+            "properties": {
+              "apiVersion": {
+                "const": 1,
+                "type": "number"
+              },
+              "command": {
+                "type": "string"
+              },
+              "serviceVersion": {
+                "type": "string"
+              },
+              "dvbfixerVersion": {
+                "type": "string"
+              },
+              "request": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "inputs",
+                  "values",
+                  "fastaSha256"
+                ],
+                "properties": {
+                  "inputs": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {
+                        "anyOf": [
+                          {
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "values": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  },
+                  "fastaSha256": {
+                    "anyOf": [
+                      {
+                        "pattern": "^[a-f0-9]{64}$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              "resolvedInputs": {
+                "type": "array",
+                "items": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "artifactId",
+                    "file",
+                    "sha256"
+                  ],
+                  "properties": {
+                    "artifactId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "file": {
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[a-f0-9]{64}$",
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "outputs": {
+                "type": "array",
+                "items": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "artifactId",
+                    "file",
+                    "sha256"
+                  ],
+                  "properties": {
+                    "artifactId": {
+                      "type": "string"
+                    },
+                    "file": {
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[a-f0-9]{64}$",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ApiError": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "code",
+              "message",
+              "requestId"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {},
+              "requestId": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

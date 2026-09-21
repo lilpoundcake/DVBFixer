@@ -267,6 +267,14 @@ describe('standalone HTTP server', () => {
     })
     expect(bobWrite.status).toBe(403)
 
+    const bobJob = await fetch(`${base}/api/v1/workspaces/${created.id}/jobs`, {
+      method: 'POST', headers: headers(bobToken), body: JSON.stringify({ command: 'diagnose' }),
+    })
+    expect(bobJob.status).toBe(403)
+    expect(await bobJob.json()).toMatchObject({
+      error: { code: expect.any(String), requestId: expect.stringMatching(/^req_/) },
+    })
+
     await instance.close()
   })
 
@@ -287,6 +295,11 @@ describe('standalone HTTP server', () => {
     const missing = await fetch(`${base}/api/session`)
     expect(missing.status).toBe(401)
     expect(missing.headers.get('www-authenticate')).toContain('Bearer')
+    const missingV1 = await fetch(`${base}/api/v1/workspaces/private/jobs`)
+    expect(missingV1.status).toBe(401)
+    expect(await missingV1.json()).toMatchObject({
+      error: { code: 'UNAUTHORIZED', requestId: expect.stringMatching(/^req_/) },
+    })
     const session = await fetch(`${base}/api/session`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -308,6 +321,12 @@ describe('standalone HTTP server', () => {
     const openApi = await fetch(`${base}/api/v1/openapi.json`)
     expect(openApi.status).toBe(200)
     expect(await openApi.json()).toMatchObject({ openapi: '3.1.0' })
+
+    const unknownV1 = await fetch(`${base}/api/v1/unknown`)
+    expect(unknownV1.status).toBe(404)
+    expect(await unknownV1.json()).toMatchObject({
+      error: { code: 'ROUTE_NOT_FOUND', requestId: expect.stringMatching(/^req_/) },
+    })
 
     const reboundStatus = await new Promise<number | undefined>((resolve, reject) => {
       const request = http.request({

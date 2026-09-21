@@ -37,4 +37,9 @@ stable error details when applicable, output publication state, diagnostics,
 summary counts, and per-coordinate changes. Exit code `2` denotes validation or
 conversion failure; publication and other I/O failures use exit code `1`.
 
+For AMBER/GROMACS output, DNA and RNA sugar-hydrogen aliases are converted for
+the canonical `DA`/`DC`/`DG`/`DT` and `A`/`C`/`G`/`U` residue names. Terminal
+5-prime and 3-prime hydroxyl naming and protonation have not been validated and
+are unsupported; the command does not infer or rewrite those terminal states.
+
 See the generated [CLI reference](../reference/atom-names.md) for all options.

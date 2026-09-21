@@ -26,6 +26,18 @@ export class WorkspaceManifestLockError extends Error {
   }
 }
 
+export class WorkspaceRunLockError extends Error {
+  readonly statusCode = 409
+  readonly code = 'WORKSPACE_BUSY'
+  readonly workspaceId: string
+
+  constructor(workspaceId: string) {
+    super(`another DVBFixer operation is already running in workspace: ${workspaceId}`)
+    this.name = 'WorkspaceRunLockError'
+    this.workspaceId = workspaceId
+  }
+}
+
 function safeId(id: string): string {
   if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error('invalid workspace id')
   return id
@@ -250,4 +262,22 @@ export function withGlobalMigrationLock<T>(dataRoot: string, callback: () => T):
   } finally {
     release(lock.directory, lock.owner)
   }
+}
+
+/**
+ * Acquire the durable per-workspace scientific-run lease.
+ *
+ * The lock record includes host, boot, PID, and process-start identity, so a
+ * dead same-host owner can be reaped without stealing a live or unverifiable
+ * lock. The returned closure releases only the caller's token.
+ */
+export function acquireWorkspaceRunLock(dataRoot: string, workspaceId: string): () => void {
+  let lock: ReturnType<typeof acquire>
+  try {
+    lock = acquire(dataRoot, workspaceId, `run-${workspaceId}`)
+  } catch (error) {
+    if (error instanceof WorkspaceManifestLockError) throw new WorkspaceRunLockError(workspaceId)
+    throw error
+  }
+  return () => release(lock.directory, lock.owner)
 }

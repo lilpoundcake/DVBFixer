@@ -303,8 +303,7 @@ def test_charmm_backbone_h_to_hn(tmp_path: Path) -> None:
 
 
 def test_dna_map_exposed() -> None:
-    """DNA/RNA rename map exists — end-to-end test deferred (apostrophe in
-    atom names requires column-perfect PDB fixture handling)."""
+    """The compatibility export exposes the canonical DNA/RNA rename map."""
     from dvbfixer.ffutils.ff_names import GROMACS_AMBER_NA_ATOM_RENAMES
     assert "DA" in GROMACS_AMBER_NA_ATOM_RENAMES
     assert GROMACS_AMBER_NA_ATOM_RENAMES["DA"]["H2'"] == "H2'1"

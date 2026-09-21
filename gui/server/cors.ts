@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ApiMiddleware } from './http-types'
+import { v1ErrorBody } from './v1-error'
 
 const CORS_ENV_NAME = 'DVBFIXER_CORS_ALLOWED_ORIGINS'
 const MAX_CONFIG_BYTES = 16 * 1024
@@ -137,7 +138,9 @@ function singleHeader(request: IncomingMessage, name: string): string | null {
 }
 
 function reject(request: IncomingMessage, response: ServerResponse): void {
-  const body = Buffer.from(JSON.stringify({ error: 'Forbidden' }))
+  const body = Buffer.from(JSON.stringify(v1ErrorBody(
+    request, response, 'CORS_FORBIDDEN', 'Origin is not allowed',
+  )))
   request.resume()
   response.statusCode = 403
   response.setHeader('Content-Type', 'application/json; charset=utf-8')

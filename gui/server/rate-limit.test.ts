@@ -9,9 +9,11 @@ function invoke(
   middleware: ReturnType<typeof createRateLimitMiddleware>,
   address: string | undefined,
   method = 'GET',
+  url = '/workspaces',
 ) {
   const request = Readable.from([]) as any
   request.method = method
+  request.url = url
   request.socket = { remoteAddress: address }
   const headers = new Map<string, string>()
   let body = ''
@@ -65,6 +67,15 @@ describe('rate limit middleware', () => {
     expect(JSON.parse(rejected.body)).toEqual({ error: 'rate limit exceeded' })
     time = 11_000
     expect(invoke(middleware, '192.0.2.1')).toMatchObject({ status: 200, nextCalled: true })
+  })
+
+  it('uses the common error envelope for V1 rejection', () => {
+    const middleware = createRateLimitMiddleware(config({ requests: 1 }))
+    expect(invoke(middleware, '192.0.2.2', 'GET', '/v1/workspaces/example/jobs').status).toBe(200)
+    const rejected = invoke(middleware, '192.0.2.2', 'GET', '/v1/workspaces/example/jobs')
+    expect(JSON.parse(rejected.body)).toMatchObject({
+      error: { code: 'RATE_LIMITED', message: 'rate limit exceeded', requestId: expect.stringMatching(/^req_/) },
+    })
   })
 
   it('normalizes IPv4-mapped IPv6 and never trusts forwarding headers', () => {

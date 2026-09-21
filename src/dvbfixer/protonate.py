@@ -1023,7 +1023,7 @@ def _main_tleap_reduce_backend(args, input_path, output_path):
 
     print(f"=== protonate (tleap + reduce): {input_path} ===")
     try:
-        run_prep(
+        result = run_prep(
             input_path, output_path,
             ph=args.ph, ff="leaprc.protein.ff19SB",
             assign_variants=args.propka,
@@ -1044,6 +1044,13 @@ def _main_tleap_reduce_backend(args, input_path, output_path):
     if _d:
         print(f"  WARNING: {len(_d)} D-Cα residue(s) after protonate: "
               + ", ".join(f"{c}/{n}{r}" for c, r, n, _ in _d[:5]))
+    from dvbfixer.prep_backend import apply_output_naming
+    apply_output_naming(
+        output_path,
+        result["renames"],
+        atom_naming=getattr(args, "atom_naming", "gromacs"),
+        verbose=args.verbose,
+    )
     print(f"Saved protonated structure: {output_path}")
 
 

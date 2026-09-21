@@ -5,10 +5,11 @@ service on a cgroup-v2 host. It limits the aggregate Node server, DVBFixer
 processes, and their scientific descendants. It is not per-job or per-workspace
 OS isolation.
 
-This profile does not by itself make the API safe for the public internet. A
-production operator must still provide TLS, audit retention, secret management,
-database limits, backups, monitoring, and durable scheduling before horizontal
-scaling.
+An internet-facing deployment additionally needs a TLS-terminating proxy,
+restricted bearer-token distribution, backup and monitoring policies, and
+privileged acceptance on its target host. The example enables durable audit
+retention. Multiple processes may share one local data root on one host;
+multiple hosts require a separate distributed scheduler and state store.
 
 ## Storage Prerequisite
 
@@ -66,14 +67,35 @@ The flag is disabled by default so local macOS, Windows, Vite, and loopback
 development remain unchanged. Do not disable it in the resource-bounded systemd
 profile.
 
-## Access Log Retention
+## Access And Audit Retention
 
 The systemd example enables `DVBFIXER_ACCESS_LOG=json`; records go to stdout and
 therefore to the service journal. Configure journald forwarding, access control,
 rotation, retention, and deletion for the deployment. These redacted request
-records are operational access logs, not durable audit events. Do not grant log
+records are operational access logs. Do not grant log
 readers broader access than API operators merely because bodies and credentials
 are omitted.
+
+`DVBFIXER_AUDIT_LOG=jsonl` appends fsynced daily audit events beneath the
+private `_audit` directory in the data filesystem. The example retains 90 days;
+set `DVBFIXER_AUDIT_RETENTION_DAYS` to a local policy (1–3650). Pruning occurs
+on the next event after a date change, so remove expired files from an idle
+installation during scheduled maintenance. Monitor `[audit] failed to persist`
+in service logs, include the audit directory in protected backups, and restrict
+operator access to both backup and live records.
+
+## Public Network Boundary
+
+Place a TLS-terminating reverse proxy in front of the service and expose only
+HTTPS externally. Keep `DVBFIXER_HOST` bound to loopback when the proxy is on
+the same host; do not expose the Node listener. Set the browser-origin allowlist
+to the exact HTTPS origin, protect the proxy and bearer-token configuration,
+and enforce an edge request limit because the backend groups requests by the
+proxy's direct address. Limit PostgreSQL separately and back up the dedicated
+data filesystem. Check `/api/health`, authenticated `/api/session`, and the
+versioned naming and job routes through the proxy before opening access.
+Document the host's TLS renewal, journal rotation, audit monitoring, and backup
+restore procedures as part of the deployment record.
 
 ## Metrics
 
@@ -95,4 +117,9 @@ fork-heavy descendant, persistent and temporary writes stop at their storage
 boundaries, and service shutdown removes session-detached grandchildren. Include
 at least one external MSA tool and one AmberTools/Reduce workflow in this smoke
 test. The repository's unprivileged tests validate configuration and fail-closed
-preflight logic but cannot prove host-kernel enforcement.
+preflight logic but cannot prove host-kernel enforcement. Record the actual
+service unit properties (`systemctl show dvbfixer.service`), cgroup events
+(`memory.events`, `cpu.stat`, `pids.events`), mount capacities, and representative
+MSA/AmberTools command results from the target host. This development container
+has a read-only cgroup mount and no running systemd, so it cannot serve as that
+host.

@@ -137,6 +137,9 @@ jobs:
       - name: Audit GUI dependencies
         working-directory: gui
         run: npm audit --audit-level=high
+      - name: OpenAPI document and generated client in sync
+        working-directory: gui
+        run: npm run check:openapi
       - name: Lint, test, typecheck, and build GUI
         working-directory: gui
         run: |

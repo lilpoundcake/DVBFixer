@@ -1,24 +1,24 @@
 # DVBFixer API
 
-DVBFixer exposes an initial versioned HTTP operation through a host-neutral Node
+DVBFixer exposes versioned HTTP operations through a host-neutral Node
 route composition shared by the Vite development adapter and the bundled
 standalone server. Static bearer authentication and manifest-backed workspace
 authorization, restrictive browser-origin handling, request-rate and workspace/
 upload limits, and process-wide child concurrency limits are available. The host
-is not yet an internet-facing production service: TLS, target-host resource
-enforcement acceptance, audit retention, and distributed scheduling/event
-delivery remain planned work.
+requires a TLS-terminating proxy and target-host resource-enforcement acceptance
+before an internet-facing deployment is supported.
 
-Workspace manifest mutations use same-host cross-process filesystem locks and
-compare revisions against the locked on-disk manifest. This prevents concurrent
-Node processes sharing one local data root from losing manifest updates. The
-lock is not a distributed lease and does not support multiple hosts or
-filesystems without local atomic rename and reliable process identity.
+Workspace manifests and active runs use same-host cross-process filesystem
+locks. Cancellation markers and persisted-record polling deliver job state to
+other local processes. This requires one shared local data root with atomic
+filesystem operations and reliable process identity. It does not support
+multiple hosts or network filesystems; crash recovery marks interrupted jobs
+failed rather than rerunning them.
 
 A Linux systemd/cgroup-v2 profile for aggregate OS resource containment is
-available in [`deployment.md`](deployment.md). Public deployment remains
-unsupported until the target host passes its privileged enforcement checks and
-the remaining TLS, audit, and durable-scheduling controls are supplied.
+available in [`deployment.md`](deployment.md). Audit retention is available;
+the example deployment still needs a TLS proxy and privileged target-host
+acceptance before public use.
 
 The OpenAPI 3.1 document is available at:
 
@@ -27,7 +27,36 @@ GET /api/v1/openapi.json
 ```
 
 Runtime validation and OpenAPI are generated from the same TypeBox schemas in
-`gui/server/naming-api-schema.ts`.
+`gui/server/naming-api-schema.ts` and `managed-jobs-schema.ts`.
+`gui/openapi.json` and `gui/src/generated/dvbfixer-api.ts` are checked-in
+artifacts. Run `cd gui && npm run gen:openapi` after a schema change;
+`npm run check:openapi` enforces synchronization in CI. The GUI uses the
+generated client for job requests and the authenticated transport for SSE.
+
+## Managed Workflows
+
+`POST /api/v1/workspaces/{workspaceId}/jobs` starts a managed command and
+returns `202` with a persisted job record. `GET` on the same path lists jobs;
+`GET /api/v1/workspaces/{workspaceId}/jobs/{jobId}` reads one record;
+`DELETE` requests cancellation; and `GET .../{jobId}/events` streams persisted
+record changes as server-sent events. Job records contain status, logs, output
+location, and provenance. Workspace artifact downloads use the existing
+workspace API. Every current CLI command except `atom-names` is a managed
+workflow, including `diagnose`, `conect`, `renumber`, `prepare`, `minimize`,
+`model`, `zbs`, and parameterization. Naming is the bounded synchronous
+transform. An unsupported command returns `422`.
+
+Input files are resolved inside the authorized workspace. Each published
+output artifact records the command, request options, input artifact identities
+and SHA-256 digests, service/DVBFixer versions, and output SHA-256 digest.
+Commands writing to stdout publish a `.txt` or `.json` artifact. Terminal job
+records and artifacts provide structured status and provenance; diagnostic
+command output remains in its native CLI format. Jobs interrupted by a server
+crash are marked failed on recovery and can be submitted again explicitly.
+
+V1 compatibility and deprecation rules are in
+[`ADR 0009`](adr/0009-versioned-workflows-and-compatibility.md). The old
+`/api/jobs` and synchronous `/api/dvbfixer/:command` routes have been retired.
 
 ## Authentication
 
@@ -134,10 +163,21 @@ artifact IDs, filenames, subprocess output, exception messages, and raw paths.
 Client-supplied request IDs are never trusted. Route labels are bounded templates
 or coarse API groups to avoid sensitive high-cardinality data.
 
-This is an API access log, not a durable authorization audit trail. It covers
+This access log covers
 the shared API composition, including CORS, rate-limit, authentication, public
 endpoint, route, and unknown-API responses. A standalone loopback Host-header
 rejection occurs before that boundary and is not included.
+
+Set `DVBFIXER_AUDIT_LOG=jsonl` to append durable `dvbfixer.audit.v1` events to
+`<data-root>/_audit/audit-YYYY-MM-DD.jsonl` (private directory and mode `0600`
+files). The default is `off`. Events cover V1 requests, mutations, and denied
+authentication/authorization. Each contains a timestamp, request ID, principal
+ID when authenticated, method, bounded route label, status, and outcome;
+credentials, request contents, filenames, and scientific data are omitted.
+`DVBFIXER_AUDIT_RETENTION_DAYS` defaults to 90 (range 1–3650); expired daily
+files are removed on the next event after midnight. Back up or ship these
+records according to the deployment's retention requirements. A disk error is
+reported to the service log; operators must monitor it to ensure audit delivery.
 
 ## Metrics
 
@@ -156,6 +196,16 @@ Scientific conversion failures use their stable Python error codes and HTTP
 `422`. Transport and workspace failures use API-specific codes. Unexpected
 subprocess and filesystem details are not returned to clients.
 
+The naming service's stable `422` codes are `INVALID_VARIANT`,
+`AMBIGUOUS_VARIANT`, `MALFORMED_PDB`, `MULTI_MODEL_UNSUPPORTED`,
+`NAMING_COLLISION`, and `UNSUPPORTED_NAMING_DIRECTION`. Request validation
+returns `400 INVALID_REQUEST` or `INVALID_JSON`; a changed source returns
+`409 SOURCE_ARTIFACT_CHANGED`; incompatible inputs return
+`415 UNSUPPORTED_SOURCE_FORMAT`; an oversized input returns
+`413 SOURCE_TOO_LARGE`; and timeout returns `504 NAMING_TIMEOUT`.
+New codes may be added within V1, but existing meanings and status mappings
+follow [ADR 0009](adr/0009-versioned-workflows-and-compatibility.md).
+
 ## Limits
 
 The JSON body uses the shared 2 MiB request limit. General server defaults are:
@@ -170,6 +220,8 @@ The JSON body uses the shared 2 MiB request limit. General server defaults are:
 | `DVBFIXER_RATE_LIMIT_WINDOW_MS` | 60,000 ms | Fixed rate-limit window, 1–3,600 seconds |
 | `DVBFIXER_RATE_LIMIT_MAX_KEYS` | 10,000 | Maximum tracked client addresses |
 | `DVBFIXER_ACCESS_LOG` | `off` | `off` or one-line `json` API access records on stdout |
+| `DVBFIXER_AUDIT_LOG` | `off` | `off` or durable daily `jsonl` audit records |
+| `DVBFIXER_AUDIT_RETENTION_DAYS` | 90 | Expiration window for local audit files |
 | `DVBFIXER_METRICS` | `off` | `off` or protected Prometheus metrics via `/api/metrics` |
 | `DVBFIXER_MUTATIONS_BACKUP_FILE` | `<gui>/mutations.json` | Mutable PostgreSQL backup; hardened deployments place it on bounded state |
 | `DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED` | `0` | Require the Linux cgroup/filesystem preflight when set to `1` |
@@ -221,9 +273,12 @@ Naming-specific defaults are:
 | `DVBFIXER_NAMING_MAX_SOURCE_BYTES` | 50 MiB | Maximum source artifact size |
 | `DVBFIXER_NAMING_MAX_REPORT_BYTES` | 20 MiB | Maximum CLI report size |
 | `DVBFIXER_NAMING_TIMEOUT_MS` | 60,000 ms | Subprocess timeout |
+| `DVBFIXER_NAMING_FAILED_MAX_RUNS` | 20 | Maximum retained failed naming runs per workspace |
+| `DVBFIXER_NAMING_FAILED_MAX_AGE_HOURS` | 168 (7 days) | Maximum age of failed naming runs at pruning time |
 
 These settings must be positive safe integers; the timeout may not exceed
-2,147,483,647 ms, Node's timer maximum. The source is read through a bounded
+2,147,483,647 ms, Node's timer maximum, and retention hours must remain a safe
+integer after conversion to milliseconds. The source is read through a bounded
 file descriptor before the operation directory or child-process admission is
 created. The command reads that private snapshot rather than the mutable
 workspace path, and publication still verifies that the workspace source has
@@ -241,9 +296,18 @@ stderr, report when available, overrides, and any partial output below
 `runs/_failed`; publication-stage failures restore diagnostics removed during
 the commit attempt. Normal failure cleanup excludes the private source snapshot
 from retained data. Failed runs are never registered as visible artifacts, are
-counted against workspace quota, and currently remain until an operator removes
-them. A quota-exhaustion failure deletes its operation data instead of retaining
-more bytes.
+counted against workspace quota, and pruned under the workspace run lock before
+the next naming execution and after each retained failure. By default, pruning
+keeps at most the 20 newest failed naming directories and removes those at least
+seven days old, measured from quarantine time (directory modification time for
+existing failures). This is lazy cleanup, not a background timer: idle workspaces
+are cleaned when naming next runs. Only `runs/_failed/naming_<UUID>` directories
+are eligible; successful outputs, active runs, other workflow failures, and
+symlink targets are preserved. A quota-exhaustion failure deletes its operation
+data instead of retaining more bytes. Filesystem errors during failure cleanup
+do not replace the original conversion error; operators must repair storage
+permissions if cleanup cannot run. Failure diagnostics are not a durable audit
+log.
 
 ## Browser Origins
 
@@ -280,7 +344,7 @@ stops accepting requests, cancels tracked DVBFixer subprocesses with signal
 escalation, drains HTTP work, and then closes PostgreSQL.
 
 Remote binding requires configured authentication and
-`DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit acknowledgment. It remains
-unsupported for untrusted networks until TLS, OS-level resource
-enforcement is verified on the target host, audit retention, and distributed
-scheduling/event controls are implemented.
+`DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit acknowledgment. Keep the
+Node listener private behind a TLS proxy; the public deployment requires
+privileged resource-enforcement acceptance on its target host. Multi-host
+scheduling is outside the current single-host storage contract.

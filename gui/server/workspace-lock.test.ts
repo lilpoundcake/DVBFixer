@@ -4,7 +4,8 @@ import path from 'node:path'
 import { spawn } from 'node:child_process'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
-  WorkspaceManifestLockError, withGlobalMigrationLock, withWorkspaceManifestLock,
+  acquireWorkspaceRunLock, WorkspaceManifestLockError, WorkspaceRunLockError,
+  withGlobalMigrationLock, withWorkspaceManifestLock,
 } from './workspace-lock'
 
 const directories: string[] = []
@@ -20,6 +21,19 @@ afterEach(() => {
 })
 
 describe('workspace manifest lock', () => {
+  it('serializes scientific runs independently of manifest writes', () => {
+    const root = temp()
+    const release = acquireWorkspaceRunLock(root, 'workspace-a')
+    try {
+      expect(() => acquireWorkspaceRunLock(root, 'workspace-a')).toThrow(WorkspaceRunLockError)
+      expect(withWorkspaceManifestLock(root, 'workspace-a', () => 'manifest')).toBe('manifest')
+    } finally {
+      release()
+    }
+    const releaseAgain = acquireWorkspaceRunLock(root, 'workspace-a')
+    releaseAgain()
+  })
+
   it('excludes a live holder and releases for the next transaction', () => {
     const root = temp()
     withWorkspaceManifestLock(root, 'workspace-a', () => {

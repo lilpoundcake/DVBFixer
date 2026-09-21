@@ -2,8 +2,9 @@ import { afterEach, describe, expect, it } from 'vitest'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { Readable } from 'node:stream'
 import {
-  cancelManagedJob, createManagedJob, getManagedJob, listManagedJobs,
+  cancelManagedJob, createManagedJob, getManagedJob, listManagedJobs, registerManagedJobApi,
   type ManagedJobRecord,
 } from './managed-jobs'
 import {
@@ -18,6 +19,27 @@ const directories: string[] = []
 const originalEnvironment = {
   executable: process.env.DVBFIXER_EXECUTABLE,
   args: process.env.DVBFIXER_ARGS,
+}
+
+async function apiRequest(dataRoot: string, method: string, url: string, body = '', contentType = 'application/json') {
+  let middleware: ((req: any, res: any, next: () => void) => Promise<void>) | undefined
+  const server = { middlewares: { use: (_route: string, handler: typeof middleware) => { middleware = handler } } }
+  registerManagedJobApi(server as any, dataRoot)
+  const incoming = Readable.from([body]) as Readable & {
+    method: string; url: string; headers: Record<string, string>
+  }
+  incoming.method = method
+  incoming.url = url
+  incoming.headers = { 'content-type': contentType }
+  let responseBody = ''
+  const headers: Record<string, string> = {}
+  const response = {
+    statusCode: 0,
+    setHeader: (name: string, value: unknown) => { headers[name.toLowerCase()] = String(value) },
+    end: (value?: unknown) => { responseBody = value === undefined ? '' : String(value) },
+  }
+  await middleware!(incoming as any, response as any, () => {})
+  return { status: response.statusCode, headers, body: responseBody ? JSON.parse(responseBody) : null }
 }
 
 function root(): string {
@@ -63,6 +85,29 @@ afterEach(() => {
 })
 
 describe('managed DVBfixer jobs', () => {
+  it('exposes versioned workspace routes with the common error envelope', async () => {
+    const dataRoot = root()
+    const workspace = listWorkspaces(dataRoot)[0]
+    const base = `/workspaces/${workspace.id}/jobs`
+
+    const media = await apiRequest(dataRoot, 'POST', base, '{}', 'text/plain')
+    expect(media.status).toBe(415)
+    expect(media.body.error).toMatchObject({ code: 'UNSUPPORTED_MEDIA_TYPE' })
+    expect(media.body.error.requestId).toMatch(/^req_/)
+
+    const malformed = await apiRequest(dataRoot, 'POST', base, '{')
+    expect(malformed.status).toBe(400)
+    expect(malformed.body.error.code).toBe('INVALID_JSON')
+
+    const unsupported = await apiRequest(dataRoot, 'POST', base, JSON.stringify({ command: 'unknown' }))
+    expect(unsupported.status).toBe(422)
+    expect(unsupported.body.error.code).toBe('UNSUPPORTED_OPERATION')
+
+    const listed = await apiRequest(dataRoot, 'GET', base)
+    expect(listed.status).toBe(200)
+    expect(listed.body).toEqual([])
+  })
+
   it('reports a missing command clearly', () => {
     const dataRoot = root()
     const workspace = listWorkspaces(dataRoot)[0]
@@ -90,6 +135,64 @@ describe('managed DVBfixer jobs', () => {
     expect(fs.readFileSync(path.join(workspaceDirectory, finished.stdoutLog), 'utf8')).toContain('managed ok')
     expect(fs.existsSync(path.join(workspaceDirectory, finished.outputDir, 'job.json'))).toBe(true)
     expect(listManagedJobs(dataRoot, workspace.id).map(job => job.id)).toContain(created.id)
+    expect(finished.provenance).toMatchObject({
+      apiVersion: 1, command: 'doctor', serviceVersion: 'unknown',
+      request: { inputs: {}, values: {}, fastaSha256: null },
+      resolvedInputs: [],
+    })
+    expect(finished.provenance!.outputs).toHaveLength(1)
+  })
+
+  it('records reproducible input and output artifact provenance', async () => {
+    const dataRoot = root()
+    const workspace = listWorkspaces(dataRoot)[0]
+    const inputFile = path.join(workspaceRoot(dataRoot, workspace.id), 'files', 'input.pdb')
+    fs.mkdirSync(path.dirname(inputFile), { recursive: true })
+    fs.writeFileSync(inputFile, 'END\n')
+    saveWorkspace(dataRoot, {
+      ...loadWorkspace(dataRoot, workspace.id),
+      artifacts: [{ id: 'source-id', file: 'files/input.pdb', name: 'input.pdb', kind: 'structure' }],
+    })
+    useNode("const fs=require('node:fs');const i=process.argv.indexOf('-o');fs.writeFileSync(process.argv[i+1],'END\\n')")
+
+    const created = createManagedJob(dataRoot, {
+      workspaceId: workspace.id,
+      command: 'renumber',
+      inputs: { input: 'files/input.pdb' },
+      values: { '--number-from-1': true },
+    }, 'local', '9.9.9')
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+
+    expect(finished.status).toBe('succeeded')
+    expect(finished.provenance).toMatchObject({
+      serviceVersion: '9.9.9', dvbfixerVersion: '9.9.9',
+      request: {
+        inputs: { input: 'files/input.pdb' },
+        values: { '--number-from-1': true },
+      },
+      resolvedInputs: [{ artifactId: 'source-id', file: 'files/input.pdb' }],
+    })
+    expect(finished.provenance!.resolvedInputs[0].sha256).toMatch(/^[a-f0-9]{64}$/)
+    expect(finished.provenance!.outputs).toHaveLength(1)
+    const artifact = loadWorkspace(dataRoot, workspace.id).artifacts
+      .find(candidate => candidate.id === finished.provenance!.outputs[0].artifactId)!
+    expect(artifact.workflowProvenance?.outputs[0].sha256)
+      .toBe(finished.provenance!.outputs[0].sha256)
+  })
+
+  it('publishes diagnose findings when the CLI uses its documented exit code 1', async () => {
+    const dataRoot = root()
+    const workspace = listWorkspaces(dataRoot)[0]
+    const input = path.join(workspaceRoot(dataRoot, workspace.id), 'input.pdb')
+    fs.writeFileSync(input, 'END\n')
+    useNode("const fs=require('node:fs');const i=process.argv.indexOf('-o');fs.writeFileSync(process.argv[i+1],'finding\\n');process.exit(1)")
+    const created = createManagedJob(dataRoot, {
+      workspaceId: workspace.id, command: 'diagnose', inputFile: 'input.pdb',
+    })
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+    expect(finished).toMatchObject({ status: 'succeeded', exitCode: 1 })
+    expect(finished.outputFile).toMatch(/\.txt$/)
+    expect(finished.provenance!.outputs).toHaveLength(1)
   })
 
   it('rejects concurrent jobs in one workspace and cancels the active process', async () => {

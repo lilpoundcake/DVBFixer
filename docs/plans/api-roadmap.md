@@ -407,8 +407,8 @@ Core naming slice implemented on 2026-09-18: the shared Node adapter uses
 TypeBox runtime schemas, publishes OpenAPI 3.1, resolves source artifacts by ID,
 validates bounded CLI reports and output digests, preserves concurrent manifest
 updates by reloading before publication, and records reproducible provenance.
-Server-owned request IDs, structured API access logs, and bounded process-local
-Prometheus metrics are implemented. Durable audit events/retention and a generated client remain. Authentication,
+Server-owned request IDs, structured API access logs, bounded process-local
+Prometheus metrics, durable audit retention, and a generated client are implemented. Authentication,
 workspace authorization, and the standalone host are implemented in Phase 4.
 
 - Add runtime request/response schemas and the V1 route.
@@ -430,8 +430,9 @@ are implemented. Restrictive CORS, bounded imports, logical workspace quotas,
 and process-wide child concurrency limits followed on 2026-09-21. TLS guidance,
 same-host cross-process manifest locking, and a fail-closed Linux systemd/cgroup
 resource profile followed on 2026-09-21. Privileged target-host enforcement
-tests, audit retention, and multi-instance scheduling/event coordination remain
-before public deployment.
+tests on the target host remain before public deployment. Same-host processes
+share durable workspace run locks and persisted job event polling; multi-host
+execution remains outside the supported contract.
 
 - Extract route composition from `api-plugin.ts` into a host-neutral module.
 - Add a production Node entry point with graceful shutdown and configuration.
@@ -443,6 +444,11 @@ before public deployment.
 Exit criterion: the API can run without Vite and passes deployment smoke tests.
 
 ### Phase 5: general DVBFixer API
+
+Versioned managed-job routes and checked-in OpenAPI client types are implemented.
+The duplicate synchronous generic route is removed. The naming transform is
+synchronous; other commands use persisted managed jobs. ADR 0009 defines
+compatibility and the single-host coordination boundary.
 
 - Version managed jobs under `/api/v1` and retire the duplicate synchronous
   generic command runner.

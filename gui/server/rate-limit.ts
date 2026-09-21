@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { isIP } from 'node:net'
 import type { ApiMiddleware } from './http-types'
+import { v1ErrorBody } from './v1-error'
 
 export const DEFAULT_RATE_LIMIT_REQUESTS = 120
 export const DEFAULT_RATE_LIMIT_WINDOW_MS = 60_000
@@ -94,7 +95,7 @@ function sendJson(
   request: IncomingMessage,
   response: ServerResponse,
   status: number,
-  body: { error: string },
+  body: { error: string } | { error: { code: string; message: string; requestId: string } },
 ): void {
   const encoded = Buffer.from(JSON.stringify(body))
   request.resume()
@@ -137,7 +138,9 @@ export function createRateLimitMiddleware(
 
     if (!entry) {
       if (windows.size >= config.maxKeys) {
-        return sendJson(request, response, 503, { error: 'rate limit tracker capacity exhausted' })
+        return sendJson(request, response, 503, v1ErrorBody(
+          request, response, 'RATE_LIMIT_CAPACITY_EXHAUSTED', 'rate limit tracker capacity exhausted',
+        ))
       }
       entry = { count: 0, resetAt: currentTime + config.windowMs }
       windows.set(key, entry)
@@ -147,7 +150,9 @@ export function createRateLimitMiddleware(
     if (entry.count >= config.requests) {
       setRateHeaders(response, config, 0, entry.resetAt, currentTime)
       response.setHeader('Retry-After', String(secondsUntil(entry.resetAt, currentTime)))
-      return sendJson(request, response, 429, { error: 'rate limit exceeded' })
+      return sendJson(request, response, 429, v1ErrorBody(
+        request, response, 'RATE_LIMITED', 'rate limit exceeded',
+      ))
     }
 
     entry.count += 1

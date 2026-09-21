@@ -52,6 +52,7 @@ invariants = [
 change_group = "protein-variant-identity"
 test_files = [
   "gui/server/naming-api.test.ts",
+  "gui/server/naming-retention.test.ts",
   "tests/test_atom_names_cli.py",
   "tests/test_force_field_naming.py",
   "tests/test_ff_names.py",
@@ -61,7 +62,7 @@ test_files = [
 ]
 verification = [
   "pytest -q tests/test_atom_names_cli.py tests/test_force_field_naming.py tests/test_ff_names.py tests/test_variants_gromacs_lyn.py tests/test_prepare_icode_variants.py tests/test_terminal_caps.py tests/test_scientific_domain.py",
-  "cd gui && npm test -- --run server/naming-api.test.ts server/dvbfixer-runner.test.ts",
+  "cd gui && npm test -- --run server/naming-api.test.ts server/naming-retention.test.ts server/dvbfixer-runner.test.ts",
 ]
 
 [tasks.add-public-command]
@@ -340,6 +341,33 @@ verification = [
   "cd gui && npm run typecheck",
 ]
 
+[tasks.change-versioned-workflow-api]
+status = "implemented"
+context = "docs/agent/contexts/workflow-execution.md"
+start = [
+  "gui/server/managed-jobs.ts::registerManagedJobApi",
+  "gui/server/naming-api-schema.ts::NAMING_OPENAPI_DOCUMENT",
+  "gui/server/workspace-lock.ts::acquireWorkspaceRunLock",
+]
+callers = [
+  "gui/server/api-routes.ts::registerApiRoutes",
+  "gui/src/components/DVBFixerPanel.tsx",
+]
+contracts = ["workspace-manifest-artifact-identity"]
+invariants = ["INV-API-WORKSPACE-CONTAINMENT", "INV-API-WORKSPACE-AUTHORIZATION"]
+change_group = "gui-api-surface"
+test_files = [
+  "gui/server/managed-jobs.test.ts",
+  "gui/server/naming-api.test.ts",
+  "gui/server/workspace-lock.test.ts",
+  "gui/server/audit-log.test.ts",
+  "gui/src/lib/v1-client.test.ts",
+]
+verification = [
+  "cd gui && npm run check:openapi && npm run typecheck",
+  "cd gui && npm test -- server/managed-jobs.test.ts server/naming-api.test.ts server/workspace-lock.test.ts server/audit-log.test.ts src/lib/v1-client.test.ts",
+]
+
 [tasks.add-regression-fixture]
 status = "implemented"
 context = "docs/agent/README.md"
@@ -495,6 +523,8 @@ files = [
   "gui/server/api-routes.ts",
   "gui/server/request-observability.ts",
   "gui/server/metrics.ts",
+  "gui/server/audit-log.ts",
+  "gui/server/workspace-lock.ts",
   "deploy/systemd",
   "docs/deployment.md",
   "docs/api.md",

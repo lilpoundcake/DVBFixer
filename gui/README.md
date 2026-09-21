@@ -359,9 +359,10 @@ default; additional origins must be listed exactly in
 concurrency have configurable application limits. A fail-closed Linux
 systemd/cgroup-v2 resource profile is documented in
 [`docs/deployment.md`](../docs/deployment.md), but it must pass privileged checks
-on the target host. The server still does not provide TLS, audit retention, or
-distributed scheduling/event delivery. Use it only on a trusted network until
-those controls ship. Loopback mode also rejects
+on the target host. The example enables durable local audit retention; provide
+a TLS proxy and complete the target-host acceptance before public access.
+Multi-host scheduling is unsupported; same-host processes share durable run
+locks and persisted job state. Loopback mode also rejects
 non-loopback HTTP `Host` headers to prevent DNS rebinding from bypassing the
 local-only boundary. `npm run preview` remains a frontend-only Vite preview and
 does not host the APIs.

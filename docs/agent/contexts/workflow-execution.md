@@ -10,7 +10,7 @@ Verified at commit: `425f290eb85760246766f1d1500e51672c640b2d`
 
 This context describes how a requested DVBFixer operation becomes a process,
 files, logs, job state, and workspace artifacts. It distinguishes the shipped
-Python CLI and local GUI middleware from the proposed production HTTP service.
+Python CLI and versioned local HTTP API from public-host acceptance work.
 
 Scientific behavior remains in Python command modules. The Node layer resolves
 workspace-owned inputs, starts the CLI, records execution, and publishes files;
@@ -27,9 +27,9 @@ a supported internet-facing production API. Static bearer principals,
 manifest-backed workspace authorization, the first versioned route, and OpenAPI
 are implemented. Restrictive CORS, bounded imports, workspace accounting, and a
 process-wide FIFO child limit are also implemented. A bounded pre-authentication
-direct-client request limiter protects every API route. Wider API versioning,
-OS-level limits, multi-instance scheduling, and durable event delivery remain
-proposed.
+direct-client request limiter protects every API route. Versioned managed jobs,
+durable audit events, and same-host cross-process coordination are implemented.
+Privileged OS-limit acceptance and multi-host scheduling remain outstanding.
 
 ## Capabilities
 
@@ -40,9 +40,9 @@ proposed.
 | CIF-to-PDB command boundary | implemented | `structure_input.py::normalized_command_inputs` | conversion fails before command execution; temporary normalized inputs are removed |
 | ZBS stage orchestration | implemented | `zbs.py::_run_pipeline` | aborts at the failing stage; existing intermediates can remain |
 | Revisioned workspace manifests | implemented | `workspace-api.ts`, `workspace-lock.ts` | same-host writers serialize and stale client revisions return 409; locks are not distributed |
-| Persisted, cancellable local jobs | partial | `managed-jobs.ts` | snapshots and capped logs persist; locks and subscribers are process-local |
-| Duplicate synchronous GUI command route | deprecated | `api-plugin.ts` | failed run is moved under `runs/_failed` and is not registered |
-| Versioned production workflow API | proposed | API roadmap | not shipped |
+| Persisted, cancellable local jobs | implemented | `managed-jobs.ts`, `workspace-lock.ts` | capped logs and state persist; same-host processes share run locks, cancellation markers, and SSE polling |
+| Duplicate synchronous GUI command route | removed | `api-routes.ts` | callers use versioned managed jobs |
+| Versioned production workflow API | partial | `managed-jobs.ts`, `naming-api.ts` | versioned routes ship; target-host public acceptance is pending |
 
 ## Entry Points
 
@@ -54,10 +54,10 @@ proposed.
 - `src/dvbfixer/zbs.py::_run_pipeline` calls renumber, model, prepare, and
   minimize in one Python process, then copies the last result to the final path.
 - `gui/server/managed-jobs.ts::createManagedJob` is the GUI's primary command
-  execution path; `/api/jobs` provides creation, listing, detail, SSE, and
+  execution path; `/api/v1/workspaces/{workspaceId}/jobs` provides creation, listing, detail, SSE, and
   cancellation.
-- `gui/server/api-plugin.ts::apiPlugin` composes the Vite-only middleware and
-  still exposes the older synchronous `/api/dvbfixer/:command` route.
+- `gui/server/api-plugin.ts::apiPlugin` composes the same routes in Vite; the
+  synchronous generic command route has been retired.
 
 ## Contracts
 
@@ -89,7 +89,7 @@ inputs by these relative `file` values, not by artifact ID.
 state before asynchronous execution, then transitions through `running` to
 `succeeded`, `failed`, or `cancelled`. It records argv, timestamps, exit code,
 log paths, output directory, and primary output path. At most one current run
-is allowed per workspace in one server process. Creation returns 202; DELETE
+is allowed per workspace across processes sharing one local data root. Creation returns 202; DELETE
 requests cancellation and also returns 202 without claiming the process has
 already exited.
 
@@ -164,15 +164,11 @@ retain their directory, logs, and possible partial outputs but register none of
 them. Cancellation sends SIGTERM to the process group on Unix (the child on
 Windows); terminal state is recorded only after the child closes.
 
-The synchronous Vite route uses registry `successCodes`, registers successful
-files, and moves failed run directories to `runs/_failed`. It has no managed
-job record, restoration, SSE lifecycle, or cancellation endpoint.
+The managed route honors the registry's accepted success codes; a `diagnose`
+finding (exit 1) is a successful report with a registered artifact.
 
 ## Known Divergences
 
-- Managed jobs treat only exit code 0 as success, while the synchronous route
-  honors `CommandSpec.successCodes`; therefore `diagnose` exit 1 is a managed
-  job failure but a successful synchronous diagnostic result.
 - Managed SSE emits persisted job snapshots, not live stdout/stderr chunks;
   capped logs become files after process completion.
 - Workspace JSON replacement is atomic and every manifest publisher holds a
@@ -182,36 +178,27 @@ job record, restoration, SSE lifecycle, or cancellation endpoint.
   compensating transaction rather than one filesystem transaction.
 - On server restart, loading an orphaned queued/running record marks it failed;
   there is no durable worker reconciliation or resume.
-- Active-run locks and SSE subscribers exist only in memory, so multiple server
-  instances can run conflicting work and cannot share events.
+- Durable workspace run locks, cancellation markers, and polling of persisted
+  jobs coordinate processes sharing one local filesystem on the same host.
+  Multiple hosts and network filesystems are unsupported.
 - Workspace quotas are logical-byte publication checks, not OS filesystem
   quotas; child output may exist before publication and failed/trash data counts.
-- Cancellation and timeout have process-kill escalation but no durable
-  `cancellation-requested` state.
+- Cancellation and timeout have process-kill escalation; cross-process
+  cancellation requests use a durable marker removed at terminal state.
 - The static GUI build does not ship these Vite backend routes.
 - The standalone build ships all routes with static bearer authentication and
   workspace ACLs, restrictive CORS, application quotas, and child concurrency
   limits, but remains unsuitable for untrusted networks without TLS, OS-level
-  limits, audit retention, and distributed scheduling/event coordination.
+  enforcement acceptance on the target host and a TLS boundary. Multi-host
+  scheduling requires an external coordination service.
 
 ## Proposed Work
 
-The remaining proposals in [`../../plans/api-roadmap.md`](../../plans/api-roadmap.md)
-are not current behavior. Add OS-level resource limits and audit retention;
-retain Vite only as a development host.
-
-Extend runtime-validated `/api/v1` contracts and generated OpenAPI beyond the
-naming slice. Preserve authentication and authorization before path resolution,
-accept artifact IDs rather than server paths, and add quotas/concurrency
-coordination across instances, request IDs, structured logs, metrics, and audit
-provenance.
-
-For long-running workflows, persist scheduling and event delivery before
-horizontal scaling. Cancellation must have a durable requested/terminal model,
-and restart recovery must reconcile worker state. Commit a validated output and
-provenance against the latest manifest revision atomically; failure may retain
-private logs but must expose no partial artifact. Retire the duplicate
-synchronous generic runner after versioned managed jobs cover its use cases.
+Complete the privileged deployment acceptance in
+[`../../deployment.md`](../../deployment.md) on the actual systemd host. A
+future multi-host service needs an external scheduler, distributed child
+admission, and a shared state store; this repository currently supports
+multiple processes sharing one local data root on one host.
 
 ## Focused Verification
 

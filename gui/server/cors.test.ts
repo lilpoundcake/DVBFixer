@@ -8,11 +8,13 @@ import type { ApiNext } from './http-types'
 
 function request(options: {
   method?: string
+  url?: string
   encrypted?: boolean
   headers?: Array<[string, string]>
 } = {}): IncomingMessage {
   const stream = Readable.from(['body']) as unknown as IncomingMessage
   stream.method = options.method ?? 'GET'
+  stream.url = options.url ?? '/workspaces'
   stream.rawHeaders = (options.headers ?? []).flat()
   stream.headers = {}
   for (const [name, value] of options.headers ?? []) {
@@ -166,6 +168,16 @@ describe('CORS middleware', () => {
       expect(result.headers.get('vary')).toBe('Origin')
       expect(result.headers.get('cache-control')).toBe('no-store')
     }
+  })
+
+  it('uses the common error envelope for V1 CORS rejection', () => {
+    const { result } = run(request({
+      url: '/v1/workspaces/example/jobs',
+      headers: [['Host', 'api.example.test'], ['Origin', 'https://other.test']],
+    }))
+    expect(JSON.parse(result.body!.toString())).toMatchObject({
+      error: { code: 'CORS_FORBIDDEN', message: 'Origin is not allowed', requestId: expect.stringMatching(/^req_/) },
+    })
   })
 
   it('answers valid preflight before downstream middleware with exact reflected permissions', () => {

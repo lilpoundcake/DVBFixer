@@ -1026,3 +1026,67 @@ def run_prep(
             n_res += 1
 
     return {"renames": renames, "n_residues": n_res}
+
+
+def _assign_new_hydrogen_serials(output_pdb: str | Path) -> None:
+    """Give Reduce/variant-patch hydrogens unique PDB serials.
+
+    Both sources mark new hydrogens with serial 0. Preserve all original
+    nonzero serials (and their CONECT references) and allocate unused serials
+    only for those new atoms before the strict naming validator inspects them.
+    """
+    path = Path(output_pdb)
+    lines = path.read_text(encoding="latin-1").splitlines(keepends=True)
+    used = {
+        int(line[6:11])
+        for line in lines
+        if line.startswith(("ATOM  ", "HETATM")) and line[6:11].strip().isdigit()
+        and int(line[6:11]) > 0
+    }
+    next_serial = max(used, default=0) + 1
+    changed = False
+    for index, line in enumerate(lines):
+        if not line.startswith(("ATOM  ", "HETATM")) or line[6:11] != "    0":
+            continue
+        if line[76:78].strip().upper() != "H":
+            continue  # The strict naming validator reports malformed heavy atoms.
+        if next_serial > 99999:
+            next_serial = 1
+        while next_serial in used:
+            next_serial += 1
+        if next_serial > 99999:
+            raise PrepBackendError("No free five-column PDB serial for a new hydrogen")
+        lines[index] = line[:6] + f"{next_serial:5d}" + line[11:]
+        used.add(next_serial)
+        next_serial += 1
+        changed = True
+    if changed:
+        path.write_text("".join(lines), encoding="latin-1")
+
+
+def apply_output_naming(
+    output_pdb: str | Path,
+    renames: dict[tuple[str, int, str], str],
+    *,
+    atom_naming: str,
+    verbose: bool = False,
+) -> int:
+    """Apply the public AMBER output naming policy after tleap/Reduce.
+
+    tleap must operate on its native names. This adapter therefore runs only
+    after all tleap work and variant-H patching have completed. Keeping it in
+    the shared backend makes ``prepare`` and ``protonate`` agree.
+    """
+    from dvbfixer.ffutils.ff_names import apply_variants_to_pdb_text
+
+    _assign_new_hydrogen_serials(output_pdb)
+    return apply_variants_to_pdb_text(
+        output_pdb,
+        {
+            (chain, str(resseq), icode): variant
+            for (chain, resseq, icode), variant in renames.items()
+        },
+        target_ff="amber",
+        include_gromacs_shifts=atom_naming == "gromacs",
+        verbose=verbose,
+    )

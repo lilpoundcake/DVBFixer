@@ -611,8 +611,9 @@ The full suite needs the scientific stack and external executables from
   drain HTTP, then close PostgreSQL. `auth.ts` owns static bearer authentication;
   workspace manifests own case-sensitive principal ownership and ACLs. Keep
   credentials out of URLs, logs, manifests, and localStorage. Remote binding
-  still lacks TLS, restrictive CORS, quotas, audit retention, and multi-instance
-  coordination.
+  still lacks built-in TLS and target-host resource-enforcement acceptance.
+  Restrictive CORS, application quotas, durable audit retention, and same-host
+  multi-process job coordination are implemented; multi-host scheduling is not.
 - **Diagnostic summaries require findings.** Clean runs emit no empty warning
   banner. Preserve fd-level capture and summaries for actual warnings/errors,
   including during exception cleanup.

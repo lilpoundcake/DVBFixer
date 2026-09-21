@@ -4,7 +4,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { Value } from '@sinclair/typebox/value'
 import type { ApiRouteHost } from './http-types'
-import { acquireWorkspaceRun } from './managed-jobs'
 import {
   ApiErrorSchema,
   NAMING_OPENAPI_DOCUMENT,
@@ -18,7 +17,15 @@ import {
 import { runDvbfixerArgs } from './dvbfixer-runner'
 import { errorStatus, readRequestBody } from './request-body'
 import { ensureRequestId } from './request-observability'
+import {
+  DEFAULT_NAMING_FAILED_MAX_AGE_HOURS,
+  DEFAULT_NAMING_FAILED_MAX_RUNS,
+  namingFailureDirectory,
+  pruneNamingFailures,
+  type NamingFailureRetention,
+} from './naming-retention'
 import { assertWorkspaceQuota, WorkspaceQuotaExceededError } from './storage-quota'
+import { acquireWorkspaceRunLock } from './workspace-lock'
 import {
   assertWorkspaceAccess,
   loadWorkspace,
@@ -47,11 +54,21 @@ function positiveIntegerSetting(name: string, fallback: number, maximum = Number
   return parsed
 }
 
-function namingSettings(): { maxSourceBytes: number; maxReportBytes: number; timeoutMs: number } {
+function namingSettings(): {
+  maxSourceBytes: number; maxReportBytes: number; timeoutMs: number
+  failureRetention: NamingFailureRetention
+} {
   return {
     maxSourceBytes: positiveIntegerSetting('DVBFIXER_NAMING_MAX_SOURCE_BYTES', DEFAULT_MAX_SOURCE_BYTES),
     maxReportBytes: positiveIntegerSetting('DVBFIXER_NAMING_MAX_REPORT_BYTES', DEFAULT_MAX_REPORT_BYTES),
     timeoutMs: positiveIntegerSetting('DVBFIXER_NAMING_TIMEOUT_MS', DEFAULT_TIMEOUT_MS, MAX_TIMEOUT_MS),
+    failureRetention: {
+      maxRuns: positiveIntegerSetting('DVBFIXER_NAMING_FAILED_MAX_RUNS', DEFAULT_NAMING_FAILED_MAX_RUNS),
+      maxAgeHours: positiveIntegerSetting(
+        'DVBFIXER_NAMING_FAILED_MAX_AGE_HOURS', DEFAULT_NAMING_FAILED_MAX_AGE_HOURS,
+        Math.floor(Number.MAX_SAFE_INTEGER / 3_600_000),
+      ),
+    },
   }
 }
 
@@ -184,11 +201,15 @@ function outputName(request: NamingConversionRequest, sourceFile: string): strin
 
 function moveToFailureArea(operationDirectory: string, workspaceDirectory: string): void {
   if (!fs.existsSync(operationDirectory)) return
-  const failed = path.join(workspaceDirectory, 'runs', '_failed')
+  const failed = namingFailureDirectory(workspaceDirectory)
   fs.mkdirSync(failed, { recursive: true, mode: 0o700 })
   fs.chmodSync(failed, 0o700)
   fs.chmodSync(operationDirectory, 0o700)
-  fs.renameSync(operationDirectory, path.join(failed, path.basename(operationDirectory)))
+  const destination = path.join(failed, path.basename(operationDirectory))
+  fs.renameSync(operationDirectory, destination)
+  // Retention starts when the operation fails, not when its last file was written.
+  const now = new Date()
+  fs.utimesSync(destination, now, now)
 }
 
 function writePrivateFile(file: string, content: string | Buffer): void {
@@ -250,8 +271,7 @@ export async function executeNamingConversion(
   const sourceSha256 = sha256(sourceBytes)
 
   const operationId = crypto.randomUUID()
-  const release = acquireWorkspaceRun(workspaceId, `naming-${operationId}`)
-  if (!release) throw new NamingApiError(409, 'WORKSPACE_BUSY', 'another DVBFixer operation is running in this workspace')
+  const release = acquireWorkspaceRunLock(dataRoot, workspaceId)
   const root = workspaceRoot(dataRoot, workspaceId)
   const operationDirectory = path.join(root, 'runs', `naming_${operationId}`)
   const sourceSnapshot = path.join(operationDirectory, '.source.pdb')
@@ -261,6 +281,7 @@ export async function executeNamingConversion(
   let retainedStderr: string | undefined
   let retainedReport: Buffer | undefined
   try {
+    pruneNamingFailures(root, settings.failureRetention)
     fs.mkdirSync(operationDirectory, { recursive: false, mode: 0o700 })
     writePrivateFile(sourceSnapshot, sourceBytes)
     const args = [
@@ -422,7 +443,10 @@ export async function executeNamingConversion(
         }
       }
       if (retainFailure) {
-        try { moveToFailureArea(operationDirectory, root) } catch { /* preserve the original failure */ }
+        try {
+          moveToFailureArea(operationDirectory, root)
+          pruneNamingFailures(root, settings.failureRetention)
+        } catch { /* preserve the original failure */ }
       }
     }
     throw error

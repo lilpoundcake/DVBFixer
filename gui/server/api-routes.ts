@@ -1,9 +1,7 @@
 /**
  * Host-neutral registration for the GUI and versioned HTTP APIs.
  *
- *   POST   /api/dvbfixer/:command   — run a DVBFixer subcommand on an input
- *                                     file and produce output in
- *                                     structures/dvb_<command>_<ts>/.
+ *   POST   /api/v1/workspaces/:id/jobs — start a managed DVBFixer workflow.
  *   GET    /api/mutations           — list mutations
  *   POST   /api/mutations           — create
  *   PUT    /api/mutations/:id       — update
@@ -20,9 +18,8 @@ import path from 'node:path'
 import fs from 'node:fs'
 import crypto from 'node:crypto'
 import { COMMANDS } from './dvbfixer-spec'
-import { buildArgs } from './command-args'
 import {
-  acquireWorkspaceRun, registerManagedJobApi, resetManagedJobAdmission, shutdownManagedJobs,
+  registerManagedJobApi, resetManagedJobAdmission, shutdownManagedJobs,
 } from './managed-jobs'
 import { registerHomologyApi } from './homology-api'
 import { registerNamingApi } from './naming-api'
@@ -42,14 +39,12 @@ import {
 } from './auth'
 import { createCorsMiddleware, parseCorsAllowedOrigins } from './cors'
 import { createRateLimitMiddleware, parseRateLimitConfig, type RateLimitConfig } from './rate-limit'
+import { assertWorkspaceQuota, configureStorageQuota, type StorageQuotaOptions } from './storage-quota'
 import {
-  assertWorkspaceQuota, configureStorageQuota, WorkspaceQuotaExceededError,
-  type StorageQuotaOptions,
-} from './storage-quota'
-import {
-  createRequestObservabilityMiddleware, parseAccessLogConfig, type AccessLogConfig,
+  createRequestObservabilityMiddleware, ensureRequestId, parseAccessLogConfig, type AccessLogConfig,
 } from './request-observability'
 import { ApiMetrics, parseMetricsConfig, type MetricsConfig } from './metrics'
+import { createAuditSink, parseAuditLogConfig, type AuditLogConfig } from './audit-log'
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
 
@@ -247,19 +242,6 @@ function sendJson(res: ServerResponse, status: number, body: any) {
   res.end(JSON.stringify(body))
 }
 
-function listRunFiles(root: string): string[] {
-  const files: string[] = []
-  const walk = (directory: string) => {
-    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-      const full = path.join(directory, entry.name)
-      if (entry.isDirectory()) walk(full)
-      else if (entry.isFile()) files.push(path.relative(root, full).replace(/\\/g, '/'))
-    }
-  }
-  if (fs.existsSync(root)) walk(root)
-  return files.sort()
-}
-
 export function readServiceVersion(projectRoot: string): string {
   try {
     const value = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8')).version
@@ -283,6 +265,7 @@ export interface ApiRouteOptions {
   rateLimit?: RateLimitConfig
   accessLog?: AccessLogConfig
   metrics?: MetricsConfig
+  auditLog?: AuditLogConfig
 }
 
 export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions): void {
@@ -294,6 +277,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       const rateLimit = options.rateLimit || parseRateLimitConfig(process.env)
       const accessLog = options.accessLog || parseAccessLogConfig(process.env)
       const metricsConfig = options.metrics || parseMetricsConfig(process.env)
+      const auditLog = options.auditLog || parseAuditLogConfig(process.env)
       const metrics = new ApiMetrics()
       configureStorageQuota(options.storageQuota)
       initializeDvbfixerProcessAdmission(
@@ -309,6 +293,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       const rateLimitMiddleware = createRateLimitMiddleware(rateLimit)
       server.middlewares.use('/api', createRequestObservabilityMiddleware(
         accessLog, undefined, undefined, metricsConfig.enabled ? metrics : undefined,
+        createAuditSink(structuresDir, auditLog),
       ))
       server.middlewares.use('/api', createCorsMiddleware(corsAllowedOrigins, rateLimitMiddleware))
       server.middlewares.use('/api', rateLimitMiddleware)
@@ -347,144 +332,10 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       const principalId = (request: IncomingMessage) => getApiPrincipal(request).id
       registerWorkspaceApi(server, structuresDir, principalId, legacyWorkspaceOwner, !authConfig.enabled)
       registerHomologyApi(server, structuresDir, principalId, legacyWorkspaceOwner)
-      registerManagedJobApi(server, structuresDir, principalId, legacyWorkspaceOwner)
+      registerManagedJobApi(server, structuresDir, principalId, legacyWorkspaceOwner, serviceVersion)
       registerNamingApi(
         server, structuresDir, runDvbfixerArgs, principalId, legacyWorkspaceOwner, serviceVersion,
       )
-
-      // ── Generic DVBfixer runner ────────────────────────────────────────
-      server.middlewares.use('/api/dvbfixer', async (req, res, next) => {
-        if (req.method !== 'POST') return next()
-        try {
-          const command = (req.url || '').split('?')[0].split('/').filter(Boolean)[0]
-          const def = COMMANDS.find(candidate => candidate.name === command)
-          if (!command || !def) return sendJson(res, 404, { error: `unknown command: ${command || ''}` })
-          const body = JSON.parse(await readBody(req) || '{}') as {
-            workspaceId?: string
-            inputFile?: string
-            inputs?: Record<string, string | string[]>
-            values?: Record<string, any>
-            fastaContent?: string
-          }
-          if (!body.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
-          assertWorkspaceAccess(
-            loadWorkspace(structuresDir, body.workspaceId, legacyWorkspaceOwner),
-            principalId(req),
-            'writer',
-          )
-          const releaseRun = acquireWorkspaceRun(body.workspaceId, `sync-${crypto.randomUUID()}`)
-          if (!releaseRun) return sendJson(res, 409, { error: 'another DVBfixer job is already running in this workspace' })
-          try {
-          const activeWorkspaceRoot = workspaceRoot(structuresDir, body.workspaceId)
-          assertWorkspaceQuota(activeWorkspaceRoot)
-          const suppliedInputs = { ...(body.inputs || {}) }
-          if (body.inputFile && def.inputs[0] && suppliedInputs[def.inputs[0].dest] === undefined) {
-            suppliedInputs[def.inputs[0].dest] = body.inputFile
-          }
-          const positional: string[] = []
-          for (const input of def.inputs) {
-            const raw = suppliedInputs[input.dest]
-            const items = Array.isArray(raw) ? raw : (typeof raw === 'string' ? [raw] : [])
-            if (input.required && items.length === 0) {
-              return sendJson(res, 400, { error: `${input.label} is required` })
-            }
-            for (const item of items) positional.push(resolveWorkspaceFile(structuresDir, body.workspaceId, item))
-          }
-
-          const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
-          const subdirName = `dvb_${command}_${ts}`
-          const outDir = path.join(activeWorkspaceRoot, 'runs', subdirName)
-          fs.mkdirSync(outDir, { recursive: true })
-          const firstInput = positional[0]
-          const inputBase = firstInput ? path.basename(firstInput, path.extname(firstInput)) : command
-          const extension = def.outputExtension || ''
-          const outputStem = path.join(outDir, `${inputBase}_${command}`)
-          const outputTarget = def.outputMode === 'directory' ? path.join(outDir, 'result')
-            : def.outputMode === 'prefix' ? outputStem : `${outputStem}${extension}`
-
-          const values = { ...(body.values || {}) }
-          for (const field of def.flags.filter(field => field.type === 'artifact')) {
-            const raw = values[field.flag]
-            if (Array.isArray(raw)) values[field.flag] = raw.map(item => resolveWorkspaceFile(structuresDir, body.workspaceId!, String(item)))
-            else if (typeof raw === 'string' && raw.trim()) {
-              const parts = field.repeatable ? raw.split(',').map(item => item.trim()).filter(Boolean) : [raw]
-              values[field.flag] = field.repeatable
-                ? parts.map(item => resolveWorkspaceFile(structuresDir, body.workspaceId!, item))
-                : resolveWorkspaceFile(structuresDir, body.workspaceId!, raw)
-            }
-          }
-          if (typeof body.fastaContent === 'string' && body.fastaContent.trim()) {
-            const fastaPath = path.join(outDir, `${inputBase}.fasta`)
-            fs.writeFileSync(fastaPath, body.fastaContent)
-            values['--fasta'] = fastaPath
-          }
-          const args = [...positional]
-          if (def.hasOutput && def.outputMode !== 'stdout') args.push('-o', outputTarget)
-          args.push(...buildArgs(command, values))
-          const controller = new AbortController()
-          const abortOnClose = () => { if (!res.writableFinished) controller.abort() }
-          res.once('close', abortOnClose)
-          const result = await runDvbfixerArgs(command, args, outDir, { signal: controller.signal })
-          res.removeListener('close', abortOnClose)
-          if (def.outputMode === 'stdout' && result.stdout) {
-            fs.writeFileSync(path.join(outDir, `${command}.${values['--format'] === 'json' ? 'json' : 'txt'}`), result.stdout)
-          }
-          try {
-            assertWorkspaceQuota(activeWorkspaceRoot)
-          } catch (error) {
-            if (error instanceof WorkspaceQuotaExceededError) {
-              fs.rmSync(outDir, { recursive: true, force: true })
-            }
-            throw error
-          }
-
-          const ok = def.successCodes.includes(result.code)
-          let movedTo: string | null = null
-          if (!ok) {
-            const failedRoot = path.join(activeWorkspaceRoot, 'runs', '_failed')
-            fs.mkdirSync(failedRoot, { recursive: true })
-            let destination = path.join(failedRoot, subdirName)
-            let counter = 1
-            while (fs.existsSync(destination)) destination = path.join(failedRoot, `${subdirName}_${counter++}`)
-            fs.renameSync(outDir, destination)
-            movedTo = path.relative(activeWorkspaceRoot, destination).replace(/\\/g, '/')
-          }
-
-          const files = ok ? listRunFiles(outDir) : []
-          const primaryRel = files.find(file => /\.(pdb|cif|mmcif)$/i.test(file)) || files[0] || ''
-          const outputFile = primaryRel ? `runs/${subdirName}/${primaryRel}` : ''
-          if (ok && outputFile) {
-            const parent = typeof suppliedInputs[def.inputs[0]?.dest] === 'string'
-              ? suppliedInputs[def.inputs[0]?.dest] as string : undefined
-            updateWorkspace(structuresDir, body.workspaceId, workspace => {
-              assertWorkspaceAccess(workspace, principalId(req), 'writer')
-              for (const runFile of files) {
-                const relative = `runs/${subdirName}/${runFile}`
-                if (workspace.artifacts.some(artifact => artifact.file === relative)) continue
-                workspace.artifacts.push({
-                  id: crypto.randomUUID(), file: relative,
-                  name: relative === outputFile ? `${inputBase} → ${command}` : path.basename(runFile),
-                  kind: /\.(pdb|cif|mmcif)$/i.test(relative) ? 'structure' : 'artifact',
-                  artifactType: def.outputKind, parent, command, folder: `runs/${subdirName}`,
-                  hidden: ['run.json', 'stdout.log', 'stderr.log'].includes(path.basename(runFile)) || path.basename(runFile).startsWith('_'),
-                })
-              }
-              return workspace
-            }, legacyWorkspaceOwner)
-          }
-          const failureStatus = result.failure === 'overloaded' || result.failure === 'shutdown'
-            ? 503 : result.failure === 'timeout' ? 504 : 500
-          sendJson(res, ok ? 200 : failureStatus, {
-            ok, command, outputFile, outputDir: `runs/${subdirName}`, artifacts: files,
-            movedTo, stdout: result.stdout, stderr: result.stderr, exitCode: result.code,
-          })
-          } finally {
-            releaseRun()
-          }
-        } catch (err: any) {
-          sendJson(res, errorStatus(err), { error: err.message ?? String(err) })
-        }
-      })
 
       // ── Mutations CRUD ────────────────────────────────────────────────
       server.middlewares.use('/api/mutations', async (req, res, next) => {
@@ -732,4 +583,11 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
           databaseConnected: !!pg,
         })
       })
+
+      server.middlewares.use('/api/v1', (req, res) => sendJson(res, 404, {
+        error: {
+          code: 'ROUTE_NOT_FOUND', message: 'V1 route not found',
+          requestId: ensureRequestId(req, res),
+        },
+      }))
 }

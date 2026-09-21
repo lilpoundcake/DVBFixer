@@ -22,7 +22,7 @@
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f db",
-    "build": "npm run typecheck && npm run build:client && npm run build:server && npm run smoke:server",
+    "build": "npm run check:openapi && npm run typecheck && npm run build:client && npm run build:server && npm run smoke:server",
     "build:client": "vite build",
     "build:server": "esbuild server/standalone.ts --bundle --platform=node --format=esm --target=node22 --packages=external --sourcemap --outfile=dist-server/server.js",
     "start": "node --enable-source-maps dist-server/server.js",
@@ -31,7 +31,9 @@
     "lint": "eslint .",
     "test": "vitest run",
     "typecheck": "tsc -b",
-    "postinstall": "node scripts/fix-native-deps.mjs"
+    "postinstall": "node scripts/fix-native-deps.mjs",
+    "gen:openapi": "node scripts/gen-openapi-client.mjs",
+    "check:openapi": "node scripts/gen-openapi-client.mjs --check"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -48,6 +50,7 @@
     "connect": "^3.7.0",
     "flexlayout-react": "^0.8.19",
     "molstar": "^5.8.0",
+    "openapi-fetch": "^0.17.0",
     "pg": "^8.21.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -68,6 +71,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "openapi-typescript": "^7.13.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
     "vite": "^6.4.3",

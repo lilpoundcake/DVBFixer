@@ -479,7 +479,7 @@ an input yet (`userPickedInputRef.current === false`) OR the current selection
 is empty, the picker mirrors the active structure. Selecting from the dropdown
 sets `userPickedInputRef.current = true` and stops the auto-mirror.
 
-**Managed jobs and output** — Run posts to `/api/jobs`. The panel restores an
+**Managed jobs and output** — Run posts to `/api/v1/workspaces/{workspaceId}/jobs`. The panel restores an
 active workspace job after remount, follows state through EventSource with a
 polling fallback, exposes Cancel, and shows terminal logs. On success it reloads
 workspace artifacts, loads structure output into viewer A, and resets
@@ -512,7 +512,7 @@ wiped by Clear / input-switch.
 On Run, `buildFastaContent()` assembles a valid FASTA string from the
 non-empty chain boxes (60-char-wrapped lines, `>{inputBase}_{chainId}`
 headers) and ships it as `fastaContent` in the request body. The
-backend (`/api/dvbfixer/:command` route in `server/api-routes.ts`)
+backend (the versioned managed-job route in `server/managed-jobs.ts`)
 writes the content to `<outDir>/<inputBase>.fasta` and injects
 `--fasta <abspath>` into the CLI args — overriding any user-typed
 `--fasta` value. The materialised FASTA stays beside the output PDB so
@@ -526,9 +526,9 @@ PDB.
 
 **Backend** (`server/api-routes.ts`, shared Node route composition):
 - `GET /api/dvbfixer-spec` — returns `COMMANDS` from `server/dvbfixer-spec.ts`.
-- `POST /api/jobs` starts a workspace-scoped DVBFixer job. `GET /api/jobs`
+- `POST /api/v1/workspaces/{workspaceId}/jobs` starts a workspace-scoped DVBFixer job. `GET` on the same URL
   restores active jobs after a panel reload, job detail/events report status
-  and logs, and `DELETE /api/jobs/:id` requests cancellation. Successful output
+  and logs, and `DELETE /api/v1/workspaces/{workspaceId}/jobs/{jobId}` requests cancellation. Successful output
   files are registered as workspace artifacts; the frontend reloads the active
   manifest and opens the primary output when appropriate.
 - `GET / POST / PUT / DELETE /api/mutations[/:id]` — CRUD for the

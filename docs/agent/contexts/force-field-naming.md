@@ -108,8 +108,10 @@ have not all migrated to typed three-field identities.
 - `zbs.py` forwards atom-naming options to prepare and minimize rather than
   owning naming rules.
 
-The `tleap-reduce` early-return paths do not consistently apply the final naming
-helper. Treat this as a known backend discrepancy.
+The `tleap-reduce` early-return paths apply the AMBER output naming policy only
+after tleap, Reduce, variant-H patching, and chirality inspection. This keeps
+native names inside tleap while making `prepare` and `protonate` honor the same
+public `--atom-naming` option as the legacy backend.
 
 ## Adapters
 
@@ -124,6 +126,9 @@ helper. Treat this as a known backend discrepancy.
   duplicate naming tables or scientific decisions.
 - `atom_names.py` owns CLI path validation, atomic output/report publication,
   and the camelCase report envelope.
+- `naming-retention.ts` owns age/count pruning of quarantined naming failures;
+  `naming-api.ts` invokes it under the workspace run lock before execution and
+  after quarantine. Successful artifacts and other workflow failures are excluded.
 
 ## Side Effects
 
@@ -140,7 +145,8 @@ helper. Treat this as a known backend discrepancy.
   mean an exact blank insertion code, never an insertion-code wildcard.
 - Nucleic-acid terminal hydroxyl naming is not fully validated.
 - `--atom-naming standard` suppresses shifts; it is not a reverse converter.
-- The `tleap-reduce` early-return paths still bypass the final naming adapter.
+- `tleap-reduce` is an AMBER-only preparation backend; its naming option changes
+  the final AMBER atom-name profile and does not select a CHARMM preparation FF.
 - The HTTP adapter is available through Vite and the standalone host with static
   bearer authentication and workspace ACL enforcement. Cross-process locking is
   not implemented.
@@ -161,5 +167,5 @@ pytest -q tests/test_atom_names_cli.py tests/test_force_field_naming.py tests/te
   tests/test_variants_gromacs_lyn.py tests/test_prepare_icode_variants.py \
   tests/test_terminal_caps.py tests/test_scientific_domain.py
 python scripts/check_agent_docs.py
-cd gui && npm test -- --run server/naming-api.test.ts server/dvbfixer-runner.test.ts
+cd gui && npm test -- --run server/naming-api.test.ts server/naming-retention.test.ts server/dvbfixer-runner.test.ts
 ```

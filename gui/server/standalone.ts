@@ -17,6 +17,7 @@ import {
 } from './deployment-limits'
 import { parseAccessLogConfig, type AccessLogConfig } from './request-observability'
 import { parseMetricsConfig, type MetricsConfig } from './metrics'
+import { parseAuditLogConfig, type AuditLogConfig } from './audit-log'
 
 export interface StandaloneConfig {
   host: string
@@ -36,6 +37,7 @@ export interface StandaloneConfig {
   deploymentResources: DeploymentResourceSettings
   accessLog: AccessLogConfig
   metrics: MetricsConfig
+  auditLog: AuditLogConfig
 }
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost'])
@@ -107,6 +109,7 @@ export function loadStandaloneConfig(
     deploymentResources: parseDeploymentResourceSettings(environment),
     accessLog: parseAccessLogConfig(environment),
     metrics: parseMetricsConfig(environment),
+    auditLog: parseAuditLogConfig(environment),
   }
 }
 
@@ -191,6 +194,7 @@ export function createStandaloneApplication(config: StandaloneConfig): connect.S
     rateLimit: config.rateLimit,
     accessLog: config.accessLog,
     metrics: config.metrics,
+    auditLog: config.auditLog,
   })
   application.use('/api', (_request, response) => jsonNotFound(response))
   application.use(serveStatic(config.staticRoot, {
