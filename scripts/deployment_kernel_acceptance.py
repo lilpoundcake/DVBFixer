@@ -50,6 +50,7 @@ def child(mode: str) -> None:
         after = counter("memory.events", "oom_kill")
         print(f"memory.events oom_kill: {before} -> {after}", flush=True)
         assert after > before, "combined children escaped MemoryMax"
+        (ROOT / "memory-proof").write_text(f"{before} {after}\n")
     elif mode == "pids":
         before = counter("pids.events", "max")
         workers = []
@@ -100,7 +101,7 @@ def systemd_run(mode: str, *properties: str, wait: bool = True) -> subprocess.Co
     if wait:
         command += ["--wait", "--collect", "--pipe"]
     command += [sys.executable, str(SCRIPT), "--child", mode]
-    return subprocess.run(command, text=True, capture_output=True, timeout=45, check=wait)
+    return subprocess.run(command, text=True, timeout=45, check=wait and mode != "memory")
 
 
 def main() -> None:
@@ -116,6 +117,11 @@ def main() -> None:
     systemd_run("cpu", *common, "CPUQuota=20%")
     print("CPU throttling: PASS", flush=True)
     systemd_run("memory", *common, "MemoryMax=128M", "MemorySwapMax=0")
+    proof = ROOT / "memory-proof"
+    assert proof.exists(), "memory unit did not survive to record OOM enforcement"
+    before, after = map(int, proof.read_text().split())
+    proof.unlink()
+    assert after > before, "MemoryMax did not kill an over-limit child"
     print("combined child memory: PASS", flush=True)
     systemd_run("pids", *common, "TasksMax=20")
     print("descendant task limit: PASS", flush=True)
