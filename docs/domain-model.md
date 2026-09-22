@@ -92,5 +92,8 @@ or domain service for whole-complex geometry regularization. PDB multi-residue
 heterogens are not yet grouped by connected-component analysis for naming.
 Engine setup and fallback behavior still live in `minimize/pipeline.py` and
 `lig_params.py`. See [relaxation research](research/whole-complex-relaxation.md)
-for a proposed architecture and validation criteria; none of those proposed
-backends are exposed by this release.
+for proposed regularization architecture and validation criteria, and the
+[reconstruction/modeling backend research](research/reconstruction-and-modeling-backends.md)
+for proposed atom-completion, loop, homology, and diffusion comparisons. None of
+those proposed backends are exposed by this release; PDBFixer and Salilab
+MODELLER remain supported production baselines.

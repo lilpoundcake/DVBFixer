@@ -6,7 +6,7 @@ Current release: **0.8.6**.
 
 This README is the root of a manual-style documentation tree. Each subcommand has its own page under [`docs/commands/`](docs/commands/index.md); the [pipelines](docs/pipelines.md) page collects end-to-end recipes. For design notes see [`ARCHITECTURE.md`](ARCHITECTURE.md) and the focused [scientific domain model](docs/domain-model.md); for opinionated recipes and gotchas see [`BEST_PRACTICES.md`](BEST_PRACTICES.md).
 
-The [whole-complex relaxation research](docs/research/whole-complex-relaxation.md) describes current limits, incomplete-cofactor findings, and proposed alternatives.
+The [whole-complex relaxation research](docs/research/whole-complex-relaxation.md) describes current limits, incomplete-cofactor findings, and proposed alternatives. The separate [reconstruction and modeling backend research](docs/research/reconstruction-and-modeling-backends.md) records proposed PDBFixer and MODELLER comparators, including an independently implemented template-constrained diffusion concept; neither current dependency is deprecated.
 
 ## Quick start
 
@@ -157,4 +157,6 @@ See [`docs/known-issues.md`](docs/known-issues.md) for FF-template gaps (termina
 
 - [`BEST_PRACTICES.md`](BEST_PRACTICES.md) — opinionated recipes and gotchas
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) — module structure, key abstractions, design decisions
-- [`CLAUDE.md`](CLAUDE.md) — internal reference covering every subcommand in detail (also used by Claude Code)
+- [`AGENTS.md`](AGENTS.md) — canonical coding-agent instructions
+- [`CLAUDE.md`](CLAUDE.md) — compact compatibility entry point for harnesses that discover that filename
+- [`docs/agent/`](docs/agent/README.md) — task, contract, invariant, and focused-verification map

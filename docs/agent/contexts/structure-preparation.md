@@ -2,9 +2,9 @@
 
 Status: partial
 
-Verified on: 2026-09-18
+Verified on: 2026-09-22
 
-Verified at commit: `425f290eb85760246766f1d1500e51672c640b2d`
+Verified at commit: `7671952f89ea7b635b80e4d633f37e45f41825d4`
 
 ## Purpose
 
@@ -168,6 +168,12 @@ contracts; it does not reproduce scientific algorithms.
 - No geometry-regularization backend is shipped. The
   [`whole-complex relaxation note`](../../research/whole-complex-relaxation.md)
   is research, not current preparation behavior.
+- Alternative atom-reconstruction, loop-modeling, homology-modeling, and
+  independently implemented template-constrained diffusion backends are
+  research only. See the
+  [`reconstruction and modeling backend note`](../../research/reconstruction-and-modeling-backends.md).
+  PDBFixer and Salilab MODELLER remain supported production baselines; the note
+  does not deprecate either dependency.
 
 ## Focused Verification
 

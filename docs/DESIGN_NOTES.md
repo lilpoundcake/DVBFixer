@@ -10,8 +10,10 @@
 - **CLI dispatcher, GROMACS topology, GLYCAM integration, PDB format
   notes** → [`../ARCHITECTURE.md`](../ARCHITECTURE.md).
 - **`Package Structure` and `Environment & Installation`** → replaced
-  by [`../CLAUDE.md`](../CLAUDE.md) (scannable index) and
-  [`installation.md`](installation.md).
+  by [`../ARCHITECTURE.md`](../ARCHITECTURE.md),
+  [`installation.md`](installation.md), and the canonical agent guidance in
+  [`../AGENTS.md`](../AGENTS.md). [`../CLAUDE.md`](../CLAUDE.md) is now only a
+  compact compatibility entry point for harnesses that discover that filename.
 
 Nothing lives here anymore. Kept as a stub so git-history links from
 old commits still resolve to a real file that explains where the

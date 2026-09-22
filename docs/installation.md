@@ -112,7 +112,22 @@ Persist `MAMBA_ROOT_PREFIX=/opt/mamba` and keep `/opt/mamba/envs/dvbfixer/bin`
 on `PATH` in your shell rc. See [known issues](known-issues.md) for the full
 diagnosis.
 
-**Modeller license:** The `model` command requires Modeller, which needs a free academic license key. Register at https://salilab.org/modeller/registration.html, then set the key in `<env>/lib/modeller-10.8/modlib/modeller/config.py`.
+## Modeller installation and license
+
+Salilab MODELLER is currently required for `dvbfixer model` when gaps need to be
+built and for final `dvbfixer homology` comparative-model construction. It is
+also required when `dvbfixer salign --engine modeller` is selected; the default
+Biopython SALIGN engine does not need MODELLER. Fast `model` inputs with no
+sequence gaps can take the Python-only copy path without invoking it.
+
+MODELLER needs a free academic license key. Register at
+<https://salilab.org/modeller/registration.html>, then set the key in
+`<env>/lib/modeller-10.8/modlib/modeller/config.py`.
+
+Research into open-source, custom closure, or diffusion-based modeling backends
+does not remove or deprecate MODELLER. It remains the supported production
+baseline unless a later, evidence-backed decision changes that policy; see the
+[backend research note](research/reconstruction-and-modeling-backends.md).
 
 **Free RESP charges (PySCF)** — already included in `environment.yml`:
 
