@@ -194,6 +194,7 @@ jobs:
             /var/lib/dvbfixer/tmp /var/lib/dvbfixer/home /var/lib/dvbfixer/cache
           sudo rmdir /opt/dvbfixer
           sudo ln -s "$GITHUB_WORKSPACE" /opt/dvbfixer
+          sudo ln -s "$(command -v node)" /usr/bin/node
           sudo cp deploy/systemd/dvbfixer.service /etc/systemd/system/dvbfixer.service
           sudo cp deploy/systemd/dvbfixer.env.example /etc/dvbfixer/dvbfixer.env
           sudo chmod 0600 /etc/dvbfixer/dvbfixer.env
