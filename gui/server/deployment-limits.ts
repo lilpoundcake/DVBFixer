@@ -162,7 +162,7 @@ export function inspectDeploymentResources(
     return { path: candidate, mountPoint: mount.mountPoint, fsType: mount.fsType, capacityBytes: filesystemCapacity(real) }
   })
   const memoryOrKernelFilesystems = new Set([
-    'autofs', 'bpf', 'cgroup2', 'configfs', 'debugfs', 'devpts', 'devtmpfs', 'efivarfs',
+    'autofs', 'binfmt_misc', 'bpf', 'cgroup2', 'configfs', 'debugfs', 'devpts', 'devtmpfs', 'efivarfs',
     'fusectl', 'hugetlbfs', 'mqueue', 'nsfs', 'proc', 'pstore', 'ramfs', 'securityfs',
     'sysfs', 'tmpfs', 'tracefs',
   ])

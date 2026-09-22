@@ -14,7 +14,6 @@ import subprocess
 import sys
 import time
 
-
 ROOT = pathlib.Path("/var/lib/dvbfixer")
 SCRIPT = pathlib.Path(__file__).resolve()
 
