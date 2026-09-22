@@ -201,7 +201,7 @@ jobs:
           envbin="$(dirname "$(command -v dvbfixer)")"
           sudo sed -i "s#^PATH=.*#PATH=$envbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin#" \
             /etc/dvbfixer/dvbfixer.env
-          token='dvbfixer-disposable-acceptance-token'
+          token="$(python3 -c 'import base64; print(base64.urlsafe_b64encode(bytes(range(32))).decode().rstrip("="))')"
           digest="$(printf %s "$token" | sha256sum | cut -d' ' -f1)"
           printf 'DVBFIXER_AUTH_PRINCIPALS={"version":1,"principals":[{"id":"operator","tokenSha256":"%s"}]}\n' "$digest" \
             | sudo tee -a /etc/dvbfixer/dvbfixer.env >/dev/null
@@ -248,7 +248,7 @@ jobs:
           "${curl_base[@]}" "$base/api/health" | jq -e '.status == "ready" and .authenticationRequired == true'
           status="$("${curl_base[@]}" -o /dev/null -w '%{http_code}' "$base/api/session")"
           test "$status" = 401
-          token='dvbfixer-disposable-acceptance-token'
+          token="$(python3 -c 'import base64; print(base64.urlsafe_b64encode(bytes(range(32))).decode().rstrip("="))')"
           "${curl_base[@]}" -H "Authorization: Bearer $token" "$base/api/session" \
             | jq -e '.principal.id == "operator"'
           status="$("${curl_base[@]}" -o /dev/null -w '%{http_code}' \
