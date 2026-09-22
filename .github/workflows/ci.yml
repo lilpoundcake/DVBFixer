@@ -185,15 +185,15 @@ jobs:
           test "$(stat -fc %T /sys/fs/cgroup)" = cgroup2fs
           sudo -n true
           sudo useradd --system --user-group --no-create-home dvbfixer
-          sudo mkdir -p /var/lib/dvbfixer /etc/dvbfixer /opt/dvbfixer
+          sudo mkdir -p /var/lib/dvbfixer /etc/dvbfixer /opt/dvbfixer/gui
           sudo truncate -s 256M /var/tmp/dvbfixer-data.img
           sudo mkfs.ext4 -q -F /var/tmp/dvbfixer-data.img
           sudo mount -o loop /var/tmp/dvbfixer-data.img /var/lib/dvbfixer
           sudo chown dvbfixer:dvbfixer /var/lib/dvbfixer
           sudo install -d -o dvbfixer -g dvbfixer -m 0700 \
             /var/lib/dvbfixer/tmp /var/lib/dvbfixer/home /var/lib/dvbfixer/cache
-          sudo rmdir /opt/dvbfixer
-          sudo ln -s "$GITHUB_WORKSPACE" /opt/dvbfixer
+          sudo cp -a gui/dist gui/dist-server gui/node_modules gui/package.json /opt/dvbfixer/gui/
+          sudo chmod o+x /home/runner
           sudo ln -s "$(command -v node)" /usr/bin/node
           sudo cp deploy/systemd/dvbfixer.service /etc/systemd/system/dvbfixer.service
           sudo cp deploy/systemd/dvbfixer.env.example /etc/dvbfixer/dvbfixer.env
@@ -270,7 +270,8 @@ jobs:
           sudo systemd-run --quiet --wait --collect --pipe --unit=dvbfixer-accept-science \
             -p User=dvbfixer -p Group=dvbfixer -p CPUQuota=200% -p MemoryMax=4G \
             -p MemorySwapMax=0 -p TasksMax=128 -p ProtectSystem=strict \
-            -p ReadWritePaths=/var/lib/dvbfixer -p TemporaryFileSystem=/tmp:rw,size=64M,mode=1777 \
+            -p ReadWritePaths=/var/lib/dvbfixer -p WorkingDirectory=/var/lib/dvbfixer/tmp \
+            -p TemporaryFileSystem=/tmp:rw,size=64M,mode=1777 \
             -p "Environment=PATH=$envbin:/usr/bin:/bin" \
             /usr/bin/bash -c 'mafft --auto /var/lib/dvbfixer/tmp/msa.fa >/var/lib/dvbfixer/tmp/msa.out && tleap -f /var/lib/dvbfixer/tmp/leap.in >/var/lib/dvbfixer/tmp/tleap.log && reduce -BUILD /var/lib/dvbfixer/tmp/tleap.pdb >/var/lib/dvbfixer/tmp/reduce.pdb'
           sudo test -s /var/lib/dvbfixer/tmp/msa.out
