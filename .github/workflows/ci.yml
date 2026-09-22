@@ -151,3 +151,20 @@ jobs:
           npm test
           npm run typecheck
           npm run build
+
+  deployment-acceptance:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect host enforcement capabilities
+        run: |
+          set -eu
+          test "$(ps -p 1 -o comm=)" = systemd
+          test "$(stat -fc %T /sys/fs/cgroup)" = cgroup2fs
+          sudo -n true
+          systemd-run --version
+          sudo systemd-run --wait --collect --unit=dvbfixer-acceptance-probe \
+            -p CPUQuota=50% -p MemoryMax=256M -p TasksMax=64 \
+            /usr/bin/bash -c 'test -f /sys/fs/cgroup/cgroup.controllers'
+          command -v losetup
+          command -v mkfs.ext4
