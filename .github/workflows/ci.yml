@@ -156,15 +156,124 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect host enforcement capabilities
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: gui/package-lock.json
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+          environment-name: dvbfixer
+          create-args: python=3.11
+          cache-environment: true
+          cache-downloads: true
+      - name: Build standalone server
+        working-directory: gui
+        run: |
+          npm ci
+          npm run build
+      - name: Provision disposable reference host
+        shell: bash -el {0}
         run: |
           set -eu
           test "$(ps -p 1 -o comm=)" = systemd
           test "$(stat -fc %T /sys/fs/cgroup)" = cgroup2fs
           sudo -n true
-          systemd-run --version
-          sudo systemd-run --wait --collect --unit=dvbfixer-acceptance-probe \
-            -p CPUQuota=50% -p MemoryMax=256M -p TasksMax=64 \
-            /usr/bin/bash -c 'test -f /sys/fs/cgroup/cgroup.controllers'
-          command -v losetup
-          command -v mkfs.ext4
+          sudo useradd --system --user-group --no-create-home dvbfixer
+          sudo mkdir -p /var/lib/dvbfixer /etc/dvbfixer /opt/dvbfixer
+          sudo truncate -s 256M /var/tmp/dvbfixer-data.img
+          sudo mkfs.ext4 -q -F /var/tmp/dvbfixer-data.img
+          sudo mount -o loop /var/tmp/dvbfixer-data.img /var/lib/dvbfixer
+          sudo chown dvbfixer:dvbfixer /var/lib/dvbfixer
+          sudo install -d -o dvbfixer -g dvbfixer -m 0700 \
+            /var/lib/dvbfixer/tmp /var/lib/dvbfixer/home /var/lib/dvbfixer/cache
+          sudo rmdir /opt/dvbfixer
+          sudo ln -s "$GITHUB_WORKSPACE" /opt/dvbfixer
+          sudo cp deploy/systemd/dvbfixer.service /etc/systemd/system/dvbfixer.service
+          sudo cp deploy/systemd/dvbfixer.env.example /etc/dvbfixer/dvbfixer.env
+          sudo chmod 0600 /etc/dvbfixer/dvbfixer.env
+          envbin="$(dirname "$(command -v dvbfixer)")"
+          sudo sed -i "s#^PATH=.*#PATH=$envbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin#" \
+            /etc/dvbfixer/dvbfixer.env
+          token='dvbfixer-disposable-acceptance-token'
+          digest="$(printf %s "$token" | sha256sum | cut -d' ' -f1)"
+          printf 'DVBFIXER_AUTH_PRINCIPALS={"version":1,"principals":[{"id":"operator","tokenSha256":"%s"}]}\n' "$digest" \
+            | sudo tee -a /etc/dvbfixer/dvbfixer.env >/dev/null
+          printf 'DVBFIXER_CORS_ALLOWED_ORIGINS=["https://dvbfixer.test:8443"]\n' \
+            | sudo tee -a /etc/dvbfixer/dvbfixer.env >/dev/null
+          sudo systemd-analyze verify /etc/systemd/system/dvbfixer.service
+          sudo systemctl daemon-reload
+          sudo systemctl start dvbfixer.service
+          for i in $(seq 1 50); do
+            if curl --silent --fail http://127.0.0.1:5173/api/health >/dev/null; then break; fi
+            sleep 0.2
+          done
+          curl --fail --silent http://127.0.0.1:5173/api/health | jq -e '.status == "ready"'
+          sudo systemctl show dvbfixer.service -p CPUQuotaPerSecUSec -p MemoryMax -p MemorySwapMax -p TasksMax -p ControlGroup
+      - name: Verify kernel enforcement
+        run: sudo python3 scripts/deployment_kernel_acceptance.py
+      - name: Smoke-test HTTPS public boundary and workspace authorization
+        run: |
+          set -eu
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq nginx
+          sudo openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+            -keyout /etc/nginx/dvbfixer.key -out /etc/nginx/dvbfixer.crt \
+            -subj /CN=dvbfixer.test -addext subjectAltName=DNS:dvbfixer.test >/dev/null 2>&1
+          sudo tee /etc/nginx/sites-available/default >/dev/null <<'NGINX'
+          server {
+              listen 127.0.0.1:8443 ssl;
+              server_name dvbfixer.test;
+              ssl_certificate /etc/nginx/dvbfixer.crt;
+              ssl_certificate_key /etc/nginx/dvbfixer.key;
+              client_max_body_size 10m;
+              location / {
+                  proxy_pass http://127.0.0.1:5173;
+                  proxy_set_header Host 127.0.0.1:5173;
+                  proxy_set_header X-Forwarded-Proto https;
+              }
+          }
+          NGINX
+          sudo nginx -t
+          sudo systemctl restart nginx
+          base=https://dvbfixer.test:8443
+          curl_base=(curl --silent --show-error --noproxy '*' --resolve dvbfixer.test:8443:127.0.0.1 \
+            --cacert /etc/nginx/dvbfixer.crt)
+          "${curl_base[@]}" "$base/api/health" | jq -e '.status == "ready" and .authenticationRequired == true'
+          status="$("${curl_base[@]}" -o /dev/null -w '%{http_code}' "$base/api/session")"
+          test "$status" = 401
+          token='dvbfixer-disposable-acceptance-token'
+          "${curl_base[@]}" -H "Authorization: Bearer $token" "$base/api/session" \
+            | jq -e '.principal.id == "operator"'
+          status="$("${curl_base[@]}" -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $token" -H 'Origin: https://evil.example' "$base/api/session")"
+          test "$status" = 403
+          "${curl_base[@]}" -H "Authorization: Bearer $token" -H 'Content-Type: application/json' \
+            -H 'Origin: https://dvbfixer.test:8443' -d '{"name":"Acceptance workspace"}' \
+            "$base/api/workspaces" | jq -e '.id | length > 0'
+          test -d /var/lib/dvbfixer/_audit
+          sudo systemctl is-active --quiet dvbfixer.service
+      - name: Verify external scientific executables in service containment
+        shell: bash -el {0}
+        run: |
+          set -eu
+          envbin="$(dirname "$(command -v dvbfixer)")"
+          printf '>a\nACDEFG\n>b\nACDEYG\n' | sudo tee /var/lib/dvbfixer/tmp/msa.fa >/dev/null
+          printf 'source leaprc.protein.ff14SB\nm = sequence { ALA GLY }\nsavepdb m /var/lib/dvbfixer/tmp/tleap.pdb\nquit\n' \
+            | sudo tee /var/lib/dvbfixer/tmp/leap.in >/dev/null
+          sudo systemd-run --quiet --wait --collect --pipe --unit=dvbfixer-accept-science \
+            -p User=dvbfixer -p Group=dvbfixer -p CPUQuota=200% -p MemoryMax=4G \
+            -p MemorySwapMax=0 -p TasksMax=128 -p ProtectSystem=strict \
+            -p ReadWritePaths=/var/lib/dvbfixer -p TemporaryFileSystem=/tmp:rw,size=64M,mode=1777 \
+            -p "Environment=PATH=$envbin:/usr/bin:/bin" \
+            /usr/bin/bash -c 'mafft --auto /var/lib/dvbfixer/tmp/msa.fa >/var/lib/dvbfixer/tmp/msa.out && tleap -f /var/lib/dvbfixer/tmp/leap.in >/var/lib/dvbfixer/tmp/tleap.log && reduce -BUILD /var/lib/dvbfixer/tmp/tleap.pdb >/var/lib/dvbfixer/tmp/reduce.pdb'
+          test -s /var/lib/dvbfixer/tmp/msa.out
+          test -s /var/lib/dvbfixer/tmp/tleap.pdb
+          test -s /var/lib/dvbfixer/tmp/reduce.pdb
+      - name: Diagnose reference service on failure
+        if: failure()
+        run: |
+          sudo systemctl status dvbfixer.service --no-pager || true
+          sudo journalctl -u dvbfixer.service -n 100 --no-pager || true
