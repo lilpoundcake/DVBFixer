@@ -6,6 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from dvbfixer import __version__
 from dvbfixer.batch import add_runtime_help
 
 
@@ -43,8 +44,9 @@ def test_cli_run_header_goes_to_stderr_and_log(tmp_path: Path) -> None:
         capture_output=True, text=True, check=True,
         env={**os.environ, "PYTHONPATH": str(Path(__file__).parents[1] / "src")},
     )
-    assert "=== dvbfixer 0.8.5" in result.stderr
-    assert "=== dvbfixer 0.8.5" in log.read_text()
+    header = f"=== dvbfixer {__version__}"
+    assert header in result.stderr
+    assert header in log.read_text()
 
 
 def test_warnings_are_emphasized_and_summarized(tmp_path: Path) -> None:
