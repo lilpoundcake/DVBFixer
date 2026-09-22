@@ -125,6 +125,13 @@ contained systemd unit. The short-lived self-signed certificate and test bearer
 token are only CI fixtures; installations must use their own protected secrets
 and trusted certificates.
 
+The [2026-09-22 reference acceptance run](https://github.com/lilpoundcake/DVBFixer/actions/runs/35695278505)
+passed these probes on Ubuntu 24.04. Its log records CPU throttling 1→31,
+memory OOM kills 0→1, task-limit denials 0→2, persistent and temporary ENOSPC,
+grandchild teardown, and nonempty MAFFT/tleap/Reduce outputs. The VM is a
+reference deployment host; each real installation still needs its own
+host-specific acceptance and operational record.
+
 Before treating an installation as supported, repeat on its target host that CPU is
 throttled, combined child memory triggers the cgroup limit, `TasksMax` blocks a
 fork-heavy descendant, persistent and temporary writes stop at their storage

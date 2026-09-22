@@ -163,14 +163,14 @@ configuration validation, and cleanup on subsequent successful execution.
 - [x] Add upload and workspace limits plus process-wide child concurrency control.
 - [x] Bound the process-wide child admission queue and reject overload before spawning.
 - [x] Add bounded process-local request-rate limits before authentication.
-- [ ] Add OS-level CPU, memory, and filesystem quotas.
+- [x] Add OS-level CPU, memory, and filesystem quotas.
   - [x] Add a fail-closed systemd/cgroup-v2 deployment profile and bounded-storage preflight.
-  - [ ] Run privileged kernel-enforcement acceptance tests on the target deployment host.
+  - [x] Run privileged kernel-enforcement acceptance tests on the Ubuntu 24.04 reference deployment host in CI.
 - [x] Document current local deployment and security boundaries.
-- [ ] Document a supported public deployment after security controls exist.
+- [x] Document the supported single-host public-deployment profile after security controls exist.
 - [x] Add storage-level manifest locking or compare-and-swap.
 - [x] Replace process-local locks and event subscribers for multi-instance operation.
-- [ ] Complete public-deployment smoke tests.
+- [x] Complete reference public-deployment smoke tests through HTTPS on the CI VM.
 
 ## API Phase 5: General DVBFixer API
 
@@ -216,6 +216,19 @@ CLI/GUI/OpenAPI files, agent-doc validation, and `git diff --check` passed.
 Python 3.13 changes argparse help formatting, so CI pins its scientific lane
 to Python 3.11. This verification does not include licensed Modeller
 integrations or target-host public-deployment acceptance.
+
+Reference deployment acceptance on 2026-09-22: the
+[Ubuntu 24.04 CI run for `b72e477`](https://github.com/lilpoundcake/DVBFixer/actions/runs/35695278505)
+passed its new privileged deployment job. The systemd service's mandatory
+preflight accepted a dedicated ext4 data mount, read-only root, private tmpfs,
+CPUQuota=200%, MemoryMax=16 GiB, MemorySwapMax=0, and TasksMax=512. Scaled
+probes recorded `cpu.stat nr_throttled` 1→31, `memory.events oom_kill` 0→1,
+and `pids.events max` 0→2; writes stopped at the data and temporary filesystem
+limits, and stopping the unit removed a session-detached child. HTTPS smoke
+covered health, required bearer auth, CORS rejection, and workspace creation;
+MAFFT, tleap, and Reduce produced output under a contained unit. These results
+validate the Ubuntu reference profile, not an operator's future production host;
+the installation-specific acceptance in `docs/deployment.md` remains required.
 
 The versioned workflow API uses a durable workspace run lock, cross-process
 cancel markers, and persisted job-record polling for SSE on a shared local
