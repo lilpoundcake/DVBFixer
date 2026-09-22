@@ -116,7 +116,9 @@ def main() -> None:
     common = ["ProtectSystem=strict", "ReadWritePaths=/var/lib/dvbfixer", "KillMode=control-group"]
     systemd_run("cpu", *common, "CPUQuota=20%")
     print("CPU throttling: PASS", flush=True)
-    systemd_run("memory", *common, "MemoryMax=128M", "MemorySwapMax=0")
+    # Keep the probe's parent alive after a child OOM so it can record the
+    # kernel event. The production service may instead stop/restart on OOM.
+    systemd_run("memory", *common, "MemoryMax=128M", "MemorySwapMax=0", "OOMPolicy=continue")
     proof = ROOT / "memory-proof"
     assert proof.exists(), "memory unit did not survive to record OOM enforcement"
     before, after = map(int, proof.read_text().split())
