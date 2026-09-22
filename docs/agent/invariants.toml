@@ -387,6 +387,37 @@ failure_mode = "Tests can depend on untracked inputs or silently changed product
 test_files = ["tests/test_fixture_manifest.py"]
 known_exceptions = ["Golden outputs require explicit justification and may need manifest-policy expansion."]
 
+[invariants.INV-DIFFUSION-NO-PARTIAL-PUBLICATION]
+status = "implemented"
+statement = "An internal diffusion request publishes no public coordinate, DatRecord, provenance, or bundle index unless scope admission, runner verification, independent hard gates, staging, and one-directory commit all succeed."
+owner = "src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline"
+enforcement = [
+  "src/dvbfixer/model/diffusion/scope.py::assess_diffusion_scope",
+  "src/dvbfixer/model/diffusion/runner.py::run_diffusion_runner",
+  "src/dvbfixer/model/diffusion/validate.py::build_validated_result",
+  "src/dvbfixer/model/diffusion/pipeline.py::publish_diffusion_bundle",
+]
+failure_mode = "An unsupported, malformed, invalid, or interrupted candidate could appear as a complete repair or leave mismatched PDB/sidecar/provenance artifacts."
+test_files = [
+  "tests/test_diffusion_pipeline.py",
+  "tests/test_diffusion_runner.py",
+  "tests/test_diffusion_scope.py",
+  "tests/test_diffusion_validate.py",
+]
+known_exceptions = ["The internal pipeline has no public CLI caller and has not passed external GPU acceptance."]
+
+[invariants.INV-DIFFUSION-PROVENANCE-SEPARATE]
+status = "implemented"
+statement = "Engine/runtime provenance is recorded in a separate versioned diffusion manifest and never inserted into DatRecord."
+owner = "src/dvbfixer/model/diffusion/provenance.py::DiffusionProvenanceManifest"
+enforcement = [
+  "src/dvbfixer/model/diffusion/provenance.py::build_provenance_manifest",
+  "src/dvbfixer/model/diffusion/pipeline.py::_stage_candidate",
+]
+failure_mode = "Runtime, license, seed, validation, or artifact evidence can be lost, invented, leak raw diagnostics, or corrupt the general preparation sidecar contract."
+test_files = ["tests/test_diffusion_provenance.py", "tests/test_diffusion_pipeline.py"]
+known_exceptions = ["Absent external-engine facts remain explicit empty/unknown values until a pinned adapter provides evidence."]
+
 [invariants.INV-CIF-SINGLE-BOUNDARY]
 status = "implemented"
 statement = "CIF input is normalized once at the CLI boundary; scientific pipelines consume the resulting PDB contract."

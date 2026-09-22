@@ -22,7 +22,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
 )
 
-DIFFUSION_RUNNER_PROTOCOL_VERSION = 1
+DIFFUSION_RUNNER_PROTOCOL_VERSION = 2
 REQUEST_MANIFEST = "request.json"
 RESULT_MANIFEST = "result.json"
 _TRUNCATION_MARKER = b"\n...[output truncated by DVBFixer]"
@@ -368,6 +368,12 @@ def _validate_result_artifacts(
     candidate_ids = [candidate.candidate_id for candidate in result.candidates]
     if len(candidate_ids) != len(set(candidate_ids)):
         raise DiffusionRunnerError("external diffusion runner returned duplicate candidate IDs")
+
+    seeds = [candidate.seed for candidate in result.candidates]
+    if len(seeds) != len(set(seeds)):
+        raise DiffusionRunnerError("external diffusion runner returned duplicate candidate seeds")
+    if not set(seeds) <= set(request.seeds):
+        raise DiffusionRunnerError("external diffusion runner returned an unrequested candidate seed")
 
     paths = [candidate.coordinate_artifact.path for candidate in result.candidates]
     if len(paths) != len(set(paths)):

@@ -265,34 +265,52 @@ start = [
   "docs/research/reconstruction-and-modeling-backends.md",
   "docs/research/diffusion-gap-reconstruction-inventory.toml",
   "src/dvbfixer/model/diffusion/contract.py::DiffusionRequest",
+  "src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline",
+  "src/dvbfixer/model/diffusion/preflight.py::assess_adapter_preflight",
+  "src/dvbfixer/model/diffusion/provenance.py::DiffusionProvenanceManifest",
+  "src/dvbfixer/model/diffusion/benchmark.py::assess_same_seed_repeatability",
+  "src/dvbfixer/model/diffusion/sampler.py::assess_sampler_conformance",
   "src/dvbfixer/model/diffusion/contract.py::DiffusionResult",
   "src/dvbfixer/model/diffusion/contract.py::RunnerResult",
   "src/dvbfixer/model/diffusion/masks.py::build_diffusion_masks",
   "src/dvbfixer/model/diffusion/geometry.py::weighted_kabsch",
   "src/dvbfixer/model/diffusion/geometry.py::synchronize_and_reinject",
+  "src/dvbfixer/model/diffusion/scope.py::assess_diffusion_scope",
   "src/dvbfixer/model/diffusion/runner.py::run_diffusion_runner",
   "src/dvbfixer/model/diffusion/fake_runner.py::main",
   "src/dvbfixer/model/diffusion/validate.py::validate_runner_result",
   "src/dvbfixer/model/diffusion/validate.py::build_validated_result",
 ]
 callers = []
-contracts = ["dat-record-lifecycle", "pdb-connectivity"]
+contracts = [
+  "dat-record-lifecycle",
+  "pdb-connectivity",
+  "diffusion-runner-publication-provenance",
+]
 invariants = [
   "INV-CHIRALITY-ZERO-D",
   "INV-IDENTITY-ICODE",
   "INV-CONECT-CHEMICAL-FILTER",
+  "INV-DIFFUSION-NO-PARTIAL-PUBLICATION",
+  "INV-DIFFUSION-PROVENANCE-SEPARATE",
 ]
 change_group = "missing-atom-rebuild-chirality"
 test_files = [
+  "tests/test_diffusion_benchmark.py",
   "tests/test_diffusion_contract.py",
   "tests/test_diffusion_geometry.py",
   "tests/test_diffusion_masks.py",
+  "tests/test_diffusion_pipeline.py",
+  "tests/test_diffusion_preflight.py",
+  "tests/test_diffusion_provenance.py",
   "tests/test_diffusion_research_inventory.py",
   "tests/test_diffusion_runner.py",
+  "tests/test_diffusion_sampler.py",
+  "tests/test_diffusion_scope.py",
   "tests/test_diffusion_validate.py",
 ]
 verification = [
-  "pytest -q tests/test_diffusion_contract.py tests/test_diffusion_geometry.py tests/test_diffusion_masks.py tests/test_diffusion_research_inventory.py tests/test_diffusion_runner.py tests/test_diffusion_validate.py",
+  "pytest -q tests/test_diffusion_benchmark.py tests/test_diffusion_contract.py tests/test_diffusion_geometry.py tests/test_diffusion_masks.py tests/test_diffusion_pipeline.py tests/test_diffusion_preflight.py tests/test_diffusion_provenance.py tests/test_diffusion_research_inventory.py tests/test_diffusion_runner.py tests/test_diffusion_sampler.py tests/test_diffusion_scope.py tests/test_diffusion_validate.py",
   "python scripts/check_agent_docs.py",
   "git diff --check",
 ]

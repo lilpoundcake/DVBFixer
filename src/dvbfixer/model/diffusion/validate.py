@@ -18,6 +18,8 @@ from dvbfixer.diagnose.chemistry import (
     check_backbone_bond_angles,
     check_bond_lengths,
     check_peptide_omegas,
+    check_ramachandran,
+    check_sidechain_chi12,
 )
 from dvbfixer.diagnose.report import Severity
 from dvbfixer.diagnose.steric import clashes_python
@@ -430,6 +432,24 @@ def _validate_candidate(
         if finding.category == "non_planar_amide"
         and _finding_residue(finding.chain, finding.resid) in generated_or_junction
     ]
+    ramachandran_outliers = [
+        finding
+        for finding in check_ramachandran(
+            candidate.pdb.topology,
+            candidate.pdb.positions,
+        )
+        if finding.severity is Severity.ERROR
+        and _finding_residue(finding.chain, finding.resid) in generated_or_junction
+    ]
+    sidechain_chi12_outliers = [
+        finding
+        for finding in check_sidechain_chi12(
+            candidate.pdb.topology,
+            candidate.pdb.positions,
+        )
+        if finding.severity is Severity.ERROR
+        and _finding_residue(finding.chain, finding.resid) in generated_or_junction
+    ]
     metrics.extend(
         (
             Metric(
@@ -447,6 +467,16 @@ def _validate_candidate(
                 float(len(non_planar_amides)),
                 "count",
             ),
+            Metric(
+                "generated-or-junction-ramachandran-outliers",
+                float(len(ramachandran_outliers)),
+                "count",
+            ),
+            Metric(
+                "generated-or-junction-sidechain-chi12-outliers",
+                float(len(sidechain_chi12_outliers)),
+                "count",
+            ),
         )
     )
     if bond_length_findings:
@@ -455,6 +485,10 @@ def _validate_candidate(
         failures.append("generated-or-junction-bond-angle")
     if non_planar_amides:
         failures.append("generated-or-junction-amide-planarity")
+    if ramachandran_outliers:
+        failures.append("generated-or-junction-ramachandran")
+    if sidechain_chi12_outliers:
+        failures.append("generated-or-junction-sidechain-chi12")
 
     severe_clashes = [
         finding
@@ -505,6 +539,7 @@ def _validate_candidate(
 def _validated_candidate(candidate: RunnerCandidate) -> DiffusionCandidate:
     return DiffusionCandidate(
         candidate_id=candidate.candidate_id,
+        seed=candidate.seed,
         coordinate_artifact=candidate.coordinate_artifact,
         generated_atoms=candidate.generated_atoms,
         generated_residues=candidate.generated_residues,

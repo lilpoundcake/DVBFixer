@@ -244,3 +244,38 @@ known_divergences = [
   "Default output can overwrite conventional topology filenames beside the input.",
   "Stale companion files are not removed and bundle completeness is not post-validated.",
 ]
+
+[contracts.diffusion-runner-publication-provenance]
+status = "partial"
+owner = "src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline"
+description = "Internal versioned diffusion request/runner/validation boundary with fail-closed scope admission, candidate-matched DatRecord generation, separate provenance, and one-rename result-bundle publication."
+producers = [
+  "src/dvbfixer/model/diffusion/runner.py::run_diffusion_runner",
+  "src/dvbfixer/model/diffusion/validate.py::build_validated_result",
+  "src/dvbfixer/model/diffusion/pipeline.py::publish_diffusion_bundle",
+]
+consumers = [
+  "research and future explicit diffusion adapters",
+  "downstream minimize through the published candidate DatRecord",
+]
+identity_keys = [
+  "atom=(case-sensitive chain,residue_number,insertion_code,atom_name)",
+  "residue=(case-sensitive chain,residue_number,insertion_code)",
+  "candidate=(candidate_id,seed,coordinate SHA-256)",
+  "bundle=destination directory committed by one same-parent rename",
+]
+source_mutation = "The normalized source is read-only. Runner and validation artifacts remain in a removable isolated workspace; publication writes a new destination directory and rejects an existing one."
+commit_behavior = "Each selected candidate is re-read as a private regular digest-matched file; PDB, DatRecord JSON, sanitized provenance, and bundle index are fsynced in a hidden same-parent directory, then exposed by one directory rename."
+failure_behavior = "Unsupported scope does not launch a runner. Runner, parsing, validation, digest, file-type, staging, or rename failure publishes no destination bundle and cleans hidden staging; external engine scientific/GPU phases remain unimplemented."
+test_files = [
+  "tests/test_diffusion_pipeline.py",
+  "tests/test_diffusion_provenance.py",
+  "tests/test_diffusion_runner.py",
+  "tests/test_diffusion_scope.py",
+  "tests/test_diffusion_validate.py",
+]
+known_divergences = [
+  "The internal pipeline is not wired to public model, homology, zbs, GUI, or argparse dispatch.",
+  "Atomic directory rename assumes one local filesystem; durability still depends on host filesystem semantics.",
+  "No real RFdiffusion, Protenix, or Boltz checkpoint/environment has passed the external GPU gates.",
+]

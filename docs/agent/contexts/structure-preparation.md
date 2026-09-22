@@ -37,7 +37,7 @@ contracts; it does not reproduce scientific algorithms.
 | Pure-protein tleap/Reduce preparation | implemented | `prep_backend.py::run_prep` | Opt-in; unsupported chemistry fails rather than falling back automatically |
 | Protonation decisions and H placement | implemented | `protonate.py::decide_protonation`, `prepare/pipeline.py::_run_propka_reduce_variants` | Decision evidence, topology H placement, and output naming remain separate concerns |
 | Preparation provenance handoff | implemented | `ffutils/dat.py::DatRecord` | Model/homology produce; prepare merges; minimize consumes |
-| Diffusion CPU protocol core | partial | `model/diffusion/contract.py`, `masks.py`, `geometry.py`, `runner.py`, `validate.py` | Strict JSON contract, deterministic masks/geometry, contained subprocess protocol, fake runner, and independent identity/drift/completeness/connectivity/severe-bond/backbone-angle/amide-planarity/clash/chirality validation are CPU-testable; finer residue-specific geometry, Ramachandran/rotamer validation, publication, provenance manifests, and public dispatch are not implemented |
+| Diffusion CPU protocol core | partial | `model/diffusion/contract.py`, `masks.py`, `scope.py`, `geometry.py`, `runner.py`, `validate.py`, `pipeline.py`, `preflight.py`, `provenance.py`, `benchmark.py`, `sampler.py` | Versioned JSON contract, deterministic masks/geometry, fail-closed initial-slice scope admission, contained subprocess protocol, fake runner, independent scientific gates/ranking, candidate-matched DatRecord generation, separate sanitized provenance, atomic no-replace bundle publication, local immutable-artifact preflight, explicit sampler-conformance decisions, and CPU repeatability, withheld-coordinate, stratum-outcome, and observed-resource metrics are testable; finer residue-specific geometry, complete residue/backbone-dependent rotamer validation, real engine adapters/GPU evidence, and public dispatch are not implemented |
 | Uniform hard L-chirality output gate | partial | `ffutils/geometry.py::assert_all_l` | Modeled candidates assert; prepare/protonate paths can only repair or warn before minimize |
 
 ## Entry Points
@@ -46,6 +46,12 @@ contracts; it does not reproduce scientific algorithms.
 |---|---|
 | Gap-model workflow | `src/dvbfixer/model/pipeline.py::main` |
 | Proposed diffusion contract | `src/dvbfixer/model/diffusion/contract.py::DiffusionRequest`, `DiffusionResult` |
+| Proposed diffusion scope boundary | `src/dvbfixer/model/diffusion/scope.py::assess_diffusion_scope` |
+| Proposed diffusion internal pipeline | `src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline` |
+| Proposed diffusion adapter preflight | `src/dvbfixer/model/diffusion/preflight.py::assess_adapter_preflight` |
+| Proposed diffusion provenance | `src/dvbfixer/model/diffusion/provenance.py::DiffusionProvenanceManifest` |
+| Proposed diffusion CPU benchmarks | `src/dvbfixer/model/diffusion/benchmark.py::assess_same_seed_repeatability` |
+| Proposed diffusion sampler conformance | `src/dvbfixer/model/diffusion/sampler.py::assess_sampler_conformance` |
 | Proposed diffusion runner boundary | `src/dvbfixer/model/diffusion/runner.py::run_diffusion_runner` |
 | Proposed diffusion validation boundary | `src/dvbfixer/model/diffusion/validate.py::validate_runner_result`, `build_validated_result` |
 | Legacy atom completion | `src/dvbfixer/prepare/pipeline.py::run_pdbfixer` |
@@ -128,16 +134,26 @@ contracts; it does not reproduce scientific algorithms.
 - Model may materialize an inferred-CONECT input, creates a temporary workspace,
   and writes one or more candidate PDBs with candidate-matched sidecars when
   provenance exists. The no-SEQRES/no-FASTA shortcut only copies the PDB.
-- The proposed diffusion runner creates a caller-selected isolated workspace,
-  copies and verifies the normalized input, writes `request.json`, launches one
-  shell-free child process with bounded diagnostics, then verifies a raw
-  `RunnerResult` manifest and candidate digests. Runner-provided data cannot claim
-  independent validation. The separate validation boundary reopens verified
-  source/candidate artifacts, parses OpenMM topology from those verified bytes,
-  applies the first-slice hard gates, calls final `assert_all_l`, rejects failed
-  candidates, and deterministically ranks passing
-  candidates without treating backend-native scores as commensurate. Neither
-  boundary publishes artifacts or changes model dispatch.
+- The proposed diffusion scope boundary verifies the normalized-input digest
+  before parsing and returns explicit unsupported reasons for out-of-slice target
+  sequence, gap, model, altloc, chemistry, heavy fixed-mask, placement, retained
+  source-link, and detectable D-chirality cases. The runner creates an isolated
+  workspace, copies and verifies the normalized input, writes `request.json`,
+  launches one shell-free child process with bounded diagnostics, then verifies a
+  raw `RunnerResult` manifest and candidate digests. Runner-provided data cannot
+  claim independent validation. Validation reopens verified source/candidate
+  artifacts, applies first-slice hard gates, calls final `assert_all_l`, rejects
+  failed candidates, and deterministically ranks passing candidates without
+  treating backend-native scores as commensurate. The internal pipeline launches
+  no runner for unsupported scope, publishes nothing for failed results, builds
+  each candidate `.dat` through `DatRecord`, writes sanitized separate provenance,
+  fsyncs a hidden same-parent bundle, and exposes the complete set with one
+  atomic no-replace directory rename. Local adapter preflight checks executable,
+  immutable image identity, checkpoint presence/digest, CUDA availability, and
+  protocol compatibility without downloading artifacts. Sampler conformance
+  keeps ordinary template conditioning distinct from evidence-backed per-step
+  reinjection and boundary refinement. This internal path still has no public
+  model dispatch.
 - Legacy prepare can create temporary inferred, renamed, deletion-cleaned,
   capped, GLYCAM, PROPKA, and canonical-CONECT PDBs. It writes/replaces the
   output PDB and sidecar and may rewrite the output for variants, heterogen H,

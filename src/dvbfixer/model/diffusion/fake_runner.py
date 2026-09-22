@@ -41,6 +41,7 @@ def main() -> int:
         candidates.append(
             RunnerCandidate(
                 candidate_id=candidate_id,
+                seed=seed,
                 coordinate_artifact=ArtifactReference(
                     path=output_path.as_posix(),
                     sha256=_sha256(output_path),
@@ -65,8 +66,15 @@ def main() -> int:
             backend="dvbfixer-fake",
             runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="builtin://dvbfixer",
-            engine_revision="fake-runner-v1",
+            engine_revision="fake-runner-v2",
+            source_license="project-license",
             environment_hash=_environment_hash(),
+            environment_identity="core-python-environment",
+            device="cpu",
+            precision="byte-copy",
+            framework="python",
+            deterministic_algorithms=True,
+            deterministic_flags=("byte-identical-copy",),
         ),
     )
     Path(result_name).write_text(result.to_json(), encoding="utf-8")
@@ -77,7 +85,7 @@ def _environment_hash() -> str:
     payload: dict[str, Any] = {
         "contract_schema_version": DIFFUSION_SCHEMA_VERSION,
         "runner_protocol_version": DIFFUSION_RUNNER_PROTOCOL_VERSION,
-        "implementation": "dvbfixer-fake-runner-v1",
+        "implementation": "dvbfixer-fake-runner-v2",
     }
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()

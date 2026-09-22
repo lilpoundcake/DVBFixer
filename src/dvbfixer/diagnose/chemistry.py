@@ -9,7 +9,10 @@ keeps ``diagnose`` importable in the CI fast lane).
 from __future__ import annotations
 
 import math
+from importlib.metadata import distribution
 from typing import Any
+
+import numpy as np
 
 from dvbfixer.diagnose._common import NON_STANDARD_AAS
 from dvbfixer.diagnose.report import Finding, Severity
@@ -85,6 +88,48 @@ _PEPTIDE_ANGLE_RANGES: dict[tuple[str, str, str], tuple[float, float]] = {
     ("C", "+N", "+CA"): (105.0, 140.0),
 }
 _ANGLE_ERROR_MARGIN_DEG = 15.0
+
+# The MDAnalysis reference histogram is a 4° grid built from the 500-structure
+# Lovell et al. data set. Its populated contour covers 99% of the observations.
+# The small periodic neighborhood avoids classifying an angle as an outlier only
+# because it lies next to a populated bin or on the -180°/180° seam.
+_RAMACHANDRAN_BIN_DEGREES = 4.0
+_RAMACHANDRAN_NEIGHBORHOOD_BINS = 2
+_RAMACHANDRAN_REFERENCE_PATH = (
+    distribution("MDAnalysis").locate_file("MDAnalysis/analysis/data/rama_ref_data.npy")
+)
+_RAMACHANDRAN_REFERENCE: np.ndarray | None = None
+_CANONICAL_AMINO_ACIDS = frozenset({
+    "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE",
+    "LEU", "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL",
+})
+
+# MDAnalysis's bundled Janin reference is a 6° chi1/chi2 histogram from the
+# same 500-structure Lovell data set. Its populated contour covers 98% of the
+# observations. This is deliberately a gross pooled side-chain torsion check,
+# not a residue/backbone-dependent Dunbrack or MolProbity rotamer classifier.
+_SIDECHAIN_CHI12_BIN_DEGREES = 6.0
+_SIDECHAIN_CHI12_NEIGHBORHOOD_BINS = 2
+_SIDECHAIN_CHI12_REFERENCE_PATH = (
+    distribution("MDAnalysis").locate_file("MDAnalysis/analysis/data/janin_ref_data.npy")
+)
+_SIDECHAIN_CHI12_REFERENCE: np.ndarray | None = None
+_SIDECHAIN_CHI12_ATOMS: dict[str, tuple[str, str, str, str, str]] = {
+    "ARG": ("N", "CA", "CB", "CG", "CD"),
+    "ASN": ("N", "CA", "CB", "CG", "OD1"),
+    "ASP": ("N", "CA", "CB", "CG", "OD1"),
+    "GLN": ("N", "CA", "CB", "CG", "CD"),
+    "GLU": ("N", "CA", "CB", "CG", "CD"),
+    "HIS": ("N", "CA", "CB", "CG", "ND1"),
+    "ILE": ("N", "CA", "CB", "CG1", "CD1"),
+    "LEU": ("N", "CA", "CB", "CG", "CD1"),
+    "LYS": ("N", "CA", "CB", "CG", "CD"),
+    "MET": ("N", "CA", "CB", "CG", "SD"),
+    "PHE": ("N", "CA", "CB", "CG", "CD1"),
+    "TRP": ("N", "CA", "CB", "CG", "CD1"),
+    "TYR": ("N", "CA", "CB", "CG", "CD1"),
+}
+_SIDECHAIN_CHI2_SYMMETRIC = frozenset({"ASP", "LEU", "PHE", "TYR"})
 
 
 def _resid_str(res_id: str, icode: str = "") -> str:
@@ -234,33 +279,25 @@ def _dihedral_deg(
     p2: tuple[float, float, float],
     p3: tuple[float, float, float],
     p4: tuple[float, float, float],
-) -> float:
-    """Standard 4-atom dihedral, returns angle in degrees in (-180, 180]."""
-    def sub(a, b):
-        return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
-
-    def cross(a, b):
-        return (
-            a[1] * b[2] - a[2] * b[1],
-            a[2] * b[0] - a[0] * b[2],
-            a[0] * b[1] - a[1] * b[0],
-        )
-
-    def dot(a, b):
-        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-
-    def norm(a):
-        return math.sqrt(dot(a, a))
-
-    b1 = sub(p2, p1)
-    b2 = sub(p3, p2)
-    b3 = sub(p4, p3)
-    n1 = cross(b1, b2)
-    n2 = cross(b2, b3)
-    m = cross(n1, sub((0.0, 0.0, 0.0), (-b2[0], -b2[1], -b2[2])))
-    len_b2 = norm(b2)
-    x = dot(n1, n2) * len_b2
-    y = dot(m, n2)
+) -> float | None:
+    """Standard signed 4-atom dihedral in degrees, or ``None`` if degenerate."""
+    first = np.asarray(p1, dtype=np.float64)
+    second = np.asarray(p2, dtype=np.float64)
+    third = np.asarray(p3, dtype=np.float64)
+    fourth = np.asarray(p4, dtype=np.float64)
+    central = third - second
+    central_norm = float(np.linalg.norm(central))
+    if central_norm < 1e-12:
+        return None
+    central /= central_norm
+    left = first - second
+    right = fourth - third
+    left -= np.dot(left, central) * central
+    right -= np.dot(right, central) * central
+    if np.linalg.norm(left) < 1e-12 or np.linalg.norm(right) < 1e-12:
+        return None
+    x = float(np.dot(left, right))
+    y = float(np.dot(np.cross(central, left), right))
     return math.degrees(math.atan2(y, x))
 
 
@@ -381,6 +418,198 @@ def check_backbone_bond_angles(topology: Any, positions: Any) -> list[Finding]:
     return findings
 
 
+def _ramachandran_reference() -> np.ndarray:
+    global _RAMACHANDRAN_REFERENCE
+    if _RAMACHANDRAN_REFERENCE is None:
+        _RAMACHANDRAN_REFERENCE = np.load(_RAMACHANDRAN_REFERENCE_PATH)
+    return _RAMACHANDRAN_REFERENCE
+
+
+def _ramachandran_reference_populated(phi: float, psi: float) -> bool:
+    reference = _ramachandran_reference()
+    phi_bin = int(math.floor((phi + 180.0) / _RAMACHANDRAN_BIN_DEGREES)) % 90
+    psi_bin = int(math.floor((psi + 180.0) / _RAMACHANDRAN_BIN_DEGREES)) % 90
+    radius = _RAMACHANDRAN_NEIGHBORHOOD_BINS
+    return any(
+        reference[(psi_bin + psi_offset) % 90, (phi_bin + phi_offset) % 90] >= 1.0
+        for psi_offset in range(-radius, radius + 1)
+        for phi_offset in range(-radius, radius + 1)
+    )
+
+
+def check_ramachandran(topology: Any, positions: Any) -> list[Finding]:
+    """Report gross general-residue Ramachandran outliers.
+
+    The bundled MDAnalysis map is a general-residue 99%-coverage reference, not
+    a MolProbity-style set of class-specific distributions. To avoid false hard
+    claims, GLY, PRO, and residues immediately preceding PRO are deliberately
+    excluded until class-specific references are adopted.
+    """
+    findings: list[Finding] = []
+    bonds = _bonded_atom_pairs(topology)
+    for chain in topology.chains():
+        residues = list(chain.residues())
+        for previous, residue, following in zip(residues, residues[1:], residues[2:]):
+            if residue.name not in _CANONICAL_AMINO_ACIDS:
+                continue
+            residue_class = "general"
+            if residue.name == "GLY":
+                residue_class = "glycine"
+            elif residue.name == "PRO":
+                residue_class = "proline"
+            elif following.name == "PRO":
+                residue_class = "pre-proline"
+            if residue_class != "general":
+                continue
+
+            previous_c = _find_atom(previous, "C")
+            n = _find_atom(residue, "N")
+            ca = _find_atom(residue, "CA")
+            c = _find_atom(residue, "C")
+            following_n = _find_atom(following, "N")
+            if not all((previous_c, n, ca, c, following_n)):
+                continue
+            required_bonds = (
+                (previous_c, n),
+                (n, ca),
+                (ca, c),
+                (c, following_n),
+            )
+            if any(
+                tuple(sorted((first.index, second.index))) not in bonds
+                for first, second in required_bonds
+            ):
+                continue
+
+            phi = _dihedral_deg(
+                _pos(positions, previous_c),
+                _pos(positions, n),
+                _pos(positions, ca),
+                _pos(positions, c),
+            )
+            psi = _dihedral_deg(
+                _pos(positions, n),
+                _pos(positions, ca),
+                _pos(positions, c),
+                _pos(positions, following_n),
+            )
+            if phi is None or psi is None or _ramachandran_reference_populated(phi, psi):
+                continue
+            chain_id, resid = _res_loc(residue)
+            findings.append(Finding(
+                severity=Severity.ERROR,
+                category="ramachandran_outlier",
+                chain=chain_id,
+                resid=resid,
+                resname=residue.name,
+                atom="N-CA-C",
+                message=(
+                    f"gross Ramachandran outlier (φ={phi:.1f}°, ψ={psi:.1f}°); "
+                    "outside the populated 99% general-residue reference neighborhood"
+                ),
+                fix_hint="manual: rebuild or refine the local backbone geometry",
+                extra={
+                    "phi_degrees": phi,
+                    "psi_degrees": psi,
+                    "residue_class": residue_class,
+                    "reference": "MDAnalysis Lovell2003 general 99% contour",
+                    "neighborhood_degrees": (
+                        _RAMACHANDRAN_BIN_DEGREES * _RAMACHANDRAN_NEIGHBORHOOD_BINS
+                    ),
+                },
+            ))
+    return findings
+
+
+def _sidechain_chi12_reference() -> np.ndarray:
+    global _SIDECHAIN_CHI12_REFERENCE
+    if _SIDECHAIN_CHI12_REFERENCE is None:
+        _SIDECHAIN_CHI12_REFERENCE = np.load(_SIDECHAIN_CHI12_REFERENCE_PATH)
+    return _SIDECHAIN_CHI12_REFERENCE
+
+
+def _sidechain_chi12_reference_populated(chi1: float, chi2: float) -> bool:
+    reference = _sidechain_chi12_reference()
+    chi1_bin = int(math.floor((chi1 % 360.0) / _SIDECHAIN_CHI12_BIN_DEGREES)) % 60
+    chi2_bin = int(math.floor((chi2 % 360.0) / _SIDECHAIN_CHI12_BIN_DEGREES)) % 60
+    radius = _SIDECHAIN_CHI12_NEIGHBORHOOD_BINS
+    return any(
+        reference[(chi2_bin + chi2_offset) % 60, (chi1_bin + chi1_offset) % 60]
+        >= 1.0
+        for chi2_offset in range(-radius, radius + 1)
+        for chi1_offset in range(-radius, radius + 1)
+    )
+
+
+def check_sidechain_chi12(topology: Any, positions: Any) -> list[Finding]:
+    """Report gross pooled chi1/chi2 side-chain torsion outliers.
+
+    The bundled Janin map is a pooled 98%-coverage reference. Only canonical
+    residues with both torsions and complete bonded atom chains are analyzed.
+    Residue-specific and backbone-dependent rotamer quality, chi1-only residues,
+    and chi3-chi5 remain outside this conservative check.
+    """
+    findings: list[Finding] = []
+    bonds = _bonded_atom_pairs(topology)
+    for residue in topology.residues():
+        names = _SIDECHAIN_CHI12_ATOMS.get(residue.name)
+        if names is None:
+            continue
+        atoms_by_name: dict[str, list[Any]] = {}
+        for atom in residue.atoms():
+            atoms_by_name.setdefault(atom.name, []).append(atom)
+        if any(len(atoms_by_name.get(name, ())) != 1 for name in names):
+            continue
+        atoms = tuple(atoms_by_name[name][0] for name in names)
+        if any(
+            tuple(sorted((first.index, second.index))) not in bonds
+            for first, second in zip(atoms, atoms[1:])
+        ):
+            continue
+
+        chi1 = _dihedral_deg(*(_pos(positions, atom) for atom in atoms[:4]))
+        chi2 = _dihedral_deg(*(_pos(positions, atom) for atom in atoms[1:]))
+        if chi1 is None or chi2 is None:
+            continue
+        populated = _sidechain_chi12_reference_populated(chi1, chi2)
+        if residue.name in _SIDECHAIN_CHI2_SYMMETRIC:
+            populated = populated or _sidechain_chi12_reference_populated(
+                chi1,
+                chi2 + 180.0,
+            )
+        if populated:
+            continue
+
+        chain_id, resid = _res_loc(residue)
+        findings.append(Finding(
+            severity=Severity.ERROR,
+            category="sidechain_chi12_outlier",
+            chain=chain_id,
+            resid=resid,
+            resname=residue.name,
+            atom="-".join(names),
+            message=(
+                f"gross side-chain chi1/chi2 outlier "
+                f"(chi1={chi1:.1f}°, chi2={chi2:.1f}°); outside the populated "
+                "98% pooled Janin reference neighborhood"
+            ),
+            fix_hint="manual: rebuild or refine the side-chain conformation",
+            extra={
+                "chi1_degrees": chi1,
+                "chi2_degrees": chi2,
+                "reference": "MDAnalysis Lovell2003 pooled Janin 98% contour",
+                "neighborhood_degrees": (
+                    _SIDECHAIN_CHI12_BIN_DEGREES
+                    * _SIDECHAIN_CHI12_NEIGHBORHOOD_BINS
+                ),
+                "chi2_symmetry_considered": (
+                    residue.name in _SIDECHAIN_CHI2_SYMMETRIC
+                ),
+            },
+        ))
+    return findings
+
+
 def check_peptide_omegas(topology: Any, positions: Any) -> list[Finding]:
     """Report cis peptides (|ω| close to 0°) and non-planar amides.
 
@@ -407,6 +636,8 @@ def check_peptide_omegas(topology: Any, positions: Any) -> list[Finding]:
                 _pos(positions, n2),
                 _pos(positions, ca2),
             )
+            if omega is None:
+                continue
             abs_omega = abs(omega)
             is_pro = r2.name in ("PRO", "HYP")
             chain_id, resid = _res_loc(r2)
@@ -583,22 +814,24 @@ def check_disulfides(topology: Any, positions: Any) -> list[Finding]:
 
             # CB-SG-SG-CB dihedral (χ_ss).
             if ca1 and ca2 and cb1 and cb2:
-                chi = abs(_dihedral_deg(
+                signed_chi = _dihedral_deg(
                     _pos(positions, cb1),
                     _pos(positions, a1),
                     _pos(positions, a2),
                     _pos(positions, cb2),
-                ))
-                if not (60 <= chi <= 120):
-                    findings.append(Finding(
-                        severity=Severity.WARNING,
-                        category="disulfide_geometry",
-                        chain=chain1, resid=resid1, resname=r1.name,
-                        message=f"disulfide CB-SG-SG-CB dihedral {chi:.0f}° "
-                                f"(expected 60 – 120°; canonical ~90°) — "
-                                f"partner {partner}",
-                        fix_hint="dvbfixer minimize (relaxes non-ideal SS twist)",
-                    ))
+                )
+                if signed_chi is not None:
+                    chi = abs(signed_chi)
+                    if not (60 <= chi <= 120):
+                        findings.append(Finding(
+                            severity=Severity.WARNING,
+                            category="disulfide_geometry",
+                            chain=chain1, resid=resid1, resname=r1.name,
+                            message=f"disulfide CB-SG-SG-CB dihedral {chi:.0f}° "
+                                    f"(expected 60 – 120°; canonical ~90°) — "
+                                    f"partner {partner}",
+                            fix_hint="dvbfixer minimize (relaxes non-ideal SS twist)",
+                        ))
             # Suppress __unused__ warnings.
             _ = nanometer
     return findings
@@ -610,6 +843,8 @@ def run_all(topology: Any, positions: Any) -> list[Finding]:
     findings.extend(check_valences(topology))
     findings.extend(check_bond_lengths(topology, positions))
     findings.extend(check_backbone_bond_angles(topology, positions))
+    findings.extend(check_ramachandran(topology, positions))
+    findings.extend(check_sidechain_chi12(topology, positions))
     findings.extend(check_peptide_omegas(topology, positions))
     findings.extend(check_ca_chirality(topology, positions))
     findings.extend(check_disulfides(topology, positions))

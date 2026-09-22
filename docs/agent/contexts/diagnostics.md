@@ -31,7 +31,7 @@ Direct calls to `dvbfixer.diagnose.main` receive the PDB-oriented implementation
 | Capability | Status | Owner | Evidence |
 |---|---|---|---|
 | Missing pieces, atom placement, chain breaks, duplicate frames | implemented | `diagnose/structural.py::run_all` | `tests/test_diagnose_pipeline.py`, `tests/test_duplicate_chain_coordinates.py` |
-| Valence, bond lengths, broad canonical backbone/peptide angles, peptide geometry, chirality, disulfides | implemented | `diagnose/chemistry.py::run_all` | `tests/test_diagnose_chemistry.py` |
+| Valence, bond lengths, broad canonical backbone/peptide angles, conservative general-residue Ramachandran and pooled chi1/chi2 outliers, peptide geometry, chirality, disulfides | implemented | `diagnose/chemistry.py::run_all` | `tests/test_diagnose_chemistry.py` |
 | Probe-first clash checks with pure-Python fallback | implemented | `diagnose/steric.py::run_all` | `tests/test_diagnose_steric.py` |
 | Deterministic text and machine-readable JSON reports | implemented | `diagnose/report.py`, `diagnose/pipeline.py` | `tests/test_diagnose_report.py`, `tests/test_diagnose_pipeline.py` |
 | Repair or mutation of the diagnosed structure | missing by design | none | report-only CLI contract |
@@ -74,6 +74,15 @@ Exit statuses are part of the public contract:
 - Multi-model input is analyzed as MODEL 1 only and receives a WARNING finding.
 - Coordinate-identical complete protein chains are suspicious but non-fatal.
 - JSON retains readable Unicode in paths, units, arrows, and messages.
+- Ramachandran ERROR findings are intentionally limited to gross outliers for
+  canonical general residues with complete, bonded backbone neighbors. The
+  bundled MDAnalysis Lovell-reference histogram supplies the populated 99%
+  contour; GLY, PRO, and pre-PRO remain excluded because this reference is not
+  residue-class-specific and the check is not MolProbity-equivalent.
+- Side-chain chi1/chi2 ERROR findings use the bundled pooled MDAnalysis Janin
+  98% contour only for canonical residues with both bonded torsions. The check
+  excludes chi1-only residues and does not claim residue/backbone-dependent
+  Dunbrack, full-rotamer, or MolProbity-equivalent validation.
 
 ## Callers
 

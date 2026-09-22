@@ -130,7 +130,7 @@ def _runner_result(candidates: tuple[RunnerCandidate, ...]) -> RunnerResult:
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
             backend="fake",
-            runner_protocol_version=1,
+            runner_protocol_version=2,
             engine_repository="https://example.invalid/fake",
             engine_revision="test-revision",
         ),
@@ -147,6 +147,7 @@ def _candidate(
 ) -> RunnerCandidate:
     return RunnerCandidate(
         candidate_id=candidate_id,
+        seed=7,
         coordinate_artifact=ArtifactReference(path, _digest(data)),
         generated_atoms=generated_atoms,
         generated_residues=tuple(ResidueIdentity("C", number) for number in GENERATED_NUMBERS),
@@ -167,12 +168,21 @@ def _workspace(tmp_path: Path) -> tuple[Path, DiffusionRequest, bytes, tuple[Ato
     return workspace, request, candidate_bytes, generated_atoms
 
 
-def _rewrite_coordinate(data: bytes, identity: AtomIdentity, *, dx: float) -> bytes:
+def _rewrite_coordinate(
+    data: bytes,
+    identity: AtomIdentity,
+    *,
+    dx: float = 0.0,
+    dy: float = 0.0,
+    dz: float = 0.0,
+) -> bytes:
     output: list[str] = []
     for line in data.decode().splitlines(keepends=True):
         if line.startswith(("ATOM  ", "HETATM")) and _atom_identity(line) == identity:
             x = float(line[30:38]) + dx
-            line = line[:30] + f"{x:8.3f}" + line[38:]
+            y = float(line[38:46]) + dy
+            z = float(line[46:54]) + dz
+            line = line[:30] + f"{x:8.3f}{y:8.3f}{z:8.3f}" + line[54:]
         output.append(line)
     return "".join(output).encode()
 
@@ -198,6 +208,96 @@ def _append_conect(data: bytes, atom1: AtomIdentity, atom2: AtomIdentity) -> byt
     insert_at = next((index for index, line in enumerate(lines) if line.startswith("END")), len(lines))
     lines.insert(insert_at, record)
     return "".join(lines).encode()
+
+
+def _rotate_lysine_chi12_to_zero(data: bytes, residue_number: str) -> bytes:
+    import math
+
+    import numpy as np
+
+    lines = data.decode().splitlines(keepends=True)
+    coordinates: dict[str, np.ndarray] = {}
+    for line in lines:
+        if (
+            line.startswith("ATOM  ")
+            and line[21] == "C"
+            and line[22:26].strip() == residue_number
+        ):
+            coordinates[line[12:16].strip()] = np.asarray(
+                (
+                    float(line[30:38]),
+                    float(line[38:46]),
+                    float(line[46:54]),
+                ),
+                dtype=float,
+            )
+
+    def dihedral(names: tuple[str, str, str, str]) -> float:
+        first, second, third, fourth = (coordinates[name] for name in names)
+        central = third - second
+        central /= np.linalg.norm(central)
+        left = first - second
+        right = fourth - third
+        left -= np.dot(left, central) * central
+        right -= np.dot(right, central) * central
+        return math.degrees(
+            math.atan2(
+                float(np.dot(np.cross(central, left), right)),
+                float(np.dot(left, right)),
+            )
+        )
+
+    def rotate(
+        origin_name: str,
+        axis_name: str,
+        rotated_names: tuple[str, ...],
+        angle_degrees: float,
+    ) -> None:
+        origin = coordinates[origin_name]
+        axis = coordinates[axis_name] - origin
+        axis /= np.linalg.norm(axis)
+        angle = math.radians(angle_degrees)
+        cosine = math.cos(angle)
+        sine = math.sin(angle)
+        for name in rotated_names:
+            vector = coordinates[name] - origin
+            coordinates[name] = origin + (
+                vector * cosine
+                + np.cross(axis, vector) * sine
+                + axis * np.dot(axis, vector) * (1.0 - cosine)
+            )
+
+    rotate(
+        "CA",
+        "CB",
+        ("CG", "CD", "CE", "NZ"),
+        -dihedral(("N", "CA", "CB", "CG")),
+    )
+    rotate(
+        "CB",
+        "CG",
+        ("CD", "CE", "NZ"),
+        -dihedral(("CA", "CB", "CG", "CD")),
+    )
+
+    output: list[str] = []
+    for line in lines:
+        if (
+            line.startswith("ATOM  ")
+            and line[21] == "C"
+            and line[22:26].strip() == residue_number
+            and line[12:16].strip() in coordinates
+        ):
+            atom_name = line[12:16].strip()
+            if atom_name in {"CG", "CD", "CE", "NZ"}:
+                point = coordinates[atom_name]
+                line = (
+                    line[:30]
+                    + f"{point[0]:8.3f}{point[1]:8.3f}{point[2]:8.3f}"
+                    + line[54:]
+                )
+        output.append(line)
+    return "".join(output).encode()
 
 
 def _mirror_cb(data: bytes, residue_number: str) -> bytes:
@@ -472,6 +572,62 @@ def test_validation_rejects_generated_backbone_angle_error(tmp_path: Path) -> No
     assert "generated-or-junction-bond-angle" in validation.hard_gate_failures
     metrics = {metric.name: metric.value for metric in validation.metrics}
     assert metrics["generated-or-junction-bond-angle-errors"] >= 1.0
+
+
+def test_validation_rejects_generated_ramachandran_outlier(tmp_path: Path) -> None:
+    workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
+    candidate_bytes = _rewrite_coordinate(
+        candidate_bytes,
+        AtomIdentity("C", "67", "", "N"),
+        dx=-1.75,
+    )
+    candidate_path = workspace / "candidates" / "rama-outlier.pdb"
+    candidate_path.write_bytes(candidate_bytes)
+    runner_result = _runner_result(
+        (
+            _candidate(
+                "rama-outlier",
+                "candidates/rama-outlier.pdb",
+                candidate_bytes,
+                generated_atoms,
+                score=1.0,
+            ),
+        )
+    )
+
+    validation = validate_runner_result(request, runner_result, workspace=workspace)[0].summary
+
+    assert validation.passed is False
+    assert "generated-or-junction-ramachandran" in validation.hard_gate_failures
+    metrics = {metric.name: metric.value for metric in validation.metrics}
+    assert metrics["generated-or-junction-ramachandran-outliers"] >= 1.0
+
+
+def test_validation_rejects_generated_sidechain_chi12_outlier(
+    tmp_path: Path,
+) -> None:
+    workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
+    candidate_bytes = _rotate_lysine_chi12_to_zero(candidate_bytes, "68")
+    candidate_path = workspace / "candidates" / "chi12-outlier.pdb"
+    candidate_path.write_bytes(candidate_bytes)
+    runner_result = _runner_result(
+        (
+            _candidate(
+                "chi12-outlier",
+                "candidates/chi12-outlier.pdb",
+                candidate_bytes,
+                generated_atoms,
+                score=1.0,
+            ),
+        )
+    )
+
+    validation = validate_runner_result(request, runner_result, workspace=workspace)[0].summary
+
+    assert validation.passed is False
+    assert "generated-or-junction-sidechain-chi12" in validation.hard_gate_failures
+    metrics = {metric.name: metric.value for metric in validation.metrics}
+    assert metrics["generated-or-junction-sidechain-chi12-outliers"] >= 1.0
 
 
 def test_validation_rejects_generated_amide_nonplanarity(tmp_path: Path) -> None:

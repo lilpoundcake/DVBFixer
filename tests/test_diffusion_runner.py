@@ -110,6 +110,7 @@ def _valid_runner(tmp_path: Path) -> Path:
             "status": "success",
             "candidates": [{{
                 "candidate_id": "candidate-0001",
+                "seed": request["seeds"][0],
                 "coordinate_artifact": {{
                     "path": str(candidate_path),
                     "sha256": digest,
@@ -298,6 +299,7 @@ def test_runner_rejects_digest_mismatch_and_candidate_symlink(tmp_path: Path) ->
             "status": "success",
             "candidates": [{{
                 "candidate_id": "candidate-0001",
+                "seed": request["seeds"][0],
                 "coordinate_artifact": {{
                     "path": str(candidate),
                     "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
@@ -390,6 +392,7 @@ def test_runner_rejects_oversized_manifest_artifact_and_hard_link(tmp_path: Path
             "status": "success",
             "candidates": [{{
                 "candidate_id": "candidate-0001",
+                "seed": request["seeds"][0],
                 "coordinate_artifact": {{
                     "path": str(candidate),
                     "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
@@ -454,6 +457,7 @@ def test_runner_environment_is_minimal_and_overrides_are_allowlisted(tmp_path: P
             "status": "success",
             "candidates": [{{
                 "candidate_id": "candidate-0001",
+                "seed": request["seeds"][0],
                 "coordinate_artifact": {{
                     "path": str(candidate),
                     "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
@@ -649,6 +653,90 @@ def test_runner_rejects_missing_executable_existing_workspace_and_credentials(
             source_root=source_root,
             workspace=tmp_path / "credential-workspace",
             environment={"MODEL_API_TOKEN": "do-not-forward"},
+        )
+
+
+def test_runner_rejects_unrequested_candidate_seed(tmp_path: Path) -> None:
+    input_bytes = b"END\n"
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    _write_input(source_root, input_bytes)
+    request = _request(input_bytes)
+
+    unrequested = _valid_runner(tmp_path)
+    script_text = unrequested.read_text(encoding="utf-8").replace(
+        '"seed": request["seeds"][0],',
+        '"seed": 999,',
+    )
+    unrequested.write_text(script_text, encoding="utf-8")
+    with pytest.raises(DiffusionRunnerError, match="unrequested candidate seed"):
+        run_diffusion_runner(
+            request,
+            _command(unrequested),
+            source_root=source_root,
+            workspace=tmp_path / "unrequested-seed-workspace",
+        )
+
+
+def test_runner_rejects_duplicate_candidate_seeds(tmp_path: Path) -> None:
+    input_bytes = b"END\n"
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    _write_input(source_root, input_bytes)
+    request = _request(input_bytes)
+    duplicate_seeds = _write_runner(
+        tmp_path,
+        f"""
+        import hashlib
+        import json
+        from pathlib import Path
+
+        request = json.loads(Path("request.json").read_text())
+        candidates = []
+        for index in range(2):
+            candidate = Path(f"candidate-{{index}}.pdb")
+            candidate.write_bytes(Path(request["normalized_pdb"]["path"]).read_bytes())
+            candidates.append({{
+                "candidate_id": f"candidate-{{index}}",
+                "seed": request["seeds"][0],
+                "coordinate_artifact": {{
+                    "path": str(candidate),
+                    "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                }},
+                "generated_atoms": request["generated_atoms"],
+                "generated_residues": request["gaps"][0]["generated_residues"],
+                "raw_backend_score": float(index),
+                "score_provenance": "fake",
+                "warnings": [],
+            }})
+        result = {{
+            "schema_version": {DIFFUSION_SCHEMA_VERSION},
+            "status": "success",
+            "candidates": candidates,
+            "runner_diagnostics": {{
+                "exit_code": 0,
+                "timed_out": False,
+                "stdout": "",
+                "stderr": "",
+            }},
+            "backend_provenance": {{
+                "backend": "fake",
+                "runner_protocol_version": {DIFFUSION_RUNNER_PROTOCOL_VERSION},
+                "engine_repository": "https://example.invalid/fake",
+                "engine_revision": "test-revision",
+            }},
+            "message": "",
+        }}
+        Path("result.json").write_text(json.dumps(result))
+        """,
+    )
+
+    with pytest.raises(DiffusionRunnerError, match="duplicate candidate seeds"):
+        run_diffusion_runner(
+            request,
+            _command(duplicate_seeds),
+            source_root=source_root,
+            workspace=tmp_path / "duplicate-seed-workspace",
         )
 
 

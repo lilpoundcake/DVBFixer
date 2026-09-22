@@ -23,6 +23,8 @@ from dvbfixer.diagnose.chemistry import (  # noqa: E402
     check_bond_lengths,
     check_ca_chirality,
     check_disulfides,
+    check_ramachandran,
+    check_sidechain_chi12,
     check_valences,
 )
 from dvbfixer.diagnose.report import Severity  # noqa: E402
@@ -232,6 +234,232 @@ def test_collapsed_backbone_angle_flagged_as_error() -> None:
         and finding.severity == Severity.ERROR
         for finding in findings
     )
+
+
+# ---------------------------------------------------------------------------
+# check_ramachandran
+# ---------------------------------------------------------------------------
+
+
+def _ramachandran_topology(
+    *,
+    middle_name: str = "SER",
+    following_name: str = "LYS",
+    middle_icode: str = "",
+    shift_middle_n_x_a: float = 0.0,
+    connect_previous: bool = True,
+) -> tuple[Topology, Quantity]:
+    top = Topology()
+    chain = top.addChain("D")
+    positions_a = [
+        (44.612, 70.159, -80.957),
+        (44.026, 68.817, -81.117),
+        (42.822, 68.850, -82.033),
+        (42.556 + shift_middle_n_x_a, 67.737, -82.713),
+        (41.362, 67.537, -83.569),
+        (40.799, 66.143, -83.299),
+        (39.584, 65.886, -83.779),
+        (38.867, 64.596, -83.627),
+        (38.049, 64.341, -84.895),
+    ]
+    residues = (
+        top.addResidue("GLY", chain, id="66"),
+        top.addResidue(middle_name, chain, id="67", insertionCode=middle_icode),
+        top.addResidue(following_name, chain, id="68"),
+    )
+    atoms: list[tuple[object, object, object]] = []
+    for residue in residues:
+        n = top.addAtom("N", Element.getBySymbol("N"), residue)
+        ca = top.addAtom("CA", Element.getBySymbol("C"), residue)
+        c = top.addAtom("C", Element.getBySymbol("C"), residue)
+        top.addBond(n, ca)
+        top.addBond(ca, c)
+        atoms.append((n, ca, c))
+    if connect_previous:
+        top.addBond(atoms[0][2], atoms[1][0])
+    top.addBond(atoms[1][2], atoms[2][0])
+    positions_nm = [tuple(value / 10.0 for value in point) for point in positions_a]
+    return top, Quantity(positions_nm, nanometer)
+
+
+def test_canonical_general_ramachandran_not_flagged() -> None:
+    top, positions = _ramachandran_topology()
+
+    assert check_ramachandran(top, positions) == []
+
+
+def test_gross_general_ramachandran_outlier_flagged_as_error() -> None:
+    top, positions = _ramachandran_topology(
+        middle_icode="A",
+        shift_middle_n_x_a=-1.75,
+    )
+
+    findings = check_ramachandran(top, positions)
+
+    assert len(findings) == 1
+    assert findings[0].severity is Severity.ERROR
+    assert findings[0].category == "ramachandran_outlier"
+    assert findings[0].chain == "D"
+    assert findings[0].resid == "67A"
+    assert findings[0].extra["residue_class"] == "general"
+
+
+@pytest.mark.parametrize(
+    ("middle_name", "following_name"),
+    (("GLY", "LYS"), ("PRO", "LYS"), ("SER", "PRO")),
+)
+def test_class_specific_ramachandran_residues_are_excluded(
+    middle_name: str,
+    following_name: str,
+) -> None:
+    top, positions = _ramachandran_topology(
+        middle_name=middle_name,
+        following_name=following_name,
+        shift_middle_n_x_a=-1.75,
+    )
+
+    assert check_ramachandran(top, positions) == []
+
+
+def test_ramachandran_requires_actual_peptide_bonds() -> None:
+    top, positions = _ramachandran_topology(
+        shift_middle_n_x_a=-1.75,
+        connect_previous=False,
+    )
+
+    assert check_ramachandran(top, positions) == []
+
+
+# ---------------------------------------------------------------------------
+# check_sidechain_chi12
+# ---------------------------------------------------------------------------
+
+
+def _sidechain_chi12_topology(
+    *,
+    residue_name: str = "LYS",
+    chain_id: str = "D",
+    residue_id: str = "67",
+    insertion_code: str = "",
+    connect_cd: bool = True,
+) -> tuple[Topology, Quantity]:
+    top = Topology()
+    chain = top.addChain(chain_id)
+    residue = top.addResidue(
+        residue_name,
+        chain,
+        id=residue_id,
+        insertionCode=insertion_code,
+    )
+    terminal_name = "CD1" if residue_name == "LEU" else "CD"
+    names = ("N", "CA", "CB", "CG", terminal_name)
+    atoms = [
+        top.addAtom(name, Element.getBySymbol("N" if name == "N" else "C"), residue)
+        for name in names
+    ]
+    for first, second in zip(atoms, atoms[1:]):
+        if not connect_cd and second.name == "CD":
+            continue
+        top.addBond(first, second)
+    positions_a = [
+        (39.584, 65.886, -83.779),
+        (38.867, 64.596, -83.627),
+        (37.974, 64.622, -82.385),
+        (37.582, 63.259, -81.835),
+        (36.439, 63.326, -80.851),
+    ]
+    positions_nm = [tuple(value / 10.0 for value in point) for point in positions_a]
+    return top, Quantity(positions_nm, nanometer)
+
+
+def _rotate_sidechain_to_zero_chi12(positions: Quantity) -> Quantity:
+    import math
+
+    import numpy as np
+
+    coordinates = np.asarray(positions.value_in_unit(nanometer), dtype=float).copy()
+
+    def dihedral(indices: tuple[int, int, int, int]) -> float:
+        return _dihedral_deg(*(tuple(coordinates[index]) for index in indices)) or 0.0
+
+    def rotate(
+        origin_index: int,
+        axis_index: int,
+        rotated_indices: tuple[int, ...],
+        angle_degrees: float,
+    ) -> None:
+        origin = coordinates[origin_index]
+        axis = coordinates[axis_index] - origin
+        axis /= np.linalg.norm(axis)
+        angle = math.radians(angle_degrees)
+        cosine = math.cos(angle)
+        sine = math.sin(angle)
+        for index in rotated_indices:
+            vector = coordinates[index] - origin
+            coordinates[index] = origin + (
+                vector * cosine
+                + np.cross(axis, vector) * sine
+                + axis * np.dot(axis, vector) * (1.0 - cosine)
+            )
+
+    rotate(1, 2, (3, 4), -dihedral((0, 1, 2, 3)))
+    rotate(2, 3, (4,), -dihedral((1, 2, 3, 4)))
+    return Quantity(coordinates, nanometer)
+
+
+def test_canonical_sidechain_chi12_not_flagged() -> None:
+    top, positions = _sidechain_chi12_topology()
+
+    assert check_sidechain_chi12(top, positions) == []
+
+
+def test_gross_sidechain_chi12_outlier_preserves_identity() -> None:
+    top, positions = _sidechain_chi12_topology(insertion_code="A")
+    positions = _rotate_sidechain_to_zero_chi12(positions)
+
+    findings = check_sidechain_chi12(top, positions)
+
+    assert len(findings) == 1
+    assert findings[0].severity is Severity.ERROR
+    assert findings[0].category == "sidechain_chi12_outlier"
+    assert findings[0].chain == "D"
+    assert findings[0].resid == "67A"
+    assert abs(findings[0].extra["chi1_degrees"]) < 1e-6
+    assert abs(findings[0].extra["chi2_degrees"]) < 1e-6
+
+
+@pytest.mark.parametrize("residue_name", ("ALA", "CYS", "GLY", "PRO", "SER", "THR", "VAL"))
+def test_chi1_only_or_absent_residues_are_excluded(residue_name: str) -> None:
+    top, positions = _sidechain_chi12_topology(residue_name=residue_name)
+    positions = _rotate_sidechain_to_zero_chi12(positions)
+
+    assert check_sidechain_chi12(top, positions) == []
+
+
+def test_sidechain_chi12_requires_actual_bonds() -> None:
+    top, positions = _sidechain_chi12_topology(connect_cd=False)
+    positions = _rotate_sidechain_to_zero_chi12(positions)
+
+    assert check_sidechain_chi12(top, positions) == []
+
+
+def test_symmetric_chi2_equivalent_is_accepted(monkeypatch: pytest.MonkeyPatch) -> None:
+    top, positions = _sidechain_chi12_topology(residue_name="LEU")
+    positions = _rotate_sidechain_to_zero_chi12(positions)
+    seen: list[tuple[float, float]] = []
+
+    def populated(chi1: float, chi2: float) -> bool:
+        seen.append((chi1, chi2))
+        return len(seen) == 2
+
+    monkeypatch.setattr(
+        "dvbfixer.diagnose.chemistry._sidechain_chi12_reference_populated",
+        populated,
+    )
+
+    assert check_sidechain_chi12(top, positions) == []
+    assert len(seen) == 2
+    assert seen[1][1] == pytest.approx(seen[0][1] + 180.0)
 
 
 # ---------------------------------------------------------------------------

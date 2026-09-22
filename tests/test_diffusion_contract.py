@@ -77,6 +77,7 @@ def _request() -> DiffusionRequest:
 def _success_result() -> DiffusionResult:
     candidate = DiffusionCandidate(
         candidate_id="candidate-0001",
+        seed=7,
         coordinate_artifact=ArtifactReference("candidates/candidate-0001.pdb", DIGEST),
         generated_atoms=(AtomIdentity("D", "11", "", "CA"),),
         generated_residues=(ResidueIdentity("D", "11"),),
@@ -96,7 +97,7 @@ def _success_result() -> DiffusionResult:
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
             backend="fake",
-            runner_protocol_version=1,
+            runner_protocol_version=2,
             engine_repository="https://example.invalid/fake",
             engine_revision="test-revision",
         ),
@@ -119,6 +120,7 @@ def test_runner_result_round_trip_has_no_external_validation_claims() -> None:
     request = _request()
     candidate = RunnerCandidate(
         candidate_id="candidate-0001",
+        seed=7,
         coordinate_artifact=ArtifactReference("candidates/candidate-0001.pdb", DIGEST),
         generated_atoms=request.generated_atoms,
         generated_residues=request.gaps[0].generated_residues,
@@ -132,7 +134,7 @@ def test_runner_result_round_trip_has_no_external_validation_claims() -> None:
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
             backend="fake",
-            runner_protocol_version=1,
+            runner_protocol_version=2,
             engine_repository="https://example.invalid/fake",
             engine_revision="test-revision",
         ),
@@ -151,8 +153,68 @@ def test_result_round_trip_preserves_status_and_nested_types() -> None:
 
     assert decoded == result
     assert decoded.status is DiffusionStatus.SUCCESS
+    assert decoded.candidates[0].seed == 7
     assert isinstance(decoded.candidates[0].generated_atoms[0], AtomIdentity)
     assert isinstance(decoded.validation_summaries[0].metrics[0], Metric)
+
+
+def test_backend_provenance_round_trip_preserves_optional_runtime_evidence() -> None:
+    provenance = BackendProvenance(
+        backend="test-engine",
+        runner_protocol_version=2,
+        engine_repository="https://example.invalid/engine",
+        engine_revision="pinned-revision",
+        source_license="BSD-3-Clause",
+        checkpoint_sha256="b" * 64,
+        checkpoint_license="upstream-review-required",
+        container_digest="sha256:" + "c" * 64,
+        environment_hash="d" * 64,
+        environment_identity="lockfile:environment.lock",
+        device="cuda:0",
+        precision="float32",
+        framework="torch",
+        framework_version="2.5.1",
+        cuda_version="12.4",
+        driver_version="550.54",
+        deterministic_algorithms=False,
+        deterministic_flags=("CUBLAS_WORKSPACE_CONFIG=:4096:8",),
+        known_nondeterministic_operations=("scatter_add",),
+    )
+
+    result = RunnerResult(
+        schema_version=DIFFUSION_SCHEMA_VERSION,
+        status=DiffusionStatus.FAILED,
+        candidates=(),
+        runner_diagnostics=RunnerDiagnostics(exit_code=1, timed_out=False),
+        backend_provenance=provenance,
+        message="failed",
+    )
+    round_trip = RunnerResult.from_json(result.to_json())
+
+    assert round_trip.backend_provenance == provenance
+    assert round_trip.backend_provenance.deterministic_algorithms is False
+
+
+def test_backend_provenance_and_candidates_reject_invalid_seed_metadata() -> None:
+    with pytest.raises(DiffusionContractError, match="candidate seed"):
+        RunnerCandidate(
+            candidate_id="candidate",
+            seed=-1,
+            coordinate_artifact=ArtifactReference("candidate.pdb", DIGEST),
+            generated_atoms=(),
+            generated_residues=(),
+            raw_backend_score=None,
+            score_provenance="test",
+        )
+
+    with pytest.raises(DiffusionContractError, match="deterministic_flags"):
+        BackendProvenance(
+            backend="fake",
+            runner_protocol_version=2,
+            engine_repository="builtin://fake",
+            engine_revision="test",
+            deterministic_flags=("flag", "flag"),
+        )
 
 
 def test_case_distinct_chains_and_insertion_codes_remain_distinct() -> None:
@@ -241,7 +303,7 @@ def test_artifact_paths_must_be_relative_and_contained() -> None:
 def test_result_status_controls_candidate_publication() -> None:
     provenance = BackendProvenance(
         backend="fake",
-        runner_protocol_version=1,
+        runner_protocol_version=2,
         engine_repository="https://example.invalid/fake",
         engine_revision="test-revision",
     )

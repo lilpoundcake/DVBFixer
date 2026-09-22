@@ -9,7 +9,7 @@ from pathlib import Path
 from types import UnionType
 from typing import Any, ClassVar, TypeVar, Union, get_args, get_origin, get_type_hints
 
-DIFFUSION_SCHEMA_VERSION = 1
+DIFFUSION_SCHEMA_VERSION = 2
 
 
 class DiffusionContractError(ValueError):
@@ -240,8 +240,21 @@ class BackendProvenance:
     runner_protocol_version: int
     engine_repository: str
     engine_revision: str
+    source_license: str = ""
     checkpoint_sha256: str = ""
+    checkpoint_license: str = ""
+    container_digest: str = ""
     environment_hash: str = ""
+    environment_identity: str = ""
+    device: str = ""
+    precision: str = ""
+    framework: str = ""
+    framework_version: str = ""
+    cuda_version: str = ""
+    driver_version: str = ""
+    deterministic_algorithms: bool | None = None
+    deterministic_flags: tuple[str, ...] = ()
+    known_nondeterministic_operations: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         _required_text(self.backend, "backend")
@@ -251,11 +264,20 @@ class BackendProvenance:
         _required_text(self.engine_revision, "engine_revision")
         if self.checkpoint_sha256:
             ArtifactReference("checkpoint", self.checkpoint_sha256)
+        if len(set(self.deterministic_flags)) != len(self.deterministic_flags):
+            raise DiffusionContractError("deterministic_flags must not contain duplicates")
+        if len(set(self.known_nondeterministic_operations)) != len(
+            self.known_nondeterministic_operations
+        ):
+            raise DiffusionContractError(
+                "known_nondeterministic_operations must not contain duplicates"
+            )
 
 
 @dataclass(frozen=True, slots=True)
 class DiffusionCandidate:
     candidate_id: str
+    seed: int
     coordinate_artifact: ArtifactReference
     generated_atoms: tuple[AtomIdentity, ...]
     generated_residues: tuple[ResidueIdentity, ...]
@@ -265,6 +287,8 @@ class DiffusionCandidate:
 
     def __post_init__(self) -> None:
         _required_text(self.candidate_id, "candidate_id")
+        if self.seed < 0:
+            raise DiffusionContractError("candidate seed must be non-negative")
         _required_text(self.score_provenance, "score_provenance")
         if len(set(self.generated_atoms)) != len(self.generated_atoms):
             raise DiffusionContractError("generated_atoms must not contain duplicates")
@@ -275,6 +299,7 @@ class DiffusionCandidate:
 @dataclass(frozen=True, slots=True)
 class RunnerCandidate:
     candidate_id: str
+    seed: int
     coordinate_artifact: ArtifactReference
     generated_atoms: tuple[AtomIdentity, ...]
     generated_residues: tuple[ResidueIdentity, ...]
@@ -284,6 +309,8 @@ class RunnerCandidate:
 
     def __post_init__(self) -> None:
         _required_text(self.candidate_id, "candidate_id")
+        if self.seed < 0:
+            raise DiffusionContractError("candidate seed must be non-negative")
         _required_text(self.score_provenance, "score_provenance")
         if len(set(self.generated_atoms)) != len(self.generated_atoms):
             raise DiffusionContractError("generated_atoms must not contain duplicates")
