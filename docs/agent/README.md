@@ -39,8 +39,9 @@ A roadmap is never evidence that a capability has shipped.
   Structure Preparation, Force-field Naming, Parameterization, Topology
   Generation, Diagnostics, and Workflow Execution. Start with the page named by
   the task record rather than reading every context.
-- `docs/decisions/`, when introduced, contains accepted ADRs only. Unaccepted
-  alternatives stay in `docs/plans/`.
+- [`docs/adr/`](../adr/) contains accepted architecture decisions. Unaccepted
+  alternatives stay in [`docs/plans/`](../plans/) or
+  [`docs/research/`](../research/).
 
 The maps use TOML rather than YAML so validation works with Python 3.11's
 standard `tomllib` and adds no dependency to the lightweight CI lane.

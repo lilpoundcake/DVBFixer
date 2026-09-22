@@ -48,7 +48,8 @@ src/dvbfixer/
 │                                     (package: cli.py 125, __init__.py 60, pipeline.py 1545,
 │                                     refine.py 867)
 ├── prep_backend.py    1017 lines   — tleap+reduce deterministic prep backend (`--backend
-│                                     tleap-reduce`, opt-in on `prepare`/`zbs`; see CLAUDE.md)
+│                                     tleap-reduce`, opt-in on `prepare`/`zbs`; see the
+│                                     Structure Preparation agent context)
 ├── protonate.py       1333 lines   — PROPKA3 pKa-based protonation
 ├── pull.py             658 lines   — bond pulling via OpenMM mass=0 partial min
 ├── rename.py           105 lines   — text-based variant → canonical name
@@ -62,7 +63,7 @@ src/dvbfixer/
 │                                     292 — glycan/glycolipid link detection, topology_builder.py
 │                                     1358 — TopologyBuilder, pipeline.py 1297 — CLI orchestration
 │                                     + PDB I/O only; split from a single ~2900-line pipeline.py
-│                                     in 0.7.15, see CLAUDE.md)
+│                                     in 0.7.15; see `top/__init__.py`)
 ├── rtp_parser.py       261 lines   — parses GROMACS RTP/ARN/R2B/TDB/ATP files
 ├── acpype_export.py   1010 lines   — ACPYPE-based GMX topology (OpenMM→ParmEd→ACPYPE)
 ├── ffutils/           3324 lines   — shared FF selection (package: __init__.py 737 —
@@ -1234,9 +1235,11 @@ called out in each `__init__.py`.
    lives in `top/glycan.py`. See `top/__init__.py` for the current
    module map.
 
-4. **Docs migration** — the per-subcommand "algorithm" prose currently
-   in `docs/DESIGN_NOTES.md` (was `CLAUDE.md` before Phase 4b) should
-   migrate into a "How it works" section in each `docs/commands/*.md`.
+4. ~~**Docs migration**~~ — done. Per-command behavior now lives under
+   `docs/commands/`, current architecture lives here and in `docs/domain-model.md`,
+   and `docs/DESIGN_NOTES.md` remains only as a historical migration stub.
+   `AGENTS.md` is the canonical coding-agent instruction source; `CLAUDE.md` is a
+   compact harness compatibility entry point.
 
 ## GUI workspace boundary
 

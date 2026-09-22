@@ -1,6 +1,6 @@
 schema_version = 1
-verified_on = "2026-09-18"
-verified_at_commit = "5478403ee139cb8e4245e84eef1ed3927417e863"
+verified_on = "2026-09-22"
+verified_at_commit = "7671952f89ea7b635b80e4d633f37e45f41825d4"
 
 [change_groups.protein-variant-identity]
 parallel_policy = "exclusive-owner"
@@ -201,6 +201,83 @@ test_files = [
 ]
 verification = [
   "pytest -q tests/test_ffutils_chirality.py tests/test_seeded_atom_rebuild.py",
+]
+
+[tasks.research-atom-reconstruction-backends]
+status = "research"
+context = "docs/agent/contexts/structure-preparation.md"
+start = [
+  "docs/research/reconstruction-and-modeling-backends.md",
+  "src/dvbfixer/ffutils/geometry.py::rebuild_missing_atoms_with_retry",
+  "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
+  "src/dvbfixer/prep_backend.py::run_prep",
+]
+callers = []
+contracts = ["dat-record-lifecycle", "pdb-connectivity"]
+invariants = [
+  "INV-REBUILD-SEEDED-RETRY",
+  "INV-PREP-MISSING-ATOM-ORDER",
+  "INV-CHIRALITY-ZERO-D",
+  "INV-IDENTITY-ICODE",
+]
+change_group = "missing-atom-rebuild-chirality"
+test_files = [
+  "tests/test_seeded_atom_rebuild.py",
+  "tests/test_ffutils_chirality.py",
+  "tests/test_prepare_smiles.py",
+]
+verification = [
+  "pytest -q tests/test_ffutils_chirality.py tests/test_seeded_atom_rebuild.py tests/test_prepare_smiles.py",
+]
+
+[tasks.research-loop-modeling-backends]
+status = "research"
+context = "docs/agent/contexts/structure-preparation.md"
+start = [
+  "docs/research/reconstruction-and-modeling-backends.md",
+  "src/dvbfixer/model/pipeline.py::main",
+  "src/dvbfixer/model/modeller_run.py::run_modeller",
+]
+callers = ["src/dvbfixer/zbs.py::_run_pipeline"]
+contracts = ["dat-record-lifecycle", "pdb-connectivity"]
+invariants = [
+  "INV-CHIRALITY-ZERO-D",
+  "INV-IDENTITY-ICODE",
+  "INV-CONECT-CHEMICAL-FILTER",
+]
+change_group = "missing-atom-rebuild-chirality"
+test_files = [
+  "tests/test_model_renumber.py",
+  "tests/test_model_fasta_case.py",
+  "tests/test_model_strip_heterogens.py",
+]
+verification = [
+  "pytest -q tests/test_model_renumber.py tests/test_model_fasta_case.py tests/test_model_strip_heterogens.py",
+]
+
+[tasks.research-homology-modeling-backends]
+status = "research"
+context = "docs/agent/contexts/structure-preparation.md"
+start = [
+  "docs/research/reconstruction-and-modeling-backends.md",
+  "src/dvbfixer/homology.py::run_homology_modeller",
+  "src/dvbfixer/homology_plan.py",
+]
+callers = ["src/dvbfixer/homology.py::main"]
+contracts = [
+  "dat-record-lifecycle",
+  "pdb-connectivity",
+  "homology-template-plan-mosaic",
+]
+invariants = ["INV-CHIRALITY-ZERO-D", "INV-IDENTITY-ICODE"]
+change_group = "missing-atom-rebuild-chirality"
+test_files = [
+  "tests/test_homology.py",
+  "tests/test_homology_fasta.py",
+  "tests/test_homology_plan.py",
+]
+verification = [
+  "pytest -q tests/test_homology.py tests/test_homology_fasta.py tests/test_homology_plan.py",
 ]
 
 [tasks.change-conect-inference]
@@ -441,14 +518,19 @@ files = [
 
 [change_groups.missing-atom-rebuild-chirality]
 parallel_policy = "exclusive-owner"
-reason = "All rebuild callers and chirality safety nets must preserve deterministic L-only output."
+reason = "All rebuild, modeling, identity-restoration, and chirality safety paths must remain synchronized."
 files = [
   "src/dvbfixer/ffutils/geometry.py",
   "src/dvbfixer/model/pipeline.py",
+  "src/dvbfixer/model/modeller_run.py",
   "src/dvbfixer/prepare/pipeline.py",
+  "src/dvbfixer/prep_backend.py",
   "src/dvbfixer/minimize/pipeline.py",
   "src/dvbfixer/protonate.py",
   "src/dvbfixer/top/pipeline.py",
+  "src/dvbfixer/homology.py",
+  "src/dvbfixer/homology_plan.py",
+  "docs/research/reconstruction-and-modeling-backends.md",
 ]
 
 [change_groups.conect-inference]

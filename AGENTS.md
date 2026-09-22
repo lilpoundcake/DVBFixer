@@ -38,11 +38,13 @@ non-canonical residues.
 | Module map, data flow, `.dat` schema | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | End-to-end recipes | [`docs/pipelines.md`](docs/pipelines.md), [`BEST_PRACTICES.md`](BEST_PRACTICES.md) |
 | Known issues + active workarounds | [`docs/known-issues.md`](docs/known-issues.md) |
-| Historical design notes, gotchas | [`docs/DESIGN_NOTES.md`](docs/DESIGN_NOTES.md) |
+| Accepted architecture decisions | [`docs/adr/`](docs/adr/) |
+| Historical documentation migration stub | [`docs/DESIGN_NOTES.md`](docs/DESIGN_NOTES.md) |
 | Installation + Modeller license | [`docs/installation.md`](docs/installation.md) |
 | Implemented domain policies | [`docs/domain-model.md`](docs/domain-model.md) |
 | Agent task/contract/invariant map | [`docs/agent/README.md`](docs/agent/README.md) |
 | Relaxation research and proposed benchmarks | [`docs/research/whole-complex-relaxation.md`](docs/research/whole-complex-relaxation.md) |
+| Reconstruction/modeling backend research | [`docs/research/reconstruction-and-modeling-backends.md`](docs/research/reconstruction-and-modeling-backends.md) |
 | Force-field selection matrix | [`docs/force-fields.md`](docs/force-fields.md) |
 | Tracked structural test inputs, provenance, and checksums | [`tests/fixtures/README.md`](tests/fixtures/README.md) |
 
