@@ -72,6 +72,20 @@ _CANONICAL_BOND_NM: dict[tuple[str, str], float] = {
 _BOND_LEN_WARN_FRAC = 0.20   # WARNING
 _BOND_LEN_ERROR_FRAC = 0.50  # ERROR
 
+# Heavy-atom backbone angles for canonical proteins. These broad ranges
+# deliberately detect broken geometry rather than replacing force-field or
+# MolProbity-quality residue-specific restraints. Values are in degrees.
+_BACKBONE_ANGLE_RANGES: dict[tuple[str, str, str], tuple[float, float]] = {
+    ("N", "CA", "C"): (95.0, 125.0),
+    ("CA", "C", "O"): (105.0, 135.0),
+}
+_PEPTIDE_ANGLE_RANGES: dict[tuple[str, str, str], tuple[float, float]] = {
+    ("CA", "C", "+N"): (100.0, 135.0),
+    ("O", "C", "+N"): (105.0, 140.0),
+    ("C", "+N", "+CA"): (105.0, 140.0),
+}
+_ANGLE_ERROR_MARGIN_DEG = 15.0
+
 
 def _resid_str(res_id: str, icode: str = "") -> str:
     icode = (icode or "").strip()
@@ -112,6 +126,29 @@ def _dist(positions: Any, a: Any, b: Any) -> float:
     ax, ay, az = _pos(positions, a)
     bx, by, bz = _pos(positions, b)
     return math.sqrt((ax - bx) ** 2 + (ay - by) ** 2 + (az - bz) ** 2)
+
+
+def _angle_deg(positions: Any, a: Any, vertex: Any, c: Any) -> float | None:
+    ax, ay, az = _pos(positions, a)
+    bx, by, bz = _pos(positions, vertex)
+    cx, cy, cz = _pos(positions, c)
+    first = (ax - bx, ay - by, az - bz)
+    second = (cx - bx, cy - by, cz - bz)
+    first_norm = math.sqrt(sum(component * component for component in first))
+    second_norm = math.sqrt(sum(component * component for component in second))
+    if first_norm < 1e-9 or second_norm < 1e-9:
+        return None
+    cosine = sum(left * right for left, right in zip(first, second)) / (
+        first_norm * second_norm
+    )
+    return math.degrees(math.acos(max(-1.0, min(1.0, cosine))))
+
+
+def _bonded_atom_pairs(topology: Any) -> set[tuple[int, int]]:
+    return {
+        tuple(sorted((atom1.index, atom2.index)))
+        for atom1, atom2 in topology.bonds()
+    }
 
 
 def check_valences(topology: Any) -> list[Finding]:
@@ -232,6 +269,116 @@ def _find_atom(res: Any, name: str) -> Any | None:
         if a.name == name:
             return a
     return None
+
+
+def _angle_finding(
+    positions: Any,
+    atoms: tuple[Any, Any, Any],
+    expected: tuple[float, float],
+    *,
+    chain: str,
+    resid: str,
+    resname: str,
+    atom_label: str,
+) -> Finding | None:
+    angle = _angle_deg(positions, *atoms)
+    if angle is None:
+        return None
+    minimum, maximum = expected
+    if minimum <= angle <= maximum:
+        return None
+    error = angle < minimum - _ANGLE_ERROR_MARGIN_DEG or angle > maximum + _ANGLE_ERROR_MARGIN_DEG
+    return Finding(
+        severity=Severity.ERROR if error else Severity.WARNING,
+        category="bond_angle",
+        chain=chain,
+        resid=resid,
+        resname=resname,
+        atom=atom_label,
+        message=(
+            f"bond angle {atom_label}: {angle:.1f}° "
+            f"(expected {minimum:.1f}–{maximum:.1f}°)"
+        ),
+        fix_hint="dvbfixer minimize (energy minimisation relaxes bond angles)",
+        extra={"angle_degrees": angle, "expected_min": minimum, "expected_max": maximum},
+    )
+
+
+def check_backbone_bond_angles(topology: Any, positions: Any) -> list[Finding]:
+    """Report broad canonical-protein backbone and peptide-angle outliers.
+
+    The check is intentionally fail-conservative: it only inspects complete
+    heavy-atom backbone triplets connected by topology bonds. Its broad ranges
+    identify broken coordinates without claiming residue-specific Engh-Huber
+    or force-field validation.
+    """
+    findings: list[Finding] = []
+    bonds = _bonded_atom_pairs(topology)
+    for chain in topology.chains():
+        residues = list(chain.residues())
+        for residue in residues:
+            atoms = {atom.name: atom for atom in residue.atoms()}
+            chain_id, resid = _res_loc(residue)
+            for names, expected in _BACKBONE_ANGLE_RANGES.items():
+                if not all(name in atoms for name in names):
+                    continue
+                first, vertex, third = (atoms[name] for name in names)
+                if (
+                    tuple(sorted((first.index, vertex.index))) not in bonds
+                    or tuple(sorted((vertex.index, third.index))) not in bonds
+                ):
+                    continue
+                finding = _angle_finding(
+                    positions,
+                    (first, vertex, third),
+                    expected,
+                    chain=chain_id,
+                    resid=resid,
+                    resname=residue.name,
+                    atom_label="-".join(names),
+                )
+                if finding is not None:
+                    findings.append(finding)
+
+        for left, right in zip(residues, residues[1:]):
+            left_atoms = {atom.name: atom for atom in left.atoms()}
+            right_atoms = {atom.name: atom for atom in right.atoms()}
+            peptide = (left_atoms.get("C"), right_atoms.get("N"))
+            if None in peptide or tuple(sorted((peptide[0].index, peptide[1].index))) not in bonds:
+                continue
+            chain_id, resid = _res_loc(right)
+            atom_sets = {
+                ("CA", "C", "+N"): (
+                    left_atoms.get("CA"), left_atoms.get("C"), right_atoms.get("N")
+                ),
+                ("O", "C", "+N"): (
+                    left_atoms.get("O"), left_atoms.get("C"), right_atoms.get("N")
+                ),
+                ("C", "+N", "+CA"): (
+                    left_atoms.get("C"), right_atoms.get("N"), right_atoms.get("CA")
+                ),
+            }
+            for names, atoms in atom_sets.items():
+                if any(atom is None for atom in atoms):
+                    continue
+                first, vertex, third = atoms
+                if (
+                    tuple(sorted((first.index, vertex.index))) not in bonds
+                    or tuple(sorted((vertex.index, third.index))) not in bonds
+                ):
+                    continue
+                finding = _angle_finding(
+                    positions,
+                    (first, vertex, third),
+                    _PEPTIDE_ANGLE_RANGES[names],
+                    chain=chain_id,
+                    resid=resid,
+                    resname=right.name,
+                    atom_label="-".join(names),
+                )
+                if finding is not None:
+                    findings.append(finding)
+    return findings
 
 
 def check_peptide_omegas(topology: Any, positions: Any) -> list[Finding]:
@@ -462,6 +609,7 @@ def run_all(topology: Any, positions: Any) -> list[Finding]:
     findings: list[Finding] = []
     findings.extend(check_valences(topology))
     findings.extend(check_bond_lengths(topology, positions))
+    findings.extend(check_backbone_bond_angles(topology, positions))
     findings.extend(check_peptide_omegas(topology, positions))
     findings.extend(check_ca_chirality(topology, positions))
     findings.extend(check_disulfides(topology, positions))

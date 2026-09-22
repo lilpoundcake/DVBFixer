@@ -199,7 +199,7 @@
 - [x] Compare explicit links outside and across the generated region.
 - [x] Measure fixed-heavy-atom RMSD and maximum displacement.
 - [x] Validate peptide connectivity at both junctions.
-- [ ] Validate generated bond lengths, angles, planarity, and atom completeness. Canonical heavy-atom completeness, generated C-N break gates, severe local bond-length outliers through the shared diagnose policy, and peptide-amide planarity are implemented; bond-angle and finer residue-specific bond/planarity validation remain pending.
+- [ ] Validate generated bond lengths, angles, planarity, and atom completeness. Canonical heavy-atom completeness, generated C-N break gates, severe local bond-length outliers, broad canonical backbone/peptide-angle gates, and peptide-amide planarity are implemented through shared diagnose policies; finer residue-specific side-chain geometry remains pending.
 - [x] Validate severe intra-region and region-context clashes.
 - [ ] Validate Ramachandran and rotamer quality.
 - [ ] Run `fix_ca_chirality` only as an explicitly recorded repair step. Validation currently rejects D geometry and performs no silent repair.
@@ -262,7 +262,7 @@
 - [x] Implement weighted Kabsch and coordinate-reinjection primitives.
 - [x] Implement the isolated runner protocol.
 - [x] Implement the deterministic fake runner.
-- [ ] Implement independent validation and ranking. Identity, drift, completeness, connectivity, severe local bond-length, peptide-planarity, clash, chirality, and passing-candidate ranking gates are implemented; bond-angle, finer residue-specific geometry, Ramachandran, and rotamer validation remain pending.
+- [ ] Implement independent validation and ranking. Identity, drift, completeness, connectivity, severe local bond-length, broad canonical backbone/peptide-angle, peptide-planarity, clash, chirality, and passing-candidate ranking gates are implemented; finer residue-specific geometry, Ramachandran, and rotamer validation remain pending.
 - [ ] Implement atomic publication.
 - [ ] Implement separate provenance manifests.
 - [x] Keep public CLI behavior unchanged through the runner slice.

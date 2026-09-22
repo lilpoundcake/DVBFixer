@@ -19,6 +19,7 @@ from openmm.unit import Quantity, nanometer  # noqa: E402
 
 from dvbfixer.diagnose.chemistry import (  # noqa: E402
     _dihedral_deg,
+    check_backbone_bond_angles,
     check_bond_lengths,
     check_ca_chirality,
     check_disulfides,
@@ -184,6 +185,53 @@ def test_broken_cc_bond_over_50pct_flagged_as_error() -> None:
     findings = check_bond_lengths(top, pos)
     assert len(findings) == 1
     assert findings[0].severity == Severity.ERROR
+
+
+# ---------------------------------------------------------------------------
+# check_backbone_bond_angles
+# ---------------------------------------------------------------------------
+
+
+def _backbone_topology(ca_y_a: float) -> tuple[Topology, Quantity]:
+    top = Topology()
+    chain = top.addChain("A")
+    residue = top.addResidue("ALA", chain, id="1")
+    n = top.addAtom("N", Element.getBySymbol("N"), residue)
+    ca = top.addAtom("CA", Element.getBySymbol("C"), residue)
+    c = top.addAtom("C", Element.getBySymbol("C"), residue)
+    o = top.addAtom("O", Element.getBySymbol("O"), residue)
+    top.addBond(n, ca)
+    top.addBond(ca, c)
+    top.addBond(c, o)
+    positions_a = [
+        (-1.2, 0.0, 0.0),
+        (0.0, ca_y_a, 0.0),
+        (0.5, 1.4, 0.0),
+        (1.7, 1.4, 0.0),
+    ]
+    positions_nm = [tuple(value / 10.0 for value in point) for point in positions_a]
+    return top, Quantity(positions_nm, nanometer)
+
+
+def test_canonical_backbone_angles_not_flagged() -> None:
+    top, positions = _backbone_topology(0.0)
+
+    findings = check_backbone_bond_angles(top, positions)
+
+    assert findings == []
+
+
+def test_collapsed_backbone_angle_flagged_as_error() -> None:
+    top, positions = _backbone_topology(2.0)
+
+    findings = check_backbone_bond_angles(top, positions)
+
+    assert any(
+        finding.category == "bond_angle"
+        and finding.atom == "N-CA-C"
+        and finding.severity == Severity.ERROR
+        for finding in findings
+    )
 
 
 # ---------------------------------------------------------------------------

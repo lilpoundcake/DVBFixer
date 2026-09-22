@@ -31,7 +31,7 @@ Direct calls to `dvbfixer.diagnose.main` receive the PDB-oriented implementation
 | Capability | Status | Owner | Evidence |
 |---|---|---|---|
 | Missing pieces, atom placement, chain breaks, duplicate frames | implemented | `diagnose/structural.py::run_all` | `tests/test_diagnose_pipeline.py`, `tests/test_duplicate_chain_coordinates.py` |
-| Valence, bond geometry, peptide geometry, chirality, disulfides | implemented | `diagnose/chemistry.py::run_all` | `tests/test_diagnose_chemistry.py` |
+| Valence, bond lengths, broad canonical backbone/peptide angles, peptide geometry, chirality, disulfides | implemented | `diagnose/chemistry.py::run_all` | `tests/test_diagnose_chemistry.py` |
 | Probe-first clash checks with pure-Python fallback | implemented | `diagnose/steric.py::run_all` | `tests/test_diagnose_steric.py` |
 | Deterministic text and machine-readable JSON reports | implemented | `diagnose/report.py`, `diagnose/pipeline.py` | `tests/test_diagnose_report.py`, `tests/test_diagnose_pipeline.py` |
 | Repair or mutation of the diagnosed structure | missing by design | none | report-only CLI contract |

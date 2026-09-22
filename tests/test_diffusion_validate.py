@@ -445,6 +445,35 @@ def test_validation_rejects_generated_bond_length_error(tmp_path: Path) -> None:
     assert metrics["generated-or-junction-bond-length-errors"] >= 1.0
 
 
+def test_validation_rejects_generated_backbone_angle_error(tmp_path: Path) -> None:
+    workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
+    candidate_bytes = _rewrite_coordinate(
+        candidate_bytes,
+        AtomIdentity("C", "66", "", "CA"),
+        dx=1.0,
+    )
+    candidate_path = workspace / "candidates" / "bad-angle.pdb"
+    candidate_path.write_bytes(candidate_bytes)
+    runner_result = _runner_result(
+        (
+            _candidate(
+                "bad-angle",
+                "candidates/bad-angle.pdb",
+                candidate_bytes,
+                generated_atoms,
+                score=1.0,
+            ),
+        )
+    )
+
+    validation = validate_runner_result(request, runner_result, workspace=workspace)[0].summary
+
+    assert validation.passed is False
+    assert "generated-or-junction-bond-angle" in validation.hard_gate_failures
+    metrics = {metric.name: metric.value for metric in validation.metrics}
+    assert metrics["generated-or-junction-bond-angle-errors"] >= 1.0
+
+
 def test_validation_rejects_generated_amide_nonplanarity(tmp_path: Path) -> None:
     workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
     candidate_bytes = _rewrite_coordinate(

@@ -14,7 +14,11 @@ from typing import Any
 import numpy as np
 from openmm.app import PDBFile
 
-from dvbfixer.diagnose.chemistry import check_bond_lengths, check_peptide_omegas
+from dvbfixer.diagnose.chemistry import (
+    check_backbone_bond_angles,
+    check_bond_lengths,
+    check_peptide_omegas,
+)
 from dvbfixer.diagnose.report import Severity
 from dvbfixer.diagnose.steric import clashes_python
 from dvbfixer.ffutils.geometry import ChiralityError, assert_all_l
@@ -411,6 +415,15 @@ def _validate_candidate(
         if finding.severity is Severity.ERROR
         and _finding_residue(finding.chain, finding.resid) in generated_or_junction
     ]
+    bond_angle_findings = [
+        finding
+        for finding in check_backbone_bond_angles(
+            candidate.pdb.topology,
+            candidate.pdb.positions,
+        )
+        if finding.severity is Severity.ERROR
+        and _finding_residue(finding.chain, finding.resid) in generated_or_junction
+    ]
     non_planar_amides = [
         finding
         for finding in check_peptide_omegas(candidate.pdb.topology, candidate.pdb.positions)
@@ -425,6 +438,11 @@ def _validate_candidate(
                 "count",
             ),
             Metric(
+                "generated-or-junction-bond-angle-errors",
+                float(len(bond_angle_findings)),
+                "count",
+            ),
+            Metric(
                 "generated-or-junction-non-planar-amides",
                 float(len(non_planar_amides)),
                 "count",
@@ -433,6 +451,8 @@ def _validate_candidate(
     )
     if bond_length_findings:
         failures.append("generated-or-junction-bond-length")
+    if bond_angle_findings:
+        failures.append("generated-or-junction-bond-angle")
     if non_planar_amides:
         failures.append("generated-or-junction-amide-planarity")
 
