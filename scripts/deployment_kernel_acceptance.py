@@ -35,7 +35,9 @@ def child(mode: str) -> None:
         deadline = time.monotonic() + 3
         while time.monotonic() < deadline:
             pass
-        assert counter("cpu.stat", "nr_throttled") > before, "CPU quota never throttled"
+        after = counter("cpu.stat", "nr_throttled")
+        print(f"cpu.stat nr_throttled: {before} -> {after}", flush=True)
+        assert after > before, "CPU quota never throttled"
     elif mode == "memory":
         before = counter("memory.events", "oom_kill")
         workers = []
@@ -46,7 +48,9 @@ def child(mode: str) -> None:
             ]))
         for worker in workers:
             worker.wait(timeout=15)
-        assert counter("memory.events", "oom_kill") > before, "combined children escaped MemoryMax"
+        after = counter("memory.events", "oom_kill")
+        print(f"memory.events oom_kill: {before} -> {after}", flush=True)
+        assert after > before, "combined children escaped MemoryMax"
     elif mode == "pids":
         before = counter("pids.events", "max")
         workers = []
@@ -59,7 +63,9 @@ def child(mode: str) -> None:
                     assert exc.errno == errno.EAGAIN, exc
                     denied = True
                     break
-            assert denied and counter("pids.events", "max") > before, "TasksMax did not block forks"
+            after = counter("pids.events", "max")
+            print(f"pids.events max: {before} -> {after}", flush=True)
+            assert denied and after > before, "TasksMax did not block forks"
         finally:
             for worker in workers:
                 worker.terminate()
@@ -67,6 +73,8 @@ def child(mode: str) -> None:
                 worker.wait(timeout=5)
     elif mode in {"persistent", "temporary"}:
         target = ROOT / "quota-probe" if mode == "persistent" else pathlib.Path("/tmp/quota-probe")
+        filesystem = os.statvfs(target.parent)
+        print(f"{target.parent} capacity: {filesystem.f_frsize * filesystem.f_blocks} bytes", flush=True)
         denied = False
         try:
             with target.open("wb", buffering=0) as stream:

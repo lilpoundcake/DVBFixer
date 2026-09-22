@@ -1,14 +1,15 @@
 # Resource-Bounded Deployment
 
-DVBFixer's supported resource-containment profile is a single Linux systemd
-service on a cgroup-v2 host. It limits the aggregate Node server, DVBFixer
-processes, and their scientific descendants. It is not per-job or per-workspace
-OS isolation.
+DVBFixer's supported public-deployment profile is one Ubuntu 24.04 host with
+systemd and cgroup v2, one Node service behind a same-host HTTPS reverse proxy,
+and a dedicated finite-capacity filesystem at `/var/lib/dvbfixer`. The service
+limits the aggregate Node server, DVBFixer processes, and their scientific
+descendants. It is not per-job or per-workspace OS isolation.
 
-An internet-facing deployment additionally needs a TLS-terminating proxy,
-restricted bearer-token distribution, backup and monitoring policies, and
-privileged acceptance on its target host. The example enables durable audit
-retention. Multiple processes may share one local data root on one host;
+An internet-facing installation needs a trusted TLS certificate, restricted
+bearer-token distribution, backup and monitoring policies, and the same
+privileged acceptance on its own host before opening access. The example
+enables durable audit retention. Multiple processes may share one local data root on one host;
 multiple hosts require a separate distributed scheduler and state store.
 
 ## Storage Prerequisite
@@ -111,7 +112,20 @@ addresses, and other scientific or tenant data.
 
 ## Acceptance
 
-Before treating a deployment as supported, test on the target host that CPU is
+The `deployment-acceptance` GitHub Actions job installs the supplied service
+profile on a disposable Ubuntu 24.04 VM, mounts a 256 MiB ext4 loop filesystem
+for data, builds the standalone GUI, and runs
+`scripts/deployment_kernel_acceptance.py` as root. It verifies actual cgroup
+CPU throttling, OOM enforcement across child processes, fork denial at
+`TasksMax`, ENOSPC on persistent and private temporary filesystems, and cleanup
+of a session-detached grandchild when its unit stops. The same job checks the
+service's fail-closed preflight, authenticated and unauthorized requests through
+a TLS proxy, CORS, workspace creation, and MAFFT/tleap/Reduce inside a
+contained systemd unit. The short-lived self-signed certificate and test bearer
+token are only CI fixtures; installations must use their own protected secrets
+and trusted certificates.
+
+Before treating an installation as supported, repeat on its target host that CPU is
 throttled, combined child memory triggers the cgroup limit, `TasksMax` blocks a
 fork-heavy descendant, persistent and temporary writes stop at their storage
 boundaries, and service shutdown removes session-detached grandchildren. Include

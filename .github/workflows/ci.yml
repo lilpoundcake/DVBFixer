@@ -169,6 +169,9 @@ jobs:
           create-args: python=3.11
           cache-environment: true
           cache-downloads: true
+      - name: Install scientific CLI
+        shell: bash -el {0}
+        run: pip install -e .
       - name: Build standalone server
         working-directory: gui
         run: |
@@ -269,9 +272,10 @@ jobs:
             -p ReadWritePaths=/var/lib/dvbfixer -p TemporaryFileSystem=/tmp:rw,size=64M,mode=1777 \
             -p "Environment=PATH=$envbin:/usr/bin:/bin" \
             /usr/bin/bash -c 'mafft --auto /var/lib/dvbfixer/tmp/msa.fa >/var/lib/dvbfixer/tmp/msa.out && tleap -f /var/lib/dvbfixer/tmp/leap.in >/var/lib/dvbfixer/tmp/tleap.log && reduce -BUILD /var/lib/dvbfixer/tmp/tleap.pdb >/var/lib/dvbfixer/tmp/reduce.pdb'
-          test -s /var/lib/dvbfixer/tmp/msa.out
-          test -s /var/lib/dvbfixer/tmp/tleap.pdb
-          test -s /var/lib/dvbfixer/tmp/reduce.pdb
+          sudo test -s /var/lib/dvbfixer/tmp/msa.out
+          sudo test -s /var/lib/dvbfixer/tmp/tleap.pdb
+          sudo test -s /var/lib/dvbfixer/tmp/reduce.pdb
+          sudo wc -c /var/lib/dvbfixer/tmp/msa.out /var/lib/dvbfixer/tmp/tleap.pdb /var/lib/dvbfixer/tmp/reduce.pdb
       - name: Diagnose reference service on failure
         if: failure()
         run: |
