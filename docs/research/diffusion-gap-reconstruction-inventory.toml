@@ -1,0 +1,256 @@
+schema_version = 1
+status = "research"
+frozen_on = "2026-09-22"
+policy_adr = "docs/adr/0010-experimental-diffusion-gap-reconstruction-boundary.md"
+implementation_plan = "docs/plans/diffusion-gap-reconstruction.md"
+
+[scope]
+input_class = "canonical L-protein"
+sequence_sources = ["FASTA", "SEQRES"]
+initial_gap_lengths = [3, 12]
+requires_two_observed_anchors = true
+allows_terminal_gaps = false
+allows_multiple_models = false
+allows_adjacent_altloc_ambiguity = false
+allows_retained_heterogens_near_generated_region = false
+allows_external_covalent_links_near_generated_region = false
+public_cli_enabled = false
+default_backend = "modeller"
+automatic_fallback = false
+
+[thresholds]
+version = 1
+fixed_heavy_atom_rmsd_angstrom_max = 0.01
+fixed_heavy_atom_displacement_angstrom_max = 0.03
+detectable_d_ca_max = 0
+junction_cn_angstrom_min = 1.20
+junction_cn_angstrom_max = 1.45
+generated_backbone_break_angstrom_max = 1.80
+requires_complete_generated_canonical_heavy_atoms = true
+requires_all_applicable_explicit_links = true
+requires_all_identities_outside_generated_mask = true
+requires_no_severe_steric_overlaps = true
+same_seed_repeat_rmsd_angstrom_max = 0.01
+unsupported_public_pdb_count_max = 0
+experimental_median_gap_backbone_rmsd_delta_vs_modeller_angstrom_max = 0.25
+requires_junction_pass_rate_at_least_modeller = true
+requires_stricter_fixed_coordinate_adherence_than_modeller = true
+
+[[benchmark_cases]]
+id = "8cz8-chain-c-withheld-5"
+fixture = "tests/fixtures/8cz8/8cz8_a_u.pdb"
+sequence_fixture = "tests/fixtures/8cz8/8cz8_renamed.fasta"
+target_chain = "C"
+classification = "supported"
+stratum = "withheld-internal-3-5"
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [64, 69]
+generated_residues = [
+  "C:65:_:SER",
+  "C:66:_:GLY",
+  "C:67:_:SER",
+  "C:68:_:LYS",
+  "C:69:_:SER",
+]
+left_anchor = "C:64:_:PHE"
+right_anchor = "C:70:_:GLY"
+expected_sequence = "SGSKS"
+fixture_sha256 = "d1d8189ece17b11e34424dde6862587b495a7a78e5d4e53bff5334c9f7541d77"
+sequence_fixture_sha256 = "ede7bdedca8d40df1e4b22536f7e84e4b3e9c652564053307ef7fa6818fe8c06"
+leakage_status = "unresolved"
+leakage_reason = "No selected engine has yet provided sequence-level training-set membership evidence for PDB 8CZ8."
+
+[[benchmark_cases]]
+id = "8cz8-chain-c-withheld-10"
+fixture = "tests/fixtures/8cz8/8cz8_a_u.pdb"
+sequence_fixture = "tests/fixtures/8cz8/8cz8_renamed.fasta"
+target_chain = "C"
+classification = "supported"
+stratum = "withheld-internal-6-12"
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [94, 104]
+generated_residues = [
+  "C:95:_:ILE",
+  "C:96:_:GLU",
+  "C:97:_:SER",
+  "C:98:_:ALA",
+  "C:99:_:THR",
+  "C:100:_:PRO",
+  "C:101:_:VAL",
+  "C:102:_:PHE",
+  "C:103:_:GLY",
+  "C:104:_:GLY",
+]
+left_anchor = "C:94:_:ASP"
+right_anchor = "C:105:_:GLY"
+expected_sequence = "IESATPVFGG"
+fixture_sha256 = "d1d8189ece17b11e34424dde6862587b495a7a78e5d4e53bff5334c9f7541d77"
+sequence_fixture_sha256 = "ede7bdedca8d40df1e4b22536f7e84e4b3e9c652564053307ef7fa6818fe8c06"
+leakage_status = "unresolved"
+leakage_reason = "No selected engine has yet provided sequence-level training-set membership evidence for PDB 8CZ8."
+
+[[benchmark_cases]]
+id = "8cz8-chain-c-terminal-one-anchor"
+fixture = "tests/fixtures/8cz8/8cz8_a_u.pdb"
+sequence_fixture = "tests/fixtures/8cz8/8cz8_renamed.fasta"
+target_chain = "C"
+classification = "unsupported"
+stratum = "terminal-one-anchor"
+mask_source = "synthetic terminal withholding"
+target_interval_zero_based_half_open = [0, 5]
+generated_residues = [
+  "C:1:_:ASP",
+  "C:2:_:ILE",
+  "C:3:_:ALA",
+  "C:4:_:LEU",
+  "C:5:_:THR",
+]
+left_anchor = ""
+right_anchor = "C:6:_:GLN"
+expected_sequence = "DIALT"
+unsupported_reason = "initial slice requires two observed anchors"
+fixture_sha256 = "d1d8189ece17b11e34424dde6862587b495a7a78e5d4e53bff5334c9f7541d77"
+sequence_fixture_sha256 = "ede7bdedca8d40df1e4b22536f7e84e4b3e9c652564053307ef7fa6818fe8c06"
+leakage_status = "not_applicable"
+leakage_reason = "Unsupported classification is structural and is not an inference-quality benchmark."
+
+[[benchmark_cases]]
+id = "multistate-multiple-models"
+fixture = "tests/fixtures/multistate.pdb"
+sequence_fixture = "tests/fixtures/multistate.fasta"
+target_chain = " "
+classification = "unsupported"
+stratum = "multiple-models"
+mask_source = "not applicable"
+target_interval_zero_based_half_open = [0, 0]
+generated_residues = []
+left_anchor = ""
+right_anchor = ""
+expected_sequence = ""
+unsupported_reason = "initial slice rejects multiple MODEL blocks"
+fixture_sha256 = "ec7b42f24dbf74b1dd9a9fe87c101ec66f8785dcacaf16fb633be5594101e9b1"
+sequence_fixture_sha256 = "38e4ee02122185f3d4ba00614d75f8538605bad7b07baac9f91034aa33c7e5b5"
+leakage_status = "not_applicable"
+leakage_reason = "Unsupported classification is structural and is not an inference-quality benchmark."
+
+[[benchmark_cases]]
+id = "1vcu-retained-ligands"
+fixture = "tests/fixtures/1VCU.pdb"
+sequence_fixture = ""
+target_chain = "A"
+classification = "unsupported"
+stratum = "retained-heterogens"
+mask_source = "not applicable"
+target_interval_zero_based_half_open = [0, 0]
+generated_residues = []
+left_anchor = ""
+right_anchor = ""
+expected_sequence = ""
+unsupported_reason = "initial slice rejects retained unsupported heterogens near generated regions; this input retains DAN and EPE ligands"
+fixture_sha256 = "a56b1a952b58e01cfcdaa15bd8e98504498f91249751bb4b422fc10b3069eb06"
+sequence_fixture_sha256 = ""
+leakage_status = "not_applicable"
+leakage_reason = "Unsupported classification is chemical-scope policy and is not an inference-quality benchmark."
+
+[[engines]]
+id = "rfdiffusion-v1"
+role = "first external backbone-inpainting benchmark"
+repository = "https://github.com/RosettaCommons/RFdiffusion"
+revision = "bf42b54c20a99dd7350456c85985ed4d83b95d48"
+revision_ref = "v1.0.0"
+source_license = "BSD-3-Clause"
+source_license_url = "https://github.com/RosettaCommons/RFdiffusion/blob/bf42b54c20a99dd7350456c85985ed4d83b95d48/LICENSE"
+checkpoint_name = "Base_ckpt.pt"
+checkpoint_url = "http://files.ipd.uw.edu/pub/RFdiffusion/6f5902ac237024bdd0c176cb93063dc4/Base_ckpt.pt"
+checkpoint_sha256 = ""
+checkpoint_license = "unresolved"
+checkpoint_redistribution = "unresolved"
+auxiliary_artifacts = []
+container_image = "rosettacommons/rfdiffusion"
+container_digest = ""
+package_lock_hash = ""
+training_cutoff = "unresolved"
+hardware = "Linux/NVIDIA CUDA; exact driver, CUDA, VRAM, RAM, and image digest must be pinned before inference"
+distribution_status = "blocked"
+blocking_reason = "checkpoint digest, explicit checkpoint license/redistribution evidence, container digest, environment lock, and exact training cutoff remain unresolved"
+
+[[engines]]
+id = "protenix-v1"
+role = "preferred all-atom denoising-hook feasibility spike"
+repository = "https://github.com/bytedance/Protenix"
+revision = "85767b811c40ed46e73a9b39519cf6bfca8701ba"
+revision_ref = "main audited on 2026-09-22"
+source_license = "Apache-2.0"
+source_license_url = "https://github.com/bytedance/Protenix/blob/85767b811c40ed46e73a9b39519cf6bfca8701ba/LICENSE"
+checkpoint_name = "protenix_base_default_v1.0.0"
+checkpoint_url = ""
+checkpoint_sha256 = ""
+checkpoint_license = "Apache-2.0 claimed by upstream README for Protenix-v1 code and model parameters"
+checkpoint_redistribution = "review-required"
+auxiliary_artifacts = []
+container_image = ""
+container_digest = ""
+package_lock_hash = ""
+training_cutoff = "2021-09-30"
+hardware = "unresolved; representative Linux/NVIDIA requirements must be measured and pinned"
+distribution_status = "blocked"
+blocking_reason = "checkpoint acquisition URL/hash, redistribution review, runner hook feasibility, environment lock, and hardware profile remain unresolved; Protenix-v2 weights are excluded as proprietary"
+
+[[engines]]
+id = "boltz-2"
+role = "fallback all-atom denoising-hook feasibility spike"
+repository = "https://github.com/jwohlwend/boltz"
+revision = "b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc"
+revision_ref = "main audited on 2026-09-22"
+source_license = "MIT"
+source_license_url = "https://github.com/jwohlwend/boltz/blob/b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc/LICENSE"
+checkpoint_name = "Boltz-2 default weights"
+checkpoint_url = ""
+checkpoint_sha256 = ""
+checkpoint_license = "MIT claimed by upstream README for code and weights"
+checkpoint_redistribution = "review-required"
+auxiliary_artifacts = []
+container_image = ""
+container_digest = ""
+package_lock_hash = ""
+training_cutoff = "PDB structures before 2023-06-01; other training sources require separate leakage review"
+hardware = "GPU recommended; CPU is documented as significantly slower; exact Linux/NVIDIA profile remains unresolved"
+distribution_status = "blocked"
+blocking_reason = "checkpoint acquisition URL/hash, redistribution review, sampler-hook feasibility, environment lock, and representative hardware profile remain unresolved"
+
+[[engines]]
+id = "patchr"
+role = "external scientific comparator only"
+repository = "https://github.com/DeepFoldProtein/patchr"
+revision = "6c161b155b52e1cdee3496b0beac40306793f4c7"
+revision_ref = "main audited on 2026-09-22"
+source_license = "MIT"
+source_license_url = "https://github.com/DeepFoldProtein/patchr/blob/6c161b155b52e1cdee3496b0beac40306793f4c7/LICENSE"
+checkpoint_name = "none; backend model terms apply"
+checkpoint_url = ""
+checkpoint_sha256 = ""
+checkpoint_license = "not_applicable"
+checkpoint_redistribution = "not_applicable"
+auxiliary_artifacts = ["Boltz-2 or Protenix backend"]
+container_image = ""
+container_digest = ""
+package_lock_hash = ""
+training_cutoff = "backend-dependent"
+hardware = "GPU/container/Slurm paths documented upstream; comparator environment must be pinned separately"
+distribution_status = "comparator-only"
+blocking_reason = "ADR 0010 forbids importing, vendoring, copying, or wrapping PATCHR as the DVBFixer implementation"
+
+[[excluded_engines]]
+id = "framedipt"
+reason = "published code and checkpoint terms are CC-BY-NC-SA-4.0 and therefore non-commercial"
+review_status = "excluded-from-distributable-backend"
+
+[[excluded_engines]]
+id = "chroma"
+reason = "published model-parameter terms restrict parameters and outputs to non-commercial use and restrict parameter sharing"
+review_status = "excluded-from-distributable-backend"
+
+[[excluded_engines]]
+id = "rfdiffusion2"
+reason = "official checkpoint rights and optional dependency terms are not sufficiently explicit for distribution"
+review_status = "excluded-pending-license-clarification"

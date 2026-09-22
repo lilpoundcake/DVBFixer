@@ -4,6 +4,11 @@ Status: research, 2026-09-22. This note records current boundaries, candidate
 architectures, and proposed benchmarks. It does not add a backend, dependency,
 CLI option, or delivery commitment. PDBFixer and Salilab MODELLER remain
 supported production baselines; nothing here deprecates or removes either one.
+The versioned
+[`diffusion gap-reconstruction inventory`](diffusion-gap-reconstruction-inventory.toml)
+freezes the initial masks and thresholds and records the current per-artifact
+license, leakage, and hardware evidence. Empty digests or unresolved terms are
+explicit blockers, not permission to fetch, distribute, or benchmark an artifact.
 
 ## Scope and terminology
 

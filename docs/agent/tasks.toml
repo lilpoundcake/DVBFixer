@@ -235,6 +235,7 @@ status = "research"
 context = "docs/agent/contexts/structure-preparation.md"
 start = [
   "docs/research/reconstruction-and-modeling-backends.md",
+  "docs/plans/diffusion-gap-reconstruction.md",
   "src/dvbfixer/model/pipeline.py::main",
   "src/dvbfixer/model/modeller_run.py::run_modeller",
 ]
@@ -255,11 +256,53 @@ verification = [
   "pytest -q tests/test_model_renumber.py tests/test_model_fasta_case.py tests/test_model_strip_heterogens.py",
 ]
 
+[tasks.implement-diffusion-gap-reconstruction]
+status = "proposed"
+context = "docs/agent/contexts/structure-preparation.md"
+start = [
+  "docs/adr/0010-experimental-diffusion-gap-reconstruction-boundary.md",
+  "docs/plans/diffusion-gap-reconstruction.md",
+  "docs/research/reconstruction-and-modeling-backends.md",
+  "docs/research/diffusion-gap-reconstruction-inventory.toml",
+  "src/dvbfixer/model/diffusion/contract.py::DiffusionRequest",
+  "src/dvbfixer/model/diffusion/contract.py::DiffusionResult",
+  "src/dvbfixer/model/diffusion/contract.py::RunnerResult",
+  "src/dvbfixer/model/diffusion/masks.py::build_diffusion_masks",
+  "src/dvbfixer/model/diffusion/geometry.py::weighted_kabsch",
+  "src/dvbfixer/model/diffusion/geometry.py::synchronize_and_reinject",
+  "src/dvbfixer/model/diffusion/runner.py::run_diffusion_runner",
+  "src/dvbfixer/model/diffusion/fake_runner.py::main",
+  "src/dvbfixer/model/diffusion/validate.py::validate_runner_result",
+  "src/dvbfixer/model/diffusion/validate.py::build_validated_result",
+]
+callers = []
+contracts = ["dat-record-lifecycle", "pdb-connectivity"]
+invariants = [
+  "INV-CHIRALITY-ZERO-D",
+  "INV-IDENTITY-ICODE",
+  "INV-CONECT-CHEMICAL-FILTER",
+]
+change_group = "missing-atom-rebuild-chirality"
+test_files = [
+  "tests/test_diffusion_contract.py",
+  "tests/test_diffusion_geometry.py",
+  "tests/test_diffusion_masks.py",
+  "tests/test_diffusion_research_inventory.py",
+  "tests/test_diffusion_runner.py",
+  "tests/test_diffusion_validate.py",
+]
+verification = [
+  "pytest -q tests/test_diffusion_contract.py tests/test_diffusion_geometry.py tests/test_diffusion_masks.py tests/test_diffusion_research_inventory.py tests/test_diffusion_runner.py tests/test_diffusion_validate.py",
+  "python scripts/check_agent_docs.py",
+  "git diff --check",
+]
+
 [tasks.research-homology-modeling-backends]
 status = "research"
 context = "docs/agent/contexts/structure-preparation.md"
 start = [
   "docs/research/reconstruction-and-modeling-backends.md",
+  "docs/plans/diffusion-gap-reconstruction.md",
   "src/dvbfixer/homology.py::run_homology_modeller",
   "src/dvbfixer/homology_plan.py",
 ]
@@ -521,6 +564,7 @@ parallel_policy = "exclusive-owner"
 reason = "All rebuild, modeling, identity-restoration, and chirality safety paths must remain synchronized."
 files = [
   "src/dvbfixer/ffutils/geometry.py",
+  "src/dvbfixer/model/diffusion",
   "src/dvbfixer/model/pipeline.py",
   "src/dvbfixer/model/modeller_run.py",
   "src/dvbfixer/prepare/pipeline.py",

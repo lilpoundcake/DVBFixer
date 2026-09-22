@@ -37,6 +37,7 @@ contracts; it does not reproduce scientific algorithms.
 | Pure-protein tleap/Reduce preparation | implemented | `prep_backend.py::run_prep` | Opt-in; unsupported chemistry fails rather than falling back automatically |
 | Protonation decisions and H placement | implemented | `protonate.py::decide_protonation`, `prepare/pipeline.py::_run_propka_reduce_variants` | Decision evidence, topology H placement, and output naming remain separate concerns |
 | Preparation provenance handoff | implemented | `ffutils/dat.py::DatRecord` | Model/homology produce; prepare merges; minimize consumes |
+| Diffusion CPU protocol core | partial | `model/diffusion/contract.py`, `masks.py`, `geometry.py`, `runner.py`, `validate.py` | Strict JSON contract, deterministic masks/geometry, contained subprocess protocol, fake runner, and independent identity/drift/completeness/connectivity/severe-bond/amide-planarity/clash/chirality validation are CPU-testable; bond-angle/finer geometry, Ramachandran/rotamer validation, publication, provenance manifests, and public dispatch are not implemented |
 | Uniform hard L-chirality output gate | partial | `ffutils/geometry.py::assert_all_l` | Modeled candidates assert; prepare/protonate paths can only repair or warn before minimize |
 
 ## Entry Points
@@ -44,6 +45,9 @@ contracts; it does not reproduce scientific algorithms.
 | Change | Start symbol |
 |---|---|
 | Gap-model workflow | `src/dvbfixer/model/pipeline.py::main` |
+| Proposed diffusion contract | `src/dvbfixer/model/diffusion/contract.py::DiffusionRequest`, `DiffusionResult` |
+| Proposed diffusion runner boundary | `src/dvbfixer/model/diffusion/runner.py::run_diffusion_runner` |
+| Proposed diffusion validation boundary | `src/dvbfixer/model/diffusion/validate.py::validate_runner_result`, `build_validated_result` |
 | Legacy atom completion | `src/dvbfixer/prepare/pipeline.py::run_pdbfixer` |
 | Backend selection/final prepare writes | `src/dvbfixer/prepare/pipeline.py::main` |
 | tleap/Reduce behavior | `src/dvbfixer/prep_backend.py::run_prep` |
@@ -124,6 +128,16 @@ contracts; it does not reproduce scientific algorithms.
 - Model may materialize an inferred-CONECT input, creates a temporary workspace,
   and writes one or more candidate PDBs with candidate-matched sidecars when
   provenance exists. The no-SEQRES/no-FASTA shortcut only copies the PDB.
+- The proposed diffusion runner creates a caller-selected isolated workspace,
+  copies and verifies the normalized input, writes `request.json`, launches one
+  shell-free child process with bounded diagnostics, then verifies a raw
+  `RunnerResult` manifest and candidate digests. Runner-provided data cannot claim
+  independent validation. The separate validation boundary reopens verified
+  source/candidate artifacts, parses OpenMM topology from those verified bytes,
+  applies the first-slice hard gates, calls final `assert_all_l`, rejects failed
+  candidates, and deterministically ranks passing
+  candidates without treating backend-native scores as commensurate. Neither
+  boundary publishes artifacts or changes model dispatch.
 - Legacy prepare can create temporary inferred, renamed, deletion-cleaned,
   capped, GLYCAM, PROPKA, and canonical-CONECT PDBs. It writes/replaces the
   output PDB and sidecar and may rewrite the output for variants, heterogen H,
@@ -169,11 +183,18 @@ contracts; it does not reproduce scientific algorithms.
   [`whole-complex relaxation note`](../../research/whole-complex-relaxation.md)
   is research, not current preparation behavior.
 - Alternative atom-reconstruction, loop-modeling, homology-modeling, and
-  independently implemented template-constrained diffusion backends are
-  research only. See the
-  [`reconstruction and modeling backend note`](../../research/reconstruction-and-modeling-backends.md).
-  PDBFixer and Salilab MODELLER remain supported production baselines; the note
-  does not deprecate either dependency.
+  independently implemented template-constrained diffusion backends remain
+  research or proposed work, not shipped behavior. The accepted
+  [`experimental diffusion boundary ADR`](../../adr/0010-experimental-diffusion-gap-reconstruction-boundary.md)
+  fixes the isolation, provenance, no-fallback, default-backend, and independent
+  implementation policies without accepting a public diffusion capability. See
+  the [`reconstruction and modeling backend note`](../../research/reconstruction-and-modeling-backends.md),
+  its versioned
+  [`diffusion research inventory`](../../research/diffusion-gap-reconstruction-inventory.toml),
+  and the proposed
+  [`diffusion gap-reconstruction implementation plan`](../../plans/diffusion-gap-reconstruction.md).
+  PDBFixer and Salilab MODELLER remain supported production baselines; none of
+  these documents deprecates either dependency.
 
 ## Focused Verification
 

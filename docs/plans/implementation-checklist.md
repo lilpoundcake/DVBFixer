@@ -6,6 +6,7 @@ complete. Detailed requirements remain in these authoritative sources:
 
 - [API roadmap](api-roadmap.md) for API implementation and deployment.
 - [DDD documentation roadmap](ddd-documentation-roadmap.md) for agent maps and domain documentation.
+- [Diffusion gap-reconstruction plan](diffusion-gap-reconstruction.md) for the proposed experimental modeling backend.
 - [Continuation context](api-ddd-continuation-context.md) for historical evidence only.
 
 Status is binary: `[x]` means complete and verified; `[ ]` means remaining,
@@ -236,6 +237,19 @@ filesystem. `docs/adr/0009-versioned-workflows-and-compatibility.md` defines
 the V1 error and deprecation policy. Horizontal scaling across multiple hosts
 remains explicitly unsupported until an external scheduler/state store exists;
 these checked workflow-state items cover one-host multi-process operation.
+
+## Diffusion Gap Reconstruction
+
+- [ ] Complete Phase 0: policy, license inventory, corpus, leakage metadata, and predeclared thresholds.
+- [ ] Complete Phase 1: backend-neutral contract, masks, Kabsch/reinjection primitives, fake runner, validation, provenance, and atomic publication.
+- [ ] Complete Phase 2: pinned RFdiffusion v1 Linux/NVIDIA benchmark adapter.
+- [ ] Complete Phase 3: Protenix v1 or Boltz-2 all-atom constrained-sampler feasibility and ablation benchmark.
+- [ ] Complete Phase 4: experimental `model --backend diffusion` while retaining MODELLER as the default and without automatic fallback.
+- [ ] Complete Phase 5: mosaic-first homology evaluation preserving authoritative template coordinates.
+- [ ] Complete Phase 6: separate evidence-backed production decision.
+
+Detailed requirements and acceptance gates are in the
+[diffusion gap-reconstruction plan](diffusion-gap-reconstruction.md).
 
 ## DDD Documentation Roadmap
 
