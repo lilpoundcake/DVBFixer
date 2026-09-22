@@ -267,13 +267,18 @@ jobs:
           printf '>a\nACDEFG\n>b\nACDEYG\n' | sudo tee /var/lib/dvbfixer/tmp/msa.fa >/dev/null
           printf 'source leaprc.protein.ff14SB\nm = sequence { ALA GLY }\nsavepdb m /var/lib/dvbfixer/tmp/tleap.pdb\nquit\n' \
             | sudo tee /var/lib/dvbfixer/tmp/leap.in >/dev/null
-          sudo systemd-run --quiet --wait --collect --pipe --unit=dvbfixer-accept-science \
+          if ! sudo systemd-run --quiet --wait --collect --pipe --unit=dvbfixer-accept-science \
             -p User=dvbfixer -p Group=dvbfixer -p CPUQuota=200% -p MemoryMax=4G \
             -p MemorySwapMax=0 -p TasksMax=128 -p ProtectSystem=strict \
             -p ReadWritePaths=/var/lib/dvbfixer -p WorkingDirectory=/var/lib/dvbfixer/tmp \
             -p TemporaryFileSystem=/tmp:rw,size=64M,mode=1777 \
             -p "Environment=PATH=$envbin:/usr/bin:/bin" \
-            /usr/bin/bash -c 'mafft --auto /var/lib/dvbfixer/tmp/msa.fa >/var/lib/dvbfixer/tmp/msa.out && tleap -f /var/lib/dvbfixer/tmp/leap.in >/var/lib/dvbfixer/tmp/tleap.log && reduce -BUILD /var/lib/dvbfixer/tmp/tleap.pdb >/var/lib/dvbfixer/tmp/reduce.pdb'
+            -p Environment=HOME=/var/lib/dvbfixer/home \
+            -p Environment=TMPDIR=/var/lib/dvbfixer/tmp \
+            /usr/bin/bash -c 'exec >/var/lib/dvbfixer/tmp/science.log 2>&1; mafft --auto /var/lib/dvbfixer/tmp/msa.fa >/var/lib/dvbfixer/tmp/msa.out && tleap -f /var/lib/dvbfixer/tmp/leap.in >/var/lib/dvbfixer/tmp/tleap.log && reduce -BUILD /var/lib/dvbfixer/tmp/tleap.pdb >/var/lib/dvbfixer/tmp/reduce.pdb'; then
+            sudo cat /var/lib/dvbfixer/tmp/science.log
+            exit 1
+          fi
           sudo test -s /var/lib/dvbfixer/tmp/msa.out
           sudo test -s /var/lib/dvbfixer/tmp/tleap.pdb
           sudo test -s /var/lib/dvbfixer/tmp/reduce.pdb
