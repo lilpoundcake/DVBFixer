@@ -2,7 +2,7 @@
 
 A suite of Python CLI tools for preparing PDB and CIF structural biology files. Handles common issues with structures from MD simulations and structural databases: missing chain IDs, antibody insertion codes, missing loops/residues, loop rebuilding with Modeller, multi-template homology modeling, energy minimization with selective restraints, protonation state assignment, GROMACS topology generation, GLYCAM glycoprotein transplanting, small molecule parametrization (GAFF2), and glycan conformational clustering from MD trajectories.
 
-Current release: **0.8.5**.
+Current release: **0.8.6**.
 
 This README is the root of a manual-style documentation tree. Each subcommand has its own page under [`docs/commands/`](docs/commands/index.md); the [pipelines](docs/pipelines.md) page collects end-to-end recipes. For design notes see [`ARCHITECTURE.md`](ARCHITECTURE.md) and the focused [scientific domain model](docs/domain-model.md); for opinionated recipes and gotchas see [`BEST_PRACTICES.md`](BEST_PRACTICES.md).
 
@@ -25,8 +25,9 @@ indexes structure and non-structure artifacts, and adds a persistent
 multi-template Homology workflow with MSA editing and Modeller template masks.
 The complete workflow is documented in the
 [GUI Homology guide](docs/gui-homology.md).
-The initial workspace-scoped `/api/v1` naming operation and OpenAPI endpoint are
-documented in the [DVBFixer API guide](docs/api.md).
+The [DVBFixer API guide](docs/api.md) covers workspace-scoped managed jobs,
+the synchronous naming conversion, authentication, and OpenAPI.
+The GUI requires Node.js 22 or newer.
 
 ```bash
 cd gui
@@ -36,9 +37,9 @@ npm run dev:no-db
 
 For a built local server with the same API routes, run `npm run build` followed
 by `npm start`. It binds to loopback by default; see the
-[GUI deployment notes](gui/README.md#build-for-production) for configuration
-and current security limitations. The Linux systemd/cgroup-v2 resource profile
-is documented in [`docs/deployment.md`](docs/deployment.md).
+[GUI deployment notes](gui/README.md#build-for-production) for configuration.
+The supported single-host Ubuntu/systemd public-deployment profile and
+host-specific acceptance steps are in [`docs/deployment.md`](docs/deployment.md).
 
 The GUI uses `gui/structures/` by default. Point it at an existing Tarantino or
 DVBfixer workspace without copying data by setting `DVBFIXER_GUI_DATA_DIR`.
@@ -69,7 +70,7 @@ chemistry backends.
 | [`split`](docs/commands/split.md) | Empirical chain splitting or REMARK 350/BIOMT biological-assembly extraction |
 | [`renumber`](docs/commands/renumber.md) | FASTA/SEQRES renumbering OR antibody schemes (Kabat/Chothia/IMGT/Martin/Aho/EU) |
 | [`model`](docs/commands/model.md) | Rebuild missing loops/gaps with Modeller's LoopModel |
-| [`prepare`](docs/commands/prepare.md) | PDBFixer-based missing-atom/H repair, optional SMILES-guided ligand chemistry, plus substitution and deletion mutations |
+| [`prepare`](docs/commands/prepare.md) | Missing-atom/H repair with the default legacy backend or opt-in pure-protein tleap-reduce, optional SMILES-guided ligand chemistry, and mutations |
 | [`pull`](docs/commands/pull.md) | OpenMM partial minimization to form SS / glycosidic bonds |
 | [`minimize`](docs/commands/minimize.md) | Energy minimization with selective restraints, optional xtb/obminimize refinement |
 | [`protonate`](docs/commands/protonate.md) | PROPKA3 pKa prediction + AMBER residue renaming + H repair |

@@ -8,6 +8,26 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.8.6] — 2026-09-22
+
+### Added
+
+- Versioned workspace APIs for managed DVBFixer jobs, including durable
+  same-host run state, cancellation, SSE status, and output provenance.
+- Workspace-scoped naming conversion and a generated OpenAPI document/client.
+- A single-host Ubuntu 24.04 systemd deployment profile with fail-closed
+  resource preflight, audit logging, metrics, and privileged CI acceptance.
+
+### Changed
+
+- Refreshed the user guides for the current GUI, API, CLI defaults, and
+  supported public-deployment boundary.
+
+### Fixed
+
+- The deployment preflight treats Linux `binfmt_misc` as a kernel filesystem
+  rather than an unexpected writable data mount.
+
 ## [0.8.5] — 2026-09-09
 
 ### Fixed

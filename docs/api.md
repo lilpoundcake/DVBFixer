@@ -5,8 +5,9 @@ route composition shared by the Vite development adapter and the bundled
 standalone server. Static bearer authentication and manifest-backed workspace
 authorization, restrictive browser-origin handling, request-rate and workspace/
 upload limits, and process-wide child concurrency limits are available. The host
-requires a TLS-terminating proxy and target-host resource-enforcement acceptance
-before an internet-facing deployment is supported.
+supports the documented single-host Ubuntu/systemd deployment profile behind a
+TLS-terminating proxy. Each installation must pass resource-enforcement
+acceptance on its own host before opening internet access.
 
 Workspace manifests and active runs use same-host cross-process filesystem
 locks. Cancellation markers and persisted-record polling deliver job state to
@@ -16,9 +17,9 @@ multiple hosts or network filesystems; crash recovery marks interrupted jobs
 failed rather than rerunning them.
 
 A Linux systemd/cgroup-v2 profile for aggregate OS resource containment is
-available in [`deployment.md`](deployment.md). Audit retention is available;
-the example deployment still needs a TLS proxy and privileged target-host
-acceptance before public use.
+available in [`deployment.md`](deployment.md). The reference Ubuntu 24.04
+profile passed privileged acceptance in CI; a real host still needs its own
+trusted TLS certificate, operational controls, and acceptance record.
 
 The OpenAPI 3.1 document is available at:
 
@@ -45,6 +46,23 @@ workspace API. Every current CLI command except `atom-names` is a managed
 workflow, including `diagnose`, `conect`, `renumber`, `prepare`, `minimize`,
 `model`, `zbs`, and parameterization. Naming is the bounded synchronous
 transform. An unsupported command returns `422`.
+
+For example, after importing `input.pdb` into a workspace, start a diagnostic
+job with a workspace-relative file name:
+
+```http
+POST /api/v1/workspaces/{workspaceId}/jobs
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{"command":"diagnose","inputFile":"input.pdb"}
+```
+
+The response is a `202` job record. Poll its `GET` URL or subscribe to its
+`/events` stream until the status is `succeeded`, `failed`, or `cancelled`.
+`inputFile` and entries in `inputs` must resolve inside that workspace; the
+request cannot pass an unrestricted server path. Command-specific flags go in
+`values` using their CLI flag names, such as `{"--no-solvent":true}`.
 
 Input files are resolved inside the authorized workspace. Each published
 output artifact records the command, request options, input artifact identities

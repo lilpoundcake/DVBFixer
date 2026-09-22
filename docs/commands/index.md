@@ -36,8 +36,8 @@ public command therefore updates all three surfaces from the same contract.
 | [`puppet`](puppet.md) | Strip a PDB to backbone-only polyglycine (template / visualization) | Utilities |
 | [`rename`](rename.md) | Canonicalize residue names (AMBER/CHARMM/MSE → standard PDB) | Utilities |
 | [`renumber`](renumber.md) | FASTA/SEQRES renumbering OR antibody schemes (Kabat/Chothia/IMGT/Martin/Aho/EU) | Structure prep |
-| [`salign`](salign.md) | Structure-based multiple alignment and superposition using Modeller SALIGN | Modeling |
-| [`split`](split.md) | Empirical chain splitting for GRO/PDB files without chain IDs (multi-MODEL aware) | Structure prep |
+| [`salign`](salign.md) | Sequence-guided Cα superposition with Biopython by default; optional Modeller SALIGN | Modeling |
+| [`split`](split.md) | Empirical PDB/GRO chain splitting or REMARK 350/BIOMT assembly extraction | Structure prep |
 | [`top`](top.md) | GROMACS topology from PDB/GRO (AMBER, CHARMM, or ACPYPE pipeline) | Topology |
 | [`transplant`](transplant.md) | Transplant molecules between PDB structures (GLYCAM glycoprotein workflow) | Glycoprotein prep |
 | [`zbs`](zbs.md) | Full pipeline: renumber → model → prepare → minimize (PROPKA + Reduce run inside prepare) | Pipeline |

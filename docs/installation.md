@@ -145,7 +145,7 @@ Confirm that the installed executable and package metadata agree:
 
 ```bash
 dvbfixer --version
-# dvbfixer 0.8.5
+# dvbfixer 0.8.6
 ```
 
 Or without activating the environment:

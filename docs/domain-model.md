@@ -74,8 +74,8 @@ compatibility.
 
 Existing prepare, minimize, and protonate callers use
 `ffutils.ff_names.apply_variants_to_pdb_text`, an atomic in-place compatibility
-adapter over the pure service. A future API adapter will create a new workspace
-artifact instead of using this mutating wrapper.
+adapter over the pure service. The V1 naming API uses the pure service and
+publishes a new workspace artifact without mutating the source.
 
 ## Integration limits
 

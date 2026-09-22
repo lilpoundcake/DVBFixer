@@ -73,11 +73,10 @@ dvbfixer minimize glycoprotein.pdb --obminimize-refine --refine-heterogens-only
 | `--ff` | `auto` | Force field. Accepts a short name (`auto`, `amber`, `amber+glycam`, `charmm`, …) or explicit OpenMM XML paths. See [force-fields.md](../force-fields.md). |
 | `--padding` | 1.0 | Solvent padding in nm |
 | `--restraint-k` | 100.0 | Strong restraint constant (kcal/mol/A^2) |
-| `--weak-k` | 5.0 | Weak restraint constant for new backbone (kcal/mol/A^2) |
+| `--weak-k` | 5.0 | Weak restraint constant for new backbone and heterogen heavy atoms (kcal/mol/A^2) |
 | `--max-iter` | 1000 | Max minimization iterations per phase |
 | `--rebuild-h` | off | Strip and re-add hydrogens via OpenMM (default: keep existing) |
-| `--keep-water` | off | Preserve water molecules present in the input structure. Temporary solvent added for minimization is still removed from the final PDB. |
-| `--strip-heterogens` | off (default: keep) | Strip heterogens before parametrization, splice coords back — protein-only mode. **Warning**: heterogens are restored at their INPUT coords while the protein has moved during minimization; the protein-ligand interface (H-bonds, contacts) may end up strained. For proper interface geometry use `--parametrize-ligands` instead. |
+| `--strip-heterogens` | off (default: keep) | Protein-only mode; restore heterogens afterward. Noncovalent ligands may remain at their input coordinates while the pocket moves, straining the interface. Use whole-system minimization with compatible parameters when the interface matters. |
 | `--no-solvent` | off | Minimize in vacuum |
 | `--keep-water` | off | Preserve crystallographic waters present in the input while removing temporary minimization solvent from the final structure |
 | `--xtb-refine` | off | Post-pass: refine geometry with xtb GFN-FF universal force field (auto-parametrizes any organic molecule, no templates needed) |
@@ -88,7 +87,7 @@ dvbfixer minimize glycoprotein.pdb --obminimize-refine --refine-heterogens-only
 | `--refine-heterogens-only` | off | With `--xtb-refine`/`--obminimize-refine`: refine only heterogen residues (protein frozen). BioLuminate-style ligand-only minimization. **Caveat**: only the ligand's INTERNAL geometry gets refined — the protein-ligand INTERFACE is NOT relaxed, so any pre-existing clash there persists. Drop the flag for whole-system refinement when the interface matters. |
 | `--platform` | auto | OpenMM platform (CPU, CUDA, OpenCL, Reference) |
 | `--rename` | off | Rename non-canonical residues (AMBER/CHARMM) to standard names before processing |
-| `--parametrize-ligands` | off | For each heterogen residue with no template in the resolved `--ff`, run GAFF2 + AM1-BCC via antechamber and register the result as an OpenMM template. Cached under `~/.cache/dvbfixer/lig_params/` (override with `$DVBFIXER_LIG_CACHE`). Requires AmberTools (`antechamber`/`parmchk2`) and `openmmforcefields`. See [force-fields.md](../force-fields.md). |
+| `--parametrize-ligands` | off | Make the automatic GAFF2 + AM1-BCC attempt for eligible unknown organic ligands strict: abort on failure instead of using a fallback. Results are cached under `~/.cache/dvbfixer/lig_params/` (override with `$DVBFIXER_LIG_CACHE`). Requires AmberTools and `openmmforcefields`. See [force-fields.md](../force-fields.md). |
 | `-v`, `--verbose` | off | Print detailed progress |
 
 ## Recommended Workflow
@@ -114,7 +113,14 @@ dvbfixer minimize input_prepared.pdb --dat input_prepared.dat -v
 ## How it works
 Energy-minimizes with OpenMM using selective restraints from the `.dat` file. Original heavy atoms use the strong tier (100); new backbone and heterogen heavy atoms use the weak tier (5); new sidechains and hydrogens are free. Two phases use full restraints and then 10x-reduced restraints. **Default: keeps heterogens and minimizes the whole system** (protein + sugars + ligands). Temporary solvent is removed from the written structure; `--keep-water` identifies waters that existed in the input and preserves only those waters through the final cleanup. The `--ff` is resolved through `ffutils.resolve_ff` (short-name aliases + auto-detection — see the "Shared FF selection" section below); when GLYCAM residues are detected the alias upgrades to `amber+glycam` automatically. `create_forcefield_with_openff` loads the resolved XMLs and prunes GLYCAM sugar/NA templates that would fuzzy-match PDB-named sugars to the wrong entry. Then `acpype_export.add_glycam_bonds(positions=...)` populates intra-residue bonds + protein-glycan peptide bonds + sugar-sugar glycosidic bonds (distance-based), and `ignoreExternalBonds=True` is used for N-linked glycan junctions. Pre-solvent `createSystem` checks pass `residueTemplates` (built from CYX/HIE/HID/HIP/LYN auto-detection) to avoid CYM/CYX false positives. `main()` snapshots NLN/OLS/OLT names from the raw input PDB at startup and restores them on the final topology just before `PDBFile.writeFile`. Calls `fix_atom_hetatm_records` on the output.
 
-**`--parametrize-ligands`** (opt-in): for each heterogen residue that has no template in the resolved base FF (and isn't standard protein/water/ion/GLYCAM/CHARMM), extracts the residue's atoms + coords via OpenBabel → SDF, wraps in `openff.toolkit.Molecule`, and hands the list to `openmmforcefields.generators.GAFFTemplateGenerator` (real AMBER GAFF2 + AM1-BCC via antechamber under the hood). The generator is passed to `create_forcefield_with_openff` via `extra_generators=` and registered on the ForceField before `createSystem`. Cached on disk under `~/.cache/dvbfixer/lig_params/gaff_ligands.json` (override with `$DVBFIXER_LIG_CACHE`). Implementation in `src/dvbfixer/lig_params.py`. Same limitation as any per-molecule ligand FF: cross-residue bonds between two ligand residues get no parameters (use `dvbfixer convert` to bring glycans into a template-supported scheme). SMIRNOFF was previously used in this slot but never actually parameterised cross-residue glycan bonds — removed in favour of GAFF2 via GAFFTemplateGenerator. `_extract_residue_sdf` (since 0.7.9) builds a heavy-atom-only sub-molecule first (`ConnectTheDots()` + `PerceiveBondOrders()`), then re-attaches hydrogens at their existing positions with forced single bonds — running OpenBabel's whole-molecule bond perception directly on an already-hydrogenated residue badly miscalled bond orders. `dvbfixer.ffutils.ligand_valence` supplies known-alkene overrides (e.g. DAN's ring C2=C3) and a connectivity-based ionizable-group detector (carboxylate/sulfonate/phosphate) so the resulting GAFF2 template gets the correct bond graph and net charge instead of an unfillable radical.
+**Unknown organic ligands:** `minimize` automatically tries GAFF2 + AM1-BCC
+when a retained eligible ligand has no template in the chosen force field. This
+requires AmberTools and `openmmforcefields`; ordinary automatic failures can
+fall back to protein-only minimization. Add `--parametrize-ligands` when the
+ligand must be parameterized or the command must fail. Complex cofactors are
+rejected before generic GAFF, and cross-residue ligand bonds need a compatible
+validated template. See [force fields](../force-fields.md) for the decision
+matrix.
 
 `--strip-heterogens` opt-in mode: strip-and-splice path — heterogens removed before parametrization, minimized protein-only with original `--ff`, HETATM coords restored by `(chain, resid, insertion code, parent resname, atom name)` identity matching.
 
