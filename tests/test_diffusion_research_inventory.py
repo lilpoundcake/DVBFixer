@@ -7,9 +7,12 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+from dvbfixer.model.diffusion.rfdiffusion_v1 import RFDIFFUSION_ENVIRONMENT_SHA256
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INVENTORY = REPO_ROOT / "docs/research/diffusion-gap-reconstruction-inventory.toml"
 FIXTURE_MANIFEST = REPO_ROOT / "tests/fixtures/MANIFEST.sha256"
+RFDIFFUSION_ENVIRONMENT = REPO_ROOT / "deploy/rfdiffusion-v1/environment.yml"
 
 CANONICAL_RESIDUES = {
     "ALA": "A",
@@ -212,3 +215,21 @@ def test_diffusion_engine_inventory_is_fail_closed() -> None:
         "chroma",
         "rfdiffusion2",
     }
+
+
+def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
+    inventory = _load_inventory()
+    engine = next(item for item in inventory["engines"] if item["id"] == "rfdiffusion-v1")
+    smoke = inventory["rfdiffusion_v1_smoke"]
+
+    assert engine["checkpoint_sha256"] == (
+        "0fcf7d7c32b4848030aca3a051e6768de194616f96ba6c38186351a33bfc6eca"
+    )
+    assert engine["package_lock_hash"] == _sha256(RFDIFFUSION_ENVIRONMENT)
+    assert RFDIFFUSION_ENVIRONMENT_SHA256 == engine["package_lock_hash"]
+    assert smoke["same_seed_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert smoke["validation_pass_count"] == 0
+    assert smoke["failed_gate"] == "junction-peptide-connectivity"
+    assert smoke["observed_peak_vram_bytes"] > 0
+    assert smoke["withheld_10_detectable_d_ca"] == 2
+    assert "d-ca-chirality" in smoke["withheld_10_failed_gates"]

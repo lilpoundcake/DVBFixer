@@ -195,6 +195,7 @@ def build_validated_result(
             validation_summaries=(),
             runner_diagnostics=runner_result.runner_diagnostics,
             backend_provenance=runner_result.backend_provenance,
+            resource_metrics=runner_result.resource_metrics,
             message=runner_result.message,
         )
 
@@ -217,9 +218,10 @@ def build_validated_result(
             schema_version=DIFFUSION_SCHEMA_VERSION,
             status=DiffusionStatus.FAILED,
             candidates=(),
-            validation_summaries=(),
+            validation_summaries=tuple(item.summary for item in validations),
             runner_diagnostics=runner_result.runner_diagnostics,
             backend_provenance=runner_result.backend_provenance,
+            resource_metrics=runner_result.resource_metrics,
             message=message,
         )
 
@@ -232,6 +234,7 @@ def build_validated_result(
         validation_summaries=summaries,
         runner_diagnostics=runner_result.runner_diagnostics,
         backend_provenance=runner_result.backend_provenance,
+        resource_metrics=runner_result.resource_metrics,
         message=runner_result.message,
     )
 

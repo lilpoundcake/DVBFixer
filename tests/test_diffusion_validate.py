@@ -22,6 +22,7 @@ from dvbfixer.model.diffusion.contract import (
     ResidueIdentity,
     RunnerCandidate,
     RunnerDiagnostics,
+    RunnerResourceMetrics,
     RunnerResult,
     SequencePlacement,
     TargetInterval,
@@ -133,6 +134,10 @@ def _runner_result(candidates: tuple[RunnerCandidate, ...]) -> RunnerResult:
             runner_protocol_version=2,
             engine_repository="https://example.invalid/fake",
             engine_revision="test-revision",
+        ),
+        resource_metrics=RunnerResourceMetrics(
+            wall_time_seconds=1.5,
+            peak_vram_bytes=4096,
         ),
     )
 
@@ -375,6 +380,8 @@ def test_validation_accepts_complete_fixture_candidate(tmp_path: Path) -> None:
     assert validations[0].summary.passed is True
     assert validations[0].summary.hard_gate_failures == ()
     assert result.status is DiffusionStatus.SUCCESS
+    assert result.resource_metrics.wall_time_seconds == 1.5
+    assert result.resource_metrics.peak_vram_bytes == 4096
     assert [candidate.candidate_id for candidate in result.candidates] == ["passing"]
     metrics = {metric.name: metric.value for metric in result.validation_summaries[0].metrics}
     assert metrics["fixed-heavy-atom-rmsd"] == 0.0
@@ -402,6 +409,9 @@ def test_validation_rejects_outside_identity_and_fixed_coordinate_drift(tmp_path
     assert "fixed-heavy-atom-max-displacement" in validation.hard_gate_failures
     assert result.status is DiffusionStatus.FAILED
     assert result.candidates == ()
+    assert len(result.validation_summaries) == 1
+    assert result.validation_summaries[0].passed is False
+    assert result.resource_metrics.wall_time_seconds == 1.5
 
 
 def test_validation_rejects_missing_generated_heavy_atom_and_bad_junction(tmp_path: Path) -> None:

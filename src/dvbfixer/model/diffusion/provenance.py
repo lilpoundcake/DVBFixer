@@ -19,11 +19,12 @@ from dvbfixer.model.diffusion.contract import (
     DiffusionContractError,
     DiffusionRequest,
     RunnerDiagnostics,
+    RunnerResourceMetrics,
     TargetSequence,
     ValidationSummary,
 )
 
-DIFFUSION_PROVENANCE_SCHEMA_VERSION = 1
+DIFFUSION_PROVENANCE_SCHEMA_VERSION = 2
 
 
 @dataclass(frozen=True, slots=True)
@@ -66,6 +67,7 @@ class DiffusionProvenanceManifest:
     validation_summary: ValidationSummary
     backend_provenance: BackendProvenance
     runner_diagnostics: DiagnosticSummary
+    resource_metrics: RunnerResourceMetrics
     artifacts: tuple[PublicationArtifact, ...]
 
     def __post_init__(self) -> None:
@@ -108,6 +110,7 @@ class DiffusionProvenanceManifest:
             "validation_summary": _encode(self.validation_summary),
             "backend_provenance": _encode(self.backend_provenance),
             "runner_diagnostics": _encode(self.runner_diagnostics),
+            "resource_metrics": _encode(self.resource_metrics),
             "artifacts": _encode(self.artifacts),
         }
 
@@ -128,6 +131,7 @@ def build_provenance_manifest(
     runner_diagnostics: RunnerDiagnostics,
     artifacts: tuple[PublicationArtifact, ...],
     *,
+    resource_metrics: RunnerResourceMetrics | None = None,
     repository_root: Path | None = None,
 ) -> DiffusionProvenanceManifest:
     """Build a credential-free manifest from independently validated data."""
@@ -151,6 +155,7 @@ def build_provenance_manifest(
             stdout_bytes=len(runner_diagnostics.stdout.encode("utf-8")),
             stderr_bytes=len(runner_diagnostics.stderr.encode("utf-8")),
         ),
+        resource_metrics=resource_metrics or RunnerResourceMetrics(),
         artifacts=artifacts,
     )
 

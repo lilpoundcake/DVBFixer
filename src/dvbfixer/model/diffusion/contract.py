@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import MISSING, dataclass, fields, is_dataclass
 from enum import StrEnum
 from pathlib import Path
 from types import UnionType
 from typing import Any, ClassVar, TypeVar, Union, get_args, get_origin, get_type_hints
 
-DIFFUSION_SCHEMA_VERSION = 2
+from dvbfixer.model.diffusion.sampler import SamplingAblationMode
+
+DIFFUSION_SCHEMA_VERSION = 3
 
 
 class DiffusionContractError(ValueError):
@@ -275,6 +278,135 @@ class BackendProvenance:
 
 
 @dataclass(frozen=True, slots=True)
+class RunnerResourceMetrics:
+    wall_time_seconds: float | None = None
+    model_load_seconds: float | None = None
+    peak_ram_bytes: int | None = None
+    peak_vram_bytes: int | None = None
+
+    def __post_init__(self) -> None:
+        for value in (self.wall_time_seconds, self.model_load_seconds):
+            if value is not None and (not math.isfinite(value) or value < 0):
+                raise DiffusionContractError(
+                    "runner resource timings must be finite and non-negative"
+                )
+        for value in (self.peak_ram_bytes, self.peak_vram_bytes):
+            if value is not None and value < 0:
+                raise DiffusionContractError(
+                    "runner resource byte counts must be non-negative"
+                )
+
+
+@dataclass(frozen=True, slots=True)
+class SamplerStepTrace:
+    step_index: int
+    atom_identity_sha256: str
+    fixed_coordinate_sha256: str
+    pre_projection_max_error_angstrom: float
+    post_projection_max_error_angstrom: float
+
+    def __post_init__(self) -> None:
+        if self.step_index < 0:
+            raise DiffusionContractError("sampler step index must be non-negative")
+        for field_name, digest in (
+            ("atom_identity_sha256", self.atom_identity_sha256),
+            ("fixed_coordinate_sha256", self.fixed_coordinate_sha256),
+        ):
+            ArtifactReference(field_name, digest)
+        for value in (
+            self.pre_projection_max_error_angstrom,
+            self.post_projection_max_error_angstrom,
+        ):
+            if not math.isfinite(value) or value < 0:
+                raise DiffusionContractError(
+                    "sampler projection errors must be finite and non-negative"
+                )
+
+
+@dataclass(frozen=True, slots=True)
+class SamplerTrace:
+    ablation_mode: SamplingAblationMode
+    fixed_atoms: tuple[AtomIdentity, ...]
+    fixed_tolerance_angstrom: float
+    steps: tuple[SamplerStepTrace, ...]
+    localized_refinement_residues: tuple[ResidueIdentity, ...] = ()
+    final_heavy_coordinate_operations: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.ablation_mode, SamplingAblationMode):
+            try:
+                object.__setattr__(
+                    self,
+                    "ablation_mode",
+                    SamplingAblationMode(self.ablation_mode),
+                )
+            except ValueError as exc:
+                raise DiffusionContractError(
+                    f"unknown sampling ablation mode: {self.ablation_mode}"
+                ) from exc
+        if not self.fixed_atoms:
+            raise DiffusionContractError("sampler trace fixed_atoms must not be empty")
+        if len(set(self.fixed_atoms)) != len(self.fixed_atoms):
+            raise DiffusionContractError("sampler trace fixed_atoms must not contain duplicates")
+        if not math.isfinite(self.fixed_tolerance_angstrom) or self.fixed_tolerance_angstrom < 0:
+            raise DiffusionContractError(
+                "sampler trace fixed tolerance must be finite and non-negative"
+            )
+        if self.ablation_mode is SamplingAblationMode.TEMPLATE_ONLY:
+            if self.steps:
+                raise DiffusionContractError(
+                    "template-only sampler trace cannot claim per-step projection evidence"
+                )
+        elif not self.steps:
+            raise DiffusionContractError(
+                "reinjection sampler trace must contain per-step projection evidence"
+            )
+        indices = tuple(step.step_index for step in self.steps)
+        if indices != tuple(range(len(self.steps))):
+            raise DiffusionContractError(
+                "sampler trace step indices must be contiguous and start at zero"
+            )
+        identity_digests = {step.atom_identity_sha256 for step in self.steps}
+        if len(identity_digests) > 1:
+            raise DiffusionContractError(
+                "sampler trace atom identity digest must remain stable across steps"
+            )
+        if any(
+            step.post_projection_max_error_angstrom > self.fixed_tolerance_angstrom
+            for step in self.steps
+        ):
+            raise DiffusionContractError(
+                "sampler trace post-projection error exceeds fixed tolerance"
+            )
+        if len(set(self.localized_refinement_residues)) != len(
+            self.localized_refinement_residues
+        ):
+            raise DiffusionContractError(
+                "localized refinement residues must not contain duplicates"
+            )
+        if (
+            self.ablation_mode
+            is SamplingAblationMode.REINJECTION_BOUNDARY_REFINEMENT
+            and not self.localized_refinement_residues
+        ):
+            raise DiffusionContractError(
+                "boundary-refinement trace must name localized refinement residues"
+            )
+        if (
+            self.ablation_mode
+            is not SamplingAblationMode.REINJECTION_BOUNDARY_REFINEMENT
+            and self.localized_refinement_residues
+        ):
+            raise DiffusionContractError(
+                "localized refinement residues require the boundary-refinement mode"
+            )
+        if any(not operation for operation in self.final_heavy_coordinate_operations):
+            raise DiffusionContractError(
+                "final heavy-coordinate operation names must not be empty"
+            )
+
+
+@dataclass(frozen=True, slots=True)
 class DiffusionCandidate:
     candidate_id: str
     seed: int
@@ -419,6 +551,7 @@ class RunnerResult(_JsonContract):
     candidates: tuple[RunnerCandidate, ...]
     runner_diagnostics: RunnerDiagnostics
     backend_provenance: BackendProvenance
+    resource_metrics: RunnerResourceMetrics = RunnerResourceMetrics()
     message: str = ""
 
     def __post_init__(self) -> None:
@@ -445,6 +578,7 @@ class DiffusionResult(_JsonContract):
     validation_summaries: tuple[ValidationSummary, ...]
     runner_diagnostics: RunnerDiagnostics
     backend_provenance: BackendProvenance
+    resource_metrics: RunnerResourceMetrics = RunnerResourceMetrics()
     message: str = ""
 
     def __post_init__(self) -> None:

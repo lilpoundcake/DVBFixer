@@ -22,7 +22,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
 )
 
-DIFFUSION_RUNNER_PROTOCOL_VERSION = 2
+DIFFUSION_RUNNER_PROTOCOL_VERSION = 3
 REQUEST_MANIFEST = "request.json"
 RESULT_MANIFEST = "result.json"
 _TRUNCATION_MARKER = b"\n...[output truncated by DVBFixer]"

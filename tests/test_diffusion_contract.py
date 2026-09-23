@@ -22,7 +22,11 @@ from dvbfixer.model.diffusion.contract import (
     ResidueIdentity,
     RunnerCandidate,
     RunnerDiagnostics,
+    RunnerResourceMetrics,
     RunnerResult,
+    SamplerStepTrace,
+    SamplerTrace,
+    SamplingAblationMode,
     SequencePlacement,
     TargetInterval,
     TargetSequence,
@@ -193,6 +197,60 @@ def test_backend_provenance_round_trip_preserves_optional_runtime_evidence() -> 
 
     assert round_trip.backend_provenance == provenance
     assert round_trip.backend_provenance.deterministic_algorithms is False
+
+
+def test_schema_v3_resource_metrics_and_sampler_trace_are_strict() -> None:
+    metrics = RunnerResourceMetrics(
+        wall_time_seconds=12.5,
+        model_load_seconds=3.0,
+        peak_ram_bytes=1024,
+        peak_vram_bytes=2048,
+    )
+    result = RunnerResult(
+        schema_version=DIFFUSION_SCHEMA_VERSION,
+        status=DiffusionStatus.FAILED,
+        candidates=(),
+        runner_diagnostics=RunnerDiagnostics(exit_code=1, timed_out=False),
+        backend_provenance=BackendProvenance(
+            backend="fake",
+            runner_protocol_version=3,
+            engine_repository="builtin://fake",
+            engine_revision="test",
+        ),
+        resource_metrics=metrics,
+        message="failed",
+    )
+
+    assert RunnerResult.from_json(result.to_json()).resource_metrics == metrics
+    with pytest.raises(DiffusionContractError, match="finite and non-negative"):
+        RunnerResourceMetrics(wall_time_seconds=float("nan"))
+    with pytest.raises(DiffusionContractError, match="non-negative"):
+        RunnerResourceMetrics(peak_vram_bytes=-1)
+
+    fixed = AtomIdentity("D", "10", "", "CA")
+    trace = SamplerTrace(
+        ablation_mode=SamplingAblationMode.REINJECTION,
+        fixed_atoms=(fixed,),
+        fixed_tolerance_angstrom=0.01,
+        steps=(
+            SamplerStepTrace(
+                step_index=0,
+                atom_identity_sha256="b" * 64,
+                fixed_coordinate_sha256="c" * 64,
+                pre_projection_max_error_angstrom=0.2,
+                post_projection_max_error_angstrom=0.0,
+            ),
+        ),
+    )
+    assert trace.ablation_mode is SamplingAblationMode.REINJECTION
+
+    with pytest.raises(DiffusionContractError, match="cannot claim"):
+        SamplerTrace(
+            ablation_mode=SamplingAblationMode.TEMPLATE_ONLY,
+            fixed_atoms=(fixed,),
+            fixed_tolerance_angstrom=0.01,
+            steps=trace.steps,
+        )
 
 
 def test_backend_provenance_and_candidates_reject_invalid_seed_metadata() -> None:

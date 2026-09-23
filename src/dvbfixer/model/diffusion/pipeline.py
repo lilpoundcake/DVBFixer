@@ -276,6 +276,7 @@ def _stage_candidate(
         result.backend_provenance,
         result.runner_diagnostics,
         artifacts,
+        resource_metrics=result.resource_metrics,
         repository_root=repository_root,
     )
     manifest_bytes = manifest.to_json().encode("utf-8")

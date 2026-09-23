@@ -64,10 +64,10 @@
 
 ### RFdiffusion v1 Baseline
 
-- [x] Select RFdiffusion v1 as the first external backbone-inpainting benchmark adapter; the adapter itself is not yet implemented.
+- [x] Select RFdiffusion v1 as the first external backbone-inpainting benchmark adapter. The internal adapter is implemented and GPU-smoked; it remains outside public dispatch.
 - [x] Pin source revision `bf42b54c20a99dd7350456c85985ed4d83b95d48` in the research inventory.
-- [ ] Pin and hash the exact checkpoint. `Base_ckpt.pt` has an upstream HTTP URL but no accepted SHA-256, so local acquisition remains blocked rather than automatic.
-- [ ] Archive the applicable BSD-3-Clause license evidence for code and separately resolve README-linked checkpoint terms. Source evidence is recorded; checkpoint licensing/redistribution is unresolved.
+- [x] Pin the exact checkpoint to independently measured SHA-256 `0fcf7d7c32b4848030aca3a051e6768de194616f96ba6c38186351a33bfc6eca`. Upstream still provides no signed checksum manifest, so publisher-authenticated supply-chain verification remains unavailable.
+- [x] Archive BSD-3-Clause evidence for code and upstream license commit `820bfdfaded8c260b962dc40a3171eae316b6ce0`, which explicitly covers README-linked weights. A final redistribution review remains required before embedding weights in a service image.
 - [x] Treat any future RFdiffusion output as a backbone-level benchmark until side-chain materialization and all-heavy-atom validation are complete.
 - [x] Do not expose raw RFdiffusion output as a production DVBFixer repair result.
 
@@ -105,7 +105,7 @@
 
 - [x] Record code repository and revision.
 - [x] Record source-code license and exact license-text revision.
-- [ ] Record checkpoint URL and SHA-256. URLs are recorded where published; required hashes remain explicit blockers until artifact acquisition.
+- [x] Record checkpoint URL and independently measured SHA-256; retain the absence of a publisher-signed checksum as explicit provenance.
 - [ ] Record checkpoint license and redistribution decision. Upstream claims and unresolved review status are recorded; no engine is approved for distribution.
 - [ ] Record auxiliary model and cache URLs, hashes, and licenses. Required auxiliary artifacts remain unresolved.
 - [ ] Record container base-image and package-lock provenance. Required digests and lock hashes remain unresolved.
@@ -273,14 +273,15 @@
 
 ### Phase 2: RFdiffusion v1 GPU Baseline
 
-- [ ] Build a pinned Linux/NVIDIA runner environment.
-- [ ] Add checksum-verified checkpoint acquisition.
-- [ ] Map `DiffusionRequest` to RFdiffusion contig/inpainting inputs.
-- [ ] Map generated coordinates back to stable DVBFixer identities.
-- [ ] Materialize canonical side chains through an explicitly recorded pure-protein route.
-- [ ] Re-run all all-heavy-atom validation after side-chain materialization.
-- [ ] Keep outputs inside benchmark workspaces until hard gates pass.
-- [ ] Measure fixed-atom drift, closure, quality, runtime, RAM, VRAM, and seed variability.
+- [x] Build a pinned native Linux/NVIDIA runner environment for the first benchmark host; immutable service-container packaging remains separate.
+- [x] Add checksum-verified checkpoint acquisition instructions.
+- [x] Map the supported one-chain/one-gap `DiffusionRequest` slice to RFdiffusion contig/inpainting inputs.
+- [x] Map generated coordinates back to stable DVBFixer identities through target-sequence ordinals.
+- [x] Materialize canonical side chains through the explicitly recorded PDBFixer pure-protein route.
+- [x] Re-run all all-heavy-atom validation after side-chain materialization.
+- [x] Keep outputs inside benchmark workspaces until hard gates pass.
+- [x] Measure fixed-atom drift, closure, withheld quality, runtime, RAM, VRAM, same-seed repeatability, and seed variability for the reviewed 5- and 10-residue smoke cases. Both 5-residue candidates failed the junction-connectivity gate; the 10-residue candidate additionally had five severe overlaps and two D-Cα centres, so acceptance remains open.
+- [ ] Build and verify an immutable NVIDIA Docker runner image after selecting a base-image digest. Keep the checkpoint mounted and digest-verified by default until redistribution review explicitly permits embedding it.
 
 ### Phase 3: All-Atom Constrained Sampler
 
@@ -305,6 +306,7 @@
 - [ ] Add backend preflight to `doctor` without removing its stable report sections.
 - [ ] Regenerate CLI reference and GUI command schema through their generators.
 - [ ] Do not propagate diffusion options through `zbs` in this phase.
+- [ ] Expose diffusion through the existing asynchronous managed-job API only after the experimental CLI gates pass; do not add a synchronous inference route or duplicate adapter science in Node.
 
 ### Phase 5: Mosaic-First Homology
 
@@ -394,21 +396,30 @@
 - [x] Treat any tiny CPU inference as an optional smoke test only when upstream officially supports it; no real-engine CPU inference is claimed.
 - [x] Do not use CPU inference for representative ensembles or acceptance benchmarks.
 
-### macOS Apple Silicon
+### macOS Apple Silicon — Deferred Follow-Up
 
-- [ ] Run the same core, fake-runner, and validation suites as CPU Linux on an actual Apple Silicon host.
+Native Apple Silicon diffusion inference is intentionally deferred until the
+Linux/NVIDIA implementation has a stable main framework and has completed its
+Phase 2 backbone baseline and Phase 3 all-atom constrained-sampler tests. It is
+not part of the current Phase 2-4 implementation cycle and must not delay or
+weaken the A100 acceptance gates.
+
+- [ ] Reassess pinned-engine CPU/MPS feasibility only after the main framework and Linux/NVIDIA Phase 2/3 tests are stable.
+- [ ] Run the same core, fake-runner, and validation suites as CPU Linux on an actual Apple Silicon host before claiming platform support.
+- [ ] Define a separate Apple Silicon research matrix covering upstream arm64 packages, unsupported operators, precision, unified-memory use, repeatability, and runtime.
 - [x] Treat MPS inference as exploratory unless the selected pinned engine officially supports it.
-- [x] Do not use MPS output as a release acceptance gate.
+- [x] Do not use MPS output as a release acceptance gate or as evidence for the Linux/NVIDIA gates.
+- [x] Keep macOS usable as a DVBFixer core/client platform; a future remote Linux/NVIDIA runner may remain the practical inference path.
 - [x] Document that Docker Desktop on macOS does not provide NVIDIA CUDA.
 
 ### Linux/NVIDIA
 
-- [ ] Use Linux x86_64 with a pinned NVIDIA driver and CUDA/container runtime.
-- [ ] Start short-gap evaluation on a machine with at least 24 GB VRAM.
+- [x] Use Linux x86_64 with NVIDIA driver 535.104.05 and the pinned native CUDA 11.1 environment; the future container runtime is not yet pinned.
+- [x] Start short-gap evaluation on an A100-SXM4-40GB.
 - [ ] Prefer 48-80 GB VRAM for larger complexes, all-atom models, multi-sample ensembles, and profiling.
-- [ ] Provide at least 64 GB system RAM and fast SSD/model-cache storage.
-- [ ] Record actual peak memory instead of treating 24 GB as an upstream guarantee.
-- [ ] Add a documented representative smoke profile before selecting long-term hardware.
+- [x] Provide at least 64 GB system RAM and fast local temporary/model-cache storage.
+- [x] Record actual peak memory instead of treating 24 GB as an upstream guarantee. The first instrumented run observed approximately 5.96 GB RAM and 3.70 GB VRAM.
+- [x] Add a documented representative smoke profile before selecting long-term hardware.
 
 ### CI Separation
 
@@ -437,7 +448,7 @@
 - [ ] Change `src/dvbfixer/homology_plan.py` only in the mosaic-first phase.
 - [ ] Change `src/dvbfixer/homology.py` only after the homology contract passes focused tests.
 - [ ] Avoid changing `src/dvbfixer/ffutils/dat.py` unless a general sidecar requirement is demonstrated.
-- [ ] Add isolated runner/container lock and license-inventory files.
+- [x] Add the isolated native runner environment lock and license inventory; an immutable Docker base digest remains pending before service-image acceptance.
 - [x] Add focused diffusion unit and integration tests for the contract, masks, geometry, research inventory, runner protocol, fake runner, independent validation, publication, provenance, adapter preflight, sampler conformance, repeatability, and benchmark metrics.
 - [ ] Add reviewed fixtures and regenerate their manifest when benchmark structures are added.
 
@@ -485,9 +496,9 @@
   python scripts/gen_gui_spec.py --check
   ```
 
-- [ ] Run a pinned GPU smoke test on one short internal gap before broader GPU benchmarks.
-- [ ] Run a same-seed deterministic repeat on the pinned GPU environment.
-- [ ] Run the representative benchmark subset before the full benchmark corpus.
+- [x] Run a pinned GPU smoke test on the reviewed 8CZ8 five-residue internal gap.
+- [x] Run a same-seed deterministic repeat on the pinned GPU environment; the raw PDB was byte-identical and coordinate RMSD was `0.0 Å`.
+- [x] Run the initial representative RFdiffusion subset: the reviewed 5- and 10-residue 8CZ8 cases. Neither passed all hard gates; MODELLER comparison and broader strata remain pending.
 
 ## First Implementation Iteration Exit Criteria
 
@@ -507,7 +518,7 @@
 
 ## Remaining External Gates
 
-- [ ] Phase 2 remains blocked on an accepted RFdiffusion checkpoint SHA-256, checkpoint-license/redistribution decision, immutable image/environment identity, Linux/NVIDIA execution, side-chain materialization, and measured benchmark evidence.
+- [ ] Phase 2 remains blocked on MODELLER comparison, junction refinement evidence, elimination of the 10-residue chirality/clash failures, immutable service-image identity, final checkpoint redistribution review, and broader measured benchmark evidence. Checkpoint hashing, native Linux/NVIDIA execution, side-chain materialization, and the initial 5-/10-residue subset are complete.
 - [ ] Phase 3 remains blocked until a pinned all-atom sampler demonstrates externally controllable mutable state, stable atom identity, and exact fixed-coordinate overwrite at every denoising step.
 - [ ] Phases 4-6 remain blocked on the Phase 2/3 evidence and intentionally make no public CLI, homology, or production-support claim.
 - [ ] Keep status `proposed` and MODELLER/PDBFixer as supported production baselines until those gates pass.
