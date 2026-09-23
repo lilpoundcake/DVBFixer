@@ -37,3 +37,9 @@ The internal adapter is `python -m dvbfixer.model.diffusion.rfdiffusion_v1`.
 It is not a public modeling backend. A future service image must preserve the
 same request/result protocol, use an immutable base-image digest, and fetch or
 mount the verified checkpoint according to the final redistribution decision.
+
+The adapter enables DVBFixer's seeded post-sampling OpenMM boundary refinement
+by default. Set the internal backend option `boundary_refinement=false` only
+for the declared raw-backbone ablation. This pass freezes all source atoms,
+constrains generated heavy-atom bonds, and independently rechecks the complete
+candidate; it is not per-denoising-step reinjection.

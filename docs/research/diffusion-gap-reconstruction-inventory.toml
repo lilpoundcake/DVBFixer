@@ -205,6 +205,46 @@ withheld_10_wall_time_seconds = 77.25180398859084
 withheld_10_peak_ram_bytes = 5964333056
 withheld_10_peak_vram_bytes = 3701473280
 
+[modeller_comparator]
+run_date = "2026-09-23"
+version = "10.8"
+configuration = "dvbfixer model, one initial model, two fast pinned-loop candidates, same withheld target sequence"
+withheld_5_candidate_count = 2
+withheld_5_median_gap_backbone_rmsd_angstrom = 2.575872344356123
+withheld_5_junction_pass_rate = 1.0
+withheld_5_fixed_heavy_rmsd_angstrom = 3.500794753580758
+withheld_10_candidate_count = 2
+withheld_10_median_gap_backbone_rmsd_angstrom = 10.828263258686273
+withheld_10_junction_pass_rate = 1.0
+withheld_10_fixed_heavy_rmsd_angstrom = 4.502453334025401
+interpretation = "MODELLER closes both junctions and passes local geometry gates, but its initial comparative-model optimization moves deposited coordinates; raw molpdf remains a separate, non-comparable score."
+
+[rfdiffusion_v1_boundary_refinement]
+run_date = "2026-09-23"
+revision = "dvbfixer-openmm-boundary-refinement-v2"
+method = "post-sampling mass-zero OpenMM minimization with fixed source records, generated-heavy bond constraints, chirality/peptide restraints, and seeded coordinate restarts"
+per_step_reinjection = false
+withheld_5_seed = 7
+withheld_5_gap_backbone_rmsd_angstrom = 0.3700647916243856
+withheld_5_gap_all_heavy_rmsd_angstrom = 0.8941176223409566
+withheld_5_fixed_heavy_rmsd_angstrom = 0.0
+withheld_5_junction_cn_angstrom = [1.3298311922947201, 1.3410760604827767]
+withheld_5_validation_passed = true
+withheld_5_detectable_d_ca = 0
+withheld_5_severe_steric_overlaps = 0
+withheld_10_seed = 7
+withheld_10_gap_backbone_rmsd_angstrom = 0.8408030982340641
+withheld_10_gap_all_heavy_rmsd_angstrom = 1.9914874650696182
+withheld_10_fixed_heavy_rmsd_angstrom = 0.0
+withheld_10_junction_cn_angstrom = [1.330355215722479, 1.3338688091412816]
+withheld_10_validation_passed = true
+withheld_10_detectable_d_ca = 0
+withheld_10_severe_steric_overlaps = 0
+modeller_comparison_passed_for_measured_candidates = true
+repeatability_status = "open"
+repeatability_reason = "The raw RFdiffusion output remains byte-identical for a repeated seed, but post-refinement same-seed repeatability must be re-measured after the v2 constrained-restart implementation before Phase 2 acceptance."
+interpretation = "The first refined 5- and 10-residue candidates pass every frozen hard gate and outperform the measured MODELLER backbone-RMSD/fixed-adherence baselines; this is initial subset evidence, not public-backend acceptance."
+
 [[engines]]
 id = "protenix-v1"
 role = "preferred all-atom denoising-hook feasibility spike"

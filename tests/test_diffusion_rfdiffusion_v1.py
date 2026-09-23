@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
+from dvbfixer.model.diffusion.boundary_refinement import refine_generated_region
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
@@ -180,3 +181,55 @@ def test_materialization_restores_identity_and_all_expected_heavy_atoms() -> Non
         line.startswith("ATOM  ") and line[21] == "A"
         for line in candidate.splitlines()
     )
+
+
+def test_boundary_refinement_preserves_fixed_records_and_generated_identity() -> None:
+    request, source, raw = _case()
+    synthetic = build_synthetic_input(request, source)
+    unrefined = materialize_candidate(
+        request,
+        source_text=source,
+        synthetic_text=synthetic.pdb_text,
+        raw_text=raw,
+    )
+
+    result = refine_generated_region(
+        unrefined,
+        generated_residues=request.gaps[0].generated_residues,
+        generated_atoms=request.generated_atoms,
+        max_iterations=50,
+        restart_count=0,
+    )
+
+    assert set(result.coordinates_angstrom) == set(request.generated_atoms)
+    assert result.final_energy_kj_mol < result.initial_energy_kj_mol
+    assert len(result.pre_coordinate_sha256) == 64
+    assert len(result.post_coordinate_sha256) == 64
+
+
+def test_materialization_with_refinement_keeps_source_atom_lines_exact() -> None:
+    request, source, raw = _case()
+    synthetic = build_synthetic_input(request, source)
+
+    candidate = materialize_candidate(
+        request,
+        source_text=source,
+        synthetic_text=synthetic.pdb_text,
+        raw_text=raw,
+        boundary_refinement=True,
+        refinement_restart_count=0,
+    )
+
+    source_atom_lines = {
+        line
+        for line in source.splitlines()
+        if line.startswith(("ATOM  ", "HETATM"))
+    }
+    candidate_lines = set(candidate.splitlines())
+    assert source_atom_lines <= candidate_lines
+    candidate_atoms = {
+        _atom(line)
+        for line in candidate.splitlines()
+        if line.startswith(("ATOM  ", "HETATM")) and _heavy(line)
+    }
+    assert set(request.generated_atoms) <= candidate_atoms

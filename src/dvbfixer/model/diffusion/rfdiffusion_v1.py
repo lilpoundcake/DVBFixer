@@ -22,10 +22,15 @@ from pathlib import Path
 from typing import NamedTuple
 
 import numpy as np
+from openmm import Platform
 from openmm.app import PDBFile
 from pdbfixer import PDBFixer
 
 from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry
+from dvbfixer.model.diffusion.boundary_refinement import (
+    BOUNDARY_REFINEMENT_REVISION,
+    refine_generated_region,
+)
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
@@ -192,7 +197,7 @@ def unsupported_request_reason(request: DiffusionRequest) -> str:
     unknown_options = sorted(
         option.name
         for option in request.backend_options
-        if option.name not in {"final_step"}
+        if option.name not in {"boundary_refinement", "final_step"}
     )
     if unknown_options:
         return "unsupported RFdiffusion backend options: " + ", ".join(unknown_options)
@@ -229,6 +234,11 @@ def run_adapter(request: DiffusionRequest, config: RFdiffusionV1Config) -> Runne
     final_step = _backend_option(request, "final_step", "1")
     if not final_step.isdigit() or int(final_step) < 1 or int(final_step) > 50:
         raise RFdiffusionAdapterError("final_step must be an integer between 1 and 50")
+    boundary_refinement = _boolean_backend_option(
+        request,
+        "boundary_refinement",
+        default=True,
+    )
 
     for index, seed in enumerate(request.seeds, start=1):
         prefix = Path("rfdiffusion") / f"seed-{seed}" / "design"
@@ -276,6 +286,9 @@ def run_adapter(request: DiffusionRequest, config: RFdiffusionV1Config) -> Runne
             source_text=source_text,
             synthetic_text=synthetic.pdb_text,
             raw_text=raw_pdb.read_text(encoding="utf-8"),
+            boundary_refinement=boundary_refinement,
+            refinement_seed=seed,
+            refinement_platform="CPU",
         )
         candidate_path.write_text(candidate_text, encoding="utf-8")
         candidates.append(
@@ -293,6 +306,13 @@ def run_adapter(request: DiffusionRequest, config: RFdiffusionV1Config) -> Runne
                     "RFdiffusion v1 is backbone-only; DVBFixer materialized target-sequence "
                     "side chains with PDBFixer before independent validation",
                     "fixed source coordinates were reinserted after post-sampling Kabsch alignment",
+                    (
+                        "generated residues received seeded post-sampling OpenMM boundary "
+                        f"refinement ({BOUNDARY_REFINEMENT_REVISION}); this is not per-step "
+                        "diffusion reinjection"
+                        if boundary_refinement
+                        else "post-sampling OpenMM boundary refinement was disabled for this ablation"
+                    ),
                 ),
             )
         )
@@ -324,6 +344,10 @@ def materialize_candidate(
     source_text: str,
     synthetic_text: str,
     raw_text: str,
+    boundary_refinement: bool = False,
+    refinement_seed: int = 1,
+    refinement_platform: str = "CPU",
+    refinement_restart_count: int | None = None,
 ) -> str:
     """Restore identities and complete generated canonical heavy atoms."""
     gap = request.gaps[0]
@@ -380,6 +404,7 @@ def materialize_candidate(
 
     backbone_candidate = _insert_generated_lines(source_text, gap.right_anchor, generated_lines)
     fixer = PDBFixer(pdbfile=StringIO(backbone_candidate))
+    fixer.platform = Platform.getPlatformByName("CPU")
     fixer.findMissingResidues()
     fixer.missingResidues = {}
     fixer.findMissingAtoms()
@@ -416,7 +441,49 @@ def materialize_candidate(
             )
         )
         serial += 1
-    return _insert_generated_lines(source_text, gap.right_anchor, completed_lines)
+    completed_candidate = _insert_generated_lines(
+        source_text,
+        gap.right_anchor,
+        completed_lines,
+    )
+    if not boundary_refinement:
+        return completed_candidate
+
+    short_gap = len(gap.generated_residues) <= 5
+    refinement_kwargs: dict[str, object] = {}
+    if short_gap:
+        refinement_kwargs["max_iterations"] = 500
+        refinement_kwargs["perturbation_angstrom"] = 0.25
+    if refinement_restart_count is not None:
+        refinement_kwargs["restart_count"] = refinement_restart_count
+    refinement = refine_generated_region(
+        completed_candidate,
+        generated_residues=gap.generated_residues,
+        generated_atoms=request.generated_atoms,
+        random_seed=refinement_seed,
+        platform_name=refinement_platform,
+        **refinement_kwargs,
+    )
+    refined_lines: list[str] = []
+    serial = _maximum_serial(source_text) + 1
+    for identity in request.generated_atoms:
+        atom = rebuilt_atoms[identity]
+        refined_lines.append(
+            _format_atom(
+                serial,
+                identity.atom_name,
+                atom.residue_name,
+                ResidueIdentity(
+                    identity.chain,
+                    identity.residue_number,
+                    identity.insertion_code,
+                ),
+                refinement.coordinates_angstrom[identity],
+                atom.element,
+            )
+        )
+        serial += 1
+    return _insert_generated_lines(source_text, gap.right_anchor, refined_lines)
 
 
 def _atoms_by_target_index(text: str) -> dict[int, dict[str, _PDBAtom]]:
@@ -539,6 +606,18 @@ def _backend_option(request: DiffusionRequest, name: str, default: str) -> str:
     return next((option.value for option in request.backend_options if option.name == name), default)
 
 
+def _boolean_backend_option(
+    request: DiffusionRequest,
+    name: str,
+    *,
+    default: bool,
+) -> bool:
+    value = _backend_option(request, name, "true" if default else "false").lower()
+    if value not in {"true", "false"}:
+        raise RFdiffusionAdapterError(f"{name} must be true or false")
+    return value == "true"
+
+
 def _verify_config(config: RFdiffusionV1Config) -> None:
     if not config.python.is_file() or not os.access(config.python, os.X_OK):
         raise RFdiffusionAdapterError("RFdiffusion Python executable is unavailable")
@@ -640,7 +719,9 @@ def _backend_provenance(config: RFdiffusionV1Config) -> BackendProvenance:
         checkpoint_sha256=config.checkpoint_sha256,
         checkpoint_license="BSD-3-Clause; official upstream clarification postdates v1.0.0",
         environment_hash=RFDIFFUSION_ENVIRONMENT_SHA256,
-        environment_identity=RFDIFFUSION_ADAPTER_REVISION,
+        environment_identity=(
+            f"{RFDIFFUSION_ADAPTER_REVISION}+{BOUNDARY_REFINEMENT_REVISION}"
+        ),
         device="cuda:0",
         precision="float32",
         framework="pytorch",
@@ -649,7 +730,10 @@ def _backend_provenance(config: RFdiffusionV1Config) -> BackendProvenance:
         driver_version=_driver_version(),
         deterministic_algorithms=False,
         deterministic_flags=("inference.deterministic=True", "one-design-per-request-seed"),
-        known_nondeterministic_operations=("legacy CUDA scatter/reduction kernels",),
+        known_nondeterministic_operations=(
+            "legacy CUDA scatter/reduction kernels",
+            "OpenMM/PDBFixer local refinement may vary across repeated runs",
+        ),
     )
 
 

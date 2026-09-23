@@ -185,9 +185,9 @@
   - [x] provide a CPU-tested exact fixed-coordinate overwrite primitive;
   - [x] verify atom identity equality in the synchronization/reinjection primitive;
   - [ ] integrate all four operations inside every update of a pinned real sampler.
-- [ ] Run a localized second pass around both peptide junctions.
-- [ ] Keep atoms outside the declared movable junction window fixed during the localized pass.
-- [ ] Materialize all expected canonical heavy atoms in generated residues.
+- [x] Run a localized post-sampling OpenMM pass around both peptide junctions for the RFdiffusion baseline; a real-sampler second diffusion pass remains pending.
+- [x] Keep atoms outside the generated residue set fixed during the localized pass. Fixed request atoms take precedence over the broader movable-junction support window.
+- [x] Materialize all expected canonical heavy atoms in generated residues for the RFdiffusion baseline.
 - [x] Leave hydrogen placement and protonation to the downstream preparation stage contract.
 - [x] Define three explicit ablation modes and their required capability evidence:
   - [x] template conditioning only;
@@ -280,7 +280,7 @@
 - [x] Materialize canonical side chains through the explicitly recorded PDBFixer pure-protein route.
 - [x] Re-run all all-heavy-atom validation after side-chain materialization.
 - [x] Keep outputs inside benchmark workspaces until hard gates pass.
-- [x] Measure fixed-atom drift, closure, withheld quality, runtime, RAM, VRAM, same-seed repeatability, and seed variability for the reviewed 5- and 10-residue smoke cases. Both 5-residue candidates failed the junction-connectivity gate; the 10-residue candidate additionally had five severe overlaps and two D-Cα centres, so acceptance remains open.
+- [x] Measure fixed-atom drift, closure, withheld quality, runtime, RAM, VRAM, same-seed raw repeatability, and seed variability for the reviewed 5- and 10-residue smoke cases. Raw candidates failed junction/chirality/clash gates; the first v2 post-refinement candidate in each mask passes all hard gates. Refined repeatability remains open.
 - [ ] Build and verify an immutable NVIDIA Docker runner image after selecting a base-image digest. Keep the checkpoint mounted and digest-verified by default until redistribution review explicitly permits embedding it.
 
 ### Phase 3: All-Atom Constrained Sampler
@@ -290,7 +290,7 @@
 - [ ] Select a sampler only after per-step control is demonstrated.
 - [x] Implement the backend-neutral weighted Kabsch synchronization primitive; real-sampler per-step integration remains pending.
 - [x] Implement the backend-neutral exact fixed-coordinate reinjection primitive; real-sampler per-step integration remains pending.
-- [ ] Implement localized boundary refinement.
+- [x] Implement localized post-sampling boundary refinement for the RFdiffusion baseline; this does not satisfy the per-step all-atom sampler ablation.
 - [ ] Run the three-way ablation benchmark.
 - [ ] Require complete canonical heavy atoms.
 - [ ] Require final `assert_all_l` after every candidate's last heavy-coordinate change.
@@ -378,9 +378,9 @@
 - [x] Aggregate observed wall time, model-load time, peak RAM, and peak VRAM while preserving missing values instead of fabricating them; no real-engine values are claimed yet.
 - [x] Compute external-process timeout and crash rates from explicit failed-run evidence; no real-engine rates are claimed yet.
 - [ ] Report conditioning/reinjection/boundary-refinement ablation results.
-- [x] Encode the experimental-CLI median gap-backbone RMSD gate as no more than `0.25 Å` worse than MODELLER; real comparative values remain pending.
-- [x] Encode the junction-pass gate as no lower than MODELLER on the initial slice; real comparative values remain pending.
-- [x] Encode the fixed-coordinate-adherence gate as strictly better than the MODELLER baseline; real comparative values remain pending.
+- [x] Encode and measure the initial-subset median gap-backbone RMSD gate as no more than `0.25 Å` worse than MODELLER. The refined RF candidates are better on both measured masks; broader strata remain pending.
+- [x] Encode and measure the junction-pass gate as no lower than MODELLER on the initial subset. Both measured backends pass both junctions after refinement.
+- [x] Encode and measure fixed-coordinate adherence as strictly better than MODELLER on the initial subset: refined RFdiffusion is `0.0 Å`, versus MODELLER `3.50 Å`/`4.50 Å` on the 5-/10-residue masks.
 
 ## Hardware And CI Matrix
 
@@ -498,7 +498,7 @@ weaken the A100 acceptance gates.
 
 - [x] Run a pinned GPU smoke test on the reviewed 8CZ8 five-residue internal gap.
 - [x] Run a same-seed deterministic repeat on the pinned GPU environment; the raw PDB was byte-identical and coordinate RMSD was `0.0 Å`.
-- [x] Run the initial representative RFdiffusion subset: the reviewed 5- and 10-residue 8CZ8 cases. Neither passed all hard gates; MODELLER comparison and broader strata remain pending.
+- [x] Run the initial representative RFdiffusion subset and MODELLER comparator: one post-refinement seed in each reviewed 5-/10-residue case passes every hard gate and the measured MODELLER comparison. Refined repeatability and broader strata remain pending.
 
 ## First Implementation Iteration Exit Criteria
 
@@ -518,7 +518,7 @@ weaken the A100 acceptance gates.
 
 ## Remaining External Gates
 
-- [ ] Phase 2 remains blocked on MODELLER comparison, junction refinement evidence, elimination of the 10-residue chirality/clash failures, immutable service-image identity, final checkpoint redistribution review, and broader measured benchmark evidence. Checkpoint hashing, native Linux/NVIDIA execution, side-chain materialization, and the initial 5-/10-residue subset are complete.
+- [ ] Phase 2 remains blocked on post-refinement repeatability, immutable service-image identity, final checkpoint redistribution review, and broader measured benchmark evidence. The initial MODELLER comparison and one passing refined candidate in each reviewed 5-/10-residue mask are complete.
 - [ ] Phase 3 remains blocked until a pinned all-atom sampler demonstrates externally controllable mutable state, stable atom identity, and exact fixed-coordinate overwrite at every denoising step.
 - [ ] Phases 4-6 remain blocked on the Phase 2/3 evidence and intentionally make no public CLI, homology, or production-support claim.
 - [ ] Keep status `proposed` and MODELLER/PDBFixer as supported production baselines until those gates pass.

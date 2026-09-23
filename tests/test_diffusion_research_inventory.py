@@ -233,3 +233,24 @@ def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
     assert smoke["observed_peak_vram_bytes"] > 0
     assert smoke["withheld_10_detectable_d_ca"] == 2
     assert "d-ca-chirality" in smoke["withheld_10_failed_gates"]
+
+    refined = inventory["rfdiffusion_v1_boundary_refinement"]
+    modeller = inventory["modeller_comparator"]
+    assert refined["per_step_reinjection"] is False
+    assert refined["withheld_5_validation_passed"] is True
+    assert refined["withheld_10_validation_passed"] is True
+    assert refined["withheld_5_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert refined["withheld_10_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert refined["withheld_5_detectable_d_ca"] == 0
+    assert refined["withheld_10_detectable_d_ca"] == 0
+    assert refined["withheld_5_severe_steric_overlaps"] == 0
+    assert refined["withheld_10_severe_steric_overlaps"] == 0
+    assert refined["repeatability_status"] == "open"
+    assert (
+        refined["withheld_5_gap_backbone_rmsd_angstrom"]
+        < modeller["withheld_5_median_gap_backbone_rmsd_angstrom"]
+    )
+    assert (
+        refined["withheld_10_gap_backbone_rmsd_angstrom"]
+        < modeller["withheld_10_median_gap_backbone_rmsd_angstrom"]
+    )
