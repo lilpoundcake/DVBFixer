@@ -155,6 +155,68 @@ leakage_status = "unresolved"
 leakage_reason = "No selected engine has yet provided sequence-level training-set membership evidence for PDB 8B01."
 
 [[benchmark_cases]]
+id = "7x35-chain-a-glypro-5"
+fixture = "tests/fixtures/lipid/7x35_r_u.pdb"
+sequence_fixture = "tests/fixtures/lipid/7x35_renamed.fasta"
+sequence_record = "7X35_A"
+target_chain = "A"
+classification = "supported"
+stratum = "withheld-difficult-glypro-3-5"
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [223, 228]
+fixture_interval_zero_based_half_open = [212, 217]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-protein-chain-only"
+generated_residues = [
+  "A:224:_:ALA",
+  "A:225:_:GLY",
+  "A:226:_:GLN",
+  "A:227:_:GLY",
+  "A:228:_:PRO",
+]
+left_anchor = "A:223:_:GLU"
+right_anchor = "A:229:_:ILE"
+expected_sequence = "AGQGP"
+minimum_candidate_anchor_non_target_atom_distance_angstrom = 18.37
+minimum_candidate_anchor_heterogen_distance_angstrom = 21.08
+fixture_sha256 = "1920458f81098feb251139006c94db7f7773c9c69c55f9dcfa89b97e734e5315"
+sequence_fixture_sha256 = "f86e4976d1b20ec4b6f8159784fce6c91dff28dbaee111ecf4ace55b208c427a"
+leakage_status = "unresolved"
+leakage_reason = "No selected engine has provided sequence-level training-set membership evidence for public PDB 7X35."
+
+[[benchmark_cases]]
+id = "7x35-chain-a-glypro-7"
+fixture = "tests/fixtures/lipid/7x35_r_u.pdb"
+sequence_fixture = "tests/fixtures/lipid/7x35_renamed.fasta"
+sequence_record = "7X35_A"
+target_chain = "A"
+classification = "supported"
+stratum = "withheld-difficult-glypro-6-12"
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [144, 151]
+fixture_interval_zero_based_half_open = [133, 140]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-protein-chain-only"
+generated_residues = [
+  "A:145:_:PRO",
+  "A:146:_:PRO",
+  "A:147:_:GLY",
+  "A:148:_:GLY",
+  "A:149:_:PRO",
+  "A:150:_:VAL",
+  "A:151:_:PRO",
+]
+left_anchor = "A:144:_:VAL"
+right_anchor = "A:152:_:THR"
+expected_sequence = "PPGGPVP"
+minimum_candidate_anchor_non_target_atom_distance_angstrom = 6.16
+minimum_candidate_anchor_heterogen_distance_angstrom = 7.10
+fixture_sha256 = "1920458f81098feb251139006c94db7f7773c9c69c55f9dcfa89b97e734e5315"
+sequence_fixture_sha256 = "f86e4976d1b20ec4b6f8159784fce6c91dff28dbaee111ecf4ace55b208c427a"
+leakage_status = "unresolved"
+leakage_reason = "No selected engine has provided sequence-level training-set membership evidence for public PDB 7X35."
+
+[[benchmark_cases]]
 id = "8cz8-chain-c-terminal-one-anchor"
 fixture = "tests/fixtures/8cz8/8cz8_a_u.pdb"
 sequence_fixture = "tests/fixtures/8cz8/8cz8_renamed.fasta"
@@ -368,6 +430,63 @@ withheld_10_modeller_validation_pass_count = 0
 modeller_comparison_passed = true
 repeatability_status = "passed"
 interpretation = "The independent 8B01 regular-loop masks are byte-repeatable and pass every frozen hard gate. RFdiffusion is substantially better than the measured MODELLER comparator on backbone RMSD and fixed-coordinate adherence. Both MODELLER pairs close their junctions, but all four candidates fail the frozen fixed-coordinate gates because MODELLER moves the deposited framework; one 10-residue candidate also has local geometry/overlap failures. The RFdiffusion 5-residue absolute RMSD remains 3.30 Angstrom and broader sequence/context strata remain required."
+
+[difficult_glypro_loop_evidence]
+run_date = "2026-09-24"
+fixture = "tests/fixtures/lipid/7x35_r_u.pdb"
+target_chain = "A"
+request_structure_scope = "target-protein-chain-only"
+rfdiffusion_revision = "dvbfixer-rfdiffusion-v1-adapter-1+dvbfixer-openmm-boundary-refinement-v3"
+modeller_version = "10.8"
+modeller_configuration = "dvbfixer model, one initial model, two fast pinned-loop candidates, observed-coordinate target sequence, no terminal modeling"
+glypro_5_sequence = "AGQGP"
+glypro_5_seed = 7
+glypro_5_validation_passed = true
+glypro_5_gap_backbone_rmsd_angstrom = 1.438659341192351
+glypro_5_gap_all_heavy_rmsd_angstrom = 1.7564521647049078
+glypro_5_fixed_heavy_rmsd_angstrom = 0.0
+glypro_5_junction_cn_angstrom = [1.3480793745177075, 1.3612174697674144]
+glypro_5_detectable_d_ca = 0
+glypro_5_severe_steric_overlaps = 0
+glypro_5_repeat_coordinate_rmsd_angstrom = 0.0
+glypro_5_repeat_max_displacement_angstrom = 0.0
+glypro_5_candidate_sha256 = "4675d475d77c7544a5feb0d0496077fbccabf63c4ca17d77e2d8b8b2ffb6dad1"
+glypro_5_wall_time_seconds = 532.3155496157706
+glypro_5_peak_ram_bytes = 5728088064
+glypro_5_peak_vram_bytes = 4162846720
+glypro_5_modeller_candidate_count = 2
+glypro_5_modeller_best_gap_backbone_rmsd_angstrom = 5.530153325180042
+glypro_5_modeller_median_gap_backbone_rmsd_angstrom = 7.967010011115351
+glypro_5_modeller_median_gap_all_heavy_rmsd_angstrom = 8.714623941153718
+glypro_5_modeller_junction_pass_rate = 1.0
+glypro_5_modeller_median_fixed_heavy_rmsd_angstrom = 7.653897285631931
+glypro_5_modeller_validation_pass_count = 0
+glypro_7_sequence = "PPGGPVP"
+glypro_7_seed = 7
+glypro_7_validation_passed = true
+glypro_7_gap_backbone_rmsd_angstrom = 4.280655382064758
+glypro_7_gap_all_heavy_rmsd_angstrom = 4.456831670018926
+glypro_7_fixed_heavy_rmsd_angstrom = 0.0
+glypro_7_junction_cn_angstrom = [1.3444798250624512, 1.3663235341601976]
+glypro_7_detectable_d_ca = 0
+glypro_7_severe_steric_overlaps = 0
+glypro_7_repeat_coordinate_rmsd_angstrom = 0.0
+glypro_7_repeat_max_displacement_angstrom = 0.0
+glypro_7_candidate_sha256 = "8e41ffecae13b7f38b0b0bd8bc4608228de6d35ae087ca683c81dbb38fee392a"
+glypro_7_wall_time_seconds = 913.764659659937
+glypro_7_peak_ram_bytes = 5681598464
+glypro_7_peak_vram_bytes = 4162846720
+glypro_7_modeller_candidate_count = 2
+glypro_7_modeller_best_gap_backbone_rmsd_angstrom = 3.538586496449837
+glypro_7_modeller_median_gap_backbone_rmsd_angstrom = 4.660515308185033
+glypro_7_modeller_median_gap_all_heavy_rmsd_angstrom = 4.791615449963595
+glypro_7_modeller_junction_pass_rate = 1.0
+glypro_7_modeller_median_fixed_heavy_rmsd_angstrom = 7.85499086424284
+glypro_7_modeller_validation_pass_count = 0
+modeller_median_comparison_passed = true
+repeatability_status = "passed"
+rebuild_warning = "Both PPGGPVP runs exhausted five seeded PDBFixer side-chain rebuild attempts with an intermediate D-C-alpha warning; downstream deterministic reflection/refinement restored the invariant and both final candidates passed independent validation byte-identically."
+interpretation = "Both target-chain-only difficult-loop masks are byte-repeatable and pass every frozen hard gate. RFdiffusion beats the MODELLER median and preserves fixed coordinates on both masks. The PPGGPVP absolute backbone RMSD is 4.28 Angstrom and MODELLER's best candidate is better at 3.54 Angstrom, so this is a passing median comparison rather than evidence of uniformly better sampling. Because partner chains and PLM are intentionally excluded to satisfy the one-chain pure-protein adapter scope, these runs provide no interface or ligand-context evidence."
 
 [[engines]]
 id = "protenix-v1"

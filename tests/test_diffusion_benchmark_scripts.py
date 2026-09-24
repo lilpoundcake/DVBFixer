@@ -18,6 +18,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
 )
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
+from dvbfixer.model.diffusion.scope import assess_diffusion_scope
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -90,3 +91,21 @@ def test_builder_and_analyzers_reproduce_native_reference(tmp_path: Path) -> Non
     assert modeller["validation_pass_count"] == 2
     assert modeller["median_gap_backbone_rmsd_angstrom"] == 0.0
     assert modeller["median_fixed_heavy_rmsd_angstrom"] == 0.0
+
+
+def test_builder_extracts_declared_target_chain_scope(tmp_path: Path) -> None:
+    builder = _load_script("build_diffusion_benchmark_request")
+    workspace = tmp_path / "glypro"
+
+    builder.build_workspace("7x35-chain-a-glypro-7", workspace, seed=7)
+
+    request = DiffusionRequest.from_json((workspace / "request.json").read_text())
+    source = (workspace / "input/normalized.pdb").read_bytes()
+    reference_lines = (workspace / "reference.pdb").read_text().splitlines()
+    assert assess_diffusion_scope(request, source).supported is True
+    assert request.target_sequences[0].sequence[133:140] == "PPGGPVP"
+    assert all(
+        not line.startswith(("ATOM  ", "HETATM")) or line[21] == "A"
+        for line in reference_lines
+    )
+    assert not any(line.startswith("HETATM") for line in reference_lines)

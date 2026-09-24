@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -179,13 +180,73 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
 
         pdb_text = fixture.read_text()
         assert pdb_text.count("\nMODEL ") + int(pdb_text.startswith("MODEL ")) <= 1
-        assert not any(line.startswith("HETATM") for line in pdb_text.splitlines())
-        assert not any(line.startswith(("LINK  ", "CONECT", "SSBOND")) for line in pdb_text.splitlines())
+        structure_scope = case.get("request_structure_scope", "full-fixture")
+        if structure_scope == "full-fixture":
+            assert not any(line.startswith("HETATM") for line in pdb_text.splitlines())
+            assert not any(
+                line.startswith(("LINK  ", "CONECT", "SSBOND"))
+                for line in pdb_text.splitlines()
+            )
+        else:
+            assert structure_scope == "target-protein-chain-only"
+            local_residues = {
+                (number, icode.strip())
+                for number, icode, _name, _altlocs in residues[
+                    fixture_start - 1 : fixture_stop + 1
+                ]
+            }
+            local_coordinates: list[tuple[float, float, float]] = []
+            non_target_coordinates: list[tuple[float, float, float]] = []
+            heterogen_coordinates: list[tuple[float, float, float]] = []
+            for line in pdb_text.splitlines():
+                record = line[:6].strip()
+                if record not in {"ATOM", "HETATM"}:
+                    continue
+                coordinate = (
+                    float(line[30:38]),
+                    float(line[38:46]),
+                    float(line[46:54]),
+                )
+                identity = (line[22:26].strip(), line[26].strip())
+                if (
+                    record == "ATOM"
+                    and line[21] == case["target_chain"]
+                    and identity in local_residues
+                ):
+                    local_coordinates.append(coordinate)
+                elif record == "ATOM" and line[21] != case["target_chain"]:
+                    non_target_coordinates.append(coordinate)
+                elif record == "HETATM":
+                    heterogen_coordinates.append(coordinate)
+            minimum_non_target = min(
+                math.dist(local, other)
+                for local in local_coordinates
+                for other in non_target_coordinates
+            )
+            minimum_heterogen = min(
+                math.dist(local, other)
+                for local in local_coordinates
+                for other in heterogen_coordinates
+            )
+            assert abs(
+                minimum_non_target
+                - case["minimum_candidate_anchor_non_target_atom_distance_angstrom"]
+            ) < 0.01
+            assert abs(
+                minimum_heterogen
+                - case["minimum_candidate_anchor_heterogen_distance_angstrom"]
+            ) < 0.01
+            assert minimum_non_target > 5.0
+            assert minimum_heterogen > 5.0
 
     assert {"withheld-internal-3-5", "withheld-internal-6-12"} <= strata
     assert {
         "withheld-independent-regular-loop-3-5",
         "withheld-independent-regular-loop-6-12",
+    } <= strata
+    assert {
+        "withheld-difficult-glypro-3-5",
+        "withheld-difficult-glypro-6-12",
     } <= strata
     assert {"terminal-one-anchor", "multiple-models", "retained-heterogens"} <= strata
 
@@ -285,4 +346,26 @@ def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
     assert (
         independent["withheld_10_gap_backbone_rmsd_angstrom"]
         < independent["withheld_10_modeller_median_gap_backbone_rmsd_angstrom"]
+    )
+
+    glypro = inventory["difficult_glypro_loop_evidence"]
+    assert glypro["request_structure_scope"] == "target-protein-chain-only"
+    assert glypro["glypro_5_validation_passed"] is True
+    assert glypro["glypro_7_validation_passed"] is True
+    assert glypro["glypro_5_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert glypro["glypro_7_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert glypro["glypro_5_modeller_validation_pass_count"] == 0
+    assert glypro["glypro_7_modeller_validation_pass_count"] == 0
+    assert glypro["modeller_median_comparison_passed"] is True
+    assert (
+        glypro["glypro_5_gap_backbone_rmsd_angstrom"]
+        < glypro["glypro_5_modeller_median_gap_backbone_rmsd_angstrom"]
+    )
+    assert (
+        glypro["glypro_7_gap_backbone_rmsd_angstrom"]
+        < glypro["glypro_7_modeller_median_gap_backbone_rmsd_angstrom"]
+    )
+    assert (
+        glypro["glypro_7_gap_backbone_rmsd_angstrom"]
+        > glypro["glypro_7_modeller_best_gap_backbone_rmsd_angstrom"]
     )

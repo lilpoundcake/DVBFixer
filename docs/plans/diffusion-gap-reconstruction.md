@@ -337,7 +337,7 @@
 - [x] Declare a reviewed withheld-coordinate internal 6-12-residue case.
 - [ ] Add a separate research stratum for gaps of 13-25 residues.
 - [x] Expand beyond the initial 8CZ8 cases to an independent 8B01 regular-loop stratum with reviewed 5-/10-residue masks, same-seed repeats, independent hard-gate validation, and a same-configuration MODELLER comparator.
-- [ ] Include additional glycine-rich and proline-rich difficult loops beyond the initial declared sequences.
+- [x] Include isolated target-chain-only glycine/proline-rich 7X35 masks (`AGQGP` and `PPGGPVP`) with same-seed repeats, independent validation, and MODELLER comparators. The partner chains and PLM are explicitly excluded, so these do not satisfy interface/ligand-context coverage.
 - [ ] Include interface-adjacent gaps.
 - [ ] Include antibody insertion codes.
 - [x] Exercise case-sensitive chain identity in CPU unit tests; add a reviewed benchmark structure with case-distinct chains before real-engine claims.
@@ -378,9 +378,9 @@
 - [x] Aggregate observed wall time, model-load time, peak RAM, and peak VRAM while preserving missing values instead of fabricating them; no real-engine values are claimed yet.
 - [x] Compute external-process timeout and crash rates from explicit failed-run evidence; no real-engine rates are claimed yet.
 - [ ] Report conditioning/reinjection/boundary-refinement ablation results.
-- [x] Encode and measure the gap-backbone RMSD gate as no more than `0.25 Å` worse than MODELLER. Refined RFdiffusion is better on all four measured 8CZ8/8B01 masks; additional difficult-loop strata remain pending.
-- [x] Encode and measure the junction-pass gate as no lower than MODELLER. Both measured backends pass both junctions on all four masks after refinement.
-- [x] Encode and measure fixed-coordinate adherence as strictly better than MODELLER: refined RFdiffusion is `0.0 Å` on all four masks, while every measured MODELLER comparator moves deposited coordinates.
+- [x] Encode and measure the gap-backbone RMSD gate as no more than `0.25 Å` worse than MODELLER. Refined RFdiffusion beats the MODELLER median on all six measured 8CZ8/8B01/7X35 masks; MODELLER's best `PPGGPVP` candidate is nevertheless better than the single RF candidate (`3.54 Å` versus `4.28 Å`).
+- [x] Encode and measure the junction-pass gate as no lower than MODELLER. Both measured backends pass both junctions on all six masks after refinement.
+- [x] Encode and measure fixed-coordinate adherence as strictly better than MODELLER: refined RFdiffusion is `0.0 Å` on all six masks, while every measured MODELLER comparator moves deposited coordinates.
 
 ## Hardware And CI Matrix
 
@@ -519,7 +519,7 @@ weaken the A100 acceptance gates.
 
 ## Remaining External Gates
 
-- [ ] Phase 2 remains blocked on immutable service-image identity, final checkpoint redistribution review, and additional difficult-loop/interface/insertion-code benchmark evidence. Repeatable passing refined candidates and MODELLER comparisons are complete for both 8CZ8 and the independent 8B01 regular-loop stratum.
+- [ ] Phase 2 remains blocked on immutable service-image identity, final checkpoint redistribution review, and interface/insertion-code benchmark evidence. Repeatable passing refined candidates and MODELLER comparisons are complete for 8CZ8, independent 8B01 regular loops, and target-chain-only 7X35 glycine/proline-rich difficult loops.
 - [ ] Phase 3 remains blocked until a pinned all-atom sampler demonstrates externally controllable mutable state, stable atom identity, and exact fixed-coordinate overwrite at every denoising step.
 - [ ] Phases 4-6 remain blocked on the Phase 2/3 evidence and intentionally make no public CLI, homology, or production-support claim.
 - [ ] Keep status `proposed` and MODELLER/PDBFixer as supported production baselines until those gates pass.

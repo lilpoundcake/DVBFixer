@@ -59,3 +59,9 @@ The builders use the reviewed coordinate-fragment sequence as the sampler
 target so unrelated natural terminal/internal gaps in a deposited FASTA do not
 silently turn a one-gap benchmark into a different request. The inventory still
 records and validates the corresponding full-FASTA interval.
+
+Cases whose source fixture contains unrelated chains or heterogens may declare
+`request_structure_scope = "target-protein-chain-only"`. The builder then emits
+both masked input and native reference from only that canonical ATOM chain. Such
+cases measure isolated loop reconstruction only and must not be cited as
+interface- or ligand-context evidence.

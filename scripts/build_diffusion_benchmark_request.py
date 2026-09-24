@@ -132,10 +132,26 @@ def build_workspace(case_id: str, destination: Path, *, seed: int) -> Path:
     fixture_text = fixture_bytes.decode("utf-8")
     lines = fixture_text.splitlines(keepends=True)
     chain = case["target_chain"]
+    structure_scope = case.get("request_structure_scope", "full-fixture")
+    if structure_scope == "full-fixture":
+        benchmark_lines = lines
+        reference_bytes = fixture_bytes
+    elif structure_scope == "target-protein-chain-only":
+        benchmark_lines = [
+            line
+            for line in lines
+            if line.startswith("ATOM  ") and line[21] == chain
+        ]
+        if not benchmark_lines:
+            raise ValueError(f"target chain {chain!r} has no protein atoms")
+        benchmark_lines.extend(("TER\n", "END\n"))
+        reference_bytes = "".join(benchmark_lines).encode("utf-8")
+    else:
+        raise ValueError(f"unsupported request structure scope {structure_scope!r}")
 
     ordered: list[tuple[ResidueIdentity, str]] = []
     seen: set[ResidueIdentity] = set()
-    for line in lines:
+    for line in benchmark_lines:
         if not line.startswith("ATOM  ") or line[21] != chain:
             continue
         identity = _residue(line)
@@ -162,7 +178,7 @@ def build_workspace(case_id: str, destination: Path, *, seed: int) -> Path:
 
     source_text = "".join(
         line
-        for line in lines
+        for line in benchmark_lines
         if not (
             line.startswith(("ATOM  ", "HETATM"))
             and _residue(line) in generated_set
@@ -171,7 +187,7 @@ def build_workspace(case_id: str, destination: Path, *, seed: int) -> Path:
     source_bytes = source_text.encode("utf-8")
     generated_atoms = tuple(
         _atom(line)
-        for line in lines
+        for line in benchmark_lines
         if line.startswith(("ATOM  ", "HETATM"))
         and _residue(line) in generated_set
         and _is_heavy(line)
@@ -230,7 +246,10 @@ def build_workspace(case_id: str, destination: Path, *, seed: int) -> Path:
         f">chain_{chain}\n{sequence}\n",
         encoding="utf-8",
     )
-    shutil.copy2(fixture, output / "reference.pdb")
+    if structure_scope == "full-fixture":
+        shutil.copy2(fixture, output / "reference.pdb")
+    else:
+        (output / "reference.pdb").write_bytes(reference_bytes)
     return output / "request.json"
 
 
