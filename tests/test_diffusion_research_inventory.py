@@ -8,7 +8,11 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-from dvbfixer.model.diffusion.rfdiffusion_v1 import RFDIFFUSION_ENVIRONMENT_SHA256
+from dvbfixer.model.diffusion.rfdiffusion_v1 import (
+    PARTNER_CONTEXT_BACKBONE_DISPLACEMENT_MAX_ANGSTROM,
+    PARTNER_CONTEXT_BACKBONE_RMSD_MAX_ANGSTROM,
+    RFDIFFUSION_ENVIRONMENT_SHA256,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INVENTORY = REPO_ROOT / "docs/research/diffusion-gap-reconstruction-inventory.toml"
@@ -113,6 +117,14 @@ def test_diffusion_inventory_declares_versioned_scope_and_thresholds() -> None:
     assert thresholds["junction_cn_angstrom_max"] == 1.45
     assert thresholds["generated_backbone_break_angstrom_max"] == 1.80
     assert thresholds["same_seed_repeat_rmsd_angstrom_max"] == 0.01
+    assert (
+        thresholds["partner_context_backbone_rmsd_angstrom_max"]
+        == PARTNER_CONTEXT_BACKBONE_RMSD_MAX_ANGSTROM
+    )
+    assert (
+        thresholds["partner_context_backbone_displacement_angstrom_max"]
+        == PARTNER_CONTEXT_BACKBONE_DISPLACEMENT_MAX_ANGSTROM
+    )
 
 
 def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
@@ -187,8 +199,7 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
                 line.startswith(("LINK  ", "CONECT", "SSBOND"))
                 for line in pdb_text.splitlines()
             )
-        else:
-            assert structure_scope == "target-protein-chain-only"
+        elif structure_scope == "target-protein-chain-only":
             local_residues = {
                 (number, icode.strip())
                 for number, icode, _name, _altlocs in residues[
@@ -238,6 +249,58 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
             ) < 0.01
             assert minimum_non_target > 5.0
             assert minimum_heterogen > 5.0
+        else:
+            assert structure_scope == "target-and-context-protein-chains"
+            context_chains = set(case["context_chains"])
+            assert context_chains
+            assert case["target_chain"] not in context_chains
+            generated_identities = {
+                (identity.split(":")[1], identity.split(":")[2].replace("_", ""))
+                for identity in case["generated_residues"]
+            }
+            generated_coordinates: list[tuple[float, float, float]] = []
+            partner_coordinates: list[tuple[float, float, float]] = []
+            heterogen_coordinates = []
+            for line in pdb_text.splitlines():
+                record = line[:6].strip()
+                if record not in {"ATOM", "HETATM"}:
+                    continue
+                coordinate = (
+                    float(line[30:38]),
+                    float(line[38:46]),
+                    float(line[46:54]),
+                )
+                residue_identity = (line[22:26].strip(), line[26].strip())
+                if (
+                    record == "ATOM"
+                    and line[21] == case["target_chain"]
+                    and residue_identity in generated_identities
+                ):
+                    generated_coordinates.append(coordinate)
+                elif record == "ATOM" and line[21] in context_chains:
+                    partner_coordinates.append(coordinate)
+                elif record == "HETATM":
+                    heterogen_coordinates.append(coordinate)
+            minimum_partner = min(
+                math.dist(generated, partner)
+                for generated in generated_coordinates
+                for partner in partner_coordinates
+            )
+            minimum_heterogen = min(
+                math.dist(generated, heterogen)
+                for generated in generated_coordinates
+                for heterogen in heterogen_coordinates
+            )
+            assert abs(
+                minimum_partner
+                - case["minimum_generated_partner_atom_distance_angstrom"]
+            ) < 0.01
+            assert abs(
+                minimum_heterogen
+                - case["minimum_generated_heterogen_distance_angstrom"]
+            ) < 0.01
+            assert minimum_partner < 3.5
+            assert minimum_heterogen > 5.0
 
     assert {"withheld-internal-3-5", "withheld-internal-6-12"} <= strata
     assert {
@@ -248,6 +311,7 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
         "withheld-difficult-glypro-3-5",
         "withheld-difficult-glypro-6-12",
     } <= strata
+    assert "withheld-interface-adjacent-3-5" in strata
     assert {"terminal-one-anchor", "multiple-models", "retained-heterogens"} <= strata
 
 

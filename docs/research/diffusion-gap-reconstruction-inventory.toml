@@ -33,6 +33,8 @@ requires_no_severe_steric_overlaps = true
 same_seed_repeat_rmsd_angstrom_max = 0.01
 unsupported_public_pdb_count_max = 0
 experimental_median_gap_backbone_rmsd_delta_vs_modeller_angstrom_max = 0.25
+partner_context_backbone_rmsd_angstrom_max = 0.5
+partner_context_backbone_displacement_angstrom_max = 1.5
 requires_junction_pass_rate_at_least_modeller = true
 requires_stricter_fixed_coordinate_adherence_than_modeller = true
 
@@ -211,6 +213,37 @@ right_anchor = "A:152:_:THR"
 expected_sequence = "PPGGPVP"
 minimum_candidate_anchor_non_target_atom_distance_angstrom = 6.16
 minimum_candidate_anchor_heterogen_distance_angstrom = 7.10
+fixture_sha256 = "1920458f81098feb251139006c94db7f7773c9c69c55f9dcfa89b97e734e5315"
+sequence_fixture_sha256 = "f86e4976d1b20ec4b6f8159784fce6c91dff28dbaee111ecf4ace55b208c427a"
+leakage_status = "unresolved"
+leakage_reason = "No selected engine has provided sequence-level training-set membership evidence for public PDB 7X35."
+
+[[benchmark_cases]]
+id = "7x35-chain-a-interface-5"
+fixture = "tests/fixtures/lipid/7x35_r_u.pdb"
+sequence_fixture = "tests/fixtures/lipid/7x35_renamed.fasta"
+sequence_record = "7X35_A"
+target_chain = "A"
+context_chains = ["B"]
+classification = "supported"
+stratum = "withheld-interface-adjacent-3-5"
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [243, 248]
+fixture_interval_zero_based_half_open = [232, 237]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-and-context-protein-chains"
+generated_residues = [
+  "A:244:_:ALA",
+  "A:245:_:TRP",
+  "A:246:_:VAL",
+  "A:247:_:PRO",
+  "A:248:_:ARG",
+]
+left_anchor = "A:243:_:LYS"
+right_anchor = "A:249:_:PRO"
+expected_sequence = "AWVPR"
+minimum_generated_partner_atom_distance_angstrom = 2.36
+minimum_generated_heterogen_distance_angstrom = 12.12
 fixture_sha256 = "1920458f81098feb251139006c94db7f7773c9c69c55f9dcfa89b97e734e5315"
 sequence_fixture_sha256 = "f86e4976d1b20ec4b6f8159784fce6c91dff28dbaee111ecf4ace55b208c427a"
 leakage_status = "unresolved"

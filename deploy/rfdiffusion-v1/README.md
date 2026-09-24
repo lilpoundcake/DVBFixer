@@ -65,3 +65,17 @@ Cases whose source fixture contains unrelated chains or heterogens may declare
 both masked input and native reference from only that canonical ATOM chain. Such
 cases measure isolated loop reconstruction only and must not be cited as
 interface- or ligand-context evidence.
+
+Interface-adjacent cases instead declare
+`request_structure_scope = "target-and-context-protein-chains"` plus explicit,
+case-sensitive `context_chains`. The adapter maps the target to synthetic chain
+`A`, maps partner chains deterministically to `B..Z`, and emits RFdiffusion's
+documented receptor-contig form (`target/0 B1-N`). The pinned base checkpoint is
+intentional: upstream documents separate-chain motif inpainting with this form;
+its complex checkpoint is selected for hotspot-driven binder design, which this
+adapter does not perform. Partner backbone atoms participate in the shared
+post-sampling Kabsch fit and must remain within the frozen `0.5 Angstrom` RMSD
+and `1.5 Angstrom` maximum-displacement limits before source records are
+reinserted exactly. The declared `7x35-chain-a-interface-5` case still requires
+pinned A100 repeatability and MODELLER measurements before it counts as completed
+interface evidence.

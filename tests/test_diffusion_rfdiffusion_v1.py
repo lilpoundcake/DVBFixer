@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import math
+from dataclasses import replace
 from io import StringIO
 from pathlib import Path
 
+import pytest
 from openmm.app import PDBFile
 from openmm.unit import angstrom
 
@@ -25,6 +27,7 @@ from dvbfixer.model.diffusion.contract import (
     TargetSequence,
 )
 from dvbfixer.model.diffusion.rfdiffusion_v1 import (
+    RFdiffusionAdapterError,
     build_synthetic_input,
     materialize_candidate,
     unsupported_request_reason,
@@ -134,6 +137,46 @@ def _case() -> tuple[DiffusionRequest, str, str]:
     return request, source, "".join(raw_lines)
 
 
+def _case_with_partner() -> tuple[DiffusionRequest, str, str]:
+    request, source, raw = _case()
+    partner_lines: list[str] = []
+    for line in FIXTURE.read_text(encoding="utf-8").splitlines(keepends=True):
+        if (
+            line.startswith("ATOM  ")
+            and line[21] == "C"
+            and line[22:26].strip() in {"71", "72"}
+        ):
+            partner_lines.append(line[:21] + "d" + line[22:])
+    source_lines = source.splitlines(keepends=True)
+    end_index = next(
+        index for index, line in enumerate(source_lines) if line.startswith("END")
+    )
+    source_lines[end_index:end_index] = [*partner_lines, "TER\n"]
+    source = "".join(source_lines)
+    partner_atoms = tuple(_atom(line) for line in partner_lines if _heavy(line))
+    request = replace(request, fixed_atoms=(*request.fixed_atoms, *partner_atoms))
+
+    raw_lines = raw.splitlines(keepends=True)[:-1]
+    serial = len(raw_lines) + 1
+    for line in partner_lines:
+        if line[12:16].strip() not in {"N", "CA", "C", "O"}:
+            continue
+        ordinal = int(line[22:26]) - 70
+        padded = line.rstrip("\n").ljust(80)
+        raw_lines.append(
+            padded[:6]
+            + f"{serial:5d}"
+            + padded[11:21]
+            + "B"
+            + f"{request.sequence_placements[0].target_length + ordinal:4d} "
+            + padded[27:]
+            + "\n"
+        )
+        serial += 1
+    raw_lines.append("END\n")
+    return request, source, "".join(raw_lines)
+
+
 def test_build_synthetic_input_uses_stable_target_ordinals() -> None:
     request, source, _raw = _case()
 
@@ -144,6 +187,28 @@ def test_build_synthetic_input_uses_stable_target_ordinals() -> None:
     assert {line[21] for line in atom_lines} == {"A"}
     assert {line[22:26].strip() for line in atom_lines} == {"1", "7"}
     assert all(line[26] == " " for line in atom_lines)
+
+
+def test_build_synthetic_input_includes_fixed_partner_as_receptor_context() -> None:
+    request, source, _raw = _case_with_partner()
+
+    synthetic = build_synthetic_input(request, source)
+
+    assert synthetic.contig == "A1-1/5-5/A7-7/0 B1-2"
+    assert len(synthetic.partner_chains) == 1
+    partner = synthetic.partner_chains[0]
+    assert (
+        partner.source_chain,
+        partner.synthetic_chain,
+        partner.residue_count,
+        partner.output_start,
+    ) == ("d", "B", 2, 8)
+    partner_lines = [
+        line
+        for line in synthetic.pdb_text.splitlines()
+        if line.startswith("ATOM  ") and line[21] == "B"
+    ]
+    assert {line[22:26].strip() for line in partner_lines} == {"1", "2"}
 
 
 def test_adapter_rejects_multiple_gaps_before_launch() -> None:
@@ -188,6 +253,71 @@ def test_materialization_restores_identity_and_all_expected_heavy_atoms() -> Non
         line.startswith("ATOM  ") and line[21] == "A"
         for line in candidate.splitlines()
     )
+
+
+def test_materialization_uses_and_restores_partner_context() -> None:
+    request, source, raw = _case_with_partner()
+    synthetic = build_synthetic_input(request, source)
+
+    candidate = materialize_candidate(
+        request,
+        source_text=source,
+        synthetic_text=synthetic.pdb_text,
+        raw_text=raw,
+        partner_chains=synthetic.partner_chains,
+    )
+
+    source_partner_lines = {
+        line
+        for line in source.splitlines()
+        if line.startswith("ATOM  ") and line[21] == "d"
+    }
+    assert source_partner_lines <= set(candidate.splitlines())
+
+
+def test_materialization_rejects_missing_partner_context_output() -> None:
+    request, source, raw = _case_with_partner()
+    synthetic = build_synthetic_input(request, source)
+    raw_without_partner = "".join(
+        line
+        for line in raw.splitlines(keepends=True)
+        if not (line.startswith("ATOM  ") and line[21] == "B")
+    )
+
+    with pytest.raises(
+        RFdiffusionAdapterError,
+        match="missing partner-context backbone atom",
+    ):
+        materialize_candidate(
+            request,
+            source_text=source,
+            synthetic_text=synthetic.pdb_text,
+            raw_text=raw_without_partner,
+            partner_chains=synthetic.partner_chains,
+        )
+
+
+def test_materialization_rejects_partner_context_drift() -> None:
+    request, source, raw = _case_with_partner()
+    synthetic = build_synthetic_input(request, source)
+    shifted_lines: list[str] = []
+    for line in raw.splitlines(keepends=True):
+        if line.startswith("ATOM  ") and line[21] == "B":
+            x = float(line[30:38]) + 4.0
+            line = line[:30] + f"{x:8.3f}" + line[38:]
+        shifted_lines.append(line)
+
+    with pytest.raises(
+        RFdiffusionAdapterError,
+        match="partner context drifted after sampling",
+    ):
+        materialize_candidate(
+            request,
+            source_text=source,
+            synthetic_text=synthetic.pdb_text,
+            raw_text="".join(shifted_lines),
+            partner_chains=synthetic.partner_chains,
+        )
 
 
 def test_boundary_refinement_preserves_fixed_records_and_generated_identity() -> None:

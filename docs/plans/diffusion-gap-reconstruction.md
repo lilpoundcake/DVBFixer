@@ -338,7 +338,12 @@
 - [ ] Add a separate research stratum for gaps of 13-25 residues.
 - [x] Expand beyond the initial 8CZ8 cases to an independent 8B01 regular-loop stratum with reviewed 5-/10-residue masks, same-seed repeats, independent hard-gate validation, and a same-configuration MODELLER comparator.
 - [x] Include isolated target-chain-only glycine/proline-rich 7X35 masks (`AGQGP` and `PPGGPVP`) with same-seed repeats, independent validation, and MODELLER comparators. The partner chains and PLM are explicitly excluded, so these do not satisfy interface/ligand-context coverage.
-- [ ] Include interface-adjacent gaps.
+- [x] Declare a reviewed interface-adjacent 7X35 `AWVPR` mask with retained
+  protein partner chain `B`, a `2.36 Å` generated-region partner contact, and no
+  retained PLM. The adapter now supplies that partner as fixed RFdiffusion
+  receptor context and fail-closes on post-sampling partner-backbone drift.
+- [ ] Complete pinned A100 same-seed, independent-validation, and MODELLER
+  measurements for the declared interface-adjacent case.
 - [ ] Include antibody insertion codes.
 - [x] Exercise case-sensitive chain identity in CPU unit tests; add a reviewed benchmark structure with case-distinct chains before real-engine claims.
 - [x] Declare terminal one-anchor gaps only as a separate unsupported/later stratum.
@@ -519,7 +524,7 @@ weaken the A100 acceptance gates.
 
 ## Remaining External Gates
 
-- [ ] Phase 2 remains blocked on immutable service-image identity, final checkpoint redistribution review, and interface/insertion-code benchmark evidence. Repeatable passing refined candidates and MODELLER comparisons are complete for 8CZ8, independent 8B01 regular loops, and target-chain-only 7X35 glycine/proline-rich difficult loops.
+- [ ] Phase 2 remains blocked on immutable service-image identity, final checkpoint redistribution review, measured interface evidence, and insertion-code benchmark evidence. Repeatable passing refined candidates and MODELLER comparisons are complete for 8CZ8, independent 8B01 regular loops, and target-chain-only 7X35 glycine/proline-rich difficult loops; the retained-partner 7X35 interface case is declared and locally validated but not yet run on the pinned A100 environment.
 - [ ] Phase 3 remains blocked until a pinned all-atom sampler demonstrates externally controllable mutable state, stable atom identity, and exact fixed-coordinate overwrite at every denoising step.
 - [ ] Phases 4-6 remain blocked on the Phase 2/3 evidence and intentionally make no public CLI, homology, or production-support claim.
 - [ ] Keep status `proposed` and MODELLER/PDBFixer as supported production baselines until those gates pass.

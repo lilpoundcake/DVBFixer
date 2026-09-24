@@ -146,6 +146,22 @@ def build_workspace(case_id: str, destination: Path, *, seed: int) -> Path:
             raise ValueError(f"target chain {chain!r} has no protein atoms")
         benchmark_lines.extend(("TER\n", "END\n"))
         reference_bytes = "".join(benchmark_lines).encode("utf-8")
+    elif structure_scope == "target-and-context-protein-chains":
+        context_chains = case.get("context_chains", [])
+        selected_chains = [chain, *context_chains]
+        if len(selected_chains) != len(set(selected_chains)):
+            raise ValueError(f"benchmark case {case_id!r} repeats a selected chain")
+        benchmark_lines = [
+            line
+            for line in lines
+            if line.startswith("ATOM  ") and line[21] in selected_chains
+        ]
+        observed_chains = {line[21] for line in benchmark_lines}
+        if observed_chains != set(selected_chains):
+            missing = ", ".join(sorted(set(selected_chains) - observed_chains))
+            raise ValueError(f"selected protein chains have no atoms: {missing}")
+        benchmark_lines.extend(("TER\n", "END\n"))
+        reference_bytes = "".join(benchmark_lines).encode("utf-8")
     else:
         raise ValueError(f"unsupported request structure scope {structure_scope!r}")
 
@@ -242,8 +258,25 @@ def build_workspace(case_id: str, destination: Path, *, seed: int) -> Path:
     (output / "input").mkdir(parents=True)
     (output / "input/normalized.pdb").write_bytes(source_bytes)
     (output / "request.json").write_text(request.to_json(), encoding="utf-8")
+    fasta_records = [(chain, sequence)]
+    if structure_scope == "target-and-context-protein-chains":
+        for context_chain in case["context_chains"]:
+            context_sequence: list[str] = []
+            seen_context: set[ResidueIdentity] = set()
+            for line in benchmark_lines:
+                if not line.startswith("ATOM  ") or line[21] != context_chain:
+                    continue
+                identity = _residue(line)
+                if identity in seen_context:
+                    continue
+                seen_context.add(identity)
+                context_sequence.append(ONE_LETTER[line[17:20].strip()])
+            fasta_records.append((context_chain, "".join(context_sequence)))
     (output / "target.fasta").write_text(
-        f">chain_{chain}\n{sequence}\n",
+        "".join(
+            f">chain_{record_chain}\n{record_sequence}\n"
+            for record_chain, record_sequence in fasta_records
+        ),
         encoding="utf-8",
     )
     if structure_scope == "full-fixture":

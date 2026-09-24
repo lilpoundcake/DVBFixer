@@ -109,3 +109,25 @@ def test_builder_extracts_declared_target_chain_scope(tmp_path: Path) -> None:
         for line in reference_lines
     )
     assert not any(line.startswith("HETATM") for line in reference_lines)
+
+
+def test_builder_extracts_target_and_partner_protein_scope(tmp_path: Path) -> None:
+    builder = _load_script("build_diffusion_benchmark_request")
+    workspace = tmp_path / "interface"
+
+    builder.build_workspace("7x35-chain-a-interface-5", workspace, seed=7)
+
+    request = DiffusionRequest.from_json((workspace / "request.json").read_text())
+    source = (workspace / "input/normalized.pdb").read_bytes()
+    reference_lines = (workspace / "reference.pdb").read_text().splitlines()
+    fasta = (workspace / "target.fasta").read_text()
+    assert assess_diffusion_scope(request, source).supported is True
+    assert request.target_sequences[0].sequence[232:237] == "AWVPR"
+    assert {
+        line[21]
+        for line in reference_lines
+        if line.startswith(("ATOM  ", "HETATM"))
+    } == {"A", "B"}
+    assert not any(line.startswith("HETATM") for line in reference_lines)
+    assert ">chain_A\n" in fasta
+    assert ">chain_B\n" in fasta

@@ -56,12 +56,14 @@ RFDIFFUSION_REVISION = "bf42b54c20a99dd7350456c85985ed4d83b95d48"
 RFDIFFUSION_CHECKPOINT_SHA256 = (
     "0fcf7d7c32b4848030aca3a051e6768de194616f96ba6c38186351a33bfc6eca"
 )
-RFDIFFUSION_ADAPTER_REVISION = "dvbfixer-rfdiffusion-v1-adapter-1"
+RFDIFFUSION_ADAPTER_REVISION = "dvbfixer-rfdiffusion-v1-adapter-2"
 RFDIFFUSION_ENVIRONMENT_SHA256 = (
     "e36300c79f489f420d069d9688953ee4830fe563b8edc77f5de458e77464fe23"
 )
 
 _BACKBONE_ATOMS = ("N", "CA", "C", "O")
+PARTNER_CONTEXT_BACKBONE_RMSD_MAX_ANGSTROM = 0.5
+PARTNER_CONTEXT_BACKBONE_DISPLACEMENT_MAX_ANGSTROM = 1.5
 _ONE_TO_THREE = {
     "A": "ALA",
     "C": "CYS",
@@ -106,15 +108,24 @@ class RFdiffusionV1Config:
 
 
 @dataclass(frozen=True, slots=True)
+class PartnerChainMapping:
+    source_chain: str
+    synthetic_chain: str
+    residue_count: int
+    output_start: int
+
+
+@dataclass(frozen=True, slots=True)
 class SyntheticInput:
     pdb_text: str
     contig: str
     target_chain: str
     target_length: int
+    partner_chains: tuple[PartnerChainMapping, ...] = ()
 
 
 def build_synthetic_input(request: DiffusionRequest, source_text: str) -> SyntheticInput:
-    """Map one target chain onto RFdiffusion's ``A``/integer identity space."""
+    """Map the target and fixed protein partners into RFdiffusion identity space."""
     reason = unsupported_request_reason(request)
     if reason:
         raise RFdiffusionAdapterError(reason)
@@ -125,12 +136,11 @@ def build_synthetic_input(request: DiffusionRequest, source_text: str) -> Synthe
     target_index_by_residue = dict(
         zip(placement.observed_residues, placement.observed_target_indices)
     )
+    atom_lines = [line for line in source_text.splitlines() if line.startswith("ATOM  ")]
     seen_residues: set[ResidueIdentity] = set()
     output: list[str] = []
     serial = 1
-    for line in source_text.splitlines():
-        if not line.startswith("ATOM  "):
-            continue
+    for line in atom_lines:
         identity = _residue_identity(line)
         target_index = target_index_by_residue.get(identity)
         if target_index is None:
@@ -150,6 +160,53 @@ def build_synthetic_input(request: DiffusionRequest, source_text: str) -> Synthe
         raise RFdiffusionAdapterError(
             "normalized PDB does not contain every residue in the sequence placement"
         )
+    output.append(f"TER   {serial:5d}\n")
+    serial += 1
+
+    source_partner_chains = tuple(
+        dict.fromkeys(line[21] for line in atom_lines if line[21] != target.chain)
+    )
+    if len(source_partner_chains) > 25:
+        raise RFdiffusionAdapterError(
+            "RFdiffusion v1 benchmark adapter supports at most 25 partner chains"
+        )
+    partner_chains: list[PartnerChainMapping] = []
+    receptor_offset = 0
+    for index, source_chain in enumerate(source_partner_chains, start=1):
+        synthetic_chain = chr(ord("A") + index)
+        partner_lines = [line for line in atom_lines if line[21] == source_chain]
+        residue_ordinals: dict[ResidueIdentity, int] = {}
+        for line in partner_lines:
+            identity = _residue_identity(line)
+            residue_number = residue_ordinals.setdefault(
+                identity,
+                len(residue_ordinals) + 1,
+            )
+            output.append(
+                _replace_pdb_identity(
+                    line,
+                    serial=serial,
+                    chain=synthetic_chain,
+                    residue_number=str(residue_number),
+                    insertion_code="",
+                )
+                + "\n"
+            )
+            serial += 1
+        if not residue_ordinals:
+            continue
+        partner_chains.append(
+            PartnerChainMapping(
+                source_chain=source_chain,
+                synthetic_chain=synthetic_chain,
+                residue_count=len(residue_ordinals),
+                output_start=len(target.sequence) + receptor_offset + 1,
+            )
+        )
+        receptor_offset += len(residue_ordinals)
+        output.append(f"TER   {serial:5d}\n")
+        serial += 1
+
     gap_length = gap.target_interval.stop - gap.target_interval.start
     left_stop = gap.target_interval.start
     right_start = gap.target_interval.stop + 1
@@ -157,12 +214,19 @@ def build_synthetic_input(request: DiffusionRequest, source_text: str) -> Synthe
         f"A1-{left_stop}/{gap_length}-{gap_length}/"
         f"A{right_start}-{placement.target_length}"
     )
-    output.extend((f"TER   {serial:5d}\n", "END\n"))
+    if partner_chains:
+        receptor_contigs = [
+            f"{partner.synthetic_chain}1-{partner.residue_count}"
+            for partner in partner_chains
+        ]
+        contig = "/0 ".join((contig, *receptor_contigs))
+    output.append("END\n")
     return SyntheticInput(
         pdb_text="".join(output),
         contig=contig,
         target_chain=target.chain,
         target_length=len(target.sequence),
+        partner_chains=tuple(partner_chains),
     )
 
 
@@ -286,11 +350,29 @@ def run_adapter(request: DiffusionRequest, config: RFdiffusionV1Config) -> Runne
             source_text=source_text,
             synthetic_text=synthetic.pdb_text,
             raw_text=raw_pdb.read_text(encoding="utf-8"),
+            partner_chains=synthetic.partner_chains,
             boundary_refinement=boundary_refinement,
             refinement_seed=seed,
             refinement_platform="Reference",
         )
         candidate_path.write_text(candidate_text, encoding="utf-8")
+        warnings = [
+            "RFdiffusion v1 is backbone-only; DVBFixer materialized target-sequence "
+            "side chains with PDBFixer before independent validation",
+            "fixed source coordinates were reinserted after post-sampling Kabsch alignment",
+        ]
+        if synthetic.partner_chains:
+            warnings.append(
+                "fixed partner chains conditioned RFdiffusion as receptor context and "
+                "passed post-sampling backbone-adherence checks"
+            )
+        warnings.append(
+            "generated residues received seeded post-sampling OpenMM boundary "
+            f"refinement ({BOUNDARY_REFINEMENT_REVISION}); this is not per-step "
+            "diffusion reinjection"
+            if boundary_refinement
+            else "post-sampling OpenMM boundary refinement was disabled for this ablation"
+        )
         candidates.append(
             RunnerCandidate(
                 candidate_id=candidate_id,
@@ -302,18 +384,7 @@ def run_adapter(request: DiffusionRequest, config: RFdiffusionV1Config) -> Runne
                 generated_residues=request.gaps[0].generated_residues,
                 raw_backend_score=None,
                 score_provenance="rfdiffusion-v1:no-comparable-backend-score",
-                warnings=(
-                    "RFdiffusion v1 is backbone-only; DVBFixer materialized target-sequence "
-                    "side chains with PDBFixer before independent validation",
-                    "fixed source coordinates were reinserted after post-sampling Kabsch alignment",
-                    (
-                        "generated residues received seeded post-sampling OpenMM boundary "
-                        f"refinement ({BOUNDARY_REFINEMENT_REVISION}); this is not per-step "
-                        "diffusion reinjection"
-                        if boundary_refinement
-                        else "post-sampling OpenMM boundary refinement was disabled for this ablation"
-                    ),
-                ),
+                warnings=tuple(warnings),
             )
         )
 
@@ -344,6 +415,7 @@ def materialize_candidate(
     source_text: str,
     synthetic_text: str,
     raw_text: str,
+    partner_chains: tuple[PartnerChainMapping, ...] = (),
     boundary_refinement: bool = False,
     refinement_seed: int = 1,
     refinement_platform: str = "Reference",
@@ -366,13 +438,38 @@ def materialize_candidate(
         raise RFdiffusionAdapterError(
             "RFdiffusion output contains fewer than three mapped backbone anchors"
         )
-    mobile_anchors = np.vstack(
-        [sampled[index][atom_name].coordinate for index, atom_name in anchor_keys]
+    mobile_anchor_coordinates = [
+        sampled[index][atom_name].coordinate for index, atom_name in anchor_keys
+    ]
+    target_anchor_coordinates = [
+        authoritative[index][atom_name].coordinate for index, atom_name in anchor_keys
+    ]
+    partner_mobile, partner_target = _partner_backbone_anchors(
+        synthetic_text,
+        raw_text,
+        partner_chains,
     )
-    target_anchors = np.vstack(
-        [authoritative[index][atom_name].coordinate for index, atom_name in anchor_keys]
-    )
+    mobile_anchor_coordinates.extend(partner_mobile)
+    target_anchor_coordinates.extend(partner_target)
+    mobile_anchors = np.vstack(mobile_anchor_coordinates)
+    target_anchors = np.vstack(target_anchor_coordinates)
     transform = weighted_kabsch(mobile_anchors, target_anchors)
+    if partner_mobile:
+        displacements = np.linalg.norm(
+            transform.apply(np.vstack(partner_mobile)) - np.vstack(partner_target),
+            axis=1,
+        )
+        rmsd = float(np.sqrt(np.mean(np.square(displacements))))
+        maximum = float(np.max(displacements))
+        if (
+            rmsd > PARTNER_CONTEXT_BACKBONE_RMSD_MAX_ANGSTROM
+            or maximum > PARTNER_CONTEXT_BACKBONE_DISPLACEMENT_MAX_ANGSTROM
+        ):
+            raise RFdiffusionAdapterError(
+                "RFdiffusion partner context drifted after sampling: "
+                f"backbone RMSD {rmsd:.3f} Angstrom, maximum displacement "
+                f"{maximum:.3f} Angstrom"
+            )
 
     generated_lines: list[str] = []
     serial = _maximum_serial(source_text) + 1
@@ -500,6 +597,44 @@ def _atoms_by_target_index(text: str) -> dict[int, dict[str, _PDBAtom]]:
             raise RFdiffusionAdapterError("RFdiffusion output contains duplicate atom identities")
         residue_atoms[atom.identity.atom_name] = atom
     return atoms
+
+
+def _partner_backbone_anchors(
+    synthetic_text: str,
+    raw_text: str,
+    partner_chains: tuple[PartnerChainMapping, ...],
+) -> tuple[list[np.ndarray], list[np.ndarray]]:
+    synthetic_atoms = {atom.identity: atom for atom in _parse_atoms(synthetic_text)}
+    raw_atoms = {atom.identity: atom for atom in _parse_atoms(raw_text)}
+    mobile: list[np.ndarray] = []
+    target: list[np.ndarray] = []
+    for partner in partner_chains:
+        for ordinal in range(1, partner.residue_count + 1):
+            for atom_name in _BACKBONE_ATOMS:
+                synthetic_identity = AtomIdentity(
+                    partner.synthetic_chain,
+                    str(ordinal),
+                    "",
+                    atom_name,
+                )
+                authoritative = synthetic_atoms.get(synthetic_identity)
+                if authoritative is None:
+                    continue
+                raw_identity = AtomIdentity(
+                    "B",
+                    str(partner.output_start + ordinal - 1),
+                    "",
+                    atom_name,
+                )
+                sampled = raw_atoms.get(raw_identity)
+                if sampled is None:
+                    raise RFdiffusionAdapterError(
+                        "RFdiffusion output is missing partner-context backbone atom "
+                        f"{raw_identity.chain}/{raw_identity.residue_number}/{atom_name}"
+                    )
+                mobile.append(sampled.coordinate)
+                target.append(authoritative.coordinate)
+    return mobile, target
 
 
 def _parse_atoms(text: str) -> tuple[_PDBAtom, ...]:
