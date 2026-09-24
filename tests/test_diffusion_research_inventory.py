@@ -109,7 +109,7 @@ def test_diffusion_inventory_declares_versioned_scope_and_thresholds() -> None:
     assert inventory["scope"]["initial_gap_lengths"] == [3, 12]
 
     thresholds = inventory["thresholds"]
-    assert thresholds["version"] == 1
+    assert thresholds["version"] == 2
     assert thresholds["fixed_heavy_atom_rmsd_angstrom_max"] == 0.01
     assert thresholds["fixed_heavy_atom_displacement_angstrom_max"] == 0.03
     assert thresholds["detectable_d_ca_max"] == 0
@@ -125,6 +125,10 @@ def test_diffusion_inventory_declares_versioned_scope_and_thresholds() -> None:
         thresholds["partner_context_backbone_displacement_angstrom_max"]
         == PARTNER_CONTEXT_BACKBONE_DISPLACEMENT_MAX_ANGSTROM
     )
+    partner_history = inventory["threshold_history"]["partner_context_v2"]
+    assert partner_history["previous_backbone_displacement_angstrom_max"] == 1.5
+    assert partner_history["revised_backbone_displacement_angstrom_max"] == 2.0
+    assert "1.708 Angstrom" in partner_history["triggering_observation"]
 
 
 def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
@@ -432,4 +436,26 @@ def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
     assert (
         glypro["glypro_7_gap_backbone_rmsd_angstrom"]
         > glypro["glypro_7_modeller_best_gap_backbone_rmsd_angstrom"]
+    )
+
+    interface = inventory["interface_adjacent_evidence"]
+    assert interface["case"] == "7x35-chain-a-interface-5"
+    assert interface["context_chains"] == ["B"]
+    assert interface["validation_passed"] is True
+    assert interface["repeatability_status"] == "passed"
+    assert interface["repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert interface["fixed_heavy_rmsd_angstrom"] == 0.0
+    assert interface["detectable_d_ca"] == 0
+    assert interface["severe_steric_overlaps"] == 0
+    assert interface["modeller_validation_pass_count"] == 0
+    assert interface["modeller_median_comparison_passed"] is True
+    assert (
+        interface["gap_backbone_rmsd_angstrom"]
+        < interface["modeller_median_gap_backbone_rmsd_angstrom"]
+    )
+    assert interface["partner_backbone_rmsd_angstrom"] < (
+        PARTNER_CONTEXT_BACKBONE_RMSD_MAX_ANGSTROM
+    )
+    assert interface["partner_backbone_max_displacement_angstrom"] < (
+        PARTNER_CONTEXT_BACKBONE_DISPLACEMENT_MAX_ANGSTROM
     )

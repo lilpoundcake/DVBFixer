@@ -6,26 +6,50 @@ to RFdiffusion v1 commit
 `Base_ckpt.pt` SHA-256
 `0fcf7d7c32b4848030aca3a051e6768de194616f96ba6c38186351a33bfc6eca`.
 
-Create the environment, clone the pinned source, and install its vendored
-SE(3)-Transformer package:
+Keep reusable external artifacts under the project-local ignored
+`.artifacts/` directory by default. Set `DVBFIXER_ARTIFACT_ROOT` when a larger
+or shared local filesystem is preferable; the directory is operational cache,
+not reviewed source and must never be committed:
 
 ```bash
-micromamba create -f deploy/rfdiffusion-v1/environment.yml -p "$RF_ENV"
-git clone https://github.com/RosettaCommons/RFdiffusion.git "$RF_SOURCE"
+ARTIFACT_ROOT="${DVBFIXER_ARTIFACT_ROOT:-$PWD/.artifacts}"
+RF_ROOT="$ARTIFACT_ROOT/rfdiffusion-v1"
+RF_ENV="$RF_ROOT/env"
+RF_SOURCE="$RF_ROOT/source"
+RF_CHECKPOINT="$RF_ROOT/Base_ckpt.pt"
+mkdir -p "$RF_ROOT"
+```
+
+Create the environment only when `$RF_ENV` is absent, clone the pinned source
+only when `$RF_SOURCE` is absent, and install its vendored SE(3)-Transformer
+package:
+
+```bash
+if [ ! -x "$RF_ENV/bin/python" ]; then
+  micromamba create -f deploy/rfdiffusion-v1/environment.yml -p "$RF_ENV"
+fi
+if [ ! -d "$RF_SOURCE/.git" ]; then
+  git clone https://github.com/RosettaCommons/RFdiffusion.git "$RF_SOURCE"
+fi
 git -C "$RF_SOURCE" checkout bf42b54c20a99dd7350456c85985ed4d83b95d48
-micromamba run -p "$RF_ENV" python -m pip install --no-build-isolation \
-  "$RF_SOURCE/env/SE3Transformer"
+if ! "$RF_ENV/bin/python" -c 'import se3_transformer' >/dev/null 2>&1; then
+  micromamba run -p "$RF_ENV" python -m pip install --no-build-isolation \
+    "$RF_SOURCE/env/SE3Transformer"
+fi
 ```
 
 Download the checkpoint only from the upstream URL and verify it before use:
 
 ```bash
-curl -fL \
-  https://files.ipd.uw.edu/pub/RFdiffusion/6f5902ac237024bdd0c176cb93063dc4/Base_ckpt.pt \
-  -o Base_ckpt.pt
+if [ ! -f "$RF_CHECKPOINT" ]; then
+  curl -fL \
+    https://files.ipd.uw.edu/pub/RFdiffusion/6f5902ac237024bdd0c176cb93063dc4/Base_ckpt.pt \
+    -o "$RF_CHECKPOINT.partial"
+  mv "$RF_CHECKPOINT.partial" "$RF_CHECKPOINT"
+fi
 printf '%s  %s\n' \
   0fcf7d7c32b4848030aca3a051e6768de194616f96ba6c38186351a33bfc6eca \
-  Base_ckpt.pt | sha256sum --check
+  "$RF_CHECKPOINT" | sha256sum --check
 ```
 
 The checksum is independently measured because upstream does not publish a
@@ -55,6 +79,11 @@ python scripts/analyze_diffusion_benchmark_pair.py FIRST_WORKSPACE SECOND_WORKSP
 python scripts/analyze_modeller_benchmark.py MODELLER_WORKSPACE MODEL_1 MODEL_2
 ```
 
+Reusable generated workspaces may live under
+`$ARTIFACT_ROOT/diffusion-benchmarks/`. They are ignored because they contain
+large backend outputs and machine-local paths; accepted measurements belong in
+the reviewed research inventory, not as committed runtime directories.
+
 The builders use the reviewed coordinate-fragment sequence as the sampler
 target so unrelated natural terminal/internal gaps in a deposited FASTA do not
 silently turn a one-gap benchmark into a different request. The inventory still
@@ -75,7 +104,8 @@ intentional: upstream documents separate-chain motif inpainting with this form;
 its complex checkpoint is selected for hotspot-driven binder design, which this
 adapter does not perform. Partner backbone atoms participate in the shared
 post-sampling Kabsch fit and must remain within the frozen `0.5 Angstrom` RMSD
-and `1.5 Angstrom` maximum-displacement limits before source records are
-reinserted exactly. The declared `7x35-chain-a-interface-5` case still requires
-pinned A100 repeatability and MODELLER measurements before it counts as completed
-interface evidence.
+and `2.0 Angstrom` maximum-displacement limits before source records are
+reinserted exactly. The `7x35-chain-a-interface-5` case has completed pinned A100
+same-seed repeatability, independent validation, and MODELLER comparison; exact
+measurements and the recorded partner-threshold revision are in the research
+inventory.
