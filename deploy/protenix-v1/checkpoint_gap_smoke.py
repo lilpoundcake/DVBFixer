@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import time
 from dataclasses import asdict
 from pathlib import Path
@@ -28,6 +29,8 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResourceMetrics,
     RunnerResult,
 )
+from dvbfixer.model.diffusion.geometry import weighted_kabsch
+from dvbfixer.model.diffusion.sampler import SamplingAblationMode
 from dvbfixer.model.diffusion.validate import validate_runner_result
 
 _ONE_TO_THREE = {
@@ -233,6 +236,19 @@ def _write_candidate(
     output_path.write_text("".join(lines), encoding="ascii")
 
 
+def _synchronize_frame(
+    coordinates: np.ndarray,
+    atom_axis: tuple[AtomIdentity, ...],
+    fixed_coordinates: dict[AtomIdentity, np.ndarray],
+) -> np.ndarray:
+    index_by_identity = {identity: index for index, identity in enumerate(atom_axis)}
+    ordered = tuple(sorted(fixed_coordinates))
+    indices = [index_by_identity[identity] for identity in ordered]
+    target = np.asarray([fixed_coordinates[identity] for identity in ordered])
+    transform = weighted_kabsch(coordinates[indices], target)
+    return transform.apply(coordinates)
+
+
 def _relative_artifact(workspace: Path, path: Path) -> ArtifactReference:
     try:
         relative = path.resolve().relative_to(workspace.resolve())
@@ -249,7 +265,9 @@ def run(
     *,
     cycles: int,
     steps: int,
+    ablation_mode: SamplingAblationMode,
 ) -> None:
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     from protenix.data.inference.infer_dataloader import get_inference_dataloader
     from protenix.utils.seed import seed_everything
     from runner.batch_inference import get_default_runner
@@ -280,7 +298,11 @@ def run(
         use_template=True,
         kalign_binary_path=str(kalign.resolve()),
     )
+    runner.configs.deterministic = True
+    runner.configs.deterministic_seed = True
     runner.configs.input_json_path = str(input_json.resolve())
+    seed = request.seeds[0]
+    seed_everything(seed=seed, deterministic=runner.configs.deterministic)
     batch = next(iter(get_inference_dataloader(configs=runner.configs)))
     data, atom_array, error_message = batch[0]
     if error_message:
@@ -290,11 +312,11 @@ def run(
     if _sha256(source_path) != request.normalized_pdb.sha256:
         raise ValueError("normalized PDB digest mismatch")
     fixed_coordinates = _read_fixed_coordinates(source_path, request.fixed_atoms)
-    callback = _TracingCallback(atom_axis, fixed_coordinates)
-    runner.model.dvbfixer_step_callback = callback
+    callback = None
+    if ablation_mode is SamplingAblationMode.REINJECTION:
+        callback = _TracingCallback(atom_axis, fixed_coordinates)
+        runner.model.dvbfixer_step_callback = callback
 
-    seed = request.seeds[0]
-    seed_everything(seed=seed, deterministic=runner.configs.deterministic)
     runner.update_model_configs(
         update_inference_configs(runner.configs, data["N_token"].item())
     )
@@ -302,16 +324,25 @@ def run(
     coordinates = prediction["coordinate"]
     if coordinates.shape[0] != 1:
         raise ValueError("checkpoint smoke expected exactly one sample")
-    if len(callback.steps) != steps or any(
-        step["step_count"] != steps for step in callback.steps
+    callback_steps = [] if callback is None else callback.steps
+    expected_callback_count = (
+        0 if ablation_mode is SamplingAblationMode.TEMPLATE_ONLY else steps
+    )
+    if len(callback_steps) != expected_callback_count or any(
+        step["step_count"] != steps for step in callback_steps
     ):
-        raise RuntimeError("callback was not invoked exactly once per denoising step")
+        raise RuntimeError("callback count does not match the requested ablation")
 
     final = coordinates[0].detach().to(dtype=torch.float64, device="cpu").numpy()
+    final_frame_synchronization = (
+        ablation_mode is SamplingAblationMode.TEMPLATE_ONLY
+    )
+    if final_frame_synchronization:
+        final = _synchronize_frame(final, atom_axis, fixed_coordinates)
     output_path = output_dir / "candidate.pdb"
     _write_candidate(output_path, final, atom_axis, residue_names, elements, request)
     candidate = RunnerCandidate(
-        candidate_id=f"protenix-v1-seed-{seed}",
+        candidate_id=f"protenix-v1-{ablation_mode.value}-seed-{seed}",
         seed=seed,
         coordinate_artifact=_relative_artifact(workspace, output_path),
         generated_atoms=request.generated_atoms,
@@ -346,12 +377,15 @@ def run(
     validation = validate_runner_result(request, runner_result, workspace=workspace)[0]
     summary = {
         "candidate_sha256": candidate.coordinate_artifact.sha256,
+        "ablation_mode": ablation_mode.value,
         "model_atom_count": len(atom_axis),
         "written_atom_count": len(request.fixed_atoms) + len(request.generated_atoms),
         "cycles": cycles,
         "diffusion_steps": steps,
-        "callback_count": len(callback.steps),
-        "callback_steps": callback.steps,
+        "deterministic_algorithms": torch.are_deterministic_algorithms_enabled(),
+        "callback_count": len(callback_steps),
+        "callback_steps": callback_steps,
+        "final_frame_synchronization": final_frame_synchronization,
         "validation": asdict(validation.summary),
         "ranking_metrics": [asdict(metric) for metric in validation.ranking_metrics],
         "wall_time_seconds": runner_result.resource_metrics.wall_time_seconds,
@@ -371,6 +405,14 @@ def main() -> None:
     parser.add_argument("--kalign", required=True, type=Path)
     parser.add_argument("--cycles", default=1, type=int)
     parser.add_argument("--steps", default=2, type=int)
+    parser.add_argument(
+        "--ablation-mode",
+        choices=(
+            SamplingAblationMode.TEMPLATE_ONLY.value,
+            SamplingAblationMode.REINJECTION.value,
+        ),
+        default=SamplingAblationMode.REINJECTION.value,
+    )
     args = parser.parse_args()
     run(
         args.request,
@@ -379,6 +421,7 @@ def main() -> None:
         args.kalign,
         cycles=args.cycles,
         steps=args.steps,
+        ablation_mode=SamplingAblationMode(args.ablation_mode),
     )
 
 

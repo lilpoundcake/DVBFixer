@@ -277,5 +277,5 @@ test_files = [
 known_divergences = [
   "The internal pipeline is not wired to public model, homology, zbs, GUI, or argparse dispatch.",
   "Atomic directory rename assumes one local filesystem; durability still depends on host filesystem semantics.",
-  "The pinned RFdiffusion v1 adapter has repeatable passing refined A100 candidates on 8CZ8, independent 8B01 regular loops, and target-chain-only 7X35 glycine/proline-rich loops, but interface/insertion-code strata remain open and no Protenix or Boltz adapter exists.",
+  "The pinned RFdiffusion v1 adapter has repeatable passing refined A100 candidates across regular, difficult, interface, and insertion-code strata. The private maintained Protenix path passes a three-way ablation and four repeatable single-chain cases. The private Boltz-2 patch passes synthetic sampler hooks and base-model inference, but lacks checkpoint-backed request-identity gap mapping. No diffusion engine is wired to public dispatch.",
 ]

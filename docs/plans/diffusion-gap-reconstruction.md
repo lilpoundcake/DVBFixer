@@ -16,7 +16,7 @@
 
 - [x] Add an internal experimental, backend-neutral diffusion protocol path for sequence-guided protein gap reconstruction; no public engine backend is claimed.
 - [x] Preserve deposited coordinates outside explicitly generated or movable regions through exact identity and fixed-heavy coordinate gates.
-- [ ] Implement the PATCHR-like method independently rather than importing, wrapping, vendoring, or copying PATCHR. CPU synchronization/reinjection primitives and conformance gates exist; real per-step sampler integration remains externally blocked.
+- [x] Implement the PATCHR-like method independently rather than importing, wrapping, vendoring, or copying PATCHR. The maintained Protenix v1 patch now integrates synchronization and exact reinjection after every real sampler update; PATCHR remains comparator-only.
 - [x] Keep ML frameworks, CUDA libraries, and model-specific packages out of the core DVBFixer environment.
 - [x] Record enough available provenance to reproduce or audit every generated candidate without inventing missing engine evidence.
 - [x] Validate identity, connectivity, supported geometry, chirality, and clashes before publishing a candidate.
@@ -77,13 +77,13 @@
   - [x] Pin the audited v1 source revision and record the upstream Apache-2.0 code/model-parameter claim; redistribution review is still required.
   - [x] Do not substitute Protenix v2 without a new license review.
   - [x] Verify whether the denoising state can be intercepted before every next step. It is mutable only inside `sample_diffusion`; no supported external callback is exposed.
-- [x] Evaluate Boltz-2 because Protenix v1 does not provide a maintainable hook; revision `b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc` has the same blocker in both Boltz-2 and legacy sampler loops.
+- [x] Evaluate Boltz-2 because the unmodified pinned revision `b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc` has the same hook blocker in both Boltz-2 and legacy sampler loops; a minimal maintained Boltz-2 patch now passes CPU/A100 synthetic callback smokes, while checkpoint-backed gap identity mapping remains open.
   - [x] Pin the audited MIT source revision and record the upstream code/weight claim; exact weight revision, URL, hash, and redistribution review remain unresolved.
   - [x] Treat ordinary template conditioning as insufficient for exact fixed-coordinate preservation.
   - [x] Verify whether fixed-coordinate reinjection can be implemented without an unmaintainable upstream fork. It cannot at either pinned revision: steering/projection changes the denoised estimate before the sampler computes its next state, and neither sampler exposes a post-update callback.
 - [x] Add a backend-neutral conformance record that refuses to claim reinjection unless mutable state, stable identity mapping, and exact fixed-coordinate overwrite are exposed at every denoising step.
 - [x] Stop before user-facing integration if neither pinned engine provides stable denoising hooks.
-- [x] Record whether a maintained fork, upstream API change, or different sampler would be required after the hook spikes run. The minimal maintained Protenix v1 patch is selected for the next boundary-refinement spike; unmodified Protenix and Boltz-2 remain unsupported. See [the hook-spike evidence](../research/all-atom-sampler-hook-spike.md).
+- [x] Record whether a maintained fork, upstream API change, or different sampler would be required after the hook spikes run. Minimal maintained Protenix v1 and Boltz-2 patches are recorded; Protenix has checkpoint-backed gap evidence, while Boltz has hook and base-model evidence only. Unmodified samplers remain unsupported. See [the hook-spike evidence](../research/all-atom-sampler-hook-spike.md).
 
 ### PATCHR Comparator
 
@@ -184,7 +184,7 @@
   - [x] provide a CPU-tested generated-frame synchronization primitive;
   - [x] provide a CPU-tested exact fixed-coordinate overwrite primitive;
   - [x] verify atom identity equality in the synchronization/reinjection primitive;
-  - [ ] integrate all four operations inside every update of a pinned real sampler.
+  - [x] integrate all four operations inside every update of a pinned real sampler.
 - [x] Run a localized post-sampling OpenMM pass around both peptide junctions for the RFdiffusion baseline; a real-sampler second diffusion pass remains pending.
 - [x] Keep atoms outside the generated residue set fixed during the localized pass. Fixed request atoms take precedence over the broader movable-junction support window.
 - [x] Materialize all expected canonical heavy atoms in generated residues for the RFdiffusion baseline.
@@ -193,7 +193,7 @@
   - [x] template conditioning only;
   - [x] template conditioning plus per-step reinjection;
   - [x] reinjection plus local boundary refinement.
-- [ ] Execute those ablations with a pinned real sampler.
+- [x] Execute those ablations with a pinned real sampler for the initial 7X35 case; broader corpus evidence remains pending.
 
 ## Independent Validation And Ranking
 
@@ -295,16 +295,18 @@
 ### Phase 3: All-Atom Constrained Sampler
 
 - [x] Complete the Protenix v1 hook feasibility spike; the pinned source lacks a maintainable per-step hook.
-- [x] Complete the Boltz-2 hook spike; it was needed after the Protenix result and has the same blocker.
+- [x] Complete the Boltz-2 source audit and maintained callback smoke on CPU/A100; the official checkpoint also strictly loads and produces byte-identical two-step A100 baseline samples. Stable gap identity mapping remains open.
 - [x] Add a minimal maintained Protenix v1 post-update callback patch and verify exact callback execution in a two-step CPU smoke and a 200-step checkpoint-backed A100 gap run.
 - [x] Verify that the official digest-pinned Protenix v1 checkpoint loads strictly, accepts deposited-structure template conditioning, preserves a stable request-identity atom axis, and performs exact callback-backed reinjection at every step.
 - [x] Select the maintained Protenix v1 patch for the next boundary-refinement spike after per-step control was demonstrated; this is not public-backend acceptance.
 - [x] Integrate the backend-neutral weighted Kabsch synchronization primitive with the real Protenix sampler.
 - [x] Integrate the backend-neutral exact fixed-coordinate reinjection primitive with the real Protenix sampler.
 - [x] Implement localized post-sampling boundary refinement for the RFdiffusion baseline; this does not satisfy the per-step all-atom sampler ablation.
-- [ ] Run the three-way ablation benchmark.
-- [ ] Require complete canonical heavy atoms.
-- [ ] Require final `assert_all_l` after every candidate's last heavy-coordinate change.
+- [x] Reuse localized boundary refinement for the checkpoint-backed Protenix candidate; the repeated deterministic 7X35 candidate passes every hard gate byte-identically with `1.964 Å` gap-backbone RMSD.
+- [x] Run the initial-case three-way ablation benchmark. Template-only moves fixed atoms (`1.986 Å` RMSD), reinjection preserves them exactly but leaves a `1.600 Å` junction, and generated-only refinement passes every hard gate with byte-identical repeats.
+- [x] Repeat the Protenix reinjection/refinement path on 8CZ8-10, 7X35 Pro/Gly-7, and 7K8S insertion-code-3. All raw and refined repeats are byte-identical; every refined candidate passes all hard gates with `0.0 Å` fixed-heavy movement.
+- [x] Require complete canonical heavy atoms.
+- [x] Require final `assert_all_l` after every candidate's last heavy-coordinate change.
 
 ### Phase 4: Experimental `model` CLI
 
@@ -400,7 +402,7 @@
 - [x] Compute success, unsupported, and failure rates by stratum from explicit run outcomes; no real-engine rates are claimed yet.
 - [x] Aggregate observed wall time, model-load time, peak RAM, and peak VRAM while preserving missing values instead of fabricating them; no real-engine values are claimed yet.
 - [x] Compute external-process timeout and crash rates from explicit failed-run evidence; no real-engine rates are claimed yet.
-- [ ] Report conditioning/reinjection/boundary-refinement ablation results.
+- [x] Report conditioning/reinjection/boundary-refinement ablation results for the initial 7X35 case; broader strata remain pending.
 - [x] Encode and measure the gap-backbone RMSD gate as no more than `0.25 Å` worse than MODELLER. Refined RFdiffusion beats the MODELLER median on all six measured 8CZ8/8B01/7X35 masks; MODELLER's best `PPGGPVP` candidate is nevertheless better than the single RF candidate (`3.54 Å` versus `4.28 Å`).
 - [x] Encode and measure the junction-pass gate as no lower than MODELLER. Both measured backends pass both junctions on all six masks after refinement.
 - [x] Encode and measure fixed-coordinate adherence as strictly better than MODELLER: refined RFdiffusion is `0.0 Å` on all six masks, while every measured MODELLER comparator moves deposited coordinates.
@@ -552,6 +554,6 @@ weaken the A100 acceptance gates.
   deferred until an OCI runtime is available. Checkpoint embedding and final
   redistribution review belong to Phase 6; Phase 2 keeps the checkpoint as a
   digest-verified read-only mount.
-- [ ] Phase 3 remains blocked on localized boundary refinement, the three-way ablation, repeatability, and broader evidence. The checkpoint-backed 7X35 run demonstrated stable DVBFixer identities and exact overwrite at all 200 steps, but its raw candidate failed one peptide-junction gate at 1.604 Å.
+- [ ] Phase 3 remains blocked on multichain/interface and retained-chemistry evidence plus a pinned production environment. Protenix now passes the initial ablation and three additional repeatable single-chain cases. Boltz passes maintained-hook CPU/A100 smokes and repeatable official-checkpoint baseline inference, but not checkpoint-backed gap identity mapping.
 - [ ] Phases 4-6 remain blocked on the Phase 2/3 evidence and intentionally make no public CLI, homology, or production-support claim.
 - [ ] Keep status `proposed` and MODELLER/PDBFixer as supported production baselines until those gates pass.

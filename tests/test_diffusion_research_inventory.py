@@ -34,6 +34,9 @@ PROTENIX_HOOK_PATCH = REPO_ROOT / "deploy/protenix-v1/per-step-callback.patch"
 PROTENIX_HOOK_SMOKE = REPO_ROOT / "deploy/protenix-v1/hook-smoke.py"
 PROTENIX_REINJECTION = REPO_ROOT / "deploy/protenix-v1/reinjection.py"
 PROTENIX_CHECKPOINT_SMOKE = REPO_ROOT / "deploy/protenix-v1/checkpoint_gap_smoke.py"
+PROTENIX_REFINEMENT_SMOKE = REPO_ROOT / "deploy/protenix-v1/refine_candidate.py"
+BOLTZ_HOOK_PATCH = REPO_ROOT / "deploy/boltz-2/per-step-callback.patch"
+BOLTZ_HOOK_SMOKE = REPO_ROOT / "deploy/boltz-2/hook-smoke.py"
 
 CANONICAL_RESIDUES = {
     "ALA": "A",
@@ -380,7 +383,7 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert spike["selected_sampler"] == "protenix-v1-maintained-patch"
     assert (
         spike["decision"]
-        == "protenix-checkpoint-hook-passed-boundary-refinement-pending"
+        == "protenix-initial-three-way-ablation-passed-broader-evidence-pending"
     )
     assert (REPO_ROOT / spike["evidence"]).is_file()
 
@@ -394,13 +397,15 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert REPO_ROOT / patch["reinjection"] == PROTENIX_REINJECTION
     assert REPO_ROOT / patch["checkpoint_smoke"] == PROTENIX_CHECKPOINT_SMOKE
     assert patch["checkpoint_smoke_sha256"] == _sha256(PROTENIX_CHECKPOINT_SMOKE)
+    assert REPO_ROOT / patch["refinement_smoke"] == PROTENIX_REFINEMENT_SMOKE
+    assert patch["refinement_smoke_sha256"] == _sha256(PROTENIX_REFINEMENT_SMOKE)
     assert patch["callback_stage"] == "post-update-before-next-step"
     assert patch["stable_atom_axis"] is True
     assert patch["torch_native_weighted_kabsch"] is True
     assert patch["exact_fixed_overwrite_cpu_smoke"] is True
     assert patch["callback_count"] == patch["expected_callback_count"] == 200
     assert patch["real_checkpoint_smoke"] is True
-    assert patch["status"] == "selected-for-boundary-refinement-spike"
+    assert patch["status"] == "initial-three-way-ablation-complete"
 
     smoke = inventory["protenix_v1_checkpoint_smoke"]
     assert smoke["status"] == "passed-base-model-only"
@@ -424,6 +429,40 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert gap_smoke["failed_gates"] == ["junction-peptide-connectivity"]
     assert len(gap_smoke["candidate_sha256"]) == 64
     assert len(gap_smoke["summary_sha256"]) == 64
+    assert gap_smoke["candidate_sha256"] == gap_smoke[
+        "same_seed_repeat_candidate_sha256"
+    ]
+    assert gap_smoke["same_seed_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert gap_smoke["repeatability_status"] == "passed"
+
+    refinement = inventory["protenix_v1_boundary_refinement"]
+    assert refinement["status"] == "passed-initial-ablation-case"
+    assert refinement["validation_passed"] is True
+    assert refinement["fixed_heavy_rmsd_angstrom"] == 0.0
+    assert refinement["fixed_heavy_max_displacement_angstrom"] == 0.0
+    assert refinement["detectable_d_ca"] == 0
+    assert refinement["severe_steric_overlaps"] == 0
+    assert refinement["repeatability_status"] == "passed"
+    assert refinement["candidate_sha256"] == refinement["repeat_candidate_sha256"]
+    assert refinement["repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert refinement["repeat_max_displacement_angstrom"] == 0.0
+    assert (
+        refinement["gap_backbone_rmsd_angstrom"]
+        < refinement["modeller_best_gap_backbone_rmsd_angstrom"]
+    )
+
+    ablation = inventory["protenix_v1_three_way_ablation"]
+    assert ablation["status"] == "passed-initial-case"
+    assert ablation["template_only_validation_passed"] is False
+    assert ablation["template_only_callback_count"] == 0
+    assert ablation["template_only_fixed_heavy_rmsd_angstrom"] > 0.01
+    assert ablation["reinjection_validation_passed"] is False
+    assert ablation["reinjection_callback_count"] == 200
+    assert ablation["reinjection_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert ablation["reinjection_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert ablation["refined_validation_passed"] is True
+    assert ablation["refined_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert ablation["refined_repeat_coordinate_rmsd_angstrom"] == 0.0
 
     protenix = next(
         engine for engine in inventory["engines"] if engine["id"] == "protenix-v1"
@@ -454,12 +493,15 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert assess_sampler_conformance(
         protenix_capabilities, SamplingAblationMode.REINJECTION
     ).supported
-    assert not assess_sampler_conformance(
+    assert assess_sampler_conformance(
         protenix_capabilities,
         SamplingAblationMode.REINJECTION_BOUNDARY_REFINEMENT,
     ).supported
 
     boltz = engines["boltz-2"]
+    assert boltz["checkpoint_sha256"] == (
+        "090e82ac8c92f5e943fa1b39e7410a44027bea7243c0bbb3caa67a77fc1428e1"
+    )
     boltz_capabilities = SamplerCapabilities(
         mutable_state_each_step=boltz["mutable_state_each_step"],
         identity_mapping_each_step=boltz["identity_mapping_each_step"],
@@ -473,10 +515,36 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     )
     assert not decision.supported
     assert decision.missing_capabilities == (
-        "mutable-state-each-step",
         "identity-mapping-each-step",
-        "fixed-coordinate-overwrite-each-step",
     )
+
+    boltz_patch = inventory["boltz_v2_hook_patch"]
+    assert boltz_patch["patch_sha256"] == _sha256(BOLTZ_HOOK_PATCH)
+    assert boltz_patch["smoke_sha256"] == _sha256(BOLTZ_HOOK_SMOKE)
+    assert boltz_patch["cpu_callback_count"] == 2
+    assert boltz_patch["gpu_callback_count"] == 2
+    assert boltz_patch["maximum_post_projection_error_angstrom"] == 0.0
+    assert boltz_patch["final_fixed_coordinates_exact"] is True
+
+    boltz_smoke = inventory["boltz_v2_checkpoint_smoke"]
+    assert boltz_smoke["strict_checkpoint_load"] is True
+    assert boltz_smoke["model_parameters"] == 506_724_992
+    assert boltz_smoke["failed_examples"] == 0
+    assert boltz_smoke["candidate_sha256"] == boltz_smoke[
+        "repeat_candidate_sha256"
+    ]
+    assert boltz_smoke["per_step_callback_exercised"] is False
+
+    broader = inventory["protenix_v1_broader_gap_evidence"]
+    assert broader["status"] == "passed-three-additional-single-chain-cases"
+    assert broader["case_count"] == 3
+    assert broader["all_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert broader["all_raw_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert broader["all_refined_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert broader["case_8cz8_10_refined_validation_passed"] is True
+    assert broader["case_7x35_7_raw_validation_passed"] is False
+    assert broader["case_7x35_7_refined_validation_passed"] is True
+    assert broader["case_7k8s_3_refined_validation_passed"] is True
 
 
 def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:

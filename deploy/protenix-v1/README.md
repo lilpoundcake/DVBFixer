@@ -37,5 +37,19 @@ The driver resolves Protenix sequence ordinals back to request identities,
 installs `FixedAtomReinjector` after featurization, records every callback, emits
 only requested atoms, and runs DVBFixer-owned validation. The first full 7X35
 run proved exact reinjection at all 200 steps but failed one peptide-junction
-gate, so localized boundary refinement and the three-way Phase 3 ablation are
-still required.
+gate. Apply the existing DVBFixer localized refinement without rerunning the
+checkpoint:
+
+```bash
+python deploy/protenix-v1/refine_candidate.py \
+  request.json protenix-output/candidate.pdb refined-output \
+  --expected-candidate-sha256 RAW_CANDIDATE_SHA256
+```
+
+The refinement wrapper preserves the raw candidate, rewrites only generated
+coordinate columns, and reruns independent validation. Independent seeded 7X35
+runs produced byte-identical raw and refined PDBs, and the refined candidate
+passed every hard gate. The initial three-way ablation is complete: use
+`--ablation-mode template-conditioning-only` for the conditioning-only arm;
+the default is per-step reinjection. Broader benchmark evidence is still
+required before any public backend work.
