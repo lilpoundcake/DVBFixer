@@ -280,7 +280,7 @@
 - [x] Materialize canonical side chains through the explicitly recorded PDBFixer pure-protein route.
 - [x] Re-run all all-heavy-atom validation after side-chain materialization.
 - [x] Keep outputs inside benchmark workspaces until hard gates pass.
-- [x] Measure fixed-atom drift, closure, withheld quality, runtime, RAM, VRAM, same-seed raw repeatability, and seed variability for the reviewed 5- and 10-residue smoke cases. Raw candidates failed junction/chirality/clash gates; the first v2 post-refinement candidate in each mask passes all hard gates. Refined repeatability remains open.
+- [x] Measure fixed-atom drift, closure, withheld quality, runtime, RAM, VRAM, same-seed raw/refined repeatability, and seed variability for the reviewed 5- and 10-residue smoke cases. Raw candidates failed junction/chirality/clash gates; repeated v3 post-refinement candidates pass all hard gates and are byte-identical within each same-seed pair.
 - [ ] Build and verify an immutable NVIDIA Docker runner image after selecting a base-image digest. Keep the checkpoint mounted and digest-verified by default until redistribution review explicitly permits embedding it.
 
 ### Phase 3: All-Atom Constrained Sampler
@@ -361,13 +361,13 @@
 - [x] Reject gross general-residue Ramachandran outliers in the generated and junction neighborhoods; class-specific GLY/PRO/pre-PRO validation remains pending.
 - [x] Reject gross pooled χ1/χ2 side-chain torsion outliers where both torsions are defined; this is not complete residue/backbone-dependent rotamer validation.
 - [x] Require unsupported or ambiguous inputs to create no public PDB or result bundle.
-- [x] Provide a CPU-testable same-seed repeatability classifier at `0.01 Å`; real-engine determinism remains unmeasured until an exact pinned GPU environment exists.
+- [x] Provide a CPU-testable same-seed repeatability classifier at `0.01 Å` and apply it to independent pinned A100 workspaces. Both initial v3 refined mask pairs measure `0.0 Å` generated-heavy RMSD and maximum displacement.
 - [x] Version threshold changes instead of adjusting them after viewing benchmark outcomes. The current threshold is a named module constant and recorded in each repeatability assessment.
 
 ## Comparative Metrics
 
-- [x] Compute gap backbone RMSD against withheld coordinates in the CPU benchmark API; no real-engine values are claimed yet.
-- [x] Compute gap all-heavy-atom RMSD in the CPU benchmark API; no real-engine values are claimed yet.
+- [x] Compute gap backbone RMSD against withheld coordinates in the benchmark API and record pinned real-engine values for the initial 5-/10-residue subset.
+- [x] Compute gap all-heavy-atom RMSD in the benchmark API and record pinned real-engine values for the initial 5-/10-residue subset.
 - [ ] Report lDDT and GDT-HA or TM-score where meaningful after a reviewed implementation and real candidates exist.
 - [x] Compute fixed-heavy and anchor-heavy RMSD.
 - [x] Summarize peptide closure and independent-validation pass rates from explicit per-candidate decisions.
@@ -498,7 +498,7 @@ weaken the A100 acceptance gates.
 
 - [x] Run a pinned GPU smoke test on the reviewed 8CZ8 five-residue internal gap.
 - [x] Run a same-seed deterministic repeat on the pinned GPU environment; the raw PDB was byte-identical and coordinate RMSD was `0.0 Å`.
-- [x] Run the initial representative RFdiffusion subset and MODELLER comparator: one post-refinement seed in each reviewed 5-/10-residue case passes every hard gate and the measured MODELLER comparison. Refined repeatability and broader strata remain pending.
+- [x] Run the initial representative RFdiffusion subset and MODELLER comparator: repeated post-refinement seed-7 workspaces in each reviewed 5-/10-residue case are byte-identical, pass every hard gate, and pass the measured MODELLER comparison. Broader strata remain pending.
 
 ## First Implementation Iteration Exit Criteria
 
@@ -518,7 +518,7 @@ weaken the A100 acceptance gates.
 
 ## Remaining External Gates
 
-- [ ] Phase 2 remains blocked on post-refinement repeatability, immutable service-image identity, final checkpoint redistribution review, and broader measured benchmark evidence. The initial MODELLER comparison and one passing refined candidate in each reviewed 5-/10-residue mask are complete.
+- [ ] Phase 2 remains blocked on immutable service-image identity, final checkpoint redistribution review, and broader measured benchmark evidence. The initial MODELLER comparison plus repeatable passing refined candidates in both reviewed 5-/10-residue masks are complete.
 - [ ] Phase 3 remains blocked until a pinned all-atom sampler demonstrates externally controllable mutable state, stable atom identity, and exact fixed-coordinate overwrite at every denoising step.
 - [ ] Phases 4-6 remain blocked on the Phase 2/3 evidence and intentionally make no public CLI, homology, or production-support claim.
 - [ ] Keep status `proposed` and MODELLER/PDBFixer as supported production baselines until those gates pass.

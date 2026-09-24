@@ -42,4 +42,6 @@ The adapter enables DVBFixer's seeded post-sampling OpenMM boundary refinement
 by default. Set the internal backend option `boundary_refinement=false` only
 for the declared raw-backbone ablation. This pass freezes all source atoms,
 constrains generated heavy-atom bonds, and independently rechecks the complete
-candidate; it is not per-denoising-step reinjection.
+candidate; it is not per-denoising-step reinjection. The acceptance path uses
+OpenMM's deterministic `Reference` platform and seeded hydrogen placement.
+Faster CPU/CUDA refinement is not accepted as a repeatability substitute.

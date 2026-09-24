@@ -288,7 +288,7 @@ def run_adapter(request: DiffusionRequest, config: RFdiffusionV1Config) -> Runne
             raw_text=raw_pdb.read_text(encoding="utf-8"),
             boundary_refinement=boundary_refinement,
             refinement_seed=seed,
-            refinement_platform="CPU",
+            refinement_platform="Reference",
         )
         candidate_path.write_text(candidate_text, encoding="utf-8")
         candidates.append(
@@ -346,7 +346,7 @@ def materialize_candidate(
     raw_text: str,
     boundary_refinement: bool = False,
     refinement_seed: int = 1,
-    refinement_platform: str = "CPU",
+    refinement_platform: str = "Reference",
     refinement_restart_count: int | None = None,
 ) -> str:
     """Restore identities and complete generated canonical heavy atoms."""
@@ -729,11 +729,12 @@ def _backend_provenance(config: RFdiffusionV1Config) -> BackendProvenance:
         cuda_version="11.1",
         driver_version=_driver_version(),
         deterministic_algorithms=False,
-        deterministic_flags=("inference.deterministic=True", "one-design-per-request-seed"),
-        known_nondeterministic_operations=(
-            "legacy CUDA scatter/reduction kernels",
-            "OpenMM/PDBFixer local refinement may vary across repeated runs",
+        deterministic_flags=(
+            "inference.deterministic=True",
+            "one-design-per-request-seed",
+            "seeded hydrogen placement and OpenMM Reference boundary refinement",
         ),
+        known_nondeterministic_operations=("legacy CUDA scatter/reduction kernels",),
     )
 
 

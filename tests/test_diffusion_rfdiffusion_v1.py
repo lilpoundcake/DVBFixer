@@ -3,8 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+import math
+from io import StringIO
 from pathlib import Path
 
+from openmm.app import PDBFile
+from openmm.unit import angstrom
+
+from dvbfixer.diagnose.report import Severity
+from dvbfixer.diagnose.steric import clashes_python
 from dvbfixer.model.diffusion.boundary_refinement import refine_generated_region
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
@@ -207,6 +214,37 @@ def test_boundary_refinement_preserves_fixed_records_and_generated_identity() ->
     assert len(result.post_coordinate_sha256) == 64
 
 
+def test_boundary_refinement_same_seed_is_exactly_repeatable() -> None:
+    request, source, raw = _case()
+    synthetic = build_synthetic_input(request, source)
+    unrefined = materialize_candidate(
+        request,
+        source_text=source,
+        synthetic_text=synthetic.pdb_text,
+        raw_text=raw,
+    )
+
+    first = refine_generated_region(
+        unrefined,
+        generated_residues=request.gaps[0].generated_residues,
+        generated_atoms=request.generated_atoms,
+        max_iterations=10,
+        restart_count=1,
+        random_seed=7,
+    )
+    second = refine_generated_region(
+        unrefined,
+        generated_residues=request.gaps[0].generated_residues,
+        generated_atoms=request.generated_atoms,
+        max_iterations=10,
+        restart_count=1,
+        random_seed=7,
+    )
+
+    assert first.pre_coordinate_sha256 == second.pre_coordinate_sha256
+    assert first.post_coordinate_sha256 == second.post_coordinate_sha256
+
+
 def test_materialization_with_refinement_keeps_source_atom_lines_exact() -> None:
     request, source, raw = _case()
     synthetic = build_synthetic_input(request, source)
@@ -233,3 +271,34 @@ def test_materialization_with_refinement_keeps_source_atom_lines_exact() -> None
         if line.startswith(("ATOM  ", "HETATM")) and _heavy(line)
     }
     assert set(request.generated_atoms) <= candidate_atoms
+
+    pdb = PDBFile(StringIO(candidate))
+    lysine = next(
+        residue
+        for residue in pdb.topology.residues()
+        if residue.chain.id == "C" and residue.id == "68"
+    )
+    atoms = {atom.name: atom for atom in lysine.atoms()}
+
+    def distance(first: str, second: str) -> float:
+        first_xyz = pdb.positions[atoms[first].index].value_in_unit(angstrom)
+        second_xyz = pdb.positions[atoms[second].index].value_in_unit(angstrom)
+        return math.dist(first_xyz, second_xyz)
+
+    assert 1.3 < distance("CD", "CE") < 1.7
+    assert 1.3 < distance("CE", "NZ") < 1.7
+
+    lysine_clashes = []
+    for finding in clashes_python(
+        pdb.topology,
+        pdb.positions,
+        clash_warn_a=0.9,
+        clash_error_a=0.9,
+    ):
+        partner = finding.extra.get("clash_partner", {})
+        if finding.severity is Severity.ERROR and (
+            (finding.chain, finding.resid) == ("C", "68")
+            or (partner.get("chain"), partner.get("resid")) == ("C", "68")
+        ):
+            lysine_clashes.append(finding)
+    assert not lysine_clashes

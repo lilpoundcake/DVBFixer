@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+import random
 from dataclasses import dataclass
 from io import StringIO
 
@@ -37,9 +38,9 @@ from dvbfixer.ffutils.geometry import (
 )
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
-BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v2"
+BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v3"
 BOUNDARY_REFINEMENT_FORCEFIELD = tuple(FF_ALIASES["amber"])
-BOUNDARY_REFINEMENT_MAX_ITERATIONS = 2000
+BOUNDARY_REFINEMENT_MAX_ITERATIONS = 250
 BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM = 10.0
 BOUNDARY_REFINEMENT_RESTART_COUNT = 8
 BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM = 0.75
@@ -70,7 +71,7 @@ def refine_generated_region(
     max_iterations: int = BOUNDARY_REFINEMENT_MAX_ITERATIONS,
     restart_count: int = BOUNDARY_REFINEMENT_RESTART_COUNT,
     perturbation_angstrom: float = BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM,
-    platform_name: str = "CPU",
+    platform_name: str = "Reference",
     random_seed: int = 1,
     restrain_amides: bool = True,
 ) -> BoundaryRefinementResult:
@@ -116,11 +117,18 @@ def refine_generated_region(
             + _residue_labels(fixed_d)
         )
 
+    try:
+        platform = Platform.getPlatformByName(platform_name)
+    except Exception as exc:
+        raise BoundaryRefinementError(
+            f"OpenMM platform {platform_name!r} is unavailable"
+        ) from exc
+
     # A normalized source may contain unrelated incomplete side chains. Complete
     # them only in this temporary force-field topology; publication still copies
     # coordinates exclusively for the requested generated atoms.
     fixer = PDBFixer(pdbfile=StringIO(pdb_text))
-    fixer.platform = Platform.getPlatformByName("CPU")
+    fixer.platform = platform
     fixer.findMissingResidues()
     fixer.missingResidues = {}
     fixer.findMissingAtoms()
@@ -142,7 +150,12 @@ def refine_generated_region(
 
     forcefield = ForceField(*BOUNDARY_REFINEMENT_FORCEFIELD)
     modeller = Modeller(topology, positions)
-    modeller.addHydrogens(forcefield, pH=7.0)
+    random_state = random.getstate()
+    random.seed(random_seed)
+    try:
+        modeller.addHydrogens(forcefield, pH=7.0, platform=platform)
+    finally:
+        random.setstate(random_state)
     repair_misplaced_hydrogens(modeller.topology, modeller.positions)
 
     system = forcefield.createSystem(
@@ -180,12 +193,6 @@ def refine_generated_region(
     if restrained_angles:
         system.addForce(peptide_angle_force)
 
-    try:
-        platform = Platform.getPlatformByName(platform_name)
-    except Exception as exc:
-        raise BoundaryRefinementError(
-            f"OpenMM platform {platform_name!r} is unavailable"
-        ) from exc
     properties = {"Threads": "1"} if platform_name == "CPU" else {}
     integrator = VerletIntegrator(0.001 * picosecond)
     simulation = Simulation(
@@ -204,6 +211,10 @@ def refine_generated_region(
         maxIterations=max_iterations,
     )
     best_state = simulation.context.getState(getEnergy=True, getPositions=True)
+    if not _state_is_finite(best_state):
+        raise BoundaryRefinementError(
+            "localized refinement produced non-finite initial-minimum state"
+        )
     best_score = _local_geometry_error_count(
         modeller.topology,
         best_state.getPositions(),
@@ -238,6 +249,8 @@ def refine_generated_region(
             except OpenMMException:
                 continue
             state = simulation.context.getState(getEnergy=True, getPositions=True)
+            if not _state_is_finite(state):
+                continue
             score = _local_geometry_error_count(
                 modeller.topology,
                 state.getPositions(),
@@ -322,6 +335,15 @@ def _coordinates_by_identity(topology: object, positions: object) -> dict[AtomId
             dtype=np.float64,
         ) * 10.0
     return coordinates
+
+
+def _state_is_finite(state: object) -> bool:
+    positions = np.asarray(
+        state.getPositions(asNumpy=True).value_in_unit(nanometer),
+        dtype=np.float64,
+    )
+    energy = float(state.getPotentialEnergy().value_in_unit(kilojoule_per_mole))
+    return bool(np.isfinite(positions).all() and math.isfinite(energy))
 
 
 def _build_trans_amide_force(

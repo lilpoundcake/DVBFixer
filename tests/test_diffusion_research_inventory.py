@@ -245,7 +245,10 @@ def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
     assert refined["withheld_10_detectable_d_ca"] == 0
     assert refined["withheld_5_severe_steric_overlaps"] == 0
     assert refined["withheld_10_severe_steric_overlaps"] == 0
-    assert refined["repeatability_status"] == "open"
+    assert refined["revision"] == "dvbfixer-openmm-boundary-refinement-v3"
+    assert refined["repeatability_status"] == "passed-initial-subset"
+    assert refined["withheld_5_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert refined["withheld_10_repeat_coordinate_rmsd_angstrom"] == 0.0
     assert (
         refined["withheld_5_gap_backbone_rmsd_angstrom"]
         < modeller["withheld_5_median_gap_backbone_rmsd_angstrom"]

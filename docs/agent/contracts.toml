@@ -277,5 +277,5 @@ test_files = [
 known_divergences = [
   "The internal pipeline is not wired to public model, homology, zbs, GUI, or argparse dispatch.",
   "Atomic directory rename assumes one local filesystem; durability still depends on host filesystem semantics.",
-  "The pinned RFdiffusion v1 adapter has initial passing refined A100 candidates, but refined repeatability and broader strata remain open and no Protenix or Boltz adapter exists.",
+  "The pinned RFdiffusion v1 adapter has repeatable passing refined A100 candidates on the initial 5-/10-residue subset, but broader strata remain open and no Protenix or Boltz adapter exists.",
 ]
