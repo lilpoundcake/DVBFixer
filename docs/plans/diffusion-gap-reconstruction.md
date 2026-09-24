@@ -73,17 +73,17 @@
 
 ### All-Atom Feasibility Spike
 
-- [ ] Evaluate Protenix v1 first; revision `85767b811c40ed46e73a9b39519cf6bfca8701ba` and its Apache-2.0 source claim are inventoried, but checkpoint acquisition and sampler-hook evidence remain blocked.
+- [x] Evaluate Protenix v1 first; revision `85767b811c40ed46e73a9b39519cf6bfca8701ba` exposes no maintainable external per-step callback, so it cannot satisfy reinjection without an upstream API change or maintained fork.
   - [x] Pin the audited v1 source revision and record the upstream Apache-2.0 code/model-parameter claim; redistribution review is still required.
   - [x] Do not substitute Protenix v2 without a new license review.
-  - [ ] Verify whether the denoising state can be intercepted before every next step.
-- [ ] Evaluate Boltz-2 if Protenix v1 does not provide a maintainable hook; revision `b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc` is inventoried, but checkpoint and sampler-hook evidence remain blocked.
+  - [x] Verify whether the denoising state can be intercepted before every next step. It is mutable only inside `sample_diffusion`; no supported external callback is exposed.
+- [x] Evaluate Boltz-2 because Protenix v1 does not provide a maintainable hook; revision `b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc` has the same blocker in both Boltz-2 and legacy sampler loops.
   - [x] Pin the audited MIT source revision and record the upstream code/weight claim; exact weight revision, URL, hash, and redistribution review remain unresolved.
   - [x] Treat ordinary template conditioning as insufficient for exact fixed-coordinate preservation.
-  - [ ] Verify whether fixed-coordinate reinjection can be implemented without an unmaintainable upstream fork.
+  - [x] Verify whether fixed-coordinate reinjection can be implemented without an unmaintainable upstream fork. It cannot at either pinned revision: steering/projection changes the denoised estimate before the sampler computes its next state, and neither sampler exposes a post-update callback.
 - [x] Add a backend-neutral conformance record that refuses to claim reinjection unless mutable state, stable identity mapping, and exact fixed-coordinate overwrite are exposed at every denoising step.
 - [x] Stop before user-facing integration if neither pinned engine provides stable denoising hooks.
-- [ ] Record whether a maintained fork, upstream API change, or different sampler would be required after the hook spikes run.
+- [x] Record whether a maintained fork, upstream API change, or different sampler would be required after the hook spikes run. The minimal maintained Protenix v1 patch is selected for the next boundary-refinement spike; unmodified Protenix and Boltz-2 remain unsupported. See [the hook-spike evidence](../research/all-atom-sampler-hook-spike.md).
 
 ### PATCHR Comparator
 
@@ -281,15 +281,26 @@
 - [x] Re-run all all-heavy-atom validation after side-chain materialization.
 - [x] Keep outputs inside benchmark workspaces until hard gates pass.
 - [x] Measure fixed-atom drift, closure, withheld quality, runtime, RAM, VRAM, same-seed raw/refined repeatability, and seed variability for the reviewed 5- and 10-residue smoke cases. Raw candidates failed junction/chirality/clash gates; repeated v3 post-refinement candidates pass all hard gates and are byte-identical within each same-seed pair.
-- [ ] Build and verify an immutable NVIDIA Docker runner image after selecting a base-image digest. Keep the checkpoint mounted and digest-verified by default until redistribution review explicitly permits embedding it.
+- [x] Add the minimal NVIDIA Docker runner recipe with a digest-pinned
+  linux/amd64 base, pinned RFdiffusion source, isolated adapter/sampler
+  environments, and a mounted checkpoint verified before model loading.
+- [ ] Build the final image and repeat the GPU smoke on a host with an OCI
+  runtime. The current A100 benchmark host has no Docker, Podman, Apptainer,
+  Skopeo, or Crane executable, so no final image digest is claimed.
+- [x] Defer registry publication/signing, multi-architecture builds, embedded
+  checkpoint distribution, orchestration manifests, and remote scheduling
+  until a real deployment requires them; these do not address a current
+  Phase 2 benchmark problem.
 
 ### Phase 3: All-Atom Constrained Sampler
 
-- [ ] Complete the Protenix v1 hook feasibility spike.
-- [ ] Complete the Boltz-2 hook spike only if needed.
-- [ ] Select a sampler only after per-step control is demonstrated.
-- [x] Implement the backend-neutral weighted Kabsch synchronization primitive; real-sampler per-step integration remains pending.
-- [x] Implement the backend-neutral exact fixed-coordinate reinjection primitive; real-sampler per-step integration remains pending.
+- [x] Complete the Protenix v1 hook feasibility spike; the pinned source lacks a maintainable per-step hook.
+- [x] Complete the Boltz-2 hook spike; it was needed after the Protenix result and has the same blocker.
+- [x] Add a minimal maintained Protenix v1 post-update callback patch and verify exact callback execution in a two-step CPU smoke and a 200-step checkpoint-backed A100 gap run.
+- [x] Verify that the official digest-pinned Protenix v1 checkpoint loads strictly, accepts deposited-structure template conditioning, preserves a stable request-identity atom axis, and performs exact callback-backed reinjection at every step.
+- [x] Select the maintained Protenix v1 patch for the next boundary-refinement spike after per-step control was demonstrated; this is not public-backend acceptance.
+- [x] Integrate the backend-neutral weighted Kabsch synchronization primitive with the real Protenix sampler.
+- [x] Integrate the backend-neutral exact fixed-coordinate reinjection primitive with the real Protenix sampler.
 - [x] Implement localized post-sampling boundary refinement for the RFdiffusion baseline; this does not satisfy the per-step all-atom sampler ablation.
 - [ ] Run the three-way ablation benchmark.
 - [ ] Require complete canonical heavy atoms.
@@ -347,7 +358,11 @@
   workspaces are byte-identical, pass every hard gate, and measure `1.195 Å`
   gap-backbone RMSD versus MODELLER median `3.472 Å`; fixed-heavy RMSD is
   `0.0 Å` versus `2.940 Å`.
-- [ ] Include antibody insertion codes.
+- [x] Complete the reviewed antibody insertion-code case using the isolated
+  7K8S heavy-chain `H/82A-H/82C` mask. Independent seed-7 A100 workspaces are
+  byte-identical, restore all three insertion-code identities, pass every hard
+  gate, and measure `0.445 Å` gap-backbone RMSD versus MODELLER median
+  `6.483 Å`; fixed-heavy RMSD is `0.0 Å` versus `9.171 Å`.
 - [x] Exercise case-sensitive chain identity in CPU unit tests; add a reviewed benchmark structure with case-distinct chains before real-engine claims.
 - [x] Declare terminal one-anchor gaps only as a separate unsupported/later stratum.
 - [x] Declare retained-heterogen cases as a separate unsupported/later stratum; add covalent-link fixtures when that stratum is reviewed.
@@ -456,7 +471,9 @@ weaken the A100 acceptance gates.
 - [ ] Change `src/dvbfixer/homology_plan.py` only in the mosaic-first phase.
 - [ ] Change `src/dvbfixer/homology.py` only after the homology contract passes focused tests.
 - [ ] Avoid changing `src/dvbfixer/ffutils/dat.py` unless a general sidecar requirement is demonstrated.
-- [x] Add the isolated native runner environment lock and license inventory; an immutable Docker base digest remains pending before service-image acceptance.
+- [x] Add the isolated native runner environment lock, license inventory, and
+  digest-pinned linux/amd64 container base. Final image identity remains an
+  operational verification item because this host has no OCI runtime.
 - [x] Add focused diffusion unit and integration tests for the contract, masks, geometry, research inventory, runner protocol, fake runner, independent validation, publication, provenance, adapter preflight, sampler conformance, repeatability, and benchmark metrics.
 - [x] Add reproducible internal builders/analyzers for frozen withheld-coordinate requests, same-seed workspace pairs, and MODELLER comparator outputs.
 - [ ] Add reviewed fixtures and regenerate their manifest when benchmark structures are added.
@@ -527,7 +544,14 @@ weaken the A100 acceptance gates.
 
 ## Remaining External Gates
 
-- [ ] Phase 2 remains blocked on immutable service-image identity, final checkpoint redistribution review, and insertion-code benchmark evidence. Repeatable passing refined candidates and MODELLER comparisons are complete for 8CZ8, independent 8B01 regular loops, target-chain-only 7X35 glycine/proline-rich difficult loops, and the retained-partner 7X35 interface case.
-- [ ] Phase 3 remains blocked until a pinned all-atom sampler demonstrates externally controllable mutable state, stable atom identity, and exact fixed-coordinate overwrite at every denoising step.
+- [x] Phase 2 scientific implementation is complete: repeatable passing
+  refined candidates and MODELLER comparisons cover 8CZ8, independent 8B01
+  regular loops, target-chain-only 7X35 glycine/proline-rich difficult loops,
+  retained-partner 7X35 interface context, and 7K8S antibody insertion codes.
+  The minimal container recipe is implemented; final image build/GPU smoke is
+  deferred until an OCI runtime is available. Checkpoint embedding and final
+  redistribution review belong to Phase 6; Phase 2 keeps the checkpoint as a
+  digest-verified read-only mount.
+- [ ] Phase 3 remains blocked on localized boundary refinement, the three-way ablation, repeatability, and broader evidence. The checkpoint-backed 7X35 run demonstrated stable DVBFixer identities and exact overwrite at all 200 steps, but its raw candidate failed one peptide-junction gate at 1.604 Å.
 - [ ] Phases 4-6 remain blocked on the Phase 2/3 evidence and intentionally make no public CLI, homology, or production-support claim.
 - [ ] Keep status `proposed` and MODELLER/PDBFixer as supported production baselines until those gates pass.

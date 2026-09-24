@@ -242,13 +242,14 @@ these checked workflow-state items cover one-host multi-process operation.
 
 - [x] Complete Phase 0: policy, license inventory, corpus, leakage metadata, and predeclared thresholds.
 - [x] Complete Phase 1: backend-neutral contract, masks, Kabsch/reinjection primitives, fake runner, validation, provenance, and atomic publication.
-- [ ] Complete Phase 2: pinned RFdiffusion v1 Linux/NVIDIA benchmark adapter.
+- [x] Complete Phase 2: pinned RFdiffusion v1 Linux/NVIDIA benchmark adapter and minimal digest-pinned container recipe; final container build/GPU smoke awaits a host with an OCI runtime.
 - [ ] Complete Phase 3: Protenix v1 or Boltz-2 all-atom constrained-sampler feasibility and ablation benchmark.
 - [ ] Complete Phase 4: experimental `model --backend diffusion` while retaining MODELLER as the default and without automatic fallback.
 - [ ] Complete Phase 5: mosaic-first homology evaluation preserving authoritative template coordinates.
 - [ ] Complete Phase 6: separate evidence-backed production decision.
 - [ ] After the main framework and Linux/NVIDIA Phase 2/3 tests stabilize, perform a separate macOS Apple Silicon CPU/MPS and remote-runner feasibility evaluation; this is deferred from the current Phase 2-4 cycle.
-- [ ] After native GPU gates pass, package the external runner as an immutable NVIDIA Docker image with a digest-verified mounted checkpoint for future asynchronous API deployment.
+- [x] After native GPU gates pass, define the external NVIDIA Docker runner with a digest-pinned base and digest-verified mounted checkpoint.
+- [ ] Build and GPU-smoke the final image when an OCI runtime is available; defer registry signing, multi-arch, embedded weights, and orchestration until deployment creates those requirements.
 
 Detailed requirements and acceptance gates are in the
 [diffusion gap-reconstruction plan](diffusion-gap-reconstruction.md).

@@ -29,6 +29,7 @@ verify that none of the source fixtures changed accidentally.
 | `c_glh/*` | `test/C_GLH/{8cde_t_u.pdb,8cde_renamed.fasta}` | Terminal GLH/capping preparation regression input and companion FASTA |
 | `warnings/*` | `test/warnings/{8ct6_t_b.pdb,8ct6_renamed.fasta}` | Real addHydrogens/connectivity-warning input and companion FASTA |
 | `overlap/8dis_t_u.pdb` | `test/overlap/8dis_t_u.pdb` | Coordinate-identical chains `d`/`D` caused by missing MODEL/ENDMDL separators |
+| `insertion_codes/{7K8S.pdb,7K8S.fasta}` | RCSB PDB entry 7K8S coordinate and FASTA downloads | Antibody heavy-chain insertion-code diffusion benchmark (`H/82A`-`H/82C`) |
 
 ## 8UCD molecule retention and connectivity
 

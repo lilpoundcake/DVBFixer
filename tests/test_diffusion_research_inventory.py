@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import math
+import os
+import subprocess
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -13,11 +15,25 @@ from dvbfixer.model.diffusion.rfdiffusion_v1 import (
     PARTNER_CONTEXT_BACKBONE_RMSD_MAX_ANGSTROM,
     RFDIFFUSION_ENVIRONMENT_SHA256,
 )
+from dvbfixer.model.diffusion.sampler import (
+    SamplerCapabilities,
+    SamplingAblationMode,
+    assess_sampler_conformance,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INVENTORY = REPO_ROOT / "docs/research/diffusion-gap-reconstruction-inventory.toml"
 FIXTURE_MANIFEST = REPO_ROOT / "tests/fixtures/MANIFEST.sha256"
 RFDIFFUSION_ENVIRONMENT = REPO_ROOT / "deploy/rfdiffusion-v1/environment.yml"
+RFDIFFUSION_ADAPTER_ENVIRONMENT = (
+    REPO_ROOT / "deploy/rfdiffusion-v1/adapter-environment.yml"
+)
+RFDIFFUSION_DOCKERFILE = REPO_ROOT / "deploy/rfdiffusion-v1/Dockerfile"
+RFDIFFUSION_ENTRYPOINT = REPO_ROOT / "deploy/rfdiffusion-v1/container-entrypoint.sh"
+PROTENIX_HOOK_PATCH = REPO_ROOT / "deploy/protenix-v1/per-step-callback.patch"
+PROTENIX_HOOK_SMOKE = REPO_ROOT / "deploy/protenix-v1/hook-smoke.py"
+PROTENIX_REINJECTION = REPO_ROOT / "deploy/protenix-v1/reinjection.py"
+PROTENIX_CHECKPOINT_SMOKE = REPO_ROOT / "deploy/protenix-v1/checkpoint_gap_smoke.py"
 
 CANONICAL_RESIDUES = {
     "ALA": "A",
@@ -316,6 +332,7 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
         "withheld-difficult-glypro-6-12",
     } <= strata
     assert "withheld-interface-adjacent-3-5" in strata
+    assert "withheld-antibody-insertion-codes-3-5" in strata
     assert {"terminal-one-anchor", "multiple-models", "retained-heterogens"} <= strata
 
 
@@ -356,6 +373,112 @@ def test_diffusion_engine_inventory_is_fail_closed() -> None:
     }
 
 
+def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
+    inventory = _load_inventory()
+    spike = inventory["all_atom_hook_spike"]
+
+    assert spike["selected_sampler"] == "protenix-v1-maintained-patch"
+    assert (
+        spike["decision"]
+        == "protenix-checkpoint-hook-passed-boundary-refinement-pending"
+    )
+    assert (REPO_ROOT / spike["evidence"]).is_file()
+
+    patch = inventory["protenix_v1_hook_patch"]
+    assert patch["source_revision"] == (
+        "85767b811c40ed46e73a9b39519cf6bfca8701ba"
+    )
+    assert patch["patch_sha256"] == _sha256(PROTENIX_HOOK_PATCH)
+    assert REPO_ROOT / patch["patch"] == PROTENIX_HOOK_PATCH
+    assert REPO_ROOT / patch["smoke"] == PROTENIX_HOOK_SMOKE
+    assert REPO_ROOT / patch["reinjection"] == PROTENIX_REINJECTION
+    assert REPO_ROOT / patch["checkpoint_smoke"] == PROTENIX_CHECKPOINT_SMOKE
+    assert patch["checkpoint_smoke_sha256"] == _sha256(PROTENIX_CHECKPOINT_SMOKE)
+    assert patch["callback_stage"] == "post-update-before-next-step"
+    assert patch["stable_atom_axis"] is True
+    assert patch["torch_native_weighted_kabsch"] is True
+    assert patch["exact_fixed_overwrite_cpu_smoke"] is True
+    assert patch["callback_count"] == patch["expected_callback_count"] == 200
+    assert patch["real_checkpoint_smoke"] is True
+    assert patch["status"] == "selected-for-boundary-refinement-spike"
+
+    smoke = inventory["protenix_v1_checkpoint_smoke"]
+    assert smoke["status"] == "passed-base-model-only"
+    assert smoke["model_parameters"] == 368_484_735
+    assert smoke["residue_count"] == 20
+    assert smoke["atom_count"] == 168
+    assert smoke["diffusion_steps"] == 2
+    assert smoke["per_step_callback_exercised"] is False
+    assert len(smoke["candidate_sha256"]) == 64
+    assert len(smoke["summary_sha256"]) == 64
+
+    gap_smoke = inventory["protenix_v1_gap_hook_smoke"]
+    assert gap_smoke["status"] == "hook-passed-raw-candidate-failed-junction-gate"
+    assert gap_smoke["model_atom_count"] == 2118
+    assert gap_smoke["written_atom_count"] == 2117
+    assert gap_smoke["callback_count"] == gap_smoke["expected_callback_count"] == 200
+    assert gap_smoke["maximum_post_projection_error_angstrom"] == 0.0
+    assert gap_smoke["fixed_heavy_rmsd_angstrom"] == 0.0
+    assert gap_smoke["fixed_heavy_max_displacement_angstrom"] == 0.0
+    assert gap_smoke["validation_passed"] is False
+    assert gap_smoke["failed_gates"] == ["junction-peptide-connectivity"]
+    assert len(gap_smoke["candidate_sha256"]) == 64
+    assert len(gap_smoke["summary_sha256"]) == 64
+
+    protenix = next(
+        engine for engine in inventory["engines"] if engine["id"] == "protenix-v1"
+    )
+    assert protenix["checkpoint_url"] == (
+        "https://protenix.tos-cn-beijing.volces.com/checkpoint/"
+        "protenix_base_default_v1.0.0.pt"
+    )
+    assert protenix["checkpoint_sha256"] == (
+        "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
+    )
+
+    patch_text = PROTENIX_HOOK_PATCH.read_text()
+    update_offset = patch_text.index("x_l = x_noisy + step_scale_eta")
+    callback_offset = patch_text.index("updated = step_callback")
+    assert callback_offset > update_offset
+
+    engines = {engine["id"]: engine for engine in inventory["engines"]}
+    protenix = engines["protenix-v1"]
+    protenix_capabilities = SamplerCapabilities(
+        mutable_state_each_step=protenix["mutable_state_each_step"],
+        identity_mapping_each_step=protenix["identity_mapping_each_step"],
+        fixed_coordinate_overwrite_each_step=protenix[
+            "fixed_coordinate_overwrite_each_step"
+        ],
+        localized_boundary_refinement=protenix["localized_boundary_refinement"],
+    )
+    assert assess_sampler_conformance(
+        protenix_capabilities, SamplingAblationMode.REINJECTION
+    ).supported
+    assert not assess_sampler_conformance(
+        protenix_capabilities,
+        SamplingAblationMode.REINJECTION_BOUNDARY_REFINEMENT,
+    ).supported
+
+    boltz = engines["boltz-2"]
+    boltz_capabilities = SamplerCapabilities(
+        mutable_state_each_step=boltz["mutable_state_each_step"],
+        identity_mapping_each_step=boltz["identity_mapping_each_step"],
+        fixed_coordinate_overwrite_each_step=boltz[
+            "fixed_coordinate_overwrite_each_step"
+        ],
+        localized_boundary_refinement=boltz["localized_boundary_refinement"],
+    )
+    decision = assess_sampler_conformance(
+        boltz_capabilities, SamplingAblationMode.REINJECTION
+    )
+    assert not decision.supported
+    assert decision.missing_capabilities == (
+        "mutable-state-each-step",
+        "identity-mapping-each-step",
+        "fixed-coordinate-overwrite-each-step",
+    )
+
+
 def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
     inventory = _load_inventory()
     engine = next(item for item in inventory["engines"] if item["id"] == "rfdiffusion-v1")
@@ -366,6 +489,29 @@ def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
     )
     assert engine["package_lock_hash"] == _sha256(RFDIFFUSION_ENVIRONMENT)
     assert RFDIFFUSION_ENVIRONMENT_SHA256 == engine["package_lock_hash"]
+    assert engine["container_base_digest"] == (
+        "sha256:008e06cd8432eb558faa4738a092f30b38dd8db3137a5dd3fca57374a790825b"
+    )
+    assert engine["container_recipe_sha256"] == _sha256(RFDIFFUSION_DOCKERFILE)
+    assert engine["container_adapter_environment_sha256"] == _sha256(
+        RFDIFFUSION_ADAPTER_ENVIRONMENT
+    )
+    assert engine["container_entrypoint_sha256"] == _sha256(RFDIFFUSION_ENTRYPOINT)
+    assert engine["container_embeds_checkpoint"] is False
+    assert engine["container_digest"] == ""
+    dockerfile = RFDIFFUSION_DOCKERFILE.read_text()
+    adapter_environment = RFDIFFUSION_ADAPTER_ENVIRONMENT.read_text()
+    entrypoint = RFDIFFUSION_ENTRYPOINT.read_text()
+    assert engine["container_base_digest"] in dockerfile
+    assert engine["revision"] in dockerfile
+    assert engine["checkpoint_sha256"] in entrypoint
+    assert "COPY Base_ckpt.pt" not in dockerfile
+    assert "python=3.11.16" in adapter_environment
+    assert "python=3.13" not in adapter_environment
+    assert "python=3.14" not in adapter_environment
+    assert "numpy==2.4.6" in adapter_environment
+    assert "scipy==1.17.1" in adapter_environment
+    assert "propka" not in adapter_environment.lower()
     assert smoke["same_seed_repeat_coordinate_rmsd_angstrom"] == 0.0
     assert smoke["validation_pass_count"] == 0
     assert smoke["failed_gate"] == "junction-peptide-connectivity"
@@ -459,3 +605,53 @@ def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
     assert interface["partner_backbone_max_displacement_angstrom"] < (
         PARTNER_CONTEXT_BACKBONE_DISPLACEMENT_MAX_ANGSTROM
     )
+
+    insertion = inventory["insertion_code_evidence"]
+    assert insertion["case"] == "7k8s-chain-h-insertion-codes-3"
+    assert insertion["generated_residues"] == [
+        "H:82:A:ASN",
+        "H:82:B:SER",
+        "H:82:C:LEU",
+    ]
+    assert insertion["identity_restoration_passed"] is True
+    assert insertion["validation_passed"] is True
+    assert insertion["repeatability_status"] == "passed"
+    assert insertion["repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert insertion["fixed_heavy_rmsd_angstrom"] == 0.0
+    assert insertion["detectable_d_ca"] == 0
+    assert insertion["severe_steric_overlaps"] == 0
+    assert insertion["modeller_validation_pass_count"] == 0
+    assert insertion["modeller_median_comparison_passed"] is True
+    assert (
+        insertion["gap_backbone_rmsd_angstrom"]
+        < insertion["modeller_median_gap_backbone_rmsd_angstrom"]
+    )
+
+
+def test_rfdiffusion_container_entrypoint_fails_closed_on_checkpoint(
+    tmp_path: Path,
+) -> None:
+    missing = tmp_path / "missing.pt"
+    environment = {**os.environ, "DVBFIXER_RF_CHECKPOINT": str(missing)}
+    result = subprocess.run(
+        ("sh", str(RFDIFFUSION_ENTRYPOINT)),
+        capture_output=True,
+        text=True,
+        check=False,
+        env=environment,
+    )
+    assert result.returncode == 2
+    assert "missing mounted RFdiffusion checkpoint" in result.stderr
+
+    invalid = tmp_path / "invalid.pt"
+    invalid.write_bytes(b"not the pinned checkpoint")
+    environment["DVBFIXER_RF_CHECKPOINT"] = str(invalid)
+    result = subprocess.run(
+        ("sh", str(RFDIFFUSION_ENTRYPOINT)),
+        capture_output=True,
+        text=True,
+        check=False,
+        env=environment,
+    )
+    assert result.returncode == 2
+    assert "checkpoint digest mismatch" in result.stderr

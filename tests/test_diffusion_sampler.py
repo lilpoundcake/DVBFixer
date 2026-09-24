@@ -2,14 +2,21 @@
 
 from __future__ import annotations
 
+import importlib.util
+from pathlib import Path
+
+import numpy as np
 import pytest
 
+from dvbfixer.model.diffusion.contract import AtomIdentity
 from dvbfixer.model.diffusion.sampler import (
     SamplerCapabilities,
     SamplerConformance,
     SamplingAblationMode,
     assess_sampler_conformance,
 )
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_template_conditioning_does_not_claim_reinjection_control() -> None:
@@ -75,3 +82,34 @@ def test_conformance_record_rejects_inconsistent_decisions() -> None:
             SamplingAblationMode.REINJECTION,
             supported=False,
         )
+
+
+def test_protenix_callback_synchronizes_and_reinjects_on_device() -> None:
+    torch = pytest.importorskip("torch")
+    module_path = REPO_ROOT / "deploy/protenix-v1/reinjection.py"
+    spec = importlib.util.spec_from_file_location("protenix_reinjection", module_path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    identities = tuple(AtomIdentity("A", str(index + 1), "", "CA") for index in range(5))
+    target = np.asarray(
+        [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, 1.0],
+            [0.5, 0.5, 0.5],
+        ]
+    )
+    rotation = np.asarray([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
+    sampled = target @ rotation.T + np.asarray([4.0, -3.0, 2.0])
+    state = torch.as_tensor(np.stack([sampled, sampled]), dtype=torch.float64)
+    fixed = {identities[index]: target[index] for index in range(4)}
+
+    reinjector = module.FixedAtomReinjector(identities, fixed)
+    synchronized = reinjector(state, step_index=0, step_count=2)
+
+    expected = torch.as_tensor(target, dtype=torch.float64)
+    assert torch.equal(synchronized[:, :4], expected[:4].expand(2, -1, -1))
+    assert torch.allclose(synchronized[:, 4], expected[4].expand(2, -1), atol=1e-12)

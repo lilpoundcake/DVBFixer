@@ -62,6 +62,49 @@ It is not a public modeling backend. A future service image must preserve the
 same request/result protocol, use an immutable base-image digest, and fetch or
 mount the verified checkpoint according to the final redistribution decision.
 
+## Minimal container runner
+
+`Dockerfile` reproduces the tested two-environment boundary: Python 3.11.16
+with OpenMM runs the DVBFixer adapter, while pinned Python 3.9.19/CUDA 11.1
+runs RFdiffusion. The adapter environment intentionally contains only the
+diffusion dependencies and does not install or invoke PROPKA; the main DVBFixer
+environment retains its documented `>=3.11,<3.14` constraint. The image's
+linux/amd64 micromamba base is pinned by digest, RFdiffusion is checked out at
+the audited commit during the build, and the checkpoint is not copied into the
+image.
+
+Build from the repository root on a host with Docker:
+
+```bash
+docker build \
+  --file deploy/rfdiffusion-v1/Dockerfile \
+  --tag dvbfixer/rfdiffusion-v1:bf42b54 .
+docker image inspect dvbfixer/rfdiffusion-v1:bf42b54 \
+  --format '{{.Id}}'
+```
+
+Run one already-built benchmark workspace with no network access and a
+read-only checkpoint mount:
+
+```bash
+WORKSPACE="$PWD/.artifacts/diffusion-benchmarks/7k8s-insertion-seed7-run1"
+docker run --rm --gpus device=0 --network none \
+  --user "$(id -u):$(id -g)" \
+  --volume "$WORKSPACE:/workspace" \
+  --volume "$RF_CHECKPOINT:/models/Base_ckpt.pt:ro" \
+  dvbfixer/rfdiffusion-v1:bf42b54
+```
+
+The entrypoint refuses a missing or digest-mismatched checkpoint before model
+loading. Record the resulting image ID/digest and repeatability output before
+using the image as deployment evidence.
+
+The following are deliberately deferred until an actual deployment requires
+them: registry publication/signing, multi-architecture builds, embedded
+checkpoint redistribution, Kubernetes manifests, and remote scheduling. They
+do not solve a current benchmark-runner problem and are not part of Phase 2's
+scientific acceptance claim.
+
 The adapter enables DVBFixer's seeded post-sampling OpenMM boundary refinement
 by default. Set the internal backend option `boundary_refinement=false` only
 for the declared raw-backbone ablation. This pass freezes all source atoms,
@@ -78,6 +121,12 @@ python scripts/build_diffusion_benchmark_request.py CASE_ID WORKSPACE
 python scripts/analyze_diffusion_benchmark_pair.py FIRST_WORKSPACE SECOND_WORKSPACE
 python scripts/analyze_modeller_benchmark.py MODELLER_WORKSPACE MODEL_1 MODEL_2
 ```
+
+The MODELLER analyzer validates the complete target sequence before mapping
+its output residues by sequence ordinal back to request identities. This is
+needed when MODELLER sequentially renumbers a withheld insertion-code region;
+the normalized PDB exists only in a temporary contained directory, and source
+MODELLER coordinates and artifacts are never modified.
 
 Reusable generated workspaces may live under
 `$ARTIFACT_ROOT/diffusion-benchmarks/`. They are ignored because they contain

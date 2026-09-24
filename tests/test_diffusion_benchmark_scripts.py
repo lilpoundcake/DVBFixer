@@ -17,6 +17,10 @@ from dvbfixer.model.diffusion.contract import (
     RunnerDiagnostics,
     RunnerResult,
 )
+from dvbfixer.model.diffusion.rfdiffusion_v1 import (
+    build_synthetic_input,
+    materialize_candidate,
+)
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 from dvbfixer.model.diffusion.scope import assess_diffusion_scope
 
@@ -60,6 +64,46 @@ def _write_native_result(workspace: Path) -> None:
         ),
     )
     (workspace / "result.json").write_text(result.to_json(), encoding="utf-8")
+
+
+def _ordinal_backbone(reference: Path, chain: str) -> str:
+    """Render reference backbone atoms in RFdiffusion's ordinal identity space."""
+    residue_ordinals: dict[tuple[str, str], int] = {}
+    output: list[str] = []
+    serial = 1
+    for line in reference.read_text().splitlines():
+        if not line.startswith("ATOM  ") or line[21] != chain:
+            continue
+        identity = (line[22:26].strip(), line[26].strip())
+        ordinal = residue_ordinals.setdefault(identity, len(residue_ordinals) + 1)
+        if line[12:16].strip() not in {"N", "CA", "C", "O"}:
+            continue
+        padded = line.ljust(80)
+        output.append(
+            padded[:6]
+            + f"{serial:5d}"
+            + padded[11:21]
+            + "A"
+            + f"{ordinal:4d} "
+            + padded[27:80]
+            + "\n"
+        )
+        serial += 1
+    output.append("END\n")
+    return "".join(output)
+
+
+def _ordinal_residues(reference: Path, chain: str) -> str:
+    residue_ordinals: dict[tuple[str, str], int] = {}
+    output: list[str] = []
+    for line in reference.read_text().splitlines(keepends=True):
+        if not line.startswith("ATOM  ") or line[21] != chain:
+            output.append(line)
+            continue
+        identity = (line[22:26].strip(), line[26].strip())
+        ordinal = residue_ordinals.setdefault(identity, len(residue_ordinals) + 1)
+        output.append(line[:22] + f"{ordinal:4d} " + line[27:])
+    return "".join(output)
 
 
 def test_builder_and_analyzers_reproduce_native_reference(tmp_path: Path) -> None:
@@ -131,3 +175,51 @@ def test_builder_extracts_target_and_partner_protein_scope(tmp_path: Path) -> No
     assert not any(line.startswith("HETATM") for line in reference_lines)
     assert ">chain_A\n" in fasta
     assert ">chain_B\n" in fasta
+
+
+def test_insertion_code_benchmark_restores_generated_identities(tmp_path: Path) -> None:
+    builder = _load_script("build_diffusion_benchmark_request")
+    modeller_analyzer = _load_script("analyze_modeller_benchmark")
+    workspace = tmp_path / "insertion-codes"
+
+    builder.build_workspace("7k8s-chain-h-insertion-codes-3", workspace, seed=7)
+
+    request = DiffusionRequest.from_json((workspace / "request.json").read_text())
+    source = (workspace / "input/normalized.pdb").read_text()
+    generated = request.gaps[0].generated_residues
+    assert assess_diffusion_scope(request, source.encode()).supported is True
+    assert request.target_sequences[0].sequence[82:85] == "NSL"
+    assert [(item.residue_number, item.insertion_code) for item in generated] == [
+        ("82", "A"),
+        ("82", "B"),
+        ("82", "C"),
+    ]
+
+    synthetic = build_synthetic_input(request, source)
+    assert synthetic.contig == "A1-82/3-3/A86-125"
+    assert all(
+        line[26] == " "
+        for line in synthetic.pdb_text.splitlines()
+        if line.startswith("ATOM  ")
+    )
+
+    candidate = materialize_candidate(
+        request,
+        source_text=source,
+        synthetic_text=synthetic.pdb_text,
+        raw_text=_ordinal_backbone(workspace / "reference.pdb", "H"),
+    )
+    represented = {
+        (line[22:26].strip(), line[26].strip())
+        for line in candidate.splitlines()
+        if line.startswith("ATOM  ") and line[21] == "H"
+    }
+    assert {("82", ""), ("82", "A"), ("82", "B"), ("82", "C"), ("83", "")} <= represented
+
+    modeller_path = workspace / "ordinal-modeller.pdb"
+    modeller_path.write_text(_ordinal_residues(workspace / "reference.pdb", "H"))
+    modeller = modeller_analyzer.analyze(workspace, (modeller_path,))
+    assert modeller["validation_pass_count"] == 1
+    assert modeller["median_gap_backbone_rmsd_angstrom"] == 0.0
+    assert modeller["median_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert modeller["candidates"][0]["identity_normalized"] is True

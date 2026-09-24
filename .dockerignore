@@ -1,0 +1,9 @@
+*
+!pyproject.toml
+!src/
+!src/**
+!deploy/
+!deploy/rfdiffusion-v1/
+!deploy/rfdiffusion-v1/environment.yml
+!deploy/rfdiffusion-v1/adapter-environment.yml
+!deploy/rfdiffusion-v1/container-entrypoint.sh

@@ -258,6 +258,34 @@ leakage_status = "unresolved"
 leakage_reason = "No selected engine has provided sequence-level training-set membership evidence for public PDB 7X35."
 
 [[benchmark_cases]]
+id = "7k8s-chain-h-insertion-codes-3"
+fixture = "tests/fixtures/insertion_codes/7K8S.pdb"
+sequence_fixture = "tests/fixtures/insertion_codes/7K8S.fasta"
+sequence_record = "7K8S_2|Chains"
+target_chain = "H"
+classification = "supported"
+stratum = "withheld-antibody-insertion-codes-3-5"
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [83, 86]
+fixture_interval_zero_based_half_open = [82, 85]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-protein-chain-only"
+generated_residues = [
+  "H:82:A:ASN",
+  "H:82:B:SER",
+  "H:82:C:LEU",
+]
+left_anchor = "H:82:_:MET"
+right_anchor = "H:83:_:ARG"
+expected_sequence = "NSL"
+minimum_candidate_anchor_non_target_atom_distance_angstrom = 17.94
+minimum_candidate_anchor_heterogen_distance_angstrom = 30.03
+fixture_sha256 = "8b996736b9a1e157b044f9004aa160ffd5167abfa38f555f3b78e0e592643910"
+sequence_fixture_sha256 = "ca3ee6a14cf64f652efdf128a4c2f92158d0fb70e4fed82d8f55797f6d061962"
+leakage_status = "unresolved"
+leakage_reason = "No selected engine has provided sequence-level training-set membership evidence for public PDB 7K8S."
+
+[[benchmark_cases]]
 id = "8cz8-chain-c-terminal-one-anchor"
 fixture = "tests/fixtures/8cz8/8cz8_a_u.pdb"
 sequence_fixture = "tests/fixtures/8cz8/8cz8_renamed.fasta"
@@ -334,13 +362,20 @@ checkpoint_sha256 = "0fcf7d7c32b4848030aca3a051e6768de194616f96ba6c38186351a33bf
 checkpoint_license = "BSD-3-Clause; upstream license commit 820bfdfaded8c260b962dc40a3171eae316b6ce0 explicitly covers README-linked weights"
 checkpoint_redistribution = "release-review-required-before-container-embedding"
 auxiliary_artifacts = []
-container_image = "rosettacommons/rfdiffusion"
+container_image = "dvbfixer/rfdiffusion-v1"
 container_digest = ""
+container_base_image = "mambaorg/micromamba:1.5.10"
+container_base_digest = "sha256:008e06cd8432eb558faa4738a092f30b38dd8db3137a5dd3fca57374a790825b"
+container_recipe_sha256 = "baea5a9a1439936980b7de6ae547a430b71536d6a1ec85721fbca9f6d306edc4"
+container_adapter_environment_sha256 = "040778369c69a3e8d8ab25357273f7058ce1ecad036b2d5dc609562e7a018d6c"
+container_entrypoint_sha256 = "0b4552f4139850d0a214217fd2fb353550f42f0a427f0ef6d3c77ab8653ffbd1"
+container_build_status = "recipe-complete; build-and-GPU-smoke-deferred because the benchmark host has no OCI runtime"
+container_embeds_checkpoint = false
 package_lock_hash = "e36300c79f489f420d069d9688953ee4830fe563b8edc77f5de458e77464fe23"
 training_cutoff = "unresolved"
-hardware = "Verified on Linux, NVIDIA A100-SXM4-40GB, driver 535.104.05, PyTorch 1.9.0+cu111; container image digest remains unresolved"
+hardware = "Native runner verified on Linux, NVIDIA A100-SXM4-40GB, driver 535.104.05, PyTorch 1.9.0+cu111; container build awaits a host with an OCI runtime"
 distribution_status = "blocked"
-blocking_reason = "container digest, final checkpoint redistribution review, broader benchmark evidence, boundary refinement, and exact training cutoff remain unresolved"
+blocking_reason = "Production distribution remains a separate Phase 6 decision; final image digest, container GPU smoke, exact training cutoff, and checkpoint-embedding review remain unresolved"
 
 [rfdiffusion_v1_smoke]
 run_date = "2026-09-23"
@@ -573,6 +608,129 @@ modeller_median_comparison_passed = true
 repeatability_status = "passed"
 interpretation = "The retained partner chain was present in RFdiffusion inference as fixed receptor context. Independent same-seed workspaces produced byte-identical raw and refined candidates. The refined candidate passes every frozen hard gate, beats both MODELLER candidates on gap backbone RMSD, preserves all fixed coordinates exactly, and matches MODELLER's junction pass rate. The initial 1.5 Angstrom partner maximum-displacement guard rejected one non-interface oxygen despite 0.255 Angstrom partner backbone RMSD; threshold revision 2 records the observed failure and rationale before accepting the candidate."
 
+[insertion_code_evidence]
+run_date = "2026-09-24"
+case = "7k8s-chain-h-insertion-codes-3"
+fixture = "tests/fixtures/insertion_codes/7K8S.pdb"
+target_chain = "H"
+request_structure_scope = "target-protein-chain-only"
+sequence = "NSL"
+generated_residues = ["H:82:A:ASN", "H:82:B:SER", "H:82:C:LEU"]
+seed = 7
+rfdiffusion_revision = "dvbfixer-rfdiffusion-v1-adapter-2+dvbfixer-openmm-boundary-refinement-v3"
+checkpoint = "Base_ckpt.pt"
+contig = "A1-82/3-3/A86-125"
+validation_passed = true
+identity_restoration_passed = true
+gap_backbone_rmsd_angstrom = 0.4447569561007487
+gap_all_heavy_rmsd_angstrom = 1.3979386447714515
+fixed_heavy_rmsd_angstrom = 0.0
+junction_cn_angstrom = [1.3313222750333655, 1.3400365666652778]
+detectable_d_ca = 0
+severe_steric_overlaps = 0
+repeat_coordinate_rmsd_angstrom = 0.0
+repeat_max_displacement_angstrom = 0.0
+candidate_sha256 = "572e3a43ea3854837f01ec3e24c04e14fae1fdf7cbe857936fadf2276fb12293"
+raw_candidate_sha256 = "4f6b48c65f57a6d83de596605197bbab822c41742f48dd7022093c48733b06fe"
+maximum_full_run_wall_time_seconds = 127.66448388434947
+maximum_full_run_peak_ram_bytes = 5677740032
+maximum_full_run_peak_vram_bytes = 3107979264
+modeller_version = "10.8"
+modeller_configuration = "dvbfixer model, one initial model, two fast pinned-loop candidates, observed-coordinate target sequence, no terminal modeling"
+modeller_identity_normalization = "Comparator-only target-sequence ordinal mapping restored request insertion-code identities in temporary validation artifacts; source MODELLER coordinates and outputs were unchanged."
+modeller_candidate_count = 2
+modeller_best_gap_backbone_rmsd_angstrom = 6.175333317589698
+modeller_median_gap_backbone_rmsd_angstrom = 6.483104228780002
+modeller_median_gap_all_heavy_rmsd_angstrom = 6.901789875584658
+modeller_junction_pass_rate = 1.0
+modeller_median_fixed_heavy_rmsd_angstrom = 9.170547358461691
+modeller_validation_pass_count = 0
+modeller_median_comparison_passed = true
+repeatability_status = "passed"
+rebuild_warning = "Both runs exhausted five seeded PDBFixer side-chain rebuild attempts with an intermediate D-C-alpha warning; downstream deterministic reflection/refinement restored the invariant and both final candidates passed independent validation byte-identically."
+interpretation = "The insertion-code identities H/82A, H/82B, and H/82C survived RFdiffusion's ordinal identity space and were restored exactly in both final candidates. Independent same-seed workspaces produced byte-identical raw and refined candidates, passed every frozen hard gate, and substantially beat both MODELLER candidates on gap backbone RMSD while preserving fixed coordinates exactly. MODELLER closed both junctions but changed its output numbering; the comparator restored request identities by validated sequence ordinal solely in temporary analysis artifacts."
+
+[all_atom_hook_spike]
+audited_on = "2026-09-24"
+selected_sampler = "protenix-v1-maintained-patch"
+decision = "protenix-checkpoint-hook-passed-boundary-refinement-pending"
+evidence = "docs/research/all-atom-sampler-hook-spike.md"
+
+[protenix_v1_hook_patch]
+source_revision = "85767b811c40ed46e73a9b39519cf6bfca8701ba"
+patch = "deploy/protenix-v1/per-step-callback.patch"
+patch_sha256 = "244cfe4fc876fd71df8737b805fb9b290069211fecc5178ef02029424b2895d0"
+smoke = "deploy/protenix-v1/hook-smoke.py"
+reinjection = "deploy/protenix-v1/reinjection.py"
+checkpoint_smoke = "deploy/protenix-v1/checkpoint_gap_smoke.py"
+checkpoint_smoke_sha256 = "2684dacd8f3dfa3d635b3d8cfb8dc6aefe2882d8e1f0b0b4db2ed0f5e9fb150f"
+callback_stage = "post-update-before-next-step"
+stable_atom_axis = true
+torch_native_weighted_kabsch = true
+exact_fixed_overwrite_cpu_smoke = true
+callback_count = 200
+expected_callback_count = 200
+real_checkpoint_smoke = true
+status = "selected-for-boundary-refinement-spike"
+
+[protenix_v1_checkpoint_smoke]
+status = "passed-base-model-only"
+date = "2026-09-24"
+hardware = "NVIDIA A100-SXM4-40GB; driver 535.104.05"
+python = "3.13.15"
+torch = "2.13.0"
+torch_cuda = "12.9"
+layer_norm = "torch-fallback"
+triangle_multiplicative = "torch"
+triangle_attention = "torch"
+seed = 7
+cycles = 1
+diffusion_steps = 2
+samples = 1
+residue_count = 20
+atom_count = 168
+model_parameters = 368484735
+model_forward_seconds = 3.14
+seed_wall_seconds = 9.20
+candidate_sha256 = "6ff9421b2cf0657297d14db234a5cc3eef999952ddda5de6e337e3859c1c575a"
+summary_sha256 = "1979e7677594bdf1caa034606a644ae55d4f5bafd50e11205eee28a58fce276e"
+per_step_callback_exercised = false
+interpretation = "The official digest-pinned checkpoint loads strictly and completes a minimal all-atom A100 forward pass. This does not yet test deposited-structure template conditioning, gap identity mapping, per-step reinjection, or independent structural validation."
+
+[protenix_v1_gap_hook_smoke]
+status = "hook-passed-raw-candidate-failed-junction-gate"
+date = "2026-09-24"
+case = "7x35-chain-a-glypro-5"
+hardware = "NVIDIA A100-SXM4-40GB; driver 535.104.05"
+python = "3.13.15"
+torch = "2.13.0"
+torch_cuda = "12.9"
+layer_norm = "torch-fallback"
+triangle_multiplicative = "torch"
+triangle_attention = "torch"
+seed = 7
+cycles = 1
+diffusion_steps = 200
+samples = 1
+residue_count = 267
+model_atom_count = 2118
+written_atom_count = 2117
+callback_count = 200
+expected_callback_count = 200
+maximum_post_projection_error_angstrom = 0.0
+fixed_heavy_rmsd_angstrom = 0.0
+fixed_heavy_max_displacement_angstrom = 0.0
+junction_cn_angstrom = [1.253641894641373, 1.6037490452062697]
+generated_region_cn_distance_max_angstrom = 1.6037490452062697
+detectable_d_ca = 0
+severe_steric_overlaps = 0
+validation_passed = false
+failed_gates = ["junction-peptide-connectivity"]
+wall_time_seconds = 96.1885675881058
+candidate_sha256 = "f983cf5d8ea3b72ac39363a259381bc976f28402b2623d21e5585f24f5ae91a0"
+summary_sha256 = "01d673b08b775ead9667435a02738248b416cf850084cba81978bd3821539e84"
+interpretation = "The maintained patch exercised the official checkpoint on a real withheld five-residue gap. The stable 2118-slot atom axis mapped to all 2117 requested output atoms, every one of 200 post-update callbacks restored observed coordinates with zero measured error, and independent validation confirmed exact fixed coordinates, complete generated chemistry, L chirality, and no severe overlaps. The raw sample exceeds the frozen maximum at one peptide junction (1.604 Angstrom), so localized boundary refinement and the planned ablation remain required before any public backend claim."
+
 [[engines]]
 id = "protenix-v1"
 role = "preferred all-atom denoising-hook feasibility spike"
@@ -582,8 +740,8 @@ revision_ref = "main audited on 2026-09-22"
 source_license = "Apache-2.0"
 source_license_url = "https://github.com/bytedance/Protenix/blob/85767b811c40ed46e73a9b39519cf6bfca8701ba/LICENSE"
 checkpoint_name = "protenix_base_default_v1.0.0"
-checkpoint_url = ""
-checkpoint_sha256 = ""
+checkpoint_url = "https://protenix.tos-cn-beijing.volces.com/checkpoint/protenix_base_default_v1.0.0.pt"
+checkpoint_sha256 = "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
 checkpoint_license = "Apache-2.0 claimed by upstream README for Protenix-v1 code and model parameters"
 checkpoint_redistribution = "review-required"
 auxiliary_artifacts = []
@@ -593,7 +751,14 @@ package_lock_hash = ""
 training_cutoff = "2021-09-30"
 hardware = "unresolved; representative Linux/NVIDIA requirements must be measured and pinned"
 distribution_status = "blocked"
-blocking_reason = "checkpoint acquisition URL/hash, redistribution review, runner hook feasibility, environment lock, and hardware profile remain unresolved; Protenix-v2 weights are excluded as proprietary"
+blocking_reason = "the maintained patch now passes checkpoint-backed identity mapping and exact per-step reinjection on an A100, but the raw 7X35 candidate fails one frozen peptide-junction gate; localized boundary refinement, the three-way ablation, repeatability, broader benchmark evidence, a pinned production environment, and distribution review remain required; Protenix-v2 weights are excluded as proprietary"
+hook_spike_status = "completed-supported-by-maintained-patch"
+mutable_state_each_step = true
+identity_mapping_each_step = true
+fixed_coordinate_overwrite_each_step = true
+localized_boundary_refinement = false
+hook_decision = "maintained-patch-selected-for-boundary-refinement-spike"
+audited_sampler_sources = ["protenix/model/generator.py:sample_diffusion", "protenix/tfg/engine.py:TFGEngine.step"]
 
 [[engines]]
 id = "boltz-2"
@@ -615,7 +780,14 @@ package_lock_hash = ""
 training_cutoff = "PDB structures before 2023-06-01; other training sources require separate leakage review"
 hardware = "GPU recommended; CPU is documented as significantly slower; exact Linux/NVIDIA profile remains unresolved"
 distribution_status = "blocked"
-blocking_reason = "checkpoint acquisition URL/hash, redistribution review, sampler-hook feasibility, environment lock, and representative hardware profile remain unresolved"
+blocking_reason = "the pinned sampler exposes no external per-step state callback or exact post-update fixed-coordinate overwrite; an upstream API change or maintained fork is required before checkpoint, environment, and hardware work"
+hook_spike_status = "completed-unsupported"
+mutable_state_each_step = false
+identity_mapping_each_step = false
+fixed_coordinate_overwrite_each_step = false
+localized_boundary_refinement = false
+hook_decision = "upstream-api-change-or-maintained-fork-required"
+audited_sampler_sources = ["src/boltz/model/modules/diffusionv2.py:AtomDiffusion.sample", "src/boltz/model/modules/diffusion.py:AtomDiffusion.sample"]
 
 [[engines]]
 id = "patchr"

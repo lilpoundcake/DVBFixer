@@ -17,7 +17,9 @@ field installation is required. At runtime they resolve under the active
 environment's `share/dvbfixer/FF/` directory. Editable installs continue to use
 the checkout's top-level `FF/` directory.
 
-`environment.yml` pins `python >=3.11,<3.14`. The upper bound is required:
+`environment.yml` pins `python >=3.11,<3.14`; Python 3.11 is the CI, mypy, and
+container-adapter baseline and is the recommended development version. The
+upper bound is required:
 propka 3.5.1 (used by `protonate` / `prepare`) reads the dataclass attribute
 `self.__annotations__` at the instance level, which Python 3.14's PEP 649/749
 change makes raise `AttributeError`, crashing the PROPKA step. Do not loosen
