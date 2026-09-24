@@ -336,7 +336,7 @@
 - [x] Declare a reviewed withheld-coordinate internal 3-5-residue case.
 - [x] Declare a reviewed withheld-coordinate internal 6-12-residue case.
 - [ ] Add a separate research stratum for gaps of 13-25 residues.
-- [ ] Expand beyond the initial 8CZ8 cases to a representative regular-loop stratum.
+- [x] Expand beyond the initial 8CZ8 cases to an independent 8B01 regular-loop stratum with reviewed 5-/10-residue masks, same-seed repeats, independent hard-gate validation, and a same-configuration MODELLER comparator.
 - [ ] Include additional glycine-rich and proline-rich difficult loops beyond the initial declared sequences.
 - [ ] Include interface-adjacent gaps.
 - [ ] Include antibody insertion codes.
@@ -378,9 +378,9 @@
 - [x] Aggregate observed wall time, model-load time, peak RAM, and peak VRAM while preserving missing values instead of fabricating them; no real-engine values are claimed yet.
 - [x] Compute external-process timeout and crash rates from explicit failed-run evidence; no real-engine rates are claimed yet.
 - [ ] Report conditioning/reinjection/boundary-refinement ablation results.
-- [x] Encode and measure the initial-subset median gap-backbone RMSD gate as no more than `0.25 Å` worse than MODELLER. The refined RF candidates are better on both measured masks; broader strata remain pending.
-- [x] Encode and measure the junction-pass gate as no lower than MODELLER on the initial subset. Both measured backends pass both junctions after refinement.
-- [x] Encode and measure fixed-coordinate adherence as strictly better than MODELLER on the initial subset: refined RFdiffusion is `0.0 Å`, versus MODELLER `3.50 Å`/`4.50 Å` on the 5-/10-residue masks.
+- [x] Encode and measure the gap-backbone RMSD gate as no more than `0.25 Å` worse than MODELLER. Refined RFdiffusion is better on all four measured 8CZ8/8B01 masks; additional difficult-loop strata remain pending.
+- [x] Encode and measure the junction-pass gate as no lower than MODELLER. Both measured backends pass both junctions on all four masks after refinement.
+- [x] Encode and measure fixed-coordinate adherence as strictly better than MODELLER: refined RFdiffusion is `0.0 Å` on all four masks, while every measured MODELLER comparator moves deposited coordinates.
 
 ## Hardware And CI Matrix
 
@@ -450,6 +450,7 @@ weaken the A100 acceptance gates.
 - [ ] Avoid changing `src/dvbfixer/ffutils/dat.py` unless a general sidecar requirement is demonstrated.
 - [x] Add the isolated native runner environment lock and license inventory; an immutable Docker base digest remains pending before service-image acceptance.
 - [x] Add focused diffusion unit and integration tests for the contract, masks, geometry, research inventory, runner protocol, fake runner, independent validation, publication, provenance, adapter preflight, sampler conformance, repeatability, and benchmark metrics.
+- [x] Add reproducible internal builders/analyzers for frozen withheld-coordinate requests, same-seed workspace pairs, and MODELLER comparator outputs.
 - [ ] Add reviewed fixtures and regenerate their manifest when benchmark structures are added.
 
 ## Focused Verification
@@ -518,7 +519,7 @@ weaken the A100 acceptance gates.
 
 ## Remaining External Gates
 
-- [ ] Phase 2 remains blocked on immutable service-image identity, final checkpoint redistribution review, and broader measured benchmark evidence. The initial MODELLER comparison plus repeatable passing refined candidates in both reviewed 5-/10-residue masks are complete.
+- [ ] Phase 2 remains blocked on immutable service-image identity, final checkpoint redistribution review, and additional difficult-loop/interface/insertion-code benchmark evidence. Repeatable passing refined candidates and MODELLER comparisons are complete for both 8CZ8 and the independent 8B01 regular-loop stratum.
 - [ ] Phase 3 remains blocked until a pinned all-atom sampler demonstrates externally controllable mutable state, stable atom identity, and exact fixed-coordinate overwrite at every denoising step.
 - [ ] Phases 4-6 remain blocked on the Phase 2/3 evidence and intentionally make no public CLI, homology, or production-support claim.
 - [ ] Keep status `proposed` and MODELLER/PDBFixer as supported production baselines until those gates pass.

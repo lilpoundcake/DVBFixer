@@ -40,11 +40,14 @@ requires_stricter_fixed_coordinate_adherence_than_modeller = true
 id = "8cz8-chain-c-withheld-5"
 fixture = "tests/fixtures/8cz8/8cz8_a_u.pdb"
 sequence_fixture = "tests/fixtures/8cz8/8cz8_renamed.fasta"
+sequence_record = "8CZ8_C"
 target_chain = "C"
 classification = "supported"
 stratum = "withheld-internal-3-5"
 mask_source = "withheld observed coordinates"
 target_interval_zero_based_half_open = [64, 69]
+fixture_interval_zero_based_half_open = [64, 69]
+request_sequence_basis = "observed-coordinate-sequence"
 generated_residues = [
   "C:65:_:SER",
   "C:66:_:GLY",
@@ -64,11 +67,14 @@ leakage_reason = "No selected engine has yet provided sequence-level training-se
 id = "8cz8-chain-c-withheld-10"
 fixture = "tests/fixtures/8cz8/8cz8_a_u.pdb"
 sequence_fixture = "tests/fixtures/8cz8/8cz8_renamed.fasta"
+sequence_record = "8CZ8_C"
 target_chain = "C"
 classification = "supported"
 stratum = "withheld-internal-6-12"
 mask_source = "withheld observed coordinates"
 target_interval_zero_based_half_open = [94, 104]
+fixture_interval_zero_based_half_open = [94, 104]
+request_sequence_basis = "observed-coordinate-sequence"
 generated_residues = [
   "C:95:_:ILE",
   "C:96:_:GLU",
@@ -88,6 +94,65 @@ fixture_sha256 = "d1d8189ece17b11e34424dde6862587b495a7a78e5d4e53bff5334c9f7541d
 sequence_fixture_sha256 = "ede7bdedca8d40df1e4b22536f7e84e4b3e9c652564053307ef7fa6818fe8c06"
 leakage_status = "unresolved"
 leakage_reason = "No selected engine has yet provided sequence-level training-set membership evidence for PDB 8CZ8."
+
+[[benchmark_cases]]
+id = "8b01-chain-c-withheld-5"
+fixture = "tests/fixtures/numbering/8b01_a_b.pdb"
+sequence_fixture = "tests/fixtures/numbering/8b01_renamed.fasta"
+sequence_record = "8B01_C"
+target_chain = "C"
+classification = "supported"
+stratum = "withheld-independent-regular-loop-3-5"
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [461, 466]
+fixture_interval_zero_based_half_open = [58, 63]
+request_sequence_basis = "observed-coordinate-sequence"
+generated_residues = [
+  "C:59:_:ASP",
+  "C:60:_:ASN",
+  "C:61:_:ALA",
+  "C:62:_:LYS",
+  "C:63:_:ASN",
+]
+left_anchor = "C:58:_:ARG"
+right_anchor = "C:64:_:THR"
+expected_sequence = "DNAKN"
+fixture_sha256 = "42cf616d8cb92e94928ad2cd291cd733cca584aef347ebc100ebbf7374684685"
+sequence_fixture_sha256 = "af57704382c59b7c6cea40b9c698726a4ed03f70e9620f554e34398ccea5079d"
+leakage_status = "unresolved"
+leakage_reason = "No selected engine has yet provided sequence-level training-set membership evidence for PDB 8B01."
+
+[[benchmark_cases]]
+id = "8b01-chain-c-withheld-10"
+fixture = "tests/fixtures/numbering/8b01_a_b.pdb"
+sequence_fixture = "tests/fixtures/numbering/8b01_renamed.fasta"
+sequence_record = "8B01_C"
+target_chain = "C"
+classification = "supported"
+stratum = "withheld-independent-regular-loop-6-12"
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [459, 469]
+fixture_interval_zero_based_half_open = [56, 66]
+request_sequence_basis = "observed-coordinate-sequence"
+generated_residues = [
+  "C:57:_:SER",
+  "C:58:_:ARG",
+  "C:59:_:ASP",
+  "C:60:_:ASN",
+  "C:61:_:ALA",
+  "C:62:_:LYS",
+  "C:63:_:ASN",
+  "C:64:_:THR",
+  "C:65:_:VAL",
+  "C:66:_:TYR",
+]
+left_anchor = "C:56:_:ILE"
+right_anchor = "C:67:_:LEU"
+expected_sequence = "SRDNAKNTVY"
+fixture_sha256 = "42cf616d8cb92e94928ad2cd291cd733cca584aef347ebc100ebbf7374684685"
+sequence_fixture_sha256 = "af57704382c59b7c6cea40b9c698726a4ed03f70e9620f554e34398ccea5079d"
+leakage_status = "unresolved"
+leakage_reason = "No selected engine has yet provided sequence-level training-set membership evidence for PDB 8B01."
 
 [[benchmark_cases]]
 id = "8cz8-chain-c-terminal-one-anchor"
@@ -252,6 +317,57 @@ modeller_comparison_passed_for_measured_candidates = true
 repeatability_status = "passed-initial-subset"
 repeatability_reason = "Independent same-seed A100 workspaces produced byte-identical final PDBs for both masks after seeded OpenMM Reference refinement; generated-heavy coordinate RMSD and maximum displacement are 0.0 Angstrom."
 interpretation = "The repeated refined 5- and 10-residue candidates pass every frozen hard gate and outperform the measured MODELLER backbone-RMSD/fixed-adherence baselines; this is initial subset evidence, not public-backend acceptance."
+
+[independent_regular_loop_evidence]
+run_date = "2026-09-24"
+fixture = "tests/fixtures/numbering/8b01_a_b.pdb"
+target_chain = "C"
+rfdiffusion_revision = "dvbfixer-rfdiffusion-v1-adapter-1+dvbfixer-openmm-boundary-refinement-v3"
+modeller_version = "10.8"
+modeller_configuration = "dvbfixer model, one initial model, two fast pinned-loop candidates, observed-coordinate target sequence"
+withheld_5_seed = 7
+withheld_5_validation_passed = true
+withheld_5_gap_backbone_rmsd_angstrom = 3.3020210780671895
+withheld_5_gap_all_heavy_rmsd_angstrom = 5.226377911990997
+withheld_5_fixed_heavy_rmsd_angstrom = 0.0
+withheld_5_junction_cn_angstrom = [1.3319087806602976, 1.3466265258044041]
+withheld_5_detectable_d_ca = 0
+withheld_5_severe_steric_overlaps = 0
+withheld_5_repeat_coordinate_rmsd_angstrom = 0.0
+withheld_5_repeat_max_displacement_angstrom = 0.0
+withheld_5_candidate_sha256 = "f8d688c36a71f7c78b443577dcf06625ebddb06841cb0ee84998fd9296ab8974"
+withheld_5_wall_time_seconds = 170.4325371850282
+withheld_5_peak_ram_bytes = 6060507136
+withheld_5_peak_vram_bytes = 2996830208
+withheld_5_modeller_candidate_count = 2
+withheld_5_modeller_median_gap_backbone_rmsd_angstrom = 10.71494644186339
+withheld_5_modeller_median_gap_all_heavy_rmsd_angstrom = 10.666604182250566
+withheld_5_modeller_junction_pass_rate = 1.0
+withheld_5_modeller_median_fixed_heavy_rmsd_angstrom = 8.213438872323524
+withheld_5_modeller_validation_pass_count = 0
+withheld_10_seed = 7
+withheld_10_validation_passed = true
+withheld_10_gap_backbone_rmsd_angstrom = 0.8318890551029015
+withheld_10_gap_all_heavy_rmsd_angstrom = 1.8629999403590365
+withheld_10_fixed_heavy_rmsd_angstrom = 0.0
+withheld_10_junction_cn_angstrom = [1.3300590212468046, 1.3438962013488933]
+withheld_10_detectable_d_ca = 0
+withheld_10_severe_steric_overlaps = 0
+withheld_10_repeat_coordinate_rmsd_angstrom = 0.0
+withheld_10_repeat_max_displacement_angstrom = 0.0
+withheld_10_candidate_sha256 = "f5cf2d5d8870859a184c7b2c1208388625286d92b4921f2546d547dfbec313b4"
+withheld_10_wall_time_seconds = 168.39556344226003
+withheld_10_peak_ram_bytes = 5680271360
+withheld_10_peak_vram_bytes = 2996830208
+withheld_10_modeller_candidate_count = 2
+withheld_10_modeller_median_gap_backbone_rmsd_angstrom = 9.669766064157626
+withheld_10_modeller_median_gap_all_heavy_rmsd_angstrom = 10.39176723370498
+withheld_10_modeller_junction_pass_rate = 1.0
+withheld_10_modeller_median_fixed_heavy_rmsd_angstrom = 5.074623365442003
+withheld_10_modeller_validation_pass_count = 0
+modeller_comparison_passed = true
+repeatability_status = "passed"
+interpretation = "The independent 8B01 regular-loop masks are byte-repeatable and pass every frozen hard gate. RFdiffusion is substantially better than the measured MODELLER comparator on backbone RMSD and fixed-coordinate adherence. Both MODELLER pairs close their junctions, but all four candidates fail the frozen fixed-coordinate gates because MODELLER moves the deposited framework; one 10-residue candidate also has local geometry/overlap failures. The RFdiffusion 5-residue absolute RMSD remains 3.30 Angstrom and broader sequence/context strata remain required."
 
 [[engines]]
 id = "protenix-v1"

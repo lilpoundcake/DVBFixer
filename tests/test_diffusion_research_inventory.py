@@ -147,27 +147,33 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
             continue
 
         start, stop = case["target_interval_zero_based_half_open"]
+        fixture_start, fixture_stop = case["fixture_interval_zero_based_half_open"]
         assert 3 <= stop - start <= 12
+        assert fixture_stop - fixture_start == stop - start
+        assert case["request_sequence_basis"] == "observed-coordinate-sequence"
         assert case["left_anchor"] and case["right_anchor"]
         assert len(case["generated_residues"]) == stop - start
 
         sequences = _fasta_sequences(REPO_ROOT / sequence_relative)
-        fasta_key = f"8CZ8_{case['target_chain']}"
+        fasta_key = case["sequence_record"]
         sequence = sequences[fasta_key]
         assert sequence[start:stop] == case["expected_sequence"]
 
         residues = _pdb_residues(fixture, case["target_chain"])
-        selected = residues[start:stop]
+        selected = residues[fixture_start:fixture_stop]
         assert len(selected) == stop - start
-        assert all(altlocs == {" "} for _, _, _, altlocs in residues[start - 1:stop + 1])
+        assert all(
+            altlocs == {" "}
+            for _, _, _, altlocs in residues[fixture_start - 1:fixture_stop + 1]
+        )
         assert "".join(CANONICAL_RESIDUES[name] for _, _, name, _ in selected) == case["expected_sequence"]
         assert [
             _identity(number, icode, name, case["target_chain"])
             for number, icode, name, _ in selected
         ] == case["generated_residues"]
 
-        left = residues[start - 1]
-        right = residues[stop]
+        left = residues[fixture_start - 1]
+        right = residues[fixture_stop]
         assert _identity(*left[:3], case["target_chain"]) == case["left_anchor"]
         assert _identity(*right[:3], case["target_chain"]) == case["right_anchor"]
 
@@ -177,6 +183,10 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
         assert not any(line.startswith(("LINK  ", "CONECT", "SSBOND")) for line in pdb_text.splitlines())
 
     assert {"withheld-internal-3-5", "withheld-internal-6-12"} <= strata
+    assert {
+        "withheld-independent-regular-loop-3-5",
+        "withheld-independent-regular-loop-6-12",
+    } <= strata
     assert {"terminal-one-anchor", "multiple-models", "retained-heterogens"} <= strata
 
 
@@ -256,4 +266,23 @@ def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
     assert (
         refined["withheld_10_gap_backbone_rmsd_angstrom"]
         < modeller["withheld_10_median_gap_backbone_rmsd_angstrom"]
+    )
+
+    independent = inventory["independent_regular_loop_evidence"]
+    assert independent["fixture"] == "tests/fixtures/numbering/8b01_a_b.pdb"
+    assert independent["withheld_5_validation_passed"] is True
+    assert independent["withheld_10_validation_passed"] is True
+    assert independent["withheld_5_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert independent["withheld_10_repeat_coordinate_rmsd_angstrom"] == 0.0
+    assert independent["withheld_5_modeller_validation_pass_count"] == 0
+    assert independent["withheld_10_modeller_validation_pass_count"] == 0
+    assert independent["modeller_comparison_passed"] is True
+    assert independent["repeatability_status"] == "passed"
+    assert (
+        independent["withheld_5_gap_backbone_rmsd_angstrom"]
+        < independent["withheld_5_modeller_median_gap_backbone_rmsd_angstrom"]
+    )
+    assert (
+        independent["withheld_10_gap_backbone_rmsd_angstrom"]
+        < independent["withheld_10_modeller_median_gap_backbone_rmsd_angstrom"]
     )

@@ -45,3 +45,17 @@ constrains generated heavy-atom bonds, and independently rechecks the complete
 candidate; it is not per-denoising-step reinjection. The acceptance path uses
 OpenMM's deterministic `Reference` platform and seeded hydrogen placement.
 Faster CPU/CUDA refinement is not accepted as a repeatability substitute.
+
+Frozen withheld-coordinate workspaces and their evidence are reproducible with:
+
+```bash
+python scripts/build_diffusion_benchmark_request.py CASE_ID WORKSPACE
+# Run the internal adapter twice in separate workspaces with the pinned paths above.
+python scripts/analyze_diffusion_benchmark_pair.py FIRST_WORKSPACE SECOND_WORKSPACE
+python scripts/analyze_modeller_benchmark.py MODELLER_WORKSPACE MODEL_1 MODEL_2
+```
+
+The builders use the reviewed coordinate-fragment sequence as the sampler
+target so unrelated natural terminal/internal gaps in a deposited FASTA do not
+silently turn a one-gap benchmark into a different request. The inventory still
+records and validates the corresponding full-FASTA interval.
