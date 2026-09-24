@@ -1,7 +1,7 @@
 # All-Atom Sampler Hook Spike
 
 This note records the Phase 3 source audit and checkpoint-backed hook smoke
-performed on 2026-09-24. It establishes constrained-sampling control, not
+performed on 2026-09-24 and extended on 2026-09-25. It establishes constrained-sampling control, not
 production model quality or public-backend readiness.
 
 ## Required Hook
@@ -58,8 +58,25 @@ It loaded strictly as a 506,724,992-parameter `Boltz2` model. Two independent
 seed-7 A100 runs of the upstream 120-residue, empty-MSA example with one recycle
 and two diffusion steps produced byte-identical PDBs (`1ef1df41...b61b7`) and
 zero failed examples. This stock-CLI baseline did not exercise the callback.
-Stable Boltz atom-axis to DVBFixer identity mapping and checkpoint-backed gap
-reinjection remain unresolved, so Boltz is not a constrained-gap backend.
+
+`deploy/boltz-2/atom_mapping.py` now builds a fail-closed atom axis from the
+processed `StructureV2` and exact token traversal, then independently checks
+`atom_pad_mask`, `atom_to_token`, and `ref_atom_name_chars`. Original residue
+numbers and insertion codes come only from the validated request sidecar; the
+stock writer is bypassed because it discards them. The input builder adds full
+`SEQRES` metadata so Boltz's constant-offset template featurizer can represent
+the internal gap.
+
+Two independent seed-7, one-recycle, 200-step A100 runs on the 267-residue
+7X35 five-residue case produced the same raw PDB (`f998e85e...b7ae2`). All 200
+callbacks reported `0.0 Å` post-projection error, and independent validation
+measured fixed-heavy RMSD and maximum displacement of `0.0 Å`. The raw
+candidate missed peptide closure at `1.607 Å`. Deterministic generated-only
+boundary refinement produced byte-identical repeats (`9cae1ce7...b1e9`),
+closed the junctions to `1.338/1.346 Å`, and passed every frozen hard gate with
+gap-backbone RMSD `1.601 Å`. A two-step hook run completed both callbacks but
+correctly failed candidate materialization because an immature generated
+coordinate exceeded PDB's fixed-column range.
 
 ## Checkpoint-Backed Gap Smoke
 
@@ -129,11 +146,11 @@ single-chain Protenix driver.
 Unmodified Protenix and Boltz remain unsupported because they expose no required
 hook. The maintained Protenix v1 patch plus DVBFixer localized boundary
 refinement passes the initial-case three-way ablation and three additional
-repeatable single-chain cases. The maintained Boltz-2 patch passes CPU/GPU hook
-smokes and its official checkpoint passes repeatable real diffusion inference,
-but Boltz request-identity mapping is still absent. Multichain/chemical-context,
-environment, and distribution work remain open. Public CLI work must not begin
-from these results.
+repeatable single-chain cases. The maintained Boltz-2 patch now also has exact
+request-identity mapping and one repeatable checkpoint-backed single-chain gap
+case that passes after localized refinement. Multichain/chemical-context,
+broader-corpus, environment, and distribution work remain open. Public CLI work
+must not begin from these results.
 
 The pinned source publishes the v1 checkpoint URL as
 `https://protenix.tos-cn-beijing.volces.com/checkpoint/protenix_base_default_v1.0.0.pt`.

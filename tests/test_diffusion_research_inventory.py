@@ -37,6 +37,10 @@ PROTENIX_CHECKPOINT_SMOKE = REPO_ROOT / "deploy/protenix-v1/checkpoint_gap_smoke
 PROTENIX_REFINEMENT_SMOKE = REPO_ROOT / "deploy/protenix-v1/refine_candidate.py"
 BOLTZ_HOOK_PATCH = REPO_ROOT / "deploy/boltz-2/per-step-callback.patch"
 BOLTZ_HOOK_SMOKE = REPO_ROOT / "deploy/boltz-2/hook-smoke.py"
+BOLTZ_ATOM_MAPPING = REPO_ROOT / "deploy/boltz-2/atom_mapping.py"
+BOLTZ_INPUT_BUILDER = REPO_ROOT / "deploy/boltz-2/build-template-input.py"
+BOLTZ_CHECKPOINT_SMOKE = REPO_ROOT / "deploy/boltz-2/checkpoint_gap_smoke.py"
+BOLTZ_REFINEMENT_SMOKE = REPO_ROOT / "deploy/boltz-2/refine_candidate.py"
 
 CANONICAL_RESIDUES = {
     "ALA": "A",
@@ -510,13 +514,13 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
         ],
         localized_boundary_refinement=boltz["localized_boundary_refinement"],
     )
-    decision = assess_sampler_conformance(
+    assert assess_sampler_conformance(
         boltz_capabilities, SamplingAblationMode.REINJECTION
-    )
-    assert not decision.supported
-    assert decision.missing_capabilities == (
-        "identity-mapping-each-step",
-    )
+    ).supported
+    assert assess_sampler_conformance(
+        boltz_capabilities,
+        SamplingAblationMode.REINJECTION_BOUNDARY_REFINEMENT,
+    ).supported
 
     boltz_patch = inventory["boltz_v2_hook_patch"]
     assert boltz_patch["patch_sha256"] == _sha256(BOLTZ_HOOK_PATCH)
@@ -534,6 +538,27 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
         "repeat_candidate_sha256"
     ]
     assert boltz_smoke["per_step_callback_exercised"] is False
+
+    boltz_gap = inventory["boltz_v2_gap_smoke"]
+    assert boltz_gap["status"] == "passed-repeatable-with-localized-refinement"
+    assert boltz_gap["atom_mapping_sha256"] == _sha256(BOLTZ_ATOM_MAPPING)
+    assert boltz_gap["input_builder_sha256"] == _sha256(BOLTZ_INPUT_BUILDER)
+    assert boltz_gap["checkpoint_driver_sha256"] == _sha256(BOLTZ_CHECKPOINT_SMOKE)
+    assert boltz_gap["refinement_driver_sha256"] == _sha256(BOLTZ_REFINEMENT_SMOKE)
+    assert boltz_gap["callback_count"] == boltz_gap["diffusion_steps"] == 200
+    assert boltz_gap["maximum_post_projection_error_angstrom"] == 0.0
+    assert boltz_gap["fixed_heavy_rmsd_angstrom"] == 0.0
+    assert boltz_gap["fixed_heavy_max_displacement_angstrom"] == 0.0
+    assert boltz_gap["raw_validation_passed"] is False
+    assert boltz_gap["raw_hard_gate_failure"] == "junction-peptide-connectivity"
+    assert boltz_gap["refined_validation_passed"] is True
+    assert boltz_gap["raw_candidate_sha256"] == boltz_gap[
+        "repeat_raw_candidate_sha256"
+    ]
+    assert boltz_gap["refined_candidate_sha256"] == boltz_gap[
+        "repeat_refined_candidate_sha256"
+    ]
+    assert boltz_gap["same_seed_rmsd_angstrom"] == 0.0
 
     broader = inventory["protenix_v1_broader_gap_evidence"]
     assert broader["status"] == "passed-three-additional-single-chain-cases"

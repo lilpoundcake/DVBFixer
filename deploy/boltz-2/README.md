@@ -16,7 +16,6 @@ PYTHONPATH=/path/to/boltz/src \
 
 The synthetic smoke invokes the real `diffusionv2.AtomDiffusion.sample` loop
 for two steps and requires exact fixed-coordinate overwrite after each update.
-Checkpoint-backed identity mapping and gap reconstruction remain separate gates.
 
 The checkpoint-backed baseline uses the immutable Hugging Face revision
 `6fdef46d763fee7fbb83ca5501ccceff43b85607`:
@@ -33,6 +32,7 @@ CUDA 13:
 python -m pip install torch==2.5.1 \
   --index-url https://download.pytorch.org/whl/cu121
 python -m pip install -e /path/to/boltz
+python -m pip install numpy==1.26.4 openmm==8.6.1 MDAnalysis==2.10.0
 
 BOLTZ_CACHE=/path/to/digest-verified-cache boltz predict \
   /path/to/boltz/examples/prot_no_msa.yaml \
@@ -45,3 +45,31 @@ BOLTZ_CACHE=/path/to/digest-verified-cache boltz predict \
 Two independent A100 runs produced byte-identical PDB and confidence outputs.
 This stock command verifies the official model's real diffusion forward but
 does not install a DVBFixer callback or provide constrained-gap evidence.
+
+The research-only checkpoint gap path builds a complete-sequence query and a
+deposited-coordinate template with explicit `SEQRES`, validates Boltz's token
+and feature atom axes against exact DVBFixer identities, bypasses the stock
+writer, and independently validates the candidate:
+
+```bash
+python deploy/boltz-2/build-template-input.py REQUEST.json INPUT_DIR
+
+PYTHONPATH=/path/to/DVBFixer/src:/path/to/boltz/src \
+  python deploy/boltz-2/checkpoint_gap_smoke.py \
+  REQUEST.json INPUT_DIR/input.yaml OUTPUT_DIR \
+  --cache /path/to/boltz-cache \
+  --checkpoint /path/to/boltz2_conf.ckpt \
+  --recycling-steps 1 --sampling-steps 200
+
+python deploy/boltz-2/refine_candidate.py \
+  REQUEST.json OUTPUT_DIR/candidate.pdb REFINED_DIR \
+  --platform Reference --restart-count 8 \
+  --expected-candidate-sha256 EXPECTED_SHA256
+```
+
+The 7X35 five-residue smoke produced byte-identical raw and refined repeats.
+The raw candidate preserved fixed atoms exactly but missed one peptide-junction
+gate; generated-only boundary refinement closed both junctions and passed every
+frozen gate. Two diffusion steps exercise the callback but remain too immature
+for candidate materialization: a generated coordinate exceeded PDB's fixed
+column range. Use the 200-step schedule for scientific smoke evidence.
