@@ -34,10 +34,26 @@ from dvbfixer.model.diffusion.sampler import SamplingAblationMode
 from dvbfixer.model.diffusion.validate import validate_runner_result
 
 _ONE_TO_THREE = {
-    "A": "ALA", "C": "CYS", "D": "ASP", "E": "GLU", "F": "PHE",
-    "G": "GLY", "H": "HIS", "I": "ILE", "K": "LYS", "L": "LEU",
-    "M": "MET", "N": "ASN", "P": "PRO", "Q": "GLN", "R": "ARG",
-    "S": "SER", "T": "THR", "V": "VAL", "W": "TRP", "Y": "TYR",
+    "A": "ALA",
+    "C": "CYS",
+    "D": "ASP",
+    "E": "GLU",
+    "F": "PHE",
+    "G": "GLY",
+    "H": "HIS",
+    "I": "ILE",
+    "K": "LYS",
+    "L": "LEU",
+    "M": "MET",
+    "N": "ASN",
+    "P": "PRO",
+    "Q": "GLN",
+    "R": "ARG",
+    "S": "SER",
+    "T": "THR",
+    "V": "VAL",
+    "W": "TRP",
+    "Y": "TYR",
 }
 
 
@@ -160,17 +176,11 @@ class _TracingCallback:
         self._target = np.asarray([fixed_coordinates[identity] for identity in ordered])
         self.steps: list[dict[str, float | int]] = []
 
-    def __call__(
-        self, coordinates: torch.Tensor, step_index: int, step_count: int
-    ) -> torch.Tensor:
+    def __call__(self, coordinates: torch.Tensor, step_index: int, step_count: int) -> torch.Tensor:
         projected = self._reinject(coordinates, step_index, step_count)
         indices = torch.as_tensor(self._indices, device=projected.device)
-        target = torch.as_tensor(
-            self._target, dtype=projected.dtype, device=projected.device
-        )
-        errors = torch.linalg.vector_norm(
-            projected.index_select(-2, indices) - target, dim=-1
-        )
+        target = torch.as_tensor(self._target, dtype=projected.dtype, device=projected.device)
+        errors = torch.linalg.vector_norm(projected.index_select(-2, indices) - target, dim=-1)
         self.steps.append(
             {
                 "step_index": step_index,
@@ -213,8 +223,7 @@ def _write_candidate(
         except ValueError as exc:
             raise ValueError("PDB smoke output requires integer residue numbers") from exc
         if not all(
-            math.isfinite(float(value)) and len(f"{float(value):8.3f}") == 8
-            for value in xyz
+            math.isfinite(float(value)) and len(f"{float(value):8.3f}") == 8 for value in xyz
         ):
             raise ValueError("coordinate cannot be represented in PDB format")
         atom_field = _atom_name_field(identity.atom_name, element)
@@ -284,6 +293,7 @@ def run(
     output_dir.mkdir(parents=True, exist_ok=False)
 
     start = time.perf_counter()
+    torch.cuda.reset_peak_memory_stats()
     runner = get_default_runner(
         seeds=list(request.seeds),
         n_cycle=cycles,
@@ -317,26 +327,20 @@ def run(
         callback = _TracingCallback(atom_axis, fixed_coordinates)
         runner.model.dvbfixer_step_callback = callback
 
-    runner.update_model_configs(
-        update_inference_configs(runner.configs, data["N_token"].item())
-    )
+    runner.update_model_configs(update_inference_configs(runner.configs, data["N_token"].item()))
     prediction = runner.predict(data)
     coordinates = prediction["coordinate"]
     if coordinates.shape[0] != 1:
         raise ValueError("checkpoint smoke expected exactly one sample")
     callback_steps = [] if callback is None else callback.steps
-    expected_callback_count = (
-        0 if ablation_mode is SamplingAblationMode.TEMPLATE_ONLY else steps
-    )
+    expected_callback_count = 0 if ablation_mode is SamplingAblationMode.TEMPLATE_ONLY else steps
     if len(callback_steps) != expected_callback_count or any(
         step["step_count"] != steps for step in callback_steps
     ):
         raise RuntimeError("callback count does not match the requested ablation")
 
     final = coordinates[0].detach().to(dtype=torch.float64, device="cpu").numpy()
-    final_frame_synchronization = (
-        ablation_mode is SamplingAblationMode.TEMPLATE_ONLY
-    )
+    final_frame_synchronization = ablation_mode is SamplingAblationMode.TEMPLATE_ONLY
     if final_frame_synchronization:
         final = _synchronize_frame(final, atom_axis, fixed_coordinates)
     output_path = output_dir / "candidate.pdb"
@@ -362,9 +366,7 @@ def run(
             runner_protocol_version=3,
             engine_repository="https://github.com/bytedance/Protenix",
             engine_revision="85767b811c40ed46e73a9b39519cf6bfca8701ba",
-            checkpoint_sha256=(
-                "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
-            ),
+            checkpoint_sha256=("2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"),
             device=str(runner.device),
             precision=runner.configs.dtype,
             framework="torch",
@@ -372,7 +374,10 @@ def run(
             cuda_version=str(torch.version.cuda or ""),
             deterministic_algorithms=bool(runner.configs.deterministic),
         ),
-        resource_metrics=RunnerResourceMetrics(wall_time_seconds=time.perf_counter() - start),
+        resource_metrics=RunnerResourceMetrics(
+            wall_time_seconds=time.perf_counter() - start,
+            peak_vram_bytes=torch.cuda.max_memory_allocated(),
+        ),
     )
     validation = validate_runner_result(request, runner_result, workspace=workspace)[0]
     summary = {
@@ -389,11 +394,10 @@ def run(
         "validation": asdict(validation.summary),
         "ranking_metrics": [asdict(metric) for metric in validation.ranking_metrics],
         "wall_time_seconds": runner_result.resource_metrics.wall_time_seconds,
+        "peak_vram_bytes": runner_result.resource_metrics.peak_vram_bytes,
     }
     summary_path = output_dir / "summary.json"
-    summary_path.write_text(
-        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(summary_path)
 
 

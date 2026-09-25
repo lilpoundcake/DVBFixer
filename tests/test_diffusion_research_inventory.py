@@ -25,9 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 INVENTORY = REPO_ROOT / "docs/research/diffusion-gap-reconstruction-inventory.toml"
 FIXTURE_MANIFEST = REPO_ROOT / "tests/fixtures/MANIFEST.sha256"
 RFDIFFUSION_ENVIRONMENT = REPO_ROOT / "deploy/rfdiffusion-v1/environment.yml"
-RFDIFFUSION_ADAPTER_ENVIRONMENT = (
-    REPO_ROOT / "deploy/rfdiffusion-v1/adapter-environment.yml"
-)
+RFDIFFUSION_ADAPTER_ENVIRONMENT = REPO_ROOT / "deploy/rfdiffusion-v1/adapter-environment.yml"
 RFDIFFUSION_DOCKERFILE = REPO_ROOT / "deploy/rfdiffusion-v1/Dockerfile"
 RFDIFFUSION_ENTRYPOINT = REPO_ROOT / "deploy/rfdiffusion-v1/container-entrypoint.sh"
 PROTENIX_HOOK_PATCH = REPO_ROOT / "deploy/protenix-v1/per-step-callback.patch"
@@ -153,6 +151,16 @@ def test_diffusion_inventory_declares_versioned_scope_and_thresholds() -> None:
     assert partner_history["revised_backbone_displacement_angstrom_max"] == 2.0
     assert "1.708 Angstrom" in partner_history["triggering_observation"]
 
+    study = inventory["selection_study"]
+    assert study["primary_statistical_unit"] == "withheld-gap"
+    assert study["pilot_dependence_cluster"] == "pdb-entry"
+    assert study["confirmatory_dependence_cluster"] == "sequence-cluster"
+    assert study["paired_backends_required"] is True
+    assert study["seeds_count_as_independent_units"] is False
+    assert study["confirmatory_minimum_independence_groups"] == 180
+    assert study["confirmatory_maximum_independence_groups_after_blinded_reestimation"] == 300
+    assert study["secondary_endpoint_minimum_both_valid_independence_groups"] == 30
+
 
 def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
     inventory = _load_inventory()
@@ -203,10 +211,12 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
         selected = residues[fixture_start:fixture_stop]
         assert len(selected) == stop - start
         assert all(
-            altlocs == {" "}
-            for _, _, _, altlocs in residues[fixture_start - 1:fixture_stop + 1]
+            altlocs == {" "} for _, _, _, altlocs in residues[fixture_start - 1 : fixture_stop + 1]
         )
-        assert "".join(CANONICAL_RESIDUES[name] for _, _, name, _ in selected) == case["expected_sequence"]
+        assert (
+            "".join(CANONICAL_RESIDUES[name] for _, _, name, _ in selected)
+            == case["expected_sequence"]
+        )
         assert [
             _identity(number, icode, name, case["target_chain"])
             for number, icode, name, _ in selected
@@ -223,15 +233,12 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
         if structure_scope == "full-fixture":
             assert not any(line.startswith("HETATM") for line in pdb_text.splitlines())
             assert not any(
-                line.startswith(("LINK  ", "CONECT", "SSBOND"))
-                for line in pdb_text.splitlines()
+                line.startswith(("LINK  ", "CONECT", "SSBOND")) for line in pdb_text.splitlines()
             )
         elif structure_scope == "target-protein-chain-only":
             local_residues = {
                 (number, icode.strip())
-                for number, icode, _name, _altlocs in residues[
-                    fixture_start - 1 : fixture_stop + 1
-                ]
+                for number, icode, _name, _altlocs in residues[fixture_start - 1 : fixture_stop + 1]
             }
             local_coordinates: list[tuple[float, float, float]] = []
             non_target_coordinates: list[tuple[float, float, float]] = []
@@ -256,26 +263,38 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
                     non_target_coordinates.append(coordinate)
                 elif record == "HETATM":
                     heterogen_coordinates.append(coordinate)
-            minimum_non_target = min(
-                math.dist(local, other)
-                for local in local_coordinates
-                for other in non_target_coordinates
-            )
-            minimum_heterogen = min(
-                math.dist(local, other)
-                for local in local_coordinates
-                for other in heterogen_coordinates
-            )
-            assert abs(
-                minimum_non_target
-                - case["minimum_candidate_anchor_non_target_atom_distance_angstrom"]
-            ) < 0.01
-            assert abs(
-                minimum_heterogen
-                - case["minimum_candidate_anchor_heterogen_distance_angstrom"]
-            ) < 0.01
-            assert minimum_non_target > 5.0
-            assert minimum_heterogen > 5.0
+            if non_target_coordinates:
+                minimum_non_target = min(
+                    math.dist(local, other)
+                    for local in local_coordinates
+                    for other in non_target_coordinates
+                )
+                assert (
+                    abs(
+                        minimum_non_target
+                        - case["minimum_candidate_anchor_non_target_atom_distance_angstrom"]
+                    )
+                    < 0.01
+                )
+                assert minimum_non_target > 5.0
+            else:
+                assert case["non_target_atom_context"] == "absent"
+            if heterogen_coordinates:
+                minimum_heterogen = min(
+                    math.dist(local, other)
+                    for local in local_coordinates
+                    for other in heterogen_coordinates
+                )
+                assert (
+                    abs(
+                        minimum_heterogen
+                        - case["minimum_candidate_anchor_heterogen_distance_angstrom"]
+                    )
+                    < 0.01
+                )
+                assert minimum_heterogen > 5.0
+            else:
+                assert case["heterogen_context"] == "absent"
         else:
             assert structure_scope == "target-and-context-protein-chains"
             context_chains = set(case["context_chains"])
@@ -318,14 +337,14 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
                 for generated in generated_coordinates
                 for heterogen in heterogen_coordinates
             )
-            assert abs(
-                minimum_partner
-                - case["minimum_generated_partner_atom_distance_angstrom"]
-            ) < 0.01
-            assert abs(
-                minimum_heterogen
-                - case["minimum_generated_heterogen_distance_angstrom"]
-            ) < 0.01
+            assert (
+                abs(minimum_partner - case["minimum_generated_partner_atom_distance_angstrom"])
+                < 0.01
+            )
+            assert (
+                abs(minimum_heterogen - case["minimum_generated_heterogen_distance_angstrom"])
+                < 0.01
+            )
             assert minimum_partner < 3.5
             assert minimum_heterogen > 5.0
 
@@ -340,7 +359,41 @@ def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
     } <= strata
     assert "withheld-interface-adjacent-3-5" in strata
     assert "withheld-antibody-insertion-codes-3-5" in strata
+    assert {
+        "withheld-temporal-holdout-glypro-3-5",
+        "withheld-temporal-holdout-regular-6-12",
+        "withheld-temporal-holdout-antibody-3-5",
+        "withheld-temporal-holdout-antibody-6-12",
+        "withheld-precutoff-sensitivity-glypro-3-5",
+        "withheld-precutoff-sensitivity-glypro-6-12",
+    } <= strata
     assert {"terminal-one-anchor", "multiple-models", "retained-heterogens"} <= strata
+
+    supported = [
+        case for case in inventory["benchmark_cases"] if case["classification"] == "supported"
+    ]
+    assert len(supported) == 14
+    pilot = [case for case in supported if case.get("benchmark_cohort")]
+    assert {case["benchmark_cohort"] for case in pilot} == {
+        "temporal-holdout-pilot",
+        "precutoff-sensitivity",
+    }
+    assert {case["independence_group"] for case in pilot} == {
+        "pdb:8CDE",
+        "pdb:8CT6",
+        "pdb:8XJ0",
+    }
+    for case in pilot:
+        assert case["metadata_source"].startswith("https://data.rcsb.org/rest/v1/core/entry/")
+        assert case["initial_release_date"]
+        assert case["resolution_angstrom"] > 0
+        assert case["temporal_holdout_for"]
+        assert case["unresolved_for"]
+        engine_ids = {"rfdiffusion-v1", "protenix-v1", "boltz-2"}
+        assert set(case["temporal_holdout_for"]) <= engine_ids
+        assert set(case["unresolved_for"]) <= engine_ids
+        assert not set(case["temporal_holdout_for"]) & set(case["unresolved_for"])
+        assert set(case.get("pdb_temporal_holdout_for", [])) <= engine_ids
 
 
 def test_diffusion_engine_inventory_is_fail_closed() -> None:
@@ -386,15 +439,12 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
 
     assert spike["selected_sampler"] == "protenix-v1-maintained-patch"
     assert (
-        spike["decision"]
-        == "protenix-initial-three-way-ablation-passed-broader-evidence-pending"
+        spike["decision"] == "protenix-initial-three-way-ablation-passed-broader-evidence-pending"
     )
     assert (REPO_ROOT / spike["evidence"]).is_file()
 
     patch = inventory["protenix_v1_hook_patch"]
-    assert patch["source_revision"] == (
-        "85767b811c40ed46e73a9b39519cf6bfca8701ba"
-    )
+    assert patch["source_revision"] == ("85767b811c40ed46e73a9b39519cf6bfca8701ba")
     assert patch["patch_sha256"] == _sha256(PROTENIX_HOOK_PATCH)
     assert REPO_ROOT / patch["patch"] == PROTENIX_HOOK_PATCH
     assert REPO_ROOT / patch["smoke"] == PROTENIX_HOOK_SMOKE
@@ -433,9 +483,7 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert gap_smoke["failed_gates"] == ["junction-peptide-connectivity"]
     assert len(gap_smoke["candidate_sha256"]) == 64
     assert len(gap_smoke["summary_sha256"]) == 64
-    assert gap_smoke["candidate_sha256"] == gap_smoke[
-        "same_seed_repeat_candidate_sha256"
-    ]
+    assert gap_smoke["candidate_sha256"] == gap_smoke["same_seed_repeat_candidate_sha256"]
     assert gap_smoke["same_seed_repeat_coordinate_rmsd_angstrom"] == 0.0
     assert gap_smoke["repeatability_status"] == "passed"
 
@@ -468,12 +516,9 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert ablation["refined_fixed_heavy_rmsd_angstrom"] == 0.0
     assert ablation["refined_repeat_coordinate_rmsd_angstrom"] == 0.0
 
-    protenix = next(
-        engine for engine in inventory["engines"] if engine["id"] == "protenix-v1"
-    )
+    protenix = next(engine for engine in inventory["engines"] if engine["id"] == "protenix-v1")
     assert protenix["checkpoint_url"] == (
-        "https://protenix.tos-cn-beijing.volces.com/checkpoint/"
-        "protenix_base_default_v1.0.0.pt"
+        "https://protenix.tos-cn-beijing.volces.com/checkpoint/protenix_base_default_v1.0.0.pt"
     )
     assert protenix["checkpoint_sha256"] == (
         "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
@@ -489,9 +534,7 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     protenix_capabilities = SamplerCapabilities(
         mutable_state_each_step=protenix["mutable_state_each_step"],
         identity_mapping_each_step=protenix["identity_mapping_each_step"],
-        fixed_coordinate_overwrite_each_step=protenix[
-            "fixed_coordinate_overwrite_each_step"
-        ],
+        fixed_coordinate_overwrite_each_step=protenix["fixed_coordinate_overwrite_each_step"],
         localized_boundary_refinement=protenix["localized_boundary_refinement"],
     )
     assert assess_sampler_conformance(
@@ -509,9 +552,7 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     boltz_capabilities = SamplerCapabilities(
         mutable_state_each_step=boltz["mutable_state_each_step"],
         identity_mapping_each_step=boltz["identity_mapping_each_step"],
-        fixed_coordinate_overwrite_each_step=boltz[
-            "fixed_coordinate_overwrite_each_step"
-        ],
+        fixed_coordinate_overwrite_each_step=boltz["fixed_coordinate_overwrite_each_step"],
         localized_boundary_refinement=boltz["localized_boundary_refinement"],
     )
     assert assess_sampler_conformance(
@@ -534,9 +575,7 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert boltz_smoke["strict_checkpoint_load"] is True
     assert boltz_smoke["model_parameters"] == 506_724_992
     assert boltz_smoke["failed_examples"] == 0
-    assert boltz_smoke["candidate_sha256"] == boltz_smoke[
-        "repeat_candidate_sha256"
-    ]
+    assert boltz_smoke["candidate_sha256"] == boltz_smoke["repeat_candidate_sha256"]
     assert boltz_smoke["per_step_callback_exercised"] is False
 
     boltz_gap = inventory["boltz_v2_gap_smoke"]
@@ -552,12 +591,8 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert boltz_gap["raw_validation_passed"] is False
     assert boltz_gap["raw_hard_gate_failure"] == "junction-peptide-connectivity"
     assert boltz_gap["refined_validation_passed"] is True
-    assert boltz_gap["raw_candidate_sha256"] == boltz_gap[
-        "repeat_raw_candidate_sha256"
-    ]
-    assert boltz_gap["refined_candidate_sha256"] == boltz_gap[
-        "repeat_refined_candidate_sha256"
-    ]
+    assert boltz_gap["raw_candidate_sha256"] == boltz_gap["repeat_raw_candidate_sha256"]
+    assert boltz_gap["refined_candidate_sha256"] == boltz_gap["repeat_refined_candidate_sha256"]
     assert boltz_gap["same_seed_rmsd_angstrom"] == 0.0
 
     broader = inventory["protenix_v1_broader_gap_evidence"]
@@ -570,6 +605,49 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert broader["case_7x35_7_raw_validation_passed"] is False
     assert broader["case_7x35_7_refined_validation_passed"] is True
     assert broader["case_7k8s_3_refined_validation_passed"] is True
+
+    pilot = inventory["three_backend_8xj0_pilot"]
+    assert pilot["status"] == "complete-no-selection"
+    assert pilot["independence_group_count"] == 1
+    assert pilot["case_count"] == 2
+    assert pilot["all_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert pilot["all_fixed_heavy_max_displacement_angstrom"] == 0.0
+    assert pilot["all_detectable_d_ca"] == 0
+    assert pilot["all_severe_steric_overlaps"] == 0
+    assert pilot["all_resource_reporting_complete"] is True
+    assert pilot["rfdiffusion_gap_5_validation_passed"] is True
+    assert pilot["rfdiffusion_gap_10_validation_passed"] is False
+    assert pilot["rfdiffusion_gap_10_failed_gates"] == ["generated-or-junction-amide-planarity"]
+    assert pilot["protenix_gap_5_validation_passed"] is True
+    assert pilot["protenix_gap_10_validation_passed"] is True
+    assert pilot["boltz_gap_5_validation_passed"] is True
+    assert pilot["boltz_gap_10_validation_passed"] is True
+    assert (
+        pilot["protenix_gap_5_raw_candidate_sha256"]
+        == pilot["protenix_gap_5_repeat_raw_candidate_sha256"]
+    )
+    assert (
+        pilot["protenix_gap_10_raw_candidate_sha256"]
+        == pilot["protenix_gap_10_repeat_raw_candidate_sha256"]
+    )
+    for gap in (5, 10):
+        assert (
+            pilot[f"boltz_gap_{gap}_backbone_rmsd_angstrom"]
+            < pilot[f"protenix_gap_{gap}_backbone_rmsd_angstrom"]
+        )
+        assert (
+            pilot[f"boltz_gap_{gap}_all_heavy_rmsd_angstrom"]
+            < pilot[f"protenix_gap_{gap}_all_heavy_rmsd_angstrom"]
+        )
+        assert (
+            pilot[f"boltz_gap_{gap}_peak_vram_bytes"] < pilot[f"protenix_gap_{gap}_peak_vram_bytes"]
+        )
+    assert pilot["selection_decision"] == "no-selection"
+    assert pilot["selection_blocking_reasons"] == [
+        "insufficient-sample",
+        "rfdiffusion-unresolved-training-leakage",
+        "boltz-2-unresolved-training-leakage",
+    ]
 
 
 def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:

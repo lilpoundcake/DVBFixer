@@ -10,16 +10,20 @@ import numpy as np
 import pytest
 
 from dvbfixer.model.diffusion.benchmark import (
+    BackendCaseResult,
     BenchmarkOutcome,
     DiffusionBenchmarkError,
     ModellerComparison,
     StratumRun,
     assess_same_seed_repeatability,
     candidate_quality,
+    compare_paired_backends,
     load_pdb_coordinates,
     pairwise_gap_backbone_rmsds,
+    summarize_backend_cases,
     summarize_ensemble,
     summarize_strata,
+    wilson_score_interval,
 )
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
@@ -351,3 +355,193 @@ def test_modeller_comparison_applies_predeclared_acceptance_gates() -> None:
     assert not failing.passes_junction_gate
     assert not failing.passes_fixed_adherence_gate
     assert not failing.passed
+
+
+def test_backend_summary_counts_failures_and_reports_wilson_interval() -> None:
+    runs = (
+        BackendCaseResult("candidate", "case-1", "structure-a", True, True, True, True, 1.0),
+        BackendCaseResult("candidate", "case-2", "structure-a", False, True, True, True),
+        BackendCaseResult("candidate", "case-3", "structure-b", True, True, True, True, 2.0),
+    )
+
+    summary = summarize_backend_cases(runs)
+    interval = wilson_score_interval(50, 100)
+
+    assert summary.case_count == 3
+    assert summary.passing_count == 2
+    assert summary.validation_pass_rate == pytest.approx(2 / 3)
+    assert summary.median_valid_gap_backbone_rmsd_angstrom == 1.5
+    assert summary.wall_time_observed_count == 0
+    assert summary.peak_vram_observed_count == 0
+    assert not summary.resource_reporting_complete
+    assert summary.eligible
+    assert interval.lower == pytest.approx(0.4038, abs=1e-4)
+    assert interval.upper == pytest.approx(0.5962, abs=1e-4)
+
+
+def test_paired_backend_comparison_bootstraps_independence_groups() -> None:
+    candidate = (
+        BackendCaseResult("candidate", "a-short", "structure-a", True, True, True, True, 1.0),
+        BackendCaseResult("candidate", "a-long", "structure-a", True, True, True, True, 1.2),
+        BackendCaseResult("candidate", "b-short", "structure-b", True, True, True, True, 0.8),
+        BackendCaseResult("candidate", "c-short", "structure-c", True, True, True, True, 1.1),
+    )
+    baseline = (
+        BackendCaseResult("baseline", "a-short", "structure-a", True, True, True, True, 2.0),
+        BackendCaseResult("baseline", "a-long", "structure-a", True, True, True, True, 2.2),
+        BackendCaseResult("baseline", "b-short", "structure-b", True, True, True, True, 1.8),
+        BackendCaseResult("baseline", "c-short", "structure-c", True, True, True, True, 2.1),
+    )
+
+    comparison = compare_paired_backends(
+        candidate,
+        baseline,
+        minimum_independence_groups=3,
+        minimum_both_valid_independence_groups=3,
+        require_complete_resources=False,
+        bootstrap_samples=500,
+        random_seed=7,
+    )
+
+    assert comparison.paired_case_count == 4
+    assert comparison.both_passed_count == 4
+    assert comparison.pass_rate_difference == 0.0
+    assert comparison.pass_rate_difference_interval.lower == 0.0
+    assert comparison.sample_size_sufficient
+    assert comparison.noninferiority_demonstrated
+    assert comparison.median_paired_rmsd_difference_angstrom == pytest.approx(-1.0)
+    assert comparison.median_paired_rmsd_difference_interval is not None
+    assert comparison.median_paired_rmsd_difference_interval.upper < 0
+    assert comparison.decision == "candidate-preferred"
+
+
+def test_paired_backend_comparison_fails_closed_on_fixed_coordinate_drift() -> None:
+    candidate = (
+        BackendCaseResult("candidate", "case-1", "structure-a", True, False, True, True, 0.5),
+    )
+    baseline = (
+        BackendCaseResult("baseline", "case-1", "structure-a", True, True, True, True, 1.0),
+    )
+
+    comparison = compare_paired_backends(
+        candidate,
+        baseline,
+        bootstrap_samples=20,
+    )
+
+    assert not comparison.candidate.eligible
+    assert comparison.candidate.ineligibility_reasons == ("fixed-coordinates-not-exact",)
+    assert not comparison.noninferiority_demonstrated
+    assert comparison.decision == "candidate-ineligible"
+
+
+def test_paired_backend_comparison_does_not_select_from_pilot_sample() -> None:
+    candidate = (
+        BackendCaseResult("candidate", "case-1", "structure-a", True, True, True, True, 0.5),
+    )
+    baseline = (
+        BackendCaseResult("baseline", "case-1", "structure-a", True, True, True, True, 1.0),
+    )
+
+    comparison = compare_paired_backends(
+        candidate,
+        baseline,
+        bootstrap_samples=20,
+    )
+
+    assert comparison.minimum_independence_groups == 180
+    assert comparison.independence_group_count == 1
+    assert not comparison.sample_size_sufficient
+    assert not comparison.noninferiority_demonstrated
+    assert comparison.decision == "insufficient-sample"
+
+
+def test_backend_summary_rejects_unresolved_training_leakage() -> None:
+    summary = summarize_backend_cases(
+        (
+            BackendCaseResult(
+                "candidate",
+                "case-1",
+                "structure-a",
+                True,
+                True,
+                True,
+                False,
+                0.5,
+            ),
+        )
+    )
+
+    assert not summary.eligible
+    assert summary.ineligibility_reasons == ("unresolved-training-leakage",)
+
+
+def test_paired_backend_comparison_requires_enough_both_valid_groups() -> None:
+    candidate = (
+        BackendCaseResult("candidate", "case-a", "group-a", True, True, True, True, 0.5),
+        BackendCaseResult("candidate", "case-b", "group-b", False, True, True, True),
+        BackendCaseResult("candidate", "case-c", "group-c", False, True, True, True),
+    )
+    baseline = (
+        BackendCaseResult("baseline", "case-a", "group-a", True, True, True, True, 1.0),
+        BackendCaseResult("baseline", "case-b", "group-b", False, True, True, True),
+        BackendCaseResult("baseline", "case-c", "group-c", False, True, True, True),
+    )
+
+    comparison = compare_paired_backends(
+        candidate,
+        baseline,
+        minimum_independence_groups=3,
+        minimum_both_valid_independence_groups=2,
+        require_complete_resources=False,
+        bootstrap_samples=50,
+    )
+
+    assert comparison.sample_size_sufficient
+    assert comparison.noninferiority_demonstrated
+    assert comparison.both_valid_independence_group_count == 1
+    assert not comparison.rmsd_sample_size_sufficient
+    assert comparison.decision == "noninferior-rmsd-insufficient-sample"
+
+
+def test_paired_backend_comparison_requires_complete_resource_reporting() -> None:
+    candidate = (BackendCaseResult("candidate", "case-a", "group-a", True, True, True, True, 0.5),)
+    baseline = (BackendCaseResult("baseline", "case-a", "group-a", True, True, True, True, 1.0),)
+
+    comparison = compare_paired_backends(
+        candidate,
+        baseline,
+        minimum_independence_groups=1,
+        maximum_independence_groups=1,
+        minimum_both_valid_independence_groups=1,
+        bootstrap_samples=20,
+    )
+
+    assert comparison.noninferiority_demonstrated
+    assert not comparison.candidate.resource_reporting_complete
+    assert comparison.decision == "resource-reporting-incomplete"
+
+
+def test_paired_backend_comparison_enforces_preregistered_maximum() -> None:
+    candidate = (
+        BackendCaseResult("candidate", "case-a", "group-a", True, True, True, True, 0.5),
+        BackendCaseResult("candidate", "case-b", "group-b", True, True, True, True, 0.6),
+    )
+    baseline = (
+        BackendCaseResult("baseline", "case-a", "group-a", True, True, True, True, 1.0),
+        BackendCaseResult("baseline", "case-b", "group-b", True, True, True, True, 1.1),
+    )
+
+    comparison = compare_paired_backends(
+        candidate,
+        baseline,
+        minimum_independence_groups=1,
+        maximum_independence_groups=1,
+        minimum_both_valid_independence_groups=1,
+        require_complete_resources=False,
+        bootstrap_samples=20,
+    )
+
+    assert not comparison.sample_size_sufficient
+    assert comparison.maximum_independence_groups == 1
+    assert comparison.decision == "sample-exceeds-preregistered-maximum"

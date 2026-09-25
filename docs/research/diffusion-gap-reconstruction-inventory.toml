@@ -38,6 +38,22 @@ partner_context_backbone_displacement_angstrom_max = 2.0
 requires_junction_pass_rate_at_least_modeller = true
 requires_stricter_fixed_coordinate_adherence_than_modeller = true
 
+[selection_study]
+status = "pilot-corpus-expansion"
+primary_statistical_unit = "withheld-gap"
+pilot_dependence_cluster = "pdb-entry"
+confirmatory_dependence_cluster = "sequence-cluster"
+paired_backends_required = true
+seeds_count_as_independent_units = false
+confirmatory_minimum_independence_groups = 180
+confirmatory_maximum_independence_groups_after_blinded_reestimation = 300
+secondary_endpoint_minimum_both_valid_independence_groups = 30
+primary_endpoint = "independent-validation-hard-gate-pass"
+secondary_endpoint = "gap-backbone-rmsd-among-valid-candidates"
+required_reporting = ["wilson-pass-rate-interval", "paired-pass-rate-difference-interval", "cluster-bootstrap-rmsd-difference-interval", "failure-rate", "complete-per-case-wall-time", "complete-per-case-peak-vram"]
+selection_rule = "A backend is ineligible if it violates fixed-coordinate identity, has unresolved request/result mapping, or has unresolved training leakage for the confirmatory cohort. Individual candidate hard-gate failures count against the primary paired pass-rate endpoint rather than disappearing as missing data. Among eligible backends, require a non-inferior paired hard-gate pass rate, then prefer the lowest cluster-bootstrap median gap-backbone RMSD. If RMSD evidence is inconclusive, report runtime and peak VRAM for operational review without automatically selecting a backend."
+pilot_limitation = "PDB-entry groups prevent masks from one structure being resampled independently. Sequence clustering across entries is still required before the confirmatory corpus is locked."
+
 [threshold_history.partner_context_v2]
 changed_on = "2026-09-24"
 previous_backbone_displacement_angstrom_max = 1.5
@@ -284,6 +300,253 @@ fixture_sha256 = "8b996736b9a1e157b044f9004aa160ffd5167abfa38f555f3b78e0e5926439
 sequence_fixture_sha256 = "ca3ee6a14cf64f652efdf128a4c2f92158d0fb70e4fed82d8f55797f6d061962"
 leakage_status = "unresolved"
 leakage_reason = "No selected engine has provided sequence-level training-set membership evidence for public PDB 7K8S."
+
+[[benchmark_cases]]
+id = "8cde-chain-b-withheld-5"
+fixture = "tests/fixtures/c_glh/8cde_t_u.pdb"
+sequence_fixture = "tests/fixtures/c_glh/8cde_renamed.fasta"
+sequence_record = "8CDE_B"
+target_chain = "B"
+classification = "supported"
+stratum = "withheld-temporal-holdout-glypro-3-5"
+benchmark_cohort = "temporal-holdout-pilot"
+independence_group = "pdb:8CDE"
+experimental_method = "electron microscopy"
+resolution_angstrom = 3.1
+initial_release_date = "2023-10-25"
+metadata_source = "https://data.rcsb.org/rest/v1/core/entry/8CDE"
+temporal_holdout_for = ["protenix-v1"]
+pdb_temporal_holdout_for = ["boltz-2"]
+unresolved_for = ["rfdiffusion-v1", "boltz-2"]
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [197, 202]
+fixture_interval_zero_based_half_open = [189, 194]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-protein-chain-only"
+generated_residues = [
+  "B:226:_:PHE",
+  "B:227:_:PHE",
+  "B:228:_:LEU",
+  "B:229:_:ARG",
+  "B:230:_:PRO",
+]
+left_anchor = "B:225:_:TYR"
+right_anchor = "B:231:_:TYR"
+expected_sequence = "FFLRP"
+non_target_atom_context = "absent"
+minimum_candidate_anchor_heterogen_distance_angstrom = 21.45
+fixture_sha256 = "96c65d331eaf40accb8ab1fc2d30a3a4d24db07934cd971574042dbd450571e2"
+sequence_fixture_sha256 = "c39142a5ff85201024b2583266f70be828508d547d30ae197618b452261dbecd"
+leakage_status = "unresolved"
+leakage_reason = "The 2023-10-25 initial release is after the declared Protenix-v1 and Boltz-2 PDB cutoffs; RFdiffusion and Boltz-2 non-PDB training-source membership remain unresolved."
+
+[[benchmark_cases]]
+id = "8cde-chain-b-withheld-10"
+fixture = "tests/fixtures/c_glh/8cde_t_u.pdb"
+sequence_fixture = "tests/fixtures/c_glh/8cde_renamed.fasta"
+sequence_record = "8CDE_B"
+target_chain = "B"
+classification = "supported"
+stratum = "withheld-temporal-holdout-regular-6-12"
+benchmark_cohort = "temporal-holdout-pilot"
+independence_group = "pdb:8CDE"
+experimental_method = "electron microscopy"
+resolution_angstrom = 3.1
+initial_release_date = "2023-10-25"
+metadata_source = "https://data.rcsb.org/rest/v1/core/entry/8CDE"
+temporal_holdout_for = ["protenix-v1"]
+pdb_temporal_holdout_for = ["boltz-2"]
+unresolved_for = ["rfdiffusion-v1", "boltz-2"]
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [63, 73]
+fixture_interval_zero_based_half_open = [61, 71]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-protein-chain-only"
+generated_residues = [
+  "B:92:_:ASP",
+  "B:93:_:LEU",
+  "B:94:_:PHE",
+  "B:95:_:LYS",
+  "B:96:_:GLU",
+  "B:97:_:THR",
+  "B:98:_:ASP",
+  "B:99:_:LEU",
+  "B:100:_:THR",
+  "B:101:_:GLY",
+]
+left_anchor = "B:91:_:ASN"
+right_anchor = "B:102:_:ARG"
+expected_sequence = "DLFKETDLTG"
+non_target_atom_context = "absent"
+minimum_candidate_anchor_heterogen_distance_angstrom = 7.29
+fixture_sha256 = "96c65d331eaf40accb8ab1fc2d30a3a4d24db07934cd971574042dbd450571e2"
+sequence_fixture_sha256 = "c39142a5ff85201024b2583266f70be828508d547d30ae197618b452261dbecd"
+leakage_status = "unresolved"
+leakage_reason = "The 2023-10-25 initial release is after the declared Protenix-v1 and Boltz-2 PDB cutoffs; RFdiffusion and Boltz-2 non-PDB training-source membership remain unresolved."
+
+[[benchmark_cases]]
+id = "8xj0-chain-a-withheld-5"
+fixture = "tests/fixtures/assemblies/8XJ0.pdb"
+sequence_fixture = "tests/fixtures/assemblies/8XJ0_chain_A_observed.fasta"
+sequence_record = "8XJ0_A_observed"
+target_chain = "A"
+classification = "supported"
+stratum = "withheld-temporal-holdout-antibody-3-5"
+benchmark_cohort = "temporal-holdout-pilot"
+independence_group = "pdb:8XJ0"
+experimental_method = "x-ray diffraction"
+resolution_angstrom = 3.3
+initial_release_date = "2024-02-14"
+metadata_source = "https://data.rcsb.org/rest/v1/core/entry/8XJ0"
+temporal_holdout_for = ["protenix-v1"]
+pdb_temporal_holdout_for = ["boltz-2"]
+unresolved_for = ["rfdiffusion-v1", "boltz-2"]
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [194, 199]
+fixture_interval_zero_based_half_open = [194, 199]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-protein-chain-only"
+generated_residues = [
+  "A:196:_:VAL",
+  "A:197:_:THR",
+  "A:198:_:HIS",
+  "A:199:_:GLN",
+  "A:200:_:GLY",
+]
+left_anchor = "A:195:_:GLU"
+right_anchor = "A:201:_:LEU"
+expected_sequence = "VTHQG"
+minimum_candidate_anchor_non_target_atom_distance_angstrom = 11.53
+heterogen_context = "absent"
+fixture_sha256 = "fe6030df5c3f5c12998082efec96b7f0c9fd91f51d63ee78662470760febe865"
+sequence_fixture_sha256 = "940561f5f361c256a85e43d8834ccff75fddf88c0f6870f9979ae5d5972fe896"
+leakage_status = "unresolved"
+leakage_reason = "The 2024-02-14 initial release is after the declared Protenix-v1 and Boltz-2 PDB cutoffs; RFdiffusion and Boltz-2 non-PDB training-source membership remain unresolved."
+
+[[benchmark_cases]]
+id = "8xj0-chain-a-withheld-10"
+fixture = "tests/fixtures/assemblies/8XJ0.pdb"
+sequence_fixture = "tests/fixtures/assemblies/8XJ0_chain_A_observed.fasta"
+sequence_record = "8XJ0_A_observed"
+target_chain = "A"
+classification = "supported"
+stratum = "withheld-temporal-holdout-antibody-6-12"
+benchmark_cohort = "temporal-holdout-pilot"
+independence_group = "pdb:8XJ0"
+experimental_method = "x-ray diffraction"
+resolution_angstrom = 3.3
+initial_release_date = "2024-02-14"
+metadata_source = "https://data.rcsb.org/rest/v1/core/entry/8XJ0"
+temporal_holdout_for = ["protenix-v1"]
+pdb_temporal_holdout_for = ["boltz-2"]
+unresolved_for = ["rfdiffusion-v1", "boltz-2"]
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [146, 156]
+fixture_interval_zero_based_half_open = [146, 156]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-protein-chain-only"
+generated_residues = [
+  "A:148:_:TRP",
+  "A:149:_:LYS",
+  "A:150:_:VAL",
+  "A:151:_:ASP",
+  "A:152:_:ASN",
+  "A:153:_:ALA",
+  "A:154:_:LEU",
+  "A:155:_:GLN",
+  "A:156:_:SER",
+  "A:157:_:GLY",
+]
+left_anchor = "A:147:_:GLN"
+right_anchor = "A:158:_:ASN"
+expected_sequence = "WKVDNALQSG"
+minimum_candidate_anchor_non_target_atom_distance_angstrom = 6.61
+heterogen_context = "absent"
+fixture_sha256 = "fe6030df5c3f5c12998082efec96b7f0c9fd91f51d63ee78662470760febe865"
+sequence_fixture_sha256 = "940561f5f361c256a85e43d8834ccff75fddf88c0f6870f9979ae5d5972fe896"
+leakage_status = "unresolved"
+leakage_reason = "The 2024-02-14 initial release is after the declared Protenix-v1 and Boltz-2 PDB cutoffs; RFdiffusion and Boltz-2 non-PDB training-source membership remain unresolved."
+
+[[benchmark_cases]]
+id = "8ct6-chain-a-withheld-5"
+fixture = "tests/fixtures/warnings/8ct6_t_b.pdb"
+sequence_fixture = "tests/fixtures/warnings/8ct6_renamed.fasta"
+sequence_record = "8CT6_A"
+target_chain = "A"
+classification = "supported"
+stratum = "withheld-precutoff-sensitivity-glypro-3-5"
+benchmark_cohort = "precutoff-sensitivity"
+independence_group = "pdb:8CT6"
+experimental_method = "electron microscopy"
+resolution_angstrom = 3.1
+initial_release_date = "2023-04-19"
+metadata_source = "https://data.rcsb.org/rest/v1/core/entry/8CT6"
+temporal_holdout_for = ["protenix-v1"]
+unresolved_for = ["rfdiffusion-v1", "boltz-2"]
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [207, 212]
+fixture_interval_zero_based_half_open = [205, 210]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-protein-chain-only"
+generated_residues = [
+  "A:206:_:ARG",
+  "A:207:_:ARG",
+  "A:208:_:PHE",
+  "A:209:_:THR",
+  "A:210:_:PRO",
+]
+left_anchor = "A:205:_:ASN"
+right_anchor = "A:211:_:GLU"
+expected_sequence = "RRFTP"
+non_target_atom_context = "absent"
+heterogen_context = "absent"
+fixture_sha256 = "c88b3ea54f63302207b146816f5eeb09dde180405312fc08d1807da0f9d7edd3"
+sequence_fixture_sha256 = "d502db2120e11e742ec8ab3623a1b2f3f6d7e6be1dbe8f045a6ada7f34314e8e"
+leakage_status = "unresolved"
+leakage_reason = "The 2023-04-19 release is after the Protenix-v1 cutoff but before the Boltz-2 PDB cutoff; RFdiffusion membership remains unresolved. This case is sensitivity evidence, not a shared temporal holdout."
+
+[[benchmark_cases]]
+id = "8ct6-chain-a-withheld-10"
+fixture = "tests/fixtures/warnings/8ct6_t_b.pdb"
+sequence_fixture = "tests/fixtures/warnings/8ct6_renamed.fasta"
+sequence_record = "8CT6_A"
+target_chain = "A"
+classification = "supported"
+stratum = "withheld-precutoff-sensitivity-glypro-6-12"
+benchmark_cohort = "precutoff-sensitivity"
+independence_group = "pdb:8CT6"
+experimental_method = "electron microscopy"
+resolution_angstrom = 3.1
+initial_release_date = "2023-04-19"
+metadata_source = "https://data.rcsb.org/rest/v1/core/entry/8CT6"
+temporal_holdout_for = ["protenix-v1"]
+unresolved_for = ["rfdiffusion-v1", "boltz-2"]
+mask_source = "withheld observed coordinates"
+target_interval_zero_based_half_open = [83, 93]
+fixture_interval_zero_based_half_open = [81, 91]
+request_sequence_basis = "observed-coordinate-sequence"
+request_structure_scope = "target-protein-chain-only"
+generated_residues = [
+  "A:82:_:ASN",
+  "A:83:_:SER",
+  "A:84:_:GLU",
+  "A:85:_:ASN",
+  "A:86:_:GLY",
+  "A:87:_:THR",
+  "A:88:_:CYS",
+  "A:89:_:TYR",
+  "A:90:_:PRO",
+  "A:91:_:GLY",
+]
+left_anchor = "A:81:_:PRO"
+right_anchor = "A:92:_:ASP"
+expected_sequence = "NSENGTCYPG"
+non_target_atom_context = "absent"
+heterogen_context = "absent"
+fixture_sha256 = "c88b3ea54f63302207b146816f5eeb09dde180405312fc08d1807da0f9d7edd3"
+sequence_fixture_sha256 = "d502db2120e11e742ec8ab3623a1b2f3f6d7e6be1dbe8f045a6ada7f34314e8e"
+leakage_status = "unresolved"
+leakage_reason = "The 2023-04-19 release is after the Protenix-v1 cutoff but before the Boltz-2 PDB cutoff; RFdiffusion membership remains unresolved. This case is sensitivity evidence, not a shared temporal holdout."
 
 [[benchmark_cases]]
 id = "8cz8-chain-c-terminal-one-anchor"
@@ -663,7 +926,7 @@ patch_sha256 = "244cfe4fc876fd71df8737b805fb9b290069211fecc5178ef02029424b2895d0
 smoke = "deploy/protenix-v1/hook-smoke.py"
 reinjection = "deploy/protenix-v1/reinjection.py"
 checkpoint_smoke = "deploy/protenix-v1/checkpoint_gap_smoke.py"
-checkpoint_smoke_sha256 = "e88a7823cdee5f6209208c4aadcab29b920022362d764039037744c9e027409f"
+checkpoint_smoke_sha256 = "26120bf528cbcc09966c9707505665a0cb2abef12b5f901237c26001df1dc4af"
 refinement_smoke = "deploy/protenix-v1/refine_candidate.py"
 refinement_smoke_sha256 = "eeef0556e901b9a2cc7ec31cd3cca7d25faa41c928d7cfa475d54188f4d549dd"
 callback_stage = "post-update-before-next-step"
@@ -849,6 +1112,76 @@ case_7k8s_3_refined_junction_cn_angstrom = [1.3303961815940386, 1.34399627975675
 case_7k8s_3_gap_backbone_rmsd_angstrom = 1.3513379789428464
 case_7k8s_3_gap_all_heavy_rmsd_angstrom = 1.3105595439284021
 interpretation = "Independent same-seed checkpoint and refinement workspaces are byte-identical for a 10-residue 8CZ8 loop, a difficult seven-residue Pro/Gly-rich 7X35 loop, and the insertion-code-bearing 7K8S H/82A-H/82C loop. Every refined candidate preserves fixed coordinates exactly and passes all frozen hard gates. The 7X35 raw candidate demonstrates that refinement remains scientifically active: it repairs a 1.140 Angstrom short junction. Interface/multichain and retained-heterogen evidence remain open."
+
+[three_backend_8xj0_pilot]
+status = "complete-no-selection"
+date = "2026-09-25"
+fixture = "tests/fixtures/assemblies/8XJ0.pdb"
+independence_group = "pdb:8XJ0"
+independence_group_count = 1
+case_count = 2
+seed = 7
+hardware = "NVIDIA A100-SXM4-40GB; driver 535.104.05"
+boundary_refinement_revision = "dvbfixer-openmm-boundary-refinement-v3"
+boundary_refinement_platform = "Reference"
+all_fixed_heavy_rmsd_angstrom = 0.0
+all_fixed_heavy_max_displacement_angstrom = 0.0
+all_detectable_d_ca = 0
+all_severe_steric_overlaps = 0
+all_resource_reporting_complete = true
+rfdiffusion_sampling_steps = 50
+rfdiffusion_gap_5_validation_passed = true
+rfdiffusion_gap_5_candidate_sha256 = "cba07b7c211e6b85918a970e140287536dd0c4636f213416a933624457071c7f"
+rfdiffusion_gap_5_backbone_rmsd_angstrom = 0.6670570440374647
+rfdiffusion_gap_5_all_heavy_rmsd_angstrom = 1.6048521444062707
+rfdiffusion_gap_5_wall_time_seconds = 262.5507068503648
+rfdiffusion_gap_5_peak_vram_bytes = 3560964096
+rfdiffusion_gap_10_validation_passed = false
+rfdiffusion_gap_10_failed_gates = ["generated-or-junction-amide-planarity"]
+rfdiffusion_gap_10_candidate_sha256 = "a5ee4950e0464ac6b083705d2287f85114e82aca1d9dde2a5382fd84c17889f6"
+rfdiffusion_gap_10_backbone_rmsd_angstrom = 3.157141171218037
+rfdiffusion_gap_10_all_heavy_rmsd_angstrom = 4.268056777251933
+rfdiffusion_gap_10_wall_time_seconds = 653.2158405054361
+rfdiffusion_gap_10_peak_vram_bytes = 3560964096
+protenix_sampling_steps = 200
+protenix_gap_5_validation_passed = true
+protenix_gap_5_raw_candidate_sha256 = "b933c7191eb7ff041e98683fcb8538db5b1a9fca780d5e778569799ef5578aa1"
+protenix_gap_5_repeat_raw_candidate_sha256 = "b933c7191eb7ff041e98683fcb8538db5b1a9fca780d5e778569799ef5578aa1"
+protenix_gap_5_refined_candidate_sha256 = "3405a02c9c147eee929b8cdc969ee24bf1f48a19611b20981a771809327d41a4"
+protenix_gap_5_backbone_rmsd_angstrom = 0.3037208422219329
+protenix_gap_5_all_heavy_rmsd_angstrom = 0.6990115221569013
+protenix_gap_5_inference_wall_time_seconds = 105.36345802806318
+protenix_gap_5_refinement_wall_time_seconds = 43.3009051065892
+protenix_gap_5_peak_vram_bytes = 3051652096
+protenix_gap_10_validation_passed = true
+protenix_gap_10_raw_candidate_sha256 = "bb106f47c981df33f956ce1845ec2d853a4cc0a271d30efecfc72f4db6103e1f"
+protenix_gap_10_repeat_raw_candidate_sha256 = "bb106f47c981df33f956ce1845ec2d853a4cc0a271d30efecfc72f4db6103e1f"
+protenix_gap_10_refined_candidate_sha256 = "70eb1baa037f89b85a3fb8f47e230d2b57b9ed38cefbb0b39dbf48100fbab24c"
+protenix_gap_10_backbone_rmsd_angstrom = 0.7169211253687533
+protenix_gap_10_all_heavy_rmsd_angstrom = 1.1162331573369701
+protenix_gap_10_inference_wall_time_seconds = 100.18361526541412
+protenix_gap_10_refinement_wall_time_seconds = 328.4280957635492
+protenix_gap_10_peak_vram_bytes = 3051652096
+boltz_sampling_steps = 200
+boltz_gap_5_validation_passed = true
+boltz_gap_5_raw_candidate_sha256 = "f9f9a4a61ea55b14d7ee0dbb551cf6ffe8b4ff33f6a0154f53c50abb22ece708"
+boltz_gap_5_refined_candidate_sha256 = "38847f13a9833fd88c57efc4c67fd058c3b4d3c13335daa2ce77731da80dd895"
+boltz_gap_5_backbone_rmsd_angstrom = 0.2619451278416916
+boltz_gap_5_all_heavy_rmsd_angstrom = 0.6859703326655582
+boltz_gap_5_inference_wall_time_seconds = 71.6789170820266
+boltz_gap_5_refinement_wall_time_seconds = 41.46871478483081
+boltz_gap_5_peak_vram_bytes = 2525984256
+boltz_gap_10_validation_passed = true
+boltz_gap_10_raw_candidate_sha256 = "98467e903f1084402ca0e784df38ac48f46e813a9337ce2f6e46e6227b1db4ca"
+boltz_gap_10_refined_candidate_sha256 = "dc518048b19d2c7f85702c2fb82f98aa06fa57038051d3eb36b3da8fc30d2967"
+boltz_gap_10_backbone_rmsd_angstrom = 0.3769143470339115
+boltz_gap_10_all_heavy_rmsd_angstrom = 0.8848346433960675
+boltz_gap_10_inference_wall_time_seconds = 62.606905641034245
+boltz_gap_10_refinement_wall_time_seconds = 308.1322721205652
+boltz_gap_10_peak_vram_bytes = 2525984256
+selection_decision = "no-selection"
+selection_blocking_reasons = ["insufficient-sample", "rfdiffusion-unresolved-training-leakage", "boltz-2-unresolved-training-leakage"]
+interpretation = "Boltz-2 has the lowest backbone/all-heavy RMSD and combined wall time on both 8XJ0 masks; Protenix also passes every hard gate, while RFdiffusion fails the 10-residue mask on one non-planar amide. Both masks belong to one PDB independence group, RFdiffusion and Boltz-2 leakage remain unresolved, and this pilot cannot change the default backend or select a diffusion backend."
 
 [[engines]]
 id = "protenix-v1"

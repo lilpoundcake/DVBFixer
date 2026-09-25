@@ -12,6 +12,7 @@ import pytest
 from dvbfixer.model.diffusion.contract import AtomIdentity
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+CHECKPOINT_SMOKE = REPO_ROOT / "deploy/protenix-v1/checkpoint_gap_smoke.py"
 
 
 def _load_refinement_script() -> ModuleType:
@@ -62,3 +63,11 @@ def test_refinement_rejects_missing_or_duplicate_generated_atoms() -> None:
         module._rewrite_generated_coordinates("END\n", coordinates)
     with pytest.raises(ValueError, match="duplicate generated atom"):
         module._rewrite_generated_coordinates(generated + generated, coordinates)
+
+
+def test_checkpoint_smoke_reports_peak_vram() -> None:
+    smoke = CHECKPOINT_SMOKE.read_text(encoding="utf-8")
+
+    assert "torch.cuda.reset_peak_memory_stats()" in smoke
+    assert "peak_vram_bytes=torch.cuda.max_memory_allocated()" in smoke
+    assert '"peak_vram_bytes": runner_result.resource_metrics.peak_vram_bytes' in smoke
