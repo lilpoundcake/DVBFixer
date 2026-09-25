@@ -68,6 +68,33 @@ def test_no_terminal_keeps_real_internal_gap_while_trimming_ends() -> None:
     assert reference[alignment.start:alignment.end] == "ACDEFGHIKLMNPQ"
 
 
+def test_locked_placement_preserves_internal_gap(tmp_path: Path) -> None:
+    from dvbfixer.model.modeller_run import _fix_terminal_alignment, parse_alignment
+
+    observed = "A" * 194 + "T"
+    target = "A" * 194 + "G" * 10 + "T"
+    raw = tmp_path / "raw.pir"
+    fixed = tmp_path / "fixed.pir"
+    raw.write_text(
+        ">P1;template\nstructureX:template::::::::\n"
+        f"{observed}*\n>P1;target\nsequence:target::::::::\n{target}*\n",
+        encoding="utf-8",
+    )
+
+    _fix_terminal_alignment(
+        raw,
+        fixed,
+        "template",
+        {"C"},
+        ["C"],
+        [observed],
+        [target],
+        observed_target_indices_by_chain={"C": (*range(194), 204)},
+    )
+
+    assert parse_alignment(fixed) == "A" * 194 + "-" * 10 + "T"
+
+
 def test_point_mutation_does_not_shift_downstream_residues() -> None:
     alignment = align_observed_to_reference("AGATVL", "AGSTVL")
 

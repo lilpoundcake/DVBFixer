@@ -189,6 +189,8 @@ class BackendCaseResult:
     gap_backbone_rmsd_angstrom: float | None = None
     wall_time_seconds: float | None = None
     peak_vram_bytes: int | None = None
+    peak_ram_bytes: int | None = None
+    gpu_memory_applicable: bool = True
 
     def __post_init__(self) -> None:
         if not self.backend_id or not self.case_id or not self.independence_group:
@@ -198,8 +200,14 @@ class BackendCaseResult:
         for value in (self.gap_backbone_rmsd_angstrom, self.wall_time_seconds):
             if value is not None and (not math.isfinite(value) or value < 0):
                 raise ValueError("benchmark measurements must be finite and non-negative")
-        if self.peak_vram_bytes is not None and self.peak_vram_bytes < 0:
-            raise ValueError("peak VRAM must be non-negative")
+        for label, value in (
+            ("peak RAM", self.peak_ram_bytes),
+            ("peak VRAM", self.peak_vram_bytes),
+        ):
+            if value is not None and value < 0:
+                raise ValueError(f"{label} must be non-negative")
+        if not self.gpu_memory_applicable and self.peak_vram_bytes is not None:
+            raise ValueError("peak VRAM must be absent when GPU memory is not applicable")
 
 
 @dataclass(frozen=True, slots=True)
@@ -211,9 +219,12 @@ class BackendSummary:
     validation_pass_rate_interval: ConfidenceInterval
     median_valid_gap_backbone_rmsd_angstrom: float | None
     median_wall_time_seconds: float | None
+    peak_ram_bytes: int | None
     peak_vram_bytes: int | None
     wall_time_observed_count: int
+    peak_ram_observed_count: int
     peak_vram_observed_count: int
+    gpu_memory_applicable: bool
     resource_reporting_complete: bool
     eligible: bool
     ineligibility_reasons: tuple[str, ...]
@@ -271,6 +282,43 @@ def wilson_score_interval(
     )
 
 
+def paired_noninferiority_power(
+    independence_groups: int,
+    *,
+    discordance_rate: float,
+    true_pass_rate_difference: float = 0.0,
+    noninferiority_margin: float = 0.05,
+    confidence_level: float = 0.95,
+) -> float:
+    """Approximate power for the paired pass-rate noninferiority endpoint.
+
+    Discordance is the probability that exactly one backend passes. The normal
+    approximation matches the two-sided confidence-interval decision used by
+    :func:`compare_paired_backends` and is intended for blinded sample-size
+    planning, not for replacing the final cluster bootstrap.
+    """
+    if independence_groups <= 0:
+        raise ValueError("independence-group count must be positive")
+    if not 0 <= discordance_rate <= 1:
+        raise ValueError("discordance rate must be within [0, 1]")
+    if not -discordance_rate <= true_pass_rate_difference <= discordance_rate:
+        raise ValueError("pass-rate difference is incompatible with discordance rate")
+    if not 0 <= noninferiority_margin < 1:
+        raise ValueError("noninferiority margin must be within [0, 1)")
+    if not 0 < confidence_level < 1:
+        raise ValueError("confidence level must be within (0, 1)")
+    variance = discordance_rate - true_pass_rate_difference**2
+    if variance == 0:
+        return float(true_pass_rate_difference >= -noninferiority_margin)
+    z = NormalDist().inv_cdf(0.5 + confidence_level / 2)
+    standardized = (
+        math.sqrt(independence_groups)
+        * (true_pass_rate_difference + noninferiority_margin)
+        / math.sqrt(variance)
+    )
+    return NormalDist().cdf(standardized - z)
+
+
 def summarize_backend_cases(
     runs: tuple[BackendCaseResult, ...],
     *,
@@ -294,7 +342,12 @@ def summarize_backend_cases(
     if any(not run.leakage_resolved for run in runs):
         reasons.append("unresolved-training-leakage")
     wall_times = [run.wall_time_seconds for run in runs if run.wall_time_seconds is not None]
+    peak_ram = [run.peak_ram_bytes for run in runs if run.peak_ram_bytes is not None]
     peak_vram = [run.peak_vram_bytes for run in runs if run.peak_vram_bytes is not None]
+    gpu_applicability = {run.gpu_memory_applicable for run in runs}
+    if len(gpu_applicability) != 1:
+        raise DiffusionBenchmarkError("backend result set mixes GPU-memory applicability")
+    gpu_memory_applicable = next(iter(gpu_applicability))
     rmsds = [
         run.gap_backbone_rmsd_angstrom
         for run in passing
@@ -312,10 +365,17 @@ def summarize_backend_cases(
         ),
         median_valid_gap_backbone_rmsd_angstrom=(float(median(rmsds)) if rmsds else None),
         median_wall_time_seconds=(float(median(wall_times)) if wall_times else None),
+        peak_ram_bytes=max(peak_ram) if peak_ram else None,
         peak_vram_bytes=max(peak_vram) if peak_vram else None,
         wall_time_observed_count=len(wall_times),
+        peak_ram_observed_count=len(peak_ram),
         peak_vram_observed_count=len(peak_vram),
-        resource_reporting_complete=(len(wall_times) == len(runs) and len(peak_vram) == len(runs)),
+        gpu_memory_applicable=gpu_memory_applicable,
+        resource_reporting_complete=(
+            len(wall_times) == len(runs)
+            and len(peak_ram) == len(runs)
+            and (not gpu_memory_applicable or len(peak_vram) == len(runs))
+        ),
         eligible=not reasons,
         ineligibility_reasons=tuple(reasons),
     )

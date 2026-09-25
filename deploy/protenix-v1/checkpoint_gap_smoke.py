@@ -56,6 +56,9 @@ _ONE_TO_THREE = {
     "Y": "TYR",
 }
 
+_CHECKPOINT_NAME = "protenix_base_default_v1.0.0.pt"
+_CHECKPOINT_SHA256 = "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
+
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -271,12 +274,14 @@ def run(
     input_json: Path,
     output_dir: Path,
     kalign: Path,
+    checkpoint: Path,
     *,
     cycles: int,
     steps: int,
     ablation_mode: SamplingAblationMode,
 ) -> None:
     os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    from configs.configs_inference import inference_configs
     from protenix.data.inference.infer_dataloader import get_inference_dataloader
     from protenix.utils.seed import seed_everything
     from runner.batch_inference import get_default_runner
@@ -289,6 +294,12 @@ def run(
         raise ValueError("checkpoint smoke requires exactly one candidate and seed")
     if cycles <= 0 or steps <= 0:
         raise ValueError("cycles and steps must be positive")
+    checkpoint = checkpoint.resolve()
+    if checkpoint.name != _CHECKPOINT_NAME:
+        raise ValueError(f"checkpoint must be named {_CHECKPOINT_NAME}")
+    if _sha256(checkpoint) != _CHECKPOINT_SHA256:
+        raise ValueError("checkpoint digest mismatch")
+    inference_configs["load_checkpoint_dir"] = str(checkpoint.parent)
     output_dir = output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=False)
 
@@ -366,7 +377,7 @@ def run(
             runner_protocol_version=3,
             engine_repository="https://github.com/bytedance/Protenix",
             engine_revision="85767b811c40ed46e73a9b39519cf6bfca8701ba",
-            checkpoint_sha256=("2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"),
+            checkpoint_sha256=_CHECKPOINT_SHA256,
             device=str(runner.device),
             precision=runner.configs.dtype,
             framework="torch",
@@ -407,6 +418,7 @@ def main() -> None:
     parser.add_argument("input_json", type=Path)
     parser.add_argument("output_dir", type=Path)
     parser.add_argument("--kalign", required=True, type=Path)
+    parser.add_argument("--checkpoint", required=True, type=Path)
     parser.add_argument("--cycles", default=1, type=int)
     parser.add_argument("--steps", default=2, type=int)
     parser.add_argument(
@@ -423,6 +435,7 @@ def main() -> None:
         args.input_json,
         args.output_dir,
         args.kalign,
+        args.checkpoint,
         cycles=args.cycles,
         steps=args.steps,
         ablation_mode=SamplingAblationMode(args.ablation_mode),

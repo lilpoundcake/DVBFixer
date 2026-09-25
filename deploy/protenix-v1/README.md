@@ -30,7 +30,8 @@ PYTHONPATH=/path/to/Protenix:src \
   LAYERNORM_TYPE=torch \
   python deploy/protenix-v1/checkpoint_gap_smoke.py \
     request.json protenix-input/input.json protenix-output \
-    --kalign /path/to/kalign --steps 200
+    --kalign /path/to/kalign \
+    --checkpoint /path/to/protenix_base_default_v1.0.0.pt --steps 200
 ```
 
 The driver resolves Protenix sequence ordinals back to request identities,

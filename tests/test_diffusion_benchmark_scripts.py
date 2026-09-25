@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import json
 from pathlib import Path
 from types import ModuleType
 
@@ -137,6 +138,22 @@ def test_builder_and_analyzers_reproduce_native_reference(tmp_path: Path) -> Non
     assert modeller["median_fixed_heavy_rmsd_angstrom"] == 0.0
 
 
+def test_locked_comparator_matches_request_and_fasta(tmp_path: Path) -> None:
+    from types import SimpleNamespace
+
+    wrapper = _load_script("run_locked_modeller_comparator")
+    fasta = tmp_path / "target.fasta"
+    fasta.write_text(">chain_A\nAGT\n", encoding="utf-8")
+    request = SimpleNamespace(
+        target_sequences=(SimpleNamespace(chain="A", sequence="AGT"),),
+        sequence_placements=(
+            SimpleNamespace(chain="A", observed_target_indices=(0, 2)),
+        ),
+    )
+
+    assert wrapper._locked_placements(request, fasta) == {"A": (0, 2)}
+
+
 def test_builder_extracts_declared_target_chain_scope(tmp_path: Path) -> None:
     builder = _load_script("build_diffusion_benchmark_request")
     workspace = tmp_path / "glypro"
@@ -223,3 +240,94 @@ def test_insertion_code_benchmark_restores_generated_identities(tmp_path: Path) 
     assert modeller["median_gap_backbone_rmsd_angstrom"] == 0.0
     assert modeller["median_fixed_heavy_rmsd_angstrom"] == 0.0
     assert modeller["candidates"][0]["identity_normalized"] is True
+
+
+def test_confirmatory_cohort_builder_locks_independent_groups() -> None:
+    builder = _load_script("build_diffusion_confirmatory_cohort")
+    entity_ids = [f"T{index:03d}_1" for index in range(501)]
+
+    def request_json(url: str, payload: dict[str, object]) -> dict[str, object]:
+        if url == builder.SEARCH_URL:
+            assert payload["request_options"]["group_by"]["similarity_cutoff"] == 30
+            return {
+                "total_count": 500,
+                "group_by_count": 501,
+                "result_set": entity_ids,
+            }
+        requested = payload["variables"]["ids"]
+        return {
+            "data": {
+                "polymer_entities": [
+                    {
+                        "rcsb_id": entity_id,
+                        "entity_poly": {
+                            "rcsb_sample_sequence_length": 100,
+                            "pdbx_seq_one_letter_code_can": "A" * 100,
+                        },
+                        "entry": {
+                            "rcsb_id": entity_id.split("_", 1)[0],
+                            "rcsb_accession_info": {
+                                "initial_release_date": "2026-01-01T00:00:00Z"
+                            },
+                            "exptl": [{"method": "X-RAY DIFFRACTION"}],
+                            "rcsb_entry_info": {"resolution_combined": [2.0]},
+                        },
+                        "polymer_entity_instances": [
+                            {
+                                "rcsb_id": f"{entity_id}.A",
+                                "rcsb_polymer_entity_instance_container_identifiers": {
+                                    "asym_id": "A",
+                                    "auth_asym_id": "A",
+                                    "auth_to_entity_poly_seq_mapping": list(range(1, 101)),
+                                },
+                            }
+                        ],
+                    }
+                    for entity_id in requested
+                ]
+            }
+        }
+
+    manifest = builder.build_manifest(
+        start_date="2025-06-07",
+        end_date="2026-09-25",
+        group_count=500,
+        candidate_count=501,
+        request_json=request_json,
+    )
+
+    assert manifest["screening_pool_count"] == 500
+    assert manifest["final_minimum_independence_groups"] == 180
+    assert manifest["final_maximum_independence_groups"] == 300
+    assert manifest["request_sequence_basis"] == "observed-coordinate-sequence"
+    assert manifest["entity_sequence_role"] == "rcsb-clustering-and-provenance-only"
+    assert manifest["screening_order_locked"] is True
+    assert manifest["screen_all_metadata_groups_before_inference"] is True
+    assert manifest["eligible_backends"] == ["protenix-v1"]
+    assert manifest["proxy_only_backends"] == ["boltz-2"]
+    assert len({case["pdb_id"] for case in manifest["cases"]}) == 500
+    assert len({case["independence_group"] for case in manifest["cases"]}) == 500
+    assert [case["planned_gap_length"] for case in manifest["cases"]].count(5) == 250
+    assert [case["planned_gap_length"] for case in manifest["cases"]].count(10) == 250
+    assert [case["screening_index"] for case in manifest["cases"]] == list(range(500))
+    assert all(
+        case["request_sequence_basis"] == "observed-coordinate-sequence"
+        for case in manifest["cases"]
+    )
+    assert "only a proxy" in manifest["boltz_leakage_note"]
+    json.dumps(manifest)
+
+
+def test_confirmatory_cohort_builder_rejects_underpowered_target() -> None:
+    builder = _load_script("build_diffusion_confirmatory_cohort")
+
+    try:
+        builder.build_manifest(
+            start_date="2025-06-07",
+            end_date="2026-09-25",
+            group_count=499,
+        )
+    except ValueError as exc:
+        assert "exactly 500" in str(exc)
+    else:
+        raise AssertionError("underpowered confirmatory cohort was accepted")

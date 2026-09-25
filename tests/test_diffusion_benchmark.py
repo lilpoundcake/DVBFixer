@@ -19,6 +19,7 @@ from dvbfixer.model.diffusion.benchmark import (
     candidate_quality,
     compare_paired_backends,
     load_pdb_coordinates,
+    paired_noninferiority_power,
     pairwise_gap_backbone_rmsds,
     summarize_backend_cases,
     summarize_ensemble,
@@ -377,6 +378,23 @@ def test_backend_summary_counts_failures_and_reports_wilson_interval() -> None:
     assert summary.eligible
     assert interval.lower == pytest.approx(0.4038, abs=1e-4)
     assert interval.upper == pytest.approx(0.5962, abs=1e-4)
+
+
+def test_confirmatory_group_count_meets_preregistered_power_target() -> None:
+    power = paired_noninferiority_power(200, discordance_rate=0.05)
+
+    assert power == pytest.approx(0.8854, abs=1e-4)
+    assert power >= 0.80
+    assert paired_noninferiority_power(300, discordance_rate=0.05) > power
+
+
+def test_paired_noninferiority_power_rejects_incompatible_assumptions() -> None:
+    with pytest.raises(ValueError, match="incompatible"):
+        paired_noninferiority_power(
+            200,
+            discordance_rate=0.05,
+            true_pass_rate_difference=0.10,
+        )
 
 
 def test_paired_backend_comparison_bootstraps_independence_groups() -> None:

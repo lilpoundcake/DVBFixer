@@ -188,12 +188,17 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("workspace", type=Path)
     parser.add_argument("models", type=Path, nargs="+")
+    parser.add_argument("--output", type=Path)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    print(json.dumps(analyze(args.workspace, tuple(args.models)), indent=2, sort_keys=True))
+    rendered = json.dumps(analyze(args.workspace, tuple(args.models)), indent=2, sort_keys=True)
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered + "\n", encoding="utf-8")
+    print(rendered)
     return 0
 
 

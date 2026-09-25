@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 import os
 import subprocess
@@ -23,6 +24,7 @@ from dvbfixer.model.diffusion.sampler import (
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INVENTORY = REPO_ROOT / "docs/research/diffusion-gap-reconstruction-inventory.toml"
+CONFIRMATORY_COHORT = REPO_ROOT / "docs/research/diffusion-confirmatory-cohort.json"
 FIXTURE_MANIFEST = REPO_ROOT / "tests/fixtures/MANIFEST.sha256"
 RFDIFFUSION_ENVIRONMENT = REPO_ROOT / "deploy/rfdiffusion-v1/environment.yml"
 RFDIFFUSION_ADAPTER_ENVIRONMENT = REPO_ROOT / "deploy/rfdiffusion-v1/adapter-environment.yml"
@@ -160,6 +162,9 @@ def test_diffusion_inventory_declares_versioned_scope_and_thresholds() -> None:
     assert study["confirmatory_minimum_independence_groups"] == 180
     assert study["confirmatory_maximum_independence_groups_after_blinded_reestimation"] == 300
     assert study["secondary_endpoint_minimum_both_valid_independence_groups"] == 30
+    assert study["paired_pass_rate_noninferiority_margin"] == 0.05
+    assert study["design_power_target"] == 0.80
+    assert study["design_power_assumed_discordance_rate"] == 0.05
 
 
 def test_diffusion_benchmark_cases_match_reviewed_fixtures() -> None:
@@ -431,6 +436,108 @@ def test_diffusion_engine_inventory_is_fail_closed() -> None:
         "chroma",
         "rfdiffusion2",
     }
+
+
+def test_boltz_leakage_audit_excludes_confirmatory_selection() -> None:
+    inventory = _load_inventory()
+    audit = inventory["boltz_v2_training_leakage_audit"]
+    boltz = next(engine for engine in inventory["engines"] if engine["id"] == "boltz-2")
+
+    assert audit["status"] == "fail-closed-excluded-from-confirmatory-selection"
+    assert audit["pdb_training_cutoff"] == "2023-06-01"
+    assert audit["boltz_v2_release_date"] == "2025-06-06"
+    assert audit["confirmatory_eligible"] is False
+    assert {
+        "accepted training-example manifest",
+        "source-dataset snapshot identifiers",
+        "sequence-cluster membership manifest",
+        "distillation membership manifest",
+    } == set(audit["missing_evidence"])
+    assert "does not exclude sequence" in audit["temporal_pdb_filter_interpretation"]
+    assert "official immutable training manifest" in audit["reopen_condition"]
+    assert boltz["confirmatory_leakage_status"] == (
+        "public-manifest-unavailable-fail-closed"
+    )
+    assert boltz["confirmatory_eligible"] is False
+    assert boltz["leakage_audit"] == "boltz_v2_training_leakage_audit"
+
+    cohort = inventory["confirmatory_cohort"]
+    assert cohort["screening_pool_count"] == 500
+    assert cohort["final_minimum_independence_groups"] == 180
+    assert cohort["final_maximum_independence_groups"] == 300
+    assert cohort["sequence_identity_cluster_percent"] == 30
+    assert cohort["eligible_backends"] == ["protenix-v1"]
+    assert cohort["proxy_only_backends"] == ["boltz-2"]
+    assert cohort["excluded_backends"] == ["rfdiffusion-v1"]
+    assert cohort["one_gap_per_independence_group"] is True
+    assert cohort["coordinate_screening_required"] is True
+    assert cohort["request_sequence_basis"] == "observed-coordinate-sequence"
+    assert cohort["screening_order_locked"] is True
+    assert cohort["screen_all_metadata_groups_before_inference"] is True
+    assert cohort["superseded_screening_pool_count"] == 300
+    assert cohort["superseded_screening_accepted"] == 137
+    assert sum(
+        cohort[key]
+        for key in (
+            "superseded_screening_accepted",
+            "superseded_screening_altloc_rejected",
+            "superseded_screening_no_clean_mask_rejected",
+            "superseded_screening_unsupported_chain_rejected",
+            "superseded_screening_noncanonical_rejected",
+            "superseded_screening_operational_errors",
+        )
+    ) == 300
+    if cohort["status"].startswith("regeneration-required"):
+        assert cohort["manifest_sha256"] == "REGENERATE_AFTER_LIVE_RCSB_BUILD"
+    else:
+        assert cohort["status"] == "inference-running"
+        assert cohort["manifest_sha256"] == _sha256(CONFIRMATORY_COHORT)
+    assert cohort["matching_sequence_cluster_count"] >= cohort["screening_pool_count"]
+
+
+def test_confirmatory_cohort_manifest_is_statistically_sufficient_and_fail_closed() -> None:
+    inventory = _load_inventory()["confirmatory_cohort"]
+    manifest = json.loads(CONFIRMATORY_COHORT.read_text(encoding="utf-8"))
+    cases = manifest["cases"]
+
+    if inventory["status"].startswith("regeneration-required"):
+        assert inventory["screening_pool_count"] == 500
+        assert inventory["final_minimum_independence_groups"] == 180
+        assert inventory["final_maximum_independence_groups"] == 300
+        assert inventory["manifest_sha256"] == "REGENERATE_AFTER_LIVE_RCSB_BUILD"
+        assert manifest["independence_group_count"] == 300
+        return
+
+    assert manifest["status"] == "candidate-metadata-locked-coordinate-screening-pending"
+    assert manifest["screening_pool_count"] == 500
+    assert manifest["final_minimum_independence_groups"] == 180
+    assert manifest["final_maximum_independence_groups"] == 300
+    assert manifest["request_sequence_basis"] == "observed-coordinate-sequence"
+    assert manifest["screening_order_locked"] is True
+    assert manifest["screen_all_metadata_groups_before_inference"] is True
+    assert manifest["matching_sequence_cluster_count"] == 5815
+    assert manifest["returned_representative_count"] >= 500
+    assert manifest["eligible_backends"] == ["protenix-v1"]
+    assert manifest["proxy_only_backends"] == ["boltz-2"]
+    assert manifest["excluded_backends"] == ["rfdiffusion-v1"]
+    assert manifest["coordinate_screening_required"] is True
+    assert manifest["power_model"]["estimated_power"] >= 0.80
+    assert manifest["power_model"]["final_inference_maximum_groups"] == 300
+    assert len(cases) == 500
+    assert len({case["independence_group"] for case in cases}) == 500
+    assert len({case["polymer_entity_id"] for case in cases}) == 500
+    assert len({case["pdb_id"] for case in cases}) == 500
+    assert sum(case["planned_gap_length"] == 5 for case in cases) == 250
+    assert sum(case["planned_gap_length"] == 10 for case in cases) == 250
+    assert [case["screening_index"] for case in cases] == list(range(500))
+    assert all(
+        case["request_sequence_basis"] == "observed-coordinate-sequence"
+        for case in cases
+    )
+    assert all(case["initial_release_date"] >= "2025-06-07" for case in cases)
+    assert all(case["resolution_angstrom"] <= 3.5 for case in cases)
+    assert all(case["completeness"] >= 0.9 for case in cases)
+    assert all(set(case["sequence"]) <= set(CANONICAL_RESIDUES.values()) for case in cases)
 
 
 def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
