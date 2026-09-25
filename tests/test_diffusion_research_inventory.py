@@ -649,6 +649,59 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
         "boltz-2-unresolved-training-leakage",
     ]
 
+    second_group = inventory["three_backend_8cde_pilot"]
+    assert second_group["status"] == ("additional-independence-group-complete-no-selection")
+    assert second_group["pilot_total_independence_group_count"] == 2
+    assert second_group["all_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert second_group["all_fixed_heavy_max_displacement_angstrom"] == 0.0
+    assert second_group["all_detectable_d_ca"] == 0
+    assert second_group["all_severe_steric_overlaps"] == 0
+    assert second_group["all_resource_reporting_complete"] is True
+    assert second_group["rfdiffusion_gap_5_validation_passed"] is True
+    assert second_group["rfdiffusion_gap_10_validation_passed"] is False
+    assert second_group["rfdiffusion_gap_10_non_planar_amides"] == 2
+    assert second_group["protenix_gap_10_raw_validation_passed"] is False
+    assert second_group["protenix_gap_10_validation_passed"] is True
+    assert second_group["boltz_gap_10_raw_validation_passed"] is False
+    assert second_group["boltz_gap_10_validation_passed"] is True
+    for gap in (5, 10):
+        assert (
+            second_group[f"boltz_gap_{gap}_backbone_rmsd_angstrom"]
+            < second_group[f"protenix_gap_{gap}_backbone_rmsd_angstrom"]
+        )
+        assert (
+            second_group[f"boltz_gap_{gap}_all_heavy_rmsd_angstrom"]
+            < second_group[f"protenix_gap_{gap}_all_heavy_rmsd_angstrom"]
+        )
+        assert (
+            second_group[f"boltz_gap_{gap}_combined_wall_time_seconds"]
+            < second_group[f"protenix_gap_{gap}_combined_wall_time_seconds"]
+        )
+    assert second_group["selection_decision"] == "no-selection"
+
+    aggregate = inventory["three_backend_postcutoff_pilot_summary"]
+    assert aggregate["status"] == "aggregated-two-groups-no-selection"
+    assert aggregate["independence_group_count"] == 2
+    assert aggregate["case_count_per_backend"] == 4
+    assert aggregate["resource_reporting_complete"] is True
+    assert aggregate["rfdiffusion_validation_pass_rate"] == 0.5
+    assert aggregate["protenix_validation_pass_rate"] == 1.0
+    assert aggregate["boltz_validation_pass_rate"] == 1.0
+    assert aggregate["protenix_eligible"] is True
+    assert aggregate["rfdiffusion_eligible"] is False
+    assert aggregate["boltz_eligible"] is False
+    assert (
+        aggregate["boltz_median_valid_backbone_rmsd_angstrom"]
+        < aggregate["protenix_median_valid_backbone_rmsd_angstrom"]
+        < aggregate["rfdiffusion_median_valid_backbone_rmsd_angstrom"]
+    )
+    assert (
+        aggregate["boltz_median_wall_time_seconds"]
+        < aggregate["protenix_median_wall_time_seconds"]
+        < aggregate["rfdiffusion_median_wall_time_seconds"]
+    )
+    assert aggregate["selection_decision"] == "no-selection"
+
 
 def test_rfdiffusion_smoke_evidence_and_environment_are_pinned() -> None:
     inventory = _load_inventory()
