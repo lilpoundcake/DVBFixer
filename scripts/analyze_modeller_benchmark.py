@@ -10,11 +10,14 @@ import statistics
 import tempfile
 from pathlib import Path
 
+import numpy as np
+
 from dvbfixer.model.cli import AA3TO1
 from dvbfixer.model.diffusion.benchmark import candidate_quality, load_pdb_coordinates
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
+    AtomIdentity,
     BackendProvenance,
     DiffusionRequest,
     DiffusionStatus,
@@ -22,9 +25,20 @@ from dvbfixer.model.diffusion.contract import (
     RunnerCandidate,
     RunnerDiagnostics,
     RunnerResult,
+    ValidationSummary,
 )
+from dvbfixer.model.diffusion.geometry import weighted_kabsch
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
-from dvbfixer.model.diffusion.validate import build_validated_result
+from dvbfixer.model.diffusion.validate import validate_runner_result
+
+_BACKBONE_ATOMS = frozenset({"N", "CA", "C", "O"})
+_BASELINE_NON_FATAL_FAILURES = frozenset(
+    {
+        "fixed-heavy-atom-rmsd",
+        "fixed-heavy-atom-max-displacement",
+        "retained-explicit-link-unexpected",
+    }
+)
 
 
 def _sha256(path: Path) -> str:
@@ -92,6 +106,54 @@ def _normalize_target_identities(request: DiffusionRequest, pdb_text: str) -> st
     return "".join(output)
 
 
+def _baseline_failures(summary: ValidationSummary) -> tuple[str, ...]:
+    failures = set(summary.hard_gate_failures)
+    failures.difference_update(_BASELINE_NON_FATAL_FAILURES)
+    if "outside-generated-identity-mismatch" in failures:
+        metrics = {metric.name: metric.value for metric in summary.metrics}
+        additions_only = (
+            metrics["outside-atom-identities-missing"] == 0.0
+            and metrics["outside-residue-names-changed"] == 0.0
+        )
+        if additions_only:
+            failures.remove("outside-generated-identity-mismatch")
+    return tuple(
+        failure for failure in summary.hard_gate_failures if failure in failures
+    )
+
+
+def _aligned_coordinates(
+    request: DiffusionRequest,
+    source: dict[AtomIdentity, np.ndarray],
+    candidate: dict[AtomIdentity, np.ndarray],
+) -> dict[AtomIdentity, np.ndarray]:
+    generated = set(request.gaps[0].generated_residues)
+    fit_identities = sorted(
+        identity
+        for identity in request.fixed_atoms
+        if identity.atom_name in _BACKBONE_ATOMS
+        and identity in source
+        and identity in candidate
+        and ResidueIdentity(
+            identity.chain,
+            identity.residue_number,
+            identity.insertion_code,
+        )
+        not in generated
+    )
+    if len(fit_identities) < 3:
+        raise ValueError(
+            "MODELLER comparator requires at least three common observed backbone atoms"
+        )
+    transform = weighted_kabsch(
+        np.vstack([candidate[identity] for identity in fit_identities]),
+        np.vstack([source[identity] for identity in fit_identities]),
+    )
+    identities = tuple(candidate)
+    transformed = transform.apply(np.vstack([candidate[identity] for identity in identities]))
+    return dict(zip(identities, transformed))
+
+
 def analyze(workspace: Path, models: tuple[Path, ...]) -> dict[str, object]:
     """Return per-model and median MODELLER comparison metrics."""
     workspace = workspace.expanduser().resolve()
@@ -100,6 +162,7 @@ def analyze(workspace: Path, models: tuple[Path, ...]) -> dict[str, object]:
         workspace,
         ArtifactReference("reference.pdb", _sha256(workspace / "reference.pdb")),
     )
+    source = load_pdb_coordinates(workspace, request.normalized_pdb)
     rows: list[dict[str, object]] = []
     with tempfile.TemporaryDirectory(prefix=".modeller-benchmark-", dir=workspace) as temp:
         temporary_root = Path(temp)
@@ -136,34 +199,48 @@ def analyze(workspace: Path, models: tuple[Path, ...]) -> dict[str, object]:
                     source_license="MODELLER academic license",
                 ),
             )
-            validated = build_validated_result(request, runner, workspace=workspace)
-            summary = validated.validation_summaries[0]
+            validations = validate_runner_result(request, runner, workspace=workspace)
+            summary = validations[0].summary
+            baseline_failures = _baseline_failures(summary)
             coordinates = load_pdb_coordinates(
                 workspace,
                 runner_candidate.coordinate_artifact,
             )
+            aligned = _aligned_coordinates(request, source, coordinates)
             quality = candidate_quality(
                 runner_candidate.candidate_id,
                 reference,
-                coordinates,
+                aligned,
                 generated_residues=set(request.gaps[0].generated_residues),
                 fixed_atoms=set(request.fixed_atoms),
                 anchor_residues={request.gaps[0].left_anchor, request.gaps[0].right_anchor},
                 closure_passed=(
                     "junction-peptide-connectivity" not in summary.hard_gate_failures
                 ),
-                validation_passed=summary.passed,
+                validation_passed=not baseline_failures,
+            )
+            raw_quality = candidate_quality(
+                runner_candidate.candidate_id,
+                reference,
+                coordinates,
+                generated_residues=set(request.gaps[0].generated_residues),
+                fixed_atoms=set(request.fixed_atoms),
+                anchor_residues={request.gaps[0].left_anchor, request.gaps[0].right_anchor},
+                closure_passed=quality.closure_passed,
+                validation_passed=quality.validation_passed,
             )
             rows.append(
                 {
                     "path": source_relative,
                     "identity_normalized": normalized_text != source_text,
-                    "validation_passed": summary.passed,
+                    "validation_passed": not baseline_failures,
+                    "baseline_failure_reasons": baseline_failures,
                     "hard_gate_failures": summary.hard_gate_failures,
                     "junction_passed": quality.closure_passed,
                     "gap_backbone_rmsd_angstrom": quality.gap_backbone_rmsd_angstrom,
                     "gap_all_heavy_rmsd_angstrom": quality.gap_all_heavy_rmsd_angstrom,
-                    "fixed_heavy_rmsd_angstrom": quality.fixed_heavy_rmsd_angstrom,
+                    "fixed_heavy_rmsd_angstrom": raw_quality.fixed_heavy_rmsd_angstrom,
+                    "aligned_fixed_heavy_rmsd_angstrom": quality.fixed_heavy_rmsd_angstrom,
                 }
             )
     return {
@@ -176,6 +253,9 @@ def analyze(workspace: Path, models: tuple[Path, ...]) -> dict[str, object]:
         ),
         "median_fixed_heavy_rmsd_angstrom": statistics.median(
             float(row["fixed_heavy_rmsd_angstrom"]) for row in rows
+        ),
+        "median_aligned_fixed_heavy_rmsd_angstrom": statistics.median(
+            float(row["aligned_fixed_heavy_rmsd_angstrom"]) for row in rows
         ),
         "junction_pass_rate": sum(bool(row["junction_passed"]) for row in rows)
         / len(rows),

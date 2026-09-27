@@ -11,6 +11,7 @@ import pytest
 
 from dvbfixer.model.diffusion.benchmark import (
     BackendCaseResult,
+    BackendEligibilityPolicy,
     BenchmarkOutcome,
     DiffusionBenchmarkError,
     ModellerComparison,
@@ -451,6 +452,39 @@ def test_paired_backend_comparison_fails_closed_on_fixed_coordinate_drift() -> N
     assert comparison.candidate.ineligibility_reasons == ("fixed-coordinates-not-exact",)
     assert not comparison.noninferiority_demonstrated
     assert comparison.decision == "candidate-ineligible"
+
+
+def test_comparator_baseline_allows_expected_fixed_coordinate_drift() -> None:
+    candidate = (
+        BackendCaseResult("candidate", "case-1", "structure-a", True, True, True, True, 0.5),
+    )
+    baseline = (
+        BackendCaseResult(
+            "baseline",
+            "case-1",
+            "structure-a",
+            True,
+            False,
+            True,
+            True,
+            1.0,
+            eligibility_policy=BackendEligibilityPolicy.COMPARATOR,
+        ),
+    )
+
+    comparison = compare_paired_backends(
+        candidate,
+        baseline,
+        minimum_independence_groups=1,
+        minimum_both_valid_independence_groups=1,
+        require_complete_resources=False,
+        bootstrap_samples=20,
+    )
+
+    assert comparison.baseline.eligible
+    assert comparison.baseline.ineligibility_reasons == ()
+    assert comparison.noninferiority_demonstrated
+    assert comparison.decision == "candidate-preferred"
 
 
 def test_paired_backend_comparison_does_not_select_from_pilot_sample() -> None:

@@ -65,6 +65,11 @@ class BenchmarkOutcome(StrEnum):
     FAILED = "failed"
 
 
+class BackendEligibilityPolicy(StrEnum):
+    CONSTRAINED = "constrained"
+    COMPARATOR = "comparator"
+
+
 @dataclass(frozen=True, slots=True)
 class StratumRun:
     stratum: str
@@ -177,6 +182,8 @@ class BackendCaseResult:
 
     ``independence_group`` identifies masks that must remain together during
     resampling, such as two gaps withheld from the same PDB structure.
+    ``eligibility_policy`` keeps the MODELLER comparator usable without
+    pretending that its whole-model optimization preserves fixed coordinates.
     """
 
     backend_id: str
@@ -191,6 +198,7 @@ class BackendCaseResult:
     peak_vram_bytes: int | None = None
     peak_ram_bytes: int | None = None
     gpu_memory_applicable: bool = True
+    eligibility_policy: BackendEligibilityPolicy = BackendEligibilityPolicy.CONSTRAINED
 
     def __post_init__(self) -> None:
         if not self.backend_id or not self.case_id or not self.independence_group:
@@ -335,12 +343,17 @@ def summarize_backend_cases(
         raise DiffusionBenchmarkError("backend result set repeats a case ID")
     passing = [run for run in runs if run.validation_passed]
     reasons: list[str] = []
+    policies = {run.eligibility_policy for run in runs}
+    if len(policies) != 1:
+        raise DiffusionBenchmarkError("backend result set mixes eligibility policies")
+    eligibility_policy = next(iter(policies))
     if any(not run.mapping_valid for run in runs):
         reasons.append("invalid-request-result-mapping")
-    if any(not run.fixed_coordinates_exact for run in runs):
-        reasons.append("fixed-coordinates-not-exact")
-    if any(not run.leakage_resolved for run in runs):
-        reasons.append("unresolved-training-leakage")
+    if eligibility_policy is BackendEligibilityPolicy.CONSTRAINED:
+        if any(not run.fixed_coordinates_exact for run in runs):
+            reasons.append("fixed-coordinates-not-exact")
+        if any(not run.leakage_resolved for run in runs):
+            reasons.append("unresolved-training-leakage")
     wall_times = [run.wall_time_seconds for run in runs if run.wall_time_seconds is not None]
     peak_ram = [run.peak_ram_bytes for run in runs if run.peak_ram_bytes is not None]
     peak_vram = [run.peak_vram_bytes for run in runs if run.peak_vram_bytes is not None]

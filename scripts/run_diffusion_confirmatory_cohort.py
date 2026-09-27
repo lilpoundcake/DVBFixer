@@ -27,6 +27,7 @@ from typing import Any
 
 from dvbfixer.model.diffusion.benchmark import (
     BackendCaseResult,
+    BackendEligibilityPolicy,
     compare_paired_backends,
     summarize_backend_cases,
 )
@@ -715,7 +716,6 @@ def _stage_specs(workspace: Path, config: RunnerConfig, marker: Path) -> list[St
             (
                 *shared,
                 workspace / "reference.pdb",
-                protenix_refined / "summary.json",
                 *model_paths,
                 ROOT / "scripts/analyze_modeller_benchmark.py",
                 ROOT / "src/dvbfixer/model/diffusion/benchmark.py",
@@ -766,10 +766,7 @@ def run_case(workspace: Path, config: RunnerConfig) -> bool:
             if not outcomes.get("boltz-inference", False):
                 continue
             spec = _resolve_refinement_digest(spec)
-        if spec.name == "analysis" and not (
-            outcomes.get("protenix-reference-refinement", False)
-            and outcomes.get("modeller-comparator", False)
-        ):
+        if spec.name == "analysis" and not outcomes.get("modeller-comparator", False):
             continue
         if spec.name == "analysis" and outcomes.get("boltz-reference-refinement", False):
             spec = StageSpec(
@@ -887,7 +884,7 @@ def _case_results(
         )
     else:
         protenix = BackendCaseResult(
-            "protenix-v1", case_id, group, False, False, True, leakage,
+            "protenix-v1", case_id, group, False, True, True, leakage,
             wall_time_seconds=protenix_wall, peak_vram_bytes=protenix_vram,
             peak_ram_bytes=protenix_ram,
         )
@@ -915,7 +912,7 @@ def _case_results(
             case_id,
             group,
             False,
-            False,
+            True,
             True,
             False,
             wall_time_seconds=boltz_wall,
@@ -924,26 +921,33 @@ def _case_results(
         )
     if modeller_path.is_file():
         modeller_summary = json.loads(modeller_path.read_text(encoding="utf-8"))
-        top = modeller_summary["candidates"][0]
+        modeller_candidates = modeller_summary["candidates"]
         modeller_result = BackendCaseResult(
             "modeller-10.8",
             case_id,
             group,
-            bool(top["validation_passed"]),
-            float(top["fixed_heavy_rmsd_angstrom"]) == 0.0,
+            bool(modeller_candidates)
+            and all(bool(item["validation_passed"]) for item in modeller_candidates),
+            bool(modeller_candidates)
+            and all(
+                float(item["fixed_heavy_rmsd_angstrom"]) == 0.0
+                for item in modeller_candidates
+            ),
             True,
             leakage,
-            float(top["gap_backbone_rmsd_angstrom"]),
+            float(modeller_summary["median_gap_backbone_rmsd_angstrom"]),
             modeller_wall,
             None,
             modeller_ram,
             False,
+            BackendEligibilityPolicy.COMPARATOR,
         )
     else:
         modeller_result = BackendCaseResult(
             "modeller-10.8", case_id, group, False, False, True, leakage,
             wall_time_seconds=modeller_wall, peak_ram_bytes=modeller_ram,
             gpu_memory_applicable=False,
+            eligibility_policy=BackendEligibilityPolicy.COMPARATOR,
         )
     resources = {
         stage: record["resources"]
@@ -1020,7 +1024,10 @@ def _proxy_descriptive_comparison(
 
 
 def _aggregation_inputs(cohort_root: Path, marker_name: str, output: Path) -> tuple[Path, ...]:
-    inputs: list[Path] = [ROOT / "src/dvbfixer/model/diffusion/benchmark.py"]
+    inputs: list[Path] = [
+        ROOT / "scripts/run_diffusion_confirmatory_cohort.py",
+        ROOT / "src/dvbfixer/model/diffusion/benchmark.py",
+    ]
     for workspace in _workspaces(cohort_root, marker_name):
         inputs.append((workspace / marker_name).resolve())
         for relative in (

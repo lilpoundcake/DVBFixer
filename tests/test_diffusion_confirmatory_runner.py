@@ -309,13 +309,14 @@ def _materialized_case(root: Path) -> Path:
     (workspace / "confirmatory/modeller-analysis.json").write_text(
         json.dumps(
             {
+                "median_gap_backbone_rmsd_angstrom": 1.0,
                 "candidates": [
                     {
                         "validation_passed": True,
                         "fixed_heavy_rmsd_angstrom": 0.25,
                         "gap_backbone_rmsd_angstrom": 1.0,
                     }
-                ]
+                ],
             }
         ),
         encoding="utf-8",
@@ -397,6 +398,28 @@ def test_aggregator_emits_intervals_failures_and_non_applicable_modeller_vram(
     assert comparison["baseline"]["resource_reporting_complete"] is True
     assert comparison["baseline"]["gpu_memory_applicable"] is False
     assert comparison["baseline"]["peak_vram_bytes"] is None
+    assert comparison["baseline"]["eligible"] is True
+    assert comparison["baseline"]["ineligibility_reasons"] == []
+    modeller_case = result["case_results"]["modeller-10.8"][0]
+    assert modeller_case["fixed_coordinates_exact"] is False
+    assert modeller_case["gap_backbone_rmsd_angstrom"] == 1.0
+    assert modeller_case["eligibility_policy"] == "comparator"
+    assert any(
+        path.name == "run_diffusion_confirmatory_cohort.py"
+        for path in runner._aggregation_inputs(
+            tmp_path,
+            "materialization.json",
+            output,
+        )
+    )
+    assert any(
+        path.name == "run_diffusion_confirmatory_cohort.py"
+        for path in runner._aggregation_inputs(
+            tmp_path,
+            "materialization.json",
+            output,
+        )
+    )
     assert result["failure_rates"] == {
         "protenix-v1": 0.0,
         "modeller-10.8": 0.0,

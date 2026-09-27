@@ -107,6 +107,23 @@ def _ordinal_residues(reference: Path, chain: str) -> str:
     return "".join(output)
 
 
+def _rigidly_transform_pdb(path: Path) -> str:
+    output: list[str] = []
+    for line in path.read_text().splitlines(keepends=True):
+        if not line.startswith(("ATOM  ", "HETATM")):
+            output.append(line)
+            continue
+        x = float(line[30:38])
+        y = float(line[38:46])
+        z = float(line[46:54])
+        output.append(
+            line[:30]
+            + f"{-y + 30.0:8.3f}{x - 20.0:8.3f}{z + 10.0:8.3f}"
+            + line[54:]
+        )
+    return "".join(output)
+
+
 def test_builder_and_analyzers_reproduce_native_reference(tmp_path: Path) -> None:
     builder = _load_script("build_diffusion_benchmark_request")
     pair_analyzer = _load_script("analyze_diffusion_benchmark_pair")
@@ -134,8 +151,29 @@ def test_builder_and_analyzers_reproduce_native_reference(tmp_path: Path) -> Non
         (first / "reference.pdb", first / "reference.pdb"),
     )
     assert modeller["validation_pass_count"] == 2
-    assert modeller["median_gap_backbone_rmsd_angstrom"] == 0.0
+    assert modeller["median_gap_backbone_rmsd_angstrom"] < 1e-12
     assert modeller["median_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert modeller["median_aligned_fixed_heavy_rmsd_angstrom"] < 1e-12
+
+
+def test_modeller_analyzer_aligns_whole_model_without_reinjecting_fixed_atoms(
+    tmp_path: Path,
+) -> None:
+    builder = _load_script("build_diffusion_benchmark_request")
+    analyser = _load_script("analyze_modeller_benchmark")
+    workspace = tmp_path / "rigid-transform"
+    builder.build_workspace("8b01-chain-c-withheld-5", workspace, seed=7)
+    transformed = workspace / "transformed.pdb"
+    transformed.write_text(_rigidly_transform_pdb(workspace / "reference.pdb"))
+
+    result = analyser.analyze(workspace, (transformed,))
+    candidate = result["candidates"][0]
+
+    assert candidate["validation_passed"] is True
+    assert candidate["baseline_failure_reasons"] == ()
+    assert candidate["fixed_heavy_rmsd_angstrom"] > 10.0
+    assert candidate["aligned_fixed_heavy_rmsd_angstrom"] < 1e-3
+    assert candidate["gap_backbone_rmsd_angstrom"] < 1e-3
 
 
 def test_locked_comparator_matches_request_and_fasta(tmp_path: Path) -> None:
@@ -237,8 +275,9 @@ def test_insertion_code_benchmark_restores_generated_identities(tmp_path: Path) 
     modeller_path.write_text(_ordinal_residues(workspace / "reference.pdb", "H"))
     modeller = modeller_analyzer.analyze(workspace, (modeller_path,))
     assert modeller["validation_pass_count"] == 1
-    assert modeller["median_gap_backbone_rmsd_angstrom"] == 0.0
+    assert modeller["median_gap_backbone_rmsd_angstrom"] < 1e-12
     assert modeller["median_fixed_heavy_rmsd_angstrom"] == 0.0
+    assert modeller["median_aligned_fixed_heavy_rmsd_angstrom"] < 1e-12
     assert modeller["candidates"][0]["identity_normalized"] is True
 
 
