@@ -45,6 +45,9 @@ def test_export_uses_validation_first_selection_and_case_id_names(tmp_path: Path
         (input_dir / "normalized.pdb").write_text(
             f"REMARK input {case_id}\n", encoding="utf-8"
         )
+        (input_dir.parent / "reference.pdb").write_text(
+            f"REMARK reference {case_id}\n", encoding="utf-8"
+        )
     first = cohort / "cases/case-a/workspace"
     _write_result(first / "prefix-raw", "REMARK raw a\n", passed=True)
     _write_result(first / "prefix-refined", "REMARK refined a\n", passed=True)
@@ -74,8 +77,12 @@ def test_export_uses_validation_first_selection_and_case_id_names(tmp_path: Path
 
     assert result["exported_count"] == 2
     assert (output / "case-a/case-a_input.pdb").is_file()
+    assert (output / "case-a/case-a_reference.pdb").read_text() == (
+        "REMARK reference case-a\n"
+    )
     assert (output / "case-a/case-a_output.pdb").read_text() == "REMARK refined a\n"
     assert (output / "case-b/case-b_output.pdb").read_text() == "REMARK raw b\n"
     metadata = json.loads((output / "case-b/case-b_metadata.json").read_text())
     assert metadata["output"]["selection"] == "raw"
     assert metadata["output"]["validation_passed"] is True
+    assert metadata["reference"]["file"] == "case-b_reference.pdb"

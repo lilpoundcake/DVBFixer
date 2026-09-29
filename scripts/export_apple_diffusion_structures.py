@@ -111,10 +111,15 @@ def export_structures(
         input_path = workspace / "input" / "normalized.pdb"
         if not input_path.is_file():
             raise FileNotFoundError(f"missing normalized input: {input_path}")
+        reference_path = workspace / "reference.pdb"
+        if not reference_path.is_file():
+            raise FileNotFoundError(f"missing reference structure: {reference_path}")
         case_dir = output_root / case_id
         exported_input = case_dir / f"{case_id}_input.pdb"
+        exported_reference = case_dir / f"{case_id}_reference.pdb"
         exported_output = case_dir / f"{case_id}_output.pdb"
         _atomic_copy(input_path, exported_input)
+        _atomic_copy(reference_path, exported_reference)
         _atomic_copy(source, exported_output)
         metadata = {
             "schema_version": 1,
@@ -124,6 +129,11 @@ def export_structures(
                 "file": exported_input.name,
                 "sha256": _sha256(exported_input),
                 "source": input_path.relative_to(cohort_root).as_posix(),
+            },
+            "reference": {
+                "file": exported_reference.name,
+                "sha256": _sha256(exported_reference),
+                "source": reference_path.relative_to(cohort_root).as_posix(),
             },
             "output": {
                 "file": exported_output.name,
