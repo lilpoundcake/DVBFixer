@@ -407,8 +407,9 @@ a basis for changing the selected Protenix backend.
   `OXT`, but added the `9ges` failure and showed no meaningful paired RMSD gain.
 - [x] Diagnose the OpenMM CUDA PTX failure as a CUDA 12.9 runtime versus
   CUDA-12.2-capable 535 driver mismatch and freeze an isolated OpenMM 8.2/CUDA
-  12.2 environment. A minimal CUDA Context passes; real-candidate refinement,
-  repeatability, and long-target tests remain pending before the 231-case run.
+  12.2 environment with digest-pinned ff19SB XML data. Repeated `9dvi`
+  refinement is byte-identical and the 440-residue `9ina` gate passes in 13.83
+  seconds, authorizing the 231-case descriptive follow-up.
 - [x] Evaluate the frozen v5 short and long pilot gaps on Linux CUDA sampling
   with CPU boundary refinement.
 - [ ] Stop a candidate that cannot represent both anchors, complete canonical

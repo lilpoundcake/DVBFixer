@@ -155,8 +155,8 @@ def run(
             engine_repository=engine_repository,
             engine_revision=engine_revision,
             checkpoint_sha256=checkpoint_sha256,
-            device="cpu",
-            precision="float64",
+            device="cuda" if refinement.platform == "CUDA" else "cpu",
+            precision="mixed" if refinement.platform == "CUDA" else "float64",
             framework="OpenMM",
             deterministic_algorithms=refinement.platform == "Reference",
             deterministic_flags=(

@@ -236,11 +236,12 @@ all three five-residue cases to passing candidates in 47-126 seconds, but the
 440-residue `9ina` run exceeded a 900-second timeout. OpenMM `CUDA` originally
 failed before coordinate refinement with `CUDA_ERROR_UNSUPPORTED_PTX_VERSION`.
 The mismatch is now diagnosed as CUDA/NVRTC 12.9 running against a 535-series
-driver with CUDA 12.2 compatibility. An isolated OpenMM 8.2/CUDA 12.2 Context
-smoke passes; real-candidate tests had not yet run at this documentation
-checkpoint. See [`openmm-cuda-refinement.md`](openmm-cuda-refinement.md). CPU
-therefore remains the only completed same-platform six-case refinement result;
-this does not establish Apple runtime feasibility.
+driver with CUDA 12.2 compatibility. An isolated OpenMM 8.2/CUDA 12.2 stack,
+supplemented with digest-verified OpenMM 8.3 ff19SB XML data, passes two
+byte-identical `9dvi` real-candidate runs and the 440-residue `9ina` gate in
+13.83 seconds. See [`openmm-cuda-refinement.md`](openmm-cuda-refinement.md).
+These CUDA checks resolve the Linux refinement blocker but do not establish
+Apple runtime feasibility.
 
 ### Expanded V5 Linux Pilot
 

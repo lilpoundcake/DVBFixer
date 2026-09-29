@@ -271,8 +271,9 @@ these checked workflow-state items cover one-host multi-process operation.
   coverage is `21/24` versus `22/24` for final-only projection, so per-step
   reinjection is not selected as the compact baseline.
 - [x] Diagnose OpenMM's CUDA PTX failure and add an isolated CUDA-12.2-compatible
-  refinement environment. The minimal A100 Context smoke passes; real-candidate
-  CUDA validation remains a required gate before the full 231-case follow-up.
+  refinement environment with digest-verified ff19SB data. Two byte-identical
+  `9dvi` runs and the 440-residue `9ina` run pass every CUDA hard gate; the full
+  231-case descriptive follow-up remains pending.
 - [ ] Benchmark at most two adapted pretrained compact candidates before training a purpose-built local gap model.
 - [ ] Train and freeze a leakage-controlled gap-only model only after the public-structure dataset and sequence-cluster splits are immutable.
 - [ ] Require withheld-coordinate noninferiority and Apple memory/latency gates before any local experimental backend decision.

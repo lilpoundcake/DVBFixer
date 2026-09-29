@@ -9,8 +9,9 @@
   `CUDA_ERROR_UNSUPPORTED_PTX_VERSION (222)`. Keep the main environment unchanged
   and use the isolated, pinned
   [`deploy/openmm-cuda122/environment.yml`](../deploy/openmm-cuda122/environment.yml)
-  for CUDA boundary-refinement experiments. A minimal CUDA Context smoke passes;
-  real-candidate validation and repeatability are tracked in
+  for CUDA boundary-refinement experiments, then install the digest-verified
+  OpenMM 8.3 ff19SB data with `deploy/openmm-cuda122/install-forcefields.sh`.
+  Repeated short-target and long-target CUDA refinement gates pass; details are in
   [`docs/research/openmm-cuda-refinement.md`](research/openmm-cuda-refinement.md).
 
 - **Mypy must use NumPy `<2.5` while targeting Python 3.11.** NumPy 2.5

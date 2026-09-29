@@ -38,7 +38,7 @@ from dvbfixer.ffutils.geometry import (
 )
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
-BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v4"
+BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v5"
 BOUNDARY_REFINEMENT_FORCEFIELD = tuple(FF_ALIASES["amber"])
 BOUNDARY_REFINEMENT_MAX_ITERATIONS = 250
 BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM = 10.0
@@ -47,6 +47,7 @@ BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM = 0.75
 BOUNDARY_REFINEMENT_OMEGA_KJ_MOL = 500.0
 BOUNDARY_REFINEMENT_PEPTIDE_ANGLE_KJ_MOL_RAD2 = 1000.0
 _REFINEMENT_BACKBONE_ATOMS = frozenset({"N", "CA", "C", "O", "OXT"})
+_FIXED_ATOM_INTERNAL_TOLERANCE_ANGSTROM = 1.0e-5
 
 
 class BoundaryRefinementError(RuntimeError):
@@ -214,7 +215,12 @@ def refine_generated_region(
     if restrained_angles:
         system.addForce(peptide_angle_force)
 
-    properties = {"Threads": "1"} if platform_name == "CPU" else {}
+    if platform_name == "CPU":
+        properties = {"Threads": "1"}
+    elif platform_name == "CUDA":
+        properties = {"Precision": "mixed", "DeterministicForces": "true"}
+    else:
+        properties = {}
     integrator = VerletIntegrator(0.001 * picosecond)
     simulation = Simulation(
         modeller.topology,
@@ -308,7 +314,15 @@ def refine_generated_region(
         if _atom_residue(identity) in generated_residue_set:
             continue
         refined = refined_coordinates.get(identity)
-        if refined is None or not np.array_equal(refined, original):
+        # CUDA's mixed-precision coordinate round-trip perturbs massless fixed
+        # particles below PDB precision. Publication still copies their source
+        # records unchanged; reject any displacement beyond numerical noise.
+        if refined is None or not np.allclose(
+            refined,
+            original,
+            rtol=0.0,
+            atol=_FIXED_ATOM_INTERNAL_TOLERANCE_ANGSTROM,
+        ):
             raise BoundaryRefinementError(
                 "localized refinement moved or removed a fixed atom: "
                 f"{_atom_label(identity)}"
