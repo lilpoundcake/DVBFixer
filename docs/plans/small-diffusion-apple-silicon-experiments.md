@@ -16,6 +16,7 @@
   - [`../research/reconstruction-and-modeling-backends.md`](../research/reconstruction-and-modeling-backends.md)
   - [`../research/small-diffusion-candidate-results.md`](../research/small-diffusion-candidate-results.md)
   - [`../research/apple-silicon-diffusion-operator-smoke.md`](../research/apple-silicon-diffusion-operator-smoke.md)
+  - [`../research/apple-silicon-diffusion-six-case-pilot.md`](../research/apple-silicon-diffusion-six-case-pilot.md)
 
 ## Goals
 
@@ -356,7 +357,7 @@ lanes below pass and a full repeat has a stated decision value.
 
 #### Ordered Test Lanes
 
-- [ ] Lane 0, core contract: run the diffusion contract, scope, mask, validation,
+- [x] Lane 0, core contract: run the diffusion contract, scope, mask, validation,
   geometry, provenance, pipeline, preflight, runner, Protpardelle adapter, and
   pilot-driver tests on macOS arm64 before loading the checkpoint.
 
@@ -375,18 +376,18 @@ lanes below pass and a full repeat has a stated decision value.
     tests/test_small_diffusion_v5_pilot.py
   ```
 
-- [ ] Lane 1, CPU reference: load the pinned checkpoint in float32 on CPU, execute
+- [x] Lane 1, CPU reference: load the pinned checkpoint in float32 on CPU, execute
   one denoiser step, and record finite outputs, atom37 shape, load time, step time,
   peak RSS, and output digest. Then run the shortest frozen case (`36hb`) once at
   500 steps if its projected runtime is practical.
-- [ ] Lane 2, MPS operator smoke: repeat the same load and one-step input on MPS
+- [x] Lane 2, MPS operator smoke: repeat the same load and one-step input on MPS
   with fallback disabled. Assert model state, denoiser inputs, and outputs remain
   on `mps`; inventory every unsupported operator or intentional host transfer.
-- [ ] Lane 3, MPS repeatability: run `36hb` at 500 steps in two independent
+- [x] Lane 3, MPS repeatability: run `36hb` at 500 steps in two independent
   workspaces with the same request seed. Require both selected candidates to pass
   all hard gates and fixed atoms to be exact. Report RMSD and maximum displacement
   between generated atoms; do not require cross-device or same-device byte identity.
-- [ ] Lane 4, frozen six-case pilot: run the six cases once on MPS, then perform
+- [x] Lane 4, frozen six-case pilot: run the six cases once on MPS, then perform
   generated-only OpenMM CPU refinement and validation without resampling. Retain
   every failure in the denominator and aggregate raw, refined, and selected results.
 - [ ] Lane 5, frozen 24-case portability pilot: proceed only if Lane 4 passes its

@@ -211,6 +211,36 @@ def test_adapter_records_resolved_device_not_requested_label() -> None:
     assert 'load_model(config_path, checkpoint_path, device=str(device))' in source
 
 
+def test_adapter_copies_mps_coordinates_to_cpu_before_float64_conversion() -> None:
+    adapter = _load_adapter()
+    calls: list[dict[str, object]] = []
+
+    class FakeTensor:
+        device = "mps"
+
+        def detach(self) -> FakeTensor:
+            return self
+
+        def to(self, **kwargs: object) -> FakeTensor:
+            calls.append(kwargs)
+            if kwargs.get("dtype") == "float64" and self.device == "mps":
+                raise TypeError("MPS does not support float64")
+            if "device" in kwargs:
+                self.device = str(kwargs["device"])
+            return self
+
+        @staticmethod
+        def numpy() -> np.ndarray:
+            return np.zeros((1, 1, 3), dtype=np.float64)
+
+    torch = type("Torch", (), {"float64": "float64"})()
+
+    converted = adapter._coordinates_to_numpy(torch, FakeTensor())
+
+    assert converted.dtype == np.float64
+    assert calls == [{"device": "cpu"}, {"dtype": "float64"}]
+
+
 def _atom_line(
     serial: int,
     atom_name: str,

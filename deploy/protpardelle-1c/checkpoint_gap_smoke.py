@@ -105,6 +105,12 @@ def _synchronize(torch: Any, device: Any) -> None:
         torch.mps.synchronize()
 
 
+def _coordinates_to_numpy(torch: Any, coordinates: Any) -> np.ndarray:
+    """Copy coordinates to CPU before widening beyond MPS-supported dtypes."""
+    cpu_coordinates = coordinates.detach().to(device="cpu")
+    return cpu_coordinates.to(dtype=torch.float64).numpy()
+
+
 def _peak_rss_bytes() -> int:
     value = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
     return value if sys.platform == "darwin" else value * 1024
@@ -667,7 +673,7 @@ def _run_staged(
             "per-step callback count mismatch: "
             f"expected {steps}, observed {callback_stats['callback_count']}"
         )
-    raw = sampled["x"][0].detach().to(dtype=torch.float64, device="cpu").numpy()
+    raw = _coordinates_to_numpy(torch, sampled["x"][0])
     identities, coordinates, residue_names = _model_atoms(request, raw)
     native_conditioning_fit = _native_conditioning_fit(
         identities,

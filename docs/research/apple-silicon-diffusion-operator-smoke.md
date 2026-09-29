@@ -42,7 +42,7 @@ for integration.
   - `conda-explicit.txt` SHA-256
     `5ea8aab0f8c59f83168098a06df7b5a144ec0b508afc0a3c7c3172e65220e63d`;
   - `pip-freeze.txt` SHA-256
-    `4e5145bc1886aeb39689a32e33295779e5423053d5e23bf5cb33ea397a47bf8a`.
+    `a83344873517dfc7a25aa652bffb0fbe6cacc9054a24717ff3a4f9c1956149b5`.
 
 The upstream import warned that ESMFold, ProteinMPNN, LigandMPNN, and Foldseek
 were absent. Those optional integrations are intentionally disabled by this
@@ -63,6 +63,15 @@ The paired output was not byte-identical. CPU-to-MPS coordinate RMSD was
 `1.0341e-5 A`, mean displacement was `5.0055e-6 A`, and maximum displacement
 was `1.2207e-4 A`. This is a small numerical backend difference, not a
 scientific equivalence result.
+
+A second independent MPS process with the same seed produced the same raw
+coordinate SHA-256
+`4ad30b255f6025c28708c44c985c9e8826c70431d214ce4dd3919cef54ac6e33`.
+The two synthetic one-step MPS outputs are byte-identical. The repeat summary
+SHA-256 is
+`9e156890cbc9e7fa66a105c3bf5c9b6808565450c21d2bf0f1fd2372b4fbc5b7`.
+This does not replace the planned independent-workspace 500-step `36hb`
+repeatability test.
 
 Ignored output records:
 
