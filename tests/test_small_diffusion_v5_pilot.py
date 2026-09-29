@@ -144,6 +144,15 @@ def test_driver_exposes_isolated_per_step_mode() -> None:
     assert '"git",' in source and '"--reverse",' in source and '"--check",' in source
 
 
+def test_driver_exposes_fail_closed_mps_execution() -> None:
+    source = (ROOT / "scripts/run_small_diffusion_v5_pilot.py").read_text(encoding="utf-8")
+
+    assert 'choices=("cpu", "cuda", "mps")' in source
+    assert 'raw_env["PYTORCH_ENABLE_MPS_FALLBACK"] = "0"' in source
+    assert 'raw_summary.get("device", "").split(":", 1)[0] != device' in source
+    assert 'raw_command += ("--mps-profile",)' in source
+
+
 def test_failed_stage_writes_only_failure_marker(tmp_path: Path) -> None:
     driver = _load_driver()
     source = tmp_path / "source"

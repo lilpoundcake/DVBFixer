@@ -15,6 +15,7 @@
   - [`diffusion-gap-reconstruction.md`](diffusion-gap-reconstruction.md)
   - [`../research/reconstruction-and-modeling-backends.md`](../research/reconstruction-and-modeling-backends.md)
   - [`../research/small-diffusion-candidate-results.md`](../research/small-diffusion-candidate-results.md)
+  - [`../research/apple-silicon-diffusion-operator-smoke.md`](../research/apple-silicon-diffusion-operator-smoke.md)
 
 ## Goals
 
@@ -92,7 +93,7 @@
   - [x] locate a stable post-update state hook and preserve the maintained patch;
   - [x] map its atom or residue state to exact DVBFixer identities;
   - [x] run Linux CPU and CUDA operator smokes before the Linux quality pilot;
-  - [ ] run MPS operator smokes only after the Linux candidate-selection gate;
+  - [x] run MPS operator smokes only after the Linux candidate-selection gate;
   - [ ] treat AI-CATH/ProteinMPNN/ESMFold teacher bias and public-structure
     homology as unresolved until the training inventory is audited.
 - [ ] Audit Protenix Tiny and Mini as all-atom size references:
@@ -238,22 +239,22 @@
 
 ### Baseline Environment
 
-- [ ] Use a native arm64 Python environment on a physical Apple Silicon Mac.
-- [ ] Record chip generation, GPU core count, physical unified memory, macOS,
+- [x] Use a native arm64 Python environment on a physical Apple Silicon Mac.
+- [x] Record chip generation, GPU core count, physical unified memory, macOS,
   Xcode command-line tools, Python, PyTorch, and dependency-lock versions.
-- [ ] Start with a 16 GB M-series Mac as the minimum declared baseline where available.
+- [x] Start with a 16 GB M-series Mac as the minimum declared baseline where available.
 - [ ] Add at least one newer 24 GB or larger machine for scaling measurements.
-- [ ] Keep model checkpoints and caches local and checksum-verified.
-- [ ] Keep Torch and model-specific packages in an external runner environment,
+- [x] Keep model checkpoints and caches local and checksum-verified.
+- [x] Keep Torch and model-specific packages in an external runner environment,
   not in the DVBFixer core environment.
 
 ### PyTorch MPS Track
 
-- [ ] Establish float32 CPU output as the numerical reference for each candidate.
-- [ ] Run one denoiser step on `mps` before attempting full sampling.
-- [ ] Inventory unsupported operators, implicit device transfers, synchronization
+- [x] Establish float32 CPU output as the numerical reference for each candidate.
+- [x] Run one denoiser step on `mps` before attempting full sampling.
+- [x] Inventory unsupported operators, implicit device transfers, synchronization
   points, and host callbacks.
-- [ ] Disable silent broad CPU fallback during acceptance measurements.
+- [x] Disable silent broad CPU fallback during acceptance measurements.
 - [ ] Allowlist intentional CPU operations individually and include their time in
   end-to-end latency.
 - [ ] Keep OpenMM boundary refinement on its independently selected macOS platform;
@@ -317,13 +318,13 @@ lanes below pass and a full repeat has a stated decision value.
 
 #### Before Moving Machines
 
-- [ ] Add an explicit `--device {cpu,cuda,mps}` to the research adapter and pass
+- [x] Add an explicit `--device {cpu,cuda,mps}` to the research adapter and pass
   the selected device through model loading and tensor creation. The current
-  adapter is CUDA-only; replacing `cuda` ad hoc on the Mac is not acceptable.
-- [ ] Make accelerator telemetry device-aware. Record CUDA VRAM only on CUDA;
+  adapter no longer relies on ad hoc replacement of `cuda` on the Mac.
+- [x] Make accelerator telemetry device-aware. Record CUDA VRAM only on CUDA;
   on Apple record Torch MPS allocated/driver memory where available plus process
   peak RSS from macOS. Missing MPS telemetry must be `null`, never zero.
-- [ ] Add tests proving that the requested device is honored, unavailable MPS
+- [x] Add tests proving that the requested device is honored, unavailable MPS
   fails closed, and summary metadata cannot label a CPU run as MPS.
 - [ ] Materialize a transfer bundle containing the committed repository revision,
   the six frozen pilot workspaces (`36hb`, `9gtp`, `9gae`, `9ina`, `9eho`,
@@ -402,6 +403,9 @@ lanes below pass and a full repeat has a stated decision value.
   refinement, validation, and total wall time separately for every case. Record
   peak RSS and MPS memory, physical memory, output digests, failures, and whether
   each stage executed on CPU or MPS.
+  Synchronize MPS at timing boundaries. Treat sampled MPS tensor allocation,
+  Metal driver allocation, and process RSS as overlapping unified-memory views;
+  report them separately and never add them together.
 - [ ] Stop the MPS track immediately on silent CPU fallback, wrong-device tensors,
   non-finite coordinates, identity/atom-set mismatch, non-exact published fixed
   atoms, checkpoint/config digest mismatch, or an unsupported operator without a
@@ -559,8 +563,8 @@ a basis for changing the selected Protenix backend.
 
 - [ ] Complete the handoff runbook above, then move only the Protpardelle-1c
   Linux survivor to a physical Apple Silicon machine.
-- [ ] Run native arm64 CPU/MPS load and one-step smokes without silent CPU fallback.
-- [ ] Record unsupported operators, device transfers, memory, runtime, and numerical
+- [x] Run native arm64 CPU/MPS load and one-step smokes without silent CPU fallback.
+- [x] Record unsupported operators, device transfers, memory, runtime, and numerical
   divergence before attempting full constrained sampling.
 - [ ] Stop Apple-specific work for candidates that fail the Linux scientific gates.
 
@@ -628,7 +632,7 @@ a basis for changing the selected Protenix backend.
 - [x] Add a versioned small-model candidate inventory under `docs/research/`.
 - [ ] Add immutable dataset, split, and mask manifests outside model code.
 - [ ] Add external arm64 environment locks under a dedicated `deploy/` adapter.
-- [ ] Add CPU/MPS operator and resource reports with exact hardware metadata.
+- [x] Add CPU/MPS operator and resource reports with exact hardware metadata.
 - [ ] Add protocol adapters only for candidates that pass artifact and license audit.
 - [ ] Add no model weight to Git.
 - [ ] Add no Torch, MLX, Core ML, or model-specific dependency to the core

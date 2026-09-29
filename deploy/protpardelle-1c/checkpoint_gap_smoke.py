@@ -6,10 +6,15 @@ import argparse
 import hashlib
 import json
 import math
+import os
+import resource
 import shutil
+import sys
 import tempfile
+import threading
 import time
 from collections.abc import Callable
+from contextlib import nullcontext
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -36,6 +41,149 @@ from dvbfixer.model.diffusion.validate import validate_runner_result
 _REVISION = "ee378400f25b801fa481028000f9060183d7fb4c"
 _CHECKPOINT_SHA256 = "dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483"
 _CONFIG_SHA256 = "e9999ace79bf3044351cc982a624fc3459add3a4f91cbf97ff5b437b8942eb9d"
+_MPS_ENVIRONMENT_KEYS = (
+    "PYTORCH_ENABLE_MPS_FALLBACK",
+    "PYTORCH_MPS_FAST_MATH",
+    "PYTORCH_MPS_PREFER_METAL",
+    "PYTORCH_MPS_HIGH_WATERMARK_RATIO",
+    "PYTORCH_MPS_LOW_WATERMARK_RATIO",
+)
+
+
+def _resolve_device(torch: Any, requested: str) -> Any:
+    """Resolve an explicitly requested device without automatic fallback."""
+    device = torch.device(requested)
+    if device.type not in {"cpu", "cuda", "mps"}:
+        raise ValueError(f"unsupported Protpardelle device: {requested}")
+    if device.type == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA was requested but is unavailable")
+    if device.type == "mps":
+        if not torch.backends.mps.is_built():
+            raise RuntimeError("MPS was requested but this PyTorch build has no MPS support")
+        if not torch.backends.mps.is_available():
+            raise RuntimeError("MPS was requested but is unavailable on this host")
+        if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
+            raise RuntimeError(
+                "MPS acceptance runs require PYTORCH_ENABLE_MPS_FALLBACK=0 "
+                "before Python starts"
+            )
+    return device
+
+
+def _same_device(actual: Any, expected: Any) -> bool:
+    actual_device = actual if hasattr(actual, "type") else None
+    if actual_device is None or actual_device.type != expected.type:
+        return False
+    return expected.index is None or actual_device.index == expected.index
+
+
+def _assert_model_device(model: Any, expected: Any) -> None:
+    mismatches = [
+        f"parameter:{name}:{value.device}"
+        for name, value in model.named_parameters()
+        if not _same_device(value.device, expected)
+    ]
+    mismatches.extend(
+        f"buffer:{name}:{value.device}"
+        for name, value in model.named_buffers()
+        if not _same_device(value.device, expected)
+    )
+    if mismatches:
+        preview = ", ".join(mismatches[:5])
+        raise RuntimeError(f"model state is not entirely on {expected}: {preview}")
+
+
+def _assert_tensor_device(name: str, value: Any, expected: Any) -> None:
+    if not _same_device(value.device, expected):
+        raise RuntimeError(f"{name} is on {value.device}, expected {expected}")
+
+
+def _synchronize(torch: Any, device: Any) -> None:
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+    elif device.type == "mps":
+        torch.mps.synchronize()
+
+
+def _peak_rss_bytes() -> int:
+    value = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    return value if sys.platform == "darwin" else value * 1024
+
+
+class _AcceleratorTelemetry:
+    """Collect device-aware allocator data without reporting absent data as zero."""
+
+    def __init__(self, torch: Any, device: Any) -> None:
+        self._torch = torch
+        self._device = device
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+        self._mps_current_samples: list[int] = []
+        self._mps_driver_samples: list[int] = []
+        self._sampling_error: str | None = None
+
+    @staticmethod
+    def _optional_mps_value(torch: Any, name: str) -> int | None:
+        function = getattr(torch.mps, name, None)
+        return int(function()) if callable(function) else None
+
+    def _sample_mps(self) -> None:
+        current = self._optional_mps_value(self._torch, "current_allocated_memory")
+        driver = self._optional_mps_value(self._torch, "driver_allocated_memory")
+        if current is not None:
+            self._mps_current_samples.append(current)
+        if driver is not None:
+            self._mps_driver_samples.append(driver)
+
+    def _sample_until_stopped(self) -> None:
+        while not self._stop.wait(0.05):
+            try:
+                self._sample_mps()
+            except Exception as exc:  # pragma: no cover - requires a failing MPS runtime
+                self._sampling_error = f"{type(exc).__name__}: {exc}"
+                return
+
+    def start(self) -> None:
+        if self._device.type == "cuda":
+            self._torch.cuda.reset_peak_memory_stats(self._device)
+        elif self._device.type == "mps":
+            self._sample_mps()
+            self._thread = threading.Thread(
+                target=self._sample_until_stopped,
+                name="dvbfixer-mps-memory",
+                daemon=True,
+            )
+            self._thread.start()
+
+    def stop(self) -> dict[str, int | None]:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join()
+        if self._sampling_error is not None:
+            raise RuntimeError(f"MPS memory telemetry failed: {self._sampling_error}")
+        if self._device.type == "mps":
+            self._sample_mps()
+        peak_accelerator: int | None = None
+        if self._device.type == "cuda":
+            peak_accelerator = int(self._torch.cuda.max_memory_allocated(self._device))
+        elif self._device.type == "mps" and self._mps_driver_samples:
+            peak_accelerator = max(self._mps_driver_samples)
+        recommended = (
+            self._optional_mps_value(self._torch, "recommended_max_memory")
+            if self._device.type == "mps"
+            else None
+        )
+        return {
+            "peak_accelerator_allocated_bytes": peak_accelerator,
+            "peak_mps_tensor_allocated_bytes": (
+                max(self._mps_current_samples) if self._mps_current_samples else None
+            ),
+            "peak_mps_driver_allocated_bytes": (
+                max(self._mps_driver_samples) if self._mps_driver_samples else None
+            ),
+            "mps_recommended_max_memory_bytes": recommended,
+            "peak_rss_bytes": _peak_rss_bytes(),
+        }
 
 
 def _sha256(path: Path) -> str:
@@ -359,6 +507,8 @@ def _run_staged(
     step_scale: float,
     s_churn: float,
     per_step_reinjection: bool,
+    device_name: str,
+    mps_profile: bool,
 ) -> Path:
     import torch
     from protpardelle.common import residue_constants
@@ -401,19 +551,42 @@ def _run_staged(
     motif_path = output_dir / "motif.pdb"
     _write_motif_input(source, motif_path, request)
 
+    device = _resolve_device(torch, device_name)
+    if mps_profile and device.type != "mps":
+        raise ValueError("--mps-profile requires --device mps")
+    telemetry = _AcceleratorTelemetry(torch, device)
     start = time.perf_counter()
-    torch.cuda.reset_peak_memory_stats()
+    telemetry.start()
     seed = request.seeds[0]
     seed_everything(seed)
-    model = load_model(config_path, checkpoint_path, device="cuda")
+    torch.manual_seed(seed)
+    if device.type == "cuda":
+        torch.cuda.manual_seed_all(seed)
+    elif device.type == "mps":
+        torch.mps.manual_seed(seed)
+    model_load_start = time.perf_counter()
+    model = load_model(config_path, checkpoint_path, device=str(device))
+    _synchronize(torch, device)
+    model_load_seconds = time.perf_counter() - model_load_start
+    _assert_model_device(model, device)
     seq_mask, residue_index, chain_index = model.make_seq_mask_for_sampling(
         prot_lens_per_chain=torch.tensor([[len(target.sequence)]])
     )
+    seq_mask = seq_mask.to(device=device)
+    residue_index = residue_index.to(device=device)
+    chain_index = chain_index.to(device=device)
     gt_aatype = torch.tensor(
         [[residue_constants.restype_order[amino_acid] for amino_acid in target.sequence]],
         dtype=torch.long,
-        device=model.device,
+        device=device,
     )
+    for name, value in (
+        ("seq_mask", seq_mask),
+        ("residue_index", residue_index),
+        ("chain_index", chain_index),
+        ("gt_aatype", gt_aatype),
+    ):
+        _assert_tensor_device(name, value, device)
     fixed_positions = [
         *range(gap.target_interval.start),
         *range(gap.target_interval.stop, len(target.sequence)),
@@ -456,30 +629,39 @@ def _run_staged(
         "maximum_post_projection_error_angstrom": 0.0,
     }
     sample_options: dict[str, Any] = {}
+    if device.type == "mps":
+        sample_options["record_trajectory"] = False
     if per_step_reinjection:
         callback, callback_stats = _make_per_step_reinjector(request, fixed_coordinates)
         sample_options["step_callback"] = callback
-    sampled = model.sample(
-        seq_mask=seq_mask,
-        residue_index=residue_index,
-        chain_index=chain_index,
-        gt_aatype=gt_aatype,
-        num_steps=steps,
-        step_scale=step_scale,
-        s_churn=s_churn,
-        motif_file_path=str(motif_path),
-        motif_placements_full=[placement],
-        dummy_fill_mode=model.config.data.dummy_fill_mode,
-        partial_diffusion={"enabled": False, "pdb_file_path": None, "num_steps": 100},
-        conditional_cfg=conditional,
-        sidechain_mode=False,
-        skip_mpnn_proportion=1.0,
-        use_fullmpnn=False,
-        use_fullmpnn_for_final=False,
-        jump_steps=False,
-        uniform_steps=True,
-        **sample_options,
-    )
+    _synchronize(torch, device)
+    denoising_start = time.perf_counter()
+    profile_context = torch.mps.profiler.profile() if mps_profile else nullcontext()
+    with profile_context:
+        sampled = model.sample(
+            seq_mask=seq_mask,
+            residue_index=residue_index,
+            chain_index=chain_index,
+            gt_aatype=gt_aatype,
+            num_steps=steps,
+            step_scale=step_scale,
+            s_churn=s_churn,
+            motif_file_path=str(motif_path),
+            motif_placements_full=[placement],
+            dummy_fill_mode=model.config.data.dummy_fill_mode,
+            partial_diffusion={"enabled": False, "pdb_file_path": None, "num_steps": 100},
+            conditional_cfg=conditional,
+            sidechain_mode=False,
+            skip_mpnn_proportion=1.0,
+            use_fullmpnn=False,
+            use_fullmpnn_for_final=False,
+            jump_steps=False,
+            uniform_steps=True,
+            **sample_options,
+        )
+    _assert_tensor_device("sampled coordinates", sampled["x"], device)
+    _synchronize(torch, device)
+    denoising_seconds = time.perf_counter() - denoising_start
     if per_step_reinjection and callback_stats["callback_count"] != steps:
         raise RuntimeError(
             "per-step callback count mismatch: "
@@ -512,6 +694,7 @@ def _run_staged(
         score_provenance="protpardelle-1c-cc89:unranked",
     )
     elapsed = time.perf_counter() - start
+    memory = telemetry.stop()
     result = RunnerResult(
         schema_version=DIFFUSION_SCHEMA_VERSION,
         status=DiffusionStatus.SUCCESS,
@@ -527,22 +710,25 @@ def _run_staged(
             engine_repository="https://github.com/ProteinDesignLab/protpardelle-1c",
             engine_revision=_REVISION,
             checkpoint_sha256=_CHECKPOINT_SHA256,
-            device=str(model.device),
+            device=str(device),
             precision="float32",
             framework="torch",
             framework_version=torch.__version__,
-            cuda_version=str(torch.version.cuda or ""),
+            cuda_version=str(torch.version.cuda or "") if device.type == "cuda" else "",
             deterministic_algorithms=False,
             deterministic_flags=(
                 f"seed={seed}",
                 "fixed-sequence",
                 "mpnn-disabled",
                 f"per-step-reinjection={per_step_reinjection}",
+                f"mps-fallback={os.environ.get('PYTORCH_ENABLE_MPS_FALLBACK', 'unset')}",
             ),
         ),
         resource_metrics=RunnerResourceMetrics(
             wall_time_seconds=elapsed,
-            peak_vram_bytes=torch.cuda.max_memory_allocated(),
+            model_load_seconds=model_load_seconds,
+            peak_ram_bytes=memory["peak_rss_bytes"],
+            peak_vram_bytes=memory["peak_accelerator_allocated_bytes"],
         ),
     )
     validation = validate_runner_result(request, result, workspace=workspace)[0]
@@ -579,6 +765,14 @@ def _run_staged(
         "ranking_metrics": [asdict(metric) for metric in validation.ranking_metrics],
         "wall_time_seconds": elapsed,
         "peak_vram_bytes": result.resource_metrics.peak_vram_bytes,
+        "device": str(device),
+        "mps_profile_enabled": mps_profile,
+        "mps_environment": {key: os.environ.get(key) for key in _MPS_ENVIRONMENT_KEYS},
+        "resource_metrics": {
+            "model_load_seconds": model_load_seconds,
+            "denoising_seconds": denoising_seconds,
+            **memory,
+        },
     }
     summary_path = output_dir / "summary.json"
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -595,6 +789,8 @@ def run(
     step_scale: float,
     s_churn: float,
     per_step_reinjection: bool = False,
+    device: str = "cuda",
+    mps_profile: bool = False,
 ) -> None:
     request_path = request_path.resolve()
     workspace = request_path.parent
@@ -617,6 +813,8 @@ def run(
             step_scale=step_scale,
             s_churn=s_churn,
             per_step_reinjection=per_step_reinjection,
+            device_name=device,
+            mps_profile=mps_profile,
         )
         staging.rename(output_dir)
     finally:
@@ -634,6 +832,8 @@ def main() -> None:
     parser.add_argument("--steps", default=500, type=int)
     parser.add_argument("--step-scale", default=1.2, type=float)
     parser.add_argument("--s-churn", default=200.0, type=float)
+    parser.add_argument("--device", choices=("cpu", "cuda", "mps"), default="cuda")
+    parser.add_argument("--mps-profile", action="store_true")
     parser.add_argument("--per-step-reinjection", action="store_true")
     args = parser.parse_args()
     run(
@@ -645,6 +845,8 @@ def main() -> None:
         step_scale=args.step_scale,
         s_churn=args.s_churn,
         per_step_reinjection=args.per_step_reinjection,
+        device=args.device,
+        mps_profile=args.mps_profile,
     )
 
 
