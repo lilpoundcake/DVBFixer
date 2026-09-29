@@ -21,6 +21,7 @@
   - [`../research/apple-silicon-diffusion-24-case-results.md`](../research/apple-silicon-diffusion-24-case-results.md)
   - [`../research/small-diffusion-apple-100-soak.json`](../research/small-diffusion-apple-100-soak.json)
   - [`../research/small-diffusion-apple-full-231.json`](../research/small-diffusion-apple-full-231.json)
+  - [`../research/apple-silicon-diffusion-100-case-results.md`](../research/apple-silicon-diffusion-100-case-results.md)
 
 ## Goals
 
@@ -397,7 +398,7 @@ lanes below pass and a full repeat has a stated decision value.
 - [x] Lane 5, frozen 24-case portability pilot: proceed only if Lane 4 passes its
   stop rules. Use the existing 12 gap-5/12 gap-10 membership with an Apple-specific
   manifest and namespace; do not inspect outcomes while deciding replacements.
-- [ ] Lane 6, 100-case operational soak: proceed only if Lane 5 passes. Freeze the
+- [x] Lane 6, 100-case operational soak: proceed only if Lane 5 passes. Freeze the
   first 100 eligible full-follow-up cases in manifest order, run consecutively,
   and check memory pressure, temporary cleanup, process lifetime, and p95 latency.
   A 231-case Apple repeat requires a separate written rationale after this soak.
