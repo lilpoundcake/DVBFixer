@@ -20,6 +20,7 @@
   - [`../research/small-diffusion-apple-24-pilot.json`](../research/small-diffusion-apple-24-pilot.json)
   - [`../research/apple-silicon-diffusion-24-case-results.md`](../research/apple-silicon-diffusion-24-case-results.md)
   - [`../research/small-diffusion-apple-100-soak.json`](../research/small-diffusion-apple-100-soak.json)
+  - [`../research/small-diffusion-apple-full-231.json`](../research/small-diffusion-apple-full-231.json)
 
 ## Goals
 
@@ -400,6 +401,10 @@ lanes below pass and a full repeat has a stated decision value.
   first 100 eligible full-follow-up cases in manifest order, run consecutively,
   and check memory pressure, temporary cleanup, process lifetime, and p95 latency.
   A 231-case Apple repeat requires a separate written rationale after this soak.
+- [ ] Lane 7, user-authorized 231-case extension: reuse only digest-verified
+  first-100 artifacts produced by the identical frozen protocol, then run the
+  remaining 131 cases in manifest order. Keep all scientific failures in the
+  denominator and require 231/231 operational completions.
 
 #### Measurements And Stop Rules
 
