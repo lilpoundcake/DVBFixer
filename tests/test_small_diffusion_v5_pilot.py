@@ -89,6 +89,21 @@ def test_full_followup_manifest_preserves_frozen_cohort() -> None:
     assert value["sampling"]["per_step_reinjection"] is False
     assert value["refinement"]["platform"] == "CUDA"
 
+    successor = json.loads(
+        (ROOT / "docs/research/small-diffusion-full-followup-v2.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert successor["cases"] == cases
+    assert successor["sampling"] == value["sampling"]
+    assert successor["selection"] == value["selection"]
+    assert successor["refinement"]["revision"] == (
+        "dvbfixer-openmm-boundary-refinement-v6"
+    )
+    assert successor["refinement"]["fixed_particle_internal_tolerance_angstrom"] == (
+        0.0001
+    )
+
 
 def test_selection_retains_valid_raw_when_refinement_regresses() -> None:
     driver = _load_driver()

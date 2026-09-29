@@ -85,20 +85,27 @@ runs used explicit CUDA `Precision=mixed` and `DeterministicForces=true`. Both:
   `0284d877cbe4a5d4acd392aad549d5cbc09acac2172fdc53eede6cc7a3b6e945`;
 - completed refinement in 3.31 and 1.79 seconds.
 
-CUDA internally round-tripped massless fixed coordinates with a measured maximum
-drift of `3.45e-6 Å`. Boundary-refinement revision v5 accepts only `<=1e-5 Å`
-internal noise while publication continues to copy all fixed PDB records
-unchanged. Missing identities or larger movement remain fatal.
+CUDA internally round-tripped massless fixed coordinates by `3.45e-6 Å` in the
+short gate. The first cohort attempt exposed `1.63e-5 Å` on the larger `35zr`
+coordinate frame, above revision v5's overly tight `1e-5 Å` internal bound.
+Boundary-refinement revision v6 accepts only `<=1e-4 Å` internal noise, still ten
+times stricter than PDB coordinate precision, while publication continues to
+copy all fixed PDB records unchanged. Missing identities or larger movement
+remain fatal. The partial v5 run was discarded and v6 uses a fresh namespace.
 
 The 440-residue `9ina` long-target gate then passed every hard gate in 13.83
 seconds, with fixed-heavy RMSD/max displacement `0.0 Å`. Its published candidate
 SHA-256 is `9a33bd3ff2b66ec5a4ba6483a943896edc0fa6bac2ce2b7289edc68448938aa1`.
 The corresponding OpenMM Reference attempt had previously exceeded 900 seconds.
 
-These gates authorize the full 231-case follow-up frozen in
+These gates initially authorized the full 231-case follow-up frozen in
 [`small-diffusion-full-followup.json`](small-diffusion-full-followup.json),
 SHA-256 `c9530bd95e1b420f27d31ae9c389940f096f66f215536f8626d2571689b6ba55`.
-They do not establish cross-host or cross-GPU determinism.
+That manifest records the stopped v5 attempt. Its v6 successor must be frozen
+before the clean restart. The successor is
+[`small-diffusion-full-followup-v2.json`](small-diffusion-full-followup-v2.json),
+SHA-256 `fa2bd455ef44c0a413cc2a174a4dfd017af51a99617fb69eb7bdc364eba0850f`.
+These gates do not establish cross-host or cross-GPU determinism.
 
 The 231-case run will be descriptive rather than an independent confirmatory
 benchmark because Protpardelle's exact training membership remains unavailable

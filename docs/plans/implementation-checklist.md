@@ -278,6 +278,10 @@ these checked workflow-state items cover one-host multi-process operation.
   cohort-wide inference, with 128 gap-5 and 103 gap-10 cases, CUDA refinement,
   validation-first selection, digest-tracked code/environment inputs, and no
   replacement of failures.
+- [x] Preserve the stopped v5 full-run manifest after its internal CUDA
+  fixed-particle tolerance rejected `35zr`; pass the v6 standalone gate and
+  freeze a successor manifest before a clean namespace restart without changing
+  sampling, physical refinement, validation, selection, or cohort membership.
 - [ ] Benchmark at most two adapted pretrained compact candidates before training a purpose-built local gap model.
 - [ ] Train and freeze a leakage-controlled gap-only model only after the public-structure dataset and sequence-cluster splits are immutable.
 - [ ] Require withheld-coordinate noninferiority and Apple memory/latency gates before any local experimental backend decision.

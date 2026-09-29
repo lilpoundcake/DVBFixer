@@ -38,7 +38,7 @@ from dvbfixer.ffutils.geometry import (
 )
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
-BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v5"
+BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v6"
 BOUNDARY_REFINEMENT_FORCEFIELD = tuple(FF_ALIASES["amber"])
 BOUNDARY_REFINEMENT_MAX_ITERATIONS = 250
 BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM = 10.0
@@ -47,7 +47,7 @@ BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM = 0.75
 BOUNDARY_REFINEMENT_OMEGA_KJ_MOL = 500.0
 BOUNDARY_REFINEMENT_PEPTIDE_ANGLE_KJ_MOL_RAD2 = 1000.0
 _REFINEMENT_BACKBONE_ATOMS = frozenset({"N", "CA", "C", "O", "OXT"})
-_FIXED_ATOM_INTERNAL_TOLERANCE_ANGSTROM = 1.0e-5
+_FIXED_ATOM_INTERNAL_TOLERANCE_ANGSTROM = 1.0e-4
 
 
 class BoundaryRefinementError(RuntimeError):

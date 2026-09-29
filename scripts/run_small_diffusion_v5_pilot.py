@@ -18,6 +18,7 @@ from typing import Any
 from dvbfixer.model.diffusion.contract import DiffusionRequest
 
 ROOT = Path(__file__).resolve().parents[1]
+DRIVER = Path(__file__).resolve()
 DEFAULT_MANIFEST = ROOT / "docs/research/small-diffusion-v5-expanded-pilot.json"
 ADAPTER = ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py"
 CALLBACK_PATCH = ROOT / "deploy/protpardelle-1c/per-step-callback.patch"
@@ -220,6 +221,7 @@ def run_pilot(
             (str(ROOT / "src"), str(protpardelle_checkout / "src"))
         )
         raw_inputs = {
+            "driver": DRIVER,
             "manifest": manifest_path,
             "request": request,
             "config": config,
@@ -277,6 +279,7 @@ def run_pilot(
         if "openmm_cpu_threads" in refinement:
             refine_env["OPENMM_CPU_THREADS"] = str(refinement["openmm_cpu_threads"])
         refinement_inputs = {
+            "driver": DRIVER,
             "manifest": manifest_path,
             "request": request,
             "raw_candidate": raw / "candidate.pdb",

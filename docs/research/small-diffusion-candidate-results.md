@@ -251,6 +251,18 @@ failed cases in the denominator, and fixes validation-first refined/raw
 selection. Its preregistration SHA-256 is
 `c9530bd95e1b420f27d31ae9c389940f096f66f215536f8626d2571689b6ba55`.
 
+The v5 full run stopped during case 31 (`35zr`) because CUDA's internal
+fixed-particle round trip reached `1.63e-5 Å`, above the initial `1e-5 Å`
+sanity bound but still far below PDB precision; no fixed coordinate from this
+state is published. The passing standalone v6 gate uses `1e-4 Å`, ten times
+stricter than PDB precision, while independent published-coordinate checks stay
+exact at `0.0 Å`. The partial namespace is discarded. The clean-restart
+manifest is
+[`small-diffusion-full-followup-v2.json`](small-diffusion-full-followup-v2.json),
+SHA-256 `fa2bd455ef44c0a413cc2a174a4dfd017af51a99617fb69eb7bdc364eba0850f`;
+cohort, sampling, physical refinement, validation, selection, and denominator
+policies are unchanged.
+
 ### Expanded V5 Linux Pilot
 
 The preregistered 24-case extension is recorded in
