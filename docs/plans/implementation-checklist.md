@@ -249,11 +249,13 @@ these checked workflow-state items cover one-host multi-process operation.
 - [ ] Complete Phase 4: experimental `model --backend diffusion` while retaining MODELLER as the default and without automatic fallback.
 - [ ] Complete Phase 5: mosaic-first homology evaluation preserving authoritative template coordinates.
 - [ ] Complete Phase 6: separate evidence-backed production decision.
-- [ ] After the main framework and Linux/NVIDIA Phase 2/3 tests stabilize, perform a separate macOS Apple Silicon CPU/MPS and remote-runner feasibility evaluation; this is deferred from the current Phase 2-4 cycle.
+- [ ] Execute the now-unblocked macOS Apple Silicon CPU/MPS portability evaluation
+  separately from Linux/NVIDIA acceptance and remote-runner evidence.
 - [x] After native GPU gates pass, define the external NVIDIA Docker runner with a digest-pinned base and digest-verified mounted checkpoint.
 - [ ] Build and GPU-smoke the final image when an OCI runtime is available; defer registry signing, multi-arch, embedded weights, and orchestration until deployment creates those requirements.
-- [ ] Complete compact-model Linux scientific selection first, then run the Apple
-  Silicon CPU/MPS operator matrix for surviving candidates on the other machine.
+- [x] Complete compact-model Linux scientific selection and the 231-case
+  Protpardelle descriptive follow-up; run the frozen Apple Silicon CPU/MPS handoff
+  matrix next on the physical Mac.
 - [x] Complete Protpardelle-1c artifact audit, Linux CPU/CUDA operator smoke,
   initial three-residue withheld-coordinate pilot, and frozen six-case v5 pilot;
   generated-only CPU refinement raises the latter from `2/6` to `6/6` hard-gate
@@ -282,6 +284,12 @@ these checked workflow-state items cover one-host multi-process operation.
   fixed-particle tolerance rejected `35zr`; pass the v6 standalone gate and
   freeze a successor manifest before a clean namespace restart without changing
   sampling, physical refinement, validation, selection, or cohort membership.
+- [x] Complete the clean v6 231-case follow-up: Protpardelle raw passes `101/231`,
+  CUDA-refined and validation-first selected output pass `217/231`; retain Linux
+  evidence as immutable comparator data for the Apple portability study.
+- [x] Freeze the staged Apple Silicon handoff plan: explicit CPU/MPS device
+  selection, fallback-disabled operator smoke, same-seed repeat, six-case gate,
+  24-case portability pilot, and conditional 100-case operational soak.
 - [ ] Benchmark at most two adapted pretrained compact candidates before training a purpose-built local gap model.
 - [ ] Train and freeze a leakage-controlled gap-only model only after the public-structure dataset and sequence-cluster splits are immutable.
 - [ ] Require withheld-coordinate noninferiority and Apple memory/latency gates before any local experimental backend decision.

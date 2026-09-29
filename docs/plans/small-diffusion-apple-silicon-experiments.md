@@ -1,12 +1,13 @@
 # Small Diffusion And Apple Silicon Experiment Plan
 
-- Status: active research; first Linux constrained pilot complete.
+- Status: active research; Linux selection and 231-case descriptive follow-up
+  complete, Apple Silicon portability handoff next.
 - Scope owner: Structure Preparation bounded context.
 - Relationship to production work:
   - Keep Protenix v1 as the selected experimental production-integration backend.
   - Treat this plan as an independent search for a smaller local alternative.
-  - Test compact candidates on Linux CPU/CUDA first. Test Apple Silicon support
-    later, on another machine, only for candidates that pass the Linux pilot.
+  - Test compact candidates on Linux CPU/CUDA first. That gate is complete for
+    Protpardelle-1c; test its Apple Silicon support next on the physical Mac.
   - Do not delay or weaken the Protenix integration gates.
   - Do not use Apple Silicon evidence as a substitute for Linux/NVIDIA acceptance.
 - Related evidence:
@@ -88,7 +89,7 @@
   - [x] record the released AI-CATH/Ingraham CATH description while treating exact
     training membership as unresolved;
   - [x] audit native motif/crop conditioning with a three-residue withheld pilot;
-  - [ ] locate a stable post-update state hook or document the required patch;
+  - [x] locate a stable post-update state hook and preserve the maintained patch;
   - [x] map its atom or residue state to exact DVBFixer identities;
   - [x] run Linux CPU and CUDA operator smokes before the Linux quality pilot;
   - [ ] run MPS operator smokes only after the Linux candidate-selection gate;
@@ -286,6 +287,142 @@
   refinement, validation, and publication times separately.
 - [ ] Require local offline execution after checkpoints and dependencies are installed.
 
+### Apple Silicon Handoff Runbook
+
+This is a portability study of the already selected compact exploratory baseline,
+not a new model-selection exercise. Do not tune sampling, refinement, validation,
+or selection from Apple outcomes. Do not repeat all 231 cases until the bounded
+lanes below pass and a full repeat has a stated decision value.
+
+#### Frozen Configuration
+
+- [x] Move only Protpardelle-1c `cc89_epoch415` to the first Apple test. Keep
+  source revision `ee378400f25b801fa481028000f9060183d7fb4c`, checkpoint SHA-256
+  `dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483`,
+  and config SHA-256
+  `e9999ace79bf3044351cc982a624fc3459add3a4f91cbf97ff5b437b8942eb9d`.
+- [x] Keep the selected sampling policy unchanged: request seed, 500 steps,
+  `step_scale=1.2`, `s_churn=200`, supplied sequence, no MiniMPNN or
+  ProteinMPNN, native conditioning followed by rigid synchronization and exact
+  final fixed-atom projection. Do not enable the rejected per-step reinjection
+  ablation.
+- [x] Keep Linux/A100 results immutable as comparator evidence. The 231-case
+  baseline is raw `101/231`, refined `217/231`, and validation-first selected
+  `217/231`; Apple runs must use a separate output namespace and report rather
+  than update those values.
+- [ ] Freeze an Apple manifest before the first outcome-bearing run. It must
+  preserve sampling and validation settings, select OpenMM `CPU` refinement,
+  name the exact pilot cases, and use a new output namespace. Never edit either
+  Linux full-follow-up manifest for Apple execution.
+
+#### Before Moving Machines
+
+- [ ] Add an explicit `--device {cpu,cuda,mps}` to the research adapter and pass
+  the selected device through model loading and tensor creation. The current
+  adapter is CUDA-only; replacing `cuda` ad hoc on the Mac is not acceptable.
+- [ ] Make accelerator telemetry device-aware. Record CUDA VRAM only on CUDA;
+  on Apple record Torch MPS allocated/driver memory where available plus process
+  peak RSS from macOS. Missing MPS telemetry must be `null`, never zero.
+- [ ] Add tests proving that the requested device is honored, unavailable MPS
+  fails closed, and summary metadata cannot label a CPU run as MPS.
+- [ ] Materialize a transfer bundle containing the committed repository revision,
+  the six frozen pilot workspaces (`36hb`, `9gtp`, `9gae`, `9ina`, `9eho`,
+  `9gbg`) with relative artifact layout intact, the source `aggregate.json`,
+  required comparator candidates/summaries, the Apple manifest, config, and
+  checkpoint. Include a SHA-256 inventory for every transferred file.
+- [ ] Keep the 24-case and 231-case workspaces off the first transfer unless the
+  six-case gate passes. Do not transfer Linux environments, caches, generated
+  candidates, credentials, or untracked editor/agent configuration.
+
+#### Native Environment And Inventory
+
+- [ ] Check out the frozen repository revision and verify the transfer inventory
+  before installing or running anything.
+- [ ] Confirm `uname -m` reports `arm64`; reject a Rosetta/x86_64 Python. Record
+  `sw_vers`, `system_profiler SPHardwareDataType`, `xcode-select -p`, free disk,
+  and physical unified memory.
+- [ ] Create separate native arm64 DVBFixer and Protpardelle environments. Record
+  exact Python, PyTorch, OpenMM, NumPy, MDAnalysis, and model dependency versions
+  plus the final explicit environment export and installed size.
+- [ ] Verify `torch.backends.mps.is_built()` and `is_available()`. Set
+  `PYTORCH_ENABLE_MPS_FALLBACK=0` for every acceptance run so an unsupported
+  operator fails instead of silently running on CPU.
+- [ ] Verify the selected OpenMM macOS `CPU` platform independently. Record its
+  name, version, precision properties, thread count, and generated-only
+  refinement runtime; do not describe it as MPS acceleration.
+- [ ] Disconnect networking after dependency and checkpoint installation and
+  repeat the one-step load smoke to prove local offline operation.
+
+#### Ordered Test Lanes
+
+- [ ] Lane 0, core contract: run the diffusion contract, scope, mask, validation,
+  geometry, provenance, pipeline, preflight, runner, Protpardelle adapter, and
+  pilot-driver tests on macOS arm64 before loading the checkpoint.
+
+  ```bash
+  pytest -q \
+    tests/test_diffusion_contract.py \
+    tests/test_diffusion_scope.py \
+    tests/test_diffusion_masks.py \
+    tests/test_diffusion_validate.py \
+    tests/test_diffusion_geometry.py \
+    tests/test_diffusion_provenance.py \
+    tests/test_diffusion_pipeline.py \
+    tests/test_diffusion_preflight.py \
+    tests/test_diffusion_runner.py \
+    tests/test_protpardelle_research_scripts.py \
+    tests/test_small_diffusion_v5_pilot.py
+  ```
+
+- [ ] Lane 1, CPU reference: load the pinned checkpoint in float32 on CPU, execute
+  one denoiser step, and record finite outputs, atom37 shape, load time, step time,
+  peak RSS, and output digest. Then run the shortest frozen case (`36hb`) once at
+  500 steps if its projected runtime is practical.
+- [ ] Lane 2, MPS operator smoke: repeat the same load and one-step input on MPS
+  with fallback disabled. Assert model state, denoiser inputs, and outputs remain
+  on `mps`; inventory every unsupported operator or intentional host transfer.
+- [ ] Lane 3, MPS repeatability: run `36hb` at 500 steps in two independent
+  workspaces with the same request seed. Require both selected candidates to pass
+  all hard gates and fixed atoms to be exact. Report RMSD and maximum displacement
+  between generated atoms; do not require cross-device or same-device byte identity.
+- [ ] Lane 4, frozen six-case pilot: run the six cases once on MPS, then perform
+  generated-only OpenMM CPU refinement and validation without resampling. Retain
+  every failure in the denominator and aggregate raw, refined, and selected results.
+- [ ] Lane 5, frozen 24-case portability pilot: proceed only if Lane 4 passes its
+  stop rules. Use the existing 12 gap-5/12 gap-10 membership with an Apple-specific
+  manifest and namespace; do not inspect outcomes while deciding replacements.
+- [ ] Lane 6, 100-case operational soak: proceed only if Lane 5 passes. Freeze the
+  first 100 eligible full-follow-up cases in manifest order, run consecutively,
+  and check memory pressure, temporary cleanup, process lifetime, and p95 latency.
+  A 231-case Apple repeat requires a separate written rationale after this soak.
+
+#### Measurements And Stop Rules
+
+- [ ] Record model load, feature construction, denoising, synchronization,
+  refinement, validation, and total wall time separately for every case. Record
+  peak RSS and MPS memory, physical memory, output digests, failures, and whether
+  each stage executed on CPU or MPS.
+- [ ] Stop the MPS track immediately on silent CPU fallback, wrong-device tensors,
+  non-finite coordinates, identity/atom-set mismatch, non-exact published fixed
+  atoms, checkpoint/config digest mismatch, or an unsupported operator without a
+  narrowly documented scientifically equivalent implementation.
+- [ ] If MPS is unavailable but native CPU works, classify the host as CPU-only
+  feasibility; do not weaken the MPS goal or report CPU execution as an MPS result.
+- [ ] Require both `36hb` repeats and all six Lane 4 selected candidates to pass
+  scientific hard gates before Lane 5. MPS nondeterminism is acceptable only when
+  quantified and both repeats remain valid.
+- [ ] Require at least `21/24` selected passes in Lane 5, no systematic new failure
+  class, peak unified memory below 60% of physical memory, and projected p95 below
+  five minutes before the 100-case soak. This threshold is frozen before Apple
+  outcomes and is one failure looser than the Linux `22/24` exploratory result.
+- [ ] Require 100/100 operational completions in Lane 6 with no memory-pressure
+  termination, leaked process, or unreclaimed workspace. Scientific failures stay
+  in the denominator but do not count as operational failures when validation
+  completes normally.
+- [ ] Write the final hardware/environment/operator/result record under
+  `docs/research/`; keep checkpoints, environments, profiles, and generated
+  structures under ignored `.artifacts/` paths.
+
 ## Experiment Phases
 
 ### Linux V5 Comparator Pilot Runbook
@@ -313,7 +450,7 @@ a basis for changing the selected Protenix backend.
 - [x] Add dependency-light tests for request mapping, insertion-code handling,
   motif serialization, canonical atom inventory, exact fixed-coordinate
   reinjection, malformed requests, and output atom-set mismatch.
-- [ ] Add a resumable six-case pilot driver. Each case must have an isolated
+- [x] Add a resumable six-case pilot driver. Each case must have an isolated
   output directory, an immutable input/output digest record, captured command,
   seed, runtime, peak VRAM, validation summary, and explicit failed status.
 - [x] Use the request's existing single seed and the frozen `cc89` settings of
@@ -332,7 +469,7 @@ a basis for changing the selected Protenix backend.
   without resampling. OpenMM CPU raised hard-gate success from `2/6` to `6/6`;
   retain the `Reference` long-case timeout and CUDA PTX incompatibility as
   operational failures rather than silently changing or omitting them.
-- [ ] Record raw conditioning fit separately from the final gap-only reinjected
+- [x] Record raw conditioning fit separately from the final gap-only reinjected
   candidate. The final candidate must preserve every fixed heavy atom exactly;
   native motif drift is diagnostic evidence, not publishable output.
 - [x] Stop the pretrained compact track if `cc89` cannot represent both anchors,
@@ -342,14 +479,12 @@ a basis for changing the selected Protenix backend.
 - [x] Write the completed command/environment/hardware/result record to
   `docs/research/small-diffusion-candidate-results.md`; keep generated structures,
   checkpoints, environments, and run bundles under ignored `.artifacts/` paths.
-- [ ] Run focused adapter/driver tests, the existing diffusion contract/scope/
+- [x] Run focused adapter/driver tests, the existing diffusion contract/scope/
   validation tests, Ruff on changed Python files, `git diff --check`, and
   `python scripts/check_agent_docs.py` before marking this pilot complete.
-- [ ] Resume point: implement failure-atomic resumable orchestration and raw
-  native-conditioning-fit reporting, then preregister a larger leakage-exploratory
-  Linux subset before inspecting any additional Protpardelle outcomes. Preserve
-  the six-case `6/6` refined result as pilot evidence only; do not begin Apple work
-  until the larger Linux gate and environment portability audit are complete.
+- [x] Complete failure-atomic resumable orchestration, raw native-conditioning-fit
+  reporting, the preregistered 24-case extension, CUDA portability repair, and the
+  frozen 231-case descriptive follow-up before beginning Apple work.
 
 ### Expanded V5 Linux Pilot
 
@@ -412,6 +547,9 @@ a basis for changing the selected Protenix backend.
   seconds, authorizing the 231-case descriptive follow-up.
 - [x] Evaluate the frozen v5 short and long pilot gaps on Linux CUDA sampling
   with CPU boundary refinement.
+- [x] Complete the frozen 231-case Linux/A100 descriptive follow-up with CUDA
+  refinement: raw `101/231`, refined `217/231`, and validation-first selected
+  `217/231`, while retaining all failures in the denominator.
 - [ ] Stop a candidate that cannot represent both anchors, complete canonical
   output, or preserve fixed coordinates exactly.
 - [ ] Stop backbone-only and hybrid backbone-plus-packer candidates before the
@@ -419,7 +557,8 @@ a basis for changing the selected Protenix backend.
 
 ### Phase 3: Apple Operator And Footprint Smoke
 
-- [ ] Move only Linux-pilot survivors to a physical Apple Silicon machine.
+- [ ] Complete the handoff runbook above, then move only the Protpardelle-1c
+  Linux survivor to a physical Apple Silicon machine.
 - [ ] Run native arm64 CPU/MPS load and one-step smokes without silent CPU fallback.
 - [ ] Record unsupported operators, device transfers, memory, runtime, and numerical
   divergence before attempting full constrained sampling.
