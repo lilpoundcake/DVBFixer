@@ -19,6 +19,7 @@
   - [`../research/apple-silicon-diffusion-six-case-pilot.md`](../research/apple-silicon-diffusion-six-case-pilot.md)
   - [`../research/small-diffusion-apple-24-pilot.json`](../research/small-diffusion-apple-24-pilot.json)
   - [`../research/apple-silicon-diffusion-24-case-results.md`](../research/apple-silicon-diffusion-24-case-results.md)
+  - [`../research/small-diffusion-apple-100-soak.json`](../research/small-diffusion-apple-100-soak.json)
 
 ## Goals
 
