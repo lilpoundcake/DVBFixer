@@ -27,6 +27,16 @@ def _load_summary(directory: Path) -> dict[str, Any] | None:
     return summary
 
 
+def _load_refinement_failure(directory: Path) -> dict[str, Any] | None:
+    path = directory / "failure.json"
+    if not path.is_file():
+        return None
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if value.get("status") != "scientific-failure":
+        raise ValueError(f"invalid refinement failure record: {path}")
+    return value
+
+
 def _atomic_copy(source: Path, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
@@ -91,11 +101,12 @@ def export_structures(
             refined_dir = workspace / remaining_refined
         raw = _load_summary(raw_dir)
         refined = _load_summary(refined_dir)
-        if raw is None or refined is None:
+        refinement_failure = _load_refinement_failure(refined_dir)
+        if raw is None or (refined is None and refinement_failure is None):
             pending.append(case_id)
             continue
 
-        if bool(refined["validation"]["passed"]):
+        if refined is not None and bool(refined["validation"]["passed"]):
             source = refined_dir / "candidate.pdb"
             selection = "refined"
             selected = refined
@@ -103,10 +114,14 @@ def export_structures(
             source = raw_dir / "candidate.pdb"
             selection = "raw"
             selected = raw
-        else:
+        elif refined is not None:
             source = refined_dir / "candidate.pdb"
             selection = "failed-refined"
             selected = refined
+        else:
+            source = raw_dir / "candidate.pdb"
+            selection = "failed-raw"
+            selected = raw
 
         input_path = workspace / "input" / "normalized.pdb"
         if not input_path.is_file():
@@ -144,6 +159,8 @@ def export_structures(
                 "hard_gate_failures": selected["validation"]["hard_gate_failures"],
             },
         }
+        if refinement_failure is not None:
+            metadata["refinement_failure"] = refinement_failure
         _atomic_json(case_dir / f"{case_id}_metadata.json", metadata)
         exported.append(metadata)
 

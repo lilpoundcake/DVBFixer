@@ -39,7 +39,7 @@ def _write_result(directory: Path, content: str, *, passed: bool) -> None:
 def test_export_uses_validation_first_selection_and_case_id_names(tmp_path: Path) -> None:
     exporter = _load_exporter()
     cohort = tmp_path / "cohort"
-    for case_id in ("case-a", "case-b"):
+    for case_id in ("case-a", "case-b", "case-c"):
         input_dir = cohort / "cases" / case_id / "workspace" / "input"
         input_dir.mkdir(parents=True)
         (input_dir / "normalized.pdb").write_text(
@@ -54,6 +54,20 @@ def test_export_uses_validation_first_selection_and_case_id_names(tmp_path: Path
     second = cohort / "cases/case-b/workspace"
     _write_result(second / "remaining-raw", "REMARK raw b\n", passed=True)
     _write_result(second / "remaining-refined", "REMARK refined b\n", passed=False)
+    third = cohort / "cases/case-c/workspace"
+    _write_result(third / "remaining-raw", "REMARK raw c\n", passed=False)
+    failed_refinement = third / "remaining-refined"
+    failed_refinement.mkdir()
+    (failed_refinement / "failure.json").write_text(
+        json.dumps(
+            {
+                "status": "scientific-failure",
+                "failure_type": "ChiralityError",
+                "hard_gate_failures": ["d-ca-chirality"],
+            }
+        ),
+        encoding="utf-8",
+    )
     manifest = {
         "reused_prefix": {
             "case_count": 1,
@@ -65,6 +79,7 @@ def test_export_uses_validation_first_selection_and_case_id_names(tmp_path: Path
         "cases": [
             {"case_id": "case-a", "screening_index": 1},
             {"case_id": "case-b", "screening_index": 2},
+            {"case_id": "case-c", "screening_index": 3},
         ],
     }
     manifest_path = tmp_path / "manifest.json"
@@ -75,7 +90,7 @@ def test_export_uses_validation_first_selection_and_case_id_names(tmp_path: Path
         manifest_path, cohort, output, require_complete=True
     )
 
-    assert result["exported_count"] == 2
+    assert result["exported_count"] == 3
     assert (output / "case-a/case-a_input.pdb").is_file()
     assert (output / "case-a/case-a_reference.pdb").read_text() == (
         "REMARK reference case-a\n"
@@ -86,3 +101,7 @@ def test_export_uses_validation_first_selection_and_case_id_names(tmp_path: Path
     assert metadata["output"]["selection"] == "raw"
     assert metadata["output"]["validation_passed"] is True
     assert metadata["reference"]["file"] == "case-b_reference.pdb"
+    failed = json.loads((output / "case-c/case-c_metadata.json").read_text())
+    assert failed["output"]["selection"] == "failed-raw"
+    assert failed["output"]["validation_passed"] is False
+    assert failed["refinement_failure"]["failure_type"] == "ChiralityError"
