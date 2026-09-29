@@ -271,6 +271,16 @@ def test_scope_rejects_mask_and_sequence_mismatches() -> None:
     assert admission.supported is False
     assert "generated-atom-mask-mismatch" in admission.reasons
 
+    partial_sidechain = replace(
+        request,
+        generated_atoms=tuple(
+            atom for atom in request.generated_atoms if atom.atom_name != "OG"
+        ),
+    )
+    admission = assess_diffusion_scope(partial_sidechain, source)
+    assert admission.supported is False
+    assert "generated-atom-mask-mismatch" in admission.reasons
+
     sequence = request.target_sequences[0].sequence
     wrong_sequence = replace(
         request,

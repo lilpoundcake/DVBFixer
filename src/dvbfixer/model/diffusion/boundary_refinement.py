@@ -38,7 +38,7 @@ from dvbfixer.ffutils.geometry import (
 )
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
-BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v3"
+BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v4"
 BOUNDARY_REFINEMENT_FORCEFIELD = tuple(FF_ALIASES["amber"])
 BOUNDARY_REFINEMENT_MAX_ITERATIONS = 250
 BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM = 10.0
@@ -46,6 +46,7 @@ BOUNDARY_REFINEMENT_RESTART_COUNT = 8
 BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM = 0.75
 BOUNDARY_REFINEMENT_OMEGA_KJ_MOL = 500.0
 BOUNDARY_REFINEMENT_PEPTIDE_ANGLE_KJ_MOL_RAD2 = 1000.0
+_REFINEMENT_BACKBONE_ATOMS = frozenset({"N", "CA", "C", "O", "OXT"})
 
 
 class BoundaryRefinementError(RuntimeError):
@@ -137,15 +138,35 @@ def refine_generated_region(
     positions = fixer.positions
     rebuilt_d = _d_residue_identities(topology, positions)
     rebuilt_fixed_d = rebuilt_d - generated_residue_set
-    if rebuilt_fixed_d:
+    unsafe_fixed_d = {
+        identity
+        for identity in rebuilt_fixed_d
+        if _has_observed_sidechain(identity, topology, original_coordinates)
+    }
+    if unsafe_fixed_d:
         raise BoundaryRefinementError(
-            "temporary completion produced D-Cα geometry outside generated residues: "
-            + _residue_labels(rebuilt_fixed_d)
+            "temporary completion produced D-Cα geometry whose repair would move "
+            "observed atoms outside generated residues: "
+            + _residue_labels(unsafe_fixed_d)
         )
     generated_d = rebuilt_d & generated_residue_set
-    repairs = fix_ca_chirality(topology, positions) if generated_d else 0
-    if repairs != len(generated_d):
-        raise BoundaryRefinementError("generated D-Cα repair did not repair every offender")
+    repairable_d = generated_d | rebuilt_fixed_d
+    repairs = (
+        fix_ca_chirality(
+            topology,
+            positions,
+            residue_identities={
+                (identity.chain, identity.residue_number, identity.insertion_code)
+                for identity in repairable_d
+            },
+        )
+        if repairable_d
+        else 0
+    )
+    if repairs != len(repairable_d):
+        raise BoundaryRefinementError(
+            "temporary D-Cα repair did not repair every eligible offender"
+        )
     assert_all_l(topology, positions)
 
     forcefield = ForceField(*BOUNDARY_REFINEMENT_FORCEFIELD)
@@ -305,7 +326,7 @@ def refine_generated_region(
         )
     return BoundaryRefinementResult(
         coordinates_angstrom=result_coordinates,
-        chirality_repairs=tuple(sorted(generated_d)),
+        chirality_repairs=tuple(sorted(repairable_d)),
         pre_coordinate_sha256=_coordinate_digest(
             {identity: original_coordinates[identity] for identity in generated_atoms}
         ),
@@ -518,6 +539,24 @@ def _topology_residue(residue: object) -> ResidueIdentity:
 
 def _atom_residue(atom: AtomIdentity) -> ResidueIdentity:
     return ResidueIdentity(atom.chain, atom.residue_number, atom.insertion_code)
+
+
+def _has_observed_sidechain(
+    residue: ResidueIdentity,
+    topology: object,
+    original_coordinates: dict[AtomIdentity, np.ndarray],
+) -> bool:
+    matches = [item for item in topology.residues() if _topology_residue(item) == residue]
+    if len(matches) != 1:
+        raise BoundaryRefinementError(
+            "cannot resolve fixed residue after temporary completion: "
+            + _residue_labels({residue})
+        )
+    return any(
+        atom.atom_name not in _REFINEMENT_BACKBONE_ATOMS
+        for atom in original_coordinates
+        if _atom_residue(atom) == residue
+    )
 
 
 def _coordinate_digest(coordinates: dict[AtomIdentity, np.ndarray]) -> str:

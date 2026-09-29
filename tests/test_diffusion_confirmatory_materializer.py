@@ -37,6 +37,7 @@ def _mmcif(
     altloc_index: int | None = None,
     missing_indices: frozenset[int] = frozenset(),
     include_hydrogens: bool = False,
+    include_sidechains: bool = True,
 ) -> bytes:
     rows: list[str] = []
     atom_id = 1
@@ -52,8 +53,9 @@ def _mmcif(
                 ("CA", "C", base + 1.0, 0.0, 0.0),
                 ("C", "C", base + 1.0, 1.0, 0.0),
                 ("O", "O", base + 1.0, 2.0, 0.0),
-                ("CB", "C", base + 1.0, 0.0, -1.0),
             ]
+            if include_sidechains:
+                atoms.append(("CB", "C", base + 1.0, 0.0, -1.0))
             if include_hydrogens:
                 atoms.append(("H", "H", base - 0.5, 0.0, 0.0))
             for atom_name, element, x, y, z in atoms:
@@ -223,6 +225,48 @@ def test_natural_entity_gaps_are_omitted_from_observed_coordinate_request(
         residue.residue_number not in {"4", "5"}
         for residue in request.sequence_placements[0].observed_residues
     )
+
+
+def test_incomplete_deposited_sidechains_do_not_shrink_generated_mask(
+    tmp_path: Path,
+) -> None:
+    script = _load_script()
+    cohort = tmp_path / "cohort.json"
+    output = tmp_path / "out"
+    _cohort(cohort, _case())
+
+    report = script.materialize_cohort(
+        cohort,
+        output,
+        fetch=lambda _url: _mmcif(include_sidechains=False),
+    )
+
+    assert report["summary"]["confirmatory_sample_valid"] is True
+    workspace = output / "cases/test/workspace"
+    request = DiffusionRequest.from_json((workspace / "request.json").read_text())
+    reference_lines = (workspace / "reference.pdb").read_text().splitlines()
+    generated_residues = set(request.gaps[0].generated_residues)
+    generated_atom_names = {
+        atom.atom_name
+        for atom in request.generated_atoms
+        if any(
+            atom.chain == residue.chain
+            and atom.residue_number == residue.residue_number
+            and atom.insertion_code == residue.insertion_code
+            for residue in generated_residues
+        )
+    }
+
+    assert generated_atom_names == {"N", "CA", "CB", "C", "O"}
+    assert all(
+        line[12:16].strip() != "CB"
+        for line in reference_lines
+        if line.startswith("ATOM  ")
+    )
+    assert assess_diffusion_scope(
+        request,
+        (workspace / "input/normalized.pdb").read_bytes(),
+    ).supported is True
 
 
 def test_explicit_hydrogens_are_excluded_from_workspace_atom_contract(

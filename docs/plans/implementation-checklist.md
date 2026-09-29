@@ -243,7 +243,8 @@ these checked workflow-state items cover one-host multi-process operation.
 - [x] Complete Phase 0: policy, license inventory, corpus, leakage metadata, and predeclared thresholds.
 - [x] Complete Phase 1: backend-neutral contract, masks, Kabsch/reinjection primitives, fake runner, validation, provenance, and atomic publication.
 - [x] Complete Phase 2: pinned RFdiffusion v1 Linux/NVIDIA benchmark adapter and minimal digest-pinned container recipe; final container build/GPU smoke awaits a host with an OCI runtime.
-- [ ] Complete Phase 3: Protenix v1 or Boltz-2 all-atom constrained-sampler feasibility and ablation benchmark.
+- [x] Complete Phase 3: select Protenix v1 through the all-atom constrained-sampler ablation and 231-group confirmatory benchmark; retain Boltz-2 as proxy-only.
+- [x] Record the confirmatory result: Protenix 220/231, MODELLER 169/231, noninferiority demonstrated, and `candidate-preferred` decision.
 - [ ] Complete Phase 4: experimental `model --backend diffusion` while retaining MODELLER as the default and without automatic fallback.
 - [ ] Complete Phase 5: mosaic-first homology evaluation preserving authoritative template coordinates.
 - [ ] Complete Phase 6: separate evidence-backed production decision.

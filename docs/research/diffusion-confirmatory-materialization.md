@@ -1,5 +1,8 @@
 # Diffusion Confirmatory Cohort Materialization
 
+The completed confirmatory analysis and selection decision are recorded in
+[`diffusion-confirmatory-results.md`](diffusion-confirmatory-results.md).
+
 `scripts/materialize_diffusion_confirmatory_cohort.py` converts the metadata-locked
 cases in `diffusion-confirmatory-cohort.json` into screened, runnable benchmark
 workspaces. The default output is below the ignored `.artifacts/` root.
@@ -18,7 +21,7 @@ resulting request must pass the existing diffusion scope gate.
 
 ## Stable Layout
 
-Layout version `dvbfixer-diffusion-confirmatory-workspace-v4` is:
+Layout version `dvbfixer-diffusion-confirmatory-workspace-v5` is:
 
 ```text
 <root>/
@@ -44,9 +47,16 @@ than infer workspaces from directory names.
 Workspace PDBs are heavy-atom-only. Explicit hydrogens present in an experimental
 mmCIF are removed deterministically after the shared CIF boundary and before
 reference/source/request construction. `input/normalized.pdb` therefore has
-exactly the identities in `DiffusionRequest.fixed_atoms`, while `reference.pdb`
-has exactly the union of `fixed_atoms` and `generated_atoms`. Backends place
-hydrogens after consuming this contract, matching the established pilot policy.
+exactly the identities in `DiffusionRequest.fixed_atoms`.
+
+`DiffusionRequest.generated_atoms` is the complete canonical heavy-atom output
+contract implied by the target sequence, including atoms absent from the deposited
+coordinates. `reference.pdb` remains the observed-only experimental structure: it
+contains all fixed atoms and only deposited atoms in generated residues. Quality
+metrics compare the intersection represented in that reference, while independent
+candidate validation requires every requested canonical generated atom. Backends
+place hydrogens after consuming this contract, matching the established pilot
+policy.
 
 ## Publication And Resume Rules
 
@@ -86,10 +96,10 @@ cases are selected for inference; later accepted cases are retained as
 `reserve-not-selected` and are not runnable. At least 180 selected independent
 groups are required. Screening does not stop when that minimum is reached.
 
-## Live Regeneration Handoff
+## Regeneration Handoff
 
-The repository currently retains the superseded 200-case JSON until an agent
-with network access regenerates it. Run from the repository root:
+To replace the locked cohort in a future preregistered study, run from the
+repository root:
 
 ```bash
 python scripts/build_diffusion_confirmatory_cohort.py \
@@ -98,16 +108,15 @@ python scripts/build_diffusion_confirmatory_cohort.py \
 sha256sum docs/research/diffusion-confirmatory-cohort.json
 ```
 
-Replace `REGENERATE_AFTER_LIVE_RCSB_BUILD` in
-`diffusion-gap-reconstruction-inventory.toml` with that digest, change the
-inventory status to `candidate-metadata-locked-coordinate-screening-pending`,
-and synchronize `matching_sequence_cluster_count` and
-`returned_representative_count` from the regenerated JSON. Then run the full
+Record the new digest and preregistration in
+`diffusion-gap-reconstruction-inventory.toml`, set the new study status to
+`candidate-metadata-locked-coordinate-screening-pending`, and synchronize the
+cluster and representative counts from the regenerated JSON. Then run the full
 blind coordinate screen without `--case-id`:
 
 ```bash
 python scripts/materialize_diffusion_confirmatory_cohort.py \
-  --output-root .artifacts/diffusion-confirmatory-cohort-500-v4
+  --output-root .artifacts/diffusion-confirmatory-cohort-500-v5
 ```
 
 Do not begin inference unless `report.json` says `screening_complete: true` and

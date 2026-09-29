@@ -1,10 +1,12 @@
 """Invariants for the private maintained Boltz-2 hook spike."""
 
 import importlib.util
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
@@ -23,6 +25,23 @@ def _load_mapping_module():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _load_checkpoint_module():
+    mapping = _load_mapping_module()
+    previous = sys.modules.get("atom_mapping")
+    sys.modules["atom_mapping"] = mapping
+    try:
+        spec = importlib.util.spec_from_file_location("boltz_checkpoint_smoke", CHECKPOINT_SMOKE)
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        if previous is None:
+            del sys.modules["atom_mapping"]
+        else:
+            sys.modules["atom_mapping"] = previous
 
 
 def test_callback_runs_after_predictor_update() -> None:
@@ -151,3 +170,110 @@ def test_atom_mapping_validates_token_and_feature_axes() -> None:
     }
 
     assert mapping.validate_feature_axis(axis, token_indices, features) == (7, 6, 7)
+
+
+def test_terminal_oxt_is_exact_pass_through_not_a_model_atom() -> None:
+    mapping = _load_mapping_module()
+    terminal = ResidueIdentity("A", "11", "")
+    request = SimpleNamespace(
+        target_sequences=(SimpleNamespace(chain="A", sequence="AG"),),
+        sequence_placements=(
+            SimpleNamespace(
+                chain="A",
+                target_length=2,
+                observed_target_indices=(0, 1),
+                observed_residues=(ResidueIdentity("A", "10", ""), terminal),
+            ),
+        ),
+        gaps=(),
+        fixed_atoms=(
+            AtomIdentity("A", "10", "", "CA"),
+            AtomIdentity("A", "11", "", "CA"),
+            AtomIdentity("A", "11", "", "OXT"),
+        ),
+        generated_atoms=(),
+    )
+    axis = (
+        AtomIdentity("A", "10", "", "CA"),
+        AtomIdentity("A", "11", "", "CA"),
+    )
+
+    represented, passthrough = mapping.partition_requested_atoms(request, axis)
+
+    assert represented == request.fixed_atoms[:2]
+    assert passthrough == (AtomIdentity("A", "11", "", "OXT"),)
+
+
+def test_checkpoint_writer_restores_terminal_oxt_exactly(tmp_path: Path) -> None:
+    checkpoint = _load_checkpoint_module()
+    terminal = ResidueIdentity("a", "11", "A")
+    request = SimpleNamespace(
+        fixed_atoms=(
+            AtomIdentity("a", "10", "", "N"),
+            AtomIdentity("a", "10", "", "CA"),
+            AtomIdentity("a", "11", "A", "OXT"),
+        ),
+        generated_atoms=(AtomIdentity("a", "11", "A", "N"),),
+    )
+    axis = (*request.fixed_atoms[:2], request.generated_atoms[0])
+    output = tmp_path / "candidate.pdb"
+
+    checkpoint._write_candidate(
+        output,
+        np.asarray(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [2.0, 0.0, 0.0],
+            ]
+        ),
+        axis,
+        ("ALA", "ALA", "GLY"),
+        (7, 6, 7),
+        request,
+        {
+            AtomIdentity(
+                terminal.chain,
+                terminal.residue_number,
+                terminal.insertion_code,
+                "OXT",
+            ): np.asarray([3.125, -4.5, 6.75])
+        },
+    )
+
+    atom_lines = [line for line in output.read_text().splitlines() if line.startswith("ATOM")]
+    assert len(atom_lines) == 4
+    oxt = atom_lines[-1]
+    assert oxt[12:16].strip() == "OXT"
+    assert (oxt[21], oxt[22:26].strip(), oxt[26].strip()) == ("a", "11", "A")
+    assert tuple(float(oxt[start : start + 8]) for start in (30, 38, 46)) == (
+        3.125,
+        -4.5,
+        6.75,
+    )
+
+
+def test_atom_partition_rejects_unrepresented_nonterminal_or_generated_atoms() -> None:
+    mapping = _load_mapping_module()
+    terminal = ResidueIdentity("a", "11", "A")
+    base = SimpleNamespace(
+        target_sequences=(SimpleNamespace(chain="a", sequence="AG"),),
+        sequence_placements=(
+            SimpleNamespace(
+                chain="a",
+                target_length=2,
+                observed_target_indices=(0, 1),
+                observed_residues=(ResidueIdentity("a", "10", ""), terminal),
+            ),
+        ),
+        gaps=(),
+        fixed_atoms=(AtomIdentity("a", "10", "", "OXT"),),
+        generated_atoms=(),
+    )
+    with pytest.raises(ValueError, match=r"a/10/OXT"):
+        mapping.partition_requested_atoms(base, ())
+
+    base.fixed_atoms = ()
+    base.generated_atoms = (AtomIdentity("a", "11", "A", "CB"),)
+    with pytest.raises(ValueError, match=r"a/11A/CB"):
+        mapping.partition_requested_atoms(base, ())

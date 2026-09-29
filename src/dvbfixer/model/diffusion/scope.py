@@ -45,6 +45,59 @@ _CANONICAL_ONE_TO_THREE = {
     "Y": "TYR",
 }
 _CANONICAL_RESIDUES = frozenset(_CANONICAL_ONE_TO_THREE.values())
+CANONICAL_HEAVY_ATOMS: dict[str, tuple[str, ...]] = {
+    "ALA": ("N", "CA", "CB", "C", "O"),
+    "ARG": (
+        "N", "CA", "CB", "CG", "CD", "NE", "CZ", "NH1", "NH2", "C", "O",
+    ),
+    "ASN": ("N", "CA", "CB", "CG", "OD1", "ND2", "C", "O"),
+    "ASP": ("N", "CA", "CB", "CG", "OD1", "OD2", "C", "O"),
+    "CYS": ("N", "CA", "CB", "SG", "C", "O"),
+    "GLN": ("N", "CA", "CB", "CG", "CD", "OE1", "NE2", "C", "O"),
+    "GLU": ("N", "CA", "CB", "CG", "CD", "OE1", "OE2", "C", "O"),
+    "GLY": ("N", "CA", "C", "O"),
+    "HIS": (
+        "N", "CA", "CB", "CG", "ND1", "CE1", "NE2", "CD2", "C", "O",
+    ),
+    "ILE": ("N", "CA", "CB", "CG2", "CG1", "CD1", "C", "O"),
+    "LEU": ("N", "CA", "CB", "CG", "CD1", "CD2", "C", "O"),
+    "LYS": ("N", "CA", "CB", "CG", "CD", "CE", "NZ", "C", "O"),
+    "MET": ("N", "CA", "CB", "CG", "SD", "CE", "C", "O"),
+    "PHE": (
+        "N", "CA", "CB", "CG", "CD1", "CE1", "CZ", "CE2", "CD2", "C", "O",
+    ),
+    "PRO": ("N", "CD", "CG", "CB", "CA", "C", "O"),
+    "SER": ("N", "CA", "CB", "OG", "C", "O"),
+    "THR": ("N", "CA", "CB", "CG2", "OG1", "C", "O"),
+    "TRP": (
+        "N", "CA", "CB", "CG", "CD1", "NE1", "CE2", "CZ2", "CH2", "CZ3",
+        "CE3", "CD2", "C", "O",
+    ),
+    "TYR": (
+        "N", "CA", "CB", "CG", "CD1", "CE1", "CZ", "OH", "CE2", "CD2", "C", "O",
+    ),
+    "VAL": ("N", "CA", "CB", "CG1", "CG2", "C", "O"),
+}
+
+
+def canonical_heavy_atom_identities(
+    residue: ResidueIdentity,
+    residue_name: str,
+) -> tuple[AtomIdentity, ...]:
+    """Return the complete canonical heavy-atom identity set in template order."""
+    try:
+        atom_names = CANONICAL_HEAVY_ATOMS[residue_name]
+    except KeyError as exc:
+        raise ValueError(f"unknown canonical residue name: {residue_name}") from exc
+    return tuple(
+        AtomIdentity(
+            residue.chain,
+            residue.residue_number,
+            residue.insertion_code,
+            atom_name,
+        )
+        for atom_name in atom_names
+    )
 
 
 class DiffusionScopeError(RuntimeError):
@@ -153,20 +206,34 @@ def assess_diffusion_scope(
     }
     if set(request.fixed_atoms) != expected_fixed_atoms:
         reasons.append("fixed-atom-mask-mismatch")
+    generated_atom_names = {
+        residue: {
+            identity.atom_name
+            for identity in request.generated_atoms
+            if _residue(identity) == residue
+        }
+        for residue in generated_residues
+    }
+    expected_generated_atom_names: dict[ResidueIdentity, set[str]] = {}
+    for gap in request.gaps:
+        sequence = sequences[gap.chain]
+        for target_index, residue in zip(
+            range(gap.target_interval.start, gap.target_interval.stop),
+            gap.generated_residues,
+        ):
+            residue_name = _CANONICAL_ONE_TO_THREE.get(sequence[target_index])
+            expected_generated_atom_names[residue] = (
+                set(CANONICAL_HEAVY_ATOMS[residue_name])
+                if residue_name is not None
+                else set()
+            )
     if (
         not request.generated_atoms
         or any(
             _residue(identity) not in generated_residues
             for identity in request.generated_atoms
         )
-        or {
-            residue
-            for residue in generated_residues
-            if not any(
-                _residue(identity) == residue
-                for identity in request.generated_atoms
-            )
-        }
+        or generated_atom_names != expected_generated_atom_names
     ):
         reasons.append("generated-atom-mask-mismatch")
 

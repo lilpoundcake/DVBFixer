@@ -43,14 +43,17 @@ from dvbfixer.model.diffusion.contract import (
     TargetInterval,
     TargetSequence,
 )
-from dvbfixer.model.diffusion.scope import assess_diffusion_scope
+from dvbfixer.model.diffusion.scope import (
+    assess_diffusion_scope,
+    canonical_heavy_atom_identities,
+)
 from dvbfixer.structure_input import PDB_CHAIN_IDS, StructureInputError, normalize_structure
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_COHORT = REPO_ROOT / "docs/research/diffusion-confirmatory-cohort.json"
 DEFAULT_OUTPUT = REPO_ROOT / ".artifacts/diffusion-confirmatory-cohort"
 REPORT_SCHEMA_VERSION = 1
-LAYOUT_VERSION = "dvbfixer-diffusion-confirmatory-workspace-v4"
+LAYOUT_VERSION = "dvbfixer-diffusion-confirmatory-workspace-v5"
 MASK_SELECTION_SEED = "dvbfixer-diffusion-confirmatory-mask-v1"
 CONTEXT_RADIUS_ANGSTROM = 5.0
 CANONICAL = {
@@ -475,9 +478,9 @@ def _build_workspace(
         line for line in atom_lines if _pdb_residue(line) not in generated_set
     ).encode() + b"TER\nEND\n"
     generated_atoms = tuple(
-        _pdb_atom(line)
-        for line in atom_lines
-        if _pdb_residue(line) in generated_set and _is_heavy(line)
+        atom
+        for identity, residue_name in ordered[start:stop]
+        for atom in canonical_heavy_atom_identities(identity, residue_name)
     )
     fixed_atoms = tuple(
         _pdb_atom(line)

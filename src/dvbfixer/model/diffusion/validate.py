@@ -38,6 +38,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
     ValidationSummary,
 )
+from dvbfixer.model.diffusion.scope import CANONICAL_HEAVY_ATOMS
 
 FIXED_HEAVY_ATOM_RMSD_MAX_ANGSTROM = 0.01
 FIXED_HEAVY_ATOM_DISPLACEMENT_MAX_ANGSTROM = 0.03
@@ -111,30 +112,6 @@ class _Structure:
     explicit_links: frozenset[ExplicitLink]
 
 
-_CANONICAL_HEAVY_ATOMS: dict[str, frozenset[str]] = {
-    "ALA": frozenset(("N", "CA", "CB", "C", "O")),
-    "ARG": frozenset(("N", "CA", "CB", "CG", "CD", "NE", "CZ", "NH1", "NH2", "C", "O")),
-    "ASN": frozenset(("N", "CA", "CB", "CG", "OD1", "ND2", "C", "O")),
-    "ASP": frozenset(("N", "CA", "CB", "CG", "OD1", "OD2", "C", "O")),
-    "CYS": frozenset(("N", "CA", "CB", "SG", "C", "O")),
-    "GLN": frozenset(("N", "CA", "CB", "CG", "CD", "OE1", "NE2", "C", "O")),
-    "GLU": frozenset(("N", "CA", "CB", "CG", "CD", "OE1", "OE2", "C", "O")),
-    "GLY": frozenset(("N", "CA", "C", "O")),
-    "HIS": frozenset(("N", "CA", "CB", "CG", "ND1", "CE1", "NE2", "CD2", "C", "O")),
-    "ILE": frozenset(("N", "CA", "CB", "CG2", "CG1", "CD1", "C", "O")),
-    "LEU": frozenset(("N", "CA", "CB", "CG", "CD1", "CD2", "C", "O")),
-    "LYS": frozenset(("N", "CA", "CB", "CG", "CD", "CE", "NZ", "C", "O")),
-    "MET": frozenset(("N", "CA", "CB", "CG", "SD", "CE", "C", "O")),
-    "PHE": frozenset(("N", "CA", "CB", "CG", "CD1", "CE1", "CZ", "CE2", "CD2", "C", "O")),
-    "PRO": frozenset(("N", "CD", "CG", "CB", "CA", "C", "O")),
-    "SER": frozenset(("N", "CA", "CB", "OG", "C", "O")),
-    "THR": frozenset(("N", "CA", "CB", "CG2", "OG1", "C", "O")),
-    "TRP": frozenset(
-        ("N", "CA", "CB", "CG", "CD1", "NE1", "CE2", "CZ2", "CH2", "CZ3", "CE3", "CD2", "C", "O")
-    ),
-    "TYR": frozenset(("N", "CA", "CB", "CG", "CD1", "CE1", "CZ", "OH", "CE2", "CD2", "C", "O")),
-    "VAL": frozenset(("N", "CA", "CB", "CG1", "CG2", "C", "O")),
-}
 _ONE_TO_THREE = {
     "A": "ALA", "C": "CYS", "D": "ASP", "E": "GLU", "F": "PHE",
     "G": "GLY", "H": "HIS", "I": "ILE", "K": "LYS", "L": "LEU",
@@ -334,7 +311,7 @@ def _validate_candidate(
             for atom in candidate.atoms.values()
             if atom.residue == residue and atom.element.upper() != "H"
         }
-        expected_atoms = _CANONICAL_HEAVY_ATOMS[expected_name]
+        expected_atoms = frozenset(CANONICAL_HEAVY_ATOMS[expected_name])
         missing_generated_heavy_atoms += len(expected_atoms - present)
         unexpected_generated_heavy_atoms += len(present - expected_atoms)
     metrics.extend(

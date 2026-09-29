@@ -490,8 +490,23 @@ def test_boltz_leakage_audit_excludes_confirmatory_selection() -> None:
     if cohort["status"].startswith("regeneration-required"):
         assert cohort["manifest_sha256"] == "REGENERATE_AFTER_LIVE_RCSB_BUILD"
     else:
-        assert cohort["status"] == "inference-running"
+        assert cohort["status"] == "confirmatory-complete-candidate-preferred"
         assert cohort["manifest_sha256"] == _sha256(CONFIRMATORY_COHORT)
+        assert cohort["screening_selected_for_inference"] == 231
+        assert cohort["reused_v4_case_count"] == 218
+        assert cohort["rerun_v5_case_count"] == 13
+        assert cohort["reused_v4_case_count"] + cohort["rerun_v5_case_count"] == 231
+        assert cohort["rerun_v5_added_canonical_heavy_atom_count"] == 103
+        assert cohort["selected_backend"] == "protenix-v1"
+        assert cohort["selection_decision"] == "candidate-preferred"
+        assert cohort["protenix_validation_pass_count"] == 220
+        assert cohort["modeller_validation_pass_count"] == 169
+        assert cohort["boltz_proxy_validation_pass_count"] == 220
+        assert cohort["noninferiority_demonstrated"] is True
+        assert cohort["results_report"] == (
+            "docs/research/diffusion-confirmatory-results.md"
+        )
+        assert (REPO_ROOT / cohort["results_report"]).is_file()
     assert cohort["matching_sequence_cluster_count"] >= cohort["screening_pool_count"]
 
 

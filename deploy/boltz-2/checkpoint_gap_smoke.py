@@ -17,7 +17,11 @@ os.environ.setdefault("CUEQ_DISABLE_AOT_TUNING", "1")
 
 import numpy as np
 import torch
-from atom_mapping import model_atom_axis, validate_feature_axis
+from atom_mapping import (
+    model_atom_axis,
+    partition_requested_atoms,
+    validate_feature_axis,
+)
 
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
@@ -164,12 +168,18 @@ def _write_candidate(
     residue_names: tuple[str, ...],
     atomic_numbers: tuple[int, ...],
     request: DiffusionRequest,
+    passthrough_coordinates: dict[AtomIdentity, np.ndarray],
 ) -> None:
     from rdkit import Chem
 
     if coordinates.shape != (len(atom_axis), 3) or not np.isfinite(coordinates).all():
         raise ValueError("prediction has invalid coordinate shape or non-finite values")
     included = set(request.fixed_atoms) | set(request.generated_atoms)
+    passthrough = set(passthrough_coordinates)
+    if passthrough - included:
+        raise ValueError("pass-through coordinates contain unrequested atoms")
+    if passthrough & set(atom_axis):
+        raise ValueError("pass-through atom is unexpectedly present on the Boltz axis")
     periodic_table = Chem.GetPeriodicTable()
     lines: list[str] = []
     last: tuple[AtomIdentity, str] | None = None
@@ -200,7 +210,37 @@ def _write_candidate(
         )
         last = identity, residue_name
         serial += 1
-    if last is None or serial - 1 != len(included):
+    if last is None:
+        raise ValueError("candidate output is empty")
+    terminal_identity, terminal_residue_name = last
+    for identity in sorted(passthrough_coordinates):
+        if (
+            identity.chain,
+            identity.residue_number,
+            identity.insertion_code,
+        ) != (
+            terminal_identity.chain,
+            terminal_identity.residue_number,
+            terminal_identity.insertion_code,
+        ):
+            raise ValueError("pass-through atom is not on the terminal target residue")
+        xyz = np.asarray(passthrough_coordinates[identity], dtype=np.float64)
+        fields = tuple(f"{float(value):8.3f}" for value in xyz)
+        if xyz.shape != (3,) or not np.isfinite(xyz).all() or any(
+            len(field) != 8 for field in fields
+        ):
+            raise ValueError(f"pass-through atom has invalid coordinates: {identity}")
+        atom_field = _atom_name_field(identity.atom_name, "O")
+        lines.append(
+            f"ATOM  {serial:5d} {atom_field} {terminal_residue_name:>3} "
+            f"{identity.chain}{int(identity.residue_number):4d}"
+            f"{identity.insertion_code or ' ':1}   "
+            f"{fields[0]}{fields[1]}{fields[2]}"
+            "  1.00  0.00           O\n"
+        )
+        last = identity, terminal_residue_name
+        serial += 1
+    if serial - 1 != len(included):
         raise ValueError("candidate output did not contain every requested atom exactly once")
     identity, residue_name = last
     lines.append(
@@ -309,6 +349,7 @@ def run(
         request,
         chain_name_by_asym_id=chain_name_by_asym_id,
     )
+    represented_fixed, passthrough_fixed = partition_requested_atoms(request, atom_axis)
     preflight_dataset = PredictionDataset(
         manifest,
         target_dir,
@@ -321,7 +362,13 @@ def run(
     preflight_features = preflight_dataset[0]
     atomic_numbers = validate_feature_axis(atom_axis, token_indices, preflight_features)
     padded_atom_count = int(preflight_features["atom_pad_mask"].shape[0])
-    fixed_coordinates = _read_fixed_coordinates(source_path, request.fixed_atoms)
+    all_fixed_coordinates = _read_fixed_coordinates(source_path, request.fixed_atoms)
+    fixed_coordinates = {
+        identity: all_fixed_coordinates[identity] for identity in represented_fixed
+    }
+    passthrough_coordinates = {
+        identity: all_fixed_coordinates[identity] for identity in passthrough_fixed
+    }
     callback = FixedAtomCallback(atom_axis, padded_atom_count, fixed_coordinates)
 
     data_module = Boltz2InferenceDataModule(
@@ -400,6 +447,7 @@ def run(
         residue_names,
         atomic_numbers,
         request,
+        passthrough_coordinates,
     )
 
     candidate = RunnerCandidate(
@@ -445,6 +493,16 @@ def run(
         "model_atom_count": len(atom_axis),
         "padded_atom_count": padded_atom_count,
         "written_atom_count": len(request.fixed_atoms) + len(request.generated_atoms),
+        "reinjected_fixed_atom_count": len(represented_fixed),
+        "passthrough_fixed_atoms": [
+            {
+                "chain": identity.chain,
+                "residue_number": identity.residue_number,
+                "insertion_code": identity.insertion_code,
+                "atom_name": identity.atom_name,
+            }
+            for identity in passthrough_fixed
+        ],
         "recycling_steps": recycling_steps,
         "sampling_steps": sampling_steps,
         "callback_count": len(callback.steps),

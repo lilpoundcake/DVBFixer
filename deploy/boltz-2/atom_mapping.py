@@ -8,6 +8,8 @@ import numpy as np
 
 from dvbfixer.model.diffusion.contract import AtomIdentity, DiffusionRequest, ResidueIdentity
 
+_PASSTHROUGH_FIXED_ATOM_NAMES = frozenset({"OXT"})
+
 ONE_TO_THREE = {
     "A": "ALA", "C": "CYS", "D": "ASP", "E": "GLU", "F": "PHE",
     "G": "GLY", "H": "HIS", "I": "ILE", "K": "LYS", "L": "LEU",
@@ -113,11 +115,50 @@ def model_atom_axis(
     axis = tuple(identities)
     if len(set(axis)) != len(axis):
         raise ValueError("Boltz atom axis maps to duplicate DVBFixer identities")
-    required = set(request.fixed_atoms) | set(request.generated_atoms)
-    missing = required - set(axis)
-    if missing:
-        raise ValueError(f"Boltz atom axis omits {len(missing)} requested atoms")
+    partition_requested_atoms(request, axis)
     return axis, tuple(residue_names), tuple(token_indices)
+
+
+def partition_requested_atoms(
+    request: DiffusionRequest,
+    atom_axis: tuple[AtomIdentity, ...],
+) -> tuple[tuple[AtomIdentity, ...], tuple[AtomIdentity, ...]]:
+    """Return reinjected and exact-pass-through fixed atoms.
+
+    Boltz's canonical protein tensor omits terminal ``OXT``.  It remains an
+    observed fixed atom in the DVBFixer request and is copied exactly from the
+    normalized source when the candidate is materialized.  Every generated atom
+    and every other fixed atom must occur on the model axis.
+    """
+    axis = set(atom_axis)
+    missing_generated = set(request.generated_atoms) - axis
+    if missing_generated:
+        raise ValueError(
+            "Boltz atom axis omits requested generated atom(s): "
+            + _atom_labels(missing_generated)
+        )
+    missing_fixed = set(request.fixed_atoms) - axis
+    residue_map = target_residue_map(request)
+    terminal_residue = residue_map[len(request.target_sequences[0].sequence) - 1]
+    unsupported = {
+        identity
+        for identity in missing_fixed
+        if identity.atom_name not in _PASSTHROUGH_FIXED_ATOM_NAMES
+        or ResidueIdentity(
+            identity.chain,
+            identity.residue_number,
+            identity.insertion_code,
+        )
+        != terminal_residue
+    }
+    if unsupported:
+        raise ValueError(
+            "Boltz atom axis omits unsupported fixed atom(s): "
+            + _atom_labels(unsupported)
+        )
+    represented_fixed = tuple(identity for identity in request.fixed_atoms if identity in axis)
+    passthrough_fixed = tuple(identity for identity in request.fixed_atoms if identity in missing_fixed)
+    return represented_fixed, passthrough_fixed
 
 
 def validate_feature_axis(
@@ -155,6 +196,17 @@ def validate_feature_axis(
     if any(number <= 0 for number in atomic_numbers):
         raise ValueError("Boltz real atom has an invalid atomic number")
     return atomic_numbers
+
+
+def _atom_label(identity: AtomIdentity) -> str:
+    return (
+        f"{identity.chain}/{identity.residue_number}{identity.insertion_code}/"
+        f"{identity.atom_name}"
+    )
+
+
+def _atom_labels(identities: set[AtomIdentity]) -> str:
+    return ", ".join(_atom_label(identity) for identity in sorted(identities))
 
 
 def _numpy(value: Any) -> np.ndarray:
