@@ -69,6 +69,27 @@ def test_preregistered_manifest_is_balanced_unique_and_ordered() -> None:
     }
 
 
+def test_full_followup_manifest_preserves_frozen_cohort() -> None:
+    value = json.loads(
+        (ROOT / "docs/research/small-diffusion-full-followup.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    cases = value["cases"]
+
+    assert value["case_count"] == len(cases) == 231
+    assert len({case["case_id"] for case in cases}) == 231
+    assert sum(case["gap_length"] == 5 for case in cases) == 128
+    assert sum(case["gap_length"] == 10 for case in cases) == 103
+    assert max(case["target_length"] for case in cases) <= 512
+    assert [case["screening_index"] for case in cases] == sorted(
+        case["screening_index"] for case in cases
+    )
+    assert value["selection"]["failures_remain_in_denominator"] is True
+    assert value["sampling"]["per_step_reinjection"] is False
+    assert value["refinement"]["platform"] == "CUDA"
+
+
 def test_selection_retains_valid_raw_when_refinement_regresses() -> None:
     driver = _load_driver()
 

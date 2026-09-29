@@ -22,6 +22,7 @@ DEFAULT_MANIFEST = ROOT / "docs/research/small-diffusion-v5-expanded-pilot.json"
 ADAPTER = ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py"
 CALLBACK_PATCH = ROOT / "deploy/protpardelle-1c/per-step-callback.patch"
 REFINER = ROOT / "deploy/protenix-v1/refine_candidate.py"
+BOUNDARY_REFINEMENT = ROOT / "src/dvbfixer/model/diffusion/boundary_refinement.py"
 PROTPARDELLE_REVISION = "ee378400f25b801fa481028000f9060183d7fb4c"
 ENGINE_REPOSITORY = "https://github.com/ProteinDesignLab/protpardelle-1c"
 
@@ -58,12 +59,13 @@ def load_manifest(path: Path, cohort_root: Path) -> tuple[dict[str, Any], tuple[
     if not aggregate.is_file() or _sha256(aggregate) != expected_digest:
         raise PilotError("source aggregate digest mismatch")
     cases = tuple(PilotCase(**item) for item in value.get("cases", []))
-    if len(cases) != 24 or len({case.case_id for case in cases}) != len(cases):
-        raise PilotError("pilot manifest must contain 24 unique cases")
-    if sum(case.gap_length == 5 for case in cases) != 12 or sum(
-        case.gap_length == 10 for case in cases
-    ) != 12:
-        raise PilotError("pilot manifest must contain 12 cases per gap stratum")
+    expected_count = int(value.get("case_count", 24))
+    if len(cases) != expected_count or len({case.case_id for case in cases}) != len(cases):
+        raise PilotError(f"pilot manifest must contain {expected_count} unique cases")
+    expected_strata = value.get("gap_strata", {"5": 12, "10": 12})
+    actual_strata = Counter(str(case.gap_length) for case in cases)
+    if actual_strata != Counter({str(key): int(count) for key, count in expected_strata.items()}):
+        raise PilotError("pilot manifest gap strata differ from the frozen counts")
     if any(case.target_length > 512 for case in cases):
         raise PilotError("pilot manifest contains a target above the cc89 limit")
     return value, cases
@@ -192,7 +194,10 @@ def run_pilot(
         request = _verify_request(case, workspace)
         output_root = _case_output_root(workspace, output_subdir)
         raw = output_root / "protpardelle-raw"
-        refined = output_root / "protpardelle-refined-cpu"
+        refinement = manifest["refinement"]
+        refined = output_root / str(
+            refinement.get("output_subdir", "protpardelle-refined-cpu")
+        )
         markers = output_root / ".stages"
         raw_command = (
             str(protpardelle_python),
@@ -214,9 +219,15 @@ def run_pilot(
         raw_env["PYTHONPATH"] = os.pathsep.join(
             (str(ROOT / "src"), str(protpardelle_checkout / "src"))
         )
-        raw_inputs = {"request": request, "config": config, "checkpoint": checkpoint}
+        raw_inputs = {
+            "manifest": manifest_path,
+            "request": request,
+            "config": config,
+            "checkpoint": checkpoint,
+            "adapter": ADAPTER,
+        }
         if per_step_reinjection:
-            raw_inputs.update(adapter=ADAPTER, callback_patch=CALLBACK_PATCH)
+            raw_inputs["callback_patch"] = CALLBACK_PATCH
         if not _run_stage(
             markers / "raw.json",
             raw_command,
@@ -238,7 +249,6 @@ def run_pilot(
                 raise PilotError(f"{case.case_id}: raw callback count mismatch")
             if callback.get("maximum_post_projection_error_angstrom") != 0.0:
                 raise PilotError(f"{case.case_id}: raw callback projection was not exact")
-        refinement = manifest["refinement"]
         backend = "protpardelle-1c-cc89"
         if per_step_reinjection:
             backend += "-per-step-reinjection"
@@ -264,10 +274,15 @@ def run_pilot(
             str(sampling["checkpoint_sha256"]),
         )
         refine_env = os.environ.copy()
-        refine_env["OPENMM_CPU_THREADS"] = str(refinement["openmm_cpu_threads"])
-        refinement_inputs = {"request": request, "raw_candidate": raw / "candidate.pdb"}
-        if per_step_reinjection:
-            refinement_inputs["refiner"] = REFINER
+        if "openmm_cpu_threads" in refinement:
+            refine_env["OPENMM_CPU_THREADS"] = str(refinement["openmm_cpu_threads"])
+        refinement_inputs = {
+            "manifest": manifest_path,
+            "request": request,
+            "raw_candidate": raw / "candidate.pdb",
+            "refiner": REFINER,
+            "boundary_refinement": BOUNDARY_REFINEMENT,
+        }
         if not _run_stage(
             markers / "refinement.json",
             refine_command,
@@ -315,7 +330,9 @@ def aggregate(
         workspace = cohort_root / "cases" / case.case_id / "workspace"
         root = _case_output_root(workspace, output_subdir)
         raw_path = root / "protpardelle-raw/summary.json"
-        refined_path = root / "protpardelle-refined-cpu/summary.json"
+        refined_path = root / str(
+            manifest["refinement"].get("output_subdir", "protpardelle-refined-cpu")
+        ) / "summary.json"
         raw_stage_path = root / ".stages/raw.json"
         refinement_stage_path = root / ".stages/refinement.json"
         raw = json.loads(raw_path.read_text(encoding="utf-8")) if raw_path.is_file() else None

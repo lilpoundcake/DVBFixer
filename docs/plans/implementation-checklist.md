@@ -274,6 +274,10 @@ these checked workflow-state items cover one-host multi-process operation.
   refinement environment with digest-verified ff19SB data. Two byte-identical
   `9dvi` runs and the 440-residue `9ina` run pass every CUDA hard gate; the full
   231-case descriptive follow-up remains pending.
+- [x] Freeze the full 231-case Protpardelle descriptive-follow-up manifest before
+  cohort-wide inference, with 128 gap-5 and 103 gap-10 cases, CUDA refinement,
+  validation-first selection, digest-tracked code/environment inputs, and no
+  replacement of failures.
 - [ ] Benchmark at most two adapted pretrained compact candidates before training a purpose-built local gap model.
 - [ ] Train and freeze a leakage-controlled gap-only model only after the public-structure dataset and sequence-cluster splits are immutable.
 - [ ] Require withheld-coordinate noninferiority and Apple memory/latency gates before any local experimental backend decision.

@@ -243,6 +243,14 @@ byte-identical `9dvi` real-candidate runs and the 440-residue `9ina` gate in
 These CUDA checks resolve the Linux refinement blocker but do not establish
 Apple runtime feasibility.
 
+The full descriptive follow-up was frozen before cohort-wide Protpardelle
+inference in
+[`small-diffusion-full-followup.json`](small-diffusion-full-followup.json). It
+contains all 231 accepted confirmatory cases (128 gap-5 and 103 gap-10), retains
+failed cases in the denominator, and fixes validation-first refined/raw
+selection. Its preregistration SHA-256 is
+`c9530bd95e1b420f27d31ae9c389940f096f66f215536f8626d2571689b6ba55`.
+
 ### Expanded V5 Linux Pilot
 
 The preregistered 24-case extension is recorded in

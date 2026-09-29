@@ -95,8 +95,10 @@ seconds, with fixed-heavy RMSD/max displacement `0.0 Å`. Its published candidat
 SHA-256 is `9a33bd3ff2b66ec5a4ba6483a943896edc0fa6bac2ce2b7289edc68448938aa1`.
 The corresponding OpenMM Reference attempt had previously exceeded 900 seconds.
 
-These gates authorize the frozen full 231-case follow-up. They do not establish
-cross-host or cross-GPU determinism.
+These gates authorize the full 231-case follow-up frozen in
+[`small-diffusion-full-followup.json`](small-diffusion-full-followup.json),
+SHA-256 `c9530bd95e1b420f27d31ae9c389940f096f66f215536f8626d2571689b6ba55`.
+They do not establish cross-host or cross-GPU determinism.
 
 The 231-case run will be descriptive rather than an independent confirmatory
 benchmark because Protpardelle's exact training membership remains unavailable
