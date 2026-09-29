@@ -15,7 +15,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from dvbfixer.model.diffusion.contract import DiffusionRequest
+from dvbfixer.model.diffusion.benchmark import candidate_quality, load_pdb_coordinates
+from dvbfixer.model.diffusion.contract import ArtifactReference, DiffusionRequest
 
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = Path(__file__).resolve()
@@ -83,6 +84,60 @@ def _verify_request(case: PilotCase, workspace: Path) -> Path:
     if gap.target_interval.stop - gap.target_interval.start != case.gap_length:
         raise PilotError(f"{case.case_id}: gap length differs from manifest")
     return request_path
+
+
+def _raw_comparator_result(
+    backend: str,
+    case: PilotCase,
+    workspace: Path,
+    request: DiffusionRequest,
+) -> dict[str, Any]:
+    raw_dir = workspace / "confirmatory" / f"{backend}-raw"
+    candidate_path = raw_dir / "candidate.pdb"
+    summary_path = raw_dir / "summary.json"
+    if not candidate_path.is_file() or not summary_path.is_file():
+        raise PilotError(f"{case.case_id}: missing {backend} raw comparator artifacts")
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    candidate_digest = _sha256(candidate_path)
+    if summary.get("candidate_sha256") != candidate_digest:
+        raise PilotError(f"{case.case_id}: {backend} raw candidate digest mismatch")
+
+    reference_path = workspace / "reference.pdb"
+    reference = load_pdb_coordinates(
+        workspace,
+        ArtifactReference("reference.pdb", _sha256(reference_path)),
+    )
+    candidate = load_pdb_coordinates(
+        workspace,
+        ArtifactReference(
+            candidate_path.relative_to(workspace).as_posix(),
+            candidate_digest,
+        ),
+    )
+    gap = request.gaps[0]
+    failures = tuple(summary["validation"]["hard_gate_failures"])
+    quality = candidate_quality(
+        f"{backend}-raw",
+        reference,
+        candidate,
+        generated_residues=set(gap.generated_residues),
+        fixed_atoms=set(request.fixed_atoms),
+        anchor_residues={gap.left_anchor, gap.right_anchor},
+        closure_passed="junction-peptide-connectivity" not in failures,
+        validation_passed=bool(summary["validation"]["passed"]),
+    )
+    return {
+        "backend_id": f"{backend}-raw",
+        "case_id": case.case_id,
+        "validation_passed": quality.validation_passed,
+        "hard_gate_failures": list(failures),
+        "fixed_coordinates_exact": quality.fixed_heavy_rmsd_angstrom == 0.0,
+        "gap_backbone_rmsd_angstrom": quality.gap_backbone_rmsd_angstrom,
+        "gap_all_heavy_rmsd_angstrom": quality.gap_all_heavy_rmsd_angstrom,
+        "wall_time_seconds": float(summary["wall_time_seconds"]),
+        "peak_vram_bytes": int(summary["peak_vram_bytes"]),
+        "candidate_sha256": candidate_digest,
+    }
 
 
 def _case_output_root(workspace: Path, output_subdir: str) -> Path:
@@ -331,6 +386,9 @@ def aggregate(
     rows: list[dict[str, Any]] = []
     for case in cases:
         workspace = cohort_root / "cases" / case.case_id / "workspace"
+        request = DiffusionRequest.from_json(
+            (workspace / "request.json").read_text(encoding="utf-8")
+        )
         root = _case_output_root(workspace, output_subdir)
         raw_path = root / "protpardelle-raw/summary.json"
         refined_path = root / str(
@@ -385,7 +443,11 @@ def aggregate(
                         else None
                     ),
                 },
+                "protenix_raw": _raw_comparator_result(
+                    "protenix", case, workspace, request
+                ),
                 "protenix": comparator_maps["protenix-v1"][case.case_id],
+                "boltz_raw": _raw_comparator_result("boltz", case, workspace, request),
                 "boltz": comparator_maps["boltz-2-proxy-only"][case.case_id],
                 "modeller": comparator_maps["modeller-10.8"][case.case_id],
             }
@@ -400,6 +462,7 @@ def aggregate(
     def summarize(key: str, gap_length: int | None = None) -> dict[str, Any]:
         selected = [row for row in rows if gap_length is None or row["gap_length"] == gap_length]
         available = [item for row in selected if (item := candidate_item(row, key)) is not None]
+        passing = [item for item in available if item["validation"]["passed"]]
         result: dict[str, Any] = {
             "case_count": len(selected),
             "completed_count": len(available),
@@ -418,6 +481,12 @@ def aggregate(
             ),
             "median_gap_all_heavy_rmsd_angstrom": _median(
                 [float(item["quality"]["gap_all_heavy_rmsd_angstrom"]) for item in available]
+            ),
+            "median_valid_gap_backbone_rmsd_angstrom": _median(
+                [float(item["quality"]["gap_backbone_rmsd_angstrom"]) for item in passing]
+            ),
+            "median_valid_gap_all_heavy_rmsd_angstrom": _median(
+                [float(item["quality"]["gap_all_heavy_rmsd_angstrom"]) for item in passing]
             ),
         }
         if key != "selected":
@@ -444,16 +513,46 @@ def aggregate(
 
     def summarize_comparator(key: str, gap_length: int | None = None) -> dict[str, Any]:
         selected = [row for row in rows if gap_length is None or row["gap_length"] == gap_length]
-        return {
+        items = [row[key] for row in selected]
+        passing = [item for item in items if item["validation_passed"]]
+        result = {
             "case_count": len(selected),
-            "passed_count": sum(bool(row[key]["validation_passed"]) for row in selected),
+            "passed_count": sum(bool(item["validation_passed"]) for item in items),
             "median_gap_backbone_rmsd_angstrom": _median(
-                [float(row[key]["gap_backbone_rmsd_angstrom"]) for row in selected]
+                [float(item["gap_backbone_rmsd_angstrom"]) for item in items]
+            ),
+            "median_valid_gap_backbone_rmsd_angstrom": _median(
+                [float(item["gap_backbone_rmsd_angstrom"]) for item in passing]
             ),
             "median_wall_time_seconds": _median(
-                [float(row[key]["wall_time_seconds"]) for row in selected]
+                [float(item["wall_time_seconds"]) for item in items]
             ),
         }
+        if all("gap_all_heavy_rmsd_angstrom" in item for item in items):
+            result["median_gap_all_heavy_rmsd_angstrom"] = _median(
+                [float(item["gap_all_heavy_rmsd_angstrom"]) for item in items]
+            )
+            result["median_valid_gap_all_heavy_rmsd_angstrom"] = _median(
+                [float(item["gap_all_heavy_rmsd_angstrom"]) for item in passing]
+            )
+        if all("hard_gate_failures" in item for item in items):
+            result["hard_gate_failure_counts"] = dict(
+                sorted(
+                    Counter(
+                        failure
+                        for item in items
+                        for failure in item["hard_gate_failures"]
+                    ).items()
+                )
+            )
+        measured_vram = [
+            int(item["peak_vram_bytes"])
+            for item in items
+            if item.get("peak_vram_bytes") is not None
+        ]
+        if measured_vram:
+            result["peak_vram_bytes"] = max(measured_vram)
+        return result
 
     def paired_candidate_comparison(candidate_key: str, key: str) -> dict[str, Any]:
         def candidate_passed(row: dict[str, Any]) -> bool:
@@ -496,6 +595,7 @@ def aggregate(
 
     result = {
         "schema_version": 1,
+        "aggregation_driver_sha256": _sha256(DRIVER),
         "output_subdir": output_subdir,
         "manifest_sha256": _sha256(manifest_path),
         "source_aggregate_sha256": manifest["source_aggregate_sha256"],
@@ -513,7 +613,7 @@ def aggregate(
                 "gap_5": summarize_comparator(key, 5),
                 "gap_10": summarize_comparator(key, 10),
             }
-            for key in ("protenix", "boltz", "modeller")
+            for key in ("protenix_raw", "protenix", "boltz_raw", "boltz", "modeller")
         },
         "paired_refined_comparisons": {
             key: paired_candidate_comparison("refined", key)

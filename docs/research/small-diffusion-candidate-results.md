@@ -263,6 +263,37 @@ SHA-256 `fa2bd455ef44c0a413cc2a174a4dfd017af51a99617fb69eb7bdc364eba0850f`;
 cohort, sampling, physical refinement, validation, selection, and denominator
 policies are unchanged.
 
+### Full 231-Case Descriptive Follow-Up
+
+All 231 v6 cases completed. The enriched aggregate is
+`.artifacts/diffusion-confirmatory-cohort-500-v5/small-diffusion-full-cuda-v2-report.json`,
+SHA-256 `fbc6fcbbec9358fbd978d52dcb1d49555588533af71709a0ce1b7c6269243a74`.
+It verifies and evaluates the preserved pre-refinement Protenix and Boltz
+candidates as separate rows; no inference or minimization was rerun for those
+backends. "Minimized" below means the common generated-region OpenMM boundary
+refinement. Raw, minimized, and comparator RMSD medians include all 231 completed
+candidates so that failed geometry remains visible. The validation-first row has
+217 available passing candidates; the structured report also records
+passing-only medians for every row.
+
+| Model/stage | All | Gap 5 | Gap 10 | Median backbone RMSD | Median all-heavy RMSD |
+|---|---:|---:|---:|---:|---:|
+| Protpardelle raw | 101/231 | 67/128 | 34/103 | 0.653 A | 1.534 A |
+| Protpardelle minimized | 217/231 | 122/128 | 95/103 | 0.559 A | 1.443 A |
+| Protpardelle validation-first selected | 217/231 | 122/128 | 95/103 | 0.523 A | 1.414 A |
+| Protenix raw | 120/231 | 70/128 | 50/103 | 0.444 A | 1.207 A |
+| Protenix minimized | 220/231 | 125/128 | 95/103 | 0.429 A | not reported |
+| Boltz-2 raw | 147/231 | 84/128 | 63/103 | 0.418 A | 1.154 A |
+| Boltz-2 minimized | 220/231 | 125/128 | 95/103 | 0.431 A | not reported |
+| MODELLER 10.8 | 169/231 | 106/128 | 63/103 | 5.495 A | not reported |
+
+The net pass-count effect of boundary refinement is `+116` for Protpardelle,
+`+100` for Protenix, and `+73` for Boltz-2. The raw Protenix and Boltz candidates
+already have low coordinate RMSD; their main deficits are geometry-contract
+failures, especially junction connectivity and severe overlaps. As elsewhere,
+Protpardelle and Boltz results remain descriptive because exact training
+membership is unresolved.
+
 ### Expanded V5 Linux Pilot
 
 The preregistered 24-case extension is recorded in

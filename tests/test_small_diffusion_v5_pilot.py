@@ -164,3 +164,18 @@ def test_failed_stage_writes_only_failure_marker(tmp_path: Path) -> None:
     failure = json.loads((tmp_path / "stage.failure.json").read_text(encoding="utf-8"))
     assert failure["status"] == "failed"
     assert failure["exit_status"] == 7
+
+
+def test_raw_comparator_rejects_candidate_digest_mismatch(tmp_path: Path) -> None:
+    driver = _load_driver()
+    raw = tmp_path / "confirmatory/protenix-raw"
+    raw.mkdir(parents=True)
+    (raw / "candidate.pdb").write_text("candidate", encoding="ascii")
+    (raw / "summary.json").write_text(
+        json.dumps({"candidate_sha256": "0" * 64}),
+        encoding="utf-8",
+    )
+    case = driver.PilotCase("case", 0, 5, 10)
+
+    with pytest.raises(driver.PilotError, match="raw candidate digest mismatch"):
+        driver._raw_comparator_result("protenix", case, tmp_path, None)

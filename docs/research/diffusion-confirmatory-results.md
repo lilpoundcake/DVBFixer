@@ -36,13 +36,17 @@ v5 reruns.
 
 | Backend | Role | Passed | Pass rate | Wilson 95% CI | Median valid gap-backbone RMSD |
 |---|---|---:|---:|---:|---:|
-| Protenix v1 | Eligible candidate | 220/231 | 95.24% | 91.68-97.32% | 0.408 A |
+| Protenix v1 raw | Pre-refinement diagnostic | 120/231 | 51.95% | 45.53-58.31% | 0.320 A |
+| Protenix v1 minimized | Eligible candidate | 220/231 | 95.24% | 91.68-97.32% | 0.408 A |
 | MODELLER 10.8 | Comparator | 169/231 | 73.16% | 67.10-78.46% | 5.330 A |
-| Boltz-2 | Proxy only | 220/231 | 95.24% | 91.68-97.32% | 0.423 A |
+| Boltz-2 raw | Pre-refinement proxy diagnostic | 147/231 | 63.64% | 57.26-69.57% | 0.323 A |
+| Boltz-2 minimized | Proxy only | 220/231 | 95.24% | 91.68-97.32% | 0.423 A |
 
 Correcting the 13 incomplete generated-atom masks increased both all-atom
-backends from 208/231 to 220/231 passing cases. Twelve corrected cases pass all
-hard gates; `9ejk` remains a hard-gate failure for both all-atom backends.
+backends from 208/231 to 220/231 passing cases after boundary refinement. Twelve
+corrected cases pass all hard gates; `9ejk` remains a hard-gate failure for both
+all-atom backends. Independently, boundary refinement raises the frozen v5 raw
+pass counts from 120 to 220 for Protenix and from 147 to 220 for Boltz-2.
 
 ## Protenix Versus MODELLER
 
@@ -81,13 +85,18 @@ homology leakage.
 
 | Gap length | Backend | Passed | Pass rate | Median valid RMSD |
 |---:|---|---:|---:|---:|
-| 5, n=128 | Protenix v1 | 125 | 97.66% | 0.326 A |
-| 5, n=128 | Boltz-2 | 125 | 97.66% | 0.328 A |
-| 10, n=103 | Protenix v1 | 95 | 92.23% | 0.623 A |
-| 10, n=103 | Boltz-2 | 95 | 92.23% | 0.585 A |
+| 5, n=128 | Protenix raw | 70 | 54.69% | 0.243 A |
+| 5, n=128 | Protenix minimized | 125 | 97.66% | 0.326 A |
+| 5, n=128 | Boltz-2 raw | 84 | 65.63% | 0.259 A |
+| 5, n=128 | Boltz-2 minimized | 125 | 97.66% | 0.328 A |
+| 10, n=103 | Protenix raw | 50 | 48.54% | 0.442 A |
+| 10, n=103 | Protenix minimized | 95 | 92.23% | 0.623 A |
+| 10, n=103 | Boltz-2 raw | 63 | 61.17% | 0.406 A |
+| 10, n=103 | Boltz-2 minimized | 95 | 92.23% | 0.585 A |
 
-The expected difficulty increase is visible for ten-residue gaps, but both
-all-atom backends remain above 92% hard-gate pass rate in that stratum.
+The expected difficulty increase is visible for ten-residue gaps. Raw candidates
+pass only 48.54% (Protenix) and 61.17% (Boltz-2) there, while both minimized
+all-atom backends exceed 92%.
 
 ## Remaining Hard-Gate Failures
 
