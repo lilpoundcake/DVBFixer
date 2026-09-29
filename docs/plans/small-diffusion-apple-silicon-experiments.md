@@ -18,6 +18,7 @@
   - [`../research/apple-silicon-diffusion-operator-smoke.md`](../research/apple-silicon-diffusion-operator-smoke.md)
   - [`../research/apple-silicon-diffusion-six-case-pilot.md`](../research/apple-silicon-diffusion-six-case-pilot.md)
   - [`../research/small-diffusion-apple-24-pilot.json`](../research/small-diffusion-apple-24-pilot.json)
+  - [`../research/apple-silicon-diffusion-24-case-results.md`](../research/apple-silicon-diffusion-24-case-results.md)
 
 ## Goals
 
@@ -391,7 +392,7 @@ lanes below pass and a full repeat has a stated decision value.
 - [x] Lane 4, frozen six-case pilot: run the six cases once on MPS, then perform
   generated-only OpenMM CPU refinement and validation without resampling. Retain
   every failure in the denominator and aggregate raw, refined, and selected results.
-- [ ] Lane 5, frozen 24-case portability pilot: proceed only if Lane 4 passes its
+- [x] Lane 5, frozen 24-case portability pilot: proceed only if Lane 4 passes its
   stop rules. Use the existing 12 gap-5/12 gap-10 membership with an Apple-specific
   manifest and namespace; do not inspect outcomes while deciding replacements.
 - [ ] Lane 6, 100-case operational soak: proceed only if Lane 5 passes. Freeze the
