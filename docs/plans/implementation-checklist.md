@@ -7,6 +7,7 @@ complete. Detailed requirements remain in these authoritative sources:
 - [API roadmap](api-roadmap.md) for API implementation and deployment.
 - [DDD documentation roadmap](ddd-documentation-roadmap.md) for agent maps and domain documentation.
 - [Diffusion gap-reconstruction plan](diffusion-gap-reconstruction.md) for the proposed experimental modeling backend.
+- [Small diffusion and Apple Silicon plan](small-diffusion-apple-silicon-experiments.md) for compact local-model research.
 - [Continuation context](api-ddd-continuation-context.md) for historical evidence only.
 
 Status is binary: `[x]` means complete and verified; `[ ]` means remaining,
@@ -251,6 +252,30 @@ these checked workflow-state items cover one-host multi-process operation.
 - [ ] After the main framework and Linux/NVIDIA Phase 2/3 tests stabilize, perform a separate macOS Apple Silicon CPU/MPS and remote-runner feasibility evaluation; this is deferred from the current Phase 2-4 cycle.
 - [x] After native GPU gates pass, define the external NVIDIA Docker runner with a digest-pinned base and digest-verified mounted checkpoint.
 - [ ] Build and GPU-smoke the final image when an OCI runtime is available; defer registry signing, multi-arch, embedded weights, and orchestration until deployment creates those requirements.
+- [ ] Complete compact-model Linux scientific selection first, then run the Apple
+  Silicon CPU/MPS operator matrix for surviving candidates on the other machine.
+- [x] Complete Protpardelle-1c artifact audit, Linux CPU/CUDA operator smoke,
+  initial three-residue withheld-coordinate pilot, and frozen six-case v5 pilot;
+  generated-only CPU refinement raises the latter from `2/6` to `6/6` hard-gate
+  passes, while training-membership leakage remains unresolved.
+- [x] Complete the preregistered 24-case compact-model extension: raw
+  Protpardelle passes `13/24`, refinement alone passes `21/24`, and validation-
+  first raw/refined selection passes `22/24` versus Protenix `23/24` and MODELLER
+  `21/24`; keep the result exploratory because training leakage is unresolved.
+- [x] Add and exercise the optional Protpardelle post-update callback. Corrected
+  internal-frame reinjection is byte-identical across two same-seed `9dvi` runs
+  and exact for all 569 represented fixed atoms, but does not improve raw geometry;
+  OpenMM CPU refinement passes while remaining measurably nondeterministic.
+- [x] Run corrected per-step reinjection over the frozen 24-case compact follow-up.
+  Exact callback control passes all operational checks, but validation-first
+  coverage is `21/24` versus `22/24` for final-only projection, so per-step
+  reinjection is not selected as the compact baseline.
+- [x] Diagnose OpenMM's CUDA PTX failure and add an isolated CUDA-12.2-compatible
+  refinement environment. The minimal A100 Context smoke passes; real-candidate
+  CUDA validation remains a required gate before the full 231-case follow-up.
+- [ ] Benchmark at most two adapted pretrained compact candidates before training a purpose-built local gap model.
+- [ ] Train and freeze a leakage-controlled gap-only model only after the public-structure dataset and sequence-cluster splits are immutable.
+- [ ] Require withheld-coordinate noninferiority and Apple memory/latency gates before any local experimental backend decision.
 
 Detailed requirements and acceptance gates are in the
 [diffusion gap-reconstruction plan](diffusion-gap-reconstruction.md).

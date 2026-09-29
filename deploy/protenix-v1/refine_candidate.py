@@ -91,6 +91,12 @@ def run(
     platform: str,
     restart_count: int,
     expected_candidate_sha256: str,
+    backend: str = "protenix-v1-hook-spike",
+    engine_repository: str = "https://github.com/bytedance/Protenix",
+    engine_revision: str = "85767b811c40ed46e73a9b39519cf6bfca8701ba",
+    checkpoint_sha256: str = (
+        "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
+    ),
 ) -> None:
     request_path = request_path.resolve()
     workspace = request_path.parent
@@ -130,7 +136,7 @@ def run(
     output_path.write_text(refined_text, encoding="ascii")
 
     candidate = RunnerCandidate(
-        candidate_id=f"protenix-v1-refined-seed-{request.seeds[0]}",
+        candidate_id=f"{backend}-refined-seed-{request.seeds[0]}",
         seed=request.seeds[0],
         coordinate_artifact=_relative_artifact(workspace, output_path),
         generated_atoms=request.generated_atoms,
@@ -144,21 +150,24 @@ def run(
         candidates=(candidate,),
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
-            backend="protenix-v1-hook-spike+boundary-refinement",
+            backend=f"{backend}+boundary-refinement",
             runner_protocol_version=3,
-            engine_repository="https://github.com/bytedance/Protenix",
-            engine_revision="85767b811c40ed46e73a9b39519cf6bfca8701ba",
-            checkpoint_sha256=(
-                "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
-            ),
+            engine_repository=engine_repository,
+            engine_revision=engine_revision,
+            checkpoint_sha256=checkpoint_sha256,
             device="cpu",
             precision="float64",
             framework="OpenMM",
-            deterministic_algorithms=True,
+            deterministic_algorithms=refinement.platform == "Reference",
             deterministic_flags=(
                 f"platform={refinement.platform}",
                 f"random_seed={request.seeds[0]}",
                 f"restart_count={restart_count}",
+            ),
+            known_nondeterministic_operations=(
+                ()
+                if refinement.platform == "Reference"
+                else (f"OpenMM {refinement.platform} minimization",)
             ),
         ),
         resource_metrics=RunnerResourceMetrics(wall_time_seconds=time.perf_counter() - start),
@@ -219,6 +228,16 @@ def main() -> None:
     parser.add_argument("--platform", default="Reference")
     parser.add_argument("--restart-count", default=8, type=int)
     parser.add_argument("--expected-candidate-sha256", default="")
+    parser.add_argument("--backend", default="protenix-v1-hook-spike")
+    parser.add_argument("--engine-repository", default="https://github.com/bytedance/Protenix")
+    parser.add_argument(
+        "--engine-revision",
+        default="85767b811c40ed46e73a9b39519cf6bfca8701ba",
+    )
+    parser.add_argument(
+        "--checkpoint-sha256",
+        default="2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04",
+    )
     args = parser.parse_args()
     if args.expected_candidate_sha256 and (
         len(args.expected_candidate_sha256) != 64
@@ -232,6 +251,10 @@ def main() -> None:
         platform=args.platform,
         restart_count=args.restart_count,
         expected_candidate_sha256=args.expected_candidate_sha256,
+        backend=args.backend,
+        engine_repository=args.engine_repository,
+        engine_revision=args.engine_revision,
+        checkpoint_sha256=args.checkpoint_sha256,
     )
 
 

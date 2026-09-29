@@ -543,9 +543,13 @@ Phase 2 backbone baseline and Phase 3 all-atom constrained-sampler tests. It is
 not part of the current Phase 2-4 implementation cycle and must not delay or
 weaken the A100 acceptance gates.
 
+The separate
+[`small-diffusion-apple-silicon-experiments.md`](small-diffusion-apple-silicon-experiments.md)
+plan now owns compact-model and local M-series experiments.
+
 - [ ] Reassess pinned-engine CPU/MPS feasibility only after the main framework and Linux/NVIDIA Phase 2/3 tests are stable.
 - [ ] Run the same core, fake-runner, and validation suites as CPU Linux on an actual Apple Silicon host before claiming platform support.
-- [ ] Define a separate Apple Silicon research matrix covering upstream arm64 packages, unsupported operators, precision, unified-memory use, repeatability, and runtime.
+- [x] Define a separate Apple Silicon research matrix covering upstream arm64 packages, unsupported operators, precision, unified-memory use, repeatability, and runtime.
 - [x] Treat MPS inference as exploratory unless the selected pinned engine officially supports it.
 - [x] Do not use MPS output as a release acceptance gate or as evidence for the Linux/NVIDIA gates.
 - [x] Keep macOS usable as a DVBFixer core/client platform; a future remote Linux/NVIDIA runner may remain the practical inference path.

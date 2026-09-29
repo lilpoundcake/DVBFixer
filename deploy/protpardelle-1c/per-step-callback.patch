@@ -1,0 +1,50 @@
+diff --git a/src/protpardelle/core/models.py b/src/protpardelle/core/models.py
+index 393924e..7dc5478 100644
+--- a/src/protpardelle/core/models.py
++++ b/src/protpardelle/core/models.py
+@@ -963,6 +963,7 @@ class Protpardelle(nn.Module):
+         motif_idx_stage1: list[list[int]] | None = None,
+         stage2: bool = False,
+         tip_atom_conditioning: bool = False,
++        step_callback: Callable[..., torch.Tensor] | None = None,
+     ) -> dict[str, Any]:
+         """Sampling function for backbone or all-atom diffusion.
+ 
+@@ -1012,6 +1013,8 @@ class Protpardelle(nn.Module):
+         motif_idx_stage1: used in two-stage allatom sampling, cache the motif index used in stage1
+         stage2: flag to indicate stage2
+         tip_atom_conditioning: true to use reconstruction and replacement guidance for tip atom conditioning
++        step_callback: replaces the mutable coordinate state after every denoising
++            update and before the next update. Defaults to None.
+         """
+ 
+         cc = apply_dotdict_recursively(conditional_cfg)  # shorthand
+@@ -2126,6 +2129,29 @@ class Protpardelle(nn.Module):
+             else:
+                 xt = x0
+ 
++            if step_callback is not None:
++                updated = step_callback(
++                    xt,
++                    i,
++                    len(timesteps) - 1,
++                    motif_idx,
++                    motif_all_atom,
++                    motif_atom_mask,
++                )
++                if not isinstance(updated, torch.Tensor):
++                    raise TypeError("step_callback must return a torch.Tensor")
++                if updated.shape != xt.shape:
++                    raise ValueError("step_callback must preserve tensor shape")
++                if updated.device != xt.device:
++                    raise ValueError("step_callback must preserve tensor device")
++                if updated.dtype != xt.dtype:
++                    raise ValueError("step_callback must preserve tensor dtype")
++                xt = updated
++                if jump_steps:
++                    # jump_steps reconstructs xt from atom73_state_t on the next
++                    # iteration, so persist the projected state there as well.
++                    atom73_state_t[mask73] = xt[mask37]
++
+             sigma = sigma_next
+             sigma_float = sigma_next_float

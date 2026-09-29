@@ -2,6 +2,17 @@
 
 [← README](../README.md)
 
+- **OpenMM CUDA must not use a toolkit newer than the host driver supports.**
+  The A100 research host uses NVIDIA driver `535.104.05` (CUDA 12.2
+  compatibility), while the main environment resolved CUDA/NVRTC 12.9 alongside
+  OpenMM 8.6.1. OpenMM's runtime JIT then failed with
+  `CUDA_ERROR_UNSUPPORTED_PTX_VERSION (222)`. Keep the main environment unchanged
+  and use the isolated, pinned
+  [`deploy/openmm-cuda122/environment.yml`](../deploy/openmm-cuda122/environment.yml)
+  for CUDA boundary-refinement experiments. A minimal CUDA Context smoke passes;
+  real-candidate validation and repeatability are tracked in
+  [`docs/research/openmm-cuda-refinement.md`](research/openmm-cuda-refinement.md).
+
 - **Mypy must use NumPy `<2.5` while targeting Python 3.11.** NumPy 2.5
   dropped Python 3.11 and its bundled stubs use Python 3.12-only `type`
   statements. Running dvbfixer's Python 3.11-targeted mypy configuration from
