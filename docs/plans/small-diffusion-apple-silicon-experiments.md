@@ -17,6 +17,7 @@
   - [`../research/small-diffusion-candidate-results.md`](../research/small-diffusion-candidate-results.md)
   - [`../research/apple-silicon-diffusion-operator-smoke.md`](../research/apple-silicon-diffusion-operator-smoke.md)
   - [`../research/apple-silicon-diffusion-six-case-pilot.md`](../research/apple-silicon-diffusion-six-case-pilot.md)
+  - [`../research/small-diffusion-apple-24-pilot.json`](../research/small-diffusion-apple-24-pilot.json)
 
 ## Goals
 
