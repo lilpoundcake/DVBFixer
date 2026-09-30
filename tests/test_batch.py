@@ -4,6 +4,67 @@ from pathlib import Path
 import pytest
 
 from dvbfixer.batch import extract_batch_options, run_directory
+from dvbfixer.ffutils.dat import DatRecord
+from dvbfixer.zbs import main as zbs_main
+
+PDB_WITH_CASE_DISTINCT_CHAINS = """\
+ATOM      1  CA  ALA A   1       0.000   0.000   0.000  1.00  0.00           C
+ATOM      2  CA  GLY b   1       4.000   0.000   0.000  1.00  0.00           C
+TER
+END
+"""
+
+
+def _pdb_chains(path: Path) -> set[str]:
+    return {
+        line[21]
+        for line in path.read_text().splitlines()
+        if line.startswith(("ATOM  ", "HETATM"))
+    }
+
+
+def _tree_snapshot(root: Path) -> tuple[list[str], dict[str, bytes]]:
+    entries = sorted(str(path.relative_to(root)) for path in root.rglob("*"))
+    contents = {
+        str(path.relative_to(root)): path.read_bytes()
+        for path in root.rglob("*")
+        if path.is_file()
+    }
+    return entries, contents
+
+
+def _install_fake_zbs_stages(monkeypatch, calls):
+    def stage(name, *, sidecar=False):
+        def fake(argv):
+            source = Path(argv[0])
+            output = Path(argv[argv.index("-o") + 1])
+            assert _pdb_chains(source) == {"A", "b"}
+            calls.append((name, source, output))
+
+            outputs = [output]
+            if name == "model" and int(argv[argv.index("--num-output") + 1]) > 1:
+                outputs = [
+                    output.with_stem(f"{output.stem}_1"),
+                    output.with_stem(f"{output.stem}_2"),
+                ]
+            for destination in outputs:
+                destination.write_text(source.read_text())
+                if sidecar:
+                    DatRecord(
+                        description=f"fake {name} output",
+                        added_atoms=[{
+                            "chain": "b", "resid": "1", "icode": "",
+                            "resname": "GLY", "atom": "CA", "element": "C",
+                        }],
+                        residue_summary={"b/GLY1": {"heavy": 1, "hydrogen": 0}},
+                    ).save(destination.with_suffix(".dat"), verbose=False)
+
+        return fake
+
+    monkeypatch.setattr("dvbfixer.renumber.main", stage("renumber"))
+    monkeypatch.setattr("dvbfixer.model.main", stage("model", sidecar=True))
+    monkeypatch.setattr("dvbfixer.prepare.main", stage("prepare", sidecar=True))
+    monkeypatch.setattr("dvbfixer.minimize.main", stage("minimize"))
 
 
 def test_extract_batch_options_preserves_command_arguments():
@@ -76,6 +137,99 @@ def test_directory_runs_each_pdb_and_preserves_subdirectories(tmp_path: Path):
     ]
 
 
+def test_batch_zbs_contains_retained_intermediates_in_nested_output(
+    monkeypatch, tmp_path: Path,
+):
+    source_root = tmp_path / "source"
+    source_dir = source_root / "nested" / "complexes"
+    source_dir.mkdir(parents=True)
+    source = source_dir / "sample.pdb"
+    source.write_text(PDB_WITH_CASE_DISTINCT_CHAINS)
+    source_before = _tree_snapshot(source_root)
+    output_root = tmp_path / "results"
+    calls = []
+    _install_fake_zbs_stages(monkeypatch, calls)
+
+    run_directory(
+        "zbs",
+        zbs_main,
+        Namespace(
+            input_dir=str(source_root),
+            output_dir=str(output_root),
+            recursive=True,
+            fail_fast=False,
+        ),
+        ["--keep-interim", "--no-postflight", "--no-align-to-input", "--no-solvent"],
+    )
+
+    destination = output_root / "nested" / "complexes"
+    expected_pdbs = [
+        destination / f"sample_{suffix}.pdb"
+        for suffix in ("renum", "model", "prepared", "minimized", "zbs")
+    ]
+    expected_sidecars = [
+        destination / "sample_model.dat",
+        destination / "sample_prepared.dat",
+    ]
+    assert all(path.is_file() for path in [*expected_pdbs, *expected_sidecars])
+    assert all(path.is_relative_to(output_root) for path in [*expected_pdbs, *expected_sidecars])
+    assert all(_pdb_chains(path) == {"A", "b"} for path in expected_pdbs)
+    assert [DatRecord.load(path).description for path in expected_sidecars] == [
+        "fake model output",
+        "fake prepare output",
+    ]
+    assert [(name, input_path, output_path) for name, input_path, output_path in calls] == [
+        ("renumber", source, destination / "sample_renum.pdb"),
+        ("model", destination / "sample_renum.pdb", destination / "sample_model.pdb"),
+        ("prepare", destination / "sample_model.pdb", destination / "sample_prepared.pdb"),
+        ("minimize", destination / "sample_prepared.pdb", destination / "sample_minimized.pdb"),
+    ]
+    assert _tree_snapshot(source_root) == source_before
+
+
+def test_batch_zbs_multi_output_cleanup_retains_unselected_candidates(
+    monkeypatch, tmp_path: Path,
+):
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    source = source_root / "sample.pdb"
+    source.write_text(PDB_WITH_CASE_DISTINCT_CHAINS)
+    source_before = _tree_snapshot(source_root)
+    output_root = tmp_path / "results"
+    calls = []
+    _install_fake_zbs_stages(monkeypatch, calls)
+
+    run_directory(
+        "zbs",
+        zbs_main,
+        Namespace(
+            input_dir=str(source_root),
+            output_dir=str(output_root),
+            recursive=False,
+            fail_fast=False,
+        ),
+        ["--num-output", "2", "--no-postflight", "--no-align-to-input", "--no-solvent"],
+    )
+
+    final_output = output_root / "sample_zbs.pdb"
+    retained_candidate = output_root / "sample_model_2.pdb"
+    retained_sidecar = output_root / "sample_model_2.dat"
+    assert final_output.is_file()
+    assert retained_candidate.is_file()
+    assert retained_sidecar.is_file()
+    assert _pdb_chains(final_output) == {"A", "b"}
+    assert DatRecord.load(retained_sidecar).description == "fake model output"
+    assert calls[2][1] == output_root / "sample_model_1.pdb"
+
+    removed_intermediates = [
+        output_root / f"sample_{suffix}{extension}"
+        for suffix in ("renum", "model", "model_1", "prepared", "minimized")
+        for extension in (".pdb", ".dat")
+    ]
+    assert not any(path.exists() for path in removed_intermediates)
+    assert _tree_snapshot(source_root) == source_before
+
+
 def test_directory_rejects_ambiguous_output_option(tmp_path: Path):
     (tmp_path / "a.pdb").write_text("END\n")
     with pytest.raises(SystemExit, match="Use --output-dir"):
@@ -104,7 +258,7 @@ def test_directory_continues_by_default_and_prints_clear_summary(tmp_path: Path,
     with pytest.raises(SystemExit) as caught:
         run_directory(
             "zbs", fail,
-            Namespace(input_dir=str(tmp_path), output_dir=None,
+            Namespace(input_dir=str(tmp_path), output_dir=str(tmp_path / "results"),
                       recursive=False, fail_fast=False),
             ["--no-solvent"],
         )
@@ -133,7 +287,7 @@ def test_directory_summary_retains_command_error_and_explains_fasta_chain_mismat
     with pytest.raises(SystemExit, match="1"):
         run_directory(
             "zbs", fail,
-            Namespace(input_dir=str(tmp_path), output_dir=None,
+            Namespace(input_dir=str(tmp_path), output_dir=str(tmp_path / "results"),
                       recursive=False, fail_fast=False),
             ["--fasta", "chains.fasta"],
         )
@@ -157,7 +311,7 @@ def test_fail_fast_stops_after_first_failure(tmp_path: Path):
     with pytest.raises(SystemExit):
         run_directory(
             "prepare", fail,
-            Namespace(input_dir=str(tmp_path), output_dir=None,
+            Namespace(input_dir=str(tmp_path), output_dir=str(tmp_path / "results"),
                       recursive=False, fail_fast=True),
             [],
         )
@@ -169,7 +323,7 @@ def test_diagnose_exit_one_is_findings_not_execution_failure(tmp_path: Path, cap
     with pytest.raises(SystemExit) as caught:
         run_directory(
             "diagnose", lambda argv: (_ for _ in ()).throw(SystemExit(1)),
-            Namespace(input_dir=str(tmp_path), output_dir=None,
+            Namespace(input_dir=str(tmp_path), output_dir=str(tmp_path / "results"),
                       recursive=False, fail_fast=False),
             [],
         )
