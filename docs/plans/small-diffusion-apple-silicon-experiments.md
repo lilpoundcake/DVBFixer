@@ -22,6 +22,7 @@
   - [`../research/small-diffusion-apple-100-soak.json`](../research/small-diffusion-apple-100-soak.json)
   - [`../research/small-diffusion-apple-full-231.json`](../research/small-diffusion-apple-full-231.json)
   - [`../research/apple-silicon-diffusion-100-case-results.md`](../research/apple-silicon-diffusion-100-case-results.md)
+  - [`../research/apple-silicon-diffusion-full-231-results.md`](../research/apple-silicon-diffusion-full-231-results.md)
 
 ## Goals
 
@@ -402,7 +403,7 @@ lanes below pass and a full repeat has a stated decision value.
   first 100 eligible full-follow-up cases in manifest order, run consecutively,
   and check memory pressure, temporary cleanup, process lifetime, and p95 latency.
   A 231-case Apple repeat requires a separate written rationale after this soak.
-- [ ] Lane 7, user-authorized 231-case extension: reuse only digest-verified
+- [x] Lane 7, user-authorized 231-case extension: reuse only digest-verified
   first-100 artifacts produced by the identical frozen protocol, then run the
   remaining 131 cases in manifest order. Keep all scientific failures in the
   denominator and require 231/231 operational completions.
@@ -433,7 +434,7 @@ lanes below pass and a full repeat has a stated decision value.
   termination, leaked process, or unreclaimed workspace. Scientific failures stay
   in the denominator but do not count as operational failures when validation
   completes normally.
-- [ ] Write the final hardware/environment/operator/result record under
+- [x] Write the final hardware/environment/operator/result record under
   `docs/research/`; keep checkpoints, environments, profiles, and generated
   structures under ignored `.artifacts/` paths.
 
