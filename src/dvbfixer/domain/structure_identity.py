@@ -29,6 +29,40 @@ class AtomRef:
     name: str
 
 
+@dataclass(frozen=True, order=True)
+class ComponentInstanceRef:
+    """Exact identity of one structural component occurrence."""
+
+    model: int
+    chain_id: str
+    sequence_number: str
+    insertion_code: str = ""
+    alternate_location: str = ""
+    occurrence: int = 1
+
+    def __post_init__(self) -> None:
+        if self.model < 1:
+            raise ValueError("model must be at least 1")
+        if not self.chain_id:
+            raise ValueError("chain_id must be explicit")
+        if not self.sequence_number:
+            raise ValueError("sequence_number must be explicit")
+        if self.occurrence < 1:
+            raise ValueError("occurrence must be at least 1")
+
+
+@dataclass(frozen=True, order=True)
+class ExactAtomRef:
+    """Atom identity that preserves MODEL, altloc, and component occurrence."""
+
+    component: ComponentInstanceRef
+    name: str
+
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError("atom name must be explicit")
+
+
 @dataclass(frozen=True)
 class MolecularComponent:
     identifier: str
