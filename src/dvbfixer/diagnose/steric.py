@@ -13,11 +13,13 @@ Two engines:
 
 from __future__ import annotations
 
+import re
 import subprocess
 from pathlib import Path
 from typing import Any
 
 from dvbfixer.diagnose._common import HBOND_HEAVY_ELEMENTS, is_water
+from dvbfixer.diagnose.geometry import GeometryMeasurement, atom_identity
 from dvbfixer.diagnose.report import Finding, Severity
 
 # van der Waals radii (Å). Standard values from the MolProbity dataset
@@ -48,11 +50,14 @@ _VDW_A: dict[str, float] = {
 #   - chimerax    : ChimeraX ``clashes`` default (matches its GUI report)
 #   - bioluminate : BioLuminate ``find_clashes`` "Bad"/"Ugly" split
 CLASH_MODE_PRESETS: dict[str, tuple[float, float]] = {
-    "molprobity":  (0.4, 0.5),
-    "chimerax":    (0.6, 0.9),
+    "molprobity": (0.4, 0.5),
+    "chimerax": (0.6, 0.9),
     "bioluminate": (0.75, 1.0),
 }
 DEFAULT_CLASH_MODE = "chimerax"
+DETERMINISTIC_STERIC_ENGINE = "dvbfixer-python-steric"
+DETERMINISTIC_STERIC_ENGINE_VERSION = "1"
+SEVERE_OVERLAP_A = 0.90
 
 # Module-level defaults (used only when the caller passes ``None``).
 _CLASH_WARNING_OVERLAP_A, _CLASH_ERROR_OVERLAP_A = CLASH_MODE_PRESETS[DEFAULT_CLASH_MODE]
@@ -83,8 +88,8 @@ _COVALENT_MAX_A_SS = 2.25  # disulfide (S-S)
 # by allowing overlaps up to 0.6 Å below the vdW sum on H-bond pairs.
 _HBOND_ACCEPTORS = {"N", "O", "S", "F"}
 _HBOND_DONORS = {"N", "O", "S"}
-_HBOND_H_ACC_MIN_A = 1.4    # closer than this is genuinely too tight
-_HBOND_H_ACC_MAX_A = 2.6    # farther than this isn't an H-bond
+_HBOND_H_ACC_MIN_A = 1.4  # closer than this is genuinely too tight
+_HBOND_H_ACC_MAX_A = 2.6  # farther than this isn't an H-bond
 
 # Heavy-atom H-bond envelope (for structures without explicit H).
 # Donor..acceptor at 2.5 – 3.4 Å between H-bond-capable elements
@@ -111,6 +116,7 @@ def _find_binary(name: str) -> str | None:
     import os
     import shutil
     import sys
+
     found = shutil.which(name)
     if found:
         return found
@@ -261,6 +267,9 @@ def clashes_python(
     include_water: bool = False,
     clash_warn_a: float | None = None,
     clash_error_a: float | None = None,
+    *,
+    measurement_sink: list[GeometryMeasurement] | None = None,
+    neighbor_cutoff_a: float = _NEIGHBOR_CUTOFF_A,
 ) -> list[Finding]:
     """Pure-Python clash detection via scipy cKDTree.
 
@@ -304,7 +313,7 @@ def clashes_python(
 
     tree = cKDTree(coords_a)
     # Query all pairs within the cutoff.
-    pairs = tree.query_pairs(r=_NEIGHBOR_CUTOFF_A)
+    pairs = tree.query_pairs(r=neighbor_cutoff_a)
     if not pairs:
         return []
 
@@ -312,7 +321,7 @@ def clashes_python(
     excluded = _expand_exclusions(neighbors)
 
     findings: list[Finding] = []
-    for i, j in pairs:
+    for i, j in sorted(pairs):
         ai = atoms[i]
         aj = atoms[j]
         if ai.element is None or aj.element is None:
@@ -326,15 +335,13 @@ def clashes_python(
         if ai.residue is aj.residue:
             continue
         # Skip water (unless the user opted in).
-        if not include_water and (
-            is_water(ai.residue.name) or is_water(aj.residue.name)
-        ):
+        if not include_water and (is_water(ai.residue.name) or is_water(aj.residue.name)):
             continue
         ri = _VDW_A.get(ai.element.symbol.upper(), 1.7)
         rj = _VDW_A.get(aj.element.symbol.upper(), 1.7)
         d = float(np.linalg.norm(coords_a[i] - coords_a[j]))
         overlap = (ri + rj) - d
-        if overlap < warn_a:
+        if overlap <= 0.0:
             continue
         # Skip pairs that fit an H-bond envelope — not a clash.
         if _is_hbond_pair(ai, aj, d, atoms, neighbors):
@@ -342,42 +349,100 @@ def clashes_python(
         # Heavy-atom H-bond envelope (for structures missing explicit H).
         if _is_heavy_hbond_pair(ai, aj, d):
             continue
-        severity = (Severity.ERROR
-                    if overlap >= err_a
-                    else Severity.WARNING)
+        if measurement_sink is not None:
+            measurement_sink.append(
+                GeometryMeasurement(
+                    metric="steric_vdw_overlap.v1",
+                    atoms=(atom_identity(ai), atom_identity(aj)),
+                    value=overlap,
+                    unit="angstrom",
+                    reference_value=ri + rj,
+                    engine=DETERMINISTIC_STERIC_ENGINE,
+                    engine_version=DETERMINISTIC_STERIC_ENGINE_VERSION,
+                    metadata={
+                        "distance_angstrom": d,
+                        "vdw_sum_angstrom": ri + rj,
+                        "one_two_one_three_one_four_excluded": True,
+                    },
+                )
+            )
+        if overlap < warn_a - 1e-12:
+            continue
+        severity = Severity.ERROR if overlap >= err_a - 1e-12 else Severity.WARNING
         chain_i, resid_i = _res_loc(ai.residue)
         chain_j, resid_j = _res_loc(aj.residue)
         loc_i = f"{chain_i}/{ai.residue.name}{resid_i}:{ai.name}"
         loc_j = f"{chain_j}/{aj.residue.name}{resid_j}:{aj.name}"
-        findings.append(Finding(
-            severity=severity,
-            category="clash",
-            chain=chain_i,
-            resid=resid_i,
-            resname=ai.residue.name,
-            atom=ai.name,
-            message=f"{loc_i} clashes with partner {loc_j} — overlap {overlap:.2f} Å "
-                    f"(d={d:.2f} Å, vdW sum {ri + rj:.2f} Å)",
-            fix_hint="dvbfixer minimize (relaxes non-bonded interactions)",
-            extra={
-                "clash_partner": {
-                    "chain": chain_j,
-                    "resid": resid_j,
-                    "resname": aj.residue.name,
-                    "atom": aj.name,
-                }
-            },
-        ))
+        findings.append(
+            Finding(
+                severity=severity,
+                category="clash",
+                chain=chain_i,
+                resid=resid_i,
+                resname=ai.residue.name,
+                atom=ai.name,
+                message=f"{loc_i} clashes with partner {loc_j} — overlap {overlap:.2f} Å "
+                f"(d={d:.2f} Å, vdW sum {ri + rj:.2f} Å)",
+                fix_hint="dvbfixer minimize (relaxes non-bonded interactions)",
+                extra={
+                    "geometry_schema": "dvbfixer.geometry.v1",
+                    "metric": "steric_vdw_overlap.v1",
+                    "engine": {
+                        "name": DETERMINISTIC_STERIC_ENGINE,
+                        "version": DETERMINISTIC_STERIC_ENGINE_VERSION,
+                    },
+                    "overlap_angstrom": overlap,
+                    "distance_angstrom": d,
+                    "vdw_sum_angstrom": ri + rj,
+                    "warning_threshold_angstrom": warn_a,
+                    "error_threshold_angstrom": err_a,
+                    "atoms": [atom_identity(ai).to_dict(), atom_identity(aj).to_dict()],
+                    "clash_partner": {
+                        "chain": chain_j,
+                        "resid": resid_j,
+                        "resname": aj.residue.name,
+                        "atom": aj.name,
+                    },
+                },
+            )
+        )
     return findings
+
+
+def steric_overlap_measurements_python(
+    topology: Any,
+    positions: Any,
+    include_water: bool = False,
+) -> list[GeometryMeasurement]:
+    """Return deterministic Python vdW overlaps without severity policy.
+
+    The measurement set uses the same covalent, 1-3/1-4, water, and hydrogen-
+    bond exclusions as the existing Python diagnose adapter. Callers apply
+    their own thresholds; diagnose's default ERROR boundary remains 0.90 Å.
+    """
+
+    measurements: list[GeometryMeasurement] = []
+    clashes_python(
+        topology,
+        positions,
+        include_water=include_water,
+        clash_warn_a=float("inf"),
+        clash_error_a=float("inf"),
+        measurement_sink=measurements,
+        neighbor_cutoff_a=2.0 * max(_VDW_A.values()),
+    )
+    return sorted(measurements, key=lambda item: item.atoms)
 
 
 def _run_probe(pdb_path: str | Path, binary: str) -> str | None:
     """Invoke ``probe`` and return its stdout, or None on error."""
     try:
         result = subprocess.run(
-            [binary, "-unformated", "-condensed", "-Q", "-mc", "-het",
-             "ALL", "ALL", str(pdb_path)],
-            capture_output=True, text=True, timeout=60, check=False,
+            [binary, "-unformated", "-condensed", "-Q", "-mc", "-het", "ALL", "ALL", str(pdb_path)],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
         )
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
         return None
@@ -430,11 +495,9 @@ def clashes_probe(
             overlap = -float(mingap_str)  # probe reports gap (negative on overlap)
         except (IndexError, ValueError):
             continue
-        if overlap < warn_a:
+        if overlap < warn_a - 1e-12:
             continue
-        severity = (Severity.ERROR
-                    if overlap >= err_a
-                    else Severity.WARNING)
+        severity = Severity.ERROR if overlap >= err_a - 1e-12 else Severity.WARNING
 
         def _parse(field: str) -> tuple[str, str, str, str]:
             # Fixed-width: cols 0=chain, 1-4=resid, 5-7=resname, 8-11=atomname
@@ -443,27 +506,50 @@ def clashes_probe(
 
         chain_i, resid_i, resname_i, atom_i = _parse(src_field)
         chain_j, resid_j, resname_j, atom_j = _parse(trg_field)
+
+        def _identity(chain: str, resid: str, atom: str) -> dict[str, str]:
+            match = re.fullmatch(r"(-?\d+)([^\d]?)", resid)
+            number, icode = match.groups() if match else (resid, "")
+            return {
+                "chain": chain or "?",
+                "resid": number or "?",
+                "icode": icode,
+                "atom": atom or "?",
+            }
+
         loc_i = f"{chain_i or '?'}/{resname_i or '?'}{resid_i or '?'}:{atom_i or '?'}"
         loc_j = f"{chain_j}/{resname_j}{resid_j}:{atom_j}"
-        findings.append(Finding(
-            severity=severity,
-            category="clash",
-            chain=chain_i or "?",
-            resid=resid_i or "?",
-            resname=resname_i or "?",
-            atom=atom_i or "?",
-            message=f"{loc_i} clashes with partner {loc_j} — overlap {overlap:.2f} Å "
-                    f"(via MolProbity probe)",
-            fix_hint="dvbfixer minimize",
-            extra={
-                "clash_partner": {
-                    "chain": chain_j or "?",
-                    "resid": resid_j or "?",
-                    "resname": resname_j or "?",
-                    "atom": atom_j or "?",
-                }
-            },
-        ))
+        findings.append(
+            Finding(
+                severity=severity,
+                category="clash",
+                chain=chain_i or "?",
+                resid=resid_i or "?",
+                resname=resname_i or "?",
+                atom=atom_i or "?",
+                message=f"{loc_i} clashes with partner {loc_j} — overlap {overlap:.2f} Å "
+                f"(via MolProbity probe)",
+                fix_hint="dvbfixer minimize",
+                extra={
+                    "geometry_schema": "dvbfixer.geometry.v1",
+                    "metric": "steric_probe_overlap.v1",
+                    "engine": {"name": "molprobity-probe", "version": "unreported"},
+                    "overlap_angstrom": overlap,
+                    "warning_threshold_angstrom": warn_a,
+                    "error_threshold_angstrom": err_a,
+                    "atoms": [
+                        _identity(chain_i, resid_i, atom_i),
+                        _identity(chain_j, resid_j, atom_j),
+                    ],
+                    "clash_partner": {
+                        "chain": chain_j or "?",
+                        "resid": resid_j or "?",
+                        "resname": resname_j or "?",
+                        "atom": atom_j or "?",
+                    },
+                },
+            )
+        )
     return findings
 
 
@@ -483,13 +569,17 @@ def run_all(
         binary = _find_binary("probe")
         if binary is not None:
             findings = clashes_probe(
-                pdb_path, binary,
-                clash_warn_a=clash_warn_a, clash_error_a=clash_error_a,
+                pdb_path,
+                binary,
+                clash_warn_a=clash_warn_a,
+                clash_error_a=clash_error_a,
             )
             if findings is not None:  # None signals probe run failure
                 return findings
     return clashes_python(
-        topology, positions,
+        topology,
+        positions,
         include_water=include_water,
-        clash_warn_a=clash_warn_a, clash_error_a=clash_error_a,
+        clash_warn_a=clash_warn_a,
+        clash_error_a=clash_error_a,
     )

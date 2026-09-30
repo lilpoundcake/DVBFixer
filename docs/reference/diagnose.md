@@ -9,7 +9,9 @@ usage: dvbfixer diagnose [-h] [-o OUTPUT]
                          [--only {all,structural,chemistry,steric}]
                          [--severity {ERROR,WARNING,INFO}] [--include-water]
                          [--clash-mode {bioluminate,chimerax,molprobity}]
-                         [--clash-cutoff WARN,ERROR] [--format {text,json}]
+                         [--clash-cutoff WARN,ERROR]
+                         [--scope-residue CHAIN:RESID[:ICODE]]
+                         [--scope-boundary LEFT,RIGHT] [--format {text,json}]
                          [-v] [--log-file PATH] [--input-dir DIR]
                          [--output-dir DIR] [--recursive] [--fail-fast]
                          input
@@ -24,8 +26,7 @@ options:
 
 Input / output:
   input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
-  -o OUTPUT, --output OUTPUT
-                        Write report to file (default: stdout)
+  -o, --output OUTPUT   Write report to file (default: stdout)
 
 Check selection:
   --only {all,structural,chemistry,steric}
@@ -44,6 +45,16 @@ Check selection:
                         Explicit clash overlap cutoffs in Å (overrides
                         --clash-mode). Example: --clash-cutoff 0.35,0.45 for
                         extra-strict validation.
+
+Optional exact geometry scope:
+  --scope-residue CHAIN:RESID[:ICODE]
+                        Add an exact, case-sensitive residue to JSON geometry
+                        summaries. Repeat for multiple residues; numeric
+                        ranges are not inferred.
+  --scope-boundary LEFT,RIGHT
+                        Measure an explicit ordered C(left)-N(right) boundary,
+                        where each selector is CHAIN:RESID[:ICODE]. Repeat as
+                        needed. Does not infer gaps.
 
 Output format:
   --format {text,json}  Output format. `text` is the plain-text report; `json`

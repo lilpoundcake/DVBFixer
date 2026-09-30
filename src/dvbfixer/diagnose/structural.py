@@ -40,15 +40,17 @@ def check_missing_atoms(fixer: Any) -> list[Finding]:
     for res, atoms in fixer.missingAtoms.items():
         chain, resid = _res_loc(res)
         names = ", ".join(a.name for a in atoms)
-        findings.append(Finding(
-            severity=Severity.ERROR,
-            category="missing_atoms",
-            chain=chain,
-            resid=resid,
-            resname=res.name,
-            message=f"missing heavy atoms: {names}",
-            fix_hint="dvbfixer prepare",
-        ))
+        findings.append(
+            Finding(
+                severity=Severity.ERROR,
+                category="missing_atoms",
+                chain=chain,
+                resid=resid,
+                resname=res.name,
+                message=f"missing heavy atoms: {names}",
+                fix_hint="dvbfixer prepare",
+            )
+        )
     return findings
 
 
@@ -61,16 +63,18 @@ def check_missing_residues(fixer: Any) -> list[Finding]:
     for (chain_idx, res_idx), resnames in fixer.missingResidues.items():
         chain_id = chains_list[chain_idx].id if chain_idx < len(chains_list) else "?"
         run = " ".join(resnames)
-        findings.append(Finding(
-            severity=Severity.ERROR,
-            category="missing_residues",
-            chain=chain_id,
-            resid=str(res_idx),
-            resname=resnames[0] if resnames else "?",
-            message=f"gap between existing residues: {len(resnames)} residues "
-                    f"({run}) not present in ATOM records",
-            fix_hint="dvbfixer model (uses Modeller LoopModel)",
-        ))
+        findings.append(
+            Finding(
+                severity=Severity.ERROR,
+                category="missing_residues",
+                chain=chain_id,
+                resid=str(res_idx),
+                resname=resnames[0] if resnames else "?",
+                message=f"gap between existing residues: {len(resnames)} residues "
+                f"({run}) not present in ATOM records",
+                fix_hint="dvbfixer model (uses Modeller LoopModel)",
+            )
+        )
     return findings
 
 
@@ -80,15 +84,17 @@ def check_missing_terminals(fixer: Any) -> list[Finding]:
     for res, atoms in fixer.missingTerminals.items():
         chain, resid = _res_loc(res)
         names = ", ".join(a if isinstance(a, str) else a.name for a in atoms)
-        findings.append(Finding(
-            severity=Severity.ERROR,
-            category="missing_terminals",
-            chain=chain,
-            resid=resid,
-            resname=res.name,
-            message=f"missing terminal atom(s): {names}",
-            fix_hint="dvbfixer prepare",
-        ))
+        findings.append(
+            Finding(
+                severity=Severity.ERROR,
+                category="missing_terminals",
+                chain=chain,
+                resid=resid,
+                resname=res.name,
+                message=f"missing terminal atom(s): {names}",
+                fix_hint="dvbfixer prepare",
+            )
+        )
     return findings
 
 
@@ -100,20 +106,23 @@ def check_coincident_atoms(topology: Any, positions: Any) -> list[Finding]:
     (test/broken_SER/SER.pdb).
     """
     from dvbfixer.ffutils.geometry import detect_coincident_atoms
+
     findings: list[Finding] = []
     for coinc in detect_coincident_atoms(topology, positions):
         chain, resid = _res_loc(coinc.residue)
-        findings.append(Finding(
-            severity=Severity.ERROR,
-            category="coincident_atoms",
-            chain=chain,
-            resid=resid,
-            resname=coinc.residue.name,
-            atom=coinc.hydrogen.name,
-            message=f"coincident with {coinc.heavy_atom.name} "
-                    f"({coinc.distance_nm * 10:.3f} Å apart)",
-            fix_hint="dvbfixer prepare (0.4.1 pre-strip re-places both)",
-        ))
+        findings.append(
+            Finding(
+                severity=Severity.ERROR,
+                category="coincident_atoms",
+                chain=chain,
+                resid=resid,
+                resname=coinc.residue.name,
+                atom=coinc.hydrogen.name,
+                message=f"coincident with {coinc.heavy_atom.name} "
+                f"({coinc.distance_nm * 10:.3f} Å apart)",
+                fix_hint="dvbfixer prepare (0.4.1 pre-strip re-places both)",
+            )
+        )
     return findings
 
 
@@ -123,6 +132,7 @@ def check_misplaced_hydrogens(topology: Any, positions: Any) -> list[Finding]:
     Reuses :func:`dvbfixer.ffutils.geometry.detect_misplaced_hydrogens`.
     """
     from dvbfixer.ffutils.geometry import detect_misplaced_hydrogens
+
     findings: list[Finding] = []
     for m in detect_misplaced_hydrogens(topology, positions):
         # Coincident cases are already reported by check_coincident_atoms —
@@ -132,17 +142,19 @@ def check_misplaced_hydrogens(topology: Any, positions: Any) -> list[Finding]:
         chain, resid = _res_loc(m.h_atom.residue)
         actual_a = m.parent_distance_nm * 10
         expected_a = m.expected_bond_nm * 10
-        findings.append(Finding(
-            severity=Severity.ERROR,
-            category="misplaced_hydrogen",
-            chain=chain,
-            resid=resid,
-            resname=m.h_atom.residue.name,
-            atom=m.h_atom.name,
-            message=f"{actual_a:.2f} Å from parent {m.parent.name} "
-                    f"(expected ~{expected_a:.2f} Å)",
-            fix_hint="dvbfixer prepare (0.4.2 post-check re-places)",
-        ))
+        findings.append(
+            Finding(
+                severity=Severity.ERROR,
+                category="misplaced_hydrogen",
+                chain=chain,
+                resid=resid,
+                resname=m.h_atom.residue.name,
+                atom=m.h_atom.name,
+                message=f"{actual_a:.2f} Å from parent {m.parent.name} "
+                f"(expected ~{expected_a:.2f} Å)",
+                fix_hint="dvbfixer prepare (0.4.2 post-check re-places)",
+            )
+        )
     return findings
 
 
@@ -174,15 +186,17 @@ def check_altloc_conflicts(pdb_path: str | Path) -> list[Finding]:
 
     for (chain, resid, icode), altlocs in per_res.items():
         joined = ", ".join(sorted(altlocs))
-        findings.append(Finding(
-            severity=Severity.WARNING,
-            category="altloc_conflict",
-            chain=chain,
-            resid=_resid_str(resid, icode),
-            resname=per_res_names[(chain, resid, icode)],
-            message=f"alternative locations: {joined}",
-            fix_hint="manual: pick one altLoc (e.g. via pymol / PDB editor)",
-        ))
+        findings.append(
+            Finding(
+                severity=Severity.WARNING,
+                category="altloc_conflict",
+                chain=chain,
+                resid=_resid_str(resid, icode),
+                resname=per_res_names[(chain, resid, icode)],
+                message=f"alternative locations: {joined}",
+                fix_hint="manual: pick one altLoc (e.g. via pymol / PDB editor)",
+            )
+        )
     return findings
 
 
@@ -250,16 +264,18 @@ def check_chain_breaks(
             prev_chain = prev[21]
             prev_resid = prev[22:26].strip()
             prev_resname = prev[17:20].strip()
-            findings.append(Finding(
-                severity=Severity.WARNING,
-                category="chain_break",
-                chain=chain,
-                resid=_resid_str(resid, icode),
-                resname=resname,
-                message=f"chain break after {prev_chain}/{prev_resname}{prev_resid} "
-                        f"(prev-C to curr-N distance jump or resSeq reset)",
-                fix_hint="dvbfixer model (if the gap is real)",
-            ))
+            findings.append(
+                Finding(
+                    severity=Severity.WARNING,
+                    category="chain_break",
+                    chain=chain,
+                    resid=_resid_str(resid, icode),
+                    resname=resname,
+                    message=f"chain break after {prev_chain}/{prev_resname}{prev_resid} "
+                    f"(prev-C to curr-N distance jump or resSeq reset)",
+                    fix_hint="dvbfixer model (if the gap is real)",
+                )
+            )
     return findings
 
 
@@ -274,9 +290,11 @@ def check_duplicate_chain_coordinates(pdb_path: str | Path) -> list[Finding]:
             chain=right,
             resid="*",
             resname="*",
-            message=(f"protein chains {left} and {right} have identical coordinates "
-                     f"for all {atom_count} protein atoms; frames may have been "
-                     "concatenated without MODEL/ENDMDL separators"),
+            message=(
+                f"protein chains {left} and {right} have identical coordinates "
+                f"for all {atom_count} protein atoms; frames may have been "
+                "concatenated without MODEL/ENDMDL separators"
+            ),
             fix_hint="restore MODEL/ENDMDL records or remove the duplicate chain before minimize",
         )
         for left, right, atom_count in duplicate_protein_chain_coordinates(pdb_path)
@@ -312,16 +330,18 @@ def check_insertion_codes(pdb_path: str | Path) -> list[Finding]:
     for chain, keys in per_chain.items():
         n = len(set(keys))
         resname, first = per_chain_first[chain]
-        findings.append(Finding(
-            severity=Severity.INFO,
-            category="insertion_codes",
-            chain=chain,
-            resid=first,
-            resname=resname,
-            message=f"{n} residue(s) with insertion codes on chain {chain} "
-                    f"(often antibody CDR numbering — Kabat/Chothia)",
-            fix_hint=None,
-        ))
+        findings.append(
+            Finding(
+                severity=Severity.INFO,
+                category="insertion_codes",
+                chain=chain,
+                resid=first,
+                resname=resname,
+                message=f"{n} residue(s) with insertion codes on chain {chain} "
+                f"(often antibody CDR numbering — Kabat/Chothia)",
+                fix_hint=None,
+            )
+        )
     return findings
 
 
@@ -361,18 +381,20 @@ def check_seqres_vs_atom(pdb_path: str | Path) -> list[Finding]:
         if observed >= total:
             continue
         missing = total - observed
-        findings.append(Finding(
-            severity=Severity.WARNING,
-            category="seqres_gap",
-            chain=chain,
-            resid="*",
-            resname="*",
-            message=f"SEQRES declares {total} residues on chain {chain}; "
-                    f"ATOM records cover {observed}. {missing} residue(s) "
-                    f"missing — likely truncated terminal(s) (e.g. His-tag, "
-                    f"disordered N/C-terminus).",
-            fix_hint="dvbfixer model (LoopModel can rebuild terminal gaps)",
-        ))
+        findings.append(
+            Finding(
+                severity=Severity.WARNING,
+                category="seqres_gap",
+                chain=chain,
+                resid="*",
+                resname="*",
+                message=f"SEQRES declares {total} residues on chain {chain}; "
+                f"ATOM records cover {observed}. {missing} residue(s) "
+                f"missing — likely truncated terminal(s) (e.g. His-tag, "
+                f"disordered N/C-terminus).",
+                fix_hint="dvbfixer model (LoopModel can rebuild terminal gaps)",
+            )
+        )
     return findings
 
 

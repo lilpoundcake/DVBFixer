@@ -3661,6 +3661,30 @@ export const GENERATED_COMMANDS = [
         "multi": false
       },
       {
+        "flag": "--scope-residue",
+        "dest": "scope_residue",
+        "label": "Scope Residue",
+        "type": "text",
+        "group": "Optional exact geometry scope",
+        "help": "Add an exact, case-sensitive residue to JSON geometry summaries. Repeat for multiple residues; numeric ranges are not inferred.",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
+        "flag": "--scope-boundary",
+        "dest": "scope_boundary",
+        "label": "Scope Boundary",
+        "type": "text",
+        "group": "Optional exact geometry scope",
+        "help": "Measure an explicit ordered C(left)-N(right) boundary, where each selector is CHAIN:RESID[:ICODE]. Repeat as needed. Does not infer gaps.",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
         "flag": "--format",
         "dest": "output_format",
         "label": "Output Format",
@@ -3698,6 +3722,13 @@ export const GENERATED_COMMANDS = [
           "--include-water",
           "--clash-mode",
           "--clash-cutoff"
+        ]
+      },
+      {
+        "name": "Optional exact geometry scope",
+        "fields": [
+          "--scope-residue",
+          "--scope-boundary"
         ]
       },
       {

@@ -17,8 +17,7 @@ options:
 
 Input / output:
   input                 Input FASTA containing at least two records
-  -o OUTPUT, --output OUTPUT
-                        Output alignment (default: <input>_aligned.fasta)
+  -o, --output OUTPUT   Output alignment (default: <input>_aligned.fasta)
 
 Alignment:
   --engine {auto,mafft,muscle,clustalo}

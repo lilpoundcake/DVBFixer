@@ -10,9 +10,9 @@ from typing import Any
 class Severity(StrEnum):
     """Ordered severity levels. ERROR > WARNING > INFO."""
 
-    ERROR = "ERROR"      # would break downstream tools if left as-is
+    ERROR = "ERROR"  # would break downstream tools if left as-is
     WARNING = "WARNING"  # tolerated by pipeline but suspect
-    INFO = "INFO"        # noted for user review
+    INFO = "INFO"  # noted for user review
 
 
 # Precedence order for the report (higher-severity findings first).
@@ -24,13 +24,13 @@ class Finding:
     """A single per-residue (or per-atom) diagnostic finding."""
 
     severity: Severity
-    category: str          # 'coincident_atoms', 'clash', 'valence', ...
+    category: str  # 'coincident_atoms', 'clash', 'valence', ...
     chain: str
-    resid: str             # includes iCode if any, e.g. '100A'
+    resid: str  # includes iCode if any, e.g. '100A'
     resname: str
     message: str
-    atom: str | None = None       # None for residue-level findings
-    fix_hint: str | None = None    # optional suggested `dvbfixer X` command
+    atom: str | None = None  # None for residue-level findings
+    fix_hint: str | None = None  # optional suggested `dvbfixer X` command
     extra: dict[str, Any] = field(default_factory=dict)  # engine-specific detail
 
     def sort_key(self) -> tuple:
@@ -169,7 +169,9 @@ def format_report(
             for item in repairs
         )
         lines.append(f"Forced D→L repair history: YES — {labels}")
-        lines.append("WARNING: inspect hydrogen angles and local geometry around repaired residues.")
+        lines.append(
+            "WARNING: inspect hydrogen angles and local geometry around repaired residues."
+        )
     else:
         lines.append("Forced D→L repair history: NO")
     lines.append("")
@@ -186,8 +188,13 @@ def format_report(
         by_heading.setdefault(_heading_for(f.category), []).append(f)
 
     # Preserve a deterministic heading order.
-    for heading in ["Input", "Structural integrity", "Chemistry / bond geometry",
-                    "Steric analysis", "Other findings"]:
+    for heading in [
+        "Input",
+        "Structural integrity",
+        "Chemistry / bond geometry",
+        "Steric analysis",
+        "Other findings",
+    ]:
         group = by_heading.get(heading)
         if not group:
             continue
@@ -211,10 +218,13 @@ def format_report(
 
     lines.append("Summary")
     lines.append(dash)
-    lines.append(f"  ERROR:   {counts[Severity.ERROR]} findings across "
-                 f"{len(residues_with_error)} residues")
-    lines.append(f"  WARNING: {counts[Severity.WARNING]} findings across "
-                 f"{len(residues_with_warning)} residues")
+    lines.append(
+        f"  ERROR:   {counts[Severity.ERROR]} findings across {len(residues_with_error)} residues"
+    )
+    lines.append(
+        f"  WARNING: {counts[Severity.WARNING]} findings across "
+        f"{len(residues_with_warning)} residues"
+    )
     lines.append(f"  INFO:    {counts[Severity.INFO]} findings")
 
     # Suggested next step — pick the tool that fixes the most-common

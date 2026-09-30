@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dvbfixer.diagnose.geometry import ResidueIdentity
+from dvbfixer.diagnose.pipeline import _finding_aggregates
 from dvbfixer.diagnose.report import (
     Finding,
     Severity,
@@ -69,11 +71,20 @@ class TestFormatReport:
 
     def test_forced_repair_history_warns_about_hydrogen_geometry(self) -> None:
         text = format_report(
-            "fixed.pdb", 100, 20, 2, [],
-            chirality_repairs=[{
-                "stage": "minimize", "chain": "A", "resname": "SER",
-                "resid": "42", "icode": "",
-            }],
+            "fixed.pdb",
+            100,
+            20,
+            2,
+            [],
+            chirality_repairs=[
+                {
+                    "stage": "minimize",
+                    "chain": "A",
+                    "resname": "SER",
+                    "resid": "42",
+                    "icode": "",
+                }
+            ],
         )
         assert "Forced D→L repair history: YES" in text
         assert "A/SER42" in text
@@ -116,3 +127,26 @@ class TestFormatReport:
         findings = [_f(Severity.WARNING, category="clash")]
         text = format_report("t.pdb", 10, 1, 1, findings)
         assert "Suggested next step" not in text
+
+
+def test_geometry_aggregates_use_named_maxima_and_every_atom_identity() -> None:
+    finding = Finding(
+        severity=Severity.ERROR,
+        category="clash",
+        chain="D",
+        resid="82",
+        resname="ALA",
+        atom="CA",
+        message="test",
+        extra={
+            "atoms": [
+                {"chain": "D", "resid": "82", "icode": "", "atom": "CA"},
+                {"chain": "d", "resid": "82", "icode": "A", "atom": "CA"},
+            ],
+            "overlap_angstrom": 0.9,
+        },
+    )
+
+    aggregates = _finding_aggregates([finding], frozenset({ResidueIdentity("d", "82", "A")}))
+
+    assert aggregates == {"clash": {"count": 1, "maxima": {"overlap_angstrom": 0.9}}}

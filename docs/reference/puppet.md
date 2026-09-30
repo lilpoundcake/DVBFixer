@@ -13,28 +13,27 @@ usage: dvbfixer puppet [-h] [-o OUTPUT] [--keep KEEP] [--log-file PATH]
 Strip PDB to backbone-only polyglycine model.
 
 options:
-  -h, --help            show this help message and exit
+  -h, --help           show this help message and exit
 
 Input / output:
-  input                 Input PDB or PDBx/mmCIF file
-  -o OUTPUT, --output OUTPUT
-                        Output PDB (default: <input>_puppet.pdb)
+  input                Input PDB or PDBx/mmCIF file
+  -o, --output OUTPUT  Output PDB (default: <input>_puppet.pdb)
 
 Content selection:
-  --keep KEEP           Keep residue(s) intact (all atoms, original name).
-                        Format: CHAIN:NUM, CHAIN:START-END, or
-                        CHAIN:NUM1,NUM2,START-END (repeatable)
+  --keep KEEP          Keep residue(s) intact (all atoms, original name).
+                       Format: CHAIN:NUM, CHAIN:START-END, or
+                       CHAIN:NUM1,NUM2,START-END (repeatable)
 
 Global logging:
-  --log-file PATH       Append all stdout/stderr (including child tools) to
-                        PATH while still printing it
+  --log-file PATH      Append all stdout/stderr (including child tools) to
+                       PATH while still printing it
 
 Batch mode:
   Run this command independently for every supported structure in a
   directory. Processing continues after per-file failures by default.
 
-  --input-dir DIR       Process every supported structure in DIR
-  --output-dir DIR      Write batch results under DIR
-  --recursive           Include input subdirectories
-  --fail-fast           Stop after the first failed structure
+  --input-dir DIR      Process every supported structure in DIR
+  --output-dir DIR     Write batch results under DIR
+  --recursive          Include input subdirectories
+  --fail-fast          Stop after the first failed structure
 ```
