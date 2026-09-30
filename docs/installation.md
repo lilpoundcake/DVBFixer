@@ -11,11 +11,17 @@ pip install -e .
 ```
 
 For a non-editable installation, build or install the wheel normally. Release
-wheels include the AMBER99SB-ILDN/Lipid21 and CHARMM36 GROMACS force-field
-trees used by `dvbfixer top`; no repository checkout or separate GROMACS force
-field installation is required. At runtime they resolve under the active
+wheels include the AMBER99SB-ILDN/Lipid21, official GROMACS `v2026.3`
+Amber19SB, and CHARMM36 GROMACS force-field trees used by `dvbfixer top`; no
+repository checkout or separate GROMACS force-field installation is required. At runtime they resolve under the active
 environment's `share/dvbfixer/FF/` directory. Editable installs continue to use
 the checkout's top-level `FF/` directory.
+
+The Amber19SB tree is redistributed unmodified under the GROMACS LGPL 2.1
+terms. Wheels install its complete byte-verified inventory and corresponding
+notice under `share/dvbfixer/`. Source provenance, hashes, citations, and the
+license assessment are recorded in
+[`provenance/amber19sb-gromacs.md`](provenance/amber19sb-gromacs.md).
 
 `environment.yml` pins `python >=3.11,<3.14`. The upper bound is required:
 propka 3.5.1 (used by `protonate` / `prepare`) reads the dataclass attribute

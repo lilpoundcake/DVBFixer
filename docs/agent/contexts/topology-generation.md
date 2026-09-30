@@ -2,7 +2,7 @@
 
 Status: partial
 
-Verified on: 2026-09-18
+Verified on: 2026-09-30
 
 Verified at commit: `425f290eb85760246766f1d1500e51672c640b2d`
 
@@ -23,6 +23,9 @@ in-memory builders live in `top/topology_builder.py`; file emission lives in
 `top/writers.py`; glycan graph handling lives in `top/glycan.py`.
 
 The default route parses bundled or user-supplied GROMACS force-field files.
+`top/capabilities.py` owns backend admission, inventories, optional metadata,
+writer features, and water/ion pairing. The verified Amber19SB descriptor does
+not permit a custom directory.
 `--acpype` bypasses that route and delegates the complete build to
 `top/acpype.py::run_acpype_mode` and `acpype_export.py::export_gromacs`.
 
@@ -31,6 +34,8 @@ The default route parses bundled or user-supplied GROMACS force-field files.
 | Capability | Status | Owner | Evidence |
 |---|---|---|---|
 | RTP AMBER/CHARMM protein topology | implemented | `TopologyBuilder.build_chain` | `tests/test_top_pipeline_baseline.py` |
+| Fail-closed GROMACS Amber19SB protein topology | implemented | `top.capabilities`, `top.pipeline._preflight_amber19sb` | `tests/test_top_amber19sb.py` |
+| Descriptor-driven CMAP and exact water/ion matrix | implemented | `top.capabilities`, `top.writers.write_top` | `tests/test_top_amber19sb.py` |
 | CHARMM glycan and glycolipid topology | implemented | `TopologyBuilder.build_glycan_chain`, `build_glycolipid_chain` | glycoprotein baseline |
 | Modular `.top`, `.itp`, restraints, and topology-matched PDB output | implemented | `top/writers.py` | protein and glycoprotein baselines |
 | Chain merge preserving coordinates and identity | implemented | `top/pipeline.py::_merge_chains` | `tests/test_top_merge_chains.py` |
@@ -41,6 +46,7 @@ The default route parses bundled or user-supplied GROMACS force-field files.
 ## Entry Points
 
 - Public command: `src/dvbfixer/top/pipeline.py::main`.
+- Capability policy: `src/dvbfixer/top/capabilities.py`.
 - CLI and bundled FF resolution: `src/dvbfixer/top/cli.py::parse_args` and
   `bundled_ff_root`.
 - RTP construction: `src/dvbfixer/top/topology_builder.py::TopologyBuilder`.
@@ -88,6 +94,10 @@ do not make the RTP classifier pretend that a name is a native template.
 - Glycosidic linkage hydrogens are removed with matching charge/type changes
   unless `--keep-all-hydrogens` explicitly opts into the risky raw geometry.
 - Interchain interaction includes remain after `[ molecules ]` in `topol.top`.
+- Amber19SB rejects unsupported components, incomplete heavy-atom templates,
+  unverified bundles, and unsupported water/ion pairs before opening outputs.
+- CMAP parameter tables and per-molecule terms are controlled by the same
+  descriptor capability; force-field family string comparisons are not policy.
 
 ## Callers
 
@@ -113,10 +123,11 @@ do not make the RTP classifier pretend that a name is a native template.
 
 ## Side Effects
 
-The RTP route writes `topol.top`, `ffparams.itp`, one ITP and position-restraint
+After descriptor validation, admission, and in-memory topology construction, the RTP route writes `topol.top`, `ffparams.itp`, one ITP and position-restraint
 file per built molecule type, `water.itp`, `ions.itp`, optional
 `interchain_ss.itp`, and a topology-matched PDB. Outputs are written directly,
-not transactionally; a late failure can leave partial artifacts.
+not transactionally; a late failure can leave partial artifacts. Amber19SB's
+known admission and template failures occur before this write phase.
 
 The ACPYPE route writes `_gmx_temp.pdb`, temporary AMBER files, and an
 `*.amb2gmx` directory beside the input, temporarily changes the process working
@@ -132,8 +143,9 @@ GAFF cache under `~/.cache/dvbfixer/lig_params/` or `$DVBFIXER_LIG_CACHE`.
   recognized molecules remain. It exits when nothing recognized can be built.
 - A recognized chain can still fail atom/template resolution; builders warn and
   return `None`, and orchestration may continue with other chains.
-- Residue maps in topology code commonly key by `(chain, resseq)` and therefore
-  do not consistently preserve insertion-code identity.
+- Legacy glycan/protonation maps still commonly key by `(chain, resseq)`.
+  Amber19SB admission, atom records, and topology-matched PDB output preserve
+  `(chain, resseq, icode)` and case-sensitive chain identity.
 - Missing RTP atoms may be skipped and their charge moved to a bonded retained
   atom; this permissive behavior is not a general completeness validator.
 - ACPYPE ignores RTP `--ff`, `--water`, `--ignh`, and `--merge`; selecting
@@ -145,8 +157,8 @@ GAFF cache under `~/.cache/dvbfixer/lig_params/` or `$DVBFIXER_LIG_CACHE`.
 
 ## Proposed Work
 
-Add structured topology-build results that report every retained, omitted, and
-failed component before committing output. Route unknown components through the
+Add structured topology-build results to the legacy permissive routes that
+report every retained, omitted, and failed component before committing output. Route unknown components through the
 shared parameterization policy without silently treating GAFF candidates as RTP
 templates, and preserve `(chain, resseq, icode)` throughout topology maps.
 
@@ -156,7 +168,7 @@ ACPYPE export test that validates `[ pairs_nb ]`, cleanup, and final artifacts.
 ## Focused Verification
 
 ```bash
-pytest -q tests/test_top_pipeline_baseline.py tests/test_top_merge_chains.py \
+pytest -q tests/test_top_amber19sb.py tests/test_top_pipeline_baseline.py tests/test_top_merge_chains.py \
   tests/test_top_acpype.py tests/test_cli_stabilization.py \
   tests/test_prepare_propka_integration.py
 python scripts/check_agent_docs.py

@@ -36,6 +36,7 @@ class AtomEntry:
     z: float = 0.0
     chain_id: str = ' '
     orig_resseq: int = 0
+    orig_icode: str = ''
     orig_resname: str = ''
 
 

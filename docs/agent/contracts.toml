@@ -302,3 +302,21 @@ known_divergences = [
   "The local authority format is a bounded JSON extraction from a pinned CCD, not a raw CCD CIF reader.",
   "Classes B/C, online authority, and actual MD generation are explicit unsupported boundaries.",
 ]
+
+[contracts.topology-force-field-capability]
+status = "implemented"
+owner = "src/dvbfixer/top/capabilities.py"
+description = "Declarative policy for topology CLI selection, bundle inventory, chemistry admission, metadata inputs, writer features, and water-ion compatibility."
+producers = ["src/dvbfixer/top/capabilities.py"]
+consumers = [
+  "src/dvbfixer/top/cli.py",
+  "src/dvbfixer/top/pipeline.py",
+  "src/dvbfixer/top/topology_builder.py",
+  "src/dvbfixer/top/writers.py",
+]
+identity_keys = ["CLI force-field name", "bundle-relative filename", "water model", "ion parameter set"]
+source_mutation = "Descriptors and bundle verification are read-only; upstream Amber19SB parameter bytes are never transformed in place."
+commit_behavior = "The descriptor is validated before topology output and controls every backend-specific parser and writer capability."
+failure_behavior = "Unknown options, missing or modified bundle files, unsupported chemistry, and unsupported water-ion pairs fail before output."
+test_files = ["tests/test_top_amber19sb.py", "tests/test_cli_stabilization.py"]
+known_divergences = ["Legacy amber and charmm retain permissive component handling for compatibility."]

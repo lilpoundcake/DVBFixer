@@ -29,6 +29,7 @@ def test_wheel_configuration_installs_bundled_gromacs_force_fields() -> None:
     config = tomllib.loads((root / "pyproject.toml").read_text())
     data_files = config["tool"]["setuptools"]["data-files"]
     assert data_files["share/dvbfixer/FF/amber99sb-ildn-lipid21.ff"]
+    assert data_files["share/dvbfixer/FF/amber19sb.ff"]
     assert data_files["share/dvbfixer/FF/charmm36_ljpme-jul2022.ff"]
 
 

@@ -3,3 +3,6 @@ tests/fixtures/**/*.pdb whitespace=-blank-at-eol
 
 # Preserve source FASTA files byte-for-byte, including an optional final blank line.
 tests/fixtures/**/*.fasta whitespace=-blank-at-eof
+
+# Preserve the verified upstream GROMACS force-field snapshot byte-for-byte.
+FF/amber19sb.ff/** whitespace=-blank-at-eol,-blank-at-eof

@@ -5,10 +5,10 @@
 > For prose about how to use `top`, see [`docs/commands/top.md`](../commands/top.md).
 
 ```
-usage: dvbfixer top [-h] [-o OUTPUT] [--pdb PDB] [--ff {amber,charmm}]
-                    [--ff-dir FF_DIR]
-                    [--water {tip3p,spc,spce,tip4p,tip4pew,opc}]
-                    [--ion-set {auto,jc-tip3p,jc-spce,jc-tip4pew,lm-hfe-opc,lm-iod-opc,dang-legacy}]
+usage: dvbfixer top [-h] [-o OUTPUT] [--pdb PDB]
+                    [--ff {amber,amber19sb,charmm}] [--ff-dir FF_DIR]
+                    [--water {opc,opc3,spc,spce,tip3p,tip4p,tip4pew}]
+                    [--ion-set {auto,jc-tip3p,jc-spce,jc-tip4pew,lm-hfe-opc,lm-iod-opc,dang-legacy,amber19sb-opc,amber19sb-opc3,amber19sb-spc,amber19sb-spce,amber19sb-tip3p,amber19sb-tip4pew}]
                     [--ss SS] [--his HIS] [--protonate PROTONATE] [--ignh]
                     [--keep-all-hydrogens] [--no-infer-conect] [--merge]
                     [--acpype] [-v] [--log-file PATH]
@@ -25,15 +25,16 @@ Input / output:
   --pdb PDB             Output PDB file with topology-matched atom names
 
 Force field / solvation:
-  --ff {amber,charmm}   Force field (default: amber)
+  --ff {amber,amber19sb,charmm}
+                        GROMACS force field (default: amber; amber19sb is
+                        protein-only)
   --ff-dir FF_DIR       Custom force field directory
-  --water {tip3p,spc,spce,tip4p,tip4pew,opc}
-                        Water model (default: tip3p). With --ff charmm only
-                        tip3p/spc/spce are accepted; OPC/TIP4P/TIP4P-Ew are
-                        not parametrized for CHARMM36 ions.
-  --ion-set {auto,jc-tip3p,jc-spce,jc-tip4pew,lm-hfe-opc,lm-iod-opc,dang-legacy}
-                        Ion LJ parameter set (default: auto, picks the set
-                        matched to the water model). Ignored with --ff charmm.
+  --water {opc,opc3,spc,spce,tip3p,tip4p,tip4pew}
+                        Water model (default: tip3p; validated against the
+                        selected force field)
+  --ion-set {auto,jc-tip3p,jc-spce,jc-tip4pew,lm-hfe-opc,lm-iod-opc,dang-legacy,amber19sb-opc,amber19sb-opc3,amber19sb-spc,amber19sb-spce,amber19sb-tip3p,amber19sb-tip4pew}
+                        Ion parameter set (default: auto, picks the exact set
+                        matched to the selected force field and water model)
 
 Protonation / bonds:
   --ss SS               Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable)

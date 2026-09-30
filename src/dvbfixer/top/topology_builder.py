@@ -19,6 +19,7 @@ from dvbfixer.rtp_parser import (
     parse_rtp,
     parse_tdb,
 )
+from dvbfixer.top.capabilities import TopologyForceField, resolve_force_field
 from dvbfixer.top.ff_data import (
     _EXPLICIT_RENAMES,
     CARB_ATOM_MAP,
@@ -200,9 +201,10 @@ def _resolve_sugar_rtp(resname, atoms, residues_dict):
 
 class TopologyBuilder:
     def __init__(self, ff_dir, ff_type='amber', verbose=False,
-                 keep_all_hydrogens=False):
+                 keep_all_hydrogens=False, descriptor: TopologyForceField | None = None):
         self.ff_dir = Path(ff_dir)
         self.ff_type = ff_type
+        self.descriptor = descriptor or resolve_force_field(ff_type)
         self.verbose = verbose
         # When True, skip stripping HO1/HO2/HO3/HO4/HO6 at glycosidic
         # linkage sites and skip the associated charge redistribution.
@@ -210,52 +212,38 @@ class TopologyBuilder:
         self.keep_all_hydrogens = keep_all_hydrogens
 
         # Parse all FF files
-        rtp_file = self.ff_dir / ('aminoacids.rtp' if ff_type == 'amber' else 'aminoacids.rtp')
+        rtp_file = self.ff_dir / 'aminoacids.rtp'
         self.bonded_types, self.residues = parse_rtp(rtp_file)
 
-        # For CHARMM, also parse merged.rtp if it exists (has more residues)
-        merged_rtp = self.ff_dir / 'merged.rtp'
-        if merged_rtp.exists():
-            bt2, res2 = parse_rtp(merged_rtp)
-            # merged.rtp is the main file for CHARMM, aminoacids.rtp may be subset
-            self.residues.update(res2)
-            self.bonded_types = bt2
-
-        # Also load carb.rtp for sugar residues
-        carb_rtp = self.ff_dir / 'carb.rtp'
-        if carb_rtp.exists():
-            carb_bt, carb_res = parse_rtp(carb_rtp)
-            self.residues.update(carb_res)
-            self.carb_bonded_types = carb_bt
-        else:
-            self.carb_bonded_types = None
-
-        # Load all other molecule-type RTP files (CHARMM has lipids, NA, etc.)
-        for rtp_name in ['lipid.rtp', 'na.rtp', 'cgenff.rtp', 'ethers.rtp',
-                         'metals.rtp', 'silicates.rtp', 'solvent.rtp']:
+        self.carb_bonded_types = None
+        for rtp_name in self.descriptor.extra_rtp_files:
             rtp_path = self.ff_dir / rtp_name
             if rtp_path.exists():
-                _, extra_res = parse_rtp(rtp_path)
+                extra_bt, extra_res = parse_rtp(rtp_path)
                 self.residues.update(extra_res)
+                if rtp_name == 'merged.rtp':
+                    self.bonded_types = extra_bt
+                elif rtp_name == 'carb.rtp':
+                    self.carb_bonded_types = extra_bt
 
-        self.r2b = parse_r2b(self.ff_dir / 'aminoacids.r2b')
+        r2b_path = self.ff_dir / 'aminoacids.r2b'
+        self.r2b = parse_r2b(r2b_path) if self.descriptor.has_r2b else {}
 
-        # Load all R2B files
-        for r2b_name in ['carb.r2b', 'lipid.r2b', 'na.r2b', 'cgenff.r2b',
-                         'ethers.r2b', 'metals.r2b', 'silicates.r2b', 'solvent.r2b']:
+        for r2b_name in self.descriptor.extra_r2b_files:
             r2b_path = self.ff_dir / r2b_name
             if r2b_path.exists():
                 extra_r2b = parse_r2b(r2b_path)
                 self.r2b.update(extra_r2b)
 
-        self.arn = parse_arn(self.ff_dir / 'aminoacids.arn')
+        arn_path = self.ff_dir / 'aminoacids.arn'
+        self.arn = parse_arn(arn_path) if self.descriptor.has_arn else {}
         self.atom_masses = parse_atomtypes(self.ff_dir / 'atomtypes.atp')
 
         # Terminal patches (CHARMM uses these, AMBER has empty TDB)
         n_tdb = self.ff_dir / 'aminoacids.n.tdb'
         c_tdb = self.ff_dir / 'aminoacids.c.tdb'
-        self.n_patches = parse_tdb(n_tdb) if n_tdb.exists() else {}
-        self.c_patches = parse_tdb(c_tdb) if c_tdb.exists() else {}
+        self.n_patches = parse_tdb(n_tdb) if self.descriptor.has_tdb and n_tdb.exists() else {}
+        self.c_patches = parse_tdb(c_tdb) if self.descriptor.has_tdb and c_tdb.exists() else {}
 
         # Build reverse ARN: (resname, ff_name) -> gromacs_name
         # For PDB->FF mapping we need (resname, pdb_name) -> ff_name
@@ -272,7 +260,10 @@ class TopologyBuilder:
         chain_ss_residues: set of resseq numbers involved in SS bonds
         """
         # Normalize non-canonical names
-        gmx_name = PDB_TO_GMX.get(pdb_resname, pdb_resname)
+        if self.descriptor.family == 'amber19sb' and pdb_resname == 'CYM':
+            gmx_name = 'CYM'
+        else:
+            gmx_name = PDB_TO_GMX.get(pdb_resname, pdb_resname)
 
         # Check if in r2b mapping
         if gmx_name not in self.r2b:
@@ -280,20 +271,22 @@ class TopologyBuilder:
             if pdb_resname in self.r2b:
                 gmx_name = pdb_resname
             elif pdb_resname in self.residues:
+                if (self.descriptor.strict_terminal_variants and position != 'mid'
+                        and pdb_resname not in self.descriptor.caps):
+                    return None
                 return pdb_resname  # Direct RTP match, no terminal variant needed
             else:
                 return None
 
         main, nter, cter, twter = self.r2b[gmx_name]
 
-        if position == 'twter' and twter != '-':
-            return twter
-        elif position == 'nter' and nter != '-':
-            return nter
-        elif position == 'cter' and cter != '-':
-            return cter
-        else:
-            return main
+        terminal = {'twter': twter, 'nter': nter, 'cter': cter}.get(position)
+        if terminal is not None:
+            if terminal != '-':
+                return terminal
+            if self.descriptor.strict_terminal_variants:
+                return None
+        return main
 
     def _map_atom_name(self, rtp_resname, pdb_atom_name):
         """Map a PDB atom name to the name used in the RTP entry.
@@ -359,6 +352,13 @@ class TopologyBuilder:
 
             rtp_name = self._resolve_resname(pdb_name, pos, ss_residues)
             if rtp_name is None:
+                if self.descriptor.fail_closed:
+                    identity = f"{res.chain_id}:{res.resseq}{res.icode}"
+                    raise ValueError(
+                        f"Amber19SB preflight rejected {res.resname} {identity}: "
+                        f"no upstream {pos} building block. "
+                        "Use a supported terminal/cap state or --ff amber."
+                    )
                 print(f"WARNING: Residue {res.resname} {res.chain_id}:{res.resseq} "
                       f"not found in force field", file=sys.stderr)
                 return None
@@ -407,6 +407,19 @@ class TopologyBuilder:
             # Build RTP→PDB atom name mapping
             rtp_to_pdb = _match_atom_names(rtp_atom_names, pdb_atom_names,
                                            arn_rtp_to_pdb)
+
+            if self.descriptor.fail_closed:
+                missing_heavy = sorted(
+                    name for name in rtp_atom_names
+                    if not name.startswith('H') and name not in rtp_to_pdb
+                )
+                if missing_heavy:
+                    identity = f"{res.chain_id}:{res.resseq}{res.icode}"
+                    raise ValueError(
+                        f"Amber19SB preflight rejected {res.resname} {identity}: "
+                        f"missing required heavy atom(s) {', '.join(missing_heavy)}. "
+                        "Run `dvbfixer prepare` first or use --ff amber for broader chemistry."
+                    )
 
             # Build PDB atom coordinate lookup
             pdb_coords = {a[0]: (a[1], a[2], a[3]) for a in res.atoms}
@@ -462,6 +475,7 @@ class TopologyBuilder:
                     x=x, y=y, z=z,
                     chain_id=res.chain_id,
                     orig_resseq=res.resseq,
+                    orig_icode=res.icode,
                     orig_resname=res.resname,
                 ))
                 atom_index_map[(res_i, atom_name)] = global_idx
@@ -501,7 +515,7 @@ class TopologyBuilder:
         chain_top.bonds = sorted(set(chain_top.bonds))
 
         # Step 4: Apply terminal patches (CHARMM)
-        if self.ff_type == 'charmm' and n_res > 0:
+        if self.descriptor.has_tdb and n_res > 0:
             self._apply_terminal_patches(chain, chain_top, rtp_names, atom_index_map)
 
         # Step 5: Build bond graph for angle/dihedral generation
@@ -524,8 +538,11 @@ class TopologyBuilder:
         # Step 9: Resolve impropers from RTP
         chain_top.impropers = self._resolve_impropers(rtp_names, atom_index_map, n_res)
 
-        # Step 10: Resolve CMAP (CHARMM)
-        chain_top.cmap = self._resolve_cmap(rtp_names, atom_index_map, n_res)
+        # Step 10: Resolve CMAP when the selected force field requires it
+        chain_top.cmap = (
+            self._resolve_cmap(rtp_names, atom_index_map, n_res)
+            if self.descriptor.supports_cmap else []
+        )
 
         # Step 11: Renumber atoms to be contiguous (patches may create gaps)
         self._renumber_atoms(chain_top)
@@ -715,6 +732,7 @@ class TopologyBuilder:
                         x=ax, y=ay, z=az,
                         chain_id=ref_chain_id,
                         orig_resseq=chain_top.atoms[insert_pos - 1].orig_resseq if insert_pos > 0 else 0,
+                        orig_icode=chain_top.atoms[insert_pos - 1].orig_icode if insert_pos > 0 else '',
                         orig_resname=chain_top.atoms[insert_pos - 1].orig_resname if insert_pos > 0 else '',
                     )
                     new_atoms.append(new_atom)
@@ -979,6 +997,7 @@ class TopologyBuilder:
                     x=x, y=y, z=z,
                     chain_id=ch,
                     orig_resseq=rs,
+                    orig_icode=res.icode,
                     orig_resname=res.resname,
                 ))
                 atom_index_map[(tree_idx, atom_name)] = global_idx
@@ -1147,6 +1166,7 @@ class TopologyBuilder:
                 x=x, y=y, z=z,
                 chain_id=cer_ch,
                 orig_resseq=cer_rs,
+                orig_icode=ceramide_res.icode,
                 orig_resname=ceramide_res.resname,
             ))
             atom_index_map[(0, atom_name)] = global_idx
@@ -1287,6 +1307,7 @@ class TopologyBuilder:
                     x=x, y=y, z=z,
                     chain_id=ch,
                     orig_resseq=rs,
+                    orig_icode=res.icode,
                     orig_resname=res.resname,
                 ))
                 atom_index_map[(tree_idx + 1, atom_name)] = global_idx

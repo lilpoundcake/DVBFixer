@@ -1916,13 +1916,14 @@ export const GENERATED_COMMANDS = [
         "label": "Ff",
         "type": "select",
         "group": "Force field / solvation",
-        "help": "Force field (default: amber)",
+        "help": "GROMACS force field (default: amber; amber19sb is protein-only)",
         "required": false,
         "repeatable": false,
         "multi": false,
         "default": "amber",
         "options": [
           "amber",
+          "amber19sb",
           "charmm"
         ]
       },
@@ -1943,18 +1944,19 @@ export const GENERATED_COMMANDS = [
         "label": "Water",
         "type": "select",
         "group": "Force field / solvation",
-        "help": "Water model (default: tip3p). With --ff charmm only tip3p/spc/spce are accepted; OPC/TIP4P/TIP4P-Ew are not parametrized for CHARMM36 ions.",
+        "help": "Water model (default: tip3p; validated against the selected force field)",
         "required": false,
         "repeatable": false,
         "multi": false,
         "default": "tip3p",
         "options": [
-          "tip3p",
+          "opc",
+          "opc3",
           "spc",
           "spce",
+          "tip3p",
           "tip4p",
-          "tip4pew",
-          "opc"
+          "tip4pew"
         ]
       },
       {
@@ -1963,7 +1965,7 @@ export const GENERATED_COMMANDS = [
         "label": "Ion Set",
         "type": "select",
         "group": "Force field / solvation",
-        "help": "Ion LJ parameter set (default: auto, picks the set matched to the water model). Ignored with --ff charmm.",
+        "help": "Ion parameter set (default: auto, picks the exact set matched to the selected force field and water model)",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -1975,7 +1977,13 @@ export const GENERATED_COMMANDS = [
           "jc-tip4pew",
           "lm-hfe-opc",
           "lm-iod-opc",
-          "dang-legacy"
+          "dang-legacy",
+          "amber19sb-opc",
+          "amber19sb-opc3",
+          "amber19sb-spc",
+          "amber19sb-spce",
+          "amber19sb-tip3p",
+          "amber19sb-tip4pew"
         ]
       },
       {

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from dvbfixer.top.capabilities import TopologyForceField, resolve_force_field
 from dvbfixer.top.ff_data import (
     _GLYCAN_LINKAGE_PARAMS,
     _ION_ATOMTYPE_NAMES,
@@ -145,8 +146,8 @@ def write_pdb(chain_tops, path, extra_pdb_lines=None, cryst1=None):
                 f.write(
                     f"ATOM  {serial % 100000:5d} {name_field}"
                     f"{res_chain}"
-                    f"{atom.orig_resseq:4d}"
-                    f"    "
+                    f"{atom.orig_resseq:4d}{atom.orig_icode[:1]:1s}"
+                    f"   "
                     f"{atom.x:8.3f}{atom.y:8.3f}{atom.z:8.3f}"
                     f"  1.00  0.00"
                     f"          "
@@ -164,7 +165,7 @@ def write_pdb(chain_tops, path, extra_pdb_lines=None, cryst1=None):
                 f.write(
                     f"TER   {serial % 100000:5d}      "
                     f"{res_chain}"
-                    f"{last.orig_resseq:4d}\n"
+                    f"{last.orig_resseq:4d}{last.orig_icode[:1]:1s}\n"
                 )
         # Append extra molecules (ions/water/small molecules) with renumbered serials
         if extra_pdb_lines:
@@ -351,26 +352,20 @@ def _emit_ions_itp(ion_set, out_path):
 def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
               water_model='tip3p', system_name='Protein',
               has_interchain_ss=False, extra_molecules=None,
-              small_mol_itps=None, ion_set=None):
+              small_mol_itps=None, ion_set=None,
+              descriptor: TopologyForceField | None = None):
     """Write topology: FF params in ffparams.itp, rest in topol.top.
 
     extra_molecules: list of (name, count) for ions/BUF/small molecules/water.
     small_mol_itps: list of small molecule .itp filenames to include.
-    ion_set: ion LJ parameter set key (one of ION_PARAMS keys, or None to keep
-             the bundled FF ions verbatim — used for CHARMM).
+    ion_set: ion LJ parameter set key for descriptors that use DVBfixer's
+             reviewed substitution table; bundled-ion descriptors ignore it.
     """
     ff_dir = Path(ff_dir)
+    descriptor = descriptor or resolve_force_field(ff_type)
     ff_name = ff_dir.name
     out_dir = Path(path).parent
-
-    water_files = {
-        'tip3p': 'tip3p.itp',
-        'spc': 'spc.itp',
-        'spce': 'spce.itp',
-        'tip4p': 'tip4p.itp',
-        'tip4pew': 'tip4pew.itp',
-        'opc': 'opc.itp',
-    }
+    water_ion_pair = descriptor.water_ion_pairs[water_model]
 
     # --- Write ffparams.itp with all FF parameters ---
     ffparams_path = out_dir / 'ffparams.itp'
@@ -385,11 +380,11 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
         # [ atomtypes ] from ffnonbonded.itp (deduplicated)
         f.write("; Non-bonded parameters (from ffnonbonded.itp)\n")
         nb_content = _read_ff_content(ff_dir / 'ffnonbonded.itp')
-        if ion_set is not None:
+        if descriptor.legacy_ion_substitution and ion_set is not None:
             # Replace bundled ion atom types with the water-matched set
             nb_content = _strip_ion_atomtypes(nb_content)
         f.write(_dedup_atomtypes(nb_content))
-        if ion_set is not None:
+        if descriptor.legacy_ion_substitution and ion_set is not None:
             f.write(_emit_ion_atomtypes(ion_set))
         f.write("\n")
 
@@ -398,20 +393,19 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
         f.write(_read_ff_content(ff_dir / 'ffbonded.itp'))
         f.write("\n")
 
-        # CHARMM extras: cmap.itp, nbfix.itp
-        if ff_type == 'charmm':
-            cmap_path = ff_dir / 'cmap.itp'
-            if cmap_path.exists():
-                f.write("; CMAP parameters (from cmap.itp)\n")
-                f.write(_read_ff_content(cmap_path))
-                f.write("\n")
+        if descriptor.cmap_file:
+            cmap_path = ff_dir / descriptor.cmap_file
+            f.write(f"; CMAP parameters (from {descriptor.cmap_file})\n")
+            f.write(_read_ff_content(cmap_path))
+            f.write("\n")
 
-            nbfix_path = ff_dir / 'nbfix.itp'
-            if nbfix_path.exists():
-                f.write("; NBFIX parameters (from nbfix.itp)\n")
-                f.write(_read_ff_content(nbfix_path))
-                f.write("\n")
+        if descriptor.nbfix_file:
+            nbfix_path = ff_dir / descriptor.nbfix_file
+            f.write(f"; NBFIX parameters (from {descriptor.nbfix_file})\n")
+            f.write(_read_ff_content(nbfix_path))
+            f.write("\n")
 
+        if descriptor.family == 'charmm':
             # Extra parameters for glycosidic linkage sites.
             # At linkage sites OC311->OC3C61, creating atom type combos
             # not in the standard FF. Parameters by analogy with existing
@@ -453,8 +447,7 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
         f.write("\n")
 
         # Water moleculetype (separate .itp)
-        water_itp = water_files.get(water_model, 'tip3p.itp')
-        water_src = ff_dir / water_itp
+        water_src = ff_dir / water_ion_pair.water_file
         if water_src.exists():
             water_out = out_dir / 'water.itp'
             with open(water_out, 'w') as wf:
@@ -465,13 +458,12 @@ def write_top(chain_tops, path, ff_dir, ff_type, bonded_types_list,
 
         # Ion moleculetypes (separate .itp)
         ions_out = out_dir / 'ions.itp'
-        if ion_set is not None:
+        if descriptor.legacy_ion_substitution and ion_set is not None:
             # AMBER path: emit fresh ions.itp matched to the chosen ion set.
             _emit_ions_itp(ion_set, ions_out)
             f.write('#include "ions.itp"\n')
-        else:
-            # CHARMM path: copy bundled ions.itp verbatim.
-            ions_path = ff_dir / 'ions.itp'
+        elif descriptor.bundled_ions:
+            ions_path = ff_dir / str(water_ion_pair.ion_file)
             if ions_path.exists():
                 with open(ions_out, 'w') as ionf:
                     ionf.write("; Ion topology\n")
@@ -538,5 +530,3 @@ def _write_water_topology(f, water_path):
                 lines.append(line)
 
     f.write(''.join(lines))
-
-

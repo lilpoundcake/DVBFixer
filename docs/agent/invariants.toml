@@ -230,6 +230,20 @@ failure_mode = "Unsupported molecules can silently disappear from the topology m
 test_files = ["tests/test_top_pipeline_baseline.py"]
 known_exceptions = ["Warning and omission remain allowed; this invariant does not add arbitrary-ligand support."]
 
+[invariants.INV-AMBER19SB-FAIL-CLOSED]
+status = "implemented"
+statement = "Amber19SB topology generation accepts only its verified protein/cap/water/simple-ion capability and exact upstream water-ion pairs, and rejects every known unsupported component before opening output artifacts."
+owner = "src/dvbfixer/top/capabilities.py"
+enforcement = [
+  "src/dvbfixer/top/capabilities.py::resolve_bundle",
+  "src/dvbfixer/top/capabilities.py::validate_options",
+  "src/dvbfixer/top/pipeline.py::_preflight_amber19sb",
+  "src/dvbfixer/top/topology_builder.py::TopologyBuilder.build_chain",
+]
+failure_mode = "Unsupported chemistry, altered parameter data, or mismatched solvent parameters could produce a plausible but invalid or partial topology."
+test_files = ["tests/test_top_amber19sb.py"]
+known_exceptions = ["External gmx grompp acceptance skips explicitly when no gmx executable is installed."]
+
 [invariants.INV-DIAGNOSE-REPORT-ONLY]
 status = "implemented"
 statement = "Diagnose reports findings without mutating the analyzed structure."
