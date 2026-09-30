@@ -52,6 +52,15 @@ describe('standalone configuration', () => {
     })
   })
 
+  it('ignores retired database configuration', () => {
+    const config = loadStandaloneConfig({
+      DATABASE_URL: 'postgres://invalid.invalid/retired',
+      DVBFIXER_MUTATIONS_BACKUP_FILE: '/should/not/be/read.json',
+    }, temp())
+    expect(config).not.toHaveProperty('databaseUrl')
+    expect(config).not.toHaveProperty('mutationsBackupFile')
+  })
+
   it('rejects invalid ports and remote binding without explicit acknowledgement', () => {
     expect(() => loadStandaloneConfig({ DVBFIXER_PORT: 'nope' }, temp())).toThrow(/DVBFIXER_PORT/)
     expect(() => loadStandaloneConfig({ DVBFIXER_PORT: '65536' }, temp())).toThrow(/65535/)
@@ -353,9 +362,11 @@ describe('standalone HTTP server', () => {
     expect(missingApi.headers.get('content-type')).toContain('application/json')
 
     for (const retiredPath of ['/api/mutations', '/api/antibody-engineer/run', '/api/status']) {
-      const retired = await fetch(`${base}${retiredPath}`)
-      expect(retired.status).toBe(404)
-      expect(retired.headers.get('content-type')).toContain('application/json')
+      for (const method of ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']) {
+        const retired = await fetch(`${base}${retiredPath}`, { method })
+        expect(retired.status, `${method} ${retiredPath}`).toBe(404)
+        expect(retired.headers.get('content-type')).toContain('application/json')
+      }
     }
 
     await instance.close()

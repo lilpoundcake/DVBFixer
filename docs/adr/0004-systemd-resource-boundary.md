@@ -28,15 +28,14 @@ children. `RLIMIT_FSIZE` limits one file rather than aggregate storage. A servic
 cgroup and bounded filesystems cover descendants without reproducing scientific
 launch logic in Node.
 
-The existing Docker Compose file remains development-only PostgreSQL. Container
-CPU and memory limits would not portably limit bind-mounted or named-volume
-storage, and a production scientific image would be a separate deployment
-project.
+Container CPU and memory limits would not portably limit bind-mounted or
+named-volume storage, and a production scientific image would be a separate
+deployment project.
 
 ## Consequences
 
 - Limits are aggregate per service, not per tenant, workspace, or job.
-- GPU memory and externally managed PostgreSQL remain outside this boundary.
+- GPU memory remains outside this boundary.
 - A memory-limit event may terminate the API along with a child; systemd restarts
   the service and persisted managed-job recovery records the interruption.
 - Operators must size limits for their workloads and run privileged enforcement

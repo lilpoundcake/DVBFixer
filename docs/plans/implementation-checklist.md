@@ -151,7 +151,7 @@ configuration validation, and cleanup on subsequent successful execution.
 - [x] Validate host, port, roots, and shutdown configuration.
 - [x] Reject lexical and symlink-resolved static/data root overlap.
 - [x] Return JSON for unknown API paths and use SPA fallback only for HTML requests.
-- [x] Stop intake, reject new work, terminate children, drain HTTP, then close PostgreSQL.
+- [x] Stop intake, reject new work, terminate children, then drain HTTP.
 - [x] Bound the emitted-server startup and shutdown smoke test.
 - [x] Complete final review and verification of the standalone slice.
 - [x] Commit the standalone slice.
