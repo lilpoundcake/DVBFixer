@@ -12,7 +12,6 @@ import { parseMetricsConfig } from './metrics'
 
 export { runDvbfixer } from './dvbfixer-runner'
 export { buildArgs } from './command-args'
-export { getPg, sseSend, writeSSEHeaders } from './api-routes'
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost'])
 
@@ -42,7 +41,6 @@ export function apiPlugin(environment: NodeJS.ProcessEnv = process.env): Plugin 
       }
       registerApiRoutes(server, {
         projectRoot: server.config.root,
-        mutationsBackupFile: environment.DVBFIXER_MUTATIONS_BACKUP_FILE,
         authConfig,
         legacyWorkspaceOwner: resolveLegacyWorkspaceOwner(authConfig, environment),
         corsAllowedOrigins,

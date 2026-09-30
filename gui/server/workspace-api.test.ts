@@ -343,6 +343,30 @@ describe('workspace storage', () => {
     expect(fs.existsSync(legacyIndex)).toBe(true)
   })
 
+  it('preserves retired mutation provenance without exposing a write path', () => {
+    const now = new Date().toISOString()
+    const current: WorkspaceManifest = {
+      version: 1, revision: 4, id: 'history', name: 'History', createdAt: now, updatedAt: now,
+      primaryFile: 'files/engineered.pdb', secondaryFile: null, toolState: {}, artifacts: [{
+        id: 'engineered', file: 'files/engineered.pdb', name: 'Engineered', kind: 'structure',
+        command: 'antibody-engineer', mutationIds: [41, 7], mutationsResolved: 'H:MET1ALA',
+      }],
+    }
+
+    const patched = applyArtifactMetadataPatch(current, 'engineered', {
+      revision: current.revision, description: 'Historical result',
+    })
+    expect(patched.artifacts[0]).toMatchObject({
+      mutationIds: [41, 7], mutationsResolved: 'H:MET1ALA', description: 'Historical result',
+    })
+    expect(() => applyArtifactMetadataPatch(current, 'engineered', {
+      revision: current.revision, mutationIds: [99],
+    } as any)).toThrow(/unsupported artifact metadata field: mutationIds/)
+    expect(() => applyArtifactMetadataPatch(current, 'engineered', {
+      revision: current.revision, mutationsResolved: 'H:MET1GLY',
+    } as any)).toThrow(/unsupported artifact metadata field: mutationsResolved/)
+  })
+
   it('loads pre-revision manifests at revision zero and advances them on save', () => {
     const root = temp()
     const project = path.join(root, 'projects', 'legacy')

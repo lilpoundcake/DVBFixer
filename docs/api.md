@@ -241,7 +241,6 @@ The JSON body uses the shared 2 MiB request limit. General server defaults are:
 | `DVBFIXER_AUDIT_LOG` | `off` | `off` or durable daily `jsonl` audit records |
 | `DVBFIXER_AUDIT_RETENTION_DAYS` | 90 | Expiration window for local audit files |
 | `DVBFIXER_METRICS` | `off` | `off` or protected Prometheus metrics via `/api/metrics` |
-| `DVBFIXER_MUTATIONS_BACKUP_FILE` | `<gui>/mutations.json` | Mutable PostgreSQL backup; hardened deployments place it on bounded state |
 | `DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED` | `0` | Require the Linux cgroup/filesystem preflight when set to `1` |
 | `DVBFIXER_OS_DATA_FILESYSTEM_MAX_BYTES` | unset | Maximum dedicated data-filesystem capacity; required by the OS preflight |
 | `DVBFIXER_OS_TEMP_FILESYSTEM_MAX_BYTES` | unset | Maximum capacity of each private `/tmp` and `/var/tmp`; required by the OS preflight |
@@ -260,7 +259,7 @@ and multiple server instances do not coordinate limits.
 The opt-in OS preflight verifies cgroup CPU, memory, swap, and task limits
 against configured ceilings, a read-only root, a dedicated capacity-bounded
 data filesystem, bounded private temporary filesystems, and containment of
-mutable home/cache/backup paths. These limits
+mutable home and cache paths. These limits
 apply to the whole service and all descendants, not independently per workspace
 or job. See [`deployment.md`](deployment.md).
 
@@ -359,7 +358,7 @@ The server defaults to `127.0.0.1:5173`, serves only the built `dist/` tree as
 static content, and keeps workspace files behind contained API routes. Unknown
 `/api/*` paths return JSON `404` responses rather than the SPA shell. Shutdown
 stops accepting requests, cancels tracked DVBFixer subprocesses with signal
-escalation, drains HTTP work, and then closes PostgreSQL.
+escalation, and drains HTTP work.
 
 Remote binding requires configured authentication and
 `DVBFIXER_ALLOW_INSECURE_REMOTE=1` as an explicit acknowledgment. Keep the

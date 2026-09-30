@@ -2,8 +2,7 @@
 
 Local graphical workspace for DVBfixer, protein structures, multiple alignment,
 and homology modeling. It runs in the browser with a Node backend hosted by
-Vite during development or by the bundled standalone server, plus an optional
-PostgreSQL-backed mutations table.
+Vite during development or by the bundled standalone server.
 
 The backend invokes `dvbfixer` from `PATH` by default. Configure an alternate
 binary with `DVBFIXER_EXECUTABLE` and an optional fixed JSON argument array in
@@ -40,8 +39,6 @@ timeout (`DVBFIXER_MAX_OUTPUT_BYTES` and `DVBFIXER_TIMEOUT_MS`).
 - **Workspace file browser** -- alternating rows, Shift/Cmd multi-selection,
   drag-handle and arrow reordering, PDB-only filtering, rename/download/trash
   context actions, and a dedicated read-only Text Files tab
-- **Mutations panel** -- editable DataGrid backed by PostgreSQL for keeping
-  antibody mutation sets (e.g. YTE, LS, DLE)
 - **Library** -- an ordered list of workspaces; the active workspace's files
   appear in the separate Workspace panel
 - **Dockable panels** -- drag panels to rearrange, "+" button to spawn any
@@ -49,7 +46,7 @@ timeout (`DVBFIXER_MAX_OUTPUT_BYTES` and `DVBFIXER_TIMEOUT_MS`).
 - **Local files** -- upload your own .pdb or .mmcif files into either viewer
 
 The viewer renders in the browser. Workspace uploads, managed DVBFixer jobs,
-their logs, and optional mutation data are handled by the Node server. With the
+and their logs are handled by the Node server. With the
 default loopback server, data stays on the same machine; when connecting to a
 deployed server, files are sent to that server and stored in its workspace data
 directory. See the [API guide](../docs/api.md) for authentication and the
@@ -106,24 +103,10 @@ Use Node.js 22 or newer. For the Python/scientific backends, follow the
 [installation guide](../docs/installation.md); viewer-only mode does not need
 the scientific environment.
 
-### Minimum (viewer only — no DVBFixer, no Mutations DB)
+### Install and start
 
-```
-git clone https://github.com/lilpoundcake/DVBFixer.git
-cd DVBFixer/gui
-npm ci
-npm run dev:no-db
-```
-
-Open http://localhost:5173. The Mutations tab will show a configuration
-hint; everything else works.
-
-### Full install (DVBFixer + Mutations)
-
-DVBfixer GUI drives the package in this repository and can store antibody
-mutation sets in PostgreSQL.
-
-**1.** Create the repository's DVBfixer environment and install the package:
+Create the repository's DVBfixer environment and install the package when you
+want to run scientific workflows. Viewer-only use can skip these Python steps.
 
 ```
 micromamba create -f environment.yml
@@ -146,46 +129,19 @@ The helper finds `<env>/lib/modeller-*/modlib/modeller/config.py`, updates it
 atomically, validates the license with that environment's Python, and restores
 the previous configuration if validation fails. It never prints the key or
 leaves a key-bearing backup. You can also pass an explicit prefix as the first
-argument:
+argument.
 
-```
-MODELLER_LICENSE_KEY=YOUR_LICENSE_KEY bash gui/scripts/set-modeller-key.sh /opt/conda/envs/dvbfixer
-```
-
-**2.** Start the app. PostgreSQL is auto-managed — if Docker is installed,
-`npm run dev` spins up a local postgres container (port 5432) and sets
-`DATABASE_URL` automatically. The `mutations` table is created on first
-connection.
+Start the development server directly with Vite:
 
 ```
 cd gui
 npm ci
-micromamba activate dvbfixer   # so `dvbfixer` is on PATH
+micromamba activate dvbfixer   # optional for viewer-only use
 npm run dev
 ```
 
-The first run downloads the postgres image; the container survives `Ctrl+C`
-so subsequent runs are instant.
-
-### DB controls
-
-| Command             | What it does                                          |
-|---------------------|-------------------------------------------------------|
-| `npm run dev`       | Auto-starts postgres (if docker present), then vite   |
-| `npm run dev:no-db` | Skip auto-postgres, just run vite                     |
-| `npm run db:up`     | Start the postgres container                          |
-| `npm run db:down`   | Stop & remove the container (volume persists)         |
-| `npm run db:logs`   | Tail postgres logs                                    |
-| `npm run build`     | Build the browser client and standalone Node server   |
-| `npm start`         | Serve the built client and APIs on one local origin   |
-
-**Override** the auto-setup by exporting `DATABASE_URL` yourself before
-`npm run dev` — the script detects an existing value and skips Docker:
-
-```
-export DATABASE_URL=postgres://my-user:pw@my-host:5432/my-db
-npm run dev
-```
+Open http://localhost:5173. Build the browser client and standalone Node server
+with `npm run build`; run the build with `npm start`.
 
 **Override DVBFixer** if it's not on PATH (e.g. wrapped in micromamba):
 
@@ -194,9 +150,7 @@ export DVBFIXER_EXECUTABLE="micromamba"
 export DVBFIXER_ARGS='["run", "-n", "dvbfixer", "dvbfixer"]'
 ```
 
-The DVBFixer tab is usable even without the env (it will just error on
-Run); the Mutations tab is usable even without DATABASE_URL or Docker
-(it will show a configuration message).
+The DVBFixer tab is usable even without the scientific environment, but command execution will fail until `dvbfixer` is available.
 
 In the Model command's **Sequences per chain** editor, residues present in the
 loaded coordinates retain structure-presence styling while sequences are
@@ -216,9 +170,8 @@ Other models and biological assemblies remain available through Mol* controls.
 
 ## Tech stack
 
-React 19, TypeScript 6, Vite 6, Mol*, MUI (Material UI v9, plus
-`@mui/x-data-grid`), flexlayout-react, Zustand. PostgreSQL via `pg`
-(loaded lazily; optional). Host-neutral API composition is in
+React 19, TypeScript 6, Vite 6, Mol*, MUI (Material UI), flexlayout-react,
+and Zustand. Host-neutral API composition is in
 `server/api-routes.ts`; Vite and the standalone Node server are adapters.
 
 ## Panels
@@ -233,7 +186,6 @@ React 19, TypeScript 6, Vite 6, Mol*, MUI (Material UI v9, plus
 | Interactions        | Computed non-covalent + covalent contacts, filterable by type and chain pair |
 | DVBfixer            | Generated CLI forms with managed queued/running state, bounded logs, restore-after-reload, and Cancel |
 | Homology            | Target → templates → editable MSA and masks → Modeller project workflow |
-| Mutations           | Editable DataGrid backed by PostgreSQL (`mutations` table: chain / mutation_name / mutations) |
 | Library             | Ordered workspace list with rename, archive download, and recoverable trash |
 | Workspace           | Active-workspace files with A/B loading, import, filtering, reordering, download, rename, and recoverable trash |
 | Info                | Editable artifact metadata and structure statistics with revision-aware autosave |
@@ -340,7 +292,6 @@ The standalone server defaults to `127.0.0.1:5173`. Configuration:
 | `DVBFIXER_AUDIT_LOG` | `off` | `off` or durable `jsonl` audit events on the data filesystem |
 | `DVBFIXER_AUDIT_RETENTION_DAYS` | `90` | Local audit retention period in days |
 | `DVBFIXER_METRICS` | `off` | `off` or protected process-local Prometheus metrics at `/api/metrics` |
-| `DVBFIXER_MUTATIONS_BACKUP_FILE` | `<gui>/mutations.json` | Mutable PostgreSQL backup location |
 | `DVBFIXER_OS_RESOURCE_LIMITS_REQUIRED` | `0` | Require the Linux systemd/cgroup-v2 resource preflight |
 | `DVBFIXER_OS_DATA_FILESYSTEM_MAX_BYTES` | unset | Maximum dedicated data-filesystem capacity when the preflight is enabled |
 | `DVBFIXER_OS_TEMP_FILESYSTEM_MAX_BYTES` | unset | Maximum private `/tmp` and `/var/tmp` capacity when the preflight is enabled |

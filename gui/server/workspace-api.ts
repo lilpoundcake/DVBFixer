@@ -31,8 +31,11 @@ export interface WorkspaceArtifact {
   iggSubtype?: string
   allotype?: string
   equivalentChains?: string[][]
+  /** Opaque identifiers retained only for read-only compatibility with retired Antibody Engineer artifacts. */
   mutationIds?: number[]
+  /** Immutable resolved-mutation provenance retained from retired Antibody Engineer artifacts. */
   mutationsResolved?: string
+  /** Historical Antibody Engineer provenance; no active workflow consumes these fields. */
   engineerChecksum?: string
   hasGlycan?: boolean
   scheme?: 'EU' | 'Kabat'

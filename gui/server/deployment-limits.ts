@@ -190,7 +190,6 @@ export function inspectDeploymentResources(
 export function validateDeploymentResources(
   snapshot: DeploymentResourceSnapshot,
   dataRoot: string,
-  mutationBackupFile: string,
   settings: DeploymentResourceSettings,
 ): void {
   if (!settings.required) return
@@ -222,8 +221,8 @@ export function validateDeploymentResources(
   if (snapshot.dataCapacityBytes > settings.dataFilesystemMaxBytes!) {
     throw new Error('workspace filesystem exceeds DVBFIXER_OS_DATA_FILESYSTEM_MAX_BYTES')
   }
-  if (!snapshot.statePathsContained || !pathContained(realDataRoot, canonicalExistingPath(mutationBackupFile))) {
-    throw new Error('HOME, TMPDIR, XDG_CACHE_HOME, and the mutations backup must be inside workspace storage')
+  if (!snapshot.statePathsContained) {
+    throw new Error('HOME, TMPDIR, and XDG_CACHE_HOME must be inside workspace storage')
   }
   for (const temporary of snapshot.temporaryMounts) {
     if (temporary.mountPoint !== temporary.path || temporary.fsType !== 'tmpfs' ||
@@ -235,11 +234,10 @@ export function validateDeploymentResources(
 
 export function assertDeploymentResources(
   dataRoot: string,
-  mutationBackupFile: string,
   settings: DeploymentResourceSettings,
 ): void {
   if (!settings.required) return
   validateDeploymentResources(
-    inspectDeploymentResources(dataRoot, settings.statePaths), dataRoot, mutationBackupFile, settings,
+    inspectDeploymentResources(dataRoot, settings.statePaths), dataRoot, settings,
   )
 }

@@ -325,7 +325,7 @@ enforcement = [
 ]
 failure_mode = "Scientific descendants can exhaust host CPU, memory, process slots, or root filesystem while operators believe a hard boundary exists."
 test_files = ["gui/server/deployment-limits.test.ts", "gui/server/standalone.test.ts"]
-known_exceptions = ["Kernel enforcement requires privileged target-host acceptance tests; limits are aggregate per service and do not constrain GPU memory or an external PostgreSQL service."]
+known_exceptions = ["Kernel enforcement requires privileged target-host acceptance tests; limits are aggregate per service and do not constrain GPU memory."]
 
 [invariants.INV-API-RATE-LIMIT]
 status = "implemented"

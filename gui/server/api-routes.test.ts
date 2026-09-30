@@ -46,10 +46,7 @@ describe('host-neutral API composition', () => {
       '/api/homology',
       '/api/v1',
       '/api/v1',
-      '/api/mutations',
       '/api/dvbfixer-spec',
-      '/api/antibody-engineer/run',
-      '/api/status',
       '/api/v1',
     ])
   })
