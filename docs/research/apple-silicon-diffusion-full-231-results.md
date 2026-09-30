@@ -10,6 +10,9 @@ selection passed 213/231 cases (92.2%): 121/128 gap-5 and 92/103 gap-10.
 This establishes operational feasibility on an 18 GB Apple M3 Pro. It does not
 show that MPS is faster than CPU: the short-case CPU reference remained about
 three times faster, and the runtime long tail came from OpenMM CPU refinement.
+The exact checkpoint size, model parameter count, architecture summary, and
+cross-engine comparison are recorded in
+[`diffusion-model-size-and-run-parameters.md`](diffusion-model-size-and-run-parameters.md).
 
 ## Frozen Protocol
 
