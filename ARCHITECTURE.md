@@ -3,7 +3,8 @@
 ## Implemented domain boundaries
 
 `domain/structure_identity.py` owns immutable identity vocabulary and chain-ID
-allocation used by Split. `domain/parameterization.py` defines routing policy;
+allocation used by Split, including exact model/altloc/component occurrence
+identity for nonprotein reconstruction. `domain/parameterization.py` defines routing policy;
 `lig_params.py` uses it to reject unsupported complex cofactors from generic
 GAFF. `domain/force_field_naming.py` owns naming vocabulary and policy, while
 `force_field_naming.py` provides the pure PDB text conversion service with
@@ -13,6 +14,14 @@ representation only and does not establish force-field template or bond
 compatibility. Topology construction, atom matching, and minimization remain in
 their existing adapters and pipelines. These are focused uses of domain-driven
 design (DDD), not a completed domain-layer migration.
+
+`domain/nonprotein_reconstruction.py` defines the backend-neutral contract for
+one exact nonprotein component. `nonprotein_reconstruction.py` is an opt-in,
+geometry-only Class A application service with bounded pinned-local and
+user-mapped authority, deterministic explicit-pH state selection, structured
+Class B/C/online refusals, validation, and atomic bundle publication. Its
+separate parameterization decision selects only a candidate route and always
+returns `md_ready=False`; no existing preparation default or MD adapter changed.
 
 OpenMM is the current minimizer. The optional xtb/OpenBabel passes run after it;
 `legacy` and `tleap-reduce` select preparation, not minimization. There is no
@@ -31,8 +40,9 @@ src/dvbfixer/
 ├── command_registry.py            — authoritative public command/module/category/batch/output metadata
 ├── cli_types.py                   — shared argparse numeric and structured-selector validators
 ├── force_field_naming.py          — pure typed PDB naming conversion application service
+├── nonprotein_reconstruction.py   — offline Class A geometry-only reconstruction and atomic publication
 ├── domain/                        — scientific value objects and policies: structure identity,
-│                                     parameterization routing, and force-field naming
+│                                     nonprotein reconstruction, parameterization routing, and force-field naming
 ├── __init__.py          24 lines   — __version__, MDAnalysis warning filters
 │
 │   STRUCTURE PREP PIPELINE (composable subcommands)

@@ -81,6 +81,42 @@ failure_mode = "Coordination, covalent attachment, or redox state can be discard
 test_files = ["tests/test_scientific_domain.py", "tests/test_parametrize_preflight.py"]
 known_exceptions = ["The five route labels are policy vocabulary; they are not one fully integrated routing backend."]
 
+[invariants.INV-NONPROTEIN-FAIL-CLOSED]
+status = "implemented"
+statement = "Nonprotein reconstruction uses exactly one selected authority and reconstructs only complete isolated Class A graphs; linked Class B, complex Class C, online, incomplete, and ambiguous chemistry return structured non-success without coordinates."
+owner = "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_nonprotein"
+enforcement = [
+  "src/dvbfixer/nonprotein_reconstruction.py::_resolve_authority",
+  "src/dvbfixer/nonprotein_reconstruction.py::_classify",
+]
+failure_mode = "The service could guess chemistry, silently switch evidence sources, or apply isolated-ligand geometry to links, metals, redox systems, or cofactors."
+test_files = ["tests/test_nonprotein_reconstruction.py"]
+known_exceptions = []
+
+[invariants.INV-NONPROTEIN-GEOMETRY-NOT-MD]
+status = "implemented"
+statement = "A successful nonprotein geometry result is neither independently approved nor MD-ready; parameterization route selection is separate and also never claims generated parameters."
+owner = "src/dvbfixer/nonprotein_reconstruction.py::decide_parameterization"
+enforcement = [
+  "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_nonprotein",
+  "src/dvbfixer/nonprotein_reconstruction.py::decide_parameterization",
+]
+failure_mode = "Validated coordinates could be misrepresented as force-field charges, bonded terms, nonbonded parameters, or a constructed MD system."
+test_files = ["tests/test_nonprotein_reconstruction.py"]
+known_exceptions = []
+
+[invariants.INV-NONPROTEIN-ATOMIC-PUBLICATION]
+status = "implemented"
+statement = "Only successful nonprotein geometry can publish, and geometry plus provenance become visible together through one atomic directory rename; every non-success publishes nothing."
+owner = "src/dvbfixer/nonprotein_reconstruction.py::publish_reconstruction"
+enforcement = [
+  "src/dvbfixer/nonprotein_reconstruction.py::publish_reconstruction",
+  "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_and_publish",
+]
+failure_mode = "A caller could observe partial geometry, missing provenance, or an artifact from a failed scientific operation."
+test_files = ["tests/test_nonprotein_reconstruction.py"]
+known_exceptions = ["Atomic rename and fsync durability require the publication root and staging directory to share one local filesystem."]
+
 [invariants.INV-DAT-SCHEMA-CENTRALIZED]
 status = "partial"
 statement = "Pipeline .dat readers and writers use DatRecord, derive total_added, and preserve explicit identity fields."

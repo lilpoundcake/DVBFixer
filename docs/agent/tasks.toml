@@ -494,6 +494,30 @@ verification = [
   "python scripts/gen_gui_spec.py --check",
 ]
 
+[tasks.change-nonprotein-reconstruction]
+status = "partial"
+context = "docs/agent/contexts/nonprotein-reconstruction.md"
+start = [
+  "src/dvbfixer/domain/nonprotein_reconstruction.py::ReconstructionRequest",
+  "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_nonprotein",
+  "src/dvbfixer/nonprotein_reconstruction.py::decide_parameterization",
+]
+callers = [
+  "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_and_publish",
+]
+contracts = ["nonprotein-reconstruction-bundle"]
+invariants = [
+  "INV-NONPROTEIN-FAIL-CLOSED",
+  "INV-NONPROTEIN-GEOMETRY-NOT-MD",
+  "INV-NONPROTEIN-ATOMIC-PUBLICATION",
+]
+change_group = "nonprotein-reconstruction"
+test_files = ["tests/test_nonprotein_reconstruction.py"]
+verification = [
+  "pytest -q tests/test_nonprotein_reconstruction.py tests/test_scientific_domain.py",
+  "mypy src/dvbfixer/nonprotein_reconstruction.py src/dvbfixer/domain/nonprotein_reconstruction.py src/dvbfixer/domain/structure_identity.py",
+]
+
 [change_groups.structure-identity]
 parallel_policy = "exclusive-owner"
 reason = "Identity changes must remain synchronized across PDB/mmCIF adapters and sidecars."
@@ -514,6 +538,17 @@ files = [
   "src/dvbfixer/parametrize.py",
   "src/dvbfixer/minimize/pipeline.py",
   "src/dvbfixer/top/acpype.py",
+]
+
+[change_groups.nonprotein-reconstruction]
+parallel_policy = "exclusive-owner"
+reason = "Authority, exact identity, geometry provenance, validation, MD handoff, and publication form one fail-closed contract."
+files = [
+  "src/dvbfixer/domain/nonprotein_reconstruction.py",
+  "src/dvbfixer/nonprotein_reconstruction.py",
+  "src/dvbfixer/domain/structure_identity.py",
+  "src/dvbfixer/domain/parameterization.py",
+  "docs/plans/nonprotein-reconstruction-parameterization.md",
 ]
 
 [change_groups.missing-atom-rebuild-chirality]
