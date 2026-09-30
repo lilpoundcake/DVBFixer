@@ -26,7 +26,8 @@ options:
 
 Input / output:
   input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
-  -o, --output OUTPUT   Write report to file (default: stdout)
+  -o OUTPUT, --output OUTPUT
+                        Write report to file (default: stdout)
 
 Check selection:
   --only {all,structural,chemistry,steric}

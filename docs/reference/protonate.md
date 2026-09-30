@@ -32,7 +32,8 @@ options:
 
 Input / output:
   input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
-  -o, --output OUTPUT   Output PDB file (default: <input>_prot.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_prot.pdb)
 
 pH-driven decisions:
   --ph PH               Target pH for protonation assignment (default: 7.0)

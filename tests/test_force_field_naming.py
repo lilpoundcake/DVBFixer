@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict
+from pathlib import Path
 
 import pytest
 
@@ -303,7 +304,8 @@ _AMBER_CASES = [
         ("ALA VAL THR", "CA", "CA"),
         ("SER CYS CYX CYM ASN ASP ASH PHE TYR TRP HIS HID HIE HIP LEU", "HB2 HB3", "HB2 HB1"),
         ("GLU GLH GLN MET", "HB2 HB3 HG2 HG3", "HB2 HB1 HG2 HG1"),
-        ("PRO HYP ARG", "HB2 HB3 HG2 HG3 HD2 HD3", "HB2 HB1 HG2 HG1 HD2 HD1"),
+        ("PRO ARG", "HB2 HB3 HG2 HG3 HD2 HD3", "HB2 HB1 HG2 HG1 HD2 HD1"),
+        ("HYP", "CD HB2 HB3 HG HD1 HD2 HD3", "CD2 HB2 HB1 HG HD1 HD21 HD22"),
         ("LYS", "HB2 HB3 HG2 HG3 HD2 HD3 HE2 HE3", "HB2 HB1 HG2 HG1 HD2 HD1 HE2 HE1"),
         ("LYN", "HB2 HB3 HG2 HG3 HD2 HD3 HE2 HE3 HZ2 HZ3", "HB2 HB1 HG2 HG1 HD2 HD1 HE2 HE1 HZ2 HZ1"),
         ("GLY", "HA2 HA3", "HA2 HA1"),
@@ -347,6 +349,78 @@ def test_amber_matrix_covers_every_declared_mapping() -> None:
     assert expected == GROMACS_AMBER_ATOM_RENAMES
 
 
+def _rtp_atom_names(bundle: str, residue: str) -> set[str]:
+    path = Path(__file__).parents[1] / "FF" / bundle / "aminoacids.rtp"
+    in_residue = False
+    in_atoms = False
+    result: set[str] = set()
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.split(";", 1)[0].strip()
+        if line.startswith("[") and line.endswith("]"):
+            section = line[1:-1].strip()
+            if not raw_line.startswith((" ", "\t")):
+                if in_residue:
+                    break
+                in_residue = section == residue
+                in_atoms = False
+            elif in_residue:
+                in_atoms = section == "atoms"
+            continue
+        if in_residue and in_atoms and line:
+            result.add(line.split()[0])
+    assert result, f"missing RTP atom set for {bundle}/{residue}"
+    return result
+
+
+@pytest.mark.parametrize(
+    ("target", "bundle", "source_residue", "rtp_residue", "source_names"),
+    [
+        (
+            ForceFieldTarget.AMBER,
+            "amber99sb-ildn-lipid21.ff",
+            "HYP",
+            "HYP",
+            "N CD HD2 HD3 CG HG OD1 HD1 CB HB2 HB3 CA HA C O",
+        ),
+        (
+            ForceFieldTarget.AMBER19SB,
+            "amber19sb.ff",
+            "HYP",
+            "HYP",
+            "N CD HD2 HD3 CG HG OD1 HD1 CB HB2 HB3 CA HA C O",
+        ),
+        (
+            ForceFieldTarget.AMBER19SB,
+            "amber19sb.ff",
+            "ACE",
+            "ACE",
+            "H1 CH3 H2 H3 C O",
+        ),
+        (
+            ForceFieldTarget.AMBER19SB,
+            "amber19sb.ff",
+            "NME",
+            "NME",
+            "N H C H1 H2 H3",
+        ),
+    ],
+)
+def test_amber_dialect_output_matches_bundled_rtp(
+    target: ForceFieldTarget,
+    bundle: str,
+    source_residue: str,
+    rtp_residue: str,
+    source_names: str,
+) -> None:
+    text = "".join(
+        _atom(serial, name, source_residue)
+        for serial, name in enumerate(source_names.split(), 1)
+    )
+    result = _convert(text, target=target, profile=NamingProfile.GROMACS)
+    actual = {line[12:16].strip() for line in result.pdb_text.splitlines()}
+    assert actual == _rtp_atom_names(bundle, rtp_residue)
+
+
 @pytest.mark.parametrize("target", list(ForceFieldTarget))
 @pytest.mark.parametrize("residue", ["ALA", "PRO", "HYP"])
 def test_termini_are_chain_local_and_idempotent(target: ForceFieldTarget, residue: str) -> None:
@@ -354,7 +428,10 @@ def test_termini_are_chain_local_and_idempotent(target: ForceFieldTarget, residu
     expected = (
         ["H2", "H1", "OC2", "OC1"] if residue in {"PRO", "HYP"}
         else ["H1", "H2", "H3", "OC2", "OC1"]
-    ) if target is ForceFieldTarget.AMBER else ["HN" if name == "H" else name for name in names]
+    ) if target is ForceFieldTarget.AMBER else (
+        ["H2", "H1", "O", "OXT"] if residue in {"PRO", "HYP"}
+        else ["H1", "H2", "H3", "O", "OXT"]
+    ) if target is ForceFieldTarget.AMBER19SB else ["HN" if name == "H" else name for name in names]
     # Both case-distinct chains have a single residue, so each is both termini.
     text = "".join(
         _atom(chain_index * len(names) + index, name, residue, chain, 82, icode="A")
@@ -377,9 +454,12 @@ def test_caps_do_not_make_the_internal_protein_residue_terminal(target: ForceFie
             text += _atom(serial, name, residue, number=number)
     first = _convert(text, target=target, profile=NamingProfile.GROMACS)
     hydrogen = "HN" if target is ForceFieldTarget.CHARMM else "H"
-    assert [line[12:16].strip() for line in first.pdb_text.splitlines()] == [
-        "C", "HH31", "HH32", "HH33", hydrogen, "O", "N", hydrogen, "CH3", "HH31", "HH32", "HH33",
-    ]
+    cap_names = (
+        ["C", "H1", "H2", "H3", hydrogen, "O", "N", hydrogen, "C", "H1", "H2", "H3"]
+        if target is ForceFieldTarget.AMBER19SB
+        else ["C", "HH31", "HH32", "HH33", hydrogen, "O", "N", hydrogen, "CH3", "HH31", "HH32", "HH33"]
+    )
+    assert [line[12:16].strip() for line in first.pdb_text.splitlines()] == cap_names
     assert _convert(first.pdb_text, target=target, profile=NamingProfile.GROMACS).pdb_text == first.pdb_text
 
 
@@ -484,7 +564,7 @@ def test_variant_mappings_repeat_without_changes(
     first = _convert(text, target=target, profile=profile)
     assert {_resname(line) for line in first.pdb_text.splitlines()} == {expected}
     if amber == "LYN":
-        expected_pair = ["HZ2", "HZ3"] if target is ForceFieldTarget.AMBER and profile is NamingProfile.STANDARD else ["HZ1", "HZ2"]
+        expected_pair = ["HZ2", "HZ3"] if target is not ForceFieldTarget.CHARMM and profile is NamingProfile.STANDARD else ["HZ1", "HZ2"]
         assert [line[12:16].strip() for line in first.pdb_text.splitlines()][-2:] == expected_pair
     second = _convert(first.pdb_text, target=target, profile=profile)
     assert second.pdb_text == first.pdb_text

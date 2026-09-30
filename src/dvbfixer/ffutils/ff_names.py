@@ -78,8 +78,9 @@ def apply_variants_to_pdb_text(
     verbose: bool = False,
 ) -> int:
     """Rewrite a PDB in place and return changed ATOM/HETATM line count."""
-    if target_ff not in ("amber", "charmm"):
-        raise ValueError(f"target_ff must be 'amber' or 'charmm', got {target_ff!r}")
+    if target_ff not in {target.value for target in ForceFieldTarget}:
+        choices = ", ".join(repr(target.value) for target in ForceFieldTarget)
+        raise ValueError(f"target_ff must be one of {choices}, got {target_ff!r}")
     overrides = tuple(
         VariantOverride(_split_key(key), value)
         for key, value in (amber_renames or {}).items()

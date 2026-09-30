@@ -17,7 +17,8 @@ options:
 
 Input / output:
   input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
-  -o, --output OUTPUT   Output PDB file (default: <input>_conect.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_conect.pdb)
   --force               Allow in-place overwrite (when --output equals input)
 
 Content selection:

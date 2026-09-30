@@ -116,6 +116,9 @@ Content-Type: application/json
 The operation converts PDB residue and atom names through `dvbfixer atom-names`.
 It accepts an artifact ID, never a filesystem path, and resolves the artifact
 inside the named workspace with traversal and symlink containment checks.
+`target.forceField` accepts `amber`, `amber19sb`, or `charmm`. The two AMBER
+values are distinct naming dialects; `amber19sb` matches the bundled ff19SB RTP
+cap and terminal names.
 
 ```json
 {

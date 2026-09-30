@@ -10,6 +10,8 @@ describe('generated DVBfixer command schema', () => {
     const atomNames = GENERATED_COMMANDS.find(command => command.name === 'atom-names')!
     expect(atomNames.label).toBe('Atom Names')
     expect(atomNames.flags.find(field => field.dest === 'variant_overrides')?.type).toBe('artifact')
+    expect(atomNames.flags.find(field => field.dest === 'target_ff')?.options)
+      .toEqual(['amber', 'amber19sb', 'charmm'])
     expect(atomNames.flags.map(field => field.dest)).not.toContain('report_json')
     const prepare = GENERATED_COMMANDS.find(command => command.name === 'prepare')!
     expect(prepare.inputs[0].help).toMatch(/CIF/)

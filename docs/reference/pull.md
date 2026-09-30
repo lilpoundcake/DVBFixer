@@ -22,7 +22,8 @@ options:
 
 Input / output:
   input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
-  -o, --output OUTPUT   Output PDB (default: <input>_pulled.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB (default: <input>_pulled.pdb)
 
 Bond specification:
   --bond SPEC SPEC      Two atom specs: chain:resnum:atomname (e.g. --bond

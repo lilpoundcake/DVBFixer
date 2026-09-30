@@ -30,8 +30,17 @@ best-effort summaries; consult `git log` for exact provenance.
 - Force-field selection, bundle inventory, optional metadata, writer features,
   and water/ion compatibility are represented by declarative topology
   capabilities while preserving the existing default `top --ff amber` route.
+- `atom-names` and the V1 naming API now expose a distinct `amber19sb` dialect
+  for ff19SB-specific cap, HYP, and terminal atom names without changing the
+  legacy `amber` output.
 - Expanded domain task, contract, invariant, and context documentation for
   diagnostics, nonprotein reconstruction, and topology force-field selection.
+
+### Fixed
+
+- Package smoke tests now require the bundled `amber19sb.ff` tree, generated CLI
+  references match the Python 3.11 CI baseline, and the GUI lockfile no longer
+  carries the high-severity `brace-expansion` advisory.
 
 ### Removed
 

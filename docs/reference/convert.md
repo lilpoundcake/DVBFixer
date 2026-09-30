@@ -19,44 +19,46 @@ CHARMM-compatible names (consumable by `top --ff charmm`). Both directions are
 idempotent — running the tool on already-correct input is a no-op.
 
 options:
-  -h, --help           show this help message and exit
+  -h, --help            show this help message and exit
 
 Input / output:
-  input                Input PDB, PDBx/mmCIF, or crystallographic CIF file
-  -o, --output OUTPUT  Output PDB file (default: <input>_amber.pdb in the
-                       default direction, <input>_charmm.pdb with --to-charmm)
+  input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_amber.pdb in the
+                        default direction, <input>_charmm.pdb with --to-
+                        charmm)
 
 Conversion direction:
-  --to-amber           PDB/CHARMM → GLYCAM (sugars) + AMBER (protonation
-                       variants HID/HIE/HIP/ASH/GLH/LYN/CYX/CYM). This is the
-                       default if no direction flag is given.
-  --to-charmm          Reverse direction: convert GLYCAM/AMBER-named input to
-                       CHARMM-compatible naming (BGLCNA/BMAN/AMAN/ANE5AC/...
-                       sugars, HSD/HSE/HSP/ASPP/GLUP/LSN protonation
-                       variants). Glycoprotein residues NLN/OLS/OLT revert to
-                       ASN/SER/THR; ROH/OME caps are dropped. Linkage info
-                       preserved via CONECT records.
+  --to-amber            PDB/CHARMM → GLYCAM (sugars) + AMBER (protonation
+                        variants HID/HIE/HIP/ASH/GLH/LYN/CYX/CYM). This is the
+                        default if no direction flag is given.
+  --to-charmm           Reverse direction: convert GLYCAM/AMBER-named input to
+                        CHARMM-compatible naming (BGLCNA/BMAN/AMAN/ANE5AC/...
+                        sugars, HSD/HSE/HSP/ASPP/GLUP/LSN protonation
+                        variants). Glycoprotein residues NLN/OLS/OLT revert to
+                        ASN/SER/THR; ROH/OME caps are dropped. Linkage info
+                        preserved via CONECT records.
 
 Content selection:
-  --no-roh             Do not add ROH cap at the reducing end (forward / --to-
-                       amber direction only)
-  --no-infer-conect    Skip automatic CONECT inference (default: infer missing
-                       glycosidic / glycosylation bonds so linkage detection
-                       works on CONECT-less inputs).
+  --no-roh              Do not add ROH cap at the reducing end (forward /
+                        --to-amber direction only)
+  --no-infer-conect     Skip automatic CONECT inference (default: infer
+                        missing glycosidic / glycosylation bonds so linkage
+                        detection works on CONECT-less inputs).
 
 Diagnostics:
-  -v, --verbose        Print conversion details
+  -v, --verbose         Print conversion details
 
 Global logging:
-  --log-file PATH      Append all stdout/stderr (including child tools) to
-                       PATH while still printing it
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
 
 Batch mode:
   Run this command independently for every supported structure in a
   directory. Processing continues after per-file failures by default.
 
-  --input-dir DIR      Process every supported structure in DIR
-  --output-dir DIR     Write batch results under DIR
-  --recursive          Include input subdirectories
-  --fail-fast          Stop after the first failed structure
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

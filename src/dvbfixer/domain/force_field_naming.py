@@ -9,6 +9,7 @@ from typing import Any
 
 class ForceFieldTarget(StrEnum):
     AMBER = "amber"
+    AMBER19SB = "amber19sb"
     CHARMM = "charmm"
 
 
@@ -138,7 +139,7 @@ GROMACS_AMBER_ATOM_RENAMES: dict[str, dict[str, str]] = {
     "GLN": {"HB3": "HB1", "HG3": "HG1"},
     "MET": {"HB3": "HB1", "HG3": "HG1"},
     "PRO": {"HB3": "HB1", "HG3": "HG1", "HD3": "HD1"},
-    "HYP": {"HB3": "HB1", "HG3": "HG1", "HD3": "HD1"},
+    "HYP": {"CD": "CD2", "HB3": "HB1", "HD2": "HD21", "HD3": "HD22"},
     "ARG": {"HB3": "HB1", "HG3": "HG1", "HD3": "HD1"},
     "LYS": {"HB3": "HB1", "HG3": "HG1", "HD3": "HD1", "HE3": "HE1"},
     "LYN": {
@@ -152,6 +153,13 @@ GROMACS_AMBER_ATOM_RENAMES: dict[str, dict[str, str]] = {
     "ILE": {"HG13": "HG11"},
     "ACE": {"H1": "HH31", "H2": "HH32", "H3": "HH33"},
     "NME": {"H1": "HH31", "H2": "HH32", "H3": "HH33", "C": "CH3"},
+}
+
+GROMACS_AMBER19SB_ATOM_RENAMES: dict[str, dict[str, str]] = {
+    **GROMACS_AMBER_ATOM_RENAMES,
+    "HYP": {"HB3": "HB1", "HD2": "HD21", "HD3": "HD22"},
+    "ACE": {},
+    "NME": {},
 }
 
 GROMACS_AMBER_LYN_ATOM_RENAME: dict[str, dict[str, str]] = {
@@ -241,10 +249,15 @@ def atom_name_policy(
             )
         return result
 
+    amber_atom_renames = (
+        GROMACS_AMBER19SB_ATOM_RENAMES
+        if target is ForceFieldTarget.AMBER19SB
+        else GROMACS_AMBER_ATOM_RENAMES
+    )
     result.update(
         {
             source: (destination, NamingRuleId.AMBER_ATOM_NAME)
-            for source, destination in GROMACS_AMBER_ATOM_RENAMES.get(
+            for source, destination in amber_atom_renames.get(
                 target_residue_name, {}
             ).items()
         }
@@ -254,7 +267,11 @@ def atom_name_policy(
             result["H3"] = ("H1", NamingRuleId.TERMINAL_ATOM_NAME)
         elif "H" in atom_names and "H1" not in atom_names:
             result["H"] = ("H1", NamingRuleId.TERMINAL_ATOM_NAME)
-    if is_c_terminal and target_residue_name in PROTEIN_RESNAMES:
+    if (
+        target is ForceFieldTarget.AMBER
+        and is_c_terminal
+        and target_residue_name in PROTEIN_RESNAMES
+    ):
         if "O" in atom_names and "OXT" in atom_names:
             result["O"] = ("OC2", NamingRuleId.TERMINAL_ATOM_NAME)
             result["OXT"] = ("OC1", NamingRuleId.TERMINAL_ATOM_NAME)

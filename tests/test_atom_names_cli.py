@@ -97,6 +97,9 @@ def test_parser_requires_output_and_target_and_exposes_only_gromacs() -> None:
         ["input.pdb", "-o", "output.pdb", "--target-ff", "amber"]
     )
     assert args.profile == "gromacs"
+    assert atom_names.parse_args(
+        ["input.pdb", "-o", "output.pdb", "--target-ff", "amber19sb"]
+    ).target_ff == "amber19sb"
     with pytest.raises(SystemExit) as unsupported:
         atom_names.parse_args(
             [
@@ -164,6 +167,23 @@ def test_successful_conversion_preserves_source_and_writes_explicit_report(tmp_p
     }
     assert change["ruleIds"] == ["amber-atom-name"]
     assert report.read_bytes().endswith(b"\n")
+
+
+def test_amber19sb_report_preserves_target_and_cap_names(tmp_path: Path) -> None:
+    text = "".join(
+        _atom(serial, name, "NME")
+        for serial, name in enumerate(("N", "H", "C", "H1", "H2", "H3"), 1)
+    )
+    source, output = _base_paths(tmp_path, text)
+    report = tmp_path / "report.json"
+
+    _invoke(source, "-o", output, "--target-ff", "amber19sb", "--report-json", report)
+
+    assert [line[12:16].strip() for line in output.read_text().splitlines()] == [
+        "N", "H", "C", "H1", "H2", "H3",
+    ]
+    payload = json.loads(report.read_text())
+    assert payload["request"]["targetForceField"] == "amber19sb"
 
 
 def test_latin1_noop_still_writes_distinct_identical_output(tmp_path: Path) -> None:

@@ -22,7 +22,8 @@ options:
 
 Input / output:
   input                 Input PDB or PDBx/mmCIF file
-  -o, --output OUTPUT   Output PDB file (default: <input>_renum.pdb)
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_renum.pdb)
   --fasta FASTA         Complete sequence(s) used instead of SEQRES. Headers
                         must encode chain IDs using the same formats as
                         `dvbfixer model`.

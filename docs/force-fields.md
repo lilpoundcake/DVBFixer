@@ -131,6 +131,15 @@ Amber19SB uses only exact upstream water/ion pairs: `opc`, `opc3`, `spc`,
 and `tip4p` are rejected. See the complete
 [provenance and compatibility audit](provenance/amber19sb-gromacs.md).
 
+## `--target-ff` for `atom-names`
+
+`atom-names` has its own naming-dialect selector: `amber`, `amber19sb`, or
+`charmm`. Use `amber19sb` before `top --ff amber19sb`; it preserves ff19SB's
+`O`/`OXT` C-terminal atoms and PDB-style ACE/NME names. The legacy `amber`
+target instead emits the `OC1`/`OC2` and cap spellings required by
+`amber99sb-ildn-lipid21.ff`. This conversion changes names only and does not
+replace `top`'s force-field compatibility checks.
+
 ## Two `--ff` namespaces (side-by-side)
 
 | Aspect                 | OpenMM tools (`prepare`, `minimize`, `protonate`, `pull`, `zbs`) | `top`                                          |

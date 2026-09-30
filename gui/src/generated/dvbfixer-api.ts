@@ -77,7 +77,7 @@ export interface components {
         NamingConversionRequest: {
             inputArtifactId: string;
             target: {
-                forceField: "amber" | "charmm";
+                forceField: "amber" | "amber19sb" | "charmm";
                 /** @constant */
                 profile: "gromacs";
             };

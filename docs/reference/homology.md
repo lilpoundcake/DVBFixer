@@ -28,7 +28,8 @@ Input / output:
   --template-plan TEMPLATE_PLAN
                         JSON template-chain selection plan; fits and merges
                         selected parts into one known
-  -o, --output OUTPUT   Output prefix (default: FASTA stem)
+  -o OUTPUT, --output OUTPUT
+                        Output prefix (default: FASTA stem)
 
 Alignment:
   --alignment ALIGNMENT
@@ -36,7 +37,7 @@ Alignment:
   --salign              Use structure-based alignment instead of align2d
 
 Modelling parameters:
-  -n, --num-models NUM_MODELS
+  -n NUM_MODELS, --num-models NUM_MODELS
                         Number of models to generate (default: 5)
   --md-level {none,fast,slow,very_slow,slow_large}
                         MD refinement level (default: fast)

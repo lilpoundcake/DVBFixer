@@ -19,6 +19,7 @@ REQUIRED_FF_FILES = (
 )
 EXPECTED_FF_DIRS = (
     "amber99sb-ildn-lipid21.ff",
+    "amber19sb.ff",
     "charmm36_ljpme-jul2022.ff",
 )
 
@@ -71,6 +72,9 @@ def main() -> int:
     for expected_text in ("Usage: dvbfixer <command> [options]", "zbs", "top"):
         if expected_text not in help_output:
             raise RuntimeError(f"--help output is missing {expected_text!r}")
+    atom_names_help = _run_cli("atom-names", "--help")
+    if "--target-ff {amber,amber19sb,charmm}" not in atom_names_help:
+        raise RuntimeError("atom-names --help is missing the amber19sb target")
 
     ff_root = bundled_ff_root().resolve()
     expected_root = (Path(sys.prefix) / "share" / "dvbfixer" / "FF").resolve()

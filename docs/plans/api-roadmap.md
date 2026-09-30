@@ -109,7 +109,7 @@ parameterization and not as the existing canonical `rename` command.
 - Input format: PDB only.
 - Source profile: DVBFixer/OpenMM-style PDB names plus explicit variants found
   in the source or supplied by the caller.
-- Target force field: `amber` or `charmm`.
+- Target force-field naming dialect: `amber`, `amber19sb`, or `charmm`.
 - Target profile: `gromacs`.
 - Output: a new workspace artifact; never overwrite the source artifact.
 - `dryRun`: return the report without creating an output artifact.
@@ -297,7 +297,7 @@ The dedicated command is `dvbfixer atom-names`; it remains separate from
 The command should:
 
 - accept one input and one explicit output;
-- expose `--target-ff {amber,charmm}` and `--profile gromacs`;
+- expose `--target-ff {amber,amber19sb,charmm}` and `--profile gromacs`;
 - optionally consume variant overrides from a small JSON file;
 - support `--dry-run` and `--report-json`;
 - call the same Python application service as the HTTP adapter;

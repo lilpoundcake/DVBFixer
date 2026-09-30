@@ -1797,12 +1797,13 @@ export const GENERATED_COMMANDS = [
         "label": "Target Ff",
         "type": "select",
         "group": "Naming conversion",
-        "help": "Target force-field naming family",
+        "help": "Target force-field naming dialect",
         "required": true,
         "repeatable": false,
         "multi": false,
         "options": [
           "amber",
+          "amber19sb",
           "charmm"
         ]
       },

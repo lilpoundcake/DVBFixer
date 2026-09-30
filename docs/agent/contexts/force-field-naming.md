@@ -45,6 +45,7 @@ to canonical PDB parents and does not produce GROMACS atom naming.
 |---|---|---|---|
 | Restore explicit AMBER variants after OpenMM normalization | implemented | `force_field_naming.py::convert_force_field_naming` | `tests/test_force_field_naming.py`, `tests/test_ff_names.py` |
 | AMBER/GROMACS protein, cap, and terminal atom shifts | implemented | `domain/force_field_naming.py::atom_name_policy` | `tests/test_force_field_naming.py`, `tests/test_ff_names.py`, `tests/test_terminal_caps.py` |
+| Amber19SB-specific cap, HYP, and terminal naming | implemented | `domain/force_field_naming.py::GROMACS_AMBER19SB_ATOM_RENAMES` | bundled `amber19sb.ff/aminoacids.rtp`, `tests/test_force_field_naming.py`, `tests/test_atom_names_cli.py` |
 | AMBER/GROMACS nucleic-acid sugar hydrogen shifts | partial | `domain/force_field_naming.py::GROMACS_AMBER_NA_ATOM_RENAMES` | mappings exist; terminal hydroxyl coverage remains unverified |
 | CHARMM residue variants, cap names, and backbone `H` to `HN` | implemented | `domain/force_field_naming.py::atom_name_policy` | `tests/test_force_field_naming.py`, `tests/test_ff_names.py` |
 | Pure text-in/result-out naming service | implemented | `force_field_naming.py::convert_force_field_naming` | `tests/test_force_field_naming.py` |
@@ -145,6 +146,8 @@ public `--atom-naming` option as the legacy backend.
   mean an exact blank insertion code, never an insertion-code wildcard.
 - Nucleic-acid terminal hydroxyl naming is not fully validated.
 - `--atom-naming standard` suppresses shifts; it is not a reverse converter.
+- `amber` and `amber19sb` are separate GROMACS naming dialects; conversion does
+  not replace `top --ff amber19sb` protein-only compatibility validation.
 - `tleap-reduce` is an AMBER-only preparation backend; its naming option changes
   the final AMBER atom-name profile and does not select a CHARMM preparation FF.
 - The HTTP adapter is available through Vite and the standalone host with static

@@ -6,9 +6,9 @@
 
 ```
 usage: dvbfixer atom-names [-h] -o OUTPUT [--variant-overrides JSON]
-                           [--report-json JSON] --target-ff {amber,charmm}
-                           [--profile {gromacs}] [--dry-run] [-v]
-                           [--log-file PATH]
+                           [--report-json JSON] --target-ff
+                           {amber,amber19sb,charmm} [--profile {gromacs}]
+                           [--dry-run] [-v] [--log-file PATH]
                            input
 
 Convert PDB atom and residue names without modifying the source file.
@@ -18,15 +18,16 @@ options:
 
 Input / output:
   input                 Input legacy PDB file (.pdb or .ent)
-  -o, --output OUTPUT   Output PDB file
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file
   --variant-overrides JSON
                         JSON array of exact chain/residue/insertion-code
                         variant overrides
   --report-json JSON    Write a machine-readable JSON report
 
 Naming conversion:
-  --target-ff {amber,charmm}
-                        Target force-field naming family
+  --target-ff {amber,amber19sb,charmm}
+                        Target force-field naming dialect
   --profile {gromacs}   Target consumer naming profile
   --dry-run             Validate and report without writing output
 

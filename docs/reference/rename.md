@@ -15,25 +15,26 @@ Rename non-canonical residue names to standard PDB names. Converts AMBER
 canonical forms.
 
 options:
-  -h, --help           show this help message and exit
+  -h, --help            show this help message and exit
 
 Input / output:
-  input                Input PDB, PDBx/mmCIF, or crystallographic CIF file
-  -o, --output OUTPUT  Output PDB file (default: <input>_canon.pdb)
+  input                 Input PDB, PDBx/mmCIF, or crystallographic CIF file
+  -o OUTPUT, --output OUTPUT
+                        Output PDB file (default: <input>_canon.pdb)
 
 Diagnostics:
-  -v, --verbose        Print each rename
+  -v, --verbose         Print each rename
 
 Global logging:
-  --log-file PATH      Append all stdout/stderr (including child tools) to
-                       PATH while still printing it
+  --log-file PATH       Append all stdout/stderr (including child tools) to
+                        PATH while still printing it
 
 Batch mode:
   Run this command independently for every supported structure in a
   directory. Processing continues after per-file failures by default.
 
-  --input-dir DIR      Process every supported structure in DIR
-  --output-dir DIR     Write batch results under DIR
-  --recursive          Include input subdirectories
-  --fail-fast          Stop after the first failed structure
+  --input-dir DIR       Process every supported structure in DIR
+  --output-dir DIR      Write batch results under DIR
+  --recursive           Include input subdirectories
+  --fail-fast           Stop after the first failed structure
 ```

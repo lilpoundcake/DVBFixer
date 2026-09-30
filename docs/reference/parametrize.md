@@ -27,12 +27,13 @@ options:
 
 Input / output:
   input                 Input structure file (.pdb, .cif, .mmcif, .mol2, .sdf)
-  -o, --output OUTPUT   Output prefix (default: input stem)
-  -n, --name NAME       Molecule name for [ moleculetype ] (default: from
+  -o OUTPUT, --output OUTPUT
+                        Output prefix (default: input stem)
+  -n NAME, --name NAME  Molecule name for [ moleculetype ] (default: from
                         input filename, uppercased)
 
 Chemistry:
-  -c, --charge-method {bcc,resp}
+  -c {bcc,resp}, --charge-method {bcc,resp}
                         Charge method: bcc (AM1-BCC, default — fast, ~95% RESP
                         accuracy) or resp (slower, requires --qm-engine to
                         pick a QM backend).
