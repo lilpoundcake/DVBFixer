@@ -8,6 +8,44 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.8.9] — 2026-09-30
+
+### Added
+
+- Added opt-in, protein-only `top --ff amber19sb` support using the verified
+  GROMACS v2026.3 distribution, descriptor-driven chemistry admission, CMAP,
+  and exact upstream water/ion pairs. Unsupported mixed chemistry fails before
+  topology artifacts are written.
+- Added reusable diagnose geometry measurements, structured numeric finding
+  details, topology-backed backbone-angle checks, deterministic steric evidence,
+  and exact residue/boundary scopes.
+- Added typed, fail-closed nonprotein reconstruction contracts for pinned local
+  CCD extracts and user-mapped Class A chemistry, with atomic geometry/provenance
+  publication and a separate non-MD-ready parameterization decision.
+- Added end-to-end batch ZBS regressions proving intermediates and `.dat`
+  sidecars remain below the output root without modifying source directories.
+
+### Changed
+
+- Force-field selection, bundle inventory, optional metadata, writer features,
+  and water/ion compatibility are represented by declarative topology
+  capabilities while preserving the existing default `top --ff amber` route.
+- Expanded domain task, contract, invariant, and context documentation for
+  diagnostics, nonprotein reconstruction, and topology force-field selection.
+
+### Removed
+
+- Removed the PostgreSQL-backed mutation library and Antibody Engineer GUI/API
+  cluster, its development Compose service, and cluster-only dependencies.
+  Historical workspace provenance fields remain readable but cannot start new
+  retired workflows.
+
+### Verification
+
+- Python, GUI, generated-reference, packaging, and documentation checks cover
+  the integrated release. External `gmx grompp` acceptance remains conditional
+  on a compatible GROMACS executable and is skipped when `gmx` is unavailable.
+
 ## [0.8.6] — 2026-09-22
 
 ### Added
