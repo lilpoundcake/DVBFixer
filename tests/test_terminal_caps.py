@@ -81,7 +81,7 @@ def test_generated_caps_match_openmm_forcefields(tmp_path: Path, xmls: list[str]
     assert [r.name for r in modeller.topology.residues()] == ["ACE", "ALA", "GLY", "NME"]
 
 
-@pytest.mark.parametrize("ff", ["amber", "charmm"])
+@pytest.mark.parametrize("ff", ["amber", "amber19sb", "charmm"])
 def test_top_keeps_capped_residues(tmp_path: Path, ff: str) -> None:
     from openmm.app import Modeller, PDBFile
 

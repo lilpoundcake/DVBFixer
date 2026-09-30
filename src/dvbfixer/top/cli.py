@@ -14,6 +14,12 @@ import sys
 from pathlib import Path
 
 from dvbfixer.cli_types import disulfide_spec, histidine_spec, protonation_spec
+from dvbfixer.top.capabilities import (
+    DEFAULT_TOPOLOGY_FORCE_FIELD,
+    ION_SET_CHOICES,
+    TOPOLOGY_FORCE_FIELDS,
+    WATER_CHOICES,
+)
 
 
 # Bundled GROMACS force-field directories. ``FF_DIR`` points at the
@@ -29,10 +35,7 @@ def bundled_ff_root() -> Path:
 
 
 FF_DIR = bundled_ff_root()
-FF_CHOICES = {
-    "amber": "amber99sb-ildn-lipid21.ff",
-    "charmm": "charmm36_ljpme-jul2022.ff",
-}
+FF_CHOICES = {name: descriptor.bundle for name, descriptor in TOPOLOGY_FORCE_FIELDS.items()}
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -46,19 +49,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     io.add_argument("--pdb", help="Output PDB file with topology-matched atom names")
 
     ff = parser.add_argument_group("Force field / solvation")
-    ff.add_argument("--ff", choices=["amber", "charmm"], default="amber",
-                    help="Force field (default: amber)")
+    ff.add_argument("--ff", choices=tuple(TOPOLOGY_FORCE_FIELDS),
+                    default=DEFAULT_TOPOLOGY_FORCE_FIELD,
+                    help="GROMACS force field (default: amber; amber19sb is protein-only)")
     ff.add_argument("--ff-dir", help="Custom force field directory")
     ff.add_argument("--water", default="tip3p",
-                    choices=["tip3p", "spc", "spce", "tip4p", "tip4pew", "opc"],
-                    help="Water model (default: tip3p). With --ff charmm only "
-                         "tip3p/spc/spce are accepted; OPC/TIP4P/TIP4P-Ew are "
-                         "not parametrized for CHARMM36 ions.")
+                    choices=WATER_CHOICES,
+                    help="Water model (default: tip3p; validated against the selected force field)")
     ff.add_argument("--ion-set", default="auto", dest="ion_set",
-                    choices=["auto", "jc-tip3p", "jc-spce", "jc-tip4pew",
-                             "lm-hfe-opc", "lm-iod-opc", "dang-legacy"],
-                    help="Ion LJ parameter set (default: auto, picks the set "
-                         "matched to the water model). Ignored with --ff charmm.")
+                    choices=ION_SET_CHOICES,
+                    help="Ion parameter set (default: auto, picks the exact set matched "
+                         "to the selected force field and water model)")
 
     protonation = parser.add_argument_group("Protonation / bonds")
     protonation.add_argument("--ss", action="append", default=[], type=disulfide_spec,

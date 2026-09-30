@@ -9,11 +9,16 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from dvbfixer.top.cli import FF_CHOICES, FF_DIR, parse_args
+from dvbfixer.top.capabilities import (
+    TopologyForceField,
+    resolve_bundle,
+    resolve_force_field,
+    validate_options,
+)
+from dvbfixer.top.cli import FF_DIR, parse_args
 from dvbfixer.top.ff_data import (
     _KNOWN_4CHAR_RESNAMES,
     _WATER_ATOMS_PER_MOL,
-    _WATER_DEFAULT_ION_SET,
     _WATER_ION_ALIAS,
     _WATER_RESNAMES,
     CERAMIDE_RTP,
@@ -173,7 +178,7 @@ def _count_molecules(pdb_path, mol_names):
                 continue
             chain = line[21]
             resseq = int(line[22:26])
-            key = (chain, resseq, name)
+            key = (chain, resseq, line[26], name)
             if key not in seen_residues:
                 seen_residues.add(key)
                 counts[name] = counts.get(name, 0) + 1
@@ -535,6 +540,41 @@ def read_ssbonds(path):
     return ssbonds
 
 
+def _preflight_amber19sb(
+    chains: list[PDBChain], descriptor: TopologyForceField, solvent_names: set[str]
+) -> None:
+    """Reject unsupported chemistry before any output bundle file is opened."""
+    nucleic = {"A", "C", "G", "U", "DA", "DC", "DG", "DT", "DU"}
+    unsupported: list[str] = []
+    for chain in chains:
+        residues = [r for r in chain.residues if r.resname not in solvent_names]
+        for index, residue in enumerate(residues):
+            identity = f"{residue.chain_id}:{residue.resseq}{residue.icode}"
+            if residue.resname not in descriptor.accepted_residues:
+                if residue.resname in nucleic:
+                    alternative = "use --ff amber or --ff charmm for nucleic-acid systems"
+                elif residue.resname in PDB_TO_CARB or residue.resname in PDB_TO_CARB.values():
+                    alternative = "use --ff charmm or --acpype for carbohydrates"
+                elif residue.resname in PDB_TO_LIPID or _is_ceramide(residue.resname):
+                    alternative = "use --ff amber or --ff charmm for lipids"
+                elif residue.resname in {"MSE", "SEP", "TPO", "PTR"}:
+                    alternative = "use --ff amber/charmm with a validated PTM route"
+                else:
+                    alternative = "use --ff amber/charmm or parameterize the component separately"
+                unsupported.append(f"{residue.resname} at {identity} ({alternative})")
+                continue
+            if residue.resname == "ACE" and index != 0:
+                unsupported.append(f"ACE at {identity} (supported only as the N-terminal cap)")
+            if residue.resname == "NME" and index != len(residues) - 1:
+                unsupported.append(f"NME at {identity} (supported only as the C-terminal cap)")
+    if unsupported:
+        details = "\n  ".join(unsupported)
+        raise ValueError(
+            "Amber19SB is a fail-closed protein-only topology backend; unsupported "
+            f"component(s):\n  {details}"
+        )
+
+
 def main(argv=None):
     args = parse_args(argv)
     input_path = Path(args.input)
@@ -543,29 +583,22 @@ def main(argv=None):
         print(f"Error: {input_path} not found", file=sys.stderr)
         sys.exit(1)
 
-    # Validate (--ff, --water) compatibility and resolve --ion-set auto.
-    # CHARMM ions (SOD/CLA/POT/CAL/MGA) are fitted to CHARMM-TIP3P; mixing them
-    # with OPC/TIP4P/TIP4P-Ew is not supported by CHARMM developers.
-    if args.ff == 'charmm':
-        if args.water in {'tip4p', 'tip4pew', 'opc'}:
-            print(f"ERROR: --water {args.water} is not parametrized for CHARMM36. "
-                  f"Use --ff amber to combine those waters with matched ions, or "
-                  f"pick --water tip3p|spc|spce for CHARMM.",
-                  file=sys.stderr)
-            sys.exit(1)
-        if args.ion_set != 'auto':
-            print("INFO: --ion-set is ignored with --ff charmm "
-                  "(CHARMM ions come from the bundled ions.itp).",
-                  file=sys.stderr)
-    else:  # AMBER
-        if args.ion_set == 'auto':
-            args.ion_set = _WATER_DEFAULT_ION_SET[args.water]
-        # Warn about water-model substitutions for non-JC waters
-        if args.water in _WATER_ION_ALIAS and args.ion_set.startswith('jc-'):
-            alias = _WATER_ION_ALIAS[args.water]
-            print(f"WARNING: plain {args.water.upper()} was not parametrized by "
-                  f"Joung-Cheatham; using {alias.upper()} ions ({args.ion_set}).",
-                  file=sys.stderr)
+    descriptor = resolve_force_field(args.ff)
+    original_ion_set = args.ion_set
+    try:
+        args.ion_set = validate_options(descriptor, args)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(1)
+    if descriptor.family == 'charmm' and original_ion_set != 'auto':
+        print("INFO: --ion-set is ignored with --ff charmm "
+              "(CHARMM ions come from the bundled ions.itp).", file=sys.stderr)
+    if (descriptor.legacy_ion_substitution and args.water in _WATER_ION_ALIAS
+            and str(args.ion_set).startswith('jc-')):
+        alias = _WATER_ION_ALIAS[args.water]
+        print(f"WARNING: plain {args.water.upper()} was not parametrized by "
+              f"Joung-Cheatham; using {alias.upper()} ions ({args.ion_set}).",
+              file=sys.stderr)
 
     # Convert GRO to temp PDB if needed
     tmp_pdb = None
@@ -589,16 +622,11 @@ def main(argv=None):
         run_acpype_mode(input_path, args)
         return
 
-    # Determine FF directory
-    if args.ff_dir:
-        ff_dir = Path(args.ff_dir)
-    else:
-        ff_name = FF_CHOICES[args.ff]
-        ff_dir = FF_DIR / ff_name
-        if not ff_dir.exists():
-            print(f"Error: Force field directory not found: {ff_dir}", file=sys.stderr)
-            print("Use --ff-dir to specify the path", file=sys.stderr)
-            sys.exit(1)
+    try:
+        ff_dir = resolve_bundle(descriptor, FF_DIR, args.ff_dir)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(1)
 
     ff_name = ff_dir.name
     print(f"Using force field: {ff_name}")
@@ -611,14 +639,25 @@ def main(argv=None):
 
     # Build topology builder first (need its residue dict for chain filtering)
     builder = TopologyBuilder(ff_dir, args.ff, args.verbose,
-                              keep_all_hydrogens=args.keep_all_hydrogens)
+                              keep_all_hydrogens=args.keep_all_hydrogens,
+                              descriptor=descriptor)
 
     # Strip water and ion residues (handled separately via counting)
     ion_names_for_filter = set()
-    ions_path_check = ff_dir / 'ions.itp'
+    selected_pair = descriptor.water_ion_pairs[args.water]
+    ions_path_check = ff_dir / str(selected_pair.ion_file or 'ions.itp')
     if ions_path_check.exists():
         ion_names_for_filter = _parse_ion_names(ions_path_check)
     skip_resnames = _WATER_RESNAMES | ion_names_for_filter
+
+    if descriptor.fail_closed:
+        try:
+            _preflight_amber19sb(
+                chains, descriptor, _WATER_RESNAMES | descriptor.accepted_input_ions
+            )
+        except ValueError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            sys.exit(1)
 
     for chain in chains:
         chain.residues = [r for r in chain.residues
@@ -647,6 +686,9 @@ def main(argv=None):
     sugar_names = set(PDB_TO_CARB.keys())
     charmm_sugar_names_filter = set(PDB_TO_CARB.values())
     for chain in chains:
+        if descriptor.fail_closed:
+            protein_chains.append(chain)
+            continue
         has_protein = any(
             r.resname in STANDARD_AA or r.resname in PDB_TO_GMX
             for r in chain.residues
@@ -902,8 +944,12 @@ def main(argv=None):
             print(f"\nBuilding topology for chain {chain.chain_id} "
                   f"({len(chain.residues)} residues)")
 
-        ct = builder.build_chain(chain, chain_ss.get(chain.chain_id, set()),
-                                 intrachain_ss.get(chain.chain_id, []))
+        try:
+            ct = builder.build_chain(chain, chain_ss.get(chain.chain_id, set()),
+                                     intrachain_ss.get(chain.chain_id, []))
+        except ValueError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            sys.exit(1)
         if ct is not None:
             chain_tops.append(ct)
             n_bonds = len(ct.bonds)
@@ -916,7 +962,9 @@ def main(argv=None):
                   file=sys.stderr)
 
     # Detect glycan/glycolipid links early to know which residues are handled
-    glycan_links = detect_glycan_links(chains, pdb_path=input_path)
+    glycan_links = [] if descriptor.fail_closed else detect_glycan_links(
+        chains, pdb_path=input_path
+    )
     glycolipid_ceramide_resseqs = set()  # (chain_id, resseq) of ceramides in glycolipids
     glycolipid_sugar_resseqs = set()     # sugars in glycolipid trees
 
@@ -1123,7 +1171,7 @@ def main(argv=None):
         print("         After gmx solvate/genion, move the #include line below SOL/ion entries.")
 
     # Detect ions/BUF, small molecules, and water in PDB (preserving PDB order)
-    ions_path = ff_dir / 'ions.itp'
+    ions_path = ff_dir / str(selected_pair.ion_file or 'ions.itp')
     ion_names = set()
     if ions_path.exists():
         ion_names = _parse_ion_names(ions_path)
@@ -1147,13 +1195,13 @@ def main(argv=None):
     system_name = orig_input_path.stem
     # ion_set is None for CHARMM (use bundled ions.itp) and the resolved set name
     # for AMBER (emit water-matched ion atom types + moleculetypes).
-    write_top_ion_set = None if args.ff == 'charmm' else args.ion_set
+    write_top_ion_set = args.ion_set if descriptor.legacy_ion_substitution else None
     write_top(chain_tops, top_path, ff_dir, args.ff, bonded_types_list,
               args.water, system_name,
               has_interchain_ss=has_interchain_bonds,
               extra_molecules=extra_molecules,
               small_mol_itps=small_mol_names,
-              ion_set=write_top_ion_set)
+              ion_set=write_top_ion_set, descriptor=descriptor)
     print(f"Wrote {out_dir / 'ffparams.itp'}")
     for ct in chain_tops:
         print(f"Wrote {out_dir / ct.name}.itp")
@@ -1264,6 +1312,7 @@ def _merge_chains(chain_tops):
                 z=atom.z,
                 chain_id=atom.chain_id,
                 orig_resseq=atom.orig_resseq,
+                orig_icode=atom.orig_icode,
                 orig_resname=atom.orig_resname,
             )
             merged.atoms.append(new_atom)

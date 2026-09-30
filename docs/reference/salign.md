@@ -20,8 +20,7 @@ options:
 Input / output:
   template              Template PDBs or CIFs as PATH or PATH:CHAIN (at least
                         two)
-  -o OUTPUT, --output OUTPUT
-                        Output PIR alignment (default:
+  -o, --output OUTPUT   Output PIR alignment (default:
                         structural_alignment.pir)
   --fit-dir FIT_DIR     Optional directory for fitted/superposed PDB files
 

@@ -2,7 +2,7 @@
 
 [← command index](index.md) · [← README](../../README.md)
 
-Generates GROMACS topology files directly from PDB or GRO files by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. GRO files are auto-converted via MDAnalysis. Supports AMBER99SB-ILDN and CHARMM36 force fields (bundled). Output is a modular set of `.itp` files: `ffparams.itp` (all FF parameters), `{chain}.itp` (each chain moleculetype), `water.itp`, `ions.itp`, `posre_*.itp` (position restraints), `interchain_ss.itp` (inter-chain SS bonds + protein-glycan bonds), and a compact `topol.top` with only `#include` directives — no external FF directory needed. Handles proteins, carbohydrates (CHARMM glycan topology with glycosidic bond detection and protein-glycan bonds), glycolipids (ceramide + sugar tree as single moleculetype from CHARMM-GUI output), small CGenFF molecules (ACET, ACEH — auto-detected via distance splitting), lipids, nucleic acids, and all other CHARMM molecule types (~2400+ residues). Water (SOL/HOH/WAT), ions, and buffer particles (BUF) in the input are auto-detected and added to `[ molecules ]`. Automatically splits chains with overlapping residue numbers (e.g. duplicate glycan trees from `transplant`).
+Generates GROMACS topology files directly from PDB or GRO files by parsing force field RTP/ARN/R2B/TDB files in Python — no `pdb2gmx` or GROMACS installation required. GRO files are auto-converted via MDAnalysis. Bundled choices are the default AMBER99SB-ILDN/Lipid21 route, opt-in protein-only Amber ff19SB, and CHARMM36. Output is a modular, self-contained set of `.itp` files plus `topol.top` and topology-matched coordinates. Broad mixed-system support remains on `amber`, `charmm`, or `--acpype`; `amber19sb` deliberately fails closed.
 
 ACE/NME-capped protein chains are accepted directly for both bundled force
 fields. The caps remain explicit residues, their peptide bonds are retained,
@@ -23,6 +23,9 @@ dvbfixer top buffer.gro --ff charmm
 
 # CHARMM36 force field
 dvbfixer top input.pdb --ff charmm
+
+# Official GROMACS ff19SB port, protein-only and explicit opt-in
+dvbfixer top prepared-protein.pdb --ff amber19sb --water opc
 
 # Explicit disulfide bonds and HIS protonation
 dvbfixer top input.pdb --ss A:22:A:96 --his A:64:HID
@@ -49,10 +52,10 @@ dvbfixer top input.pdb -o my_topology.top --pdb my_conf.pdb
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-o`, `--output` | `topol.top` | Output .top file |
-| `--ff` | `amber` | Force field: `amber` (bundled `amber99sb-ildn-lipid21.ff`) or `charmm` (bundled `charmm36_ljpme-jul2022.ff`). Source installs load these from `FF/`; wheels load them from the environment's `share/dvbfixer/FF/`. **Note**: `top` uses a separate `--ff` namespace from the OpenMM tools (`prepare`/`minimize`/`protonate`/`pull`/`zbs`) — it parses GROMACS RTP files, not OpenMM XML. See [force-fields.md](../force-fields.md) for the side-by-side comparison. |
-| `--ff-dir` | (bundled) | Custom force field directory |
-| `--water` | `tip3p` | Water model: `tip3p`, `spc`, `spce`, `tip4p`, `tip4pew`, `opc`. With `--ff charmm` only `tip3p`/`spc`/`spce` are accepted (the CHARMM-tuned variants); `opc`/`tip4p`/`tip4pew` with CHARMM is rejected because CHARMM ions are fitted to CHARMM-TIP3P |
-| `--ion-set` | `auto` | Ion LJ parameter set: `auto` picks the set matched to the water model (`jc-tip3p` for TIP3P, `jc-spce` for SPC/SPCE, `jc-tip4pew` for TIP4P/TIP4P-Ew, `lm-hfe-opc` for OPC). Override choices: `jc-tip3p`, `jc-spce`, `jc-tip4pew`, `lm-hfe-opc`, `lm-iod-opc`, `dang-legacy` (bundled Aqvist Na⁺/Dang Cl⁻ — pre-2008 behaviour, for backwards-compat). AMBER only — ignored with `--ff charmm`. Covers Na⁺/K⁺/Cl⁻/Ca²⁺/Mg²⁺/Zn²⁺ |
+| `--ff` | `amber` | `amber`, `amber19sb`, or `charmm`. `amber19sb` is the official GROMACS `v2026.3` ff19SB port and is protein-only. This namespace is separate from OpenMM aliases. |
+| `--ff-dir` | (bundled) | Custom force field directory for legacy `amber`/`charmm`; rejected for `amber19sb` so its verified inventory cannot be replaced silently. |
+| `--water` | `tip3p` | Union of descriptor water choices. Amber19SB permits only `opc`, `opc3`, `spc`, `spce`, `tip3p`, and `tip4pew`; CHARMM permits `tip3p`/`spc`/`spce`; legacy AMBER behavior is unchanged. |
+| `--ion-set` | `auto` | Descriptor-matched ion set. Amber19SB accepts only the exact `amber19sb-<water>` set (normally selected by `auto`); all cross-pairs are rejected. Legacy AMBER retains JC/LM/Dang choices; CHARMM uses bundled ions. |
 | `--ignh` | off | Ignore hydrogens in input PDB (strip all H and let the FF templates rebuild them) |
 | `--keep-all-hydrogens` | off | Preserve every input H atom (default OFF: `HO1`/`HO2`/`HO3`/`HO4`/`HO6` at glycosidic linkage sites are stripped and their charge is redistributed onto the linked O — matches the CHARMM RTP template for a formed glycosidic bond). See warning below |
 | `--ss` | auto | Disulfide bond: CHAIN1:NUM1:CHAIN2:NUM2 (repeatable) |
@@ -106,6 +109,33 @@ was going to be dropped (e.g. `HD22` on `NLN`) passes through.
 ## RTP-based mode (default)
 
 Parses force field RTP files to build topology from bond graph: resolves inter-residue bonds (`-C`, `+N`), enumerates angles/dihedrals/pairs algorithmically, copies impropers and CMAP from templates, applies terminal patches. Intra-chain disulfide bonds (SG-SG between CYS2 residues) are added explicitly to the chain topology with all derived angles, dihedrals, and 1-4 pairs; inter-chain SS bonds go to `interchain_ss.itp`. For CHARMM36, loads all molecule-type RTP files (aminoacids, carb, lipid, na, cgenff, ethers, metals, silicates, solvent — ~2400+ residue types). Non-protein chains are built without terminal patches. Glycan trees are detected from C1-O distances and built with proper glycosidic bond handling (HO removal, charge redistribution, atom type changes). Output is modular: `ffparams.itp` (all FF parameters including atomtypes, bonded params, water model params), chain `.itp` files, `water.itp`, `ions.itp`, `posre_*.itp` (position restraints, `#ifdef POSRES`), and `interchain_ss.itp` (if needed). `topol.top` contains only `#include` directives, `[ system ]`, and `[ molecules ]`. Ions and buffer particles (BUF) in the input PDB are auto-detected and added to the `[ molecules ]` section.
+
+### Amber19SB admission and compatibility
+
+Amber19SB accepts verified canonical protein residues; ASH, GLH, HID, HIE,
+HIP, CYX, CYM, and LYN variants; HYP with upstream CHYP at the C terminus; and
+explicit ACE/NME caps. It preserves case-sensitive chain IDs and insertion
+codes. Missing required heavy atoms, unsupported terminal variants, DNA/RNA,
+carbohydrates, lipids, PTMs, ligands, coordinated metals, and mixed unsupported
+systems fail before any output file is opened. Error messages identify the
+component and suggest `amber`, `charmm`, or separate parameterization.
+
+The upstream bundle has no ARN file and empty TDB files; those facts are
+represented explicitly. R2B/RTP terminal blocks drive termini. CMAP is required:
+both `cmap.itp` parameter tables and per-chain `[ cmap ]` terms are emitted.
+
+| Water | Required ion set | Upstream files |
+|---|---|---|
+| `opc` | `amber19sb-opc` | `opc.itp`, `ions_opc.itp` |
+| `opc3` | `amber19sb-opc3` | `opc3.itp`, `ions_opc3.itp` |
+| `spc` | `amber19sb-spc` | `spc.itp`, `ions_spc.itp` |
+| `spce` | `amber19sb-spce` | `spce.itp`, `ions_spce.itp` |
+| `tip3p` | `amber19sb-tip3p` | `tip3p.itp`, `ions_tip3p.itp` |
+| `tip4pew` | `amber19sb-tip4pew` | `tip4pew.itp`, `ions_tip4pew.itp` |
+
+No cross-product, fallback, or AMBER99 `ION_PARAMS` substitution is used. Full
+hashes, notices, license assessment, and the outstanding external GROMACS
+acceptance are in the [provenance record](../provenance/amber19sb-gromacs.md).
 
 ## Water-matched ions (AMBER)
 

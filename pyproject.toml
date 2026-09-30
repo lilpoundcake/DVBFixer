@@ -45,7 +45,9 @@ dvbfixer = ["data/*.xml"]
 # wheels resolve this conventional share path instead.
 [tool.setuptools.data-files]
 "share/dvbfixer/FF/amber99sb-ildn-lipid21.ff" = ["FF/amber99sb-ildn-lipid21.ff/*"]
+"share/dvbfixer/FF/amber19sb.ff" = ["FF/amber19sb.ff/*"]
 "share/dvbfixer/FF/charmm36_ljpme-jul2022.ff" = ["FF/charmm36_ljpme-jul2022.ff/*"]
+"share/dvbfixer/notices" = ["THIRD_PARTY_NOTICES/*"]
 
 [tool.ruff]
 line-length = 100

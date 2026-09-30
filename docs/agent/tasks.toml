@@ -331,6 +331,24 @@ verification = [
   "pytest -q tests/test_top_pipeline_baseline.py tests/test_top_merge_chains.py tests/test_top_acpype.py tests/test_sugar_name_tables.py",
 ]
 
+[tasks.change-topology-force-field-capability]
+status = "implemented"
+context = "docs/agent/contexts/topology-generation.md"
+start = [
+  "src/dvbfixer/top/capabilities.py",
+  "src/dvbfixer/top/pipeline.py::_preflight_amber19sb",
+  "src/dvbfixer/top/writers.py::write_top",
+]
+callers = ["src/dvbfixer/top/cli.py::parse_args", "src/dvbfixer/top/pipeline.py::main"]
+contracts = ["topology-force-field-capability", "topology-output-directory"]
+invariants = ["INV-AMBER19SB-FAIL-CLOSED", "INV-TOPOLOGY-MATCHED-OUTPUT"]
+change_group = "topology-matching"
+test_files = ["tests/test_top_amber19sb.py", "tests/test_top_pipeline_baseline.py", "tests/test_terminal_caps.py"]
+verification = [
+  "pytest -q tests/test_top_amber19sb.py tests/test_top_pipeline_baseline.py tests/test_terminal_caps.py",
+  "python scripts/check_agent_docs.py",
+]
+
 [tasks.change-diagnostics]
 status = "implemented"
 context = "docs/agent/contexts/diagnostics.md"
