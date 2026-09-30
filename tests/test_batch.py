@@ -104,7 +104,7 @@ def test_directory_continues_by_default_and_prints_clear_summary(tmp_path: Path,
     with pytest.raises(SystemExit) as caught:
         run_directory(
             "zbs", fail,
-            Namespace(input_dir=str(tmp_path), output_dir=None,
+            Namespace(input_dir=str(tmp_path), output_dir=str(tmp_path / "results"),
                       recursive=False, fail_fast=False),
             ["--no-solvent"],
         )
@@ -133,7 +133,7 @@ def test_directory_summary_retains_command_error_and_explains_fasta_chain_mismat
     with pytest.raises(SystemExit, match="1"):
         run_directory(
             "zbs", fail,
-            Namespace(input_dir=str(tmp_path), output_dir=None,
+            Namespace(input_dir=str(tmp_path), output_dir=str(tmp_path / "results"),
                       recursive=False, fail_fast=False),
             ["--fasta", "chains.fasta"],
         )
@@ -157,7 +157,7 @@ def test_fail_fast_stops_after_first_failure(tmp_path: Path):
     with pytest.raises(SystemExit):
         run_directory(
             "prepare", fail,
-            Namespace(input_dir=str(tmp_path), output_dir=None,
+            Namespace(input_dir=str(tmp_path), output_dir=str(tmp_path / "results"),
                       recursive=False, fail_fast=True),
             [],
         )
@@ -169,7 +169,7 @@ def test_diagnose_exit_one_is_findings_not_execution_failure(tmp_path: Path, cap
     with pytest.raises(SystemExit) as caught:
         run_directory(
             "diagnose", lambda argv: (_ for _ in ()).throw(SystemExit(1)),
-            Namespace(input_dir=str(tmp_path), output_dir=None,
+            Namespace(input_dir=str(tmp_path), output_dir=str(tmp_path / "results"),
                       recursive=False, fail_fast=False),
             [],
         )
