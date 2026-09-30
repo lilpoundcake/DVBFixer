@@ -21,7 +21,6 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import InfoIcon from '@mui/icons-material/Info'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
 import BuildIcon from '@mui/icons-material/Build'
-import EditNoteIcon from '@mui/icons-material/EditNote'
 import BiotechIcon from '@mui/icons-material/Biotech'
 import SettingsIcon from '@mui/icons-material/Settings'
 import LinkIcon from '@mui/icons-material/Link'
@@ -39,8 +38,6 @@ import { ClashesPanel } from './components/ClashesPanel'
 import { AlignmentPanel } from './components/AlignmentPanel'
 import { DVBFixerPanel } from './components/DVBFixerPanel'
 import { HomologyPanel } from './components/HomologyPanel'
-import { MutationsPanel } from './components/MutationsPanel'
-import { AntibodyEngineerPanel } from './components/AntibodyEngineerPanel'
 import { SettingsPanel } from './components/SettingsPanel'
 import { TextFileViewer } from './components/TextFileViewer'
 import { useStructureStore } from './stores/structureStore'
@@ -61,8 +58,6 @@ const PANEL_TYPES = [
   { component: 'alignment', name: 'Alignment', icon: <CompareArrowsIcon sx={{ fontSize: 16 }} /> },
   { component: 'dvbfixer', name: 'DVBFixer', icon: <BuildIcon sx={{ fontSize: 16 }} /> },
   { component: 'homology', name: 'Homology', icon: <BiotechIcon sx={{ fontSize: 16 }} /> },
-  { component: 'antibody-engineer', name: 'Antibody Engineer', icon: <BiotechIcon sx={{ fontSize: 16 }} /> },
-  { component: 'mutations', name: 'Mutations', icon: <EditNoteIcon sx={{ fontSize: 16 }} /> },
   { component: 'library', name: 'Library', icon: <FolderIcon sx={{ fontSize: 16 }} /> },
   { component: 'workspace', name: 'Workspace', icon: <FolderOpenIcon sx={{ fontSize: 16 }} /> },
   { component: 'info', name: 'Info', icon: <InfoIcon sx={{ fontSize: 16 }} /> },
@@ -118,8 +113,6 @@ const layoutJson: IJsonModel = {
               { type: 'tab', name: '3D Structure', component: 'viewer' },
               { type: 'tab', name: 'DVBFixer', component: 'dvbfixer' },
               { type: 'tab', name: 'Homology', component: 'homology' },
-              { type: 'tab', name: 'Antibody Engineer', component: 'antibody-engineer' },
-              { type: 'tab', name: 'Mutations', component: 'mutations' },
             ],
           },
           {
@@ -225,9 +218,7 @@ function App() { // @dsp obj-a1000002
       case 'alignment': return <AlignmentPanel />
       case 'dvbfixer': return <DVBFixerPanel />
       case 'homology': return <HomologyPanel />
-      case 'antibody-engineer': return <AntibodyEngineerPanel />
       case 'settings': return <SettingsPanel />
-      case 'mutations': return <MutationsPanel />
       default: return null
     }
   }, [])

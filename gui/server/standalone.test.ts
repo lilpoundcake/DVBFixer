@@ -46,7 +46,6 @@ describe('standalone configuration', () => {
       projectRoot: root,
       dataRoot: path.join(root, 'structures'),
       staticRoot: path.join(root, 'dist'),
-      mutationsBackupFile: path.join(root, 'mutations.json'),
       deploymentResources: { required: false },
       accessLog: { enabled: false },
       metrics: { enabled: false },
@@ -352,6 +351,12 @@ describe('standalone HTTP server', () => {
     const missingApi = await fetch(`${base}/api/unknown`)
     expect(missingApi.status).toBe(404)
     expect(missingApi.headers.get('content-type')).toContain('application/json')
+
+    for (const retiredPath of ['/api/mutations', '/api/antibody-engineer/run', '/api/status']) {
+      const retired = await fetch(`${base}${retiredPath}`)
+      expect(retired.status).toBe(404)
+      expect(retired.headers.get('content-type')).toContain('application/json')
+    }
 
     await instance.close()
     await instance.close()

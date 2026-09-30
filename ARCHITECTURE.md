@@ -1264,8 +1264,8 @@ Scientific naming policy remains in Python.
 `api-plugin.ts` is a thin Vite development adapter, while `standalone.ts` uses
 Node HTTP and Connect to serve the complete API plus the built `dist/` client.
 The standalone process defaults to loopback, rejects overlapping static/data
-roots, terminates tracked DVBFixer children during shutdown, drains HTTP, then
-closes PostgreSQL. `auth.ts` authenticates configured static bearer principals
+roots, terminates tracked DVBFixer children during shutdown, and drains HTTP.
+`auth.ts` authenticates configured static bearer principals
 at the shared route boundary. Version 2 workspace manifests carry an owner and
 reader/writer ACL; authorization occurs before workspace path resolution.
 Restrictive CORS, bounded requests/workspace publication, process admission,

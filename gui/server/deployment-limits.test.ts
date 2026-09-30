@@ -1,5 +1,4 @@
 import os from 'node:os'
-import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   parseDeploymentResourceSettings, validateDeploymentResources, type DeploymentResourceSnapshot,
@@ -45,7 +44,7 @@ describe('deployment resource limits', () => {
 
   it('accepts a bounded cgroup, dedicated data filesystem, and private temporary filesystems', () => {
     expect(() => validateDeploymentResources(
-      snapshot(), '/srv/dvbfixer', '/srv/dvbfixer/mutations.json', settings(),
+      snapshot(), '/srv/dvbfixer', settings(),
     )).not.toThrow()
   })
 
@@ -64,20 +63,14 @@ describe('deployment resource limits', () => {
     [{ temporaryMounts: [{ path: '/tmp', mountPoint: '/', fsType: 'ext4', capacityBytes: 100n }] }, /bounded tmpfs/],
   ] as const)('fails closed for an incomplete resource boundary', (overrides, message) => {
     expect(() => validateDeploymentResources(
-      snapshot(overrides), '/srv/dvbfixer', '/srv/dvbfixer/mutations.json', settings(),
+      snapshot(overrides), '/srv/dvbfixer', settings(),
     )).toThrow(message)
   })
 
   it('rejects the deployment profile on non-Linux hosts', () => {
     expect(() => validateDeploymentResources(
       snapshot({ platform: os.platform() === 'linux' ? 'darwin' : os.platform() }),
-      '/srv/dvbfixer', '/srv/dvbfixer/mutations.json', settings(),
+      '/srv/dvbfixer', settings(),
     )).toThrow(/requires Linux/)
-  })
-
-  it('requires the mutable backup to remain in the bounded data filesystem', () => {
-    expect(() => validateDeploymentResources(
-      snapshot(), '/srv/dvbfixer', path.resolve('/opt/dvbfixer/mutations.json'), settings(),
-    )).toThrow(/mutations backup/)
   })
 })

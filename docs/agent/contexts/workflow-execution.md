@@ -83,7 +83,10 @@ artifacts and selections. `saveWorkspace` atomically replaces JSON and
 increments `revision`. Revision-aware PUT/PATCH and metadata updates must match
 the current revision; artifact files are workspace-relative and containment
 checked, including against symlink escape. Current workflow requests identify
-inputs by these relative `file` values, not by artifact ID.
+inputs by these relative `file` values, not by artifact ID. Historical Antibody
+Engineer artifacts remain readable: `mutationsResolved` is preserved provenance
+and `mutationIds` is an opaque legacy field, with no resolution or new-write
+path.
 
 **Managed-job contract.** `runs/job_<uuid>/job.json` is written in `queued`
 state before asynchronous execution, then transitions through `running` to
@@ -122,9 +125,9 @@ already exited.
 - `gui/src/components/DVBFixerPanel.tsx` creates/restores managed jobs, follows
   SSE with polling fallback, requests cancellation, reloads the workspace on
   success, and opens the primary structure output.
-- Homology and Antibody Engineer have specialized orchestrators. They share
-  workspace containment and artifact registration concerns but are not managed
-  by the generic job record lifecycle documented here.
+- Homology has a specialized orchestrator. It shares workspace containment and
+  artifact registration concerns but is not managed by the generic job record
+  lifecycle documented here.
 
 ## Adapters
 

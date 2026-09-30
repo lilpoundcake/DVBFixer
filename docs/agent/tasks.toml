@@ -386,6 +386,36 @@ verification = [
   "cd gui && npm run typecheck",
 ]
 
+[tasks.remove-retired-mutation-cluster]
+status = "implemented"
+context = "docs/agent/contexts/workflow-execution.md"
+start = [
+  "gui/server/api-routes.ts::registerApiRoutes",
+  "gui/server/workspace-api.ts::WorkspaceArtifact",
+  "gui/src/App.tsx::App",
+]
+callers = [
+  "gui/server/api-plugin.ts::apiPlugin",
+  "gui/server/standalone.ts::createStandaloneServer",
+]
+contracts = ["workspace-manifest-artifact-identity"]
+invariants = [
+  "INV-API-WORKSPACE-CONTAINMENT",
+  "INV-API-WORKSPACE-AUTHORIZATION",
+  "INV-API-BOUNDED-BODY",
+]
+change_group = "retired-mutation-cluster"
+test_files = [
+  "gui/server/api-routes.test.ts",
+  "gui/server/standalone.test.ts",
+  "gui/server/workspace-api.test.ts",
+]
+verification = [
+  "cd gui && npm run typecheck",
+  "cd gui && npm test -- --run server/api-routes.test.ts server/standalone.test.ts server/workspace-api.test.ts",
+  "cd gui && npm run check:openapi",
+]
+
 [tasks.add-api-endpoint]
 status = "partial"
 context = "docs/agent/contexts/workflow-execution.md"
@@ -398,7 +428,6 @@ start = [
 ]
 callers = [
   "gui/src/components/DVBFixerPanel.tsx",
-  "gui/src/components/AntibodyEngineerPanel.tsx",
   "gui/src/stores/workspaceStore.ts::useWorkspaceStore",
 ]
 contracts = ["workspace-manifest-artifact-identity"]
@@ -594,6 +623,23 @@ files = [
   "gui/server/dvbfixer-runner.ts",
   "gui/server/command-args.ts",
   "gui/src/components/DVBFixerPanel.tsx",
+]
+
+[change_groups.retired-mutation-cluster]
+parallel_policy = "exclusive-owner"
+reason = "API composition, standalone deployment, panel registration, dependencies, and historical workspace compatibility must change together."
+files = [
+  "gui/server/api-routes.ts",
+  "gui/server/api-plugin.ts",
+  "gui/server/standalone.ts",
+  "gui/server/deployment-limits.ts",
+  "gui/server/workspace-api.ts",
+  "gui/src/App.tsx",
+  "gui/package.json",
+  "gui/package-lock.json",
+  "deploy/systemd",
+  "docs/api.md",
+  "docs/deployment.md",
 ]
 
 [change_groups.api-deployment-boundary]
