@@ -18,8 +18,7 @@ options:
 
 Input / output:
   input                 Input legacy PDB file (.pdb or .ent)
-  -o OUTPUT, --output OUTPUT
-                        Output PDB file
+  -o, --output OUTPUT   Output PDB file
   --variant-overrides JSON
                         JSON array of exact chain/residue/insertion-code
                         variant overrides

@@ -242,6 +242,19 @@ failure_mode = "A quality-assessment command could silently alter evidence it is
 test_files = ["tests/test_diagnose_pipeline.py", "tests/test_diagnose_chemistry.py"]
 known_exceptions = ["CLI-boundary CIF normalization creates a temporary PDB adapter input but does not mutate the source."]
 
+[invariants.INV-DIAGNOSTIC-GEOMETRY-IDENTITY]
+status = "implemented"
+statement = "Diagnostic geometry evidence retains exact case-sensitive chain, residue number, insertion code, and atom name; missing or duplicate named atoms are never guessed."
+owner = "src/dvbfixer/diagnose/geometry.py"
+enforcement = [
+  "src/dvbfixer/diagnose/geometry.py::boundary_measurements",
+  "src/dvbfixer/diagnose/chemistry.py::check_backbone_bond_angles",
+  "src/dvbfixer/diagnose/steric.py::steric_overlap_measurements_python",
+]
+failure_mode = "Scoped evidence can cross-contaminate case-distinct chains or insertion-code siblings, or silently choose one duplicate atom."
+test_files = ["tests/test_diagnose_geometry.py", "tests/test_diagnose_chemistry.py", "tests/test_diagnose_steric.py"]
+known_exceptions = ["Legacy text Finding.resid remains a display field with insertion code concatenated; versioned geometry details retain split identity."]
+
 [invariants.INV-WORKSPACE-REVISION-REBASE]
 status = "partial"
 statement = "On revision conflict, client autosave rebases only pending fields and tool panels over the latest manifest."

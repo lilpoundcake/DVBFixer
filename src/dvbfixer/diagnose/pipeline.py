@@ -9,6 +9,7 @@ exits with code 1 if any ERROR finding remains.
 from __future__ import annotations
 
 import json
+import math
 import sys
 import time
 from pathlib import Path
@@ -16,6 +17,14 @@ from typing import Any
 
 from dvbfixer.diagnose import chemistry, steric, structural
 from dvbfixer.diagnose.cli import parse_args
+from dvbfixer.diagnose.geometry import (
+    AtomIdentity,
+    DiagnosticScope,
+    ResidueIdentity,
+    atom_index_by_identity,
+    boundary_measurements,
+    residue_identity,
+)
 from dvbfixer.diagnose.report import (
     Finding,
     Severity,
@@ -43,17 +52,19 @@ def _read_chirality_repairs(pdb_path: Path) -> list[dict[str, str]]:
             prefix = "REMARK 999 DVBFIXER CHIRALITY_REPAIR "
             if not line.startswith(prefix):
                 continue
-            fields = line[len(prefix):].split()
+            fields = line[len(prefix) :].split()
             if len(fields) < 5:
                 continue
             stage, chain, resname, resid, icode = fields[:5]
-            repairs.append({
-                "stage": stage,
-                "chain": "" if chain == "_" else chain,
-                "resname": resname,
-                "resid": resid,
-                "icode": "" if icode == "." else icode,
-            })
+            repairs.append(
+                {
+                    "stage": stage,
+                    "chain": "" if chain == "_" else chain,
+                    "resname": resname,
+                    "resid": resid,
+                    "icode": "" if icode == "." else icode,
+                }
+            )
     return repairs
 
 
@@ -115,8 +126,8 @@ def _multi_model_finding(n_models: int) -> Finding:
         resid="*",
         resname="*",
         message=f"input has {n_models} MODEL records; diagnose analysed "
-                f"MODEL 1 only. Split the ensemble with `dvbfixer split` "
-                f"to inspect other frames.",
+        f"MODEL 1 only. Split the ensemble with `dvbfixer split` "
+        f"to inspect other frames.",
         fix_hint="dvbfixer split (if per-frame analysis is desired)",
     )
 
@@ -130,13 +141,169 @@ def _run_family(
         return list(fn())
     t0 = time.time()
     out = list(fn())
-    print(f"[diagnose] {name}: {len(out)} findings in "
-          f"{(time.time() - t0):.2f}s", file=sys.stderr)
+    print(f"[diagnose] {name}: {len(out)} findings in {(time.time() - t0):.2f}s", file=sys.stderr)
     return out
+
+
+def _finding_residues(finding: Finding) -> frozenset[ResidueIdentity]:
+    """Recover every exact residue identity from versioned atom details."""
+
+    identities: set[ResidueIdentity] = set()
+    atoms = finding.extra.get("atoms")
+    if not isinstance(atoms, list):
+        return frozenset()
+    for atom in atoms:
+        if isinstance(atom, dict) and all(key in atom for key in ("chain", "resid", "icode")):
+            identities.add(
+                ResidueIdentity(str(atom["chain"]), str(atom["resid"]), str(atom["icode"]))
+            )
+    return frozenset(identities)
+
+
+def _numeric_maxima(finding: Finding) -> dict[str, float]:
+    """Return named, unit-bearing values suitable for category maxima."""
+
+    maxima: dict[str, float] = {}
+    direct = {
+        "overlap_angstrom": "overlap_angstrom",
+        "absolute_deviation_angstrom": "absolute_deviation_angstrom",
+        "relative_deviation": "relative_deviation",
+        "deviation_from_trans_degrees": "deviation_from_trans_degrees",
+    }
+    for source, target in direct.items():
+        value = finding.extra.get(source)
+        if isinstance(value, (int, float)) and math.isfinite(float(value)):
+            maxima[target] = abs(float(value))
+
+    observed = finding.extra.get("observed_degrees")
+    expected = finding.extra.get("expected_range_degrees")
+    if isinstance(observed, (int, float)) and isinstance(expected, dict):
+        minimum = expected.get("min")
+        maximum = expected.get("max")
+        if isinstance(minimum, (int, float)) and isinstance(maximum, (int, float)):
+            deviation = max(float(minimum) - float(observed), float(observed) - float(maximum), 0.0)
+            maxima["deviation_from_range_degrees"] = deviation
+
+    chirality = finding.extra.get("observed_nm3")
+    if isinstance(chirality, (int, float)) and math.isfinite(float(chirality)):
+        maxima["absolute_triple_product_nm3"] = abs(float(chirality))
+    return maxima
+
+
+def _finding_aggregates(
+    findings: list[Finding],
+    selected: frozenset[ResidueIdentity] | None = None,
+    include_categories: tuple[str, ...] = (),
+) -> dict[str, dict[str, object]]:
+    aggregates: dict[str, dict[str, object]] = {
+        category: {"count": 0, "maxima": {}} for category in include_categories
+    }
+    for finding in findings:
+        if selected is not None:
+            if not (_finding_residues(finding) & selected):
+                continue
+        item = aggregates.setdefault(finding.category, {"count": 0, "maxima": {}})
+        item["count"] = int(item["count"]) + 1
+        maxima = item["maxima"]
+        assert isinstance(maxima, dict)
+        for name, value in _numeric_maxima(finding).items():
+            current = maxima.get(name)
+            maxima[name] = value if current is None else max(float(current), value)
+    return {key: aggregates[key] for key in sorted(aggregates)}
+
+
+def _scope_payload(
+    topology: Any,
+    positions: Any,
+    scope: DiagnosticScope,
+    findings: list[Finding],
+    *,
+    include_water: bool,
+) -> dict[str, object]:
+    residues_by_identity: dict[ResidueIdentity, list[Any]] = {}
+    for residue in topology.residues():
+        residues_by_identity.setdefault(residue_identity(residue), []).append(residue)
+    selected = scope.selected_residues
+    atom_index = atom_index_by_identity(topology)
+    completeness: list[dict[str, object]] = []
+    for residue in sorted(selected):
+        atom_count = sum(
+            len(atoms) for atom_id, atoms in atom_index.items() if atom_id.residue == residue
+        )
+        backbone_counts = {
+            name: len(
+                atom_index.get(AtomIdentity(residue.chain, residue.resid, residue.icode, name), [])
+            )
+            for name in ("N", "CA", "C", "O")
+        }
+        residue_matches = len(residues_by_identity.get(residue, []))
+        completeness.append(
+            {
+                **residue.to_dict(),
+                "present": residue_matches > 0,
+                "residue_match_count": residue_matches,
+                "atom_count": atom_count,
+                "backbone_atom_match_counts": backbone_counts,
+                "backbone_complete": (
+                    residue_matches == 1 and all(count == 1 for count in backbone_counts.values())
+                ),
+            }
+        )
+
+    steric_measurements = steric.steric_overlap_measurements_python(
+        topology, positions, include_water=include_water
+    )
+    scoped_steric = [
+        measurement
+        for measurement in steric_measurements
+        if any(atom.residue in selected for atom in measurement.atoms)
+    ]
+    return {
+        "schema": "dvbfixer.diagnostic-scope.v1",
+        "requested_residues": [residue.to_dict() for residue in sorted(scope.residues)],
+        "selected_residues": [residue.to_dict() for residue in sorted(selected)],
+        "completeness": completeness,
+        "boundaries": [
+            measurement.to_dict()
+            for measurement in boundary_measurements(topology, positions, scope.boundaries)
+        ],
+        "finding_aggregates": _finding_aggregates(
+            findings,
+            selected,
+            include_categories=(
+                "bond_length",
+                "bond_angle",
+                "cis_peptide",
+                "non_planar_amide",
+                "chirality",
+                "disulfide_geometry",
+                "clash",
+            ),
+        ),
+        "deterministic_steric": {
+            "engine": {
+                "name": steric.DETERMINISTIC_STERIC_ENGINE,
+                "version": steric.DETERMINISTIC_STERIC_ENGINE_VERSION,
+            },
+            "severe_overlap_threshold_angstrom": steric.SEVERE_OVERLAP_A,
+            "overlap_count": len(scoped_steric),
+            "severe_overlap_count": sum(
+                measurement.value >= steric.SEVERE_OVERLAP_A - 1e-12
+                for measurement in scoped_steric
+            ),
+            "max_overlap_angstrom": max(
+                (measurement.value for measurement in scoped_steric), default=None
+            ),
+            "measurements": [measurement.to_dict() for measurement in scoped_steric],
+        },
+    }
 
 
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
+    if (args.scope_residue or args.scope_boundary) and args.output_format != "json":
+        print("Exact geometry scope requires --format json", file=sys.stderr)
+        sys.exit(2)
     input_path = Path(args.input)
     if not input_path.exists():
         print(f"File not found: {input_path}", file=sys.stderr)
@@ -150,6 +317,7 @@ def main(argv: list[str] | None = None) -> None:
     prelim: list[Finding] = []
     if n_models > 1:
         import tempfile
+
         tmp_dir = Path(tempfile.mkdtemp(prefix="dvbfixer-diagnose-"))
         tmp_pdb = _extract_first_model(input_path, tmp_dir)
         working_input = tmp_pdb
@@ -167,6 +335,7 @@ def main(argv: list[str] | None = None) -> None:
     # Clash cutoffs: --clash-cutoff wins over --clash-mode; if neither
     # is set, fall through to the preset default.
     from dvbfixer.diagnose.steric import CLASH_MODE_PRESETS
+
     if args.clash_cutoff is not None:
         clash_warn_a, clash_error_a = args.clash_cutoff
     else:
@@ -174,31 +343,42 @@ def main(argv: list[str] | None = None) -> None:
 
     findings: list[Finding] = list(prelim)
     if args.only in ("all", "structural"):
-        findings.extend(_run_family(
-            "structural",
-            lambda: structural.run_all(
-                topology, positions, working_input, fixer,
-                include_water=include_water,
-            ),
-            verbose,
-        ))
+        findings.extend(
+            _run_family(
+                "structural",
+                lambda: structural.run_all(
+                    topology,
+                    positions,
+                    working_input,
+                    fixer,
+                    include_water=include_water,
+                ),
+                verbose,
+            )
+        )
     if args.only in ("all", "chemistry"):
-        findings.extend(_run_family(
-            "chemistry",
-            lambda: chemistry.run_all(topology, positions),
-            verbose,
-        ))
+        findings.extend(
+            _run_family(
+                "chemistry",
+                lambda: chemistry.run_all(topology, positions),
+                verbose,
+            )
+        )
     if args.only in ("all", "steric"):
-        findings.extend(_run_family(
-            "steric",
-            lambda: steric.run_all(
-                topology, positions, working_input,
-                include_water=include_water,
-                clash_warn_a=clash_warn_a,
-                clash_error_a=clash_error_a,
-            ),
-            verbose,
-        ))
+        findings.extend(
+            _run_family(
+                "steric",
+                lambda: steric.run_all(
+                    topology,
+                    positions,
+                    working_input,
+                    include_water=include_water,
+                    clash_warn_a=clash_warn_a,
+                    clash_error_a=clash_error_a,
+                ),
+                verbose,
+            )
+        )
 
     chirality_checked = args.only in ("all", "chemistry")
     chirality_repairs = _read_chirality_repairs(input_path)
@@ -211,6 +391,7 @@ def main(argv: list[str] | None = None) -> None:
     n_residues = sum(1 for _ in topology.residues())
     n_chains = sum(1 for _ in topology.chains())
     from dvbfixer.structure_input import display_structure_path
+
     report_input_path = display_structure_path(input_path)
 
     if args.output_format == "json":
@@ -222,25 +403,43 @@ def main(argv: list[str] | None = None) -> None:
             "n_chains": n_chains,
             "findings": findings_to_dict_list(findings),
             "summary": {
-                sev.value: sum(1 for f in findings if f.severity == sev)
-                for sev in Severity
+                sev.value: sum(1 for f in findings if f.severity == sev) for sev in Severity
+            },
+            "geometry": {
+                "schema": "dvbfixer.geometry-report.v1",
+                "finding_aggregates": _finding_aggregates(findings),
             },
             "chirality": {
                 "checked": chirality_checked,
                 "d_isomer_error": (
-                    any(f.category == "chirality" for f in findings)
-                    if chirality_checked else None
+                    any(f.category == "chirality" for f in findings) if chirality_checked else None
                 ),
                 "forced_repairs": chirality_repairs,
                 "hydrogen_geometry_review_recommended": bool(chirality_repairs),
             },
         }
+        if args.scope_residue or args.scope_boundary:
+            scope = DiagnosticScope(
+                residues=frozenset(args.scope_residue),
+                boundaries=tuple(args.scope_boundary),
+            )
+            payload["scope"] = _scope_payload(
+                topology,
+                positions,
+                scope,
+                findings,
+                include_water=include_water,
+            )
         # Reports are user-facing artifacts, not an ASCII transport format.
         # Keep Å, em dashes, arrows, and non-Latin path characters readable.
         report_text = json.dumps(payload, indent=2, ensure_ascii=False)
     else:
         report_text = format_report(
-            str(report_input_path), n_atoms, n_residues, n_chains, findings,
+            str(report_input_path),
+            n_atoms,
+            n_residues,
+            n_chains,
+            findings,
             chirality_checked=chirality_checked,
             chirality_repairs=chirality_repairs,
         )

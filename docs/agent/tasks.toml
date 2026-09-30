@@ -337,22 +337,25 @@ context = "docs/agent/contexts/diagnostics.md"
 start = [
   "src/dvbfixer/diagnose/pipeline.py::main",
   "src/dvbfixer/diagnose/report.py",
+  "src/dvbfixer/diagnose/geometry.py",
 ]
 callers = [
   "src/dvbfixer/cli.py::main",
   "src/dvbfixer/zbs.py::_run_pipeline",
 ]
-contracts = []
-invariants = ["INV-DIAGNOSE-REPORT-ONLY"]
+contracts = ["diagnostic-geometry-evidence"]
+invariants = ["INV-DIAGNOSE-REPORT-ONLY", "INV-DIAGNOSTIC-GEOMETRY-IDENTITY"]
 change_group = "diagnostic-reporting"
 test_files = [
   "tests/test_diagnose_pipeline.py",
   "tests/test_diagnose_report.py",
   "tests/test_diagnose_chemistry.py",
+  "tests/test_diagnose_geometry.py",
+  "tests/test_diagnose_steric.py",
   "tests/test_duplicate_chain_coordinates.py",
 ]
 verification = [
-  "pytest -q tests/test_diagnose_pipeline.py tests/test_diagnose_report.py tests/test_diagnose_chemistry.py tests/test_duplicate_chain_coordinates.py",
+  "pytest -q tests/test_diagnose_geometry.py tests/test_diagnose_pipeline.py tests/test_diagnose_report.py tests/test_diagnose_chemistry.py tests/test_diagnose_steric.py tests/test_duplicate_chain_coordinates.py",
 ]
 
 [tasks.change-workspace-persistence]

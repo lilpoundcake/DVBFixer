@@ -19,9 +19,11 @@ from openmm.unit import Quantity, nanometer  # noqa: E402
 
 from dvbfixer.diagnose.chemistry import (  # noqa: E402
     _dihedral_deg,
+    check_backbone_bond_angles,
     check_bond_lengths,
     check_ca_chirality,
     check_disulfides,
+    check_peptide_omegas,
     check_valences,
 )
 from dvbfixer.diagnose.report import Severity  # noqa: E402
@@ -29,6 +31,7 @@ from dvbfixer.diagnose.report import Severity  # noqa: E402
 # ---------------------------------------------------------------------------
 # _dihedral_deg — trans and cis reference geometries
 # ---------------------------------------------------------------------------
+
 
 def test_dihedral_trans_peptide_returns_180() -> None:
     # Cα(i) - C(i) - N(i+1) - Cα(i+1) coplanar, Cα(i+1) trans.
@@ -55,6 +58,7 @@ def test_dihedral_cis_peptide_returns_0() -> None:
 # check_ca_chirality — L vs D
 # ---------------------------------------------------------------------------
 
+
 def _make_ca_residue(
     n_pos: tuple[float, float, float],
     ca_pos: tuple[float, float, float],
@@ -67,8 +71,7 @@ def _make_ca_residue(
     r = top.addResidue(resname, chain)
     for name, sym in [("N", "N"), ("CA", "C"), ("C", "C"), ("CB", "C")]:
         top.addAtom(name, Element.getBySymbol(sym), r)
-    positions_nm = [tuple(x / 10.0 for x in p) for p in
-                    (n_pos, ca_pos, c_pos, cb_pos)]
+    positions_nm = [tuple(x / 10.0 for x in p) for p in (n_pos, ca_pos, c_pos, cb_pos)]
     return top, Quantity(positions_nm, nanometer)
 
 
@@ -90,7 +93,7 @@ def test_d_alanine_flagged_as_error() -> None:
         n_pos=(-0.87, 1.21, 0.00),
         ca_pos=(0.00, 0.00, 0.00),
         c_pos=(1.44, 0.00, -0.20),
-        cb_pos=(-0.86, -0.87, 0.87),   # z flipped → D
+        cb_pos=(-0.86, -0.87, 0.87),  # z flipped → D
     )
     findings = check_ca_chirality(top, pos)
     assert len(findings) == 1
@@ -102,14 +105,14 @@ def test_d_alanine_flagged_as_error() -> None:
 # check_valences
 # ---------------------------------------------------------------------------
 
+
 def test_valence_5_on_carbon_flagged() -> None:
     """A carbon with 5 bonds must be reported as ERROR."""
     top = Topology()
     chain = top.addChain("A")
     r = top.addResidue("LIG", chain)
     c = top.addAtom("C1", Element.getBySymbol("C"), r)
-    hs = [top.addAtom(f"H{i}", Element.getBySymbol("H"), r)
-          for i in range(5)]
+    hs = [top.addAtom(f"H{i}", Element.getBySymbol("H"), r) for i in range(5)]
     for h in hs:
         top.addBond(c, h)
     findings = check_valences(top)
@@ -124,8 +127,7 @@ def test_valence_4_on_carbon_not_flagged() -> None:
     chain = top.addChain("A")
     r = top.addResidue("LIG", chain)
     c = top.addAtom("C1", Element.getBySymbol("C"), r)
-    hs = [top.addAtom(f"H{i}", Element.getBySymbol("H"), r)
-          for i in range(4)]
+    hs = [top.addAtom(f"H{i}", Element.getBySymbol("H"), r) for i in range(4)]
     for h in hs:
         top.addBond(c, h)
     findings = check_valences(top)
@@ -138,10 +140,7 @@ def test_four_coordinate_sulfur_not_flagged() -> None:
     chain = top.addChain("A")
     residue = top.addResidue("EPE", chain)
     sulfur = top.addAtom("S", Element.getBySymbol("S"), residue)
-    neighbors = [
-        top.addAtom(f"O{i}", Element.getBySymbol("O"), residue)
-        for i in range(4)
-    ]
+    neighbors = [top.addAtom(f"O{i}", Element.getBySymbol("O"), residue) for i in range(4)]
     for atom in neighbors:
         top.addBond(sulfur, atom)
     findings = check_valences(top)
@@ -151,6 +150,7 @@ def test_four_coordinate_sulfur_not_flagged() -> None:
 # ---------------------------------------------------------------------------
 # check_bond_lengths
 # ---------------------------------------------------------------------------
+
 
 def _cc_topology_with_bond(distance_a: float) -> tuple[Topology, Quantity]:
     """Two sp3 carbons at ``distance_a`` Å, bonded — for bond-length tests."""
@@ -184,11 +184,120 @@ def test_broken_cc_bond_over_50pct_flagged_as_error() -> None:
     findings = check_bond_lengths(top, pos)
     assert len(findings) == 1
     assert findings[0].severity == Severity.ERROR
+    assert findings[0].extra["observed_angstrom"] == pytest.approx(2.5)
+    assert findings[0].extra["expected_angstrom"] == pytest.approx(1.53)
+    assert findings[0].extra["relative_deviation"] == pytest.approx(0.6339869)
+
+
+@pytest.mark.parametrize(
+    ("distance_a", "severity"),
+    [(1.53 * 1.20, Severity.WARNING), (1.53 * 1.50, Severity.ERROR)],
+)
+def test_bond_length_threshold_boundaries(distance_a: float, severity: Severity) -> None:
+    top, positions = _cc_topology_with_bond(distance_a)
+    findings = check_bond_lengths(top, positions)
+    assert len(findings) == 1
+    assert findings[0].severity == severity
+
+
+# ---------------------------------------------------------------------------
+# check_backbone_bond_angles
+# ---------------------------------------------------------------------------
+
+
+def _backbone_topology(ca_y_a: float, *, bonded: bool = True) -> tuple[Topology, Quantity]:
+    top = Topology()
+    chain = top.addChain("A")
+    residue = top.addResidue("ALA", chain, id="1")
+    n = top.addAtom("N", Element.getBySymbol("N"), residue)
+    ca = top.addAtom("CA", Element.getBySymbol("C"), residue)
+    c = top.addAtom("C", Element.getBySymbol("C"), residue)
+    o = top.addAtom("O", Element.getBySymbol("O"), residue)
+    if bonded:
+        top.addBond(n, ca)
+        top.addBond(ca, c)
+        top.addBond(c, o)
+    positions_a = [
+        (-1.2, 0.0, 0.0),
+        (0.0, ca_y_a, 0.0),
+        (0.5, 1.4, 0.0),
+        (1.7, 1.4, 0.0),
+    ]
+    positions_nm = [tuple(value / 10.0 for value in point) for point in positions_a]
+    return top, Quantity(positions_nm, nanometer)
+
+
+def test_canonical_backbone_angles_not_flagged() -> None:
+    top, positions = _backbone_topology(0.0)
+    assert check_backbone_bond_angles(top, positions) == []
+
+
+def test_collapsed_backbone_angle_flagged_with_numeric_details() -> None:
+    top, positions = _backbone_topology(2.0)
+    findings = check_backbone_bond_angles(top, positions)
+    finding = next(item for item in findings if item.atom == "N-CA-C")
+    assert finding.severity == Severity.ERROR
+    assert finding.extra["observed_degrees"] < 80.0
+    assert finding.extra["expected_range_degrees"] == {"min": 95.0, "max": 125.0}
+
+
+def test_backbone_angle_warning_band_boundary() -> None:
+    top, _ = _backbone_topology(0.0)
+    points_a = [(-1.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.866, 1.5, 0.0)]
+    positions = Quantity([tuple(value / 10.0 for value in point) for point in points_a], nanometer)
+
+    finding = next(
+        item for item in check_backbone_bond_angles(top, positions) if item.atom == "N-CA-C"
+    )
+
+    assert finding.extra["observed_degrees"] == pytest.approx(90.0)
+    assert finding.severity == Severity.WARNING
+
+
+def test_backbone_angles_require_topology_bonds() -> None:
+    top, positions = _backbone_topology(2.0, bonded=False)
+    assert check_backbone_bond_angles(top, positions) == []
+
+
+def test_backbone_angles_skip_noncanonical_residue() -> None:
+    top, positions = _backbone_topology(2.0)
+    next(top.residues()).name = "MSE"
+    assert check_backbone_bond_angles(top, positions) == []
+
+
+def test_backbone_angles_skip_duplicate_named_atoms() -> None:
+    top, positions = _backbone_topology(2.0)
+    residue = next(top.residues())
+    top.addAtom("CA", Element.getBySymbol("C"), residue)
+    values = list(positions.value_in_unit(nanometer)) + [(0.0, 0.0, 0.0)]
+
+    findings = check_backbone_bond_angles(top, Quantity(values, nanometer))
+
+    assert all(finding.atom != "N-CA-C" for finding in findings)
+
+
+def test_peptide_omega_rejects_cross_chain_bond() -> None:
+    top = Topology()
+    left = top.addResidue("ALA", top.addChain("D"), id="1")
+    right = top.addResidue("ALA", top.addChain("d"), id="2")
+    ca1 = top.addAtom("CA", Element.getBySymbol("C"), left)
+    c1 = top.addAtom("C", Element.getBySymbol("C"), left)
+    n2 = top.addAtom("N", Element.getBySymbol("N"), right)
+    ca2 = top.addAtom("CA", Element.getBySymbol("C"), right)
+    top.addBond(c1, n2)
+    positions = Quantity(
+        [(0.0, 0.0, 0.0), (0.15, 0.0, 0.0), (0.24, 0.13, 0.0), (0.39, 0.13, 0.0)],
+        nanometer,
+    )
+    assert [ca1.index, ca2.index] == [0, 3]
+
+    assert check_peptide_omegas(top, positions) == []
 
 
 # ---------------------------------------------------------------------------
 # check_disulfides
 # ---------------------------------------------------------------------------
+
 
 def _two_cys_topology(sg_distance_a: float) -> tuple[Topology, Quantity]:
     """Two CYX residues with SG atoms at ``sg_distance_a`` Å along x.
