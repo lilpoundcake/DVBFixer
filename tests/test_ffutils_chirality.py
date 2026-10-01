@@ -140,6 +140,36 @@ def test_d_valine_flipped_to_l() -> None:
     assert tuple(pos[ix["C"]].value_in_unit(nanometer)) == original_c
 
 
+def test_repair_selector_is_insertion_code_aware() -> None:
+    top = Topology()
+    chain = top.addChain("a")
+    positions_nm: list[tuple[float, float, float]] = []
+    for insertion_code in ("", "A"):
+        residue = top.addResidue("VAL", chain, id="10", insertionCode=insertion_code)
+        for name, symbol, point in (
+            ("N", "N", (-0.087, 0.121, 0.000)),
+            ("CA", "C", (0.000, 0.000, 0.000)),
+            ("C", "C", (0.144, 0.000, -0.020)),
+            ("CB", "C", (-0.086, -0.087, 0.087)),
+        ):
+            top.addAtom(name, Element.getBySymbol(symbol), residue)
+            positions_nm.append(point)
+    positions = Quantity(positions_nm, nanometer)
+
+    repairs = fix_ca_chirality(
+        top,
+        positions,
+        residue_identities={("a", "10", "A")},
+    )
+
+    assert repairs == 1
+    first, second = list(top.residues())
+    first_atoms = {atom.name: atom.index for atom in first.atoms()}
+    second_atoms = {atom.name: atom.index for atom in second.atoms()}
+    assert _triple(positions, first_atoms) < 0
+    assert _triple(positions, second_atoms) > 0
+
+
 def test_glycine_skipped() -> None:
     """GLY has no CB — return 0 without error."""
     top, pos, _ = _make_residue(

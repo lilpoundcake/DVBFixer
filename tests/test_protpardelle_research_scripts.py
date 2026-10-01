@@ -1,0 +1,327 @@
+"""Dependency-light tests for the private Protpardelle research adapter."""
+
+from __future__ import annotations
+
+import importlib.util
+import sys
+from pathlib import Path
+from types import ModuleType
+
+import numpy as np
+import pytest
+
+from dvbfixer.model.diffusion.contract import (
+    DIFFUSION_SCHEMA_VERSION,
+    ArtifactReference,
+    AtomIdentity,
+    DiffusionRequest,
+    GapRegion,
+    ResidueIdentity,
+    SequencePlacement,
+    TargetInterval,
+    TargetSequence,
+)
+
+ROOT = Path(__file__).resolve().parents[1]
+DIGEST = "a" * 64
+PATCH = ROOT / "deploy/protpardelle-1c/per-step-callback.patch"
+
+
+def _load_adapter() -> ModuleType:
+    path = ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py"
+    spec = importlib.util.spec_from_file_location("protpardelle_checkpoint_gap_smoke", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _request() -> DiffusionRequest:
+    residues = (
+        ResidueIdentity("d", "82"),
+        ResidueIdentity("d", "82", "A"),
+        ResidueIdentity("d", "83"),
+        ResidueIdentity("d", "84"),
+    )
+    fixed_atoms = (
+        AtomIdentity("d", "82", "", "N"),
+        AtomIdentity("d", "82", "", "CA"),
+        AtomIdentity("d", "82", "", "C"),
+        AtomIdentity("d", "84", "", "N"),
+        AtomIdentity("d", "84", "", "CA"),
+        AtomIdentity("d", "84", "", "C"),
+    )
+    generated_atoms = (
+        AtomIdentity("d", "82", "A", "N"),
+        AtomIdentity("d", "82", "A", "CA"),
+        AtomIdentity("d", "82", "A", "C"),
+        AtomIdentity("d", "82", "A", "O"),
+        AtomIdentity("d", "83", "", "N"),
+        AtomIdentity("d", "83", "", "CA"),
+        AtomIdentity("d", "83", "", "C"),
+        AtomIdentity("d", "83", "", "O"),
+    )
+    return DiffusionRequest(
+        schema_version=DIFFUSION_SCHEMA_VERSION,
+        normalized_pdb=ArtifactReference("input/normalized.pdb", DIGEST),
+        target_sequences=(TargetSequence("d", "AGGA"),),
+        sequence_placements=(
+            SequencePlacement(
+                chain="d",
+                target_length=4,
+                observed_target_indices=(0, 3),
+                observed_residues=(residues[0], residues[3]),
+            ),
+        ),
+        gaps=(
+            GapRegion(
+                chain="d",
+                target_interval=TargetInterval(1, 3),
+                left_anchor=residues[0],
+                right_anchor=residues[3],
+                generated_residues=residues[1:3],
+                movable_junction_residues=residues,
+            ),
+        ),
+        fixed_atoms=fixed_atoms,
+        generated_atoms=generated_atoms,
+        retained_explicit_links=(),
+        candidate_count=1,
+        seeds=(20260929,),
+        backend_options=(),
+    )
+
+
+def test_callback_patch_runs_after_update_and_preserves_jump_state() -> None:
+    patch = PATCH.read_text(encoding="utf-8")
+    update = patch.index("xt = x0")
+    callback = patch.index("updated = step_callback")
+
+    assert callback > update
+    assert "step_callback must preserve tensor shape" in patch
+    assert "step_callback must preserve tensor device" in patch
+    assert "step_callback must preserve tensor dtype" in patch
+    assert "atom73_state_t[mask73] = xt[mask37]" in patch
+    assert "motif_all_atom" in patch
+    assert "motif_atom_mask" in patch
+
+
+def test_adapter_keeps_per_step_reinjection_opt_in() -> None:
+    adapter = (ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'parser.add_argument("--per-step-reinjection", action="store_true")' in adapter
+    assert 'sample_options["step_callback"] = callback' in adapter
+    assert '"per_step_reinjection": per_step_reinjection' in adapter
+
+
+def _atom_line(
+    serial: int,
+    atom_name: str,
+    residue_number: int,
+    *,
+    insertion_code: str = "",
+    chain: str = "d",
+) -> str:
+    element = atom_name[0]
+    return (
+        f"ATOM  {serial:5d}  {atom_name:<3} ALA {chain}{residue_number:4d}"
+        f"{insertion_code or ' ':1}   {float(serial):8.3f}{2.0:8.3f}{3.0:8.3f}"
+        f"  1.00  0.00          {element:>2}\n"
+    )
+
+
+def test_target_mapping_preserves_case_and_insertion_codes() -> None:
+    adapter = _load_adapter()
+
+    mapping = adapter._target_residue_map(_request())
+
+    assert mapping == {
+        0: ResidueIdentity("d", "82"),
+        1: ResidueIdentity("d", "82", "A"),
+        2: ResidueIdentity("d", "83"),
+        3: ResidueIdentity("d", "84"),
+    }
+
+
+def test_motif_writer_renumbers_observed_residues_to_target_ordinals(
+    tmp_path: Path,
+) -> None:
+    adapter = _load_adapter()
+    request = _request()
+    source = tmp_path / "source.pdb"
+    destination = tmp_path / "motif.pdb"
+    source.write_text(
+        "".join(
+            _atom_line(index, atom.atom_name, int(atom.residue_number), chain=atom.chain)
+            for index, atom in enumerate(request.fixed_atoms, 1)
+        )
+        + "END\n",
+        encoding="ascii",
+    )
+
+    adapter._write_motif_input(source, destination, request)
+
+    atom_lines = [
+        line
+        for line in destination.read_text(encoding="ascii").splitlines()
+        if line.startswith("ATOM  ")
+    ]
+    assert {line[21:22] for line in atom_lines} == {"A"}
+    assert [line[22:26].strip() for line in atom_lines] == ["1"] * 3 + ["4"] * 3
+    assert all(line[26:27] == " " for line in atom_lines)
+
+
+def test_motif_writer_fails_when_a_fixed_atom_is_missing(tmp_path: Path) -> None:
+    adapter = _load_adapter()
+    request = _request()
+    source = tmp_path / "source.pdb"
+    source.write_text(
+        "".join(
+            _atom_line(index, atom.atom_name, int(atom.residue_number), chain=atom.chain)
+            for index, atom in enumerate(request.fixed_atoms[:-1], 1)
+        ),
+        encoding="ascii",
+    )
+
+    with pytest.raises(ValueError, match="missing=1, extra=0"):
+        adapter._write_motif_input(source, tmp_path / "motif.pdb", request)
+
+
+def test_candidate_writer_preserves_requested_atom_set_and_insertion_code(
+    tmp_path: Path,
+) -> None:
+    adapter = _load_adapter()
+    request = _request()
+    identities = request.fixed_atoms + request.generated_atoms
+    coordinates = np.arange(len(identities) * 3, dtype=np.float64).reshape((-1, 3))
+    residue_names = tuple("ALA" if atom in request.fixed_atoms else "GLY" for atom in identities)
+    output = tmp_path / "candidate.pdb"
+
+    adapter._write_candidate(output, identities, coordinates, residue_names, request)
+
+    atom_lines = [
+        line
+        for line in output.read_text(encoding="ascii").splitlines()
+        if line.startswith("ATOM  ")
+    ]
+    observed = {
+        AtomIdentity(line[21:22], line[22:26].strip(), line[26:27].strip(), line[12:16].strip())
+        for line in atom_lines
+    }
+    assert observed == set(identities)
+    assert sum(line[26:27] == "A" for line in atom_lines) == 4
+
+
+def test_candidate_writer_rejects_incomplete_generated_atom_set(tmp_path: Path) -> None:
+    adapter = _load_adapter()
+    request = _request()
+    identities = request.fixed_atoms + request.generated_atoms[:-1]
+    coordinates = np.zeros((len(identities), 3), dtype=np.float64)
+
+    with pytest.raises(ValueError, match="candidate atom set mismatch: missing=1"):
+        adapter._write_candidate(
+            tmp_path / "candidate.pdb",
+            identities,
+            coordinates,
+            ("ALA",) * len(identities),
+            request,
+        )
+
+
+def test_synchronization_restores_source_only_fixed_atom_exactly() -> None:
+    adapter = _load_adapter()
+    represented = (
+        AtomIdentity("A", "1", "", "N"),
+        AtomIdentity("A", "1", "", "CA"),
+        AtomIdentity("A", "1", "", "C"),
+        AtomIdentity("A", "2", "", "N"),
+    )
+    source_only = AtomIdentity("A", "2", "", "OXT")
+    sampled = np.asarray(
+        [[1.0, 0.0, 0.0], [2.0, 0.0, 0.0], [2.0, 1.0, 0.0], [3.0, 1.0, 0.0]]
+    )
+    fixed = {
+        represented[0]: np.asarray([0.0, 0.0, 0.0]),
+        represented[1]: np.asarray([1.0, 0.0, 0.0]),
+        represented[2]: np.asarray([1.0, 1.0, 0.0]),
+        source_only: np.asarray([4.0, 2.0, 0.0]),
+    }
+
+    identities, coordinates, names = adapter._synchronize_and_restore_fixed_atoms(
+        represented,
+        sampled,
+        ("ALA", "ALA", "ALA", "GLY"),
+        fixed,
+        {identity: "ALA" if identity.residue_number == "1" else "GLY" for identity in fixed},
+    )
+
+    assert identities[-1] == source_only
+    np.testing.assert_array_equal(coordinates[-1], fixed[source_only])
+    assert names[-1] == "GLY"
+    for identity in represented[:3]:
+        np.testing.assert_array_equal(coordinates[identities.index(identity)], fixed[identity])
+
+
+def test_per_step_reinjector_excludes_source_only_atom37_entries() -> None:
+    adapter = (ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "target_indices = tuple(item[0] for item in represented)" in adapter
+    assert "motif_rows = tuple(motif_row_by_target[index] for index in target_indices)" in adapter
+    assert "projected[0, target_indices, atom_indices] = authoritative" in adapter
+
+
+def test_native_conditioning_fit_is_measured_before_reinjection() -> None:
+    adapter = _load_adapter()
+    identities = tuple(AtomIdentity("A", "1", "", name) for name in ("N", "CA", "C", "O"))
+    coordinates = np.asarray(
+        [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.2, 0.0]]
+    )
+    fixed = {
+        identity: coordinate
+        for identity, coordinate in zip(
+            identities[:3],
+            np.asarray([[2.0, 3.0, 0.0], [3.0, 3.0, 0.0], [3.0, 4.0, 0.0]]),
+        )
+    }
+    fixed[AtomIdentity("A", "1", "", "OXT")] = np.asarray([2.0, 4.0, 0.0])
+
+    fit = adapter._native_conditioning_fit(identities, coordinates, fixed)
+
+    assert fit["represented_fixed_atom_count"] == 3
+    assert fit["source_only_fixed_atom_count"] == 1
+    assert fit["rmsd_angstrom"] == pytest.approx(0.0, abs=1e-12)
+    assert fit["max_displacement_angstrom"] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_run_removes_staging_directory_on_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter = _load_adapter()
+    request = tmp_path / "request.json"
+    request.write_text("{}", encoding="utf-8")
+    output = tmp_path / "result"
+
+    def fail(*_args: object, **_kwargs: object) -> None:
+        raise RuntimeError("injected failure")
+
+    monkeypatch.setattr(adapter, "_run_staged", fail)
+
+    with pytest.raises(RuntimeError, match="injected failure"):
+        adapter.run(
+            request,
+            output,
+            tmp_path / "config.yaml",
+            tmp_path / "checkpoint.pth",
+            steps=1,
+            step_scale=1.0,
+            s_churn=0.0,
+        )
+
+    assert not output.exists()
+    assert list(tmp_path.glob(".result.*")) == []

@@ -1,0 +1,47 @@
+diff --git a/src/boltz/model/models/boltz2.py b/src/boltz/model/models/boltz2.py
+index 0b608f5..71c84ca 100644
+--- a/src/boltz/model/models/boltz2.py
++++ b/src/boltz/model/models/boltz2.py
+@@ -541,6 +541,7 @@ class Boltz2(Module):
+                         max_parallel_samples=max_parallel_samples,
+                         steering_args=self.steering_args,
+                         diffusion_conditioning=diffusion_conditioning,
++                        step_callback=getattr(self, "dvbfixer_step_callback", None),
+                     )
+                     dict_out.update(struct_out)
+ 
+diff --git a/src/boltz/model/modules/diffusionv2.py b/src/boltz/model/modules/diffusionv2.py
+index 7e26f8e..0ce00e7 100644
+--- a/src/boltz/model/modules/diffusionv2.py
++++ b/src/boltz/model/modules/diffusionv2.py
+@@ -299,6 +299,7 @@ class AtomDiffusion(Module):
+         multiplicity=1,
+         max_parallel_samples=None,
+         steering_args=None,
++        step_callback=None,
+         **network_condition_kwargs,
+     ):
+         if steering_args is not None and (
+@@ -526,7 +527,22 @@ class AtomDiffusion(Module):
+             )
+ 
+             atom_coords = atom_coords_next
++            if step_callback is not None:
++                updated = step_callback(
++                    atom_coords,
++                    step_idx,
++                    len(sigmas_and_gammas),
++                )
++                if not isinstance(updated, torch.Tensor):
++                    raise TypeError("step_callback must return a torch.Tensor")
++                if updated.shape != atom_coords.shape:
++                    raise ValueError("step_callback must preserve tensor shape")
++                if updated.device != atom_coords.device:
++                    raise ValueError("step_callback must preserve tensor device")
++                if updated.dtype != atom_coords.dtype:
++                    raise ValueError("step_callback must preserve tensor dtype")
++                atom_coords = updated
+ 
+         return dict(sample_atom_coords=atom_coords, diff_token_repr=token_repr)
+ 
+     def loss_weight(self, sigma):

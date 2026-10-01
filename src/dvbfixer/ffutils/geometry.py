@@ -681,6 +681,8 @@ def fix_ca_chirality(
     topology: Any,
     positions: Any,
     verbose: bool = False,
+    *,
+    residue_identities: set[tuple[str, str, str]] | None = None,
 ) -> int:
     """Detect D-amino acid Cα stereochemistry and reflect the sidechain
     back to L.
@@ -692,6 +694,10 @@ def fix_ca_chirality(
     preserves the sidechain's internal geometry after the flip —
     crucial when the input already has SER OG, VAL CG1/CG2, etc.
     placed on the wrong face.
+
+    When ``residue_identities`` is supplied, repair only exact
+    ``(chain, resid, icode)`` identities from that set.  The default remains a
+    whole-topology repair for existing callers.
 
     Returns the number of residues repaired.
     """
@@ -710,6 +716,9 @@ def fix_ca_chirality(
     repairs = 0
     for res in topology.residues():
         if res.name in _skip_names:
+            continue
+        identity = (res.chain.id, str(res.id), res.insertionCode.strip())
+        if residue_identities is not None and identity not in residue_identities:
             continue
         n = _find(res, "N")
         ca = _find(res, "CA")

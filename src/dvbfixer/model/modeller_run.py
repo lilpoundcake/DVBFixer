@@ -16,6 +16,7 @@ import os
 import re
 import shutil
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 
 
@@ -228,17 +229,28 @@ def count_gaps(aln_path):
     return parse_alignment(aln_path).count('-')
 
 
-def _fix_terminal_alignment(raw_aln_path, fixed_aln_path, pdb_name,
-                             protein_set, all_chains, template_chain_seqs,
-                             target_chain_seqs, verbose=False):
+def _fix_terminal_alignment(
+    raw_aln_path,
+    fixed_aln_path,
+    pdb_name,
+    protein_set,
+    all_chains,
+    template_chain_seqs,
+    target_chain_seqs,
+    verbose=False,
+    *,
+    observed_target_indices_by_chain: Mapping[str, tuple[int, ...]] | None = None,
+):
     """Fix terminal gap placement in align2d output.
 
     align2d can misplace terminal gaps (e.g. matching last template residue K
     to last target residue D instead of putting the gap at the C-terminus).
 
     For each protein chain, builds a correct alignment by finding where the
-    template protein residues sit within the target sequence. Non-protein
-    chains keep align2d's result. Internal gaps from align2d are preserved.
+    template protein residues sit within the target sequence. A caller may
+    instead provide an exact observed-to-target placement for a chain; this is
+    used by locked internal benchmarks that must not infer the gap mask again.
+    Non-protein chains keep align2d's result.
     """
     with open(raw_aln_path) as f:
         content = f.read()
@@ -314,23 +326,55 @@ def _fix_terminal_alignment(raw_aln_path, fixed_aln_path, pdb_name,
             fixed_tgt_chains.append(raw_tgt)
             continue
 
-        from dvbfixer.sequence_alignment import (
-            align_observed_to_reference,
-            format_alignment_diagnostic,
+        locked_positions = (
+            observed_target_indices_by_chain.get(ch)
+            if observed_target_indices_by_chain is not None
+            else None
         )
+        if locked_positions is not None:
+            if len(locked_positions) != len(tpl_protein):
+                raise ValueError(
+                    f"chain {ch}: locked placement has {len(locked_positions)} "
+                    f"indices for {len(tpl_protein)} observed residues"
+                )
+            if any(
+                current <= previous
+                for previous, current in zip(locked_positions, locked_positions[1:])
+            ):
+                raise ValueError(
+                    f"chain {ch}: locked placement indices must be strictly increasing"
+                )
+            if any(index < 0 or index >= len(tgt_protein) for index in locked_positions):
+                raise ValueError(
+                    f"chain {ch}: locked placement index is outside the target sequence"
+                )
+            for observed_index, target_index in enumerate(locked_positions):
+                if tpl_protein[observed_index] != tgt_protein[target_index]:
+                    raise ValueError(
+                        f"chain {ch}: locked placement residue mismatch at observed "
+                        f"index {observed_index} and target index {target_index}"
+                    )
+            match_positions = list(locked_positions)
+            if verbose:
+                print(f"  [alignment] chain {ch}: using locked observed-to-target placement")
+        else:
+            from dvbfixer.sequence_alignment import (
+                align_observed_to_reference,
+                format_alignment_diagnostic,
+            )
 
-        alignment = align_observed_to_reference(tpl_protein, tgt_protein)
-        if alignment is None:
-            fixed_tpl_chains.append(raw_tpl)
-            fixed_tgt_chains.append(raw_tgt)
-            continue
-        match_positions = list(alignment.positions)
-        diagnostic = format_alignment_diagnostic(ch, alignment)
-        if alignment.ambiguous:
-            print(f"  [alignment] WARNING: {diagnostic}; using deterministic "
-                  "leftmost best alignment")
-        elif verbose:
-            print(f"  [alignment] {diagnostic}")
+            alignment = align_observed_to_reference(tpl_protein, tgt_protein)
+            if alignment is None:
+                fixed_tpl_chains.append(raw_tpl)
+                fixed_tgt_chains.append(raw_tgt)
+                continue
+            match_positions = list(alignment.positions)
+            diagnostic = format_alignment_diagnostic(ch, alignment)
+            if alignment.ambiguous:
+                print(f"  [alignment] WARNING: {diagnostic}; using deterministic "
+                      "leftmost best alignment")
+            elif verbose:
+                print(f"  [alignment] {diagnostic}")
 
         n_prefix = match_positions[0]
         n_suffix = len(tgt_protein) - match_positions[-1] - 1
@@ -482,7 +526,15 @@ def _add_chirality_restraints(model, verbose: bool = False) -> tuple[int, int]:
     return n_added, n_skipped
 
 
-def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
+def run_modeller(
+    input_path,
+    protein_chains,
+    protein_seq_map,
+    all_chains,
+    args,
+    *,
+    observed_target_indices_by_chain: Mapping[str, tuple[int, ...]] | None = None,
+):
     """Run Modeller loop modeling. Returns (best_model_path, alignment_path).
 
     Uses env.io.hetatm=True so non-protein atoms (glycans, ligands) are
@@ -607,6 +659,7 @@ def run_modeller(input_path, protein_chains, protein_seq_map, all_chains, args):
         'alignment_raw.pir', 'alignment.pir',
         pdb_name, protein_set, all_chains, template_chain_seqs,
         target_chain_seqs, args.verbose,
+        observed_target_indices_by_chain=observed_target_indices_by_chain,
     )
 
     aln_path = os.path.join(os.getcwd(), 'alignment.pir')

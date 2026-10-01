@@ -1,0 +1,52 @@
+diff --git a/protenix/model/generator.py b/protenix/model/generator.py
+index 7d1e88c..0bfdb13 100644
+--- a/protenix/model/generator.py
++++ b/protenix/model/generator.py
+@@ -140,6 +140,7 @@ def sample_diffusion(
+     attn_chunk_size: Optional[int] = None,
+     enable_efficient_fusion: bool = False,
+     guidance_configs: Optional[dict[str, Any]] = None,
++    step_callback: Optional[Callable[[torch.Tensor, int, int], torch.Tensor]] = None,
+ ) -> torch.Tensor:
+     """Implements Algorithm 18 in AF3.
+     It performances denoising steps from time 0 to time T.
+@@ -172,6 +173,8 @@ def sample_diffusion(
+         attn_chunk_size (Optional[int]): Chunk size for attention operation. Defaults to None.
+         enable_efficient_fusion (bool): Whether to enable efficient fusion. Defaults to False.
+         guidance_configs (Optional[dict[str, Any]]): training free guidance configs. Defaults to None.
++        step_callback (Optional[Callable]): Replaces the mutable coordinate state
++            after every denoising update and before the next update. Defaults to None.
+ 
+     Returns:
+         torch.Tensor: the denoised coordinates of x in inference stage
+@@ -262,6 +265,16 @@ def sample_diffusion(
+                 ]  # Line 9 of AF3 uses 'x_l_hat' instead, which we believe  is a typo.
+                 dt = c_tau - t_hat
+                 x_l = x_noisy + step_scale_eta * dt[..., None, None] * delta
++
++            if step_callback is not None:
++                updated = step_callback(x_l, step_i, len(noise_schedule) - 1)
++                if not isinstance(updated, torch.Tensor):
++                    raise TypeError("step_callback must return a torch.Tensor")
++                if updated.shape != x_l.shape:
++                    raise ValueError(
++                        "step_callback must preserve the coordinate tensor shape"
++                    )
++                x_l = updated
+ 
+         return x_l
+ 
+diff --git a/protenix/model/protenix.py b/protenix/model/protenix.py
+index 34f851b..ad12ef0 100644
+--- a/protenix/model/protenix.py
++++ b/protenix/model/protenix.py
+@@ -338,6 +338,9 @@ class Protenix(nn.Module):
+                 )
+             }
+         )
++        _configs["step_callback"] = getattr(
++            self, "dvbfixer_step_callback", None
++        )
+         return autocasting_disable_decorator(self.configs.skip_amp.sample_diffusion)(
+             sample_diffusion
+         )(**_configs, **kwargs)

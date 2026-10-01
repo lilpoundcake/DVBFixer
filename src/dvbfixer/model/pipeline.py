@@ -16,6 +16,7 @@ import re
 import shutil
 import sys
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
 
 from dvbfixer.model.cli import AA3TO1, WATER_RESNAMES, parse_args
@@ -813,7 +814,11 @@ def remove_water_lines(lines):
     return output
 
 
-def main(argv=None):
+def main(
+    argv=None,
+    *,
+    observed_target_indices_by_chain: Mapping[str, tuple[int, ...]] | None = None,
+):
     args = parse_args(argv)
     input_path = Path(args.input).resolve()
     if not input_path.exists():
@@ -936,6 +941,26 @@ def main(argv=None):
         print("No modelable chains found.", file=sys.stderr)
         sys.exit(1)
 
+    if observed_target_indices_by_chain is not None:
+        placement_chains = set(observed_target_indices_by_chain)
+        protein_chain_set = set(protein_chains)
+        if placement_chains != protein_chain_set:
+            missing = sorted(protein_chain_set - placement_chains)
+            extra = sorted(placement_chains - protein_chain_set)
+            details = []
+            if missing:
+                details.append(f"missing chain(s): {', '.join(missing)}")
+            if extra:
+                details.append(f"unknown chain(s): {', '.join(extra)}")
+            raise ValueError(
+                "locked observed-to-target placements must cover exactly the "
+                f"modelled protein chains ({'; '.join(details)})"
+            )
+        if args.no_terminal:
+            raise ValueError(
+                "locked observed-to-target placements are incompatible with --no-terminal"
+            )
+
     # ALL chains in order of appearance (protein + non-protein)
     all_chains = get_chain_order(lines)
     nonprotein = [c for c in all_chains if c not in set(protein_chains)]
@@ -1031,7 +1056,8 @@ def main(argv=None):
             # ascending — best first.
             candidates, aln_path = run_modeller(
                 Path(input_pdb), protein_chains, protein_seq_map,
-                all_chains, args
+                all_chains, args,
+                observed_target_indices_by_chain=observed_target_indices_by_chain,
             )
 
         # Clamp --num-output to the number of successfully completed

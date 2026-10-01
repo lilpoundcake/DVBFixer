@@ -6,3 +6,6 @@ tests/fixtures/**/*.fasta whitespace=-blank-at-eof
 
 # Preserve the verified upstream GROMACS force-field snapshot byte-for-byte.
 FF/amber19sb.ff/** whitespace=-blank-at-eol,-blank-at-eof
+
+# Unified diffs use a single-space context marker for blank source lines.
+deploy/**/*.patch whitespace=-blank-at-eol

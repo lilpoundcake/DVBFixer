@@ -1,0 +1,15 @@
+name: dvbfixer-openmm-cuda122
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12.14
+  - openmm=8.2.0
+  - cuda-version=12.2
+  - cuda-nvrtc=12.2.140
+  - libcufft=11.0.8.103
+  - pdbfixer=1.12
+  - numpy=1.26.4
+  - scipy=1.13.1
+  - mdanalysis=2.10.0
+  - biopython=1.88
+  - curl

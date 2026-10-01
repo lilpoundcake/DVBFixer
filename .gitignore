@@ -16,3 +16,6 @@ leap.log
 
 # Local experiments; canonical regression inputs live in tests/fixtures/.
 /test/
+
+# Downloaded engines, checkpoints, environments, and benchmark workspaces.
+/.artifacts/

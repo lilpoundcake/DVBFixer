@@ -133,8 +133,9 @@ dvbfixer parametrize molecule.pdb -n MOL --net-charge -1 \
     -c resp --qm-engine psi4 -v
 ```
 
-The dvbfixer process stays in its own env (Python 3.11 + OpenMM); the
-psi4 env stays separate (Python 3.9 or whatever PSI4 pulls). They
+The dvbfixer process stays in its own env (Python `>=3.11,<3.14` + OpenMM;
+Python 3.11 is the project baseline); the psi4 env stays separate (Python 3.9
+or whatever PSI4 pulls). They
 communicate via a temp XYZ file + JSON charges. No `pip install` of
 dvbfixer in the psi4 env is needed — only psi4 + psiresp belong there.
 
