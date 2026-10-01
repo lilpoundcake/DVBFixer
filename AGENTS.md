@@ -592,7 +592,7 @@ The full suite needs the scientific stack and external executables from
   `zbs`. Solvent-box minimize is orders of magnitude slower and eats the
   feedback loop. Add solvent back only for real evaluation runs the user
   has explicitly asked for.
-- Reply in English even when the user writes in Russian.
+- Reply in English by default. You may reply in Russian when the user explicitly permits or requests it.
 
 ## Current agent notes and recently established invariants
 
