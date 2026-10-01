@@ -74,6 +74,25 @@ def test_amber_target_gromacs_shifts_rename_lyn(tmp_path: Path) -> None:
     assert " HZ3 LYN A  30" not in text  # renamed
 
 
+def test_amber19sb_target_uses_distinct_terminal_dialect(tmp_path: Path) -> None:
+    pdb = tmp_path / "in.pdb"
+    pdb.write_text(
+        "ATOM      1  H   ALA A   1      10.000  10.000  10.000  1.00  0.00           H\n"
+        "ATOM      2  O   ALA A   1      11.000  10.000  10.000  1.00  0.00           O\n"
+        "ATOM      3  OXT ALA A   1      12.000  10.000  10.000  1.00  0.00           O\n"
+        "END\n"
+    )
+
+    apply_variants_to_pdb_text(pdb, {}, target_ff="amber19sb")
+
+    text = pdb.read_text()
+    assert " H1  ALA " in text
+    assert " O   ALA " in text
+    assert " OXT ALA " in text
+    assert " OC1 ALA " not in text
+    assert " OC2 ALA " not in text
+
+
 def test_amber_target_gromacs_shifts_off(tmp_path: Path) -> None:
     """include_gromacs_shifts=False keeps ff14SB HZ2 + HZ3."""
     pdb = tmp_path / "in.pdb"

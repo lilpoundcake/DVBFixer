@@ -15,7 +15,9 @@ export const VariantOverrideSchema = Type.Object({
 export const NamingConversionRequestSchema = Type.Object({
   inputArtifactId: Type.String({ minLength: 1 }),
   target: Type.Object({
-    forceField: Type.Union([Type.Literal('amber'), Type.Literal('charmm')]),
+    forceField: Type.Union([
+      Type.Literal('amber'), Type.Literal('amber19sb'), Type.Literal('charmm'),
+    ]),
     profile: Type.Literal('gromacs'),
   }, { additionalProperties: false }),
   variantOverrides: Type.Optional(Type.Array(VariantOverrideSchema, { maxItems: 10_000 })),
@@ -70,7 +72,9 @@ export const NamingCliReportSchema = Type.Object({
   status: Type.Union([Type.Literal('success'), Type.Literal('error')]),
   tool: Type.Object({ name: Type.Literal('dvbfixer'), version: Type.String() }, { additionalProperties: false }),
   request: Type.Object({
-    targetForceField: Type.Union([Type.Literal('amber'), Type.Literal('charmm')]),
+    targetForceField: Type.Union([
+      Type.Literal('amber'), Type.Literal('amber19sb'), Type.Literal('charmm'),
+    ]),
     profile: Type.Literal('gromacs'),
     dryRun: Type.Boolean(),
     variantOverrides: Type.Array(VariantOverrideSchema),

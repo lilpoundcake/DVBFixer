@@ -23,6 +23,7 @@ concatenated into one PDB without `MODEL` / `ENDMDL` separators. Such merged
 structures should be split or corrected before minimization.
 
 - **Chemistry / bond geometry** — valence violations, bond-length
+  outliers, broad topology-backed protein backbone and peptide-angle
   outliers, cis peptides, non-planar amides, Cα chirality.
 - **Steric analysis** — all-atom clashes using OpenMM's neighbor
   search + van der Waals radii (or MolProbity's `probe` binary if
@@ -45,6 +46,10 @@ dvbfixer diagnose input.pdb --severity ERROR
 
 # Verbose (per-check timing + expanded atom detail)
 dvbfixer diagnose input.pdb -v
+
+# Exact local geometry evidence for residues and an ordered boundary
+dvbfixer diagnose input.pdb --format json \
+  --scope-residue 'H:82:A' --scope-boundary 'H:81,H:82:A'
 ```
 
 ## Exit codes
@@ -64,12 +69,20 @@ dvbfixer diagnose input.pdb -v
 
 - **ERROR** — would break downstream tools if left as-is (missing
   atoms, coincident atoms, valence violations, hard clashes with
-  ≥ 0.5 Å vdW overlap).
+  overlap at or above the selected ERROR cutoff; 0.9 Å by default).
 - **WARNING** — tolerated by the pipeline but suspect (moderate
   clashes, altLoc conflicts, internal chain breaks, near-cis peptides,
   and coordinate-identical protein chains that suggest merged frames).
 - **INFO** — noted for user review (insertion codes on antibody
   CDRs, cis-PRO — natural but worth flagging).
+
+Protein angle checks are deliberately broad broken-geometry checks, not a
+replacement for residue-specific force-field validation. They run only for
+complete, uniquely named canonical-protein atoms connected by topology bonds.
+The accepted ranges are N-CA-C 95–125°, CA-C-O 105–135°, CA-C-N 100–135°,
+O-C-N 105–140°, and C-N-CA 105–140°. An outlier within 15° of its accepted
+range is WARNING; a farther outlier is ERROR. Undefined geometry, unsupported
+residues, duplicate/missing atoms, and absent peptide bonds are skipped.
 
 ## Options
 
@@ -78,7 +91,9 @@ usage: dvbfixer diagnose [-h] [-o OUTPUT]
                          [--only {all,structural,chemistry,steric}]
                          [--severity {ERROR,WARNING,INFO}] [--include-water]
                          [--clash-mode {bioluminate,chimerax,molprobity}]
-                         [--clash-cutoff WARN,ERROR] [--format {text,json}]
+                         [--clash-cutoff WARN,ERROR]
+                         [--scope-residue CHAIN:RESID[:ICODE]]
+                         [--scope-boundary LEFT,RIGHT] [--format {text,json}]
                          [-v] [--log-file PATH] [--input-dir DIR]
                          [--output-dir DIR] [--recursive] [--fail-fast]
                          input
@@ -100,6 +115,12 @@ Notable non-default behaviours:
   machine-readable list of findings suitable for CI gating or
   scripted post-processing. Unicode is emitted directly, so Å, arrows,
   em dashes, and non-Latin input paths remain readable.
+- **Exact local scope** is opt-in and JSON-only. Repeat `--scope-residue
+  CHAIN:RESID[:ICODE]` to select individual residues, and repeat
+  `--scope-boundary LEFT,RIGHT` to request an ordered C(left)-N(right)
+  measurement. Selectors are exact and case-sensitive: chains `D` and `d`, and
+  residues `82` and `82A`, remain distinct. Numeric ranges are never inferred,
+  and requested termini or unrelated chains are not labelled as gaps.
 - **Coordinate-identical chains** are compared by protein residue/atom
   identity and coordinates to PDB precision. Equal sequences at different
   positions are legitimate homomers and are not flagged.
@@ -110,6 +131,22 @@ residue(s), even when their final chirality is L, and warn that local hydrogen
 angles should be inspected. JSON exposes the same information under
 `chirality` with `checked`, `d_isomer_error`, `forced_repairs`, and
 `hydrogen_geometry_review_recommended` fields.
+
+JSON findings for bond lengths, bond angles, peptide omega, chirality, and
+clashes include additive `details` under schema `dvbfixer.geometry.v1`. The
+details retain ordered full atom identities `(chain, resid, icode, atom)` and
+unit-bearing observed/reference/deviation values. `geometry.finding_aggregates`
+contains deterministic category counts and named maxima for the findings that
+remain after check and severity filtering; existing top-level fields are
+unchanged.
+
+When exact scope is requested, `scope` uses schema
+`dvbfixer.diagnostic-scope.v1` and reports requested/selected residue identities,
+residue and backbone-atom completeness, explicit boundary status and C-N
+distance, scoped finding aggregates (including zero counts), and deterministic
+Python steric evidence. A boundary is measured only when its C and N identities
+each resolve to exactly one atom. `topology_bonded` records whether the loaded
+topology has the C-N bond; proximity alone never establishes continuity.
 
 ## Sample output
 
@@ -166,6 +203,12 @@ Two engines with the same output shape:
   is on `PATH` (bundled with Phenix / MolProbity). Higher fidelity
   matching MolProbity's own reports. Falls back to the Python engine
   on any probe failure.
+
+Every clash finding records its engine and engine version in JSON. Interactive
+whole-structure diagnosis remains Probe-first for compatibility. Scoped and
+reusable steric evidence always uses the deterministic Python engine, records
+`dvbfixer-python-steric` version `1`, and pins severe overlap at 0.90 Å rather
+than allowing Probe availability to change that evidence.
 
 Clash thresholds are selectable via `--clash-mode`. The default
 `chimerax` preset matches what you'd see in ChimeraX's `clashes`

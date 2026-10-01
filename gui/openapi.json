@@ -565,6 +565,10 @@
                     "type": "string"
                   },
                   {
+                    "const": "amber19sb",
+                    "type": "string"
+                  },
+                  {
                     "const": "charmm",
                     "type": "string"
                   }

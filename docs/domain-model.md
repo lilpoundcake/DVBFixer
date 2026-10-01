@@ -53,6 +53,27 @@ to a force-field template.
 Gemmi, OpenMM, Open Babel, OpenFF, and AmberTools are adapters around these
 decisions, not part of the domain model.
 
+## Nonprotein reconstruction
+
+`dvbfixer.domain.nonprotein_reconstruction` and
+`dvbfixer.nonprotein_reconstruction` provide an opt-in typed Python application
+boundary for geometry-only reconstruction of known isolated Class A components.
+Exact identity includes model, case-sensitive chain, residue number, insertion
+code, alternate location, component occurrence, and atom name.
+
+Chemical authority is exclusive: either a checksum-pinned bounded local CCD
+snapshot extraction, a digest-pinned per-instance user graph, or the explicitly
+unsupported online mode. Automatic local microstate selection requires explicit
+pH and authority-declared ranges; a mapped user graph is a locked microspecies.
+Observed coordinates remain fixed. Missing coordinates come only from a rigidly
+fitted authority ideal geometry and carry per-atom provenance.
+
+Class B linked chemistry and Class C cofactor/metal/redox/coordination chemistry
+are structured refusals, not guessed reconstructions. Geometry validation and
+atomic bundle publication do not parameterize a molecule. The separate route
+decision requires explicit geometry approval, reuses the parameterization domain
+policy, and always reports that MD readiness has not been established.
+
 ## Force-field naming
 
 `dvbfixer.domain.force_field_naming` owns target/profile vocabulary, explicit
@@ -79,15 +100,16 @@ publishes a new workspace artifact without mutating the source.
 
 ## Integration limits
 
-DDD is partially integrated: chain allocation, the complex-cofactor routing
-guard, and force-field naming are active domain/application boundaries. The
+DDD is partially integrated: chain allocation, Class A nonprotein reconstruction,
+the complex-cofactor routing guard, and force-field naming are active
+domain/application boundaries. The
 five parameterization route names are a policy vocabulary, not five completed
 backend implementations. Unknown-residue screening currently uses the loaded
 template names; OpenMM subsequently checks atom/bond compatibility. The
 presence of an XML template name therefore does not establish that an
 incomplete or differently bonded residue can be used.
 
-There is no general component-completeness validator, metal/redox-state resolver,
+There is no general whole-structure component inventory, metal/redox-state resolver,
 or domain service for whole-complex geometry regularization. PDB multi-residue
 heterogens are not yet grouped by connected-component analysis for naming.
 Engine setup and fallback behavior still live in `minimize/pipeline.py` and
@@ -96,4 +118,5 @@ for proposed regularization architecture and validation criteria, and the
 [reconstruction/modeling backend research](research/reconstruction-and-modeling-backends.md)
 for proposed atom-completion, loop, homology, and diffusion comparisons. None of
 those proposed backends are exposed by this release; PDBFixer and Salilab
-MODELLER remain supported production baselines.
+MODELLER remain supported production baselines. The Class A service is not wired
+into those defaults or exposed as a CLI/GUI command.

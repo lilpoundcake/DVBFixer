@@ -109,26 +109,48 @@ If the new FF has residue names that unambiguously identify it, extend the marke
 
 ## `--ff` for `top` (GROMACS topology)
 
-Applies to: `top` **only**. Different namespace — it doesn't load OpenMM XML files. Instead, it parses the **bundled GROMACS FF directories** via the RTP parser in `rtp_parser.py`. A source/editable checkout uses `FF/amber99sb-ildn-lipid21.ff/` and `FF/charmm36_ljpme-jul2022.ff/`; a wheel installs the same trees under the active environment's `share/dvbfixer/FF/` directory and resolves them automatically.
+Applies to: `top` **only**. Different namespace — it doesn't load OpenMM XML files. Instead, it parses **bundled GROMACS FF directories** via the RTP parser in `rtp_parser.py`. Source/editable checkouts use `FF/*.ff/`; wheels install the same complete trees under the active environment's `share/dvbfixer/FF/` directory and resolve them automatically.
 
 | `top --ff` value | What it loads                                          |
 |------------------|--------------------------------------------------------|
 | `amber`          | `FF/amber99sb-ildn-lipid21.ff/` — AMBER99SB-ILDN + Lipid21 |
+| `amber19sb`      | `FF/amber19sb.ff/` — official GROMACS `v2026.3` ff19SB port; explicit opt-in, fail-closed protein-only |
 | `charmm`         | `FF/charmm36_ljpme-jul2022.ff/` — CHARMM36 with LJ-PME    |
 
-`top` also has `--acpype` mode, which uses OpenMM (AMBER14 + GLYCAM) → ParmEd → ACPYPE and ignores `--ff` entirely.
+`amber` remains the default and retains its existing Lipid21, custom `--ff-dir`,
+and reviewed ion-substitution behavior. `amber19sb` is not an OpenMM alias and
+does not change `amber19`/`amber` in the OpenMM namespace. It accepts canonical
+protein residues, AMBER protonation variants, HYP/CHYP, ACE/NME caps, water,
+and simple Na/K/Cl ions. It rejects nucleic acids, glycans, lipids, PTMs,
+arbitrary ligands, and coordinated metals before writing output. `--acpype`
+remains the separate AMBER14+GLYCAM route and cannot be combined with
+`--ff amber19sb`.
+
+Amber19SB uses only exact upstream water/ion pairs: `opc`, `opc3`, `spc`,
+`spce`, `tip3p`, and `tip4pew`, each with its same-name `ions_*.itp`. Cross-pairs
+and `tip4p` are rejected. See the complete
+[provenance and compatibility audit](provenance/amber19sb-gromacs.md).
+
+## `--target-ff` for `atom-names`
+
+`atom-names` has its own naming-dialect selector: `amber`, `amber19sb`, or
+`charmm`. Use `amber19sb` before `top --ff amber19sb`; it preserves ff19SB's
+`O`/`OXT` C-terminal atoms and PDB-style ACE/NME names. The legacy `amber`
+target instead emits the `OC1`/`OC2` and cap spellings required by
+`amber99sb-ildn-lipid21.ff`. This conversion changes names only and does not
+replace `top`'s force-field compatibility checks.
 
 ## Two `--ff` namespaces (side-by-side)
 
 | Aspect                 | OpenMM tools (`prepare`, `minimize`, `protonate`, `pull`, `zbs`) | `top`                                          |
 |------------------------|------------------------------------------------------------------|------------------------------------------------|
 | Backend                | OpenMM `ForceField(*xmls)`                                       | GROMACS RTP parser (bundled `FF/*.ff/` dirs)   |
-| Short names            | `auto`, `amber`, `amber+glycam`, `charmm`, `charmm2024`, …       | `amber`, `charmm`                              |
+| Short names            | `auto`, `amber`, `amber+glycam`, `charmm`, `charmm2024`, …       | `amber`, `amber19sb`, `charmm`                 |
 | Explicit path          | `--ff a.xml b.xml …`                                             | `--ff-dir /path/to/custom.ff/`                 |
 | Auto-detection         | Yes (this doc)                                                   | No — user picks                                |
 | `charmm` maps to       | `charmm36.xml` + water XML                                       | Full bundled CHARMM36 RTP directory            |
 
-The two are separate because they consume completely different file formats: OpenMM parses XML; GROMACS parses `.rtp` / `.atp` / `.itp`. The bundled GROMACS FF dirs let dvbfixer emit topologies that don't need any external FF installation on the target machine. CI builds both wheel and source distribution, installs the wheel into a clean environment, and verifies that the AMBER and CHARMM roots and their core RTP/ITP files resolve there.
+The two are separate because they consume completely different file formats: OpenMM parses XML; GROMACS parses `.rtp` / `.atp` / `.itp`. The bundled GROMACS FF dirs let dvbfixer emit topologies that don't need any external FF installation on the target machine. CI builds both wheel and source distribution, installs the wheel into a clean environment, and verifies all descriptor roots and required RTP/ITP inventories there.
 
 ## Handling arbitrary unknown ligands
 
@@ -207,7 +229,10 @@ The OpenMM aliases pick a default water XML that matches the FF (e.g. `amber` us
 dvbfixer minimize input.pdb --ff amber19/protein.ff19SB.xml amber19/opc.xml
 ```
 
-For `top`, water is a separate `--water` argument (`tip3p|spc|spce|tip4p|tip4pew|opc`) and ions come from `--ion-set` — see [`top`](commands/top.md).
+For `top`, water is a separate `--water` argument and ions come from
+`--ion-set`; the selected topology descriptor validates the combination. The
+global parser accepts the union of backend choices, including `opc3`, but each
+backend rejects unsupported values before output. See [`top`](commands/top.md).
 
 ## Examples
 

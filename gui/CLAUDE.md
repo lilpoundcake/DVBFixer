@@ -6,11 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 npm install          # Install dependencies (runs postinstall: rollup native bindings)
-npm run dev          # Smart launcher: auto-starts bundled postgres via docker-compose, then vite
-npm run dev:no-db    # Skip docker postgres; just run vite (Mutations tab will show config notice)
-npm run db:up        # Start the postgres container (docker compose up -d db)
-npm run db:down      # Stop & remove the container (postgres volume persists)
-npm run db:logs      # Tail postgres container logs
+npm run dev          # Start the Vite development server
 npm run build        # Type-check and build dist/ plus dist-server/server.js
 npm start            # Run the built loopback standalone GUI + API server
 npm run typecheck    # Type-check only
@@ -18,16 +14,11 @@ npm run lint         # ESLint
 npm run preview      # Frontend-only Vite preview (no APIs)
 ```
 
-`scripts/dev.mjs` is the smart launcher: if `DATABASE_URL` is set it skips
-docker; otherwise it starts `docker compose up -d db`, waits on port 5432,
-sets `DATABASE_URL=postgres://tarantino:tarantino@localhost:5432/tarantino`,
-then spawns vite. No tests are configured.
-
 ## What This Is
 
 Tarantino is a mostly-local browser-based protein structure viewer with an
 optional Node-side dev backend (Vite middleware) for DVBFixer pipeline runs
-and a PostgreSQL-backed Mutations DB. It loads PDB/mmCIF files and provides
+It loads PDB/mmCIF files and provides
 a dockable multi-panel workspace:
 
 The Library lists workspaces. `server/workspace-api.ts` owns versioned
@@ -54,20 +45,6 @@ than unlinking them.
   hydrophobic, metal coordination, disulfide, covalent
 - **DVBFixer**: form-driven UI for the DVBFixer CLI (split / renumber / model /
   prepare / minimize / protonate / convert), outputs registered as child entries
-- **Antibody Engineer**: takes any antibody-containing structure (full / Fab /
-  Fc), classifies its chains (HC / LC κ / LC λ, IgG1–4), maps EU- or
-  Kabat-numbered mutations from the Mutations DB onto every chain in each
-  equivalent-chain group, runs the appropriate multi-step DVBFixer pipeline
-  (`renumber → prepare --mutate → [convert → minimize --no-solvent →
-  protonate → minimize --no-solvent → convert --to-charmm]` for glycan
-  inputs, 5-step variant without convert for non-glycan), and streams live
-  per-step progress to a `LinearProgress`. Dedup: same `(input, mutations,
-  glycan, scheme)` combo skips re-running and loads the cached output.
-- **Mutations**: PostgreSQL-backed editable DataGrid (igg_subclass / chain /
-  mutation_name / mutations / properties) with multi-select IgG-subclass
-  tagging, HC/LC chain dropdown, free-form Properties notes column, and
-  drag-drop row reordering (persisted via `display_order`). Auto-mirrored
-  to a git-tracked `mutations.json` backup at repo root.
 - **Library**: ordered list of workspaces; files live in the separate Workspace panel
 - **Info**: stats summary at the top, single-field metadata (Name + Notes),
   and an **Equivalent chains** section that auto-groups multimeric copies
@@ -83,13 +60,11 @@ viewer (primary or secondary) holds that chain.
 ## Tech Stack
 
 - **React 19** with **TypeScript 6**, bundled by **Vite 6**
-- **MUI (Material UI v9)** for all UI components, plus **`@mui/x-data-grid`**
-  for the Mutations panel — no Tailwind, no shadcn
+- **MUI (Material UI)** for UI components — no Tailwind, no shadcn
 - **flexlayout-react** for dockable panels
 - **Mol\*** (`molstar` npm package, used directly — not `pdbe-molstar`)
 - **Zustand** for state management
 - **Sass** for Mol* SCSS skin
-- **`pg`** for PostgreSQL (loaded lazily server-side; missing pg / DB doesn't break the app)
 
 ## Architecture
 
@@ -98,14 +73,13 @@ viewer (primary or secondary) holds that chain.
 `flexlayout-react` `Layout` + `Model` in `App.tsx`. Default layout (in the
 same tabset, the first tab is the active one):
 - Left column: Library, then (Info | **Settings**).
-- Right column (main viewer): (3D Structure | **DVBFixer** | **Antibody
-  Engineer** | **Mutations**), with (Sequence | **Alignment**) and
+- Right column (main viewer): (3D Structure | **DVBFixer** | **Homology**),
+  with (Sequence | **Alignment**) and
   (Elements | Interactions | Clashes) tabsets below.
 
 Every tabset has a "+" button (`onRenderTabSet`) that opens a MUI Menu
 listing: 3D Structure, 3D Structure (B), Sequence, Elements, Interactions,
-Alignment, DVBFixer, Antibody Engineer, Mutations, Library, Info,
-Settings. Sequence panels keep their own chain selection.
+Alignment, DVBFixer, Homology, Library, Workspace, Info, and Settings. Sequence panels keep their own chain selection.
 
 ### Data Flow
 
@@ -531,289 +505,16 @@ PDB.
   and logs, and `DELETE /api/v1/workspaces/{workspaceId}/jobs/{jobId}` requests cancellation. Successful output
   files are registered as workspace artifacts; the frontend reloads the active
   manifest and opens the primary output when appropriate.
-- `GET / POST / PUT / DELETE /api/mutations[/:id]` — CRUD for the
-  `mutations` table; auto-creates the table on first connection. Returns 503
-  if `DATABASE_URL` is unset.
-- `POST /api/antibody-engineer/run` — **SSE** endpoint. Body `{ inputFile,
-  mutationIds: number[], equivalentChainsMap?, manualChainsByMutationId?, hasGlycan: boolean, scheme:
-  'EU'|'Kabat' }`. Streams `data: <JSON>\n\n` events. See the dedicated
-  Antibody Engineer architecture section above.
 - `PATCH /api/workspaces/:workspaceId/artifacts/:artifactId/metadata` updates
   whitelisted artifact metadata against the current manifest revision and
   returns the full incremented manifest. Optional fields accept `null` for
   removal; stale revisions return 409.
-- `GET /api/status` — `{ dvbfixer, databaseConfigured, databaseConnected }`.
 
 **Spec format** (`server/dvbfixer-spec.ts`):
 - `FlagDef.type`: `'bool' | 'number' | 'text' | 'select'`
 - `FlagDef.repeatable: true` — comma-split UI input becomes `--flag v1 --flag v2 --flag v3` (used by `--mutate`).
 - `FlagDef.multi: true` — value is whitespace-split and emitted as a single `--flag v1 v2 v3` (argparse `nargs='+'`). Works with both `type: 'text'` and `type: 'select'`; the latter lets a dropdown preset like `"amber19/protein.ff19SB.xml amber19/tip3p.xml"` resolve to the right multi-arg CLI form. Used by `--ff` (minimize + protonate).
 - Empty string in any `select`'s `options` is preserved as the "default" choice and the backend drops empty values before arg-building, so DVBFixer's built-in defaults apply.
-
-### Mutations Panel + PostgreSQL
-
-`MutationsPanel.tsx` — `@mui/x-data-grid` with columns:
-- `id` (number)
-- `igg_subclass` — **multi-select** with checkbox dropdown (options
-  `IgG1`/`IgG2`/`IgG3`/`IgG4`). Stored as a comma-joined string in the
-  single TEXT column (e.g. `"IgG1,IgG4"`). Display renders each pick as a
-  small Chip via a custom `renderCell`. Edit uses a custom
-  `renderEditCell` (`SubclassEditCell`) with a `<Select multiple>` +
-  Checkboxes. The dropdown uses **`defaultOpen`** (NOT controlled
-  `open={true}` — that races with Popover anchor-rect read on mount and
-  crashes the cell as "Error rendering component"). On close,
-  `apiRef.current.stopCellEditMode({ id, field })` is wrapped in
-  `setTimeout(..., 0)` so MUI's popover close transition finishes before
-  DataGrid unmounts the edit cell.
-- `chain` — `singleSelect` with options `['', 'HC', 'LC']` for heavy /
-  light chain. Legacy free-form values render as-is but new edits pick
-  from the dropdown.
-- `mutation_name` — free-form text
-- `mutations` — comma-separated list of point mutations, e.g.
-  `'M252Y,S254T,T256E'`
-- `properties` — free-form notes / annotations (effect, source paper, etc.)
-
-Inline cell editing via `processRowUpdate` → `PUT /api/mutations/:id`. If
-the API returns 503 the panel renders a config hint pointing at
-`DATABASE_URL`. Rows are zebra-striped via `getRowClassName` +
-`rgba(74,118,196,0.04)` for odd rows so values stay easy to track across
-wide rows; hover bumps to `0.10` alpha. The pagination footer is
-compressed (`MuiDataGrid-footerContainer`, `MuiTablePagination-toolbar`
-`minHeight: 26`) so it doesn't take half the panel.
-
-**Layout**. Outer Box: `height: 100%`, `display: flex`,
-`flexDirection: 'column'`, **`overflow: 'hidden'`**, **`minHeight: 0`**.
-Header bar: `flexShrink: 0` so it never collapses (it's static — no
-`position: sticky` because there's no scrollable ancestor; the grid
-scrolls internally and the header stays as a flex sibling above it).
-DataGrid wrapper: `flex: 1`, **`minHeight: 0`** so the flex:1 child
-doesn't default to content height and push the panel beyond its
-parent. The combo of these is what makes both header-stays-visible AND
-grid-scroll-works.
-
-**Drag-drop row reordering** (`@dnd-kit/core` + `@dnd-kit/sortable`):
-`DndContext` + `SortableContext` wrap the DataGrid. `slots.row` is
-overridden by `SortableRow`, which wraps Mol*'s exported `GridRow` with
-`useSortable` (setNodeRef + attributes + listeners on the row). The
-sensors include `PointerSensor` only — **NOT `KeyboardSensor`**,
-because dnd-kit's `useSortable.listeners` would otherwise attach an
-`onKeyDown` Space/Enter handler to the row that intercepts space-bar
-presses inside editable cells (e.g. Properties) and calls
-`preventDefault`, so the user's space never reaches the input.
-Activation distance `8px` so single clicks pass through to cell-edit.
-`disableColumnSorting` on DataGrid: column-header sorts would fight
-the persisted drag order. `cursor: 'grab' / 'grabbing'` on rows.
-
-`handleDragEnd` does an optimistic `arrayMove` locally, then PATCHes
-`/api/mutations/reorder` with the full id list; rolls back via
-`refresh()` on failure.
-
-Backend uses a lazy `pg.Pool` keyed off `DATABASE_URL`. `docker-compose.yml`
-ships `postgres:16-alpine` as service `db` (port 5432, volume
-`tarantino-pg-data`, `pg_isready` healthcheck). `npm run dev` auto-sets
-`DATABASE_URL` to this container.
-
-**`mutations.json` git-tracked backup** — the table is auto-mirrored to
-`mutations.json` at repo root so the team's mutation library is checked
-into git:
-- After every successful POST / PUT / DELETE on `/api/mutations`,
-  `dumpMutationsToBackup(pg)` writes the full table (sorted by id) as
-  JSON to `<projectRoot>/mutations.json`.
-- On the first DB connection per process, `seedMutationsFromBackup(pg)`
-  runs immediately after `CREATE TABLE IF NOT EXISTS`. If the table is
-  empty and `mutations.json` exists, every row is inserted **preserving
-  its `id`**, and `mutations_id_seq` is bumped past the max id so
-  future auto-ids don't collide. Subsequent runs find the table
-  non-empty and skip.
-- Schema migrations for older deployments run on every boot:
-  - `ADD COLUMN IF NOT EXISTS igg_subclass TEXT NOT NULL DEFAULT ''`
-  - `ADD COLUMN IF NOT EXISTS display_order INTEGER NOT NULL DEFAULT 0`
-    + `UPDATE mutations SET display_order = id WHERE display_order = 0`
-    (preserves existing visible order)
-  - `ADD COLUMN IF NOT EXISTS properties TEXT NOT NULL DEFAULT ''`
-
-Routes:
-- `GET /api/mutations` — `ORDER BY display_order ASC, id ASC`
-- `POST /api/mutations` — new row gets `display_order = MAX + 1` (lands
-  at the bottom)
-- `PUT /api/mutations/:id` — patches whitelisted fields including
-  `properties`
-- `DELETE /api/mutations/:id`
-- `PATCH /api/mutations/reorder { ids: number[] }` — atomic
-  `UPDATE … FROM (VALUES …)` that rewrites every row's `display_order`
-  in one transaction. Called by the DataGrid drag-drop handler.
-
-`scripts/set-modeller-key.sh` finds `<env>/lib/modeller-*/modlib/modeller/config.py`
-inside the active conda/micromamba env (or the prefix passed as `$1`) and writes
-`license = r'<key>'` (reads from `KEY=`).
-
-### Antibody Engineer (`src/components/AntibodyEngineerPanel.tsx`, `src/lib/antibody-numbering.ts`, `src/lib/antibody-references.ts`, `server/antibody-pipeline.ts`)
-
-End-to-end "select mutations from the DB → produce a mutant structure"
-tool. Spans the frontend (chain detection + validation + SSE consumer)
-and the backend (multi-step DVBFixer orchestrator + dedup cache).
-
-**Reference library** (`src/lib/antibody-references.ts`) — hardcoded
-UniProt constant-region sequences for IgG1/2/3/4 heavy + κ / λ light
-(P01857, P01859, P01860, P01861, P01834, P0CG04). EU domain windows are
-captured per subclass. A `verifyReferences()` self-check runs on module
-load and throws on any landmark mismatch — guarantees a typo in the
-hardcoded sequence is caught at startup. Only IgG1 + κ + λ have full
-landmark assertions; IgG2/3/4 are best-effort (NW alignment still works
-for soft classification) since EU numbering preserves homology across
-subclasses with hinge-length gaps that can't be indexed by simple offset.
-
-**Chain identification** (`src/lib/antibody-numbering.ts`):
-- `identifyAntibodyChain(residues)` runs NW (reusing `alignSequences`)
-  against every reference, picks the winner by `trimmedIdentity ≥ 0.70`
-  and a within-class margin `≥ 0.05`. Returns `{ type: HC|LC, subclass,
-  region, identity, alignmentLength, margin, domainsObserved, warnings }`.
-  Region inference: `domainsObserved` (CH1/hinge/CH2/CH3 from per-window
-  coverage) + leading unmatched chain length (≥ 80 aa → VH) →
-  full / Fab-HC / Fc / VH-only / scFv / VHH / LC / partial.
-- `mapEuToAuthSeqId(residues, eu, classification)` — walks the
-  alignment against the winning reference, returns the chain's
-  `auth_seq_id` for EU position `n` (or null if outside coverage). Used
-  ONLY for frontend pre-flight validation ("does position 322 exist in
-  this Fc-only fragment?"). The actual mutation pipeline relies on
-  `dvbfixer renumber --scheme eu` doing the renumbering on disk.
-- `parseMutation('K322A' | 'G446del')` and `mutateArgFor(chain, parsed)`
-  emit `'H:322:ALA'` / `'H:446:del'` formatted CLI args.
-
-**Pipeline orchestrator** (`server/antibody-pipeline.ts`):
-- `expandMutations(rows, equivChainsMap, manualMap?)` parses each row's
-  comma-separated `mutations` field and emits one `--mutate` arg per
-  (target chain, token). Target chain resolution **precedence**:
-  `manualMap[row.id]` (if non-empty) → `equivChainsMap[row.chain]` →
-  `[row.chain]` (legacy fallback). The manual override bypasses
-  equivalent-chain fan-out and lets the AE panel handle rows whose DB
-  `chain` field is empty (user picks chains manually in the UI). 1-letter
-  → 3-letter codes via the local `AA1_TO_AA3` map. `del` is forwarded
-  verbatim.
-- `validateNoDuplicateTargets(args)` — server-side defensive check; the
-  frontend already blocks this case.
-- `pipelineSteps(scheme, hasGlycan, mutateArgs)` produces the 7-step
-  glycan pipeline or 5-step no-glycan pipeline. Scheme passed to
-  DVBFixer is **lowercased** (`'eu'` / `'kabat'`) — the CLI's
-  `--scheme` choices are `seqres / kabat / chothia / imgt / martin / eu / aho`.
-  Protonate runs PROTASSIGN (MolProbity Reduce) by default — DVBFixer
-  commit `eeba73d` (June 2026) flipped `--protassign` to default ON via
-  `BooleanOptionalAction`, so the AE pipeline no longer passes the flag
-  explicitly; the behavior is identical.
-  Every step AFTER `prepare` passes `--no-infer-conect` — `prepare` runs
-  CONECT inference once and that bond graph is the canonical one for the
-  rest of the pipeline. Re-inferring (the default since DVBFixer commit
-  aa52dbf, June 2026) on protonate's output produced drift that broke
-  AMBER14+GLYCAM template matching on glycosylated NLN/OLS/OLT residues
-  in the second `minimize` step; pinning to prepare's CONECTs fixes it.
-- `runEngineerPipeline(p)` is the main loop. Each step gets its own
-  `structures/dvb_<command>_<ts>_s<N>/` directory (the `_s<N>` suffix
-  prevents collisions when the same command appears twice, e.g. two
-  `minimize` steps in the glycan pipeline). Intermediate outputs are
-  registered as plain `index.json` entries with `parent` set to the
-  previous step's output. The FINAL step writes a rich entry with
-  `parent` = original input file (not the previous step), plus
-  `mutationIds: number[]`, `mutationsResolved: string`,
-  `_engineerChecksum: string`, `hasGlycan: boolean`, `scheme: 'EU'|'Kabat'`,
-  `command: 'antibody-engineer'`, and a generated `name` like
-  `"FcRn — YTE + LALA"`. Both intermediate and final entries also
-  **inherit antibody-identity tags** (`allotype`, `iggSubtype`) from
-  the entry referenced by the entry's `parent` field — these don't
-  change as a result of renumber / prepare / minimize / convert /
-  protonate, so carrying them forward by default saves the user from
-  re-entering them in the Info panel on every variant.
-- Failure: any non-zero exit code → emit error SSE event, move EVERY
-  created output dir into `structures/_engineer_failed/<subdir>` (scanner
-  ignores underscore-prefixed dirs), close stream without writing an
-  index.json entry.
-- Dedup checksum (`engineerChecksum`): SHA-256 over
-  `JSON.stringify({ inputFile, sortedMutationIds, hasGlycan, scheme })`.
-  `equivalentChainsMap` is intentionally NOT included — fixing the
-  equiv map should re-run, not cache-hit.
-- `findCachedEntry(structuresDir, inputFile, checksum)` scans
-  `index.json` for `parent === inputFile && _engineerChecksum === checksum &&
-  file-on-disk`. Hit → emit `step: 0, status: 'done', name: 'cached'` + a
-  final `status: 'complete'` event and close.
-
-**SSE route** (`POST /api/antibody-engineer/run`, in
-`server/api-routes.ts`). Body: `{ inputFile, mutationIds, equivalentChainsMap,
-hasGlycan, scheme }`. Headers: `Content-Type: text/event-stream` +
-`Cache-Control: no-cache` + `X-Accel-Buffering: no` (via the exported
-`writeSSEHeaders` helper). Each event is one `data: <JSON>\n\n` chunk
-(via `sseSend`) with a single channel — the client switches on
-`payload.status` (`'running' | 'done' | 'error' | 'complete'`). Aborts
-are observed via `req.on('close')`. The route also queries postgres for
-the requested mutation rows (rejects missing IDs) and runs the dedup
-lookup before dispatching to `runEngineerPipeline`.
-
-**DVBFixer spec** (`server/dvbfixer-spec.ts`): the `renumber` command's
-`--scheme` flag exposes `['', 'seqres', 'kabat', 'chothia', 'imgt',
-'martin', 'eu', 'aho']` — full match against the actual CLI.
-
-**Frontend panel** (`src/components/AntibodyEngineerPanel.tsx`). Three
-`Paper` cards:
-- **Input + detection** — Select for input file (auto-mirrors
-  `useStructureStore.fileName`, identical pattern to DVBFixerPanel).
-  Detection only runs when the picked file equals the primary plugin's
-  current file. Chip row groups detected chains by `type/subclass` (e.g.
-  `[HC IgG1 — H, I]`); a `Glycans present` / `No glycans` chip is
-  derived from `useStructureStore(s => s.elements)` (`entityType ===
-  'branched'` OR any of `NAG/BMA/MAN/FUC/GAL/SIA/GLC/XYL`).
-- **Mutations** — fetches `/api/mutations`, filters rows by detected IgG
-  subclass (empty `igg_subclass` = universal, applies to every
-  structure). Live validation `useMemo` tags each issue with a
-  `severity: 'error' | 'warning'`:
-  - `'no-target-chain'` — for empty-chain rows, message is *"Row has
-    no chain set — pick one or more chains manually."*; for normal
-    rows it's *"No HC chains detected …"*. **Error**, blocks Run.
-  - `'conflict'` (two checked rows both target the same `(chainId,
-    position)`) → **error**, blocks Run.
-  - `'out-of-range'` (target EU position not in this fragment per
-    `mapEuToAuthSeqId`) → **warning**, NON-blocking. DVBFixer's recent
-    versions silently skip missing residues, so we let the user
-    proceed and only flag it with an amber chip + tooltip.
-  Only `severity === 'error'` issues disable the Run button
-  (`hasBlockingIssues`).
-
-  **Per-row manual chain picker for empty-chain DB rows**. When
-  `row.chain` is empty / unset, the row UI shows a compact MUI
-  `Select multiple` next to the checkbox; options are every detected
-  antibody chain id (`detections.map(d => d.chainId)`). Picks are
-  stored in component state as `manualChainsByMutationId: Record<id,
-  string[]>`. The per-row chain resolver:
-  ```
-  resolveTargetChains(row):
-    if manualChainsByMutationId[row.id]?.length > 0 → those chains
-    else                                            → equivalentChainsMap[row.chain]
-  ```
-  Manual picks **bypass equivalent-chains fan-out** — the mutation
-  goes only to the chains the user selected. Both `validationIssues`
-  and `previewMutateArgs` go through `resolveTargetChains`. Submit
-  body carries `manualChainsByMutationId` (filtered to checked rows
-  with non-empty picks). Backend uses it via `expandMutations`'s
-  `manualMap` arg (see pipeline orchestrator above).
-
-  Below the list a row of chips shows the resolved chain expansion:
-  one outlined chip per equivalent-chain bucket that's actually used
-  by a non-overridden checked row, PLUS one warning-colored chip per
-  manual-override row showing `mutation_name: <picked chains>`. The
-  `previewMutateArgs` tooltip lists the literal `--mutate H:322:ALA …`
-  strings.
-- **Pipeline** — numbering-scheme `ToggleButtonGroup` (EU / Kabat,
-  pinned at the top of the section), glycan-handling `RadioGroup`
-  (auto / force-with / force-without), monospace preview of the step
-  sequence, then the Run button and progress / cached / error states.
-
-**`equivalentChainsMap` resolution** — frontend constructs it by
-bucketing detected chains by classification type (`HC` or `LC`), then
-expands each bucket using the user's `meta.equivalentChains` override
-(from the Info panel). If a manual group contains an already-typed
-chain, every other chain in the group gets promoted to the same type.
-Backend receives the resolved map and trusts it.
-
-**Workspace integration** — final and intermediate outputs are registered as
-workspace artifacts. Completion reloads the active manifest so new files become
-available without a legacy global-library refresh signal.
 
 ### Settings (`src/components/SettingsPanel.tsx`)
 
@@ -861,13 +562,11 @@ we check `Loci.isEmpty(event.current.loci)` ourselves (NOT `isEmptyLoci(loci)`
 ## Key Constraints
 
 - **Mol* imports use deep paths** (`molstar/lib/mol-model/structure`) — no barrel export.
-- **MUI v9 only**: `@mui/material`, `@mui/icons-material`, `@mui/x-data-grid`. No Tailwind, no shadcn.
 - **TypeScript strict**: `noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`, `erasableSyntaxOnly` all on.
 - **`@` alias** → `src/` (in `vite.config.ts`).
 - **Workspace manifests are authoritative** for visible artifacts; hidden
   bookkeeping files must not enter file pickers or the Workspace panel.
 - **The frontend never imports from `server/`** — it talks to the backend over HTTP. The DVBFixer spec is fetched at runtime from `/api/dvbfixer-spec`.
-- **`pg` is loaded lazily** server-side via dynamic import; missing pg or unset `DATABASE_URL` doesn't break the app.
 - **postinstall** `scripts/fix-native-deps.mjs` installs the right platform-specific `@rollup/rollup-*` binding.
 
 ## Workspace and Homology architecture
@@ -913,8 +612,6 @@ src/
     ClashesPanel.tsx            # VdW-overlap clash table: severity filter, Group-by-residue toggle (expandable groups), row-click → residue sticks + severity-colored dashed clash line via measurement.addDistance
     AlignmentPanel.tsx          # Pairwise NW alignment, per-source plugin routing
     DVBFixerPanel.tsx           # MUI Tabs, form from /api/dvbfixer-spec, auto-pastes active fileName, auto-loads output on success
-    MutationsPanel.tsx          # DataGrid backed by /api/mutations: multi-select IgG Subclass chips, HC/LC chain dropdown, free-form Properties column, drag-drop row reorder via @dnd-kit (SortableRow slot.row override, PointerSensor only, atomic PATCH /api/mutations/reorder), zebra rows, compressed pagination footer
-    AntibodyEngineerPanel.tsx   # End-to-end mutate-by-DB-row tool: chain detection, severity-tagged validation (out-of-range = warning, non-blocking), SSE-driven progress, auto-load output
     SettingsPanel.tsx           # App-wide preferences (auto-orient-on-load, Alignment source-label mode); all localStorage-persisted
     FileLoader.tsx              # Upload button (honors loadTargetSlot)
     ProjectLibrary.tsx          # Workspace switcher/file browser: import, rename, recoverable trash, zebra rows, Shift/Cmd selection, reorder
@@ -936,27 +633,21 @@ src/
     clash-detection.ts          # computeClashes: VdW-overlap pairs via structure.lookup3d.find + Bondi/R&T radii; gatherNeighbors walks both unit.bonds + structure.interUnitBonds so 1-2 / 1-3 exclusions cover glycosidic + interchain disulfide bonds; severity tiers bad (0.4–0.9 Å) / severe (>0.9 Å)
     alignment.ts                # Needleman-Wunsch + BLOSUM62 + chainToSequence + trimmedIdentity (terminal-gap-aware)
     chain-grouping.ts           # computeEquivalentChains (pairwise NW + union-find), validateGrouping, filterSequenceableChains
-    antibody-references.ts      # Hardcoded UniProt CH/CL sequences (IgG1-4, κ, λ) + EU domain anchors + landmark self-check
-    antibody-numbering.ts       # identifyAntibodyChain (NW vs refs → HC/LC + subclass + region), mapEuToAuthSeqId, parseMutation, mutateArgFor
     residue-codes.ts            # 3-to-1 letter code (incl. non-canonical)
     residue-color-theme.ts      # Mol* ColorTheme: carbons by residue class, others CPK
 
 server/
-  api-routes.ts                 # Host-neutral composition: jobs, mutations, workspaces, naming, antibody engineering, and status routes
+  api-routes.ts                 # Host-neutral composition: workspaces, Homology, managed jobs, naming, security, and observability
   api-plugin.ts                 # Thin Vite development adapter over api-routes
   standalone.ts                 # Loopback-default Node HTTP + static client host
   workspace-api.ts              # Revisioned workspace/artifact CRUD, contained file serving, recoverable trash, and legacy-index migrations
   homology-api.ts               # Homology project persistence; writes CLI template plans and registers run artifacts
-  antibody-pipeline.ts          # Multi-step DVBFixer orchestrator: expandMutations, validateNoDuplicateTargets, pipelineSteps, checksum dedup, and workspace artifact registration.
-  dvbfixer-spec.ts              # CommandDef[] for split/renumber/model/prepare/minimize/protonate/convert (was `glycam` in older DVBFixer). renumber.--scheme options: seqres/kabat/chothia/imgt/martin/eu/aho. convert exposes --to-amber + --to-charmm + --no-roh. minimize + protonate `--ff` is a select-multi dropdown of OpenMM bundles (AMBER19/AMBER14/GLYCAM/CHARMM36 presets, empty = DVBFixer auto-pick). minimize defaults `--no-solvent` to ON (vacuum minimization is the common case in the AE pipeline + most user runs). prepare exposes --no-infer-conect. model exposes --num-output (top-N candidate save count; with N>1 the auxiliary _2.pdb/_3.pdb outputs stay on disk and Tarantino only auto-loads the first). Removed from UI: model --keep-workdir, minimize --dat/--padding/--platform, protonate --cys-disulfide-pka, protonate --protassign (DVBFixer now defaults it ON). Hidden flags are still valid on the CLI.
+  dvbfixer-spec.ts              # CommandDef[] for split/renumber/model/prepare/minimize/protonate/convert (was `glycam` in older DVBFixer). renumber.--scheme options: seqres/kabat/chothia/imgt/martin/eu/aho. convert exposes --to-amber + --to-charmm + --no-roh. minimize + protonate `--ff` is a select-multi dropdown of OpenMM bundles (AMBER19/AMBER14/GLYCAM/CHARMM36 presets, empty = DVBFixer auto-pick). minimize defaults `--no-solvent` to ON for interactive development runs. prepare exposes --no-infer-conect. model exposes --num-output (top-N candidate save count; with N>1 the auxiliary _2.pdb/_3.pdb outputs stay on disk and Tarantino only auto-loads the first). Removed from UI: model --keep-workdir, minimize --dat/--padding/--platform, protonate --cys-disulfide-pka, protonate --protassign (DVBFixer now defaults it ON). Hidden flags are still valid on the CLI.
 
 scripts/
-  dev.mjs                       # Smart launcher: auto docker postgres → vite
   fix-native-deps.mjs           # postinstall
   set-modeller-key.sh           # Writes Modeller license into config.py
 
 structures/projects/<id>/       # workspace.json plus files/, runs/, homology/, recoverable .trash/, and legacy migration recovery sources
-mutations.json                  # Git-tracked backup of the postgres `mutations` table. Auto-written after every CRUD, auto-seeded on empty table.
-docker-compose.yml              # postgres:16-alpine, service `db`
 vite.config.ts                  # React + API plugins; workspace files are served only through the contained workspace file route
 ```

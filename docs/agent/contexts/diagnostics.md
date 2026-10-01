@@ -34,6 +34,7 @@ Direct calls to `dvbfixer.diagnose.main` receive the PDB-oriented implementation
 | Valence, bond geometry, peptide geometry, chirality, disulfides | implemented | `diagnose/chemistry.py::run_all` | `tests/test_diagnose_chemistry.py` |
 | Probe-first clash checks with pure-Python fallback | implemented | `diagnose/steric.py::run_all` | `tests/test_diagnose_steric.py` |
 | Deterministic text and machine-readable JSON reports | implemented | `diagnose/report.py`, `diagnose/pipeline.py` | `tests/test_diagnose_report.py`, `tests/test_diagnose_pipeline.py` |
+| Pure numeric measurements, exact local scope, and topology-backed protein angles | implemented | `diagnose/geometry.py`, `diagnose/chemistry.py::check_backbone_bond_angles` | `tests/test_diagnose_geometry.py`, `tests/test_diagnose_chemistry.py`, `tests/test_diagnose_pipeline.py` |
 | Repair or mutation of the diagnosed structure | missing by design | none | report-only CLI contract |
 
 ## Entry Points
@@ -43,6 +44,7 @@ Direct calls to `dvbfixer.diagnose.main` receive the PDB-oriented implementation
 | Change orchestration, filtering, output, or status | `diagnose/pipeline.py::main` | `tests/test_diagnose_pipeline.py` |
 | Add or change a finding category | `diagnose/structural.py::run_all`, `chemistry.py::run_all`, `steric.py::run_all` | focused diagnose module tests |
 | Change report shape or ordering | `diagnose/report.py::Finding`, `format_report`, `findings_to_dict_list` | `tests/test_diagnose_report.py` |
+| Change numeric, identity, boundary, or deterministic steric evidence | `diagnose/geometry.py`, `diagnose/steric.py::steric_overlap_measurements_python` | `tests/test_diagnose_geometry.py`, `tests/test_diagnose_steric.py` |
 | Change duplicate-chain policy | `pdbutils/duplicates.py::duplicate_protein_chain_coordinates` | `tests/test_duplicate_chain_coordinates.py` |
 | Change CLI output capture or summary | `runtime.py::tee_output` | `tests/test_cli_runtime.py` |
 
@@ -57,6 +59,14 @@ and JSON findings sort by severity, chain, numeric residue, insertion code, and
 atom. JSON exposes input/count metadata, findings, severity counts, and chirality
 audit data; user-facing Unicode is emitted with `ensure_ascii=False`.
 
+Geometry evidence uses versioned metrics with finite explicit units and ordered
+atom identities `(chain, resid, icode, atom)`. Undefined or non-finite geometry,
+missing or duplicate named atoms, and peptide geometry without explicit topology
+bonds produce no measurement. Optional JSON scope accepts exact immutable
+residue identities and ordered boundaries; it never expands numeric ranges or
+infers a gap. Finding severity and status policy remain in diagnose adapters,
+not in pure measurements.
+
 Exit statuses are part of the public contract:
 
 - `0`: no ERROR finding remains after the selected checks and severity filter;
@@ -70,6 +80,10 @@ Exit statuses are part of the public contract:
 - A clean run emits a report but no empty fd-level diagnostic-summary banner.
 - Chain IDs remain exact and case-sensitive; chains `D` and `d` are distinct.
 - Insertion codes remain part of finding residue identity.
+- Scoped and numeric evidence preserves complete residue and atom identities;
+  duplicate identities are reported as ambiguous rather than chosen.
+- Reusable steric evidence is deterministically ordered and always uses the
+  versioned Python engine with a pinned 0.90 Å severe-overlap definition.
 - Explicit PDB chain transitions are boundaries, never internal chain breaks.
 - Multi-model input is analyzed as MODEL 1 only and receives a WARNING finding.
 - Coordinate-identical complete protein chains are suspicious but non-fatal.
@@ -94,6 +108,8 @@ Exit statuses are part of the public contract:
 - Raw PDB parsing preserves records not represented reliably by OpenMM, including
   MODEL, SEQRES, altLoc, insertion-code, and audit REMARK information.
 - MolProbity `probe` is optional; failure falls back to SciPy-based clash checks.
+- Scoped steric evidence does not depend on Probe availability; it uses the same
+  deterministic Python exclusions and radius table on every run.
 - `structure_input.py` is the sole CIF-to-PDB boundary and preserves compatible
   single-character chain IDs while mapping incompatible ones.
 
@@ -114,6 +130,8 @@ Exit statuses are part of the public contract:
   equal protein-atom counts and matching residue names, atom names, file order,
   and coordinates within PDB precision.
 - Multi-model files do not receive per-frame analysis; only MODEL 1 is checked.
+- Exact local scope is JSON-only and reports single-structure evidence, not
+  reconstruction success, source/reference drift, or publication eligibility.
 - Direct module invocation bypasses unified CIF normalization and fd-level runtime
   capture.
 - Some structural helper failures are suppressed to keep reporting resilient, so
@@ -124,12 +142,15 @@ Exit statuses are part of the public contract:
 No repair behavior belongs in this context. Future service/API work may extract a
 typed analysis request/result that accepts a normalized structure artifact and
 returns findings without `sys.exit`, while preserving the current CLI report and
-status contract. Such work must not duplicate scientific checks in Node or a GUI.
+status contract. The pure geometry measurements may be reused by that service,
+but severity and publication-gate policy must remain separate adapters. Such work
+must not duplicate scientific checks in Node or a GUI.
 
 ## Focused Verification
 
 ```bash
-pytest -q tests/test_diagnose_report.py tests/test_diagnose_pipeline.py \
+pytest -q tests/test_diagnose_geometry.py tests/test_diagnose_report.py \
+  tests/test_diagnose_pipeline.py \
   tests/test_diagnose_chemistry.py tests/test_diagnose_steric.py \
   tests/test_duplicate_chain_coordinates.py tests/test_cli_runtime.py \
   tests/test_batch.py tests/test_zbs_postflight.py

@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { AddressInfo } from 'node:net'
 import connect, { type NextFunction } from 'connect'
 import serveStatic from 'serve-static'
-import { closeApiResources, registerApiRoutes, resetApiShutdown, shutdownApiWork } from './api-routes'
+import { registerApiRoutes, resetApiShutdown, shutdownApiWork } from './api-routes'
 import type { ApiRouteHost } from './http-types'
 import { parseAuthConfig, resolveLegacyWorkspaceOwner, type AuthConfig } from './auth'
 import { parseCorsAllowedOrigins } from './cors'
@@ -25,7 +25,6 @@ export interface StandaloneConfig {
   projectRoot: string
   dataRoot: string
   staticRoot: string
-  mutationsBackupFile: string
   shutdownGraceMs: number
   authConfig: AuthConfig
   legacyWorkspaceOwner: string
@@ -91,9 +90,6 @@ export function loadStandaloneConfig(
     projectRoot,
     dataRoot,
     staticRoot: resolveSetting(projectRoot, environment.DVBFIXER_STATIC_DIR, 'dist'),
-    mutationsBackupFile: resolveSetting(
-      projectRoot, environment.DVBFIXER_MUTATIONS_BACKUP_FILE, 'mutations.json',
-    ),
     shutdownGraceMs: integerSetting(
       'DVBFIXER_SHUTDOWN_GRACE_MS', environment.DVBFIXER_SHUTDOWN_GRACE_MS, 10_000, 1,
     ),
@@ -152,7 +148,7 @@ function canonicalFuturePath(candidate: string): string {
 
 export function createStandaloneApplication(config: StandaloneConfig): connect.Server {
   assertSeparatedRoots(config.staticRoot, config.dataRoot)
-  assertDeploymentResources(config.dataRoot, config.mutationsBackupFile, config.deploymentResources)
+  assertDeploymentResources(config.dataRoot, config.deploymentResources)
   const indexFile = path.join(config.staticRoot, 'index.html')
   if (!fs.existsSync(indexFile) || !fs.statSync(indexFile).isFile()) {
     throw new Error(`static client is missing: ${indexFile}; run npm run build:client`)
@@ -184,7 +180,6 @@ export function createStandaloneApplication(config: StandaloneConfig): connect.S
   registerApiRoutes(host, {
     projectRoot: config.projectRoot,
     dataRoot: config.dataRoot,
-    mutationsBackupFile: config.mutationsBackupFile,
     authConfig: config.authConfig,
     legacyWorkspaceOwner: config.legacyWorkspaceOwner,
     corsAllowedOrigins: config.corsAllowedOrigins,
@@ -268,7 +263,6 @@ export function createStandaloneServer(config: StandaloneConfig): StandaloneServ
         timer.unref()
         try {
           await Promise.all([closed, shutdownApiWork()])
-          await closeApiResources()
         } finally {
           clearTimeout(timer)
         }

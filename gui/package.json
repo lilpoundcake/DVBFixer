@@ -1,7 +1,7 @@
 {
   "name": "dvbfixer-gui",
   "private": true,
-  "version": "0.8.6",
+  "version": "0.8.9",
   "description": "Graphical workspace for DVBfixer structure preparation and homology modeling",
   "type": "module",
   "engines": {
@@ -17,11 +17,7 @@
     "fsevents": false
   },
   "scripts": {
-    "dev": "node scripts/dev.mjs",
-    "dev:no-db": "vite",
-    "db:up": "docker compose up -d db",
-    "db:down": "docker compose down",
-    "db:logs": "docker compose logs -f db",
+    "dev": "vite",
     "build": "npm run check:openapi && npm run typecheck && npm run build:client && npm run build:server && npm run smoke:server",
     "build:client": "vite build",
     "build:server": "esbuild server/standalone.ts --bundle --platform=node --format=esm --target=node22 --packages=external --sourcemap --outfile=dist-server/server.js",
@@ -36,22 +32,16 @@
     "check:openapi": "node scripts/gen-openapi-client.mjs --check"
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.11",
     "@mui/material": "^7.3.11",
-    "@mui/x-data-grid": "^8.28.6",
     "@rollup/wasm-node": "^4.60.1",
     "@sinclair/typebox": "^0.34.52",
-    "@types/pg": "^8.20.0",
     "connect": "^3.7.0",
     "flexlayout-react": "^0.8.19",
     "molstar": "^5.8.0",
     "openapi-fetch": "^0.17.0",
-    "pg": "^8.21.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sass": "^1.99.0",

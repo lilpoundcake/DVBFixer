@@ -31,8 +31,11 @@ export interface WorkspaceArtifact {
   iggSubtype?: string
   allotype?: string
   equivalentChains?: string[][]
+  /** Opaque identifiers retained only for read-only compatibility with retired Antibody Engineer artifacts. */
   mutationIds?: number[]
+  /** Immutable resolved-mutation provenance retained from retired Antibody Engineer artifacts. */
   mutationsResolved?: string
+  /** Historical Antibody Engineer provenance; no active workflow consumes these fields. */
   engineerChecksum?: string
   hasGlycan?: boolean
   scheme?: 'EU' | 'Kabat'
@@ -63,7 +66,7 @@ export interface NamingConversionProvenance {
   sourceFile: string
   sourceSha256: string
   command: 'atom-names'
-  targetForceField: 'amber' | 'charmm'
+  targetForceField: 'amber' | 'amber19sb' | 'charmm'
   profile: 'gromacs'
   variantOverrides: Array<{
     chainId: string
@@ -591,7 +594,8 @@ function validNamingProvenance(value: unknown): value is NamingConversionProvena
     item.apiVersion === 1 && item.reportSchemaVersion === 1 &&
     typeof item.operationId === 'string' && typeof item.sourceArtifactId === 'string' &&
     typeof item.sourceFile === 'string' && typeof item.sourceSha256 === 'string' &&
-    (item.targetForceField === 'amber' || item.targetForceField === 'charmm') &&
+    (item.targetForceField === 'amber' || item.targetForceField === 'amber19sb' ||
+      item.targetForceField === 'charmm') &&
     item.profile === 'gromacs' && Array.isArray(item.variantOverrides) &&
     item.variantOverrides.every(override => {
       if (!override || typeof override !== 'object') return false

@@ -37,7 +37,7 @@ A roadmap is never evidence that a capability has shipped.
   evidence, and known gaps.
 - [`contexts/`](contexts/) contains short explanations for Structure Identity,
   Structure Preparation, Force-field Naming, Parameterization, Topology
-  Generation, Diagnostics, and Workflow Execution. Start with the page named by
+  Generation, Nonprotein Reconstruction, Diagnostics, and Workflow Execution. Start with the page named by
   the task record rather than reading every context.
 - [`docs/adr/`](../adr/) contains accepted architecture decisions. Unaccepted
   alternatives stay in [`docs/plans/`](../plans/) or
@@ -54,6 +54,7 @@ standard `tomllib` and adds no dependency to the lightweight CI lane.
 | [Structure Preparation](contexts/structure-preparation.md) | Model, prepare, protonation, missing atoms, chirality, `.dat`, ZBS |
 | [Force-field Naming](contexts/force-field-naming.md) | AMBER/CHARMM/GROMACS residue and atom names |
 | [Parameterization](contexts/parameterization.md) | Native/user/GAFF routing and complex-cofactor guard |
+| [Nonprotein Reconstruction](contexts/nonprotein-reconstruction.md) | Exact identity, offline authority, Class A geometry, refusals, atomic bundles |
 | [Topology Generation](contexts/topology-generation.md) | RTP, ACPYPE, topology matching, output bundles |
 | [Structure Diagnostics](contexts/diagnostics.md) | Report-only findings, reports, exit status, runtime summary boundary |
 | [Workflow Execution](contexts/workflow-execution.md) | CLI, batch, CIF boundary, jobs, workspaces, API adapters |

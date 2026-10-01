@@ -65,7 +65,7 @@ export function routeLabel(url: string | undefined): string {
     return '/api/v1/workspaces/:workspaceId/jobs'
   }
   const first = pathname.split('/').filter(Boolean)[0]
-  const known = new Set(['workspaces', 'homology', 'jobs', 'dvbfixer', 'mutations', 'antibody-engineer'])
+  const known = new Set(['workspaces', 'homology', 'jobs', 'dvbfixer'])
   if (first && known.has(first)) return `/api/${first}`
   return pathname.startsWith('/v1/') ? '/api/v1/unmatched' : '/api/unmatched'
 }

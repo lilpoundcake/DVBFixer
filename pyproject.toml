@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dvbfixer"
-version = "0.8.6"
+version = "0.8.9"
 description = "PDB structure preparation tools: chain splitting, renumbering, loop modeling, fixing, minimization, protonation, topology generation, molecule transplanting"
 requires-python = ">=3.11,<3.14"
 dependencies = [
@@ -45,7 +45,9 @@ dvbfixer = ["data/*.xml"]
 # wheels resolve this conventional share path instead.
 [tool.setuptools.data-files]
 "share/dvbfixer/FF/amber99sb-ildn-lipid21.ff" = ["FF/amber99sb-ildn-lipid21.ff/*"]
+"share/dvbfixer/FF/amber19sb.ff" = ["FF/amber19sb.ff/*"]
 "share/dvbfixer/FF/charmm36_ljpme-jul2022.ff" = ["FF/charmm36_ljpme-jul2022.ff/*"]
+"share/dvbfixer/notices" = ["THIRD_PARTY_NOTICES/*"]
 
 [tool.ruff]
 line-length = 100

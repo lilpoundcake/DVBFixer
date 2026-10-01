@@ -1,7 +1,7 @@
 # `dvbfixer atom-names`
 
-Converts residue and atom names in a legacy PDB for an AMBER or CHARMM
-GROMACS consumer. Unlike `rename`, this command preserves explicit protonation
+Converts residue and atom names in a legacy PDB for the bundled legacy AMBER,
+Amber ff19SB, or CHARMM GROMACS dialect. Unlike `rename`, this command preserves explicit protonation
 variants and applies target-specific atom naming. Unlike `convert`, it does not
 convert glycan nomenclature or infer chemical connectivity.
 
@@ -12,6 +12,18 @@ ambiguous residue identities before publishing an output.
 ```bash
 dvbfixer atom-names input.pdb -o amber.pdb \
   --target-ff amber --profile gromacs
+```
+
+Choose `amber19sb` when the output will be consumed by `top --ff amber19sb`.
+This is a distinct dialect, not an alias for `amber`: ff19SB keeps `O`/`OXT`
+on C termini and PDB-style ACE/NME atom names, while the legacy AMBER bundle
+uses `OC1`/`OC2` and renamed cap atoms. Naming conversion does not validate the
+whole structure against ff19SB's protein-only component restrictions; `top`
+still performs that fail-closed validation.
+
+```bash
+dvbfixer atom-names input.pdb -o amber19sb.pdb \
+  --target-ff amber19sb --profile gromacs
 ```
 
 Use `--dry-run` to validate and summarize a conversion without writing the PDB.

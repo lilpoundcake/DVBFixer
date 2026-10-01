@@ -2,7 +2,7 @@
 
 A suite of Python CLI tools for preparing PDB and CIF structural biology files. Handles common issues with structures from MD simulations and structural databases: missing chain IDs, antibody insertion codes, missing loops/residues, loop rebuilding with Modeller, multi-template homology modeling, energy minimization with selective restraints, protonation state assignment, GROMACS topology generation, GLYCAM glycoprotein transplanting, small molecule parametrization (GAFF2), and glycan conformational clustering from MD trajectories.
 
-Current release: **0.8.6**.
+Current release: **0.8.9**.
 
 This README is the root of a manual-style documentation tree. Each subcommand has its own page under [`docs/commands/`](docs/commands/index.md); the [pipelines](docs/pipelines.md) page collects end-to-end recipes. For design notes see [`ARCHITECTURE.md`](ARCHITECTURE.md) and the focused [scientific domain model](docs/domain-model.md); for opinionated recipes and gotchas see [`BEST_PRACTICES.md`](BEST_PRACTICES.md).
 
@@ -32,7 +32,7 @@ The GUI requires Node.js 22 or newer.
 ```bash
 cd gui
 npm ci
-npm run dev:no-db
+npm run dev
 ```
 
 For a built local server with the same API routes, run `npm run build` followed
@@ -75,7 +75,7 @@ chemistry backends.
 | [`minimize`](docs/commands/minimize.md) | Energy minimization with selective restraints, optional xtb/obminimize refinement |
 | [`protonate`](docs/commands/protonate.md) | PROPKA3 pKa prediction + AMBER residue renaming + H repair |
 | [`rename`](docs/commands/rename.md) | Canonicalize residue names (AMBER/CHARMM/MSE → standard PDB) |
-| [`atom-names`](docs/commands/atom-names.md) | Convert PDB residue and atom names for AMBER/CHARMM GROMACS consumers without modifying the source |
+| [`atom-names`](docs/commands/atom-names.md) | Convert PDB residue and atom names for legacy AMBER, Amber19SB, or CHARMM GROMACS consumers without modifying the source |
 | [`top`](docs/commands/top.md) | GROMACS topology from PDB/GRO (AMBER, CHARMM, or ACPYPE pipeline) |
 | [`transplant`](docs/commands/transplant.md) | Transplant molecules between PDB structures (GLYCAM glycoprotein workflow) |
 | [`convert`](docs/commands/convert.md) | Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants) |

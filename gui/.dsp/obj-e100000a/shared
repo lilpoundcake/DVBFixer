@@ -1,4 +1,4 @@
-ViewInArIcon, TextSnippetIcon, ListAltIcon, HubIcon, FolderIcon, InfoIcon, CompareArrowsIcon, BuildIcon, EditNoteIcon — App panel menu
+ViewInArIcon, TextSnippetIcon, ListAltIcon, HubIcon, FolderIcon, InfoIcon, CompareArrowsIcon, BuildIcon — App panel menu
 LinkIcon, LinkOffIcon — App camera-sync toggle
 UploadFileIcon — FileLoader
 RefreshIcon, CenterFocusStrongIcon — InteractionsPanel/StructureLibrary/AlignmentPanel
@@ -7,4 +7,3 @@ Deselect (ClearIcon), CenterFocusStrong (ZoomInIcon) — SequenceViewer
 FolderOpenIcon, SubdirectoryArrowRightIcon, StarIcon, StarBorderIcon — StructureLibrary
 ClearIcon — AlignmentPanel
 PlayArrowIcon — DVBFixerPanel
-AddIcon, DeleteIcon — MutationsPanel

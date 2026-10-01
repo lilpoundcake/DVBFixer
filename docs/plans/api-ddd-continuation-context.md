@@ -41,7 +41,7 @@ unchanged; documentation validation and its lightweight CI check remain active.
 - `src/dvbfixer/ffutils/ff_names.py::apply_variants_to_pdb_text` is the shared
   implementation relevant to GROMACS-compatible names.
 - It mutates a PDB file in place and returns the number of changed atom lines.
-- It accepts `target_ff="amber"` or `"charmm"` and an
+- It accepts `target_ff="amber"`, `"amber19sb"`, or `"charmm"` and an
   `include_gromacs_shifts` switch.
 - It restores explicit residue variants and applies atom-name mappings for
   AMBER methylenes, termini, caps, nucleic acids, and CHARMM backbone/caps.

@@ -20,11 +20,9 @@ fixed-size logical volume and filesystem. The example environment caps accepted
 filesystem capacity at 64 GiB; the startup
 preflight fails if the actual filesystem is larger.
 
-The mount contains workspaces, the mutation backup, `HOME`, `TMPDIR`, and cache
-state. The service also mounts private 8 GiB tmpfs filesystems on `/tmp` and
-`/var/tmp`, preventing tools that ignore `TMPDIR` from filling the host root
-filesystem. PostgreSQL is external to this boundary and needs independent CPU,
-memory, task, and storage limits.
+The mount contains workspaces, `HOME`, `TMPDIR`, and cache state. The service
+also mounts private 8 GiB tmpfs filesystems on `/tmp` and `/var/tmp`, preventing
+tools that ignore `TMPDIR` from filling the host root filesystem.
 
 ## Installation
 
@@ -35,7 +33,7 @@ memory, task, and storage limits.
 4. Create `/var/lib/dvbfixer/{tmp,home,cache}` with mode `0700`.
 5. Copy `deploy/systemd/dvbfixer.env.example` to
    `/etc/dvbfixer/dvbfixer.env`, mode `0600`, and configure authentication,
-   database, CORS, executable paths, and licensed software.
+   CORS, executable paths, and licensed software.
 6. Install `deploy/systemd/dvbfixer.service` under `/etc/systemd/system/`.
 7. Adjust CPU, memory, task, and temporary-storage limits with a systemd
    drop-in based on measured scientific workloads.
@@ -59,8 +57,7 @@ requests; size both values for measured workload and available memory.
 - no additional persistent filesystem is writable inside the service namespace;
 - `DVBFIXER_GUI_DATA_DIR` is the root of a dedicated filesystem whose capacity
   does not exceed `DVBFIXER_OS_DATA_FILESYSTEM_MAX_BYTES`;
-- `HOME`, `TMPDIR`, `XDG_CACHE_HOME`, and the mutation backup are inside that
-  filesystem; and
+- `HOME`, `TMPDIR`, and `XDG_CACHE_HOME` are inside that filesystem; and
 - `/tmp` and `/var/tmp` are dedicated tmpfs mounts no larger than
   `DVBFIXER_OS_TEMP_FILESYSTEM_MAX_BYTES`.
 
@@ -92,8 +89,8 @@ HTTPS externally. Keep `DVBFIXER_HOST` bound to loopback when the proxy is on
 the same host; do not expose the Node listener. Set the browser-origin allowlist
 to the exact HTTPS origin, protect the proxy and bearer-token configuration,
 and enforce an edge request limit because the backend groups requests by the
-proxy's direct address. Limit PostgreSQL separately and back up the dedicated
-data filesystem. Check `/api/health`, authenticated `/api/session`, and the
+proxy's direct address. Back up the dedicated data filesystem. Check
+`/api/health`, authenticated `/api/session`, and the
 versioned naming and job routes through the proxy before opening access.
 Document the host's TLS renewal, journal rotation, audit monitoring, and backup
 restore procedures as part of the deployment record.

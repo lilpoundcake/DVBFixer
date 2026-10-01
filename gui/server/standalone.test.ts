@@ -46,11 +46,19 @@ describe('standalone configuration', () => {
       projectRoot: root,
       dataRoot: path.join(root, 'structures'),
       staticRoot: path.join(root, 'dist'),
-      mutationsBackupFile: path.join(root, 'mutations.json'),
       deploymentResources: { required: false },
       accessLog: { enabled: false },
       metrics: { enabled: false },
     })
+  })
+
+  it('ignores retired database configuration', () => {
+    const config = loadStandaloneConfig({
+      DATABASE_URL: 'postgres://invalid.invalid/retired',
+      DVBFIXER_MUTATIONS_BACKUP_FILE: '/should/not/be/read.json',
+    }, temp())
+    expect(config).not.toHaveProperty('databaseUrl')
+    expect(config).not.toHaveProperty('mutationsBackupFile')
   })
 
   it('rejects invalid ports and remote binding without explicit acknowledgement', () => {
@@ -352,6 +360,14 @@ describe('standalone HTTP server', () => {
     const missingApi = await fetch(`${base}/api/unknown`)
     expect(missingApi.status).toBe(404)
     expect(missingApi.headers.get('content-type')).toContain('application/json')
+
+    for (const retiredPath of ['/api/mutations', '/api/antibody-engineer/run', '/api/status']) {
+      for (const method of ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']) {
+        const retired = await fetch(`${base}${retiredPath}`, { method })
+        expect(retired.status, `${method} ${retiredPath}`).toBe(404)
+        expect(retired.headers.get('content-type')).toContain('application/json')
+      }
+    }
 
     await instance.close()
     await instance.close()

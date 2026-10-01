@@ -59,6 +59,7 @@ function successfulRunner(options: {
     options.beforeWrite?.()
     const output = args[args.indexOf('-o') + 1]
     const reportFile = args[args.indexOf('--report-json') + 1]
+    const targetForceField = args[args.indexOf('--target-ff') + 1]
     const outputBytes = options.outputBytes || Buffer.from('ATOM      1  CA  ALA A   1      10.000  10.000  10.000  1.00 20.00           C  \nEND\n')
     const digest = options.outputSha256 || await import('node:crypto').then(({ default: crypto }) =>
       crypto.createHash('sha256').update(outputBytes).digest('hex'))
@@ -72,7 +73,7 @@ function successfulRunner(options: {
       status: 'success',
       tool: { name: 'dvbfixer', version: '0.8.5' },
       request: {
-        targetForceField: 'amber', profile: 'gromacs', dryRun: Boolean(options.dryRun), variantOverrides: [],
+        targetForceField, profile: 'gromacs', dryRun: Boolean(options.dryRun), variantOverrides: [],
       },
       output: { path: output, written: !options.dryRun, bytes: outputBytes.length, sha256: digest },
       result: {
@@ -203,6 +204,26 @@ describe('naming conversion application boundary', () => {
       expect(fs.statSync(path.join(workspaceRoot(dataRoot, 'workspace-a'), output.file)).mode & 0o777)
         .toBe(0o600)
     }
+  })
+
+  it('executes and preserves provenance for the Amber19SB naming dialect', async () => {
+    const dataRoot = temp()
+    workspace(dataRoot)
+    const runner = vi.fn(successfulRunner())
+    const amber19Request: NamingConversionRequest = {
+      ...request,
+      target: { forceField: 'amber19sb', profile: 'gromacs' },
+      outputName: 'amber19sb.pdb',
+    }
+
+    const result = await executeNamingConversion(
+      dataRoot, 'workspace-a', amber19Request, runner,
+    )
+
+    expect(runner.mock.calls[0][1]).toContain('amber19sb')
+    expect(result.statusCode).toBe(201)
+    const output = loadWorkspace(dataRoot, 'workspace-a').artifacts[1]
+    expect(output.namingProvenance?.targetForceField).toBe('amber19sb')
   })
 
   it('returns a dry-run report without changing the manifest or retaining output', async () => {

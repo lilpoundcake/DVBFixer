@@ -67,8 +67,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     conversion.add_argument(
         "--target-ff",
         required=True,
-        choices=("amber", "charmm"),
-        help="Target force-field naming family",
+        choices=tuple(ForceFieldTarget),
+        help="Target force-field naming dialect",
     )
     conversion.add_argument(
         "--profile",

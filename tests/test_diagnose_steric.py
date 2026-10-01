@@ -20,6 +20,7 @@ from dvbfixer.diagnose.report import Severity  # noqa: E402
 from dvbfixer.diagnose.steric import (  # noqa: E402
     CLASH_MODE_PRESETS,
     clashes_python,
+    steric_overlap_measurements_python,
 )
 
 
@@ -113,8 +114,37 @@ def test_true_cc_clash_still_error() -> None:
     assert findings[0].category == "clash"
     assert "clashes with partner" in findings[0].message
     assert findings[0].extra["clash_partner"] == {
-        "chain": "X", "resid": "2", "resname": "LG2", "atom": "C1",
+        "chain": "X",
+        "resid": "2",
+        "resname": "LG2",
+        "atom": "C1",
     }
+    assert findings[0].extra["overlap_angstrom"] == pytest.approx(1.4)
+    assert findings[0].extra["engine"] == {
+        "name": "dvbfixer-python-steric",
+        "version": "1",
+    }
+
+    measurements = steric_overlap_measurements_python(top, pos)
+    assert len(measurements) == 1
+    assert measurements[0].value == pytest.approx(1.4)
+    assert measurements[0].engine == "dvbfixer-python-steric"
+
+
+def test_default_severe_overlap_boundary_is_error() -> None:
+    top = Topology()
+    chain = top.addChain("A")
+    first = top.addResidue("L1", chain, id="1")
+    second = top.addResidue("L2", chain, id="2")
+    top.addAtom("C1", Element.getBySymbol("C"), first)
+    top.addAtom("C2", Element.getBySymbol("C"), second)
+    positions = Quantity([(0.0, 0.0, 0.0), (0.25, 0.0, 0.0)], nanometer)
+
+    findings = clashes_python(top, positions)
+
+    assert len(findings) == 1
+    assert findings[0].extra["overlap_angstrom"] == pytest.approx(0.9)
+    assert findings[0].severity == Severity.ERROR
 
 
 def _make_two_residue_topology(
@@ -133,13 +163,11 @@ def _make_two_residue_topology(
     chain = top.addChain("A")
     r1 = top.addResidue(r1_name, chain)
     r2 = top.addResidue(r2_name, chain)
-    atoms_r1 = [top.addAtom(name, Element.getBySymbol(sym), r1)
-                for name, sym in r1_atoms]
-    atoms_r2 = [top.addAtom(name, Element.getBySymbol(sym), r2)
-                for name, sym in r2_atoms]
-    for i, j in (r1_bonds or []):
+    atoms_r1 = [top.addAtom(name, Element.getBySymbol(sym), r1) for name, sym in r1_atoms]
+    atoms_r2 = [top.addAtom(name, Element.getBySymbol(sym), r2) for name, sym in r2_atoms]
+    for i, j in r1_bonds or []:
         top.addBond(atoms_r1[i], atoms_r1[j])
-    for i, j in (r2_bonds or []):
+    for i, j in r2_bonds or []:
         top.addBond(atoms_r2[i], atoms_r2[j])
     positions_nm = [tuple(x / 10.0 for x in p) for p in positions_a]
     return top, Quantity(positions_nm, nanometer)
@@ -156,18 +184,17 @@ def test_backbone_amide_hbond_not_reported_as_clash() -> None:
         r1_atoms=[("C", "C"), ("O", "O")],
         r2_atoms=[("N", "N"), ("H", "H")],
         positions_a=[
-            (0.00, 0.00, 0.00),   # C
-            (1.23, 0.00, 0.00),   # O (bonded to C)
-            (3.29, 0.00, 0.00),   # N (2.06 Å from O)
-            (2.20, 0.00, 0.00),   # H (bonded to N, 2.06 Å from O — H-bond!)
+            (0.00, 0.00, 0.00),  # C
+            (1.23, 0.00, 0.00),  # O (bonded to C)
+            (3.29, 0.00, 0.00),  # N (2.06 Å from O)
+            (2.20, 0.00, 0.00),  # H (bonded to N, 2.06 Å from O — H-bond!)
         ],
         r1_bonds=[(0, 1)],  # C=O
         r2_bonds=[(0, 1)],  # N-H
     )
     findings = clashes_python(top, pos)
     assert findings == [], (
-        f"Expected zero findings (backbone amide H-bond), got: "
-        f"{[str(f) for f in findings]}"
+        f"Expected zero findings (backbone amide H-bond), got: {[str(f) for f in findings]}"
     )
 
 
@@ -175,13 +202,13 @@ def test_salt_bridge_arg_h_to_asp_o_not_reported() -> None:
     """ARG-guanidinium HH..carboxylate O at 1.79 Å (a strong salt
     bridge) must not be reported as a clash."""
     top, pos = _make_two_residue_topology(
-        r1_atoms=[("NH1", "N"), ("HH11", "H")],   # ARG guanidinium
-        r2_atoms=[("CG", "C"), ("OD1", "O")],      # ASP carboxylate
+        r1_atoms=[("NH1", "N"), ("HH11", "H")],  # ARG guanidinium
+        r2_atoms=[("CG", "C"), ("OD1", "O")],  # ASP carboxylate
         positions_a=[
-            (0.00, 0.00, 0.00),   # NH1
-            (1.00, 0.00, 0.00),   # HH11 (bonded to NH1)
-            (3.53, 0.00, 0.00),   # CG
-            (2.79, 0.00, 0.00),   # OD1 (bonded to CG; 1.79 Å from HH11)
+            (0.00, 0.00, 0.00),  # NH1
+            (1.00, 0.00, 0.00),  # HH11 (bonded to NH1)
+            (3.53, 0.00, 0.00),  # CG
+            (2.79, 0.00, 0.00),  # OD1 (bonded to CG; 1.79 Å from HH11)
         ],
         r1_bonds=[(0, 1)],
         r2_bonds=[(0, 1)],
@@ -197,13 +224,13 @@ def test_non_polar_h_close_to_o_still_flagged() -> None:
     as an H-bond — polar-donor test protects genuine C-H..O clashes.
     Places the C-bonded H at 1.85 Å from a separate residue's O."""
     top, pos = _make_two_residue_topology(
-        r1_atoms=[("C", "C"), ("H", "H")],       # C-H (aliphatic)
-        r2_atoms=[("C", "C"), ("O", "O")],       # C=O
+        r1_atoms=[("C", "C"), ("H", "H")],  # C-H (aliphatic)
+        r2_atoms=[("C", "C"), ("O", "O")],  # C=O
         positions_a=[
-            (0.00, 0.00, 0.00),   # C
-            (1.09, 0.00, 0.00),   # H (bonded to C, non-polar)
-            (4.00, 0.00, 0.00),   # C
-            (2.94, 0.00, 0.00),   # O (bonded to C; 1.85 Å from non-polar H)
+            (0.00, 0.00, 0.00),  # C
+            (1.09, 0.00, 0.00),  # H (bonded to C, non-polar)
+            (4.00, 0.00, 0.00),  # C
+            (2.94, 0.00, 0.00),  # O (bonded to C; 1.85 Å from non-polar H)
         ],
         r1_bonds=[(0, 1)],
         r2_bonds=[(0, 1)],
@@ -242,8 +269,10 @@ def test_clash_mode_presets_change_severity() -> None:
     ]:
         warn_a, err_a = CLASH_MODE_PRESETS[mode]
         findings = clashes_python(
-            top, pos,
-            clash_warn_a=warn_a, clash_error_a=err_a,
+            top,
+            pos,
+            clash_warn_a=warn_a,
+            clash_error_a=err_a,
         )
         assert len(findings) == 1, f"{mode}: {findings}"
         assert findings[0].severity == expected, (

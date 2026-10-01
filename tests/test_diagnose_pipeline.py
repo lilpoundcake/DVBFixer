@@ -119,9 +119,7 @@ def test_severity_filter_ERROR_drops_lower(
             pytest.fail(f"WARNING/INFO leaked through --severity ERROR: {ln}")
 
 
-def test_missing_input_exits_2(
-    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
+def test_missing_input_exits_2(tmp_workdir: Path, capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = _run([str(tmp_workdir / "does-not-exist.pdb")])
     assert exit_code == 2
 
@@ -158,11 +156,14 @@ def test_multi_model_input_reports_warning_and_uses_model1(
 # Small solvent-only input — a plain protein residue plus a couple
 # of waters. Chain-break check without --include-water must not
 # flag the water-water resSeq jump.
-_ALA_PLUS_WATERS = _CLEAN_ALA.replace("END\n", "") + """\
+_ALA_PLUS_WATERS = (
+    _CLEAN_ALA.replace("END\n", "")
+    + """\
 HETATM   14  O   HOH A 100      10.000  10.000  10.000  1.00  0.00           O
 HETATM   15  O   HOH A 200      15.000  10.000  10.000  1.00  0.00           O
 END
 """
+)
 
 
 def test_water_chain_breaks_suppressed_by_default(
@@ -245,27 +246,39 @@ def test_clash_mode_bioluminate_quiets_borderline(
     assert ec == 0
 
 
-def test_json_output_is_valid(
-    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
+def test_json_output_is_valid(tmp_workdir: Path, capsys: pytest.CaptureFixture[str]) -> None:
     """--format json should emit a parseable JSON document with the
     documented keys."""
     import json as _json
+
     in_pdb = tmp_workdir / "broken.pdb"
     in_pdb.write_text(_BROKEN_HG_ON_OXT)
     _run([str(in_pdb), "--format", "json"])
     out = capsys.readouterr().out
     payload = _json.loads(out)
     assert set(payload.keys()) >= {
-        "input", "n_atoms", "n_residues", "n_chains", "findings", "summary",
+        "input",
+        "n_atoms",
+        "n_residues",
+        "n_chains",
+        "findings",
+        "summary",
     }
     # At least one ERROR finding on this known-broken input.
     assert payload["summary"]["ERROR"] >= 1
+    assert payload["geometry"]["schema"] == "dvbfixer.geometry-report.v1"
+    assert "finding_aggregates" in payload["geometry"]
     # Every finding has the documented shape.
     for f in payload["findings"]:
         assert set(f.keys()) >= {
-            "severity", "category", "chain", "resid", "resname",
-            "atom", "message", "fix_hint",
+            "severity",
+            "category",
+            "chain",
+            "resid",
+            "resname",
+            "atom",
+            "message",
+            "fix_hint",
         }
 
 
@@ -285,12 +298,57 @@ def test_json_reports_persistent_chirality_repair_history(
     tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     in_pdb = tmp_workdir / "repaired.pdb"
-    in_pdb.write_text(
-        "REMARK 999 DVBFIXER CHIRALITY_REPAIR minimize A ALA 1 .\n" + _CLEAN_ALA
-    )
+    in_pdb.write_text("REMARK 999 DVBFIXER CHIRALITY_REPAIR minimize A ALA 1 .\n" + _CLEAN_ALA)
     _run([str(in_pdb), "--format", "json"])
     import json as _json
+
     payload = _json.loads(capsys.readouterr().out)
     assert payload["chirality"]["d_isomer_error"] is False
     assert payload["chirality"]["hydrogen_geometry_review_recommended"] is True
     assert payload["chirality"]["forced_repairs"][0]["resid"] == "1"
+
+
+def test_exact_scope_reports_completeness_boundary_and_steric_evidence(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import json as _json
+
+    in_pdb = tmp_workdir / "scope.pdb"
+    in_pdb.write_text(_CLEAN_ALA)
+    exit_code = _run(
+        [
+            str(in_pdb),
+            "--format",
+            "json",
+            "--scope-residue",
+            "A:1",
+            "--scope-boundary",
+            "A:1:A,A:2",
+        ]
+    )
+    payload = _json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert payload["scope"]["schema"] == "dvbfixer.diagnostic-scope.v1"
+    assert payload["scope"]["selected_residues"] == [
+        {"chain": "A", "resid": "1", "icode": ""},
+        {"chain": "A", "resid": "1", "icode": "A"},
+        {"chain": "A", "resid": "2", "icode": ""},
+    ]
+    completeness = payload["scope"]["completeness"]
+    assert completeness[0]["backbone_complete"] is True
+    assert completeness[1]["present"] is False
+    assert payload["scope"]["boundaries"][0]["status"] == "missing_atom"
+    assert payload["scope"]["deterministic_steric"]["engine"] == {
+        "name": "dvbfixer-python-steric",
+        "version": "1",
+    }
+    assert payload["scope"]["finding_aggregates"]["bond_angle"]["count"] >= 0
+
+
+def test_exact_scope_requires_json(tmp_workdir: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    in_pdb = tmp_workdir / "scope.pdb"
+    in_pdb.write_text(_CLEAN_ALA)
+
+    assert _run([str(in_pdb), "--scope-residue", "A:1"]) == 2
+    assert "requires --format json" in capsys.readouterr().err

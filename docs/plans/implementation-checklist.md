@@ -89,7 +89,7 @@ verifies naming transformations, not chemical template or bond compatibility.
 ## API Phase 2: Dedicated CLI Adapter
 
 - [x] Add `dvbfixer atom-names` with one input and one explicit output.
-- [x] Add `--target-ff {amber,charmm}` and `--profile gromacs`.
+- [x] Add `--target-ff {amber,amber19sb,charmm}` and `--profile gromacs`.
 - [x] Support variant overrides from JSON, `--dry-run`, and `--report-json`.
 - [x] Call the pure naming service and keep the command distinct from `rename` and `convert`.
 - [x] Register the command and regenerate CLI and GUI command references.
@@ -151,7 +151,7 @@ configuration validation, and cleanup on subsequent successful execution.
 - [x] Validate host, port, roots, and shutdown configuration.
 - [x] Reject lexical and symlink-resolved static/data root overlap.
 - [x] Return JSON for unknown API paths and use SPA fallback only for HTML requests.
-- [x] Stop intake, reject new work, terminate children, drain HTTP, then close PostgreSQL.
+- [x] Stop intake, reject new work, terminate children, then drain HTTP.
 - [x] Bound the emitted-server startup and shutdown smoke test.
 - [x] Complete final review and verification of the standalone slice.
 - [x] Commit the standalone slice.
