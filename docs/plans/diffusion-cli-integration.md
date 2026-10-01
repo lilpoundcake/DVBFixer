@@ -1,5 +1,32 @@
 # План A. Слияние веток и внедрение diffusion backend в CLI
 
+## Статус предварительной интеграции Apple Silicon
+
+На ветке `feature/dvbfixer-hardening` выполнен предварительный этап:
+
+- актуальный `main` объединён merge-коммитом `7d40ef6`;
+- `origin/diffusion` объединён merge-коммитом `0762cfc`;
+- diffusion-only Ramachandran и chi1/chi2 hard gates изолированы от общего
+  `diagnose` в `dvbfixer.model.diffusion.quality` (`b3f3a9e`);
+- `origin/diffusion-apple-silicon` объединён merge-коммитом `e84d07e`;
+- MODELLER остаётся единственным публичным backend команды `model`; production
+  runner contract и `--backend diffusion` на этом этапе не включены.
+
+Аппаратно-независимая проверка на Linux завершена: 194 diffusion/Apple tests и
+82 затронутых diagnose/geometry tests прошли, как и Ruff, DDD map validation и
+`git diff --check`. Следующая обязательная точка выполнения находится на
+физическом Apple Silicon. Требуется native arm64 environment, Protpardelle
+revision `ee378400f25b801fa481028000f9060183d7fb4c`, только
+`deploy/protpardelle-1c/apple-portability.patch` без callback patch и
+`PYTORCH_ENABLE_MPS_FALLBACK=0`, установленный до запуска Python. Последовательность
+inventory, CPU/MPS operator smoke и one-step MPS smoke приведена в
+`deploy/protpardelle-1c/README.md`.
+
+Продолжать с production protocol wrapper, sampler trace и публичным CLI следует
+только после успешного MPS smoke без fallback и с подтверждёнными model/input/
+output device assertions. Этот предварительный merge сам по себе не означает,
+что Apple profile доступен пользователям.
+
 ## A.1. Зафиксированные границы и продуктовые решения
 
 - Сохранить MODELLER:
