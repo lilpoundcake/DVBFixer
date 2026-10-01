@@ -18,8 +18,6 @@ from dvbfixer.diagnose.chemistry import (
     check_backbone_bond_angles,
     check_bond_lengths,
     check_peptide_omegas,
-    check_ramachandran,
-    check_sidechain_chi12,
 )
 from dvbfixer.diagnose.report import Severity
 from dvbfixer.diagnose.steric import clashes_python
@@ -38,6 +36,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
     ValidationSummary,
 )
+from dvbfixer.model.diffusion.quality import check_ramachandran, check_sidechain_chi12
 from dvbfixer.model.diffusion.scope import CANONICAL_HEAVY_ATOMS
 
 FIXED_HEAVY_ATOM_RMSD_MAX_ANGSTROM = 0.01
