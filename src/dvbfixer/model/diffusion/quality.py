@@ -57,7 +57,7 @@ _CANONICAL_AMINO_ACIDS = frozenset(
 def _ramachandran_reference() -> np.ndarray:
     global _RAMACHANDRAN_REFERENCE
     if _RAMACHANDRAN_REFERENCE is None:
-        _RAMACHANDRAN_REFERENCE = np.load(_RAMACHANDRAN_REFERENCE_PATH)
+        _RAMACHANDRAN_REFERENCE = np.load(str(_RAMACHANDRAN_REFERENCE_PATH))
     return _RAMACHANDRAN_REFERENCE
 
 
@@ -92,8 +92,14 @@ def check_ramachandran(topology: Any, positions: Any) -> list[Finding]:
             c = _find_atom(residue, "C")
             following_n = _find_atom(following, "N")
             atoms = (previous_c, n, ca, c, following_n)
-            if not all(atoms):
+            if any(atom is None for atom in atoms):
                 continue
+            assert previous_c is not None
+            assert n is not None
+            assert ca is not None
+            assert c is not None
+            assert following_n is not None
+            atoms = (previous_c, n, ca, c, following_n)
             required_bonds = ((previous_c, n), (n, ca), (ca, c), (c, following_n))
             if any(
                 tuple(sorted((first.index, second.index))) not in bonds
@@ -127,7 +133,7 @@ def check_ramachandran(topology: Any, positions: Any) -> list[Finding]:
 def _sidechain_chi12_reference() -> np.ndarray:
     global _SIDECHAIN_CHI12_REFERENCE
     if _SIDECHAIN_CHI12_REFERENCE is None:
-        _SIDECHAIN_CHI12_REFERENCE = np.load(_SIDECHAIN_CHI12_REFERENCE_PATH)
+        _SIDECHAIN_CHI12_REFERENCE = np.load(str(_SIDECHAIN_CHI12_REFERENCE_PATH))
     return _SIDECHAIN_CHI12_REFERENCE
 
 

@@ -28,6 +28,9 @@ from pdbfixer import PDBFixer
 
 from dvbfixer.ffutils.geometry import rebuild_missing_atoms_with_retry
 from dvbfixer.model.diffusion.boundary_refinement import (
+    BOUNDARY_REFINEMENT_MAX_ITERATIONS,
+    BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM,
+    BOUNDARY_REFINEMENT_RESTART_COUNT,
     BOUNDARY_REFINEMENT_REVISION,
     refine_generated_region,
 )
@@ -547,19 +550,21 @@ def materialize_candidate(
         return completed_candidate
 
     short_gap = len(gap.generated_residues) <= 5
-    refinement_kwargs: dict[str, object] = {}
-    if short_gap:
-        refinement_kwargs["max_iterations"] = 500
-        refinement_kwargs["perturbation_angstrom"] = 0.25
-    if refinement_restart_count is not None:
-        refinement_kwargs["restart_count"] = refinement_restart_count
     refinement = refine_generated_region(
         completed_candidate,
         generated_residues=gap.generated_residues,
         generated_atoms=request.generated_atoms,
+        max_iterations=500 if short_gap else BOUNDARY_REFINEMENT_MAX_ITERATIONS,
+        restart_count=(
+            refinement_restart_count
+            if refinement_restart_count is not None
+            else BOUNDARY_REFINEMENT_RESTART_COUNT
+        ),
+        perturbation_angstrom=(
+            0.25 if short_gap else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM
+        ),
         random_seed=refinement_seed,
         platform_name=refinement_platform,
-        **refinement_kwargs,
     )
     refined_lines: list[str] = []
     serial = _maximum_serial(source_text) + 1

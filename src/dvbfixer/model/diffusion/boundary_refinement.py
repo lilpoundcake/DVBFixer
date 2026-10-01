@@ -7,6 +7,7 @@ import math
 import random
 from dataclasses import dataclass
 from io import StringIO
+from typing import Any
 
 import numpy as np
 from openmm import (
@@ -351,7 +352,7 @@ def refine_generated_region(
     )
 
 
-def _coordinates_by_identity(topology: object, positions: object) -> dict[AtomIdentity, np.ndarray]:
+def _coordinates_by_identity(topology: Any, positions: Any) -> dict[AtomIdentity, np.ndarray]:
     coordinates: dict[AtomIdentity, np.ndarray] = {}
     for atom in topology.atoms():
         identity = AtomIdentity(
@@ -372,7 +373,7 @@ def _coordinates_by_identity(topology: object, positions: object) -> dict[AtomId
     return coordinates
 
 
-def _state_is_finite(state: object) -> bool:
+def _state_is_finite(state: Any) -> bool:
     positions = np.asarray(
         state.getPositions(asNumpy=True).value_in_unit(nanometer),
         dtype=np.float64,
@@ -382,7 +383,7 @@ def _state_is_finite(state: object) -> bool:
 
 
 def _build_trans_amide_force(
-    topology: object,
+    topology: Any,
     generated_residues: set[ResidueIdentity],
 ) -> tuple[CustomTorsionForce, int]:
     force = CustomTorsionForce("omega_k*(1+cos(theta))")
@@ -409,7 +410,7 @@ def _build_trans_amide_force(
 
 
 def _build_peptide_angle_force(
-    topology: object,
+    topology: Any,
     generated_residues: set[ResidueIdentity],
 ) -> tuple[CustomAngleForce, int]:
     force = CustomAngleForce("0.5*angle_k*(theta-theta0)^2")
@@ -448,9 +449,9 @@ def _build_peptide_angle_force(
 
 
 def _constrain_generated_heavy_bonds(
-    system: object,
-    topology: object,
-    positions: object,
+    system: Any,
+    topology: Any,
+    positions: Any,
     generated_residues: set[ResidueIdentity],
 ) -> None:
     for atom1, atom2 in topology.bonds():
@@ -476,8 +477,8 @@ def _constrain_generated_heavy_bonds(
 
 
 def _local_geometry_error_count(
-    topology: object,
-    positions: object,
+    topology: Any,
+    positions: Any,
     generated_residues: set[ResidueIdentity],
 ) -> int:
     local = set(generated_residues)
@@ -523,7 +524,7 @@ def _local_geometry_error_count(
     return errors
 
 
-def _d_residue_identities(topology: object, positions: object) -> set[ResidueIdentity]:
+def _d_residue_identities(topology: Any, positions: Any) -> set[ResidueIdentity]:
     offenders = find_d_residues(topology, positions)
     identities: set[ResidueIdentity] = set()
     for chain, residue_number, residue_name, _triple in offenders:
@@ -543,7 +544,7 @@ def _d_residue_identities(topology: object, positions: object) -> set[ResidueIde
     return identities
 
 
-def _topology_residue(residue: object) -> ResidueIdentity:
+def _topology_residue(residue: Any) -> ResidueIdentity:
     return ResidueIdentity(
         residue.chain.id,
         str(residue.id),
@@ -557,7 +558,7 @@ def _atom_residue(atom: AtomIdentity) -> ResidueIdentity:
 
 def _has_observed_sidechain(
     residue: ResidueIdentity,
-    topology: object,
+    topology: Any,
     original_coordinates: dict[AtomIdentity, np.ndarray],
 ) -> bool:
     matches = [item for item in topology.residues() if _topology_residue(item) == residue]
