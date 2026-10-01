@@ -8,6 +8,42 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.9.0] — 2026-10-01
+
+### Added
+
+- Added an internal versioned diffusion request, scope-admission, isolated
+  runner, independent validation, provenance, and atomic bundle-publication
+  foundation for canonical-protein gap reconstruction research.
+- Added pinned Protenix, Boltz, RFdiffusion, and Protpardelle research adapters,
+  benchmark tooling, fixtures, and frozen evidence records without adding ML
+  frameworks or checkpoints to the core environment.
+- Added preliminary Apple Silicon/MPS portability support for the pinned
+  Protpardelle research adapter, including fail-closed device assertions,
+  disabled CPU fallback, synchronized timing, memory telemetry, and exact final
+  fixed-coordinate restoration.
+
+### Changed
+
+- Kept diffusion-only Ramachandran and pooled chi1/chi2 hard gates inside the
+  experimental diffusion package so generic `diagnose` retains its current
+  report-only contract and dependency boundary.
+- Recorded the physical Apple Silicon handoff and required CPU/MPS smoke gates
+  before production-runner or public CLI work continues.
+
+### Compatibility
+
+- MODELLER remains the default and only public backend of `dvbfixer model`.
+  Diffusion is not yet exposed through CLI, GUI, batch, Homology, or ZBS, and
+  no automatic scientific fallback or checkpoint download was introduced.
+
+### Verification
+
+- The hardware-independent integration passed the full Python 3.11 non-slow
+  suite (850 passed, 9 skipped), the GUI suite (235 passed), mypy, Ruff,
+  generated-reference checks, DDD map validation, and whitespace validation.
+  Physical MPS acceptance remains required on Apple Silicon.
+
 ## [0.8.9] — 2026-09-30
 
 ### Added
