@@ -23,6 +23,7 @@ DRIVER = Path(__file__).resolve()
 DEFAULT_MANIFEST = ROOT / "docs/research/small-diffusion-v5-expanded-pilot.json"
 ADAPTER = ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py"
 CALLBACK_PATCH = ROOT / "deploy/protpardelle-1c/per-step-callback.patch"
+APPLE_PORTABILITY_PATCH = ROOT / "deploy/protpardelle-1c/apple-portability.patch"
 REFINER = ROOT / "deploy/protenix-v1/refine_candidate.py"
 BOUNDARY_REFINEMENT = ROOT / "src/dvbfixer/model/diffusion/boundary_refinement.py"
 PROTPARDELLE_REVISION = "ee378400f25b801fa481028000f9060183d7fb4c"
@@ -207,7 +208,13 @@ def run_pilot(
     selected_case_ids: frozenset[str] = frozenset(),
     output_subdir: str = "small-diffusion-expanded",
     per_step_reinjection: bool = False,
+    device: str = "cuda",
+    mps_profile: bool = False,
 ) -> None:
+    if mps_profile and device != "mps":
+        raise PilotError("--mps-profile requires --device mps")
+    if device == "mps" and per_step_reinjection:
+        raise PilotError("the frozen Apple baseline does not use per-step reinjection")
     manifest, cases = load_manifest(manifest_path, cohort_root)
     sampling = manifest["sampling"]
     if _sha256(config) != sampling["config_sha256"]:
@@ -239,6 +246,23 @@ def run_pilot(
         )
         if patch_check.returncode:
             raise PilotError("Protpardelle per-step callback patch is not applied")
+    if device == "mps":
+        portability_check = subprocess.run(
+            (
+                "git",
+                "-C",
+                str(protpardelle_checkout),
+                "apply",
+                "--reverse",
+                "--check",
+                str(APPLE_PORTABILITY_PATCH),
+            ),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if portability_check.returncode:
+            raise PilotError("Protpardelle Apple portability patch is not applied")
     unknown = selected_case_ids - {case.case_id for case in cases}
     if unknown:
         raise PilotError(f"requested cases are absent from manifest: {sorted(unknown)}")
@@ -270,8 +294,16 @@ def run_pilot(
             str(sampling["step_scale"]),
             "--s-churn",
             str(sampling["s_churn"]),
-        ) + (("--per-step-reinjection",) if per_step_reinjection else ())
+            "--device",
+            device,
+        )
+        if per_step_reinjection:
+            raw_command += ("--per-step-reinjection",)
+        if mps_profile:
+            raw_command += ("--mps-profile",)
         raw_env = os.environ.copy()
+        if device == "mps":
+            raw_env["PYTORCH_ENABLE_MPS_FALLBACK"] = "0"
         raw_env["PYTHONPATH"] = os.pathsep.join(
             (str(ROOT / "src"), str(protpardelle_checkout / "src"))
         )
@@ -285,6 +317,8 @@ def run_pilot(
         }
         if per_step_reinjection:
             raw_inputs["callback_patch"] = CALLBACK_PATCH
+        if device == "mps":
+            raw_inputs["apple_portability_patch"] = APPLE_PORTABILITY_PATCH
         if not _run_stage(
             markers / "raw.json",
             raw_command,
@@ -300,6 +334,8 @@ def run_pilot(
             raise PilotError(f"{case.case_id}: raw summary candidate digest mismatch")
         if bool(raw_summary.get("per_step_reinjection", False)) != per_step_reinjection:
             raise PilotError(f"{case.case_id}: raw summary reinjection mode mismatch")
+        if raw_summary.get("device", "").split(":", 1)[0] != device:
+            raise PilotError(f"{case.case_id}: raw summary device mismatch")
         if per_step_reinjection:
             callback = raw_summary.get("per_step_callback", {})
             if callback.get("callback_count") != sampling["steps"]:
@@ -494,6 +530,11 @@ def aggregate(
                 [float(item["wall_time_seconds"]) for item in available]
             )
         if key == "raw":
+            measured_accelerator_memory = [
+                int(item["peak_vram_bytes"])
+                for item in available
+                if item.get("peak_vram_bytes") is not None
+            ]
             result.update(
                 median_native_conditioning_rmsd_angstrom=_median(
                     [
@@ -507,7 +548,11 @@ def aggregate(
                         for item in available
                     ]
                 ),
-                peak_vram_bytes=max(int(item["peak_vram_bytes"]) for item in available),
+                peak_vram_bytes=(
+                    max(measured_accelerator_memory)
+                    if measured_accelerator_memory
+                    else None
+                ),
             )
         return result
 
@@ -670,6 +715,8 @@ def main() -> None:
     run_parser.add_argument("--dvbfixer-python", required=True, type=Path)
     run_parser.add_argument("--case", action="append", default=[])
     run_parser.add_argument("--output-subdir", default="small-diffusion-expanded")
+    run_parser.add_argument("--device", choices=("cpu", "cuda", "mps"), default="cuda")
+    run_parser.add_argument("--mps-profile", action="store_true")
     run_parser.add_argument("--per-step-reinjection", action="store_true")
     aggregate_parser = subparsers.add_parser("aggregate")
     aggregate_parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
@@ -689,6 +736,8 @@ def main() -> None:
             selected_case_ids=frozenset(args.case),
             output_subdir=args.output_subdir,
             per_step_reinjection=args.per_step_reinjection,
+            device=args.device,
+            mps_profile=args.mps_profile,
         )
     else:
         aggregate(

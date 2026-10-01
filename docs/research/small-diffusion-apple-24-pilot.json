@@ -1,0 +1,212 @@
+{
+  "acceptance": {
+    "case_count": 24,
+    "maximum_peak_unified_memory_fraction": 0.6,
+    "maximum_projected_p95_wall_time_seconds": 300.0,
+    "minimum_selected_passes": 21,
+    "require_no_systematic_new_failure_class": true
+  },
+  "case_count": 24,
+  "cases": [
+    {
+      "case_id": "9hcf",
+      "gap_length": 5,
+      "screening_index": 10,
+      "target_length": 321
+    },
+    {
+      "case_id": "8x9z",
+      "gap_length": 5,
+      "screening_index": 20,
+      "target_length": 94
+    },
+    {
+      "case_id": "9e85",
+      "gap_length": 5,
+      "screening_index": 22,
+      "target_length": 159
+    },
+    {
+      "case_id": "30ie",
+      "gap_length": 5,
+      "screening_index": 24,
+      "target_length": 415
+    },
+    {
+      "case_id": "11mi",
+      "gap_length": 5,
+      "screening_index": 26,
+      "target_length": 176
+    },
+    {
+      "case_id": "24mc",
+      "gap_length": 5,
+      "screening_index": 28,
+      "target_length": 461
+    },
+    {
+      "case_id": "9dvi",
+      "gap_length": 5,
+      "screening_index": 30,
+      "target_length": 77
+    },
+    {
+      "case_id": "9jft",
+      "gap_length": 5,
+      "screening_index": 40,
+      "target_length": 282
+    },
+    {
+      "case_id": "23vl",
+      "gap_length": 5,
+      "screening_index": 42,
+      "target_length": 289
+    },
+    {
+      "case_id": "9ges",
+      "gap_length": 5,
+      "screening_index": 58,
+      "target_length": 177
+    },
+    {
+      "case_id": "45iy",
+      "gap_length": 5,
+      "screening_index": 62,
+      "target_length": 389
+    },
+    {
+      "case_id": "28ye",
+      "gap_length": 5,
+      "screening_index": 64,
+      "target_length": 99
+    },
+    {
+      "case_id": "9eko",
+      "gap_length": 10,
+      "screening_index": 21,
+      "target_length": 452
+    },
+    {
+      "case_id": "9guc",
+      "gap_length": 10,
+      "screening_index": 27,
+      "target_length": 82
+    },
+    {
+      "case_id": "9g9t",
+      "gap_length": 10,
+      "screening_index": 29,
+      "target_length": 205
+    },
+    {
+      "case_id": "9jq3",
+      "gap_length": 10,
+      "screening_index": 37,
+      "target_length": 387
+    },
+    {
+      "case_id": "9hab",
+      "gap_length": 10,
+      "screening_index": 41,
+      "target_length": 385
+    },
+    {
+      "case_id": "8v9v",
+      "gap_length": 10,
+      "screening_index": 43,
+      "target_length": 167
+    },
+    {
+      "case_id": "8uui",
+      "gap_length": 10,
+      "screening_index": 45,
+      "target_length": 295
+    },
+    {
+      "case_id": "11fs",
+      "gap_length": 10,
+      "screening_index": 51,
+      "target_length": 112
+    },
+    {
+      "case_id": "9e51",
+      "gap_length": 10,
+      "screening_index": 57,
+      "target_length": 215
+    },
+    {
+      "case_id": "9g1v",
+      "gap_length": 10,
+      "screening_index": 59,
+      "target_length": 19
+    },
+    {
+      "case_id": "9e2t",
+      "gap_length": 10,
+      "screening_index": 65,
+      "target_length": 201
+    },
+    {
+      "case_id": "9cf8",
+      "gap_length": 10,
+      "screening_index": 69,
+      "target_length": 110
+    }
+  ],
+  "description": "Apple Silicon portability run over the previously frozen 12 gap-5 and 12 gap-10 Protpardelle pilot membership. No outcome-based replacement is permitted.",
+  "environment": {
+    "host_class": "Apple M3 Pro, 18 GB unified memory, arm64",
+    "pip_freeze_sha256": "a83344873517dfc7a25aa652bffb0fbe6cacc9054a24717ff3a4f9c1956149b5",
+    "pytorch_version": "2.6.0"
+  },
+  "gap_strata": {
+    "10": 12,
+    "5": 12
+  },
+  "refinement": {
+    "openmm_cpu_threads": 8,
+    "output_subdir": "apple-cpu-refined",
+    "platform": "CPU",
+    "resample_before_refinement": false,
+    "restart_count": 8,
+    "revision": "dvbfixer-openmm-boundary-refinement-v6"
+  },
+  "sampling": {
+    "adapter_sha256": "02b2c9ad58d0b86146b49fead1596bdcd6ff6bbd39012d70e8a4fd99ecad7a73",
+    "apple_portability_patch_sha256": "a87fe2e9f0c143102441d6a39ff181bd0c2b1c411cdfdf65236d7baf38a8d858",
+    "candidate_count": 1,
+    "checkpoint": "cc89_epoch415.pth",
+    "checkpoint_sha256": "dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483",
+    "config_sha256": "e9999ace79bf3044351cc982a624fc3459add3a4f91cbf97ff5b437b8942eb9d",
+    "device": "mps",
+    "engine_repository": "https://github.com/ProteinDesignLab/protpardelle-1c",
+    "engine_revision": "ee378400f25b801fa481028000f9060183d7fb4c",
+    "mpnn_enabled": false,
+    "per_step_reinjection": false,
+    "precision": "float32",
+    "pytorch_enable_mps_fallback": "0",
+    "s_churn": 200.0,
+    "seed_source": "existing DiffusionRequest",
+    "step_scale": 1.2,
+    "steps": 500
+  },
+  "schema_version": 1,
+  "selection": {
+    "failures_remain_in_denominator": true,
+    "order": [
+      "refined",
+      "raw"
+    ],
+    "policy": "validation-first"
+  },
+  "source_aggregate": ".artifacts/diffusion-confirmatory-cohort-500-v5/aggregate.json",
+  "source_aggregate_sha256": "55e4cbc6c16ee6bf34a14aabf61ec71afcddfb436f15edb5195c3d8b3f717ad7",
+  "source_manifest": "docs/research/small-diffusion-v5-expanded-pilot.json",
+  "source_manifest_sha256": "fbeb95ea342ef706d123e3d22ef61a0e836ea65a50ed67af3355c21d6b79b3d3",
+  "status": "preregistered-before-apple-24-case-inference",
+  "stop_rules": [
+    "Stop on any identity mapping, output atom-set, fixed-coordinate, digest, wrong-device, non-finite, or silent-fallback failure.",
+    "Record geometry validation failures and continue; never replace a failed case.",
+    "Do not use outcomes to change sampling, refinement, membership, or thresholds."
+  ]
+}

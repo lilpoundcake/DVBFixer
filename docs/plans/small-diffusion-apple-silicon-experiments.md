@@ -15,6 +15,14 @@
   - [`diffusion-gap-reconstruction.md`](diffusion-gap-reconstruction.md)
   - [`../research/reconstruction-and-modeling-backends.md`](../research/reconstruction-and-modeling-backends.md)
   - [`../research/small-diffusion-candidate-results.md`](../research/small-diffusion-candidate-results.md)
+  - [`../research/apple-silicon-diffusion-operator-smoke.md`](../research/apple-silicon-diffusion-operator-smoke.md)
+  - [`../research/apple-silicon-diffusion-six-case-pilot.md`](../research/apple-silicon-diffusion-six-case-pilot.md)
+  - [`../research/small-diffusion-apple-24-pilot.json`](../research/small-diffusion-apple-24-pilot.json)
+  - [`../research/apple-silicon-diffusion-24-case-results.md`](../research/apple-silicon-diffusion-24-case-results.md)
+  - [`../research/small-diffusion-apple-100-soak.json`](../research/small-diffusion-apple-100-soak.json)
+  - [`../research/small-diffusion-apple-full-231.json`](../research/small-diffusion-apple-full-231.json)
+  - [`../research/apple-silicon-diffusion-100-case-results.md`](../research/apple-silicon-diffusion-100-case-results.md)
+  - [`../research/apple-silicon-diffusion-full-231-results.md`](../research/apple-silicon-diffusion-full-231-results.md)
 
 ## Goals
 
@@ -92,7 +100,7 @@
   - [x] locate a stable post-update state hook and preserve the maintained patch;
   - [x] map its atom or residue state to exact DVBFixer identities;
   - [x] run Linux CPU and CUDA operator smokes before the Linux quality pilot;
-  - [ ] run MPS operator smokes only after the Linux candidate-selection gate;
+  - [x] run MPS operator smokes only after the Linux candidate-selection gate;
   - [ ] treat AI-CATH/ProteinMPNN/ESMFold teacher bias and public-structure
     homology as unresolved until the training inventory is audited.
 - [ ] Audit Protenix Tiny and Mini as all-atom size references:
@@ -238,22 +246,22 @@
 
 ### Baseline Environment
 
-- [ ] Use a native arm64 Python environment on a physical Apple Silicon Mac.
-- [ ] Record chip generation, GPU core count, physical unified memory, macOS,
+- [x] Use a native arm64 Python environment on a physical Apple Silicon Mac.
+- [x] Record chip generation, GPU core count, physical unified memory, macOS,
   Xcode command-line tools, Python, PyTorch, and dependency-lock versions.
-- [ ] Start with a 16 GB M-series Mac as the minimum declared baseline where available.
+- [x] Start with a 16 GB M-series Mac as the minimum declared baseline where available.
 - [ ] Add at least one newer 24 GB or larger machine for scaling measurements.
-- [ ] Keep model checkpoints and caches local and checksum-verified.
-- [ ] Keep Torch and model-specific packages in an external runner environment,
+- [x] Keep model checkpoints and caches local and checksum-verified.
+- [x] Keep Torch and model-specific packages in an external runner environment,
   not in the DVBFixer core environment.
 
 ### PyTorch MPS Track
 
-- [ ] Establish float32 CPU output as the numerical reference for each candidate.
-- [ ] Run one denoiser step on `mps` before attempting full sampling.
-- [ ] Inventory unsupported operators, implicit device transfers, synchronization
+- [x] Establish float32 CPU output as the numerical reference for each candidate.
+- [x] Run one denoiser step on `mps` before attempting full sampling.
+- [x] Inventory unsupported operators, implicit device transfers, synchronization
   points, and host callbacks.
-- [ ] Disable silent broad CPU fallback during acceptance measurements.
+- [x] Disable silent broad CPU fallback during acceptance measurements.
 - [ ] Allowlist intentional CPU operations individually and include their time in
   end-to-end latency.
 - [ ] Keep OpenMM boundary refinement on its independently selected macOS platform;
@@ -317,13 +325,13 @@ lanes below pass and a full repeat has a stated decision value.
 
 #### Before Moving Machines
 
-- [ ] Add an explicit `--device {cpu,cuda,mps}` to the research adapter and pass
+- [x] Add an explicit `--device {cpu,cuda,mps}` to the research adapter and pass
   the selected device through model loading and tensor creation. The current
-  adapter is CUDA-only; replacing `cuda` ad hoc on the Mac is not acceptable.
-- [ ] Make accelerator telemetry device-aware. Record CUDA VRAM only on CUDA;
+  adapter no longer relies on ad hoc replacement of `cuda` on the Mac.
+- [x] Make accelerator telemetry device-aware. Record CUDA VRAM only on CUDA;
   on Apple record Torch MPS allocated/driver memory where available plus process
   peak RSS from macOS. Missing MPS telemetry must be `null`, never zero.
-- [ ] Add tests proving that the requested device is honored, unavailable MPS
+- [x] Add tests proving that the requested device is honored, unavailable MPS
   fails closed, and summary metadata cannot label a CPU run as MPS.
 - [ ] Materialize a transfer bundle containing the committed repository revision,
   the six frozen pilot workspaces (`36hb`, `9gtp`, `9gae`, `9ina`, `9eho`,
@@ -355,7 +363,7 @@ lanes below pass and a full repeat has a stated decision value.
 
 #### Ordered Test Lanes
 
-- [ ] Lane 0, core contract: run the diffusion contract, scope, mask, validation,
+- [x] Lane 0, core contract: run the diffusion contract, scope, mask, validation,
   geometry, provenance, pipeline, preflight, runner, Protpardelle adapter, and
   pilot-driver tests on macOS arm64 before loading the checkpoint.
 
@@ -374,27 +382,31 @@ lanes below pass and a full repeat has a stated decision value.
     tests/test_small_diffusion_v5_pilot.py
   ```
 
-- [ ] Lane 1, CPU reference: load the pinned checkpoint in float32 on CPU, execute
+- [x] Lane 1, CPU reference: load the pinned checkpoint in float32 on CPU, execute
   one denoiser step, and record finite outputs, atom37 shape, load time, step time,
   peak RSS, and output digest. Then run the shortest frozen case (`36hb`) once at
   500 steps if its projected runtime is practical.
-- [ ] Lane 2, MPS operator smoke: repeat the same load and one-step input on MPS
+- [x] Lane 2, MPS operator smoke: repeat the same load and one-step input on MPS
   with fallback disabled. Assert model state, denoiser inputs, and outputs remain
   on `mps`; inventory every unsupported operator or intentional host transfer.
-- [ ] Lane 3, MPS repeatability: run `36hb` at 500 steps in two independent
+- [x] Lane 3, MPS repeatability: run `36hb` at 500 steps in two independent
   workspaces with the same request seed. Require both selected candidates to pass
   all hard gates and fixed atoms to be exact. Report RMSD and maximum displacement
   between generated atoms; do not require cross-device or same-device byte identity.
-- [ ] Lane 4, frozen six-case pilot: run the six cases once on MPS, then perform
+- [x] Lane 4, frozen six-case pilot: run the six cases once on MPS, then perform
   generated-only OpenMM CPU refinement and validation without resampling. Retain
   every failure in the denominator and aggregate raw, refined, and selected results.
-- [ ] Lane 5, frozen 24-case portability pilot: proceed only if Lane 4 passes its
+- [x] Lane 5, frozen 24-case portability pilot: proceed only if Lane 4 passes its
   stop rules. Use the existing 12 gap-5/12 gap-10 membership with an Apple-specific
   manifest and namespace; do not inspect outcomes while deciding replacements.
-- [ ] Lane 6, 100-case operational soak: proceed only if Lane 5 passes. Freeze the
+- [x] Lane 6, 100-case operational soak: proceed only if Lane 5 passes. Freeze the
   first 100 eligible full-follow-up cases in manifest order, run consecutively,
   and check memory pressure, temporary cleanup, process lifetime, and p95 latency.
   A 231-case Apple repeat requires a separate written rationale after this soak.
+- [x] Lane 7, user-authorized 231-case extension: reuse only digest-verified
+  first-100 artifacts produced by the identical frozen protocol, then run the
+  remaining 131 cases in manifest order. Keep all scientific failures in the
+  denominator and require 231/231 operational completions.
 
 #### Measurements And Stop Rules
 
@@ -402,6 +414,9 @@ lanes below pass and a full repeat has a stated decision value.
   refinement, validation, and total wall time separately for every case. Record
   peak RSS and MPS memory, physical memory, output digests, failures, and whether
   each stage executed on CPU or MPS.
+  Synchronize MPS at timing boundaries. Treat sampled MPS tensor allocation,
+  Metal driver allocation, and process RSS as overlapping unified-memory views;
+  report them separately and never add them together.
 - [ ] Stop the MPS track immediately on silent CPU fallback, wrong-device tensors,
   non-finite coordinates, identity/atom-set mismatch, non-exact published fixed
   atoms, checkpoint/config digest mismatch, or an unsupported operator without a
@@ -419,7 +434,7 @@ lanes below pass and a full repeat has a stated decision value.
   termination, leaked process, or unreclaimed workspace. Scientific failures stay
   in the denominator but do not count as operational failures when validation
   completes normally.
-- [ ] Write the final hardware/environment/operator/result record under
+- [x] Write the final hardware/environment/operator/result record under
   `docs/research/`; keep checkpoints, environments, profiles, and generated
   structures under ignored `.artifacts/` paths.
 
@@ -559,8 +574,8 @@ a basis for changing the selected Protenix backend.
 
 - [ ] Complete the handoff runbook above, then move only the Protpardelle-1c
   Linux survivor to a physical Apple Silicon machine.
-- [ ] Run native arm64 CPU/MPS load and one-step smokes without silent CPU fallback.
-- [ ] Record unsupported operators, device transfers, memory, runtime, and numerical
+- [x] Run native arm64 CPU/MPS load and one-step smokes without silent CPU fallback.
+- [x] Record unsupported operators, device transfers, memory, runtime, and numerical
   divergence before attempting full constrained sampling.
 - [ ] Stop Apple-specific work for candidates that fail the Linux scientific gates.
 
@@ -628,7 +643,7 @@ a basis for changing the selected Protenix backend.
 - [x] Add a versioned small-model candidate inventory under `docs/research/`.
 - [ ] Add immutable dataset, split, and mask manifests outside model code.
 - [ ] Add external arm64 environment locks under a dedicated `deploy/` adapter.
-- [ ] Add CPU/MPS operator and resource reports with exact hardware metadata.
+- [x] Add CPU/MPS operator and resource reports with exact hardware metadata.
 - [ ] Add protocol adapters only for candidates that pass artifact and license audit.
 - [ ] Add no model weight to Git.
 - [ ] Add no Torch, MLX, Core ML, or model-specific dependency to the core

@@ -1,0 +1,1461 @@
+{
+  "acceptance": {
+    "require_no_leaked_process": true,
+    "require_no_memory_pressure_termination": true,
+    "require_workspace_cleanup": true,
+    "required_operational_completions": 231,
+    "scientific_failures_are_not_operational_failures": true
+  },
+  "authorization": "Explicit user request to run tests on the full structure cohort after the first-100 soak had started.",
+  "case_count": 231,
+  "cases": [
+    {
+      "case_id": "36hb",
+      "gap_length": 5,
+      "screening_index": 2,
+      "target_length": 106
+    },
+    {
+      "case_id": "9gtp",
+      "gap_length": 5,
+      "screening_index": 4,
+      "target_length": 225
+    },
+    {
+      "case_id": "9ina",
+      "gap_length": 10,
+      "screening_index": 5,
+      "target_length": 440
+    },
+    {
+      "case_id": "9gae",
+      "gap_length": 5,
+      "screening_index": 6,
+      "target_length": 103
+    },
+    {
+      "case_id": "9eho",
+      "gap_length": 10,
+      "screening_index": 7,
+      "target_length": 118
+    },
+    {
+      "case_id": "9hcf",
+      "gap_length": 5,
+      "screening_index": 10,
+      "target_length": 321
+    },
+    {
+      "case_id": "9gbg",
+      "gap_length": 10,
+      "screening_index": 17,
+      "target_length": 287
+    },
+    {
+      "case_id": "8x9z",
+      "gap_length": 5,
+      "screening_index": 20,
+      "target_length": 94
+    },
+    {
+      "case_id": "9eko",
+      "gap_length": 10,
+      "screening_index": 21,
+      "target_length": 452
+    },
+    {
+      "case_id": "9e85",
+      "gap_length": 5,
+      "screening_index": 22,
+      "target_length": 159
+    },
+    {
+      "case_id": "30ie",
+      "gap_length": 5,
+      "screening_index": 24,
+      "target_length": 415
+    },
+    {
+      "case_id": "11mi",
+      "gap_length": 5,
+      "screening_index": 26,
+      "target_length": 176
+    },
+    {
+      "case_id": "9guc",
+      "gap_length": 10,
+      "screening_index": 27,
+      "target_length": 82
+    },
+    {
+      "case_id": "24mc",
+      "gap_length": 5,
+      "screening_index": 28,
+      "target_length": 461
+    },
+    {
+      "case_id": "9g9t",
+      "gap_length": 10,
+      "screening_index": 29,
+      "target_length": 205
+    },
+    {
+      "case_id": "9dvi",
+      "gap_length": 5,
+      "screening_index": 30,
+      "target_length": 77
+    },
+    {
+      "case_id": "9jq3",
+      "gap_length": 10,
+      "screening_index": 37,
+      "target_length": 387
+    },
+    {
+      "case_id": "9jft",
+      "gap_length": 5,
+      "screening_index": 40,
+      "target_length": 282
+    },
+    {
+      "case_id": "9hab",
+      "gap_length": 10,
+      "screening_index": 41,
+      "target_length": 385
+    },
+    {
+      "case_id": "23vl",
+      "gap_length": 5,
+      "screening_index": 42,
+      "target_length": 289
+    },
+    {
+      "case_id": "8v9v",
+      "gap_length": 10,
+      "screening_index": 43,
+      "target_length": 167
+    },
+    {
+      "case_id": "8uui",
+      "gap_length": 10,
+      "screening_index": 45,
+      "target_length": 295
+    },
+    {
+      "case_id": "11fs",
+      "gap_length": 10,
+      "screening_index": 51,
+      "target_length": 112
+    },
+    {
+      "case_id": "9e51",
+      "gap_length": 10,
+      "screening_index": 57,
+      "target_length": 215
+    },
+    {
+      "case_id": "9ges",
+      "gap_length": 5,
+      "screening_index": 58,
+      "target_length": 177
+    },
+    {
+      "case_id": "9g1v",
+      "gap_length": 10,
+      "screening_index": 59,
+      "target_length": 19
+    },
+    {
+      "case_id": "45iy",
+      "gap_length": 5,
+      "screening_index": 62,
+      "target_length": 389
+    },
+    {
+      "case_id": "28ye",
+      "gap_length": 5,
+      "screening_index": 64,
+      "target_length": 99
+    },
+    {
+      "case_id": "9e2t",
+      "gap_length": 10,
+      "screening_index": 65,
+      "target_length": 201
+    },
+    {
+      "case_id": "36qu",
+      "gap_length": 5,
+      "screening_index": 66,
+      "target_length": 342
+    },
+    {
+      "case_id": "35zr",
+      "gap_length": 5,
+      "screening_index": 68,
+      "target_length": 461
+    },
+    {
+      "case_id": "9cf8",
+      "gap_length": 10,
+      "screening_index": 69,
+      "target_length": 110
+    },
+    {
+      "case_id": "9j5e",
+      "gap_length": 5,
+      "screening_index": 70,
+      "target_length": 358
+    },
+    {
+      "case_id": "9dvd",
+      "gap_length": 5,
+      "screening_index": 72,
+      "target_length": 411
+    },
+    {
+      "case_id": "28oe",
+      "gap_length": 10,
+      "screening_index": 73,
+      "target_length": 146
+    },
+    {
+      "case_id": "25vf",
+      "gap_length": 10,
+      "screening_index": 75,
+      "target_length": 231
+    },
+    {
+      "case_id": "9det",
+      "gap_length": 5,
+      "screening_index": 76,
+      "target_length": 52
+    },
+    {
+      "case_id": "9g44",
+      "gap_length": 10,
+      "screening_index": 77,
+      "target_length": 331
+    },
+    {
+      "case_id": "30kx",
+      "gap_length": 5,
+      "screening_index": 78,
+      "target_length": 66
+    },
+    {
+      "case_id": "10rx",
+      "gap_length": 10,
+      "screening_index": 81,
+      "target_length": 395
+    },
+    {
+      "case_id": "9ed2",
+      "gap_length": 10,
+      "screening_index": 85,
+      "target_length": 114
+    },
+    {
+      "case_id": "9ivj",
+      "gap_length": 10,
+      "screening_index": 87,
+      "target_length": 178
+    },
+    {
+      "case_id": "9fu4",
+      "gap_length": 10,
+      "screening_index": 89,
+      "target_length": 311
+    },
+    {
+      "case_id": "9i5n",
+      "gap_length": 5,
+      "screening_index": 92,
+      "target_length": 143
+    },
+    {
+      "case_id": "9ihr",
+      "gap_length": 10,
+      "screening_index": 93,
+      "target_length": 105
+    },
+    {
+      "case_id": "9jco",
+      "gap_length": 10,
+      "screening_index": 99,
+      "target_length": 300
+    },
+    {
+      "case_id": "28op",
+      "gap_length": 5,
+      "screening_index": 100,
+      "target_length": 214
+    },
+    {
+      "case_id": "9jbh",
+      "gap_length": 10,
+      "screening_index": 101,
+      "target_length": 334
+    },
+    {
+      "case_id": "9fw7",
+      "gap_length": 5,
+      "screening_index": 102,
+      "target_length": 199
+    },
+    {
+      "case_id": "9g25",
+      "gap_length": 10,
+      "screening_index": 103,
+      "target_length": 94
+    },
+    {
+      "case_id": "9h4q",
+      "gap_length": 10,
+      "screening_index": 105,
+      "target_length": 280
+    },
+    {
+      "case_id": "9gsg",
+      "gap_length": 10,
+      "screening_index": 107,
+      "target_length": 214
+    },
+    {
+      "case_id": "9epc",
+      "gap_length": 5,
+      "screening_index": 108,
+      "target_length": 128
+    },
+    {
+      "case_id": "8xiw",
+      "gap_length": 5,
+      "screening_index": 112,
+      "target_length": 133
+    },
+    {
+      "case_id": "9jy1",
+      "gap_length": 5,
+      "screening_index": 114,
+      "target_length": 31
+    },
+    {
+      "case_id": "9doq",
+      "gap_length": 10,
+      "screening_index": 117,
+      "target_length": 136
+    },
+    {
+      "case_id": "31vo",
+      "gap_length": 5,
+      "screening_index": 118,
+      "target_length": 176
+    },
+    {
+      "case_id": "9isk",
+      "gap_length": 10,
+      "screening_index": 119,
+      "target_length": 316
+    },
+    {
+      "case_id": "9hnh",
+      "gap_length": 10,
+      "screening_index": 121,
+      "target_length": 151
+    },
+    {
+      "case_id": "9fsl",
+      "gap_length": 5,
+      "screening_index": 122,
+      "target_length": 368
+    },
+    {
+      "case_id": "9hn7",
+      "gap_length": 5,
+      "screening_index": 124,
+      "target_length": 324
+    },
+    {
+      "case_id": "10wc",
+      "gap_length": 10,
+      "screening_index": 125,
+      "target_length": 172
+    },
+    {
+      "case_id": "21vm",
+      "gap_length": 5,
+      "screening_index": 126,
+      "target_length": 213
+    },
+    {
+      "case_id": "30gb",
+      "gap_length": 5,
+      "screening_index": 128,
+      "target_length": 327
+    },
+    {
+      "case_id": "8uxa",
+      "gap_length": 5,
+      "screening_index": 130,
+      "target_length": 165
+    },
+    {
+      "case_id": "28ym",
+      "gap_length": 5,
+      "screening_index": 132,
+      "target_length": 153
+    },
+    {
+      "case_id": "11zw",
+      "gap_length": 10,
+      "screening_index": 133,
+      "target_length": 120
+    },
+    {
+      "case_id": "28nb",
+      "gap_length": 5,
+      "screening_index": 134,
+      "target_length": 167
+    },
+    {
+      "case_id": "9kmc",
+      "gap_length": 5,
+      "screening_index": 136,
+      "target_length": 133
+    },
+    {
+      "case_id": "22uy",
+      "gap_length": 10,
+      "screening_index": 137,
+      "target_length": 243
+    },
+    {
+      "case_id": "9eav",
+      "gap_length": 5,
+      "screening_index": 138,
+      "target_length": 128
+    },
+    {
+      "case_id": "28zx",
+      "gap_length": 10,
+      "screening_index": 139,
+      "target_length": 384
+    },
+    {
+      "case_id": "21gm",
+      "gap_length": 5,
+      "screening_index": 148,
+      "target_length": 175
+    },
+    {
+      "case_id": "22pl",
+      "gap_length": 10,
+      "screening_index": 149,
+      "target_length": 252
+    },
+    {
+      "case_id": "9dai",
+      "gap_length": 5,
+      "screening_index": 156,
+      "target_length": 264
+    },
+    {
+      "case_id": "9dhn",
+      "gap_length": 10,
+      "screening_index": 159,
+      "target_length": 309
+    },
+    {
+      "case_id": "10gw",
+      "gap_length": 5,
+      "screening_index": 160,
+      "target_length": 335
+    },
+    {
+      "case_id": "9iue",
+      "gap_length": 10,
+      "screening_index": 163,
+      "target_length": 222
+    },
+    {
+      "case_id": "9k82",
+      "gap_length": 5,
+      "screening_index": 164,
+      "target_length": 188
+    },
+    {
+      "case_id": "9hx8",
+      "gap_length": 10,
+      "screening_index": 165,
+      "target_length": 80
+    },
+    {
+      "case_id": "9iyz",
+      "gap_length": 5,
+      "screening_index": 168,
+      "target_length": 84
+    },
+    {
+      "case_id": "24rc",
+      "gap_length": 5,
+      "screening_index": 176,
+      "target_length": 268
+    },
+    {
+      "case_id": "9k95",
+      "gap_length": 5,
+      "screening_index": 178,
+      "target_length": 96
+    },
+    {
+      "case_id": "9j88",
+      "gap_length": 10,
+      "screening_index": 179,
+      "target_length": 333
+    },
+    {
+      "case_id": "13io",
+      "gap_length": 5,
+      "screening_index": 180,
+      "target_length": 171
+    },
+    {
+      "case_id": "9i7q",
+      "gap_length": 10,
+      "screening_index": 181,
+      "target_length": 74
+    },
+    {
+      "case_id": "30ys",
+      "gap_length": 10,
+      "screening_index": 183,
+      "target_length": 280
+    },
+    {
+      "case_id": "9fpy",
+      "gap_length": 10,
+      "screening_index": 185,
+      "target_length": 124
+    },
+    {
+      "case_id": "12iz",
+      "gap_length": 5,
+      "screening_index": 190,
+      "target_length": 277
+    },
+    {
+      "case_id": "21vq",
+      "gap_length": 5,
+      "screening_index": 194,
+      "target_length": 491
+    },
+    {
+      "case_id": "8zdo",
+      "gap_length": 10,
+      "screening_index": 199,
+      "target_length": 290
+    },
+    {
+      "case_id": "9j5p",
+      "gap_length": 5,
+      "screening_index": 200,
+      "target_length": 157
+    },
+    {
+      "case_id": "9bxu",
+      "gap_length": 5,
+      "screening_index": 202,
+      "target_length": 72
+    },
+    {
+      "case_id": "25uj",
+      "gap_length": 5,
+      "screening_index": 204,
+      "target_length": 178
+    },
+    {
+      "case_id": "9hvq",
+      "gap_length": 5,
+      "screening_index": 208,
+      "target_length": 115
+    },
+    {
+      "case_id": "9c9z",
+      "gap_length": 10,
+      "screening_index": 209,
+      "target_length": 128
+    },
+    {
+      "case_id": "9dwt",
+      "gap_length": 5,
+      "screening_index": 210,
+      "target_length": 461
+    },
+    {
+      "case_id": "9i0v",
+      "gap_length": 10,
+      "screening_index": 211,
+      "target_length": 235
+    },
+    {
+      "case_id": "26de",
+      "gap_length": 5,
+      "screening_index": 212,
+      "target_length": 139
+    },
+    {
+      "case_id": "9jqa",
+      "gap_length": 10,
+      "screening_index": 219,
+      "target_length": 268
+    },
+    {
+      "case_id": "11aa",
+      "gap_length": 10,
+      "screening_index": 221,
+      "target_length": 285
+    },
+    {
+      "case_id": "11mn",
+      "gap_length": 5,
+      "screening_index": 222,
+      "target_length": 204
+    },
+    {
+      "case_id": "13de",
+      "gap_length": 10,
+      "screening_index": 223,
+      "target_length": 39
+    },
+    {
+      "case_id": "9jj8",
+      "gap_length": 5,
+      "screening_index": 224,
+      "target_length": 63
+    },
+    {
+      "case_id": "9ibr",
+      "gap_length": 10,
+      "screening_index": 229,
+      "target_length": 227
+    },
+    {
+      "case_id": "10fi",
+      "gap_length": 10,
+      "screening_index": 231,
+      "target_length": 241
+    },
+    {
+      "case_id": "9evt",
+      "gap_length": 5,
+      "screening_index": 238,
+      "target_length": 91
+    },
+    {
+      "case_id": "9hl2",
+      "gap_length": 10,
+      "screening_index": 239,
+      "target_length": 114
+    },
+    {
+      "case_id": "9jcw",
+      "gap_length": 5,
+      "screening_index": 240,
+      "target_length": 256
+    },
+    {
+      "case_id": "9com",
+      "gap_length": 10,
+      "screening_index": 241,
+      "target_length": 278
+    },
+    {
+      "case_id": "9ivc",
+      "gap_length": 5,
+      "screening_index": 242,
+      "target_length": 187
+    },
+    {
+      "case_id": "8ys5",
+      "gap_length": 10,
+      "screening_index": 245,
+      "target_length": 273
+    },
+    {
+      "case_id": "28iz",
+      "gap_length": 5,
+      "screening_index": 250,
+      "target_length": 260
+    },
+    {
+      "case_id": "9ke8",
+      "gap_length": 5,
+      "screening_index": 252,
+      "target_length": 478
+    },
+    {
+      "case_id": "25ii",
+      "gap_length": 10,
+      "screening_index": 253,
+      "target_length": 173
+    },
+    {
+      "case_id": "9hqx",
+      "gap_length": 5,
+      "screening_index": 254,
+      "target_length": 372
+    },
+    {
+      "case_id": "21uy",
+      "gap_length": 5,
+      "screening_index": 256,
+      "target_length": 128
+    },
+    {
+      "case_id": "9cy2",
+      "gap_length": 5,
+      "screening_index": 258,
+      "target_length": 338
+    },
+    {
+      "case_id": "22it",
+      "gap_length": 5,
+      "screening_index": 262,
+      "target_length": 445
+    },
+    {
+      "case_id": "9ddo",
+      "gap_length": 10,
+      "screening_index": 263,
+      "target_length": 224
+    },
+    {
+      "case_id": "9i5v",
+      "gap_length": 10,
+      "screening_index": 265,
+      "target_length": 118
+    },
+    {
+      "case_id": "9i9l",
+      "gap_length": 5,
+      "screening_index": 266,
+      "target_length": 75
+    },
+    {
+      "case_id": "28vy",
+      "gap_length": 10,
+      "screening_index": 267,
+      "target_length": 236
+    },
+    {
+      "case_id": "9eam",
+      "gap_length": 10,
+      "screening_index": 269,
+      "target_length": 175
+    },
+    {
+      "case_id": "9i4i",
+      "gap_length": 5,
+      "screening_index": 270,
+      "target_length": 316
+    },
+    {
+      "case_id": "9ddm",
+      "gap_length": 10,
+      "screening_index": 271,
+      "target_length": 30
+    },
+    {
+      "case_id": "8z5s",
+      "gap_length": 5,
+      "screening_index": 272,
+      "target_length": 72
+    },
+    {
+      "case_id": "9his",
+      "gap_length": 5,
+      "screening_index": 274,
+      "target_length": 188
+    },
+    {
+      "case_id": "30us",
+      "gap_length": 10,
+      "screening_index": 275,
+      "target_length": 447
+    },
+    {
+      "case_id": "9j0j",
+      "gap_length": 5,
+      "screening_index": 276,
+      "target_length": 336
+    },
+    {
+      "case_id": "9gds",
+      "gap_length": 5,
+      "screening_index": 280,
+      "target_length": 110
+    },
+    {
+      "case_id": "8xyp",
+      "gap_length": 10,
+      "screening_index": 283,
+      "target_length": 127
+    },
+    {
+      "case_id": "9kgl",
+      "gap_length": 5,
+      "screening_index": 284,
+      "target_length": 327
+    },
+    {
+      "case_id": "10zm",
+      "gap_length": 10,
+      "screening_index": 287,
+      "target_length": 274
+    },
+    {
+      "case_id": "8zvp",
+      "gap_length": 5,
+      "screening_index": 288,
+      "target_length": 282
+    },
+    {
+      "case_id": "37ya",
+      "gap_length": 5,
+      "screening_index": 290,
+      "target_length": 214
+    },
+    {
+      "case_id": "9k53",
+      "gap_length": 5,
+      "screening_index": 294,
+      "target_length": 257
+    },
+    {
+      "case_id": "9dgh",
+      "gap_length": 10,
+      "screening_index": 295,
+      "target_length": 274
+    },
+    {
+      "case_id": "9cr7",
+      "gap_length": 5,
+      "screening_index": 296,
+      "target_length": 145
+    },
+    {
+      "case_id": "24yw",
+      "gap_length": 5,
+      "screening_index": 298,
+      "target_length": 137
+    },
+    {
+      "case_id": "9dob",
+      "gap_length": 10,
+      "screening_index": 299,
+      "target_length": 446
+    },
+    {
+      "case_id": "44ab",
+      "gap_length": 10,
+      "screening_index": 309,
+      "target_length": 111
+    },
+    {
+      "case_id": "29iv",
+      "gap_length": 5,
+      "screening_index": 310,
+      "target_length": 193
+    },
+    {
+      "case_id": "9ge5",
+      "gap_length": 10,
+      "screening_index": 311,
+      "target_length": 101
+    },
+    {
+      "case_id": "9ddz",
+      "gap_length": 5,
+      "screening_index": 314,
+      "target_length": 83
+    },
+    {
+      "case_id": "9dm7",
+      "gap_length": 10,
+      "screening_index": 315,
+      "target_length": 367
+    },
+    {
+      "case_id": "9gdp",
+      "gap_length": 5,
+      "screening_index": 316,
+      "target_length": 69
+    },
+    {
+      "case_id": "29in",
+      "gap_length": 5,
+      "screening_index": 318,
+      "target_length": 88
+    },
+    {
+      "case_id": "9g6b",
+      "gap_length": 10,
+      "screening_index": 325,
+      "target_length": 159
+    },
+    {
+      "case_id": "9jfp",
+      "gap_length": 5,
+      "screening_index": 326,
+      "target_length": 431
+    },
+    {
+      "case_id": "9k1s",
+      "gap_length": 10,
+      "screening_index": 327,
+      "target_length": 161
+    },
+    {
+      "case_id": "24jd",
+      "gap_length": 5,
+      "screening_index": 328,
+      "target_length": 251
+    },
+    {
+      "case_id": "9hwg",
+      "gap_length": 5,
+      "screening_index": 330,
+      "target_length": 363
+    },
+    {
+      "case_id": "9c5u",
+      "gap_length": 10,
+      "screening_index": 331,
+      "target_length": 393
+    },
+    {
+      "case_id": "8zuj",
+      "gap_length": 10,
+      "screening_index": 335,
+      "target_length": 144
+    },
+    {
+      "case_id": "12zn",
+      "gap_length": 10,
+      "screening_index": 337,
+      "target_length": 176
+    },
+    {
+      "case_id": "9gia",
+      "gap_length": 5,
+      "screening_index": 338,
+      "target_length": 251
+    },
+    {
+      "case_id": "9h80",
+      "gap_length": 10,
+      "screening_index": 339,
+      "target_length": 154
+    },
+    {
+      "case_id": "9e02",
+      "gap_length": 5,
+      "screening_index": 342,
+      "target_length": 239
+    },
+    {
+      "case_id": "9c2g",
+      "gap_length": 5,
+      "screening_index": 346,
+      "target_length": 292
+    },
+    {
+      "case_id": "9d1v",
+      "gap_length": 5,
+      "screening_index": 352,
+      "target_length": 187
+    },
+    {
+      "case_id": "9i6b",
+      "gap_length": 5,
+      "screening_index": 354,
+      "target_length": 318
+    },
+    {
+      "case_id": "9cp2",
+      "gap_length": 5,
+      "screening_index": 356,
+      "target_length": 211
+    },
+    {
+      "case_id": "9e0p",
+      "gap_length": 10,
+      "screening_index": 357,
+      "target_length": 117
+    },
+    {
+      "case_id": "9gvb",
+      "gap_length": 5,
+      "screening_index": 360,
+      "target_length": 199
+    },
+    {
+      "case_id": "8zbw",
+      "gap_length": 10,
+      "screening_index": 361,
+      "target_length": 299
+    },
+    {
+      "case_id": "21tq",
+      "gap_length": 5,
+      "screening_index": 362,
+      "target_length": 119
+    },
+    {
+      "case_id": "9ejk",
+      "gap_length": 10,
+      "screening_index": 363,
+      "target_length": 108
+    },
+    {
+      "case_id": "36zl",
+      "gap_length": 10,
+      "screening_index": 365,
+      "target_length": 182
+    },
+    {
+      "case_id": "30ln",
+      "gap_length": 5,
+      "screening_index": 366,
+      "target_length": 343
+    },
+    {
+      "case_id": "9ep0",
+      "gap_length": 10,
+      "screening_index": 367,
+      "target_length": 343
+    },
+    {
+      "case_id": "28yc",
+      "gap_length": 10,
+      "screening_index": 369,
+      "target_length": 98
+    },
+    {
+      "case_id": "9eeh",
+      "gap_length": 5,
+      "screening_index": 372,
+      "target_length": 150
+    },
+    {
+      "case_id": "9j4f",
+      "gap_length": 10,
+      "screening_index": 373,
+      "target_length": 36
+    },
+    {
+      "case_id": "35zv",
+      "gap_length": 5,
+      "screening_index": 376,
+      "target_length": 395
+    },
+    {
+      "case_id": "28ez",
+      "gap_length": 10,
+      "screening_index": 379,
+      "target_length": 111
+    },
+    {
+      "case_id": "21fy",
+      "gap_length": 5,
+      "screening_index": 380,
+      "target_length": 239
+    },
+    {
+      "case_id": "9jfs",
+      "gap_length": 5,
+      "screening_index": 384,
+      "target_length": 105
+    },
+    {
+      "case_id": "10zg",
+      "gap_length": 5,
+      "screening_index": 386,
+      "target_length": 370
+    },
+    {
+      "case_id": "9jo8",
+      "gap_length": 5,
+      "screening_index": 392,
+      "target_length": 133
+    },
+    {
+      "case_id": "9ed4",
+      "gap_length": 10,
+      "screening_index": 393,
+      "target_length": 120
+    },
+    {
+      "case_id": "9gbi",
+      "gap_length": 5,
+      "screening_index": 394,
+      "target_length": 63
+    },
+    {
+      "case_id": "9k8h",
+      "gap_length": 5,
+      "screening_index": 396,
+      "target_length": 91
+    },
+    {
+      "case_id": "11ex",
+      "gap_length": 10,
+      "screening_index": 397,
+      "target_length": 255
+    },
+    {
+      "case_id": "9iun",
+      "gap_length": 5,
+      "screening_index": 398,
+      "target_length": 195
+    },
+    {
+      "case_id": "9c8d",
+      "gap_length": 10,
+      "screening_index": 399,
+      "target_length": 201
+    },
+    {
+      "case_id": "30qz",
+      "gap_length": 5,
+      "screening_index": 400,
+      "target_length": 105
+    },
+    {
+      "case_id": "9cug",
+      "gap_length": 5,
+      "screening_index": 406,
+      "target_length": 275
+    },
+    {
+      "case_id": "9hd7",
+      "gap_length": 10,
+      "screening_index": 411,
+      "target_length": 107
+    },
+    {
+      "case_id": "9ec1",
+      "gap_length": 5,
+      "screening_index": 412,
+      "target_length": 117
+    },
+    {
+      "case_id": "9i6d",
+      "gap_length": 5,
+      "screening_index": 416,
+      "target_length": 408
+    },
+    {
+      "case_id": "11bc",
+      "gap_length": 10,
+      "screening_index": 417,
+      "target_length": 63
+    },
+    {
+      "case_id": "11gz",
+      "gap_length": 5,
+      "screening_index": 418,
+      "target_length": 220
+    },
+    {
+      "case_id": "9ixu",
+      "gap_length": 10,
+      "screening_index": 419,
+      "target_length": 138
+    },
+    {
+      "case_id": "22vl",
+      "gap_length": 5,
+      "screening_index": 420,
+      "target_length": 173
+    },
+    {
+      "case_id": "9ire",
+      "gap_length": 10,
+      "screening_index": 421,
+      "target_length": 151
+    },
+    {
+      "case_id": "9gyi",
+      "gap_length": 5,
+      "screening_index": 422,
+      "target_length": 285
+    },
+    {
+      "case_id": "22jw",
+      "gap_length": 5,
+      "screening_index": 426,
+      "target_length": 225
+    },
+    {
+      "case_id": "13ib",
+      "gap_length": 5,
+      "screening_index": 428,
+      "target_length": 43
+    },
+    {
+      "case_id": "9kbx",
+      "gap_length": 10,
+      "screening_index": 431,
+      "target_length": 138
+    },
+    {
+      "case_id": "9e16",
+      "gap_length": 10,
+      "screening_index": 433,
+      "target_length": 45
+    },
+    {
+      "case_id": "9ifk",
+      "gap_length": 5,
+      "screening_index": 434,
+      "target_length": 175
+    },
+    {
+      "case_id": "9ddr",
+      "gap_length": 5,
+      "screening_index": 436,
+      "target_length": 367
+    },
+    {
+      "case_id": "9e3h",
+      "gap_length": 5,
+      "screening_index": 438,
+      "target_length": 98
+    },
+    {
+      "case_id": "8w1a",
+      "gap_length": 10,
+      "screening_index": 441,
+      "target_length": 290
+    },
+    {
+      "case_id": "9efw",
+      "gap_length": 5,
+      "screening_index": 444,
+      "target_length": 118
+    },
+    {
+      "case_id": "31es",
+      "gap_length": 5,
+      "screening_index": 446,
+      "target_length": 130
+    },
+    {
+      "case_id": "8zx7",
+      "gap_length": 5,
+      "screening_index": 448,
+      "target_length": 69
+    },
+    {
+      "case_id": "26za",
+      "gap_length": 5,
+      "screening_index": 450,
+      "target_length": 217
+    },
+    {
+      "case_id": "8z5n",
+      "gap_length": 5,
+      "screening_index": 452,
+      "target_length": 179
+    },
+    {
+      "case_id": "22po",
+      "gap_length": 5,
+      "screening_index": 454,
+      "target_length": 416
+    },
+    {
+      "case_id": "26fb",
+      "gap_length": 5,
+      "screening_index": 458,
+      "target_length": 203
+    },
+    {
+      "case_id": "9jov",
+      "gap_length": 10,
+      "screening_index": 459,
+      "target_length": 230
+    },
+    {
+      "case_id": "35zw",
+      "gap_length": 5,
+      "screening_index": 460,
+      "target_length": 228
+    },
+    {
+      "case_id": "10ye",
+      "gap_length": 5,
+      "screening_index": 464,
+      "target_length": 208
+    },
+    {
+      "case_id": "37ix",
+      "gap_length": 10,
+      "screening_index": 467,
+      "target_length": 340
+    },
+    {
+      "case_id": "24xb",
+      "gap_length": 10,
+      "screening_index": 469,
+      "target_length": 287
+    },
+    {
+      "case_id": "9dhz",
+      "gap_length": 5,
+      "screening_index": 472,
+      "target_length": 46
+    },
+    {
+      "case_id": "9evs",
+      "gap_length": 5,
+      "screening_index": 474,
+      "target_length": 47
+    },
+    {
+      "case_id": "9i8y",
+      "gap_length": 10,
+      "screening_index": 475,
+      "target_length": 412
+    },
+    {
+      "case_id": "13fn",
+      "gap_length": 10,
+      "screening_index": 477,
+      "target_length": 327
+    },
+    {
+      "case_id": "32zb",
+      "gap_length": 10,
+      "screening_index": 479,
+      "target_length": 225
+    },
+    {
+      "case_id": "21kr",
+      "gap_length": 10,
+      "screening_index": 481,
+      "target_length": 119
+    },
+    {
+      "case_id": "9jhd",
+      "gap_length": 5,
+      "screening_index": 484,
+      "target_length": 114
+    },
+    {
+      "case_id": "21gq",
+      "gap_length": 10,
+      "screening_index": 487,
+      "target_length": 450
+    },
+    {
+      "case_id": "9ea9",
+      "gap_length": 10,
+      "screening_index": 491,
+      "target_length": 117
+    },
+    {
+      "case_id": "9gqz",
+      "gap_length": 5,
+      "screening_index": 492,
+      "target_length": 19
+    },
+    {
+      "case_id": "9jjb",
+      "gap_length": 10,
+      "screening_index": 493,
+      "target_length": 61
+    },
+    {
+      "case_id": "9j4r",
+      "gap_length": 10,
+      "screening_index": 495,
+      "target_length": 340
+    },
+    {
+      "case_id": "9iq8",
+      "gap_length": 5,
+      "screening_index": 496,
+      "target_length": 127
+    },
+    {
+      "case_id": "9e8p",
+      "gap_length": 5,
+      "screening_index": 498,
+      "target_length": 176
+    }
+  ],
+  "description": "User-authorized extension from the frozen first-100 Apple soak to all 231 cases in full-followup-v2 manifest order. The first 100 use digest-verified outputs from the identical frozen protocol; the remaining 131 receive fresh sequential processes. No replacement or outcome-based membership change.",
+  "environment": {
+    "host_class": "Apple M3 Pro, 18 GB unified memory, arm64",
+    "pip_freeze_sha256": "a83344873517dfc7a25aa652bffb0fbe6cacc9054a24717ff3a4f9c1956149b5",
+    "pytorch_version": "2.6.0"
+  },
+  "gap_strata": {
+    "10": 103,
+    "5": 128
+  },
+  "refinement": {
+    "openmm_cpu_threads": 8,
+    "platform": "CPU",
+    "remaining_output_subdir": "apple-full-cpu-refined",
+    "resample_before_refinement": false,
+    "restart_count": 8,
+    "revision": "dvbfixer-openmm-boundary-refinement-v6"
+  },
+  "reused_prefix": {
+    "case_count": 100,
+    "manifest": "docs/research/small-diffusion-apple-100-soak.json",
+    "raw_output_subdir": "apple-100-mps-500",
+    "refined_output_subdir": "apple-100-cpu-refined",
+    "reuse_policy": "Require complete digest-verified artifacts from the identical protocol; otherwise rerun the missing or invalid stage."
+  },
+  "sampling": {
+    "adapter_sha256": "02b2c9ad58d0b86146b49fead1596bdcd6ff6bbd39012d70e8a4fd99ecad7a73",
+    "apple_portability_patch_sha256": "a87fe2e9f0c143102441d6a39ff181bd0c2b1c411cdfdf65236d7baf38a8d858",
+    "candidate_count": 1,
+    "checkpoint_sha256": "dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483",
+    "config_sha256": "e9999ace79bf3044351cc982a624fc3459add3a4f91cbf97ff5b437b8942eb9d",
+    "device": "mps",
+    "engine_repository": "https://github.com/ProteinDesignLab/protpardelle-1c",
+    "engine_revision": "ee378400f25b801fa481028000f9060183d7fb4c",
+    "mpnn_enabled": false,
+    "per_step_reinjection": false,
+    "precision": "float32",
+    "pytorch_enable_mps_fallback": "0",
+    "remaining_output_subdir": "apple-full-mps-500",
+    "s_churn": 200.0,
+    "seed_source": "existing DiffusionRequest",
+    "step_scale": 1.2,
+    "steps": 500
+  },
+  "schema_version": 1,
+  "selection": {
+    "failures_remain_in_denominator": true,
+    "order": [
+      "refined",
+      "raw"
+    ],
+    "policy": "validation-first"
+  },
+  "selection_rule": "Take all 231 cases in source manifest order; do not replace failures.",
+  "source_manifest": "docs/research/small-diffusion-full-followup-v2.json",
+  "source_manifest_sha256": "fa2bd455ef44c0a413cc2a174a4dfd017af51a99617fb69eb7bdc364eba0850f",
+  "status": "preregistered-before-remaining-131-case-inference",
+  "stop_rules": [
+    "Stop on any identity mapping, output atom-set, fixed-coordinate, digest, wrong-device, non-finite, silent-fallback, process, or publication failure.",
+    "Record geometry validation failures and continue; never replace a failed case.",
+    "Do not use outcomes to change sampling, refinement, membership, or operational criteria."
+  ]
+}

@@ -25,6 +25,7 @@ from dvbfixer.model.diffusion.contract import (
 ROOT = Path(__file__).resolve().parents[1]
 DIGEST = "a" * 64
 PATCH = ROOT / "deploy/protpardelle-1c/per-step-callback.patch"
+APPLE_PATCH = ROOT / "deploy/protpardelle-1c/apple-portability.patch"
 
 
 def _load_adapter() -> ModuleType:
@@ -107,6 +108,17 @@ def test_callback_patch_runs_after_update_and_preserves_jump_state() -> None:
     assert "motif_atom_mask" in patch
 
 
+def test_apple_patch_removes_cuda_only_side_effects_and_host_trajectory_copies() -> None:
+    patch = APPLE_PATCH.read_text(encoding="utf-8")
+
+    assert 'if self.device.type == "cuda"' in patch
+    assert "if record_trajectory:" in patch
+    assert "xt_traj.append(scaled_xt.cpu())" in patch
+    assert 'sample_options["record_trajectory"] = False' in (
+        ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py"
+    ).read_text(encoding="utf-8")
+
+
 def test_adapter_keeps_per_step_reinjection_opt_in() -> None:
     adapter = (ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py").read_text(
         encoding="utf-8"
@@ -115,6 +127,118 @@ def test_adapter_keeps_per_step_reinjection_opt_in() -> None:
     assert 'parser.add_argument("--per-step-reinjection", action="store_true")' in adapter
     assert 'sample_options["step_callback"] = callback' in adapter
     assert '"per_step_reinjection": per_step_reinjection' in adapter
+
+
+class _FakeDevice:
+    def __init__(self, name: str) -> None:
+        device_type, _, index = name.partition(":")
+        self.type = device_type
+        self.index = int(index) if index else None
+
+    def __str__(self) -> str:
+        return self.type if self.index is None else f"{self.type}:{self.index}"
+
+
+class _FakeMPSBackend:
+    def __init__(self, *, built: bool = True, available: bool = True) -> None:
+        self._built = built
+        self._available = available
+
+    def is_built(self) -> bool:
+        return self._built
+
+    def is_available(self) -> bool:
+        return self._available
+
+
+class _FakeCUDA:
+    def __init__(self, available: bool = True) -> None:
+        self._available = available
+
+    def is_available(self) -> bool:
+        return self._available
+
+
+class _FakeTorch:
+    def __init__(
+        self,
+        *,
+        mps_built: bool = True,
+        mps_available: bool = True,
+        cuda_available: bool = True,
+    ) -> None:
+        self.backends = type(
+            "Backends",
+            (),
+            {"mps": _FakeMPSBackend(built=mps_built, available=mps_available)},
+        )()
+        self.cuda = _FakeCUDA(cuda_available)
+
+    @staticmethod
+    def device(name: str) -> _FakeDevice:
+        return _FakeDevice(name)
+
+
+def test_mps_device_fails_closed_when_unavailable_or_fallback_is_not_disabled(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter = _load_adapter()
+    monkeypatch.delenv("PYTORCH_ENABLE_MPS_FALLBACK", raising=False)
+
+    with pytest.raises(RuntimeError, match="MPS_FALLBACK=0"):
+        adapter._resolve_device(_FakeTorch(), "mps")
+    monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "0")
+    with pytest.raises(RuntimeError, match="unavailable"):
+        adapter._resolve_device(_FakeTorch(mps_available=False), "mps")
+
+    assert str(adapter._resolve_device(_FakeTorch(), "mps")) == "mps"
+
+
+def test_requested_cuda_device_fails_instead_of_using_cpu() -> None:
+    adapter = _load_adapter()
+
+    with pytest.raises(RuntimeError, match="CUDA was requested but is unavailable"):
+        adapter._resolve_device(_FakeTorch(cuda_available=False), "cuda")
+
+
+def test_adapter_records_resolved_device_not_requested_label() -> None:
+    source = (ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'device=str(device)' in source
+    assert '"device": str(device)' in source
+    assert 'load_model(config_path, checkpoint_path, device=str(device))' in source
+
+
+def test_adapter_copies_mps_coordinates_to_cpu_before_float64_conversion() -> None:
+    adapter = _load_adapter()
+    calls: list[dict[str, object]] = []
+
+    class FakeTensor:
+        device = "mps"
+
+        def detach(self) -> FakeTensor:
+            return self
+
+        def to(self, **kwargs: object) -> FakeTensor:
+            calls.append(kwargs)
+            if kwargs.get("dtype") == "float64" and self.device == "mps":
+                raise TypeError("MPS does not support float64")
+            if "device" in kwargs:
+                self.device = str(kwargs["device"])
+            return self
+
+        @staticmethod
+        def numpy() -> np.ndarray:
+            return np.zeros((1, 1, 3), dtype=np.float64)
+
+    torch = type("Torch", (), {"float64": "float64"})()
+
+    converted = adapter._coordinates_to_numpy(torch, FakeTensor())
+
+    assert converted.dtype == np.float64
+    assert calls == [{"device": "cpu"}, {"dtype": "float64"}]
 
 
 def _atom_line(

@@ -11,6 +11,10 @@
 - Aggregate SHA-256: `55e4cbc6c16ee6bf34a14aabf61ec71afcddfb436f15edb5195c3d8b3f717ad7`.
 - Decision: `candidate-preferred` for Protenix v1 within the tested scope.
 
+Checkpoint byte sizes, model parameter counts, evaluated sampling schedules,
+and observed memory footprints are centralized in
+[`diffusion-model-size-and-run-parameters.md`](diffusion-model-size-and-run-parameters.md).
+
 ## Scope And Provenance
 
 - [x] Screen all 500 metadata-locked independence groups before inference.
