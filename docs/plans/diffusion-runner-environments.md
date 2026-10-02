@@ -140,4 +140,6 @@ GUI, `zbs`, `homology`, heterogen support, or automatic profile selection.
 - [x] Torch-dependent Boltz research imports made lazy so core CI remains
   Torch-free.
 - [ ] Add the diffusion profile report to `dvbfixer doctor`.
-- [ ] Implement and accept `protenix-v1-cuda` on a Linux/NVIDIA host.
+- [x] Implement the portable `protenix-v1-cuda` protocol wrapper and core tests.
+- [ ] Pin the resolved Linux environment and accept `protenix-v1-cuda` on a
+  Linux/NVIDIA host.

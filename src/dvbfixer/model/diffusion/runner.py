@@ -27,10 +27,13 @@ REQUEST_MANIFEST = "request.json"
 RESULT_MANIFEST = "result.json"
 _TRUNCATION_MARKER = b"\n...[output truncated by DVBFixer]"
 _ENVIRONMENT_ALLOWLIST = (
+    "CUDA_VISIBLE_DEVICES",
     "LANG",
     "LC_ALL",
     "LC_CTYPE",
     "LD_LIBRARY_PATH",
+    "NVIDIA_DRIVER_CAPABILITIES",
+    "NVIDIA_VISIBLE_DEVICES",
     "PATH",
     "PYTHONNOUSERSITE",
     "PYTHONPATH",

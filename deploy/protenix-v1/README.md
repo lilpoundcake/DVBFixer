@@ -1,8 +1,9 @@
 # Protenix v1 Hook Spike
 
-This directory contains the minimal maintained patch used to evaluate Protenix
-v1 for reconstructing experimentally unresolved internal protein segments in
-deposited structures. It is not a public DVBFixer backend.
+This directory contains the maintained patch, research drivers, and experimental
+protocol runner used to evaluate Protenix v1 for reconstructing experimentally
+unresolved internal protein segments in deposited structures. MODELLER remains
+the default and production-supported backend.
 
 Apply the patch only to revision
 `85767b811c40ed46e73a9b39519cf6bfca8701ba`:
@@ -54,3 +55,35 @@ passed every hard gate. The initial three-way ablation is complete: use
 `--ablation-mode template-conditioning-only` for the conditioning-only arm;
 the default is per-step reinjection. Broader benchmark evidence is still
 required before any public backend work.
+
+## Experimental CLI protocol runner
+
+`production_runner.py` implements the versioned external-runner protocol for the
+explicit `protenix-v1-cuda` profile. It freezes the audited Protenix revision,
+callback patch, PyTorch/CUDA identity, 200-step per-step reinjection settings,
+and deterministic OpenMM `Reference` boundary refinement.
+
+The wrapper is committed and dependency-light tests run in core CI, but its
+checkpoint-backed acceptance remains intentionally pending until it is executed
+on a Linux/NVIDIA host. Do not treat the profile as hardware-accepted based on
+macOS tests.
+
+On the pinned Linux environment:
+
+```bash
+export PYTHONNOUSERSITE=1
+
+dvbfixer model INPUT.pdb --fasta TARGET.fasta \
+  --backend diffusion \
+  --diffusion-profile protenix-v1-cuda \
+  --diffusion-runner "$DVBFIXER_ROOT/deploy/protenix-v1/production_runner.py" \
+  --diffusion-checkpoint /path/to/protenix_base_default_v1.0.0.pt \
+  --diffusion-checkpoint-sha256 \
+    2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04 \
+  -o OUTPUT_BUNDLE
+```
+
+The runner requires Linux amd64, Python 3.13, PyTorch 2.13.0, CUDA 12.9,
+bfloat16-capable NVIDIA hardware, `kalign`, the exact patched source tree, and
+the operator-provided checkpoint. DVBFixer does not download or redistribute
+the checkpoint.

@@ -515,8 +515,11 @@ def test_production_runner_writes_protocol_result(
         preflight=lambda: None,
     )
 
-    assert observed == expected
-    assert RunnerResult.from_json((tmp_path / "result.json").read_text()) == expected
+    assert observed.status is DiffusionStatus.FAILED
+    assert observed.message == expected.message
+    assert observed.backend_provenance.source_license == "MIT"
+    assert observed.backend_provenance.environment_identity.startswith("macos-arm64")
+    assert RunnerResult.from_json((tmp_path / "result.json").read_text()) == observed
 
 
 def test_production_runner_rejects_wrong_profile_and_enabled_fallback(

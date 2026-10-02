@@ -30,6 +30,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
 )
 from dvbfixer.model.diffusion.geometry import weighted_kabsch
+from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 from dvbfixer.model.diffusion.sampler import SamplingAblationMode
 from dvbfixer.model.diffusion.validate import validate_runner_result
 
@@ -279,7 +280,7 @@ def run(
     cycles: int,
     steps: int,
     ablation_mode: SamplingAblationMode,
-) -> None:
+) -> tuple[RunnerResult, Path]:
     os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     from configs.configs_inference import inference_configs
     from protenix.data.inference.infer_dataloader import get_inference_dataloader
@@ -374,7 +375,7 @@ def run(
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
             backend="protenix-v1-hook-spike",
-            runner_protocol_version=3,
+            runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="https://github.com/bytedance/Protenix",
             engine_revision="85767b811c40ed46e73a9b39519cf6bfca8701ba",
             checkpoint_sha256=_CHECKPOINT_SHA256,
@@ -410,6 +411,7 @@ def run(
     summary_path = output_dir / "summary.json"
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(summary_path)
+    return runner_result, summary_path
 
 
 def main() -> None:

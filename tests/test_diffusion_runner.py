@@ -440,6 +440,7 @@ def test_runner_environment_is_minimal_and_overrides_are_allowlisted(
     source_root.mkdir()
     _write_input(source_root, input_bytes)
     request = _request(input_bytes)
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "2")
     monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "0")
     environment_probe = _write_runner(
         tmp_path,
@@ -456,6 +457,8 @@ def test_runner_environment_is_minimal_and_overrides_are_allowlisted(
             raise SystemExit(8)
         if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
             raise SystemExit(9)
+        if os.environ.get("CUDA_VISIBLE_DEVICES") != "2":
+            raise SystemExit(10)
         candidate = Path("candidate.pdb")
         candidate.write_bytes(Path(request["normalized_pdb"]["path"]).read_bytes())
         result = {{
