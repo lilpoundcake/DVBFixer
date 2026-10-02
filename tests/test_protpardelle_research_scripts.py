@@ -14,9 +14,13 @@ from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
     AtomIdentity,
+    BackendProvenance,
     DiffusionRequest,
+    DiffusionStatus,
     GapRegion,
     ResidueIdentity,
+    RunnerDiagnostics,
+    RunnerResult,
     SequencePlacement,
     TargetInterval,
     TargetSequence,
@@ -31,6 +35,16 @@ APPLE_PATCH = ROOT / "deploy/protpardelle-1c/apple-portability.patch"
 def _load_adapter() -> ModuleType:
     path = ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py"
     spec = importlib.util.spec_from_file_location("protpardelle_checkpoint_gap_smoke", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_production_runner() -> ModuleType:
+    path = ROOT / "deploy/protpardelle-1c/production_runner.py"
+    spec = importlib.util.spec_from_file_location("protpardelle_production_runner", path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -449,3 +463,74 @@ def test_run_removes_staging_directory_on_failure(
 
     assert not output.exists()
     assert list(tmp_path.glob(".result.*")) == []
+
+
+def test_production_runner_writes_protocol_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production = _load_production_runner()
+    params = tmp_path / "model_params"
+    checkpoint = params / "weights" / "cc89_epoch415.pth"
+    config = params / "configs" / "cc89.yaml"
+    checkpoint.parent.mkdir(parents=True)
+    config.parent.mkdir(parents=True)
+    checkpoint.write_bytes(b"checkpoint")
+    config.write_text("config")
+    (tmp_path / "request.json").write_text("{}")
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "0")
+
+    expected = RunnerResult(
+        schema_version=DIFFUSION_SCHEMA_VERSION,
+        status=DiffusionStatus.FAILED,
+        candidates=(),
+        runner_diagnostics=RunnerDiagnostics(exit_code=1, timed_out=False),
+        backend_provenance=BackendProvenance(
+            backend="fake-protpardelle",
+            runner_protocol_version=3,
+            engine_repository="builtin://test",
+            engine_revision="test",
+            device="mps",
+            framework_version="2.6.0",
+        ),
+        message="test result",
+    )
+
+    class FakeAdapter:
+        @staticmethod
+        def _run_staged(*args: object, **kwargs: object) -> tuple[RunnerResult, Path]:
+            output = Path(args[1])
+            summary = output / "summary.json"
+            summary.write_text("{}")
+            assert kwargs["device_name"] == "mps"
+            assert kwargs["per_step_reinjection"] is False
+            return expected, summary
+
+    observed = production.run(
+        profile="protpardelle-1c-mps",
+        checkpoint=checkpoint,
+        adapter=FakeAdapter(),
+        refiner=lambda _request, result, _output: result,
+        preflight=lambda: None,
+    )
+
+    assert observed == expected
+    assert RunnerResult.from_json((tmp_path / "result.json").read_text()) == expected
+
+
+def test_production_runner_rejects_wrong_profile_and_enabled_fallback(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production = _load_production_runner()
+    checkpoint = tmp_path / "weights" / "model.pth"
+    checkpoint.parent.mkdir()
+    checkpoint.write_bytes(b"checkpoint")
+
+    with pytest.raises(ValueError, match="unsupported Protpardelle profile"):
+        production.run(profile="protenix-v1-cuda", checkpoint=checkpoint)
+
+    monkeypatch.delenv("PYTORCH_ENABLE_MPS_FALLBACK", raising=False)
+    with pytest.raises(RuntimeError, match="MPS_FALLBACK=0"):
+        production.run(profile="protpardelle-1c-mps", checkpoint=checkpoint)

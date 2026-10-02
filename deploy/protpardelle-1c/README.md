@@ -1,7 +1,9 @@
 # Protpardelle-1c research adapter
 
-This directory contains the pinned DVBFixer research adapter for Protpardelle-1c
-revision `ee378400f25b801fa481028000f9060183d7fb4c`. It is not a production backend.
+This directory contains the pinned DVBFixer research adapter and experimental
+protocol runner for Protpardelle-1c revision
+`ee378400f25b801fa481028000f9060183d7fb4c`. MODELLER remains the default and
+production-supported backend.
 
 ## Apple Silicon preparation
 
@@ -9,9 +11,28 @@ Use a native arm64 Python environment and apply the Apple patch to the clean,
 pinned upstream checkout:
 
 ```bash
+micromamba create -f deploy/protpardelle-1c/environment-apple-arm64.yml
+micromamba activate dvbfixer-protpardelle-apple
+git clone https://github.com/ProteinDesignLab/protpardelle-1c.git "$PROTPARDELLE_ROOT"
+git -C "$PROTPARDELLE_ROOT" checkout ee378400f25b801fa481028000f9060183d7fb4c
 git -C "$PROTPARDELLE_ROOT" apply \
   "$DVBFIXER_ROOT/deploy/protpardelle-1c/apple-portability.patch"
+python -m pip install --no-deps -e "$PROTPARDELLE_ROOT"
+python -m pip install -e "$DVBFIXER_ROOT"
 ```
+
+Frozen identities:
+
+| Artifact | SHA-256 |
+|---|---|
+| Apple portability patch | `a87fe2e9f0c143102441d6a39ff181bd0c2b1c411cdfdf65236d7baf38a8d858` |
+| Patched `models.py` | `3ad9efdc4e1086e14dbba941d88ca62521e956f13a1df88bba5fc6edec81c19d` |
+| cc89 config | `e9999ace79bf3044351cc982a624fc3459add3a4f91cbf97ff5b437b8942eb9d` |
+| cc89 checkpoint | `dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483` |
+
+The checkpoint is operator-provided and is not downloaded or redistributed by
+DVBFixer. Preserve an explicit environment export and `pip freeze` for every
+accepted run in addition to the installable profile above.
 
 The patch makes CUDA cache cleanup conditional and disables per-step host copies
 of trajectory tensors when the adapter requests only final coordinates. It does
@@ -80,3 +101,28 @@ and must not be added together.
 
 OpenMM refinement runs in the separate DVBFixer environment with the `CPU`
 platform. It is not MPS acceleration.
+
+## Experimental CLI protocol runner
+
+The Apple environment can expose the frozen profile to the core CLI through:
+
+```bash
+export PYTHONNOUSERSITE=1
+export PYTORCH_ENABLE_MPS_FALLBACK=0
+
+dvbfixer model INPUT.pdb --fasta TARGET.fasta \
+  --backend diffusion \
+  --diffusion-profile protpardelle-1c-mps \
+  --diffusion-runner "$DVBFIXER_ROOT/deploy/protpardelle-1c/production_runner.py" \
+  --diffusion-checkpoint "$MODEL_PARAMS/weights/cc89_epoch415.pth" \
+  -o OUTPUT_BUNDLE
+```
+
+Run the command from the native Protpardelle environment so the runner shebang
+resolves that environment's Python. `MODEL_PARAMS` must also contain
+`configs/cc89.yaml`. The wrapper uses the frozen 500-step float32 MPS settings,
+disables per-step reinjection, performs generated-only OpenMM refinement on the
+CPU, and writes the versioned `result.json` expected by core DVBFixer. Provenance
+continues to identify MPS as the sampling device and records CPU refinement
+separately. Core DVBFixer remains responsible for independent validation and
+atomic publication.

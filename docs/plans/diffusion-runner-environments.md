@@ -129,3 +129,15 @@ DVBFixer does not download or redistribute checkpoints automatically.
 
 No successful platform smoke changes MODELLER's default status or enables batch,
 GUI, `zbs`, `homology`, heterogen support, or automatic profile selection.
+
+## Implementation Status (2026-10-02)
+
+- [x] Apple arm64 environment profile and frozen artifact digests documented.
+- [x] `protpardelle-1c-mps` protocol wrapper implemented with strict native-MPS
+  preflight and CPU OpenMM boundary refinement.
+- [x] Public CLI smoke passed on Apple M3 Pro; the refined candidate passed every
+  hard validation gate with zero fixed-heavy-atom movement and zero D-Cα.
+- [x] Torch-dependent Boltz research imports made lazy so core CI remains
+  Torch-free.
+- [ ] Add the diffusion profile report to `dvbfixer doctor`.
+- [ ] Implement and accept `protenix-v1-cuda` on a Linux/NVIDIA host.

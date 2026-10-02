@@ -431,12 +431,16 @@ def test_runner_rejects_oversized_manifest_artifact_and_hard_link(tmp_path: Path
         )
 
 
-def test_runner_environment_is_minimal_and_overrides_are_allowlisted(tmp_path: Path) -> None:
+def test_runner_environment_is_minimal_and_overrides_are_allowlisted(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     input_bytes = b"END\n"
     source_root = tmp_path / "source"
     source_root.mkdir()
     _write_input(source_root, input_bytes)
     request = _request(input_bytes)
+    monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "0")
     environment_probe = _write_runner(
         tmp_path,
         f"""
@@ -450,6 +454,8 @@ def test_runner_environment_is_minimal_and_overrides_are_allowlisted(tmp_path: P
             raise SystemExit(7)
         if os.environ.get("LANG") != "test-locale":
             raise SystemExit(8)
+        if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
+            raise SystemExit(9)
         candidate = Path("candidate.pdb")
         candidate.write_bytes(Path(request["normalized_pdb"]["path"]).read_bytes())
         result = {{

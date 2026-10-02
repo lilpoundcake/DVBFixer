@@ -36,6 +36,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
 )
 from dvbfixer.model.diffusion.geometry import synchronize_and_reinject, weighted_kabsch
+from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 from dvbfixer.model.diffusion.validate import validate_runner_result
 
 _REVISION = "ee378400f25b801fa481028000f9060183d7fb4c"
@@ -515,7 +516,7 @@ def _run_staged(
     per_step_reinjection: bool,
     device_name: str,
     mps_profile: bool,
-) -> Path:
+) -> tuple[RunnerResult, Path]:
     import torch
     from protpardelle.common import residue_constants
     from protpardelle.core.models import load_model
@@ -712,7 +713,7 @@ def _run_staged(
                 if per_step_reinjection
                 else "protpardelle-1c-cc89-proxy-only"
             ),
-            runner_protocol_version=1,
+            runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="https://github.com/ProteinDesignLab/protpardelle-1c",
             engine_revision=_REVISION,
             checkpoint_sha256=_CHECKPOINT_SHA256,
@@ -738,19 +739,39 @@ def _run_staged(
         ),
     )
     validation = validate_runner_result(request, result, workspace=workspace)[0]
+    quality_summary: dict[str, float | None] = {
+        "gap_backbone_rmsd_angstrom": None,
+        "gap_all_heavy_rmsd_angstrom": None,
+        "fixed_heavy_rmsd_angstrom": None,
+    }
     reference_path = workspace / "reference.pdb"
-    reference = load_pdb_coordinates(workspace, ArtifactReference("reference.pdb", _sha256(reference_path)))
-    candidate_coordinates = load_pdb_coordinates(workspace, candidate.coordinate_artifact)
-    quality = candidate_quality(
-        candidate.candidate_id,
-        reference,
-        candidate_coordinates,
-        generated_residues=set(gap.generated_residues),
-        fixed_atoms=set(request.fixed_atoms),
-        anchor_residues={gap.left_anchor, gap.right_anchor},
-        closure_passed="junction-peptide-connectivity" not in validation.summary.hard_gate_failures,
-        validation_passed=validation.summary.passed,
-    )
+    if reference_path.is_file():
+        reference = load_pdb_coordinates(
+            workspace,
+            ArtifactReference("reference.pdb", _sha256(reference_path)),
+        )
+        candidate_coordinates = load_pdb_coordinates(
+            workspace,
+            candidate.coordinate_artifact,
+        )
+        quality = candidate_quality(
+            candidate.candidate_id,
+            reference,
+            candidate_coordinates,
+            generated_residues=set(gap.generated_residues),
+            fixed_atoms=set(request.fixed_atoms),
+            anchor_residues={gap.left_anchor, gap.right_anchor},
+            closure_passed=(
+                "junction-peptide-connectivity"
+                not in validation.summary.hard_gate_failures
+            ),
+            validation_passed=validation.summary.passed,
+        )
+        quality_summary = {
+            "gap_backbone_rmsd_angstrom": quality.gap_backbone_rmsd_angstrom,
+            "gap_all_heavy_rmsd_angstrom": quality.gap_all_heavy_rmsd_angstrom,
+            "fixed_heavy_rmsd_angstrom": quality.fixed_heavy_rmsd_angstrom,
+        }
     summary = {
         "candidate_sha256": candidate.coordinate_artifact.sha256,
         "config_sha256": _CONFIG_SHA256,
@@ -762,11 +783,7 @@ def _run_staged(
         "native_conditioning_fit": native_conditioning_fit,
         "per_step_reinjection": per_step_reinjection,
         "per_step_callback": callback_stats,
-        "quality": {
-            "gap_backbone_rmsd_angstrom": quality.gap_backbone_rmsd_angstrom,
-            "gap_all_heavy_rmsd_angstrom": quality.gap_all_heavy_rmsd_angstrom,
-            "fixed_heavy_rmsd_angstrom": quality.fixed_heavy_rmsd_angstrom,
-        },
+        "quality": quality_summary,
         "validation": asdict(validation.summary),
         "ranking_metrics": [asdict(metric) for metric in validation.ranking_metrics],
         "wall_time_seconds": elapsed,
@@ -782,7 +799,7 @@ def _run_staged(
     }
     summary_path = output_dir / "summary.json"
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return summary_path
+    return result, summary_path
 
 
 def run(

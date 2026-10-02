@@ -10,13 +10,13 @@ import os
 import time
 from dataclasses import asdict
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 os.environ.setdefault("CUEQ_DEFAULT_CONFIG", "1")
 os.environ.setdefault("CUEQ_DISABLE_AOT_TUNING", "1")
 
 import numpy as np
-import torch
 from atom_mapping import (
     model_atom_axis,
     partition_requested_atoms,
@@ -36,6 +36,9 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
 )
 from dvbfixer.model.diffusion.validate import validate_runner_result
+
+if TYPE_CHECKING:
+    import torch
 
 _BOLTZ_REVISION = "b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc"
 _CHECKPOINT_SHA256 = "090e82ac8c92f5e943fa1b39e7410a44027bea7243c0bbb3caa67a77fc1428e1"
@@ -102,6 +105,8 @@ class FixedAtomCallback:
         step_index: int,
         step_count: int,
     ) -> torch.Tensor:
+        import torch
+
         if step_count <= 0 or not 0 <= step_index < step_count:
             raise ValueError("invalid denoising step")
         if coordinates.ndim != 3 or coordinates.shape[-2:] != (self._padded_atom_count, 3):
@@ -268,6 +273,7 @@ def run(
     recycling_steps: int,
     sampling_steps: int,
 ) -> None:
+    import torch
     from boltz.data.module.inferencev2 import (
         Boltz2InferenceDataModule,
         PredictionDataset,
