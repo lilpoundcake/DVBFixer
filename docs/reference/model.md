@@ -5,8 +5,17 @@
 > For prose about how to use `model`, see [`docs/commands/model.md`](../commands/model.md).
 
 ```
-usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA] [-n NUM_MODELS]
-                      [--num-loops NUM_LOOPS] [--num-output NUM_OUTPUT]
+usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA]
+                      [--backend {modeller,diffusion}]
+                      [--diffusion-profile {protenix-v1-cuda,protpardelle-1c-mps}]
+                      [--diffusion-runner DIFFUSION_RUNNER]
+                      [--diffusion-checkpoint DIFFUSION_CHECKPOINT]
+                      [--diffusion-checkpoint-sha256 DIFFUSION_CHECKPOINT_SHA256]
+                      [--diffusion-seed DIFFUSION_SEEDS]
+                      [--diffusion-timeout DIFFUSION_TIMEOUT]
+                      [--diffusion-work-parent DIFFUSION_WORK_PARENT]
+                      [-n NUM_MODELS] [--num-loops NUM_LOOPS]
+                      [--num-output NUM_OUTPUT]
                       [--md-level {none,fast,slow,very_slow,slow_large}]
                       [--pin-input | --no-pin-input] [--no-terminal]
                       [--number-from-1] [--keep-water] [--strip-heterogens]
@@ -15,9 +24,9 @@ usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA] [-n NUM_MODELS]
                       [--recursive] [--fail-fast]
                       input
 
-Rebuild missing loops and gaps in a PDB structure using Modeller. Identifies
-gaps from SEQRES vs ATOM records (or a provided FASTA), then uses Modeller's
-loop modeling to fill them.
+Rebuild missing loops and gaps in a PDB structure. Identifies gaps from SEQRES
+vs ATOM records (or a provided FASTA), then uses MODELLER by default or an
+explicit experimental diffusion runner.
 
 options:
   -h, --help            show this help message and exit
@@ -26,11 +35,35 @@ Input / output:
   input                 Input PDB or PDBx/mmCIF file (must contain polymer
                         sequence metadata or use --fasta)
   -o OUTPUT, --output OUTPUT
-                        Output PDB file (default: <input>_model.pdb)
+                        MODELLER output PDB, or a new directory bundle for
+                        diffusion (defaults: <input>_model.pdb or
+                        <input>_model_diffusion)
   --fasta FASTA         FASTA file with complete sequence(s). Headers must
                         encode chain IDs: '>chain_X', '>PDBID_X', or '>X'.
                         Mapping is by chain ID, not file order. Use instead of
                         SEQRES.
+
+Backend:
+  --backend {modeller,diffusion}
+                        Modeling backend (default: modeller; diffusion is
+                        experimental)
+
+Diffusion options:
+  --diffusion-profile {protenix-v1-cuda,protpardelle-1c-mps}
+                        Explicit experimental diffusion runtime profile
+  --diffusion-runner DIFFUSION_RUNNER
+                        Protocol-compatible diffusion runner executable
+  --diffusion-checkpoint DIFFUSION_CHECKPOINT
+                        Locally provisioned model checkpoint
+  --diffusion-checkpoint-sha256 DIFFUSION_CHECKPOINT_SHA256
+                        Expected SHA-256 of --diffusion-checkpoint
+  --diffusion-seed DIFFUSION_SEEDS
+                        Candidate seed; repeat for multiple candidates
+                        (default: 7)
+  --diffusion-timeout DIFFUSION_TIMEOUT
+                        Runner timeout in seconds (default: 300)
+  --diffusion-work-parent DIFFUSION_WORK_PARENT
+                        Parent directory for the private runner workspace
 
 Modelling parameters:
   -n NUM_MODELS, --num-models NUM_MODELS

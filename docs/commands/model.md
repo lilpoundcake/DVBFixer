@@ -1,8 +1,13 @@
-# dvbfixer model — Loop/Gap Rebuilding with Modeller
+# dvbfixer model — Loop/Gap Rebuilding
 
 [← command index](index.md) · [← README](../../README.md)
 
 Rebuilds missing loops and gaps using Modeller's LoopModel. Identifies missing regions by aligning ATOM records to the SEQRES sequence (or a user-provided FASTA), then runs Modeller's loop modeling with MD refinement to fill them.
+
+MODELLER remains the default. An experimental, explicit diffusion path is also
+available for a narrow one-chain, one-internal-gap protein scope. It runs an
+operator-provided protocol-compatible executable; DVBFixer does not install ML
+frameworks, download checkpoints, or fall back to MODELLER automatically.
 
 Non-protein chains (glycans, ligands) are included in the Modeller pipeline via `env.io.hetatm=True` with `'.'` (BLK residue) entries in the target sequence, so Modeller preserves them through loop modeling. Original chain IDs and residue numbering are restored automatically.
 
@@ -39,7 +44,33 @@ dvbfixer model input.pdb --fasta sequence.fasta -v
 
 # Keep Modeller working directory for debugging
 dvbfixer model input.pdb --keep-workdir -v
+
+# Experimental diffusion; -o is a new directory bundle, not a PDB file
+dvbfixer model input.pdb --fasta sequence.fasta \
+  --backend diffusion \
+  --diffusion-profile protpardelle-1c-mps \
+  --diffusion-runner /path/to/protocol-runner \
+  --diffusion-checkpoint /path/to/cc89_epoch415.pth \
+  -o input_model_diffusion
 ```
+
+### Experimental diffusion scope
+
+The initial CLI slice accepts exactly one canonical protein chain, one
+unambiguous two-anchor internal gap of 3–12 residues, and a target sequence from
+SEQRES or `--fasta`. The input numbering must reserve enough residue numbers for
+the gap. Heterogens, noncanonical residues, terminal or multiple gaps, ambiguous
+sequence placement, and unsupported links fail before the external runner is
+started. Batch mode, GUI, `zbs`, and `homology` do not expose diffusion.
+
+The runner receives the versioned `request.json` protocol and must write a valid
+`result.json` plus contained candidate artifacts. DVBFixer invokes it as `RUNNER
+--profile PROFILE --checkpoint CHECKPOINT`; the request and result names are also
+provided through the existing protocol environment. DVBFixer then independently
+checks identity, complete generated heavy atoms, fixed-coordinate preservation,
+peptide closure, clashes, geometry, and chirality. A successful output directory
+contains candidate PDB/`.dat`/provenance files and `bundle.json`; it is published
+atomically only after validation succeeds.
 
 ## Options
 
@@ -47,6 +78,14 @@ dvbfixer model input.pdb --keep-workdir -v
 |------|---------|-------------|
 | `-o`, `--output` | `<input>_model.pdb` | Output file path |
 | `--fasta` | none | FASTA file with complete sequence(s) (alternative to SEQRES) |
+| `--backend` | `modeller` | Select `modeller` or the explicit experimental `diffusion` path |
+| `--diffusion-profile` | none | Required diffusion profile: `protenix-v1-cuda` or `protpardelle-1c-mps` |
+| `--diffusion-runner` | none | Required protocol-compatible executable; engine dependencies remain outside the core environment |
+| `--diffusion-checkpoint` | none | Required local checkpoint; never downloaded automatically |
+| `--diffusion-checkpoint-sha256` | none | Optional expected checkpoint digest checked before runner launch |
+| `--diffusion-seed` | 7 | Candidate seed; repeat for multiple candidates |
+| `--diffusion-timeout` | 300 | External runner timeout in seconds |
+| `--diffusion-work-parent` | output parent | Existing directory under which the private runner workspace is created |
 | `-n`, `--num-models` | 1 | Number of initial models to generate |
 | `--num-loops` | 2 | Number of loop refinement models per initial model |
 | `--num-output` | 1 | Number of top-ranked candidates to save (ceiling: `num_models × num_loops`). Sorted ascending by Modeller's `molpdf` (best first). With `--num-output > 1`, output filenames get a `_N` suffix |
@@ -105,6 +144,8 @@ Rebuilds missing loops/gaps using Modeller's LoopModel. Takes SEQRES (or --fasta
 
 ## Batch mode
 
-`model` runs independently on every structure while applying the same FASTA and
-modeling options: `dvbfixer model --input-dir structures --output-dir models --recursive`.
+The default MODELLER backend runs independently on every structure while applying
+the same FASTA and modeling options: `dvbfixer model --input-dir structures
+--output-dir models --recursive`. Experimental diffusion rejects batch mode
+because its public result is a directory bundle rather than a PDB file.
 See [Batch mode](../batch-mode.md) for shared keys.

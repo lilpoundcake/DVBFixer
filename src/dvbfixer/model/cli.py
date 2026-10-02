@@ -9,6 +9,7 @@ helpers and the pipeline can import them without a circular dep.
 from __future__ import annotations
 
 import argparse
+import sys
 
 from dvbfixer.cli_types import positive_int
 
@@ -29,17 +30,66 @@ WATER_RESNAMES = {"HOH", "WAT", "TIP3", "TIP", "SOL", "T3P", "T4P", "T5P"}
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="dvbfixer model",
-        description="Rebuild missing loops and gaps in a PDB structure using Modeller. "
+        description="Rebuild missing loops and gaps in a PDB structure. "
         "Identifies gaps from SEQRES vs ATOM records (or a provided FASTA), "
-        "then uses Modeller's loop modeling to fill them."
+        "then uses MODELLER by default or an explicit experimental diffusion runner."
     )
     io = p.add_argument_group("Input / output")
     io.add_argument("input", help="Input PDB or PDBx/mmCIF file (must contain polymer sequence metadata or use --fasta)")
-    io.add_argument("-o", "--output", help="Output PDB file (default: <input>_model.pdb)")
+    io.add_argument(
+        "-o",
+        "--output",
+        help="MODELLER output PDB, or a new directory bundle for diffusion "
+        "(defaults: <input>_model.pdb or <input>_model_diffusion)",
+    )
     io.add_argument(
         "--fasta", help="FASTA file with complete sequence(s). Headers must encode "
         "chain IDs: '>chain_X', '>PDBID_X', or '>X'. Mapping is by chain ID, "
         "not file order. Use instead of SEQRES."
+    )
+
+    backend = p.add_argument_group("Backend")
+    backend.add_argument(
+        "--backend",
+        choices=("modeller", "diffusion"),
+        default="modeller",
+        help="Modeling backend (default: modeller; diffusion is experimental)",
+    )
+
+    diffusion = p.add_argument_group("Diffusion options")
+    diffusion.add_argument(
+        "--diffusion-profile",
+        choices=("protenix-v1-cuda", "protpardelle-1c-mps"),
+        help="Explicit experimental diffusion runtime profile",
+    )
+    diffusion.add_argument(
+        "--diffusion-runner",
+        help="Protocol-compatible diffusion runner executable",
+    )
+    diffusion.add_argument(
+        "--diffusion-checkpoint",
+        help="Locally provisioned model checkpoint",
+    )
+    diffusion.add_argument(
+        "--diffusion-checkpoint-sha256",
+        help="Expected SHA-256 of --diffusion-checkpoint",
+    )
+    diffusion.add_argument(
+        "--diffusion-seed",
+        action="append",
+        type=int,
+        dest="diffusion_seeds",
+        help="Candidate seed; repeat for multiple candidates (default: 7)",
+    )
+    diffusion.add_argument(
+        "--diffusion-timeout",
+        type=float,
+        default=300.0,
+        help="Runner timeout in seconds (default: 300)",
+    )
+    diffusion.add_argument(
+        "--diffusion-work-parent",
+        help="Parent directory for the private runner workspace",
     )
 
     modelling = p.add_argument_group("Modelling parameters")
@@ -126,4 +176,53 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     from dvbfixer.batch import add_runtime_help
     add_runtime_help(p, batch=True)
     args = p.parse_args(argv)
+    _validate_backend_options(p, args, list(sys.argv[1:] if argv is None else argv))
     return args
+
+
+def _validate_backend_options(
+    parser: argparse.ArgumentParser,
+    args: argparse.Namespace,
+    argv: list[str],
+) -> None:
+    diffusion_options = {
+        "--diffusion-profile",
+        "--diffusion-runner",
+        "--diffusion-checkpoint",
+        "--diffusion-checkpoint-sha256",
+        "--diffusion-seed",
+        "--diffusion-timeout",
+        "--diffusion-work-parent",
+    }
+    provided = {token.split("=", 1)[0] for token in argv if token.startswith("-")}
+    if args.backend == "modeller":
+        invalid = sorted(provided & diffusion_options)
+        if invalid:
+            parser.error(
+                f"{', '.join(invalid)} require --backend diffusion"
+            )
+        return
+
+    for name in ("diffusion_profile", "diffusion_runner", "diffusion_checkpoint"):
+        if not getattr(args, name):
+            parser.error(
+                "--backend diffusion requires --diffusion-profile, "
+                "--diffusion-runner, and --diffusion-checkpoint"
+            )
+    if args.diffusion_timeout <= 0:
+        parser.error("--diffusion-timeout must be positive")
+    seeds = args.diffusion_seeds or [7]
+    if any(seed < 0 for seed in seeds) or len(seeds) != len(set(seeds)):
+        parser.error("--diffusion-seed values must be unique non-negative integers")
+    args.diffusion_seeds = seeds
+
+    modeller_only = {
+        "-n", "--num-models", "--num-loops", "--num-output", "--md-level",
+        "--pin-input", "--no-pin-input", "--no-terminal", "--number-from-1",
+        "--keep-water", "--strip-heterogens", "--no-infer-conect", "--keep-workdir",
+    }
+    invalid = sorted(provided & modeller_only)
+    if invalid:
+        parser.error(
+            f"{', '.join(invalid)} are not supported with --backend diffusion"
+        )

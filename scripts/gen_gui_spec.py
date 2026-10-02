@@ -143,7 +143,7 @@ def command_schema(name: str, description: str) -> dict:
         for action in exclusive._group_actions:
             exclusive_by_action[action] = identifier
     for group in parser._action_groups:
-        if group.title in {"Global logging", "Batch mode"}:
+        if group.title in {"Global logging", "Batch mode", "Diffusion options", "Backend"}:
             continue
         group_fields: list[str] = []
         for action in group._group_actions:

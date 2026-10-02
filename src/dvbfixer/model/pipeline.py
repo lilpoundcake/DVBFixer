@@ -820,6 +820,23 @@ def main(
     observed_target_indices_by_chain: Mapping[str, tuple[int, ...]] | None = None,
 ):
     args = parse_args(argv)
+    if args.backend == "diffusion":
+        from dvbfixer.model.diffusion.pipeline import DiffusionPipelineError
+        from dvbfixer.model.diffusion.runner import DiffusionRunnerError
+        from dvbfixer.model.diffusion.validate import DiffusionValidationError
+        from dvbfixer.model.diffusion_cli import DiffusionCliError, run_diffusion_model
+
+        try:
+            run_diffusion_model(args)
+        except (
+            DiffusionCliError,
+            DiffusionPipelineError,
+            DiffusionRunnerError,
+            DiffusionValidationError,
+        ) as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            raise SystemExit(1) from exc
+        return
     input_path = Path(args.input).resolve()
     if not input_path.exists():
         print(f"File not found: {input_path}", file=sys.stderr)

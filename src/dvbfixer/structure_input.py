@@ -471,7 +471,18 @@ def normalized_command_inputs(command: str, argv: Sequence[str]) -> Iterator[lis
         explicit_output = Path.cwd() / primary.stem
         original.extend(["-o", primary.stem])
     if explicit_output is None and command in _DEFAULT_FILE_SUFFIX:
-        explicit_output = primary.with_name(primary.stem + _DEFAULT_FILE_SUFFIX[command])
+        if command == "model" and (
+            "--backend=diffusion" in original
+            or any(
+                token == "--backend"
+                and index + 1 < len(original)
+                and original[index + 1] == "diffusion"
+                for index, token in enumerate(original)
+            )
+        ):
+            explicit_output = primary.with_name(primary.stem + "_model_diffusion")
+        else:
+            explicit_output = primary.with_name(primary.stem + _DEFAULT_FILE_SUFFIX[command])
         original.extend(["-o", str(explicit_output)])
     if command == "minimize" and "--dat" not in original:
         original_dat = primary.with_suffix(".dat")
