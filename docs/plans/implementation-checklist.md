@@ -8,6 +8,7 @@ complete. Detailed requirements remain in these authoritative sources:
 - [DDD documentation roadmap](ddd-documentation-roadmap.md) for agent maps and domain documentation.
 - [Diffusion gap-reconstruction plan](diffusion-gap-reconstruction.md) for the proposed experimental modeling backend.
 - [Small diffusion and Apple Silicon plan](small-diffusion-apple-silicon-experiments.md) for compact local-model research.
+- [Diffusion with heterogen context plan](diffusion-heterogen-gap-reconstruction.md) for class-specific research on retaining and conditioning on small molecules, cofactors, ions/metals, glycans, PTMs, and covalent ligands during protein-gap reconstruction.
 - [Continuation context](api-ddd-continuation-context.md) for historical evidence only.
 
 Status is binary: `[x]` means complete and verified; `[ ]` means remaining,
