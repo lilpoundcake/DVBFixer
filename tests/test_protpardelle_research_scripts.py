@@ -5,7 +5,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 
 import numpy as np
 import pytest
@@ -25,6 +25,7 @@ from dvbfixer.model.diffusion.contract import (
     TargetInterval,
     TargetSequence,
 )
+from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 DIGEST = "a" * 64
@@ -223,6 +224,11 @@ def test_adapter_records_resolved_device_not_requested_label() -> None:
     assert 'device=str(device)' in source
     assert '"device": str(device)' in source
     assert 'load_model(config_path, checkpoint_path, device=str(device))' in source
+    assert source.index("sampler_atom_order = identities") < source.index(
+        "identities, coordinates, residue_names = _synchronize_and_restore_fixed_atoms("
+    )
+    assert "atom_order=sampler_atom_order" in source
+    assert "represented_fixed_atoms=represented_fixed_atoms" in source
 
 
 def test_adapter_copies_mps_coordinates_to_cpu_before_float64_conversion() -> None:
@@ -488,7 +494,7 @@ def test_production_runner_writes_protocol_result(
         runner_diagnostics=RunnerDiagnostics(exit_code=1, timed_out=False),
         backend_provenance=BackendProvenance(
             backend="fake-protpardelle",
-            runner_protocol_version=3,
+            runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="builtin://test",
             engine_revision="test",
             device="mps",
@@ -537,3 +543,88 @@ def test_production_runner_rejects_wrong_profile_and_enabled_fallback(
     monkeypatch.delenv("PYTORCH_ENABLE_MPS_FALLBACK", raising=False)
     with pytest.raises(RuntimeError, match="MPS_FALLBACK=0"):
         production.run(profile="protpardelle-1c-mps", checkpoint=checkpoint)
+
+
+def test_production_source_tree_requires_only_the_frozen_patch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production = _load_production_runner()
+    changed = "src/protpardelle/core/models.py\n"
+
+    def fake_run(command: list[str], **_kwargs: object) -> SimpleNamespace:
+        if "--name-only" in command:
+            return SimpleNamespace(stdout=changed)
+        return SimpleNamespace(stdout="")
+
+    monkeypatch.setattr(production.subprocess, "run", fake_run)
+
+    assert production._source_tree_is_frozen(tmp_path)
+    changed = "src/protpardelle/core/models.py\nsrc/protpardelle/core/sampling.py\n"
+    assert not production._source_tree_is_frozen(tmp_path)
+
+
+def test_production_preflight_reports_mps_and_fallback_without_loading_adapter(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production = _load_production_runner()
+    params = tmp_path / "model_params"
+    checkpoint = params / "weights/cc89_epoch415.pth"
+    config = params / "configs/cc89.yaml"
+    checkpoint.parent.mkdir(parents=True)
+    config.parent.mkdir(parents=True)
+    checkpoint.write_bytes(b"checkpoint")
+    config.write_text("config")
+    source = tmp_path / "checkout/src/protpardelle/__init__.py"
+    models = tmp_path / "checkout/src/protpardelle/core/models.py"
+    source.parent.mkdir(parents=True)
+    models.parent.mkdir(parents=True)
+    source.write_text("")
+    models.write_text("")
+    monkeypatch.setattr(production.sys, "platform", "darwin")
+    monkeypatch.setattr(production.sys, "version_info", (3, 12))
+    monkeypatch.setattr(production.platform, "machine", lambda: "arm64")
+    monkeypatch.setenv("PYTHONNOUSERSITE", "1")
+    monkeypatch.delenv("PYTORCH_ENABLE_MPS_FALLBACK", raising=False)
+    monkeypatch.setattr(
+        production.importlib.util,
+        "find_spec",
+        lambda _name: SimpleNamespace(origin=str(source)),
+    )
+    monkeypatch.setattr(production, "_source_tree_is_frozen", lambda _root: True)
+    monkeypatch.setattr(
+        production,
+        "_sha256",
+        lambda path: {
+            "checkpoint": production.CHECKPOINT_SHA256,
+            "cc89_epoch415.pth": production.CHECKPOINT_SHA256,
+            "cc89.yaml": production.CONFIG_SHA256,
+            "apple-portability.patch": production.APPLE_PATCH_SHA256,
+            "models.py": production.PATCHED_MODELS_SHA256,
+        }[path.name],
+    )
+    monkeypatch.setattr(
+        production.subprocess,
+        "run",
+        lambda *_args, **_kwargs: SimpleNamespace(stdout=production.ENGINE_REVISION),
+    )
+    fake_torch = SimpleNamespace(
+        __version__="2.6.0",
+        backends=SimpleNamespace(mps=SimpleNamespace(is_available=lambda: False)),
+        device=lambda name: name,
+    )
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setattr(
+        production,
+        "_load_adapter",
+        lambda: pytest.fail("preflight must not load the sampling adapter"),
+    )
+
+    report = production.preflight_report(production.PROFILE, checkpoint)
+
+    assert {issue.code.value for issue in report.issues} == {
+        "fallback-enabled",
+        "missing-mps",
+    }
+    assert report.facts.effective_device == ""

@@ -10,6 +10,7 @@ from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
     AtomIdentity,
+    BackendOption,
     BackendProvenance,
     DiffusionCandidate,
     DiffusionRequest,
@@ -70,6 +71,7 @@ def _request() -> DiffusionRequest:
         retained_explicit_links=(),
         candidate_count=1,
         seeds=(7,),
+        backend_options=(BackendOption("profile", "protenix-v1-cuda"),),
     )
 
 
@@ -81,6 +83,7 @@ def test_manifest_records_auditable_evidence_without_raw_diagnostics(
         candidate_id="candidate-0001",
         seed=7,
         coordinate_artifact=ArtifactReference("candidate.pdb", "b" * 64),
+        sampler_trace_artifact=ArtifactReference("candidate.trace.json", "c" * 64),
         generated_atoms=request.generated_atoms,
         generated_residues=request.gaps[0].generated_residues,
         raw_backend_score=0.75,
@@ -122,6 +125,15 @@ def test_manifest_records_auditable_evidence_without_raw_diagnostics(
         "commit": "unknown",
     }
     assert payload["candidate"]["seed"] == 7
+    assert payload["requested_profile"] == "protenix-v1-cuda"
+    assert payload["profile_status"] == "hardware-acceptance-pending"
+    assert payload["profile_evidence_labels"] == [
+        "experimental",
+        "confirmatory-selected-in-frozen-scope",
+    ]
+    assert payload["training_membership_status"] == (
+        "temporally-eligible-frozen-cohort"
+    )
     assert payload["runner_diagnostics"] == {
         "exit_code": 0,
         "timed_out": False,
@@ -141,6 +153,7 @@ def test_manifest_uses_current_repository_commit() -> None:
         candidate_id="candidate-0001",
         seed=7,
         coordinate_artifact=ArtifactReference("candidate.pdb", "b" * 64),
+        sampler_trace_artifact=ArtifactReference("candidate.trace.json", "c" * 64),
         generated_atoms=request.generated_atoms,
         generated_residues=request.gaps[0].generated_residues,
         raw_backend_score=None,

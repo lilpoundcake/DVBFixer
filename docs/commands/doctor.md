@@ -2,18 +2,43 @@
 
 [← command index](index.md) · [← README](../../README.md)
 
-Reports installed Python backends, external chemistry executables, and
-available OpenMM platforms without starting a structure-processing job.
+Reports installed Python backends, external chemistry executables, available
+OpenMM platforms, and static experimental diffusion profile metadata without
+starting a structure-processing job.
 Modeller is probed in an isolated subprocess, so an installed package with an
 invalid or missing license is reported as unavailable without crashing Doctor.
 
 ```bash
 dvbfixer doctor
 dvbfixer doctor --format json
+dvbfixer doctor --format json \
+  --diffusion-profile protenix-v1-cuda \
+  --diffusion-runner /path/to/production_runner.py \
+  --diffusion-checkpoint /path/to/protenix_base_default_v1.0.0.pt
 ```
 
 Missing optional tools are reported rather than treated as an error. Use the
 JSON form in CI or before submitting a large folder-input run.
+
+Without `--diffusion-profile`, the additive `diffusion` section reports only
+the two profiles' immutable status, evidence labels, engine/source/patch and
+checkpoint identities, sampling/refinement platforms, protocol versions,
+fallback policy, and training-membership status. Selecting a profile performs
+a bounded JSON handshake with the supplied production runner. Missing runner or
+checkpoint arguments are structured issues in the report rather than parser
+errors.
+
+The handshake verifies the pinned platform, architecture, Python, engine and
+patch state, checkpoint digest, framework version, CUDA or MPS availability,
+effective device, disabled fallback, and refinement platform. It does not run
+sampling, refinement, or checkpoint/model loading. The runner is trusted
+operator code as described by ADR 0011; Doctor invokes it without a shell and
+with timeout/output bounds, but does not sandbox it. Reports omit runner and
+checkpoint paths, raw environment, credentials, and child stdout/stderr.
+
+`model --backend diffusion` performs the same fail-closed profile handshake
+before building the request or starting inference; running Doctor separately is
+useful for diagnostics but is not required for enforcement.
 
 ## Batch mode
 

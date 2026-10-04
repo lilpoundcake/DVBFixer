@@ -16,13 +16,24 @@ from functools import partial
 from pathlib import Path
 from types import ModuleType
 
-from dvbfixer.model.diffusion.contract import RunnerResult
+from dvbfixer.model.diffusion.contract import DIFFUSION_SCHEMA_VERSION, RunnerResult
+from dvbfixer.model.diffusion.preflight import (
+    AdapterPreflightCode,
+    AdapterPreflightIssue,
+    RunnerPreflightReport,
+    runtime_preflight_facts,
+)
+from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 from dvbfixer.model.diffusion.runner_refinement import refine_runner_result
 
 PROFILE = "protpardelle-1c-mps"
 ENGINE_REVISION = "ee378400f25b801fa481028000f9060183d7fb4c"
 APPLE_PATCH_SHA256 = "a87fe2e9f0c143102441d6a39ff181bd0c2b1c411cdfdf65236d7baf38a8d858"
 PATCHED_MODELS_SHA256 = "3ad9efdc4e1086e14dbba941d88ca62521e956f13a1df88bba5fc6edec81c19d"
+CHECKPOINT_SHA256 = "dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483"
+CONFIG_SHA256 = "e9999ace79bf3044351cc982a624fc3459add3a4f91cbf97ff5b437b8942eb9d"
+PATCH_IDENTITY = f"sha256:{APPLE_PATCH_SHA256}"
+REFINEMENT_PLATFORM = "OpenMM CPU"
 _UNSET_MPS_VARIABLES = (
     "PYTORCH_MPS_FAST_MATH",
     "PYTORCH_MPS_PREFER_METAL",
@@ -56,7 +67,29 @@ def _config_for_checkpoint(checkpoint: Path) -> Path:
 
 
 def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def _source_tree_is_frozen(root: Path) -> bool:
+    changed = subprocess.run(
+        ["git", "-C", str(root), "diff", "--name-only", "HEAD", "--"],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    ).stdout.splitlines()
+    untracked_modules = subprocess.run(
+        [
+            "git", "-C", str(root), "ls-files", "--others", "--",
+            "*.py", "*.pyc", "*.so", "*.pyd", "*.dylib",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    ).stdout.splitlines()
+    return set(changed) == {"src/protpardelle/core/models.py"} and not untracked_modules
 
 
 def _verify_profile_environment() -> None:
@@ -85,9 +118,116 @@ def _verify_profile_environment() -> None:
     ).stdout.strip()
     if revision != ENGINE_REVISION:
         raise RuntimeError(f"Protpardelle revision mismatch: {revision}")
+    if not _source_tree_is_frozen(source_root):
+        raise RuntimeError("Protpardelle source tree contains changes outside the frozen patch")
     models_path = source_root / "src/protpardelle/core/models.py"
     if _sha256(models_path) != PATCHED_MODELS_SHA256:
         raise RuntimeError("Protpardelle source does not match the frozen Apple patch state")
+
+
+def preflight_report(profile: str, checkpoint: Path) -> RunnerPreflightReport:
+    """Verify the frozen environment without importing adapters or loading weights."""
+    issues: list[AdapterPreflightIssue] = []
+
+    def issue(code: AdapterPreflightCode, message: str) -> None:
+        issues.append(AdapterPreflightIssue(code, message))
+
+    if profile != PROFILE:
+        issue(AdapterPreflightCode.INCOMPATIBLE_ENVIRONMENT, "runner does not support the requested profile")
+    if sys.platform != "darwin":
+        issue(AdapterPreflightCode.INCOMPATIBLE_PLATFORM, "profile requires macOS")
+    if platform.machine() != "arm64":
+        issue(AdapterPreflightCode.INCOMPATIBLE_ARCHITECTURE, "profile requires arm64")
+    if sys.version_info[:2] != (3, 12):
+        issue(AdapterPreflightCode.INCOMPATIBLE_PYTHON, "profile requires Python 3.12")
+    if os.environ.get("PYTHONNOUSERSITE") != "1":
+        issue(AdapterPreflightCode.INCOMPATIBLE_ENVIRONMENT, "PYTHONNOUSERSITE must be enabled")
+    configured = [name for name in _UNSET_MPS_VARIABLES if os.environ.get(name) is not None]
+    if configured:
+        issue(AdapterPreflightCode.INCOMPATIBLE_ENVIRONMENT, "frozen MPS tuning variables must be unset")
+    if importlib.util.find_spec("openmm") is None:
+        issue(AdapterPreflightCode.MISSING_RESOURCE, "required OpenMM refinement runtime is unavailable")
+    fallback_disabled = os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") == "0"
+    if not fallback_disabled:
+        issue(AdapterPreflightCode.FALLBACK_ENABLED, "MPS fallback must be explicitly disabled")
+
+    checkpoint_sha256 = ""
+    if checkpoint.is_symlink() or not checkpoint.is_file():
+        issue(AdapterPreflightCode.MISSING_CHECKPOINT, "required checkpoint is unavailable")
+    else:
+        try:
+            checkpoint_sha256 = _sha256(checkpoint)
+        except OSError:
+            issue(AdapterPreflightCode.MISSING_CHECKPOINT, "required checkpoint could not be read")
+        if checkpoint_sha256 and checkpoint_sha256 != CHECKPOINT_SHA256:
+            issue(AdapterPreflightCode.CHECKPOINT_DIGEST_MISMATCH, "checkpoint digest does not match the frozen profile")
+        try:
+            config = _config_for_checkpoint(checkpoint)
+            if _sha256(config) != CONFIG_SHA256:
+                issue(AdapterPreflightCode.INCOMPATIBLE_ENVIRONMENT, "Protpardelle config does not match the frozen profile")
+        except (FileNotFoundError, OSError):
+            issue(AdapterPreflightCode.INCOMPATIBLE_ENVIRONMENT, "frozen Protpardelle config is unavailable")
+
+    revision = ""
+    try:
+        patch_path = Path(__file__).with_name("apple-portability.patch")
+        if _sha256(patch_path) != APPLE_PATCH_SHA256:
+            issue(AdapterPreflightCode.INCOMPATIBLE_PATCH, "Apple portability patch digest is invalid")
+        spec = importlib.util.find_spec("protpardelle")
+        if spec is None or spec.origin is None:
+            raise RuntimeError("source unavailable")
+        source_root = Path(spec.origin).resolve().parents[2]
+        revision = subprocess.run(
+            ["git", "-C", str(source_root), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout.strip()
+        if revision != ENGINE_REVISION:
+            issue(AdapterPreflightCode.INCOMPATIBLE_SOURCE, "Protpardelle revision does not match the frozen profile")
+        if not _source_tree_is_frozen(source_root):
+            issue(AdapterPreflightCode.INCOMPATIBLE_SOURCE, "Protpardelle source tree contains unapproved changes")
+        if _sha256(source_root / "src/protpardelle/core/models.py") != PATCHED_MODELS_SHA256:
+            issue(AdapterPreflightCode.INCOMPATIBLE_PATCH, "Protpardelle patch state does not match the frozen profile")
+    except (OSError, RuntimeError, subprocess.SubprocessError):
+        issue(AdapterPreflightCode.INCOMPATIBLE_SOURCE, "Protpardelle source identity could not be verified")
+
+    framework_version = ""
+    accelerator_available = False
+    effective_device = ""
+    try:
+        import torch
+
+        framework_version = torch.__version__.split("+")[0]
+        if framework_version != "2.6.0":
+            issue(AdapterPreflightCode.INCOMPATIBLE_FRAMEWORK, "PyTorch version does not match the frozen profile")
+        accelerator_available = bool(torch.backends.mps.is_available())
+        if not accelerator_available:
+            issue(AdapterPreflightCode.MISSING_MPS, "required MPS device is unavailable")
+        else:
+            effective_device = str(torch.device("mps"))
+    except (ImportError, RuntimeError):
+        issue(AdapterPreflightCode.INCOMPATIBLE_FRAMEWORK, "frozen PyTorch MPS runtime is unavailable")
+
+    return RunnerPreflightReport(
+        profile=profile,
+        runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
+        contract_schema_version=DIFFUSION_SCHEMA_VERSION,
+        facts=runtime_preflight_facts(
+            engine_revision=revision,
+            patch_identity=PATCH_IDENTITY,
+            environment_identity="macos-arm64;python=3.12;torch=2.6.0",
+            checkpoint_sha256=checkpoint_sha256,
+            framework_version=framework_version,
+            accelerator_available=accelerator_available,
+            effective_device=effective_device,
+            fallback_disabled=fallback_disabled,
+            sampling_platform="native macOS arm64 / MPS",
+            refinement_platform=REFINEMENT_PLATFORM,
+        ),
+        issues=tuple(issues),
+    )
 
 
 def run(
@@ -106,6 +246,7 @@ def run(
     if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
         raise RuntimeError("PYTORCH_ENABLE_MPS_FALLBACK=0 is required")
     preflight()
+    sys.dont_write_bytecode = True
 
     request_path = Path(os.environ.get("DVBFIXER_DIFFUSION_REQUEST", "request.json"))
     result_path = Path(os.environ.get("DVBFIXER_DIFFUSION_RESULT", "result.json"))
@@ -149,9 +290,13 @@ def run(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--preflight", action="store_true")
     parser.add_argument("--profile", required=True)
     parser.add_argument("--checkpoint", required=True, type=Path)
     args = parser.parse_args()
+    if args.preflight:
+        print(preflight_report(args.profile, args.checkpoint).to_json(), end="")
+        return
     run(profile=args.profile, checkpoint=args.checkpoint)
 
 

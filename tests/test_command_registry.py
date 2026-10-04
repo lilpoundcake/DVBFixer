@@ -72,3 +72,17 @@ def test_gui_schema_labels_negative_switches_by_actual_option() -> None:
     assert labels["--no-propka"] == "No PROPKA"
     assert labels["--no-protassign"] == "No ProtAssign"
     assert labels["--strip-heterogens"] == "Strip Heterogens"
+
+
+def test_gui_schema_excludes_doctor_diffusion_options() -> None:
+    from scripts.gen_gui_spec import command_schema
+
+    doctor = command_schema("doctor", COMMAND_BY_NAME["doctor"].description)
+    flags = {field["flag"] for field in doctor["flags"]}
+
+    assert not flags & {
+        "--diffusion-profile",
+        "--diffusion-runner",
+        "--diffusion-checkpoint",
+        "--diffusion-timeout",
+    }

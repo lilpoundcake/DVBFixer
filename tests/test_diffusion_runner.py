@@ -6,6 +6,7 @@ import hashlib
 import json
 import sys
 import textwrap
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -14,9 +15,11 @@ from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
     AtomIdentity,
+    BackendOption,
     DiffusionRequest,
     GapRegion,
     ResidueIdentity,
+    SamplerTrace,
     SequencePlacement,
     TargetInterval,
     TargetSequence,
@@ -98,13 +101,32 @@ def _valid_runner(tmp_path: Path) -> Path:
         import hashlib
         import json
         from pathlib import Path
+        from dvbfixer.model.diffusion.contract import DiffusionRequest
+        from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 
         request = json.loads(Path("request.json").read_text())
+        typed_request = DiffusionRequest.from_dict(request)
         input_path = Path(request["normalized_pdb"]["path"])
         candidate_path = Path("candidates/candidate-0001.pdb")
         candidate_path.parent.mkdir(parents=True)
         candidate_path.write_bytes(input_path.read_bytes())
         digest = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
+        trace = write_sampler_trace(
+            Path.cwd(),
+            Path("candidates/candidate-0001.trace.json"),
+            build_sampler_trace(
+                profile="test",
+                engine_repository="https://example.invalid/fake",
+                engine_revision="test-revision",
+                patch_identity="none",
+                atom_order=(*typed_request.fixed_atoms, *typed_request.generated_atoms),
+                fixed_atoms=typed_request.fixed_atoms,
+                device="cpu",
+                fallback_disabled=True,
+                denoising_update_count=0,
+                final_fixed_coordinate_restoration=True,
+            ),
+        )
         result = {{
             "schema_version": {DIFFUSION_SCHEMA_VERSION},
             "status": "success",
@@ -114,6 +136,10 @@ def _valid_runner(tmp_path: Path) -> Path:
                 "coordinate_artifact": {{
                     "path": str(candidate_path),
                     "sha256": digest,
+                }},
+                "sampler_trace_artifact": {{
+                    "path": trace.path,
+                    "sha256": trace.sha256,
                 }},
                 "generated_atoms": request["generated_atoms"],
                 "generated_residues": request["gaps"][0]["generated_residues"],
@@ -134,6 +160,7 @@ def _valid_runner(tmp_path: Path) -> Path:
                 "engine_revision": "test-revision",
                 "checkpoint_sha256": "",
                 "environment_hash": "",
+                "device": "cpu",
             }},
             "message": "",
         }}
@@ -141,6 +168,27 @@ def _valid_runner(tmp_path: Path) -> Path:
         print("fake runner complete")
         """,
     )
+
+
+def _mutate_trace_runner(
+    tmp_path: Path,
+    statement: str,
+    *,
+    refresh_digest: bool = False,
+) -> Path:
+    runner = _valid_runner(tmp_path)
+    text = runner.read_text(encoding="utf-8").replace(
+        "result = {",
+        textwrap.dedent(statement) + "\nresult = {",
+        1,
+    )
+    if refresh_digest:
+        text = text.replace(
+            '"sha256": trace.sha256,',
+            '"sha256": hashlib.sha256(Path(trace.path).read_bytes()).hexdigest(),',
+        )
+    runner.write_text(text, encoding="utf-8")
+    return runner
 
 
 def test_runner_validates_manifests_digests_and_uses_actual_diagnostics(
@@ -168,6 +216,87 @@ def test_runner_validates_manifests_digests_and_uses_actual_diagnostics(
     assert result.runner_diagnostics.stderr == ""
     assert (workspace / "request.json").is_file()
     assert (workspace / "result.json").is_file()
+
+
+@pytest.mark.parametrize(
+    ("statement", "message", "refresh_digest"),
+    (
+        ("Path(trace.path).unlink()", "artifact does not exist", False),
+        (
+            'Path(trace.path).write_text("not-json")',
+            "invalid sampler trace",
+            True,
+        ),
+        ('Path(trace.path).write_text("changed")', "SHA-256 mismatch", False),
+        (
+            "Path(trace.path).unlink(); Path(trace.path).symlink_to(candidate_path.resolve())",
+            "contains a symlink",
+            True,
+        ),
+        (
+            "Path(trace.path).unlink(); os.link(candidate_path, trace.path)",
+            "must not be hard-linked",
+            True,
+        ),
+    ),
+)
+def test_runner_rejects_invalid_trace_artifacts(
+    tmp_path: Path,
+    statement: str,
+    message: str,
+    refresh_digest: bool,
+) -> None:
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    input_bytes = b"END\n"
+    _write_input(source_root, input_bytes)
+    runner = _mutate_trace_runner(
+        tmp_path,
+        "import os\n" + statement,
+        refresh_digest=refresh_digest,
+    )
+
+    with pytest.raises(DiffusionRunnerError, match=message):
+        run_diffusion_runner(
+            _request(input_bytes),
+            _command(runner),
+            source_root=source_root,
+            workspace=tmp_path / "workspace",
+        )
+
+
+def test_runner_rejects_oversized_trace_and_fixed_mask_mismatch(tmp_path: Path) -> None:
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    input_bytes = b"END\n"
+    _write_input(source_root, input_bytes)
+    oversized = _mutate_trace_runner(
+        tmp_path,
+        'Path(trace.path).write_bytes(b"x" * 2000)',
+        refresh_digest=True,
+    )
+    with pytest.raises(DiffusionRunnerError, match="artifact exceeds the size limit"):
+        run_diffusion_runner(
+            _request(input_bytes),
+            _command(oversized),
+            source_root=source_root,
+            workspace=tmp_path / "oversized-workspace",
+            limits=RunnerLimits(max_artifact_bytes=1000),
+        )
+
+    mismatch = _valid_runner(tmp_path)
+    text = mismatch.read_text(encoding="utf-8").replace(
+        "fixed_atoms=typed_request.fixed_atoms,",
+        "fixed_atoms=(typed_request.fixed_atoms[0],),",
+    )
+    mismatch.write_text(text, encoding="utf-8")
+    with pytest.raises(DiffusionRunnerError, match="changed the fixed atom mask"):
+        run_diffusion_runner(
+            _request(input_bytes),
+            _command(mismatch),
+            source_root=source_root,
+            workspace=tmp_path / "mask-workspace",
+        )
 
 
 def test_builtin_fake_runner_is_deterministic_and_external(tmp_path: Path) -> None:
@@ -204,6 +333,45 @@ def test_builtin_fake_runner_is_deterministic_and_external(tmp_path: Path) -> No
         for candidate in first_result.candidates
     )
     assert first_result.backend_provenance.backend == "dvbfixer-fake"
+
+
+@pytest.mark.parametrize(
+    ("profile", "denoising_updates", "callbacks"),
+    (
+        ("protenix-v1-cuda", 200, 200),
+        ("protpardelle-1c-mps", 500, 0),
+    ),
+)
+def test_builtin_fake_runner_records_profile_update_counts(
+    tmp_path: Path,
+    profile: str,
+    denoising_updates: int,
+    callbacks: int,
+) -> None:
+    input_bytes = b"HEADER    FAKE INPUT\nEND\n"
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    _write_input(source_root, input_bytes)
+    request = replace(
+        _request(input_bytes),
+        backend_options=(BackendOption("profile", profile),),
+    )
+    workspace = tmp_path / "workspace"
+
+    result = run_diffusion_runner(
+        request,
+        (sys.executable, "-m", "dvbfixer.model.diffusion.fake_runner"),
+        source_root=source_root,
+        workspace=workspace,
+    )
+    reference = result.candidates[0].sampler_trace_artifact
+    trace = SamplerTrace.from_json(
+        (workspace / reference.path).read_text(encoding="utf-8")
+    )
+
+    assert trace.denoising_update_count == denoising_updates
+    assert trace.callback_update_count == callbacks
+    assert len(trace.steps) == callbacks
 
 
 def test_runner_rejects_modified_prepared_request(tmp_path: Path) -> None:
@@ -304,6 +472,10 @@ def test_runner_rejects_digest_mismatch_and_candidate_symlink(tmp_path: Path) ->
                     "path": str(candidate),
                     "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
                 }},
+                "sampler_trace_artifact": {{
+                    "path": "unused.trace.json",
+                    "sha256": "0" * 64,
+                }},
                 "generated_atoms": request["generated_atoms"],
                 "generated_residues": request["gaps"][0]["generated_residues"],
                 "raw_backend_score": 1.0,
@@ -323,6 +495,7 @@ def test_runner_rejects_digest_mismatch_and_candidate_symlink(tmp_path: Path) ->
                 "engine_revision": "test-revision",
                 "checkpoint_sha256": "",
                 "environment_hash": "",
+                "device": "cpu",
             }},
             "message": "",
         }}
@@ -383,8 +556,11 @@ def test_runner_rejects_oversized_manifest_artifact_and_hard_link(tmp_path: Path
         import json
         import os
         from pathlib import Path
+        from dvbfixer.model.diffusion.contract import DiffusionRequest
+        from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 
         request = json.loads(Path("request.json").read_text())
+        typed_request = DiffusionRequest.from_dict(request)
         candidate = Path("candidate.pdb")
         os.link(request["normalized_pdb"]["path"], candidate)
         result = {{
@@ -396,6 +572,10 @@ def test_runner_rejects_oversized_manifest_artifact_and_hard_link(tmp_path: Path
                 "coordinate_artifact": {{
                     "path": str(candidate),
                     "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                }},
+                "sampler_trace_artifact": {{
+                    "path": "unused.trace.json",
+                    "sha256": "0" * 64,
                 }},
                 "generated_atoms": request["generated_atoms"],
                 "generated_residues": request["gaps"][0]["generated_residues"],
@@ -416,6 +596,7 @@ def test_runner_rejects_oversized_manifest_artifact_and_hard_link(tmp_path: Path
                 "engine_revision": "test-revision",
                 "checkpoint_sha256": "",
                 "environment_hash": "",
+                "device": "cpu",
             }},
             "message": "",
         }}
@@ -449,8 +630,11 @@ def test_runner_environment_is_minimal_and_overrides_are_allowlisted(
         import json
         import os
         from pathlib import Path
+        from dvbfixer.model.diffusion.contract import DiffusionRequest
+        from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 
         request = json.loads(Path("request.json").read_text())
+        typed_request = DiffusionRequest.from_dict(request)
         if "AWS_ACCESS_KEY_ID" in os.environ or "SSH_AUTH_SOCK" in os.environ:
             raise SystemExit(7)
         if os.environ.get("LANG") != "test-locale":
@@ -461,6 +645,22 @@ def test_runner_environment_is_minimal_and_overrides_are_allowlisted(
             raise SystemExit(10)
         candidate = Path("candidate.pdb")
         candidate.write_bytes(Path(request["normalized_pdb"]["path"]).read_bytes())
+        trace = write_sampler_trace(
+            Path.cwd(),
+            Path("candidate.trace.json"),
+            build_sampler_trace(
+                profile="test",
+                engine_repository="https://example.invalid/fake",
+                engine_revision="test-revision",
+                patch_identity="none",
+                atom_order=(*typed_request.fixed_atoms, *typed_request.generated_atoms),
+                fixed_atoms=typed_request.fixed_atoms,
+                device="cpu",
+                fallback_disabled=True,
+                denoising_update_count=0,
+                final_fixed_coordinate_restoration=True,
+            ),
+        )
         result = {{
             "schema_version": {DIFFUSION_SCHEMA_VERSION},
             "status": "success",
@@ -470,6 +670,10 @@ def test_runner_environment_is_minimal_and_overrides_are_allowlisted(
                 "coordinate_artifact": {{
                     "path": str(candidate),
                     "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                }},
+                "sampler_trace_artifact": {{
+                    "path": trace.path,
+                    "sha256": trace.sha256,
                 }},
                 "generated_atoms": request["generated_atoms"],
                 "generated_residues": request["gaps"][0]["generated_residues"],
@@ -490,6 +694,7 @@ def test_runner_environment_is_minimal_and_overrides_are_allowlisted(
                 "engine_revision": "test-revision",
                 "checkpoint_sha256": "",
                 "environment_hash": "",
+                "device": "cpu",
             }},
             "message": "",
         }}
@@ -711,6 +916,10 @@ def test_runner_rejects_duplicate_candidate_seeds(tmp_path: Path) -> None:
                 "coordinate_artifact": {{
                     "path": str(candidate),
                     "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                }},
+                "sampler_trace_artifact": {{
+                    "path": f"unused-{{index}}.trace.json",
+                    "sha256": "0" * 64,
                 }},
                 "generated_atoms": request["generated_atoms"],
                 "generated_residues": request["gaps"][0]["generated_residues"],

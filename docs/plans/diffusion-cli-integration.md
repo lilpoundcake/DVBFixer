@@ -1,6 +1,6 @@
 # План A. Слияние веток и внедрение diffusion backend в CLI
 
-## Статус предварительной интеграции Apple Silicon
+## Статус интеграции на 2026-10-02
 
 На ветке `feature/dvbfixer-hardening` выполнен предварительный этап:
 
@@ -9,23 +9,23 @@
 - diffusion-only Ramachandran и chi1/chi2 hard gates изолированы от общего
   `diagnose` в `dvbfixer.model.diffusion.quality` (`b3f3a9e`);
 - `origin/diffusion-apple-silicon` объединён merge-коммитом `e84d07e`;
-- MODELLER остаётся единственным публичным backend команды `model`; production
-  runner contract и `--backend diffusion` на этом этапе не включены.
+- MODELLER остаётся default и production-supported backend команды `model`;
+  явный experimental `--backend diffusion` и отдельные production protocol
+  wrappers для Protenix CUDA и Protpardelle MPS реализованы.
 
-Аппаратно-независимая проверка на Linux завершена: 194 diffusion/Apple tests и
-82 затронутых diagnose/geometry tests прошли, как и Ruff, DDD map validation и
-`git diff --check`. Следующая обязательная точка выполнения находится на
-физическом Apple Silicon. Требуется native arm64 environment, Protpardelle
-revision `ee378400f25b801fa481028000f9060183d7fb4c`, только
-`deploy/protpardelle-1c/apple-portability.patch` без callback patch и
-`PYTORCH_ENABLE_MPS_FALLBACK=0`, установленный до запуска Python. Последовательность
-inventory, CPU/MPS operator smoke и one-step MPS smoke приведена в
-`deploy/protpardelle-1c/README.md`.
+Аппаратно-независимая интеграция прошла полный Python 3.11 non-slow suite и GUI
+suite перед последующими runner/CLI commits. Публичный Apple CLI smoke затем
+прошёл на native M3 Pro с отключённым fallback, final restoration и CPU OpenMM
+refinement. Portable Linux wrapper реализован, но его checkpoint-backed
+NVIDIA acceptance и воспроизведение frozen scope ещё обязательны.
 
-Продолжать с production protocol wrapper, sampler trace и публичным CLI следует
-только после успешного MPS smoke без fallback и с подтверждёнными model/input/
-output device assertions. Этот предварительный merge сам по себе не означает,
-что Apple profile доступен пользователям.
+Архитектурное решение о narrow public CLI зафиксировано в ADR 0011. Bounded
+digest-verified sampler trace связан с каждым candidate и bundle по contract/
+protocol v4; additive diffusion profile report и bounded no-inference handshake
+реализованы в `doctor`. Ни один из
+этих статусов не означает production-default promotion, arbitrary chemistry,
+batch/GUI/ZBS/Homology support или доказанную training independence Apple
+engine.
 
 ## A.1. Зафиксированные границы и продуктовые решения
 
@@ -184,6 +184,10 @@ output device assertions. Этот предварительный merge сам �
 
 ## A.5. Versioned runner contract и sampler evidence
 
+Статус: реализовано contract/protocol v4. Старые trace-free manifests
+отклоняются, trace независимо проверяется как bounded private artifact и
+публикуется вместе с каждым candidate.
+
 - Не использовать research `summary.json` как production protocol result.
 - Production runner обязан:
   - читать versioned `request.json`;
@@ -193,6 +197,11 @@ output device assertions. Этот предварительный merge сам �
   - публиковать SHA-256 каждого artifact;
   - не создавать symlink/hardlink escape;
   - не писать вне private workspace.
+- Operator-supplied runner является trusted executable code. Проверки core
+  ограничивают и валидируют возвращённые artifacts, но не являются OS/filesystem
+  sandbox и не могут запретить процессу записи в другие пути. Обязательство не
+  писать вне workspace относится к maintained wrappers; для enforcement нужен
+  внешний sandbox/container.
 - Исправить gap существующего contract:
   - `SamplerTrace` уже определён, но не связан с `RunnerCandidate`/`RunnerResult`;
   - поднять schema/protocol version;
@@ -202,17 +211,22 @@ output device assertions. Этот предварительный merge сам �
   - profile и sampler capability;
   - engine/source revision;
   - patch identity;
-  - atom-order digest;
-  - fixed-mask digest;
-  - callback/update count;
-  - maximum projection/reinjection error;
+  - sampler atom order и его digest;
+  - полный request fixed set, представленный sampler subset и fixed-mask digest
+    именно для represented subset;
+  - marker полноты sampler evidence и отдельные denoising-update/observed
+    callback counts; unknown legacy evidence не кодировать нулевыми counts;
+  - explicit fixed-coordinate tolerance policy (по умолчанию `0.01 Å`);
+  - maximum observed post-projection/reinjection error, либо `null`, если
+    projection callback не выполнялся;
   - final restoration marker;
   - refinement mode и параметры;
   - device identity;
   - fallback-disabled status;
   - bounded resource metrics.
 - Для Linux требовать evidence per-step reinjection.
-- Для Apple требовать честный нулевой per-step callback count и final-restoration marker.
+- Для Apple требовать честные 500 denoising updates, нулевой per-step callback
+  count и final-restoration marker.
 - Обновить:
   - strict serialization/parsing;
   - compatibility errors;
@@ -394,9 +408,20 @@ output device assertions. Этот предварительный merge сам �
 
 ## A.11. `doctor`, diagnostics и provenance
 
-- Добавить additive `diffusion` section в `src/dvbfixer/doctor.py`.
-- Обновить exact-key assertions в `tests/test_doctor.py`.
-- Поддержать проверку выбранного profile:
+Статус: реализовано. Без выбора profile `doctor` сообщает только immutable
+metadata обоих profiles. При явном выборе он запускает maintained runner с
+`--preflight` без shell, sampling, refinement или загрузки checkpoint weights,
+ограничивает время/вывод и строго разбирает sanitized JSON report. Пути,
+credentials, raw environment и raw child logs в report не попадают.
+Публичный diffusion model path выполняет тот же fail-closed handshake до
+построения request и inference; отдельный запуск `doctor` не является условием
+безопасности. Source identity отклоняет изменения tracked files вне frozen patch
+и untracked Python modules. Published provenance сохраняет immutable status,
+evidence и training-membership labels выбранного profile.
+
+- [x] Добавить additive `diffusion` section в `src/dvbfixer/doctor.py`.
+- [x] Обновить exact-key assertions в `tests/test_doctor.py`.
+- [x] Поддержать проверку выбранного profile:
   - runner presence;
   - runner protocol/schema;
   - engine/source revision;
@@ -408,10 +433,10 @@ output device assertions. Этот предварительный merge сам �
   - fallback-disabled status;
   - refinement platform;
   - resource prerequisites.
-- Выводить status labels:
+- [x] Выводить status labels:
   - Linux: `experimental`, `confirmatory-selected-in-frozen-scope`;
   - Apple: `experimental`, `descriptive-evidence`, `training-membership-unresolved`, `no-per-step-reinjection`.
-- Provenance сохраняет:
+- [x] Provenance сохраняет:
   - DVBFixer version/commit;
   - request digest;
   - input/output artifact digests;

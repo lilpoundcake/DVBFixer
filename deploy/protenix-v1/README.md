@@ -86,4 +86,6 @@ dvbfixer model INPUT.pdb --fasta TARGET.fasta \
 The runner requires Linux amd64, Python 3.13, PyTorch 2.13.0, CUDA 12.9,
 bfloat16-capable NVIDIA hardware, `kalign`, the exact patched source tree, and
 the operator-provided checkpoint. DVBFixer does not download or redistribute
-the checkpoint.
+the checkpoint. Remove existing `__pycache__` directories from the Protenix
+checkout before preflight; the wrapper disables bytecode writes before loading
+the engine so accepted runs do not recreate them.

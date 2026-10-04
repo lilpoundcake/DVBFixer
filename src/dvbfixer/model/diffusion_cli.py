@@ -25,12 +25,15 @@ from dvbfixer.model.diffusion.masks import (
     build_sequence_placement,
 )
 from dvbfixer.model.diffusion.pipeline import run_diffusion_pipeline
+from dvbfixer.model.diffusion.preflight import invoke_runner_preflight
 from dvbfixer.model.diffusion.runner import RunnerLimits
 from dvbfixer.model.diffusion.scope import (
     MAXIMUM_GAP_LENGTH,
     MINIMUM_GAP_LENGTH,
+    DiffusionScopeError,
     _parse_coordinate_records,
     _parse_explicit_links,
+    assess_diffusion_scope,
     canonical_heavy_atom_identities,
 )
 
@@ -214,8 +217,30 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
     )
     if not work_parent.is_dir():
         raise DiffusionCliError(f"diffusion work parent is not a directory: {work_parent}")
+    try:
+        admission = assess_diffusion_scope(request, input_path.read_bytes())
+    except DiffusionScopeError as exc:
+        raise DiffusionCliError(str(exc)) from exc
+    if not admission.supported:
+        raise DiffusionCliError(
+            "diffusion input is outside the supported scope: "
+            + ", ".join(admission.reasons)
+        )
+
+    runner = os.fspath(Path(args.diffusion_runner).expanduser())
+    preflight = invoke_runner_preflight(
+        profile=args.diffusion_profile,
+        runner=runner,
+        checkpoint=checkpoint,
+        timeout_seconds=args.diffusion_timeout,
+    )
+    if not preflight.passed:
+        reasons = "; ".join(
+            f"{issue.code.value}: {issue.message}" for issue in preflight.issues
+        )
+        raise DiffusionCliError(f"diffusion runner preflight failed: {reasons}")
     command = (
-        os.fspath(Path(args.diffusion_runner).expanduser()),
+        runner,
         "--profile",
         args.diffusion_profile,
         "--checkpoint",

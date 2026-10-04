@@ -116,7 +116,12 @@ Engine setup and fallback behavior still live in `minimize/pipeline.py` and
 `lig_params.py`. See [relaxation research](research/whole-complex-relaxation.md)
 for proposed regularization architecture and validation criteria, and the
 [reconstruction/modeling backend research](research/reconstruction-and-modeling-backends.md)
-for proposed atom-completion, loop, homology, and diffusion comparisons. None of
-those proposed backends are exposed by this release; PDBFixer and Salilab
-MODELLER remain supported production baselines. The Class A service is not wired
-into those defaults or exposed as a CLI/GUI command.
+for atom-completion, loop, homology, and diffusion comparisons. A narrow,
+explicit `model --backend diffusion` CLI is experimental for one canonical
+protein chain and one internal gap; its scope, runner, validation, and atomic
+bundle boundary remain in `model/diffusion*`, not in the domain package. Static
+profile metadata and the typed, bounded runner preflight report also live at
+that backend-neutral boundary; `doctor` is only their CLI presentation adapter.
+PDBFixer and Salilab MODELLER remain supported production baselines, and
+MODELLER remains the default. The Class A service is not wired into those
+defaults or exposed as a CLI/GUI command.

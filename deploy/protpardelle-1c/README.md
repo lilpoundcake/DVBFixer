@@ -34,6 +34,10 @@ The checkpoint is operator-provided and is not downloaded or redistributed by
 DVBFixer. Preserve an explicit environment export and `pip freeze` for every
 accepted run in addition to the installable profile above.
 
+Remove existing `__pycache__` directories from the Protpardelle checkout before
+preflight. The production wrapper disables bytecode writes before loading the
+engine so accepted runs do not recreate them.
+
 The patch makes CUDA cache cleanup conditional and disables per-step host copies
 of trajectory tensors when the adapter requests only final coordinates. It does
 not change the denoising update or final coordinates. The existing callback patch

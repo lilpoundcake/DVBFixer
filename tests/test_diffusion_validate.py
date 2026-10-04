@@ -28,6 +28,7 @@ from dvbfixer.model.diffusion.contract import (
     TargetInterval,
     TargetSequence,
 )
+from dvbfixer.model.diffusion.trace import build_sampler_trace
 from dvbfixer.model.diffusion.validate import (
     build_validated_result,
     validate_runner_result,
@@ -134,6 +135,7 @@ def _runner_result(candidates: tuple[RunnerCandidate, ...]) -> RunnerResult:
             runner_protocol_version=2,
             engine_repository="https://example.invalid/fake",
             engine_revision="test-revision",
+            device="cpu",
         ),
         resource_metrics=RunnerResourceMetrics(
             wall_time_seconds=1.5,
@@ -150,10 +152,16 @@ def _candidate(
     *,
     score: float,
 ) -> RunnerCandidate:
+    fixed_atoms = _source_and_candidate()[2]
+    trace_bytes = _trace_bytes(fixed_atoms, generated_atoms)
     return RunnerCandidate(
         candidate_id=candidate_id,
         seed=7,
         coordinate_artifact=ArtifactReference(path, _digest(data)),
+        sampler_trace_artifact=ArtifactReference(
+            "sampler-trace.json",
+            _digest(trace_bytes),
+        ),
         generated_atoms=generated_atoms,
         generated_residues=tuple(ResidueIdentity("C", number) for number in GENERATED_NUMBERS),
         raw_backend_score=score,
@@ -170,7 +178,27 @@ def _workspace(tmp_path: Path) -> tuple[Path, DiffusionRequest, bytes, tuple[Ato
     (workspace / "candidates").mkdir()
     (workspace / "input" / "normalized.pdb").write_bytes(source_bytes)
     request = _request(source_bytes, fixed_atoms, generated_atoms)
+    trace_bytes = _trace_bytes(fixed_atoms, generated_atoms)
+    (workspace / "sampler-trace.json").write_bytes(trace_bytes)
     return workspace, request, candidate_bytes, generated_atoms
+
+
+def _trace_bytes(
+    fixed_atoms: tuple[AtomIdentity, ...],
+    generated_atoms: tuple[AtomIdentity, ...],
+) -> bytes:
+    return build_sampler_trace(
+        profile="test",
+        engine_repository="https://example.invalid/fake",
+        engine_revision="test-revision",
+        patch_identity="none",
+        atom_order=(*fixed_atoms, *generated_atoms),
+        fixed_atoms=fixed_atoms,
+        device="cpu",
+        fallback_disabled=True,
+        denoising_update_count=0,
+        final_fixed_coordinate_restoration=True,
+    ).to_json().encode()
 
 
 def _rewrite_coordinate(

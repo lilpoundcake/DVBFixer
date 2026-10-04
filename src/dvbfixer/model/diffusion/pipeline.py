@@ -12,7 +12,7 @@ import stat
 import sys
 import tempfile
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from dvbfixer.ffutils.dat import AddedAtom, DatRecord, ResidueSummary
@@ -20,10 +20,12 @@ from dvbfixer.model.diffusion.contract import (
     ArtifactReference,
     AtomIdentity,
     DiffusionCandidate,
+    DiffusionContractError,
     DiffusionRequest,
     DiffusionResult,
     DiffusionStatus,
     ResidueIdentity,
+    SamplerTrace,
     ValidationSummary,
 )
 from dvbfixer.model.diffusion.provenance import (
@@ -39,12 +41,13 @@ from dvbfixer.model.diffusion.scope import (
     ScopeAdmission,
     assess_diffusion_scope,
 )
+from dvbfixer.model.diffusion.trace import validate_sampler_trace_context
 from dvbfixer.model.diffusion.validate import (
     ValidationThresholds,
     build_validated_result,
 )
 
-BUNDLE_INDEX_SCHEMA_VERSION = 1
+BUNDLE_INDEX_SCHEMA_VERSION = 2
 _RENAME_NOREPLACE = 1
 _RENAME_EXCL = 4
 _AT_FDCWD = -100
@@ -201,6 +204,14 @@ def publish_diffusion_bundle(
                     {
                         "schema_version": BUNDLE_INDEX_SCHEMA_VERSION,
                         "status": "success",
+                        "requested_profile": next(
+                            (
+                                option.value
+                                for option in request.backend_options
+                                if option.name == "profile"
+                            ),
+                            None,
+                        ),
                         "candidates": bundle_candidates,
                     },
                     ensure_ascii=False,
@@ -242,10 +253,27 @@ def _stage_candidate(
         workspace,
         candidate.coordinate_artifact,
     )
+    trace_bytes = _read_contained_artifact(
+        workspace,
+        candidate.sampler_trace_artifact,
+        max_bytes=1_000_000,
+    )
+    try:
+        trace = SamplerTrace.from_json(trace_bytes.decode("utf-8"))
+        validate_sampler_trace_context(
+            trace,
+            request,
+            result.backend_provenance,
+        )
+    except (DiffusionContractError, UnicodeDecodeError) as exc:
+        raise DiffusionPipelineError(
+            f"candidate {candidate.candidate_id!r} has invalid sampler trace: {exc}"
+        ) from exc
     stem = _safe_stem(candidate.candidate_id)
     pdb_name = f"{stem}.pdb"
     dat_name = f"{stem}.dat"
     provenance_name = f"{stem}.diffusion.json"
+    trace_name = f"{stem}.sampler-trace.json"
 
     pdb_path = staging / pdb_name
     _write_file_fsync(pdb_path, candidate_bytes)
@@ -264,14 +292,22 @@ def _stage_candidate(
     ).encode("utf-8")
     dat_path = staging / dat_name
     _write_file_fsync(dat_path, dat_bytes)
+    trace_path = staging / trace_name
+    _write_file_fsync(trace_path, trace_bytes)
 
     artifacts = (
         PublicationArtifact("pdb", pdb_name, _sha256_bytes(candidate_bytes)),
         PublicationArtifact("dat", dat_name, _sha256_bytes(dat_bytes)),
+        PublicationArtifact("sampler-trace", trace_name, _sha256_bytes(trace_bytes)),
+    )
+    published_candidate = replace(
+        candidate,
+        coordinate_artifact=ArtifactReference(pdb_name, artifacts[0].sha256),
+        sampler_trace_artifact=ArtifactReference(trace_name, artifacts[2].sha256),
     )
     manifest = build_provenance_manifest(
         request,
-        candidate,
+        published_candidate,
         summary,
         result.backend_provenance,
         result.runner_diagnostics,
@@ -292,6 +328,10 @@ def _stage_candidate(
         "dat": {
             "path": dat_name,
             "sha256": artifacts[1].sha256,
+        },
+        "sampler_trace": {
+            "path": trace_name,
+            "sha256": artifacts[2].sha256,
         },
         "provenance": {
             "path": provenance_name,

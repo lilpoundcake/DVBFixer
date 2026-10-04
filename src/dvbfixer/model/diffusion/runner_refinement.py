@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import hashlib
+import os
+import stat
 import time
 from dataclasses import replace
 from pathlib import Path
@@ -19,15 +21,53 @@ from dvbfixer.model.diffusion.boundary_refinement import (
 from dvbfixer.model.diffusion.contract import (
     ArtifactReference,
     AtomIdentity,
+    BackendOption,
     DiffusionRequest,
     RunnerCandidate,
     RunnerResourceMetrics,
     RunnerResult,
+    SamplerTrace,
 )
 
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _read_private_artifact(
+    workspace: Path,
+    artifact: ArtifactReference,
+    *,
+    label: str,
+    max_bytes: int,
+    encoding: str,
+) -> str:
+    path = workspace.joinpath(*Path(artifact.path).parts)
+    current = workspace
+    for part in Path(artifact.path).parts:
+        current /= part
+        if current.is_symlink():
+            raise ValueError(f"raw {label} path contains a symlink")
+    try:
+        resolved = path.resolve(strict=True)
+    except FileNotFoundError as exc:
+        raise ValueError(f"raw {label} does not exist") from exc
+    if not resolved.is_relative_to(workspace):
+        raise ValueError(f"raw {label} escapes the request workspace")
+    file_stat = os.stat(path, follow_symlinks=False)
+    if not stat.S_ISREG(file_stat.st_mode) or file_stat.st_nlink != 1:
+        raise ValueError(f"raw {label} is not a private regular file")
+    if file_stat.st_size > max_bytes:
+        raise ValueError(f"raw {label} exceeds the size limit")
+    data = path.read_bytes()
+    if len(data) > max_bytes:
+        raise ValueError(f"raw {label} exceeds the size limit")
+    if hashlib.sha256(data).hexdigest() != artifact.sha256:
+        raise ValueError(f"raw {label} digest mismatch")
+    try:
+        return data.decode(encoding)
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"raw {label} is not valid {encoding}") from exc
 
 
 def _atom_identity(line: str) -> AtomIdentity:
@@ -84,8 +124,22 @@ def refine_runner_result(
     if len(raw_result.candidates) != 1 or len(request.gaps) != 1:
         raise ValueError("production refinement requires one candidate and one gap")
     raw_candidate = raw_result.candidates[0]
-    raw_path = workspace.joinpath(*Path(raw_candidate.coordinate_artifact.path).parts)
-    raw_text = raw_path.read_text(encoding="ascii")
+    raw_text = _read_private_artifact(
+        workspace,
+        raw_candidate.coordinate_artifact,
+        label="coordinate artifact",
+        max_bytes=1_000_000_000,
+        encoding="ascii",
+    )
+    raw_trace = SamplerTrace.from_json(
+        _read_private_artifact(
+            workspace,
+            raw_candidate.sampler_trace_artifact,
+            label="sampler trace",
+            max_bytes=1_000_000,
+            encoding="utf-8",
+        )
+    )
     gap = request.gaps[0]
     short_gap = len(gap.generated_residues) <= 5
 
@@ -108,11 +162,45 @@ def refine_runner_result(
         rewrite_generated_coordinates(raw_text, refinement.coordinates_angstrom),
         encoding="ascii",
     )
+    trace_path = output_dir / "sampler-trace.json"
+    trace = replace(
+        raw_trace,
+        refinement_mode="localized-openmm-boundary-refinement",
+        refinement_parameters=(
+            BackendOption("platform", refinement.platform),
+            BackendOption(
+                "max_iterations",
+                str(500 if short_gap else BOUNDARY_REFINEMENT_MAX_ITERATIONS),
+            ),
+            BackendOption("restart_count", str(BOUNDARY_REFINEMENT_RESTART_COUNT)),
+            BackendOption(
+                "perturbation_angstrom",
+                str(0.25 if short_gap else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM),
+            ),
+        ),
+        localized_refinement_residues=gap.movable_junction_residues,
+        final_heavy_coordinate_operations=(
+            *raw_trace.final_heavy_coordinate_operations,
+            "localized-openmm-boundary-refinement",
+        ),
+        resource_metrics=RunnerResourceMetrics(
+            wall_time_seconds=(raw_trace.resource_metrics.wall_time_seconds or 0.0)
+            + (time.perf_counter() - start),
+            model_load_seconds=raw_trace.resource_metrics.model_load_seconds,
+            peak_ram_bytes=raw_trace.resource_metrics.peak_ram_bytes,
+            peak_vram_bytes=raw_trace.resource_metrics.peak_vram_bytes,
+        ),
+    )
+    trace_path.write_text(trace.to_json(), encoding="utf-8")
     relative_path = refined_path.resolve().relative_to(workspace).as_posix()
     candidate = RunnerCandidate(
         candidate_id=f"{raw_candidate.candidate_id}-refined",
         seed=raw_candidate.seed,
         coordinate_artifact=ArtifactReference(relative_path, _sha256(refined_path)),
+        sampler_trace_artifact=ArtifactReference(
+            trace_path.resolve().relative_to(workspace).as_posix(),
+            _sha256(trace_path),
+        ),
         generated_atoms=raw_candidate.generated_atoms,
         generated_residues=raw_candidate.generated_residues,
         raw_backend_score=raw_candidate.raw_backend_score,
@@ -138,8 +226,12 @@ def refine_runner_result(
                 f"refinement-restart-count={BOUNDARY_REFINEMENT_RESTART_COUNT}",
             ),
             known_nondeterministic_operations=(
-                *raw_result.backend_provenance.known_nondeterministic_operations,
-                f"OpenMM {platform_label} minimization",
+                raw_result.backend_provenance.known_nondeterministic_operations
+                if platform_label == "Reference"
+                else (
+                    *raw_result.backend_provenance.known_nondeterministic_operations,
+                    f"OpenMM {platform_label} minimization",
+                )
             ),
         ),
         resource_metrics=RunnerResourceMetrics(

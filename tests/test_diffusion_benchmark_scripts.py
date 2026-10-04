@@ -24,6 +24,7 @@ from dvbfixer.model.diffusion.rfdiffusion_v1 import (
 )
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 from dvbfixer.model.diffusion.scope import assess_diffusion_scope
+from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -40,6 +41,22 @@ def _load_script(name: str) -> ModuleType:
 def _write_native_result(workspace: Path) -> None:
     request = DiffusionRequest.from_json((workspace / "request.json").read_text())
     candidate_path = workspace / "reference.pdb"
+    trace_artifact = write_sampler_trace(
+        workspace,
+        workspace / "reference.trace.json",
+        build_sampler_trace(
+            profile="test",
+            engine_repository="https://example.invalid/test",
+            engine_revision="test",
+            patch_identity="none",
+            atom_order=(*request.fixed_atoms, *request.generated_atoms),
+            fixed_atoms=request.fixed_atoms,
+            device="cpu",
+            fallback_disabled=True,
+            denoising_update_count=0,
+            final_fixed_coordinate_restoration=True,
+        ),
+    )
     candidate = RunnerCandidate(
         candidate_id="native-reference",
         seed=request.seeds[0],
@@ -47,6 +64,7 @@ def _write_native_result(workspace: Path) -> None:
             "reference.pdb",
             hashlib.sha256(candidate_path.read_bytes()).hexdigest(),
         ),
+        sampler_trace_artifact=trace_artifact,
         generated_atoms=request.generated_atoms,
         generated_residues=request.gaps[0].generated_residues,
         raw_backend_score=None,
@@ -62,6 +80,7 @@ def _write_native_result(workspace: Path) -> None:
             runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="https://example.invalid/test",
             engine_revision="test",
+            device="cpu",
         ),
     )
     (workspace / "result.json").write_text(result.to_json(), encoding="utf-8")

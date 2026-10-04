@@ -10,9 +10,15 @@ from pathlib import Path
 from types import UnionType
 from typing import Any, ClassVar, TypeVar, Union, get_args, get_origin, get_type_hints
 
-from dvbfixer.model.diffusion.sampler import SamplingAblationMode
+from dvbfixer.model.diffusion.sampler import SamplerCapabilities, SamplingAblationMode
 
-DIFFUSION_SCHEMA_VERSION = 3
+DIFFUSION_SCHEMA_VERSION = 4
+MAX_TRACE_ATOMS = 1_000_000
+MAX_TRACE_STEPS = 10_000
+MAX_TRACE_PARAMETERS = 64
+MAX_TRACE_TEXT_LENGTH = 512
+MAX_RESOURCE_SECONDS = 31_536_000.0
+MAX_RESOURCE_BYTES = 1 << 50
 
 
 class DiffusionContractError(ValueError):
@@ -286,37 +292,57 @@ class RunnerResourceMetrics:
 
     def __post_init__(self) -> None:
         for value in (self.wall_time_seconds, self.model_load_seconds):
-            if value is not None and (not math.isfinite(value) or value < 0):
+            if value is not None and (
+                not math.isfinite(value)
+                or value < 0
+                or value > MAX_RESOURCE_SECONDS
+            ):
                 raise DiffusionContractError(
-                    "runner resource timings must be finite and non-negative"
+                    "runner resource timings must be finite and non-negative within bounds"
                 )
         for value in (self.peak_ram_bytes, self.peak_vram_bytes):
-            if value is not None and value < 0:
+            if value is not None and (value < 0 or value > MAX_RESOURCE_BYTES):
                 raise DiffusionContractError(
-                    "runner resource byte counts must be non-negative"
+                    "runner resource byte counts must be non-negative and within bounds"
                 )
+
+
+def atom_identity_digest(atoms: tuple[AtomIdentity, ...]) -> str:
+    """Return the canonical digest for an ordered atom identity axis."""
+    import hashlib
+
+    payload = json.dumps(
+        _encode(atoms),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def fixed_mask_digest(
+    atom_order: tuple[AtomIdentity, ...],
+    fixed_atoms: tuple[AtomIdentity, ...],
+) -> str:
+    """Return the canonical digest for the fixed mask on an atom axis."""
+    import hashlib
+
+    fixed = set(fixed_atoms)
+    payload = bytes(identity in fixed for identity in atom_order)
+    return hashlib.sha256(payload).hexdigest()
 
 
 @dataclass(frozen=True, slots=True)
 class SamplerStepTrace:
     step_index: int
     atom_identity_sha256: str
-    fixed_coordinate_sha256: str
-    pre_projection_max_error_angstrom: float
     post_projection_max_error_angstrom: float
 
     def __post_init__(self) -> None:
         if self.step_index < 0:
             raise DiffusionContractError("sampler step index must be non-negative")
-        for field_name, digest in (
-            ("atom_identity_sha256", self.atom_identity_sha256),
-            ("fixed_coordinate_sha256", self.fixed_coordinate_sha256),
-        ):
-            ArtifactReference(field_name, digest)
-        for value in (
-            self.pre_projection_max_error_angstrom,
-            self.post_projection_max_error_angstrom,
-        ):
+        ArtifactReference("atom_identity_sha256", self.atom_identity_sha256)
+        for value in (self.post_projection_max_error_angstrom,):
             if not math.isfinite(value) or value < 0:
                 raise DiffusionContractError(
                     "sampler projection errors must be finite and non-negative"
@@ -325,14 +351,65 @@ class SamplerStepTrace:
 
 @dataclass(frozen=True, slots=True)
 class SamplerTrace:
+    schema_version: int
+    profile: str
+    capabilities: SamplerCapabilities
+    engine_repository: str
+    engine_revision: str
+    patch_identity: str
+    atom_order: tuple[AtomIdentity, ...]
+    atom_order_sha256: str
+    fixed_mask_sha256: str
     ablation_mode: SamplingAblationMode
     fixed_atoms: tuple[AtomIdentity, ...]
+    represented_fixed_atoms: tuple[AtomIdentity, ...]
     fixed_tolerance_angstrom: float
     steps: tuple[SamplerStepTrace, ...]
+    callback_update_count: int | None
+    denoising_update_count: int | None
+    max_projection_error_angstrom: float | None
+    sampler_evidence_complete: bool
+    final_fixed_coordinate_restoration: bool
+    refinement_mode: str
+    refinement_parameters: tuple[BackendOption, ...]
+    device: str
+    fallback_disabled: bool
+    resource_metrics: RunnerResourceMetrics
     localized_refinement_residues: tuple[ResidueIdentity, ...] = ()
     final_heavy_coordinate_operations: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
+        if self.schema_version != DIFFUSION_SCHEMA_VERSION:
+            raise DiffusionContractError(
+                f"unsupported schema_version {self.schema_version}; "
+                f"expected {DIFFUSION_SCHEMA_VERSION}"
+            )
+        for field_name, value in (
+            ("profile", self.profile),
+            ("engine_repository", self.engine_repository),
+            ("engine_revision", self.engine_revision),
+            ("patch_identity", self.patch_identity),
+            ("refinement_mode", self.refinement_mode),
+            ("device", self.device),
+        ):
+            _required_text(value, field_name)
+            if len(value) > MAX_TRACE_TEXT_LENGTH:
+                raise DiffusionContractError(
+                    f"sampler trace {field_name} exceeds {MAX_TRACE_TEXT_LENGTH} characters"
+                )
+        if len(self.atom_order) > MAX_TRACE_ATOMS:
+            raise DiffusionContractError("sampler trace atom order exceeds its count limit")
+        if not self.atom_order or len(set(self.atom_order)) != len(self.atom_order):
+            raise DiffusionContractError(
+                "sampler trace atom_order must be non-empty and contain no duplicates"
+            )
+        if self.atom_order_sha256 != atom_identity_digest(self.atom_order):
+            raise DiffusionContractError("sampler trace atom-order digest mismatch")
+        if self.fixed_mask_sha256 != fixed_mask_digest(
+            self.atom_order,
+            self.represented_fixed_atoms,
+        ):
+            raise DiffusionContractError("sampler trace fixed-mask digest mismatch")
         if not isinstance(self.ablation_mode, SamplingAblationMode):
             try:
                 object.__setattr__(
@@ -348,10 +425,77 @@ class SamplerTrace:
             raise DiffusionContractError("sampler trace fixed_atoms must not be empty")
         if len(set(self.fixed_atoms)) != len(self.fixed_atoms):
             raise DiffusionContractError("sampler trace fixed_atoms must not contain duplicates")
+        if len(set(self.represented_fixed_atoms)) != len(self.represented_fixed_atoms):
+            raise DiffusionContractError(
+                "sampler trace represented_fixed_atoms must not contain duplicates"
+            )
         if not math.isfinite(self.fixed_tolerance_angstrom) or self.fixed_tolerance_angstrom < 0:
             raise DiffusionContractError(
                 "sampler trace fixed tolerance must be finite and non-negative"
             )
+        if not set(self.represented_fixed_atoms) <= set(self.fixed_atoms):
+            raise DiffusionContractError(
+                "represented fixed atoms must be a subset of request fixed atoms"
+            )
+        if not set(self.represented_fixed_atoms) <= set(self.atom_order):
+            raise DiffusionContractError(
+                "represented fixed atoms must be present on atom_order"
+            )
+        if len(self.steps) > MAX_TRACE_STEPS:
+            raise DiffusionContractError("sampler trace exceeds its step count limit")
+        if self.sampler_evidence_complete:
+            if self.callback_update_count is None or self.denoising_update_count is None:
+                raise DiffusionContractError(
+                    "complete sampler evidence requires callback and denoising counts"
+                )
+            if self.callback_update_count < 0 or self.denoising_update_count < 0:
+                raise DiffusionContractError(
+                    "sampler callback and denoising update counts must be non-negative"
+                )
+            if self.callback_update_count != len(self.steps):
+                raise DiffusionContractError(
+                    "sampler callback count must equal recorded step count"
+                )
+        elif (
+            self.callback_update_count is not None
+            or self.denoising_update_count is not None
+            or self.steps
+            or self.max_projection_error_angstrom is not None
+        ):
+            raise DiffusionContractError(
+                "incomplete sampler evidence cannot claim counts or projection steps"
+            )
+        if self.steps:
+            if (
+                self.max_projection_error_angstrom is None
+                or not math.isfinite(self.max_projection_error_angstrom)
+                or self.max_projection_error_angstrom < 0
+            ):
+                raise DiffusionContractError(
+                    "maximum projection error must be finite and non-negative"
+                )
+            observed_max = max(
+                step.post_projection_max_error_angstrom for step in self.steps
+            )
+            if self.max_projection_error_angstrom != observed_max:
+                raise DiffusionContractError(
+                    "maximum projection error does not match step evidence"
+                )
+        elif self.max_projection_error_angstrom is not None:
+            raise DiffusionContractError(
+                "maximum projection error requires per-step projection evidence"
+            )
+        if len(self.refinement_parameters) > MAX_TRACE_PARAMETERS:
+            raise DiffusionContractError("sampler trace has too many refinement parameters")
+        parameter_names = [parameter.name for parameter in self.refinement_parameters]
+        if len(parameter_names) != len(set(parameter_names)):
+            raise DiffusionContractError("refinement parameter names must be unique")
+        if any(
+            len(parameter.name) > MAX_TRACE_TEXT_LENGTH
+            or len(parameter.value) > MAX_TRACE_TEXT_LENGTH
+            for parameter in self.refinement_parameters
+        ):
+            raise DiffusionContractError("refinement parameter text exceeds its length limit")
         if self.ablation_mode is SamplingAblationMode.TEMPLATE_ONLY:
             if self.steps:
                 raise DiffusionContractError(
@@ -366,10 +510,12 @@ class SamplerTrace:
             raise DiffusionContractError(
                 "sampler trace step indices must be contiguous and start at zero"
             )
-        identity_digests = {step.atom_identity_sha256 for step in self.steps}
-        if len(identity_digests) > 1:
+        if any(
+            step.atom_identity_sha256 != self.atom_order_sha256
+            for step in self.steps
+        ):
             raise DiffusionContractError(
-                "sampler trace atom identity digest must remain stable across steps"
+                "sampler step atom identity digest must match atom_order_sha256"
             )
         if any(
             step.post_projection_max_error_angstrom > self.fixed_tolerance_angstrom
@@ -384,26 +530,93 @@ class SamplerTrace:
             raise DiffusionContractError(
                 "localized refinement residues must not contain duplicates"
             )
-        if (
-            self.ablation_mode
-            is SamplingAblationMode.REINJECTION_BOUNDARY_REFINEMENT
-            and not self.localized_refinement_residues
-        ):
+        if self.refinement_mode != "none" and not self.localized_refinement_residues:
             raise DiffusionContractError(
                 "boundary-refinement trace must name localized refinement residues"
             )
-        if (
-            self.ablation_mode
-            is not SamplingAblationMode.REINJECTION_BOUNDARY_REFINEMENT
-            and self.localized_refinement_residues
-        ):
+        if self.refinement_mode == "none" and self.localized_refinement_residues:
             raise DiffusionContractError(
-                "localized refinement residues require the boundary-refinement mode"
+                "localized refinement residues require a refinement mode"
             )
         if any(not operation for operation in self.final_heavy_coordinate_operations):
             raise DiffusionContractError(
                 "final heavy-coordinate operation names must not be empty"
             )
+        if len(self.final_heavy_coordinate_operations) > MAX_TRACE_PARAMETERS or any(
+            len(operation) > MAX_TRACE_TEXT_LENGTH
+            for operation in self.final_heavy_coordinate_operations
+        ):
+            raise DiffusionContractError(
+                "final heavy-coordinate operations exceed trace bounds"
+            )
+        if self.profile == "protenix-v1-cuda":
+            if not self.sampler_evidence_complete:
+                raise DiffusionContractError(
+                    "Protenix production profile requires complete sampler evidence"
+                )
+            if self.represented_fixed_atoms != self.fixed_atoms:
+                raise DiffusionContractError(
+                    "Protenix profile requires every fixed atom on the sampler axis"
+                )
+            if not self.capabilities.supports_per_step_reinjection():
+                raise DiffusionContractError("Protenix profile must claim reinjection capabilities")
+            if (
+                self.callback_update_count != 200
+                or self.denoising_update_count != 200
+                or len(self.steps) != 200
+            ):
+                raise DiffusionContractError(
+                    "Protenix profile requires evidence for every denoising update"
+                )
+            if not self.device.startswith("cuda") or not self.fallback_disabled:
+                raise DiffusionContractError(
+                    "Protenix profile requires CUDA with fallback disabled"
+                )
+        if self.profile == "protpardelle-1c-mps":
+            if not self.sampler_evidence_complete:
+                raise DiffusionContractError(
+                    "Apple production profile requires complete sampler evidence"
+                )
+            if self.capabilities.supports_per_step_reinjection():
+                raise DiffusionContractError(
+                    "Apple profile cannot claim per-step reinjection capability"
+                )
+            if self.callback_update_count or self.steps:
+                raise DiffusionContractError("Apple profile must record zero callbacks")
+            if self.denoising_update_count != 500:
+                raise DiffusionContractError(
+                    "Apple profile must record exactly 500 denoising updates"
+                )
+            if not self.final_fixed_coordinate_restoration:
+                raise DiffusionContractError(
+                    "Apple profile must record final fixed-coordinate restoration"
+                )
+            if self.device != "mps" or not self.fallback_disabled:
+                raise DiffusionContractError(
+                    "Apple profile requires MPS with fallback disabled"
+                )
+
+    def to_dict(self) -> dict[str, Any]:
+        return _encode(self)
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict(), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> SamplerTrace:
+        if not isinstance(raw, dict):
+            raise DiffusionContractError("SamplerTrace must be a JSON object")
+        return _decode_dataclass(cls, raw)
+
+    @classmethod
+    def from_json(cls, text: str) -> SamplerTrace:
+        try:
+            raw = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise DiffusionContractError(f"invalid JSON: {exc.msg}") from exc
+        if not isinstance(raw, dict):
+            raise DiffusionContractError("SamplerTrace must be a JSON object")
+        return cls.from_dict(raw)
 
 
 @dataclass(frozen=True, slots=True)
@@ -411,6 +624,7 @@ class DiffusionCandidate:
     candidate_id: str
     seed: int
     coordinate_artifact: ArtifactReference
+    sampler_trace_artifact: ArtifactReference
     generated_atoms: tuple[AtomIdentity, ...]
     generated_residues: tuple[ResidueIdentity, ...]
     raw_backend_score: float | None
@@ -433,6 +647,7 @@ class RunnerCandidate:
     candidate_id: str
     seed: int
     coordinate_artifact: ArtifactReference
+    sampler_trace_artifact: ArtifactReference
     generated_atoms: tuple[AtomIdentity, ...]
     generated_residues: tuple[ResidueIdentity, ...]
     raw_backend_score: float | None

@@ -257,13 +257,15 @@ verification = [
 ]
 
 [tasks.implement-diffusion-gap-reconstruction]
-status = "proposed"
+status = "partial"
 context = "docs/agent/contexts/structure-preparation.md"
 start = [
   "docs/adr/0010-experimental-diffusion-gap-reconstruction-boundary.md",
+  "docs/adr/0011-experimental-diffusion-cli.md",
   "docs/plans/diffusion-gap-reconstruction.md",
   "docs/research/reconstruction-and-modeling-backends.md",
   "docs/research/diffusion-gap-reconstruction-inventory.toml",
+  "src/dvbfixer/model/diffusion_cli.py::run_diffusion_model",
   "src/dvbfixer/model/diffusion/contract.py::DiffusionRequest",
   "src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline",
   "src/dvbfixer/model/diffusion/preflight.py::assess_adapter_preflight",
@@ -283,7 +285,10 @@ start = [
   "src/dvbfixer/model/diffusion/validate.py::validate_runner_result",
   "src/dvbfixer/model/diffusion/validate.py::build_validated_result",
 ]
-callers = []
+callers = [
+  "src/dvbfixer/model/pipeline.py::main",
+  "src/dvbfixer/model/diffusion_cli.py::run_diffusion_model",
+]
 contracts = [
   "dat-record-lifecycle",
   "pdb-connectivity",
@@ -303,6 +308,7 @@ test_files = [
   "tests/test_diffusion_confirmatory_runner.py",
   "tests/test_diffusion_contract.py",
   "tests/test_diffusion_geometry.py",
+  "tests/test_diffusion_cli.py",
   "tests/test_diffusion_masks.py",
   "tests/test_diffusion_pipeline.py",
   "tests/test_diffusion_preflight.py",
@@ -310,13 +316,16 @@ test_files = [
   "tests/test_diffusion_research_inventory.py",
   "tests/test_diffusion_rfdiffusion_v1.py",
   "tests/test_diffusion_runner.py",
+  "tests/test_diffusion_runner_refinement.py",
   "tests/test_diffusion_sampler.py",
   "tests/test_diffusion_scope.py",
   "tests/test_diffusion_validate.py",
   "tests/test_sequence_alignment.py",
+  "tests/test_protenix_research_scripts.py",
+  "tests/test_protpardelle_research_scripts.py",
 ]
 verification = [
-  "pytest -q tests/test_diffusion_benchmark.py tests/test_diffusion_benchmark_scripts.py tests/test_diffusion_confirmatory_runner.py tests/test_diffusion_contract.py tests/test_diffusion_geometry.py tests/test_diffusion_masks.py tests/test_diffusion_pipeline.py tests/test_diffusion_preflight.py tests/test_diffusion_provenance.py tests/test_diffusion_research_inventory.py tests/test_diffusion_rfdiffusion_v1.py tests/test_diffusion_runner.py tests/test_diffusion_sampler.py tests/test_diffusion_scope.py tests/test_diffusion_validate.py tests/test_sequence_alignment.py",
+  "pytest -q tests/test_diffusion_benchmark.py tests/test_diffusion_benchmark_scripts.py tests/test_diffusion_cli.py tests/test_diffusion_confirmatory_runner.py tests/test_diffusion_contract.py tests/test_diffusion_geometry.py tests/test_diffusion_masks.py tests/test_diffusion_pipeline.py tests/test_diffusion_preflight.py tests/test_diffusion_provenance.py tests/test_diffusion_research_inventory.py tests/test_diffusion_rfdiffusion_v1.py tests/test_diffusion_runner.py tests/test_diffusion_runner_refinement.py tests/test_diffusion_sampler.py tests/test_diffusion_scope.py tests/test_diffusion_validate.py tests/test_protenix_research_scripts.py tests/test_protpardelle_research_scripts.py tests/test_sequence_alignment.py",
   "python scripts/check_agent_docs.py",
   "git diff --check",
 ]

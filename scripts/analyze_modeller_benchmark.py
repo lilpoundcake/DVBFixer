@@ -29,6 +29,7 @@ from dvbfixer.model.diffusion.contract import (
 )
 from dvbfixer.model.diffusion.geometry import weighted_kabsch
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
+from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 from dvbfixer.model.diffusion.validate import validate_runner_result
 
 _BACKBONE_ATOMS = frozenset({"N", "CA", "C", "O"})
@@ -174,6 +175,22 @@ def analyze(workspace: Path, models: tuple[Path, ...]) -> dict[str, object]:
             normalized_path = temporary_root / f"candidate-{index:04d}.pdb"
             normalized_path.write_text(normalized_text, encoding="utf-8")
             normalized_relative = normalized_path.relative_to(workspace).as_posix()
+            trace_artifact = write_sampler_trace(
+                workspace,
+                temporary_root / f"candidate-{index:04d}.trace.json",
+                build_sampler_trace(
+                    profile="modeller-comparator",
+                    engine_repository="https://salilab.org/modeller/",
+                    engine_revision="10.8",
+                    patch_identity="none",
+                    atom_order=(*request.fixed_atoms, *request.generated_atoms),
+                    fixed_atoms=request.fixed_atoms,
+                    device="cpu",
+                    fallback_disabled=True,
+                    denoising_update_count=0,
+                    final_fixed_coordinate_restoration=False,
+                ),
+            )
             runner_candidate = RunnerCandidate(
                 candidate_id=f"modeller-{index:04d}",
                 seed=index,
@@ -181,6 +198,7 @@ def analyze(workspace: Path, models: tuple[Path, ...]) -> dict[str, object]:
                     normalized_relative,
                     _sha256(normalized_path),
                 ),
+                sampler_trace_artifact=trace_artifact,
                 generated_atoms=request.generated_atoms,
                 generated_residues=request.gaps[0].generated_residues,
                 raw_backend_score=None,
@@ -197,6 +215,7 @@ def analyze(workspace: Path, models: tuple[Path, ...]) -> dict[str, object]:
                     engine_repository="https://salilab.org/modeller/",
                     engine_revision="10.8",
                     source_license="MODELLER academic license",
+                    device="cpu",
                 ),
             )
             validations = validate_runner_result(request, runner, workspace=workspace)

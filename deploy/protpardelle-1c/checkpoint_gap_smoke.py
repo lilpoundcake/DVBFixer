@@ -37,11 +37,13 @@ from dvbfixer.model.diffusion.contract import (
 )
 from dvbfixer.model.diffusion.geometry import synchronize_and_reinject, weighted_kabsch
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
+from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 from dvbfixer.model.diffusion.validate import validate_runner_result
 
 _REVISION = "ee378400f25b801fa481028000f9060183d7fb4c"
 _CHECKPOINT_SHA256 = "dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483"
 _CONFIG_SHA256 = "e9999ace79bf3044351cc982a624fc3459add3a4f91cbf97ff5b437b8942eb9d"
+_APPLE_PATCH_SHA256 = "a87fe2e9f0c143102441d6a39ff181bd0c2b1c411cdfdf65236d7baf38a8d858"
 _MPS_ENVIRONMENT_KEYS = (
     "PYTORCH_ENABLE_MPS_FALLBACK",
     "PYTORCH_MPS_FAST_MATH",
@@ -676,6 +678,11 @@ def _run_staged(
         )
     raw = _coordinates_to_numpy(torch, sampled["x"][0])
     identities, coordinates, residue_names = _model_atoms(request, raw)
+    sampler_atom_order = identities
+    sampler_atom_set = set(sampler_atom_order)
+    represented_fixed_atoms = tuple(
+        atom for atom in request.fixed_atoms if atom in sampler_atom_set
+    )
     native_conditioning_fit = _native_conditioning_fit(
         identities,
         coordinates,
@@ -690,18 +697,57 @@ def _run_staged(
     )
     candidate_path = output_dir / "candidate.pdb"
     _write_candidate(candidate_path, identities, coordinates, residue_names, request)
+    elapsed = time.perf_counter() - start
+    memory = telemetry.stop()
+    resource_metrics = RunnerResourceMetrics(
+        wall_time_seconds=elapsed,
+        model_load_seconds=model_load_seconds,
+        peak_ram_bytes=memory["peak_rss_bytes"],
+        peak_vram_bytes=memory["peak_accelerator_allocated_bytes"],
+    )
+    production_profile = device.type == "mps" and not per_step_reinjection
+    callback_count = int(callback_stats["callback_count"])
+    projection_error = float(
+        callback_stats["maximum_post_projection_error_angstrom"]
+    )
+    trace_artifact = write_sampler_trace(
+        workspace,
+        output_dir / "sampler-trace.json",
+        build_sampler_trace(
+            profile=(
+                "protpardelle-1c-mps"
+                if production_profile
+                else "protpardelle-1c-research"
+            ),
+            engine_repository="https://github.com/ProteinDesignLab/protpardelle-1c",
+            engine_revision=_REVISION,
+            patch_identity=f"sha256:{_APPLE_PATCH_SHA256}",
+            atom_order=sampler_atom_order,
+            fixed_atoms=request.fixed_atoms,
+            represented_fixed_atoms=represented_fixed_atoms,
+            device=str(device),
+            fallback_disabled=(
+                device.type != "mps"
+                or os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") == "0"
+            ),
+            denoising_update_count=steps,
+            projection_errors_angstrom=(projection_error,) * callback_count,
+            final_fixed_coordinate_restoration=True,
+            resource_metrics=resource_metrics,
+            sampler_evidence_complete=True,
+        ),
+    )
 
     candidate = RunnerCandidate(
         candidate_id=f"protpardelle-1c-cc89-seed-{seed}",
         seed=seed,
         coordinate_artifact=_artifact(workspace, candidate_path),
+        sampler_trace_artifact=trace_artifact,
         generated_atoms=request.generated_atoms,
         generated_residues=gap.generated_residues,
         raw_backend_score=None,
         score_provenance="protpardelle-1c-cc89:unranked",
     )
-    elapsed = time.perf_counter() - start
-    memory = telemetry.stop()
     result = RunnerResult(
         schema_version=DIFFUSION_SCHEMA_VERSION,
         status=DiffusionStatus.SUCCESS,
@@ -731,12 +777,7 @@ def _run_staged(
                 f"mps-fallback={os.environ.get('PYTORCH_ENABLE_MPS_FALLBACK', 'unset')}",
             ),
         ),
-        resource_metrics=RunnerResourceMetrics(
-            wall_time_seconds=elapsed,
-            model_load_seconds=model_load_seconds,
-            peak_ram_bytes=memory["peak_rss_bytes"],
-            peak_vram_bytes=memory["peak_accelerator_allocated_bytes"],
-        ),
+        resource_metrics=resource_metrics,
     )
     validation = validate_runner_result(request, result, workspace=workspace)[0]
     quality_summary: dict[str, float | None] = {

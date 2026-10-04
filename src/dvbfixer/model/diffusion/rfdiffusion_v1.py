@@ -16,7 +16,7 @@ import subprocess
 import sys
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from io import StringIO
 from pathlib import Path
 from typing import NamedTuple
@@ -38,6 +38,7 @@ from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
     AtomIdentity,
+    BackendOption,
     BackendProvenance,
     DiffusionRequest,
     DiffusionStatus,
@@ -53,6 +54,7 @@ from dvbfixer.model.diffusion.runner import (
     REQUEST_MANIFEST,
     RESULT_MANIFEST,
 )
+from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 
 RFDIFFUSION_REPOSITORY = "https://github.com/RosettaCommons/RFdiffusion"
 RFDIFFUSION_REVISION = "bf42b54c20a99dd7350456c85985ed4d83b95d48"
@@ -376,6 +378,52 @@ def run_adapter(request: DiffusionRequest, config: RFdiffusionV1Config) -> Runne
             if boundary_refinement
             else "post-sampling OpenMM boundary refinement was disabled for this ablation"
         )
+        trace = build_sampler_trace(
+            profile="rfdiffusion-v1-research",
+            engine_repository=provenance.engine_repository,
+            engine_revision=provenance.engine_revision,
+            patch_identity="none",
+            atom_order=(*request.fixed_atoms, *request.generated_atoms),
+            fixed_atoms=request.fixed_atoms,
+            device=provenance.device or "cuda",
+            fallback_disabled=True,
+            denoising_update_count=50 - int(final_step) + 1,
+            final_fixed_coordinate_restoration=True,
+            resource_metrics=RunnerResourceMetrics(
+                wall_time_seconds=time.monotonic() - started,
+                peak_vram_bytes=peak_vram_bytes,
+            ),
+        )
+        if boundary_refinement:
+            trace = replace(
+                trace,
+                refinement_mode="localized-openmm-boundary-refinement",
+                refinement_parameters=(
+                    BackendOption("platform", "Reference"),
+                    BackendOption(
+                        "max_iterations",
+                        str(BOUNDARY_REFINEMENT_MAX_ITERATIONS),
+                    ),
+                    BackendOption(
+                        "restart_count",
+                        str(BOUNDARY_REFINEMENT_RESTART_COUNT),
+                    ),
+                    BackendOption(
+                        "perturbation_angstrom",
+                        str(BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM),
+                    ),
+                ),
+                localized_refinement_residues=request.gaps[0].movable_junction_residues,
+                final_heavy_coordinate_operations=(
+                    *trace.final_heavy_coordinate_operations,
+                    "localized-openmm-boundary-refinement",
+                ),
+            )
+        trace_artifact = write_sampler_trace(
+            Path.cwd(),
+            candidate_path.with_suffix(".sampler-trace.json"),
+            trace,
+        )
         candidates.append(
             RunnerCandidate(
                 candidate_id=candidate_id,
@@ -383,6 +431,7 @@ def run_adapter(request: DiffusionRequest, config: RFdiffusionV1Config) -> Runne
                 coordinate_artifact=ArtifactReference(
                     candidate_path.as_posix(), _sha256(candidate_path)
                 ),
+                sampler_trace_artifact=trace_artifact,
                 generated_atoms=request.generated_atoms,
                 generated_residues=request.gaps[0].generated_residues,
                 raw_backend_score=None,

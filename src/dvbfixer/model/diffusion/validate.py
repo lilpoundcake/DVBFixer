@@ -24,8 +24,10 @@ from dvbfixer.diagnose.steric import clashes_python
 from dvbfixer.ffutils.geometry import ChiralityError, assert_all_l
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
+    ArtifactReference,
     AtomIdentity,
     DiffusionCandidate,
+    DiffusionContractError,
     DiffusionRequest,
     DiffusionResult,
     DiffusionStatus,
@@ -34,10 +36,12 @@ from dvbfixer.model.diffusion.contract import (
     ResidueIdentity,
     RunnerCandidate,
     RunnerResult,
+    SamplerTrace,
     ValidationSummary,
 )
 from dvbfixer.model.diffusion.quality import check_ramachandran, check_sidechain_chi12
 from dvbfixer.model.diffusion.scope import CANONICAL_HEAVY_ATOMS
+from dvbfixer.model.diffusion.trace import validate_sampler_trace_context
 
 FIXED_HEAVY_ATOM_RMSD_MAX_ANGSTROM = 0.01
 FIXED_HEAVY_ATOM_DISPLACEMENT_MAX_ANGSTROM = 0.03
@@ -134,6 +138,17 @@ def validate_runner_result(
     source = _load_structure(root, request.normalized_pdb.path, request.normalized_pdb.sha256)
     validations: list[CandidateValidation] = []
     for candidate in runner_result.candidates:
+        trace = _load_sampler_trace(root, candidate.sampler_trace_artifact)
+        try:
+            validate_sampler_trace_context(
+                trace,
+                request,
+                runner_result.backend_provenance,
+            )
+        except DiffusionContractError as exc:
+            raise DiffusionValidationError(
+                f"candidate {candidate.candidate_id!r} sampler trace mismatch: {exc}"
+            ) from exc
         structure = _load_structure(
             root,
             candidate.coordinate_artifact.path,
@@ -520,6 +535,7 @@ def _validated_candidate(candidate: RunnerCandidate) -> DiffusionCandidate:
         candidate_id=candidate.candidate_id,
         seed=candidate.seed,
         coordinate_artifact=candidate.coordinate_artifact,
+        sampler_trace_artifact=candidate.sampler_trace_artifact,
         generated_atoms=candidate.generated_atoms,
         generated_residues=candidate.generated_residues,
         raw_backend_score=candidate.raw_backend_score,
@@ -670,6 +686,74 @@ def _load_structure(
         residues=residues,
         explicit_links=frozenset(links),
     )
+
+
+def _load_sampler_trace(workspace: Path, artifact: ArtifactReference) -> SamplerTrace:
+    data = _read_private_artifact(workspace, artifact, max_bytes=1_000_000)
+    try:
+        return SamplerTrace.from_json(data.decode("utf-8"))
+    except (DiffusionContractError, UnicodeDecodeError) as exc:
+        raise DiffusionValidationError(
+            f"sampler trace is malformed: {artifact.path}: {exc}"
+        ) from exc
+
+
+def _read_private_artifact(
+    workspace: Path,
+    artifact: ArtifactReference,
+    *,
+    max_bytes: int,
+) -> bytes:
+    relative_path = artifact.path
+    path = workspace.joinpath(*Path(relative_path).parts)
+    current = workspace
+    for part in Path(relative_path).parts:
+        current = current / part
+        if current.is_symlink():
+            raise DiffusionValidationError(
+                f"artifact path contains a symlink: {relative_path}"
+            )
+    try:
+        resolved = path.resolve(strict=True)
+    except FileNotFoundError as exc:
+        raise DiffusionValidationError(f"artifact does not exist: {relative_path}") from exc
+    if not resolved.is_relative_to(workspace):
+        raise DiffusionValidationError(
+            f"artifact escapes validation workspace: {relative_path}"
+        )
+    flags = os.O_RDONLY
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise DiffusionValidationError(
+            f"artifact could not be opened safely: {relative_path}"
+        ) from exc
+    try:
+        file_stat = os.fstat(descriptor)
+        if not stat.S_ISREG(file_stat.st_mode) or file_stat.st_nlink != 1:
+            raise DiffusionValidationError(
+                f"artifact is not a private regular file: {relative_path}"
+            )
+        if file_stat.st_size > max_bytes:
+            raise DiffusionValidationError(
+                f"artifact exceeds the size limit: {relative_path}"
+            )
+        data = bytearray()
+        digest = hashlib.sha256()
+        while chunk := os.read(descriptor, 1024 * 1024):
+            data.extend(chunk)
+            digest.update(chunk)
+    finally:
+        os.close(descriptor)
+    if digest.hexdigest() != artifact.sha256.lower():
+        raise DiffusionValidationError(
+            f"artifact SHA-256 mismatch: {relative_path}"
+        )
+    return bytes(data)
 
 
 def _parse_pdb_text(

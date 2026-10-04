@@ -5,13 +5,30 @@
 > For prose about how to use `doctor`, see [`docs/commands/doctor.md`](../commands/doctor.md).
 
 ```
-usage: dvbfixer doctor [-h] [--format {text,json}] [--log-file PATH]
+usage: dvbfixer doctor [-h] [--format {text,json}]
+                       [--diffusion-profile {protenix-v1-cuda,protpardelle-1c-mps}]
+                       [--diffusion-runner PATH] [--diffusion-checkpoint PATH]
+                       [--diffusion-timeout SECONDS] [--log-file PATH]
 
-Report optional Python packages, external executables, and OpenMM platforms.
+Report optional packages, executables, OpenMM platforms, and diffusion
+profiles.
 
 options:
   -h, --help            show this help message and exit
   --format {text,json}  Report format (default: text)
+
+Diffusion options:
+  --diffusion-profile {protenix-v1-cuda,protpardelle-1c-mps}
+                        Optionally preflight one experimental diffusion
+                        profile
+  --diffusion-runner PATH
+                        Production runner executable for the selected
+                        diffusion profile
+  --diffusion-checkpoint PATH
+                        Locally provisioned checkpoint for the selected
+                        diffusion profile
+  --diffusion-timeout SECONDS
+                        Preflight handshake timeout in seconds (default: 30)
 
 Global logging:
   --log-file PATH       Append all stdout/stderr (including child tools) to

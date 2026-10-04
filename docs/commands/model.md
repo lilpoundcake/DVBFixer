@@ -69,8 +69,9 @@ The runner receives the versioned `request.json` protocol and must write a valid
 provided through the existing protocol environment. DVBFixer then independently
 checks identity, complete generated heavy atoms, fixed-coordinate preservation,
 peptide closure, clashes, geometry, and chirality. A successful output directory
-contains candidate PDB/`.dat`/provenance files and `bundle.json`; it is published
-atomically only after validation succeeds.
+contains candidate PDB/`.dat`/provenance files, a bounded digest-verified sampler
+trace for each candidate, and `bundle.json`; it is published atomically only
+after validation succeeds.
 
 ## Options
 

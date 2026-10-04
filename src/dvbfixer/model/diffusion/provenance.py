@@ -23,8 +23,9 @@ from dvbfixer.model.diffusion.contract import (
     TargetSequence,
     ValidationSummary,
 )
+from dvbfixer.model.diffusion.preflight import DIFFUSION_PROFILES
 
-DIFFUSION_PROVENANCE_SCHEMA_VERSION = 2
+DIFFUSION_PROVENANCE_SCHEMA_VERSION = 4
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,6 +64,10 @@ class DiffusionProvenanceManifest:
     gaps: tuple[dict[str, Any], ...]
     fixed_atoms: tuple[AtomIdentity, ...]
     generated_atoms: tuple[AtomIdentity, ...]
+    requested_profile: str
+    profile_status: str
+    profile_evidence_labels: tuple[str, ...]
+    training_membership_status: str
     candidate: DiffusionCandidate
     validation_summary: ValidationSummary
     backend_provenance: BackendProvenance
@@ -86,6 +91,8 @@ class DiffusionProvenanceManifest:
             raise DiffusionContractError("dvbfixer_version must not be empty")
         if not self.dvbfixer_commit:
             raise DiffusionContractError("dvbfixer_commit must not be empty")
+        if len(set(self.profile_evidence_labels)) != len(self.profile_evidence_labels):
+            raise DiffusionContractError("profile evidence labels must be unique")
         roles = [artifact.role for artifact in self.artifacts]
         if len(roles) != len(set(roles)):
             raise DiffusionContractError("publication artifact roles must be unique")
@@ -106,6 +113,10 @@ class DiffusionProvenanceManifest:
             "gaps": list(self.gaps),
             "fixed_atoms": _encode(self.fixed_atoms),
             "generated_atoms": _encode(self.generated_atoms),
+            "requested_profile": self.requested_profile,
+            "profile_status": self.profile_status,
+            "profile_evidence_labels": list(self.profile_evidence_labels),
+            "training_membership_status": self.training_membership_status,
             "candidate": _encode(self.candidate),
             "validation_summary": _encode(self.validation_summary),
             "backend_provenance": _encode(self.backend_provenance),
@@ -135,6 +146,15 @@ def build_provenance_manifest(
     repository_root: Path | None = None,
 ) -> DiffusionProvenanceManifest:
     """Build a credential-free manifest from independently validated data."""
+    requested_profile = next(
+        (
+            option.value
+            for option in request.backend_options
+            if option.name == "profile"
+        ),
+        "",
+    )
+    profile = DIFFUSION_PROFILES.get(requested_profile)
     return DiffusionProvenanceManifest(
         schema_version=DIFFUSION_PROVENANCE_SCHEMA_VERSION,
         diffusion_contract_schema_version=DIFFUSION_SCHEMA_VERSION,
@@ -146,6 +166,12 @@ def build_provenance_manifest(
         gaps=tuple(_gap_dict(gap) for gap in request.gaps),
         fixed_atoms=request.fixed_atoms,
         generated_atoms=request.generated_atoms,
+        requested_profile=requested_profile,
+        profile_status=profile.status if profile is not None else "unregistered",
+        profile_evidence_labels=profile.evidence_labels if profile is not None else (),
+        training_membership_status=(
+            profile.training_membership_status if profile is not None else "unknown"
+        ),
         candidate=candidate,
         validation_summary=validation_summary,
         backend_provenance=backend_provenance,

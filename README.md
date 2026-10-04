@@ -6,7 +6,7 @@ Current release: **0.9.0**.
 
 This README is the root of a manual-style documentation tree. Each subcommand has its own page under [`docs/commands/`](docs/commands/index.md); the [pipelines](docs/pipelines.md) page collects end-to-end recipes. For design notes see [`ARCHITECTURE.md`](ARCHITECTURE.md) and the focused [scientific domain model](docs/domain-model.md); for opinionated recipes and gotchas see [`BEST_PRACTICES.md`](BEST_PRACTICES.md).
 
-The [whole-complex relaxation research](docs/research/whole-complex-relaxation.md) describes current limits, incomplete-cofactor findings, and proposed alternatives. The separate [reconstruction and modeling backend research](docs/research/reconstruction-and-modeling-backends.md) records proposed PDBFixer and MODELLER comparators, including an independently implemented template-constrained diffusion concept; neither current dependency is deprecated.
+The [whole-complex relaxation research](docs/research/whole-complex-relaxation.md) describes current limits, incomplete-cofactor findings, and proposed alternatives. The separate [reconstruction and modeling backend research](docs/research/reconstruction-and-modeling-backends.md) records PDBFixer and MODELLER comparators and the evidence behind the narrow experimental `model --backend diffusion` CLI; MODELLER remains the default and neither current dependency is deprecated.
 
 ## Quick start
 

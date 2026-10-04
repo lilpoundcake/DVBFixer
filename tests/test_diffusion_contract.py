@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 
 import pytest
 
@@ -24,7 +25,6 @@ from dvbfixer.model.diffusion.contract import (
     RunnerDiagnostics,
     RunnerResourceMetrics,
     RunnerResult,
-    SamplerStepTrace,
     SamplerTrace,
     SamplingAblationMode,
     SequencePlacement,
@@ -32,6 +32,7 @@ from dvbfixer.model.diffusion.contract import (
     TargetSequence,
     ValidationSummary,
 )
+from dvbfixer.model.diffusion.trace import build_sampler_trace, validate_sampler_trace_context
 
 DIGEST = "a" * 64
 
@@ -83,6 +84,7 @@ def _success_result() -> DiffusionResult:
         candidate_id="candidate-0001",
         seed=7,
         coordinate_artifact=ArtifactReference("candidates/candidate-0001.pdb", DIGEST),
+        sampler_trace_artifact=ArtifactReference("candidates/candidate-0001.trace.json", DIGEST),
         generated_atoms=(AtomIdentity("D", "11", "", "CA"),),
         generated_residues=(ResidueIdentity("D", "11"),),
         raw_backend_score=0.75,
@@ -126,6 +128,7 @@ def test_runner_result_round_trip_has_no_external_validation_claims() -> None:
         candidate_id="candidate-0001",
         seed=7,
         coordinate_artifact=ArtifactReference("candidates/candidate-0001.pdb", DIGEST),
+        sampler_trace_artifact=ArtifactReference("candidates/candidate-0001.trace.json", DIGEST),
         generated_atoms=request.generated_atoms,
         generated_residues=request.gaps[0].generated_residues,
         raw_backend_score=0.75,
@@ -148,6 +151,11 @@ def test_runner_result_round_trip_has_no_external_validation_claims() -> None:
 
     assert decoded == result
     assert "validation_summaries" not in decoded.to_dict()
+
+    trace_free = result.to_dict()
+    del trace_free["candidates"][0]["sampler_trace_artifact"]
+    with pytest.raises(DiffusionContractError, match="sampler_trace_artifact"):
+        RunnerResult.from_dict(trace_free)
 
 
 def test_result_round_trip_preserves_status_and_nested_types() -> None:
@@ -199,7 +207,7 @@ def test_backend_provenance_round_trip_preserves_optional_runtime_evidence() -> 
     assert round_trip.backend_provenance.deterministic_algorithms is False
 
 
-def test_schema_v3_resource_metrics_and_sampler_trace_are_strict() -> None:
+def test_schema_v4_resource_metrics_and_sampler_trace_are_strict() -> None:
     metrics = RunnerResourceMetrics(
         wall_time_seconds=12.5,
         model_load_seconds=3.0,
@@ -213,7 +221,7 @@ def test_schema_v3_resource_metrics_and_sampler_trace_are_strict() -> None:
         runner_diagnostics=RunnerDiagnostics(exit_code=1, timed_out=False),
         backend_provenance=BackendProvenance(
             backend="fake",
-            runner_protocol_version=3,
+            runner_protocol_version=4,
             engine_repository="builtin://fake",
             engine_revision="test",
         ),
@@ -228,29 +236,249 @@ def test_schema_v3_resource_metrics_and_sampler_trace_are_strict() -> None:
         RunnerResourceMetrics(peak_vram_bytes=-1)
 
     fixed = AtomIdentity("D", "10", "", "CA")
-    trace = SamplerTrace(
-        ablation_mode=SamplingAblationMode.REINJECTION,
+    generated = AtomIdentity("D", "11", "", "CA")
+    trace = build_sampler_trace(
+        profile="test",
+        engine_repository="builtin://fake",
+        engine_revision="test",
+        patch_identity="none",
+        atom_order=(fixed, generated),
         fixed_atoms=(fixed,),
-        fixed_tolerance_angstrom=0.01,
-        steps=(
-            SamplerStepTrace(
-                step_index=0,
-                atom_identity_sha256="b" * 64,
-                fixed_coordinate_sha256="c" * 64,
-                pre_projection_max_error_angstrom=0.2,
-                post_projection_max_error_angstrom=0.0,
-            ),
-        ),
+        device="cpu",
+        fallback_disabled=True,
+        denoising_update_count=1,
+        projection_errors_angstrom=(0.0,),
+        final_fixed_coordinate_restoration=False,
     )
     assert trace.ablation_mode is SamplingAblationMode.REINJECTION
+    assert trace.represented_fixed_atoms == (fixed,)
+    assert trace.sampler_evidence_complete
+    assert trace.fixed_tolerance_angstrom == 0.01
+    assert trace.max_projection_error_angstrom == 0.0
+    assert SamplerTrace.from_json(trace.to_json()) == trace
+
+    with pytest.raises(DiffusionContractError, match="exceeds fixed tolerance"):
+        build_sampler_trace(
+            profile="test",
+            engine_repository="builtin://fake",
+            engine_revision="test",
+            patch_identity="none",
+            atom_order=(fixed, generated),
+            fixed_atoms=(fixed,),
+            device="cpu",
+            fallback_disabled=True,
+            denoising_update_count=1,
+            projection_errors_angstrom=(0.02,),
+            final_fixed_coordinate_restoration=False,
+        )
+    relaxed = build_sampler_trace(
+        profile="test",
+        engine_repository="builtin://fake",
+        engine_revision="test",
+        patch_identity="none",
+        atom_order=(fixed, generated),
+        fixed_atoms=(fixed,),
+        device="cpu",
+        fallback_disabled=True,
+        denoising_update_count=1,
+        projection_errors_angstrom=(0.02,),
+        final_fixed_coordinate_restoration=False,
+        fixed_tolerance_angstrom=0.03,
+    )
+    assert relaxed.fixed_tolerance_angstrom == 0.03
 
     with pytest.raises(DiffusionContractError, match="cannot claim"):
-        SamplerTrace(
-            ablation_mode=SamplingAblationMode.TEMPLATE_ONLY,
-            fixed_atoms=(fixed,),
-            fixed_tolerance_angstrom=0.01,
-            steps=trace.steps,
+        replace(trace, ablation_mode=SamplingAblationMode.TEMPLATE_ONLY)
+
+    unknown = trace.to_dict()
+    unknown["future_field"] = True
+    with pytest.raises(DiffusionContractError, match="unknown fields"):
+        SamplerTrace.from_dict(unknown)
+
+    missing = trace.to_dict()
+    del missing["device"]
+    with pytest.raises(DiffusionContractError, match="missing fields"):
+        SamplerTrace.from_dict(missing)
+
+
+def test_sampler_trace_enforces_production_profile_semantics() -> None:
+    fixed = AtomIdentity("D", "10", "", "CA")
+    generated = AtomIdentity("D", "11", "", "CA")
+    common = {
+        "engine_repository": "builtin://test",
+        "engine_revision": "test",
+        "patch_identity": "none",
+        "atom_order": (fixed, generated),
+        "fixed_atoms": (fixed,),
+        "fallback_disabled": True,
+    }
+
+    with pytest.raises(DiffusionContractError, match="per-step reinjection"):
+        build_sampler_trace(
+            profile="protpardelle-1c-mps",
+            device="mps",
+            denoising_update_count=1,
+            projection_errors_angstrom=(0.0,),
+            final_fixed_coordinate_restoration=True,
+            **common,
         )
+    with pytest.raises(DiffusionContractError, match="final fixed-coordinate"):
+        build_sampler_trace(
+            profile="protpardelle-1c-mps",
+            device="mps",
+            denoising_update_count=500,
+            final_fixed_coordinate_restoration=False,
+            **common,
+        )
+    with pytest.raises(DiffusionContractError, match="reinjection capabilities"):
+        build_sampler_trace(
+            profile="protenix-v1-cuda",
+            device="cuda:0",
+            denoising_update_count=1,
+            final_fixed_coordinate_restoration=False,
+            **common,
+        )
+    apple = build_sampler_trace(
+        profile="protpardelle-1c-mps",
+        device="mps",
+        denoising_update_count=500,
+        final_fixed_coordinate_restoration=True,
+        **common,
+    )
+    assert apple.denoising_update_count == 500
+    assert apple.callback_update_count == 0
+    assert apple.steps == ()
+    assert apple.max_projection_error_angstrom is None
+    passthrough_fixed = AtomIdentity("D", "12", "", "OXT")
+    apple_with_passthrough = build_sampler_trace(
+        profile="protpardelle-1c-mps",
+        engine_repository="builtin://test",
+        engine_revision="test",
+        patch_identity="none",
+        atom_order=(fixed, generated),
+        fixed_atoms=(fixed, passthrough_fixed),
+        represented_fixed_atoms=(fixed,),
+        device="mps",
+        fallback_disabled=True,
+        denoising_update_count=500,
+        final_fixed_coordinate_restoration=True,
+    )
+    assert apple_with_passthrough.represented_fixed_atoms == (fixed,)
+    with pytest.raises(DiffusionContractError, match="exactly 500"):
+        build_sampler_trace(
+            profile="protpardelle-1c-mps",
+            device="mps",
+            denoising_update_count=499,
+            final_fixed_coordinate_restoration=True,
+            **common,
+        )
+
+    protenix = build_sampler_trace(
+        profile="protenix-v1-cuda",
+        device="cuda:0",
+        denoising_update_count=200,
+        projection_errors_angstrom=(0.0,) * 200,
+        final_fixed_coordinate_restoration=False,
+        **common,
+    )
+    assert protenix.denoising_update_count == 200
+    assert protenix.callback_update_count == 200
+    assert len(protenix.steps) == 200
+    with pytest.raises(DiffusionContractError, match="every denoising update"):
+        build_sampler_trace(
+            profile="protenix-v1-cuda",
+            device="cuda:0",
+            denoising_update_count=199,
+            projection_errors_angstrom=(0.0,) * 199,
+            final_fixed_coordinate_restoration=False,
+            **common,
+        )
+
+    with pytest.raises(DiffusionContractError, match="every fixed atom"):
+        build_sampler_trace(
+            profile="protenix-v1-cuda",
+            device="cuda:0",
+            denoising_update_count=200,
+            projection_errors_angstrom=(0.0,) * 200,
+            represented_fixed_atoms=(),
+            final_fixed_coordinate_restoration=False,
+            **common,
+        )
+    incomplete = build_sampler_trace(
+        profile="unknown-source-legacy-refinement",
+        device="unknown-input-sampler-device",
+        denoising_update_count=None,
+        represented_fixed_atoms=(),
+        final_fixed_coordinate_restoration=False,
+        sampler_evidence_complete=False,
+        **common,
+    )
+    assert incomplete.callback_update_count is None
+    assert incomplete.denoising_update_count is None
+    assert not incomplete.sampler_evidence_complete
+    with pytest.raises(DiffusionContractError, match="atom identity digest"):
+        replace(
+            protenix,
+            steps=(
+                replace(protenix.steps[0], atom_identity_sha256="0" * 64),
+                *protenix.steps[1:],
+            ),
+        )
+
+
+def test_sampler_trace_context_requires_provenance_device_match() -> None:
+    request = _request()
+    trace = build_sampler_trace(
+        profile="test",
+        engine_repository="builtin://test",
+        engine_revision="revision",
+        patch_identity="none",
+        atom_order=(*request.fixed_atoms, *request.generated_atoms),
+        fixed_atoms=request.fixed_atoms,
+        device="cpu",
+        fallback_disabled=True,
+        denoising_update_count=0,
+        final_fixed_coordinate_restoration=True,
+    )
+    provenance = BackendProvenance(
+        backend="test",
+        runner_protocol_version=4,
+        engine_repository="builtin://test",
+        engine_revision="revision",
+        device="mps",
+    )
+
+    with pytest.raises(DiffusionContractError, match="device"):
+        validate_sampler_trace_context(trace, request, provenance)
+
+
+def test_sampler_trace_context_requires_exact_generated_sampler_atoms() -> None:
+    request = _request()
+    provenance = BackendProvenance(
+        backend="test",
+        runner_protocol_version=4,
+        engine_repository="builtin://test",
+        engine_revision="revision",
+        device="cpu",
+    )
+    for atom_order in (
+        request.fixed_atoms,
+        (*request.fixed_atoms, *request.generated_atoms, AtomIdentity("D", "99", "", "CA")),
+    ):
+        trace = build_sampler_trace(
+            profile="test",
+            engine_repository="builtin://test",
+            engine_revision="revision",
+            patch_identity="none",
+            atom_order=atom_order,
+            fixed_atoms=request.fixed_atoms,
+            device="cpu",
+            fallback_disabled=True,
+            denoising_update_count=0,
+            final_fixed_coordinate_restoration=True,
+        )
+        with pytest.raises(DiffusionContractError, match="requested generated atoms"):
+            validate_sampler_trace_context(trace, request, provenance)
 
 
 def test_backend_provenance_and_candidates_reject_invalid_seed_metadata() -> None:
@@ -259,6 +487,7 @@ def test_backend_provenance_and_candidates_reject_invalid_seed_metadata() -> Non
             candidate_id="candidate",
             seed=-1,
             coordinate_artifact=ArtifactReference("candidate.pdb", DIGEST),
+            sampler_trace_artifact=ArtifactReference("candidate.trace.json", DIGEST),
             generated_atoms=(),
             generated_residues=(),
             raw_backend_score=None,

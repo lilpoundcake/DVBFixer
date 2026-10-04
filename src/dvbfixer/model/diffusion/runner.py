@@ -20,9 +20,11 @@ from dvbfixer.model.diffusion.contract import (
     DiffusionRequest,
     RunnerDiagnostics,
     RunnerResult,
+    SamplerTrace,
 )
+from dvbfixer.model.diffusion.trace import validate_sampler_trace_context
 
-DIFFUSION_RUNNER_PROTOCOL_VERSION = 3
+DIFFUSION_RUNNER_PROTOCOL_VERSION = 4
 REQUEST_MANIFEST = "request.json"
 RESULT_MANIFEST = "result.json"
 _TRUNCATION_MARKER = b"\n...[output truncated by DVBFixer]"
@@ -231,14 +233,15 @@ def run_diffusion_runner(
     limits: RunnerLimits | None = None,
     environment: Mapping[str, str] | None = None,
 ) -> RunnerResult:
-    """Prepare an isolated workspace and run one backend adapter.
+    """Prepare a dedicated workspace and run one trusted backend adapter.
 
     ``request.normalized_pdb.path`` is resolved below ``source_root``, checked
     against its declared digest, and copied into ``workspace``. The runner is
     launched without a shell and communicates only through fixed
     ``request.json`` and ``result.json`` manifests in its current directory.
     Candidate artifacts are returned only after path, file-type, identity-mask,
-    and SHA-256 validation.
+    and SHA-256 validation. This protocol boundary is not an OS/filesystem
+    sandbox and cannot prevent the executable from writing elsewhere.
     """
     prepared = prepare_diffusion_workspace(
         request,
@@ -384,7 +387,14 @@ def _validate_result_artifacts(
     if not set(seeds) <= set(request.seeds):
         raise DiffusionRunnerError("external diffusion runner returned an unrequested candidate seed")
 
-    paths = [candidate.coordinate_artifact.path for candidate in result.candidates]
+    paths = [
+        path
+        for candidate in result.candidates
+        for path in (
+            candidate.coordinate_artifact.path,
+            candidate.sampler_trace_artifact.path,
+        )
+    ]
     if len(paths) != len(set(paths)):
         raise DiffusionRunnerError("external diffusion runner returned duplicate artifact paths")
 
@@ -412,6 +422,27 @@ def _validate_result_artifacts(
             candidate.coordinate_artifact,
             max_bytes=max_artifact_bytes,
         )
+        trace_path = _validated_artifact_path(
+            root,
+            candidate.sampler_trace_artifact,
+            max_bytes=min(max_artifact_bytes, 1_000_000),
+        )
+        try:
+            trace = SamplerTrace.from_json(_read_bounded_text(trace_path, 1_000_000))
+        except (DiffusionContractError, OSError, UnicodeError) as exc:
+            raise DiffusionRunnerError(
+                f"candidate {candidate.candidate_id!r} has an invalid sampler trace: {exc}"
+            ) from exc
+        try:
+            validate_sampler_trace_context(
+                trace,
+                request,
+                result.backend_provenance,
+            )
+        except DiffusionContractError as exc:
+            raise DiffusionRunnerError(
+                f"candidate {candidate.candidate_id!r} has inconsistent sampler trace: {exc}"
+            ) from exc
 
 
 def _runner_environment(

@@ -23,6 +23,17 @@ Class B/C/online refusals, validation, and atomic bundle publication. Its
 separate parameterization decision selects only a candidate route and always
 returns `md_ready=False`; no existing preparation default or MD adapter changed.
 
+`model --backend diffusion` is an explicit experimental path for one canonical
+protein chain with one internal gap. `model/diffusion_cli.py` builds the request;
+`model/diffusion/` owns scope admission, the versioned external-runner boundary,
+independent validation, provenance, and atomic directory-bundle publication.
+The Protenix CUDA and Protpardelle MPS runners live in separate environments
+under `deploy/`; ML frameworks and checkpoints are not core dependencies.
+`model/diffusion/preflight.py` owns immutable profile metadata and the strict,
+bounded no-inference handshake contract exposed by the additive Doctor report.
+MODELLER remains the default and keeps its existing PDB-file output contract.
+See [ADR 0011](docs/adr/0011-experimental-diffusion-cli.md).
+
 OpenMM is the current minimizer. The optional xtb/OpenBabel passes run after it;
 `legacy` and `tleap-reduce` select preparation, not minimization. There is no
 geometry-dictionary regularization backend or shared backend capability
@@ -48,9 +59,8 @@ src/dvbfixer/
 │   STRUCTURE PREP PIPELINE (composable subcommands)
 ├── split_chains.py     719 lines   — empirical chain splitting (gap / dist / numbering)
 ├── renumber.py         620 lines   — SEQRES-based renumbering, removes insertion codes
-├── model/             2688 lines   — Modeller LoopModel loop/gap rebuilding (package: cli.py 127,
-│                                     __init__.py 41, pipeline.py 1240, modeller_run.py 736,
-│                                     renumber.py 544)
+├── model/                         — default Modeller loop/gap rebuilding plus the explicit
+│                                     experimental diffusion CLI and isolated diffusion package
 ├── prepare/           3278 lines   — PDBFixer wrapper + BioLuminate-style H placement (package:
 │                                     cli.py 133, __init__.py 56, pipeline.py 1411, glycan.py 1105,
 │                                     mutations.py 573)
@@ -125,6 +135,12 @@ input.pdb ──split──→ split.pdb
             │                                                                          └── minimize ──→ minimized.pdb
             │
             └── For glycoproteins: glycam ─→ ... ─→ transplant ─→ minimize ─→ top
+
+input.pdb + target sequence ──model --backend diffusion──→ validated directory bundle
+                                                    ├── candidate PDB + .dat
+                                                    ├── sampler trace
+                                                    ├── diffusion provenance
+                                                    └── bundle.json
 ```
 
 The `.dat` file is the structured handoff between pipeline stages. It is

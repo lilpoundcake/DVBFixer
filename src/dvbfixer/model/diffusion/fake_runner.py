@@ -24,6 +24,7 @@ from dvbfixer.model.diffusion.runner import (
     REQUEST_MANIFEST,
     RESULT_MANIFEST,
 )
+from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 
 
 def main() -> int:
@@ -33,11 +34,54 @@ def main() -> int:
 
     input_path = Path(request.normalized_pdb.path)
     candidates: list[RunnerCandidate] = []
+    profile = next(
+        (option.value for option in request.backend_options if option.name == "profile"),
+        "dvbfixer-fake",
+    )
+    if profile == "protenix-v1-cuda":
+        device = "cuda:fake"
+    elif profile == "protpardelle-1c-mps":
+        device = "mps"
+    else:
+        device = "cpu"
     for index, seed in enumerate(request.seeds, start=1):
         candidate_id = f"candidate-{index:04d}"
         output_path = Path("candidates") / f"{candidate_id}.pdb"
         output_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(input_path, output_path)
+        atom_order = (*request.fixed_atoms, *request.generated_atoms)
+        projection_errors: tuple[float, ...]
+        if profile == "protenix-v1-cuda":
+            denoising_updates = 200
+            projection_errors = (0.0,) * denoising_updates
+            final_restoration = False
+        elif profile == "protpardelle-1c-mps":
+            denoising_updates = 500
+            projection_errors = ()
+            final_restoration = True
+        else:
+            denoising_updates = 0
+            projection_errors = ()
+            final_restoration = True
+        trace_path = output_path.with_suffix(".sampler-trace.json")
+        trace_artifact = write_sampler_trace(
+            Path.cwd(),
+            trace_path,
+            build_sampler_trace(
+                profile=profile,
+                engine_repository="builtin://dvbfixer",
+                engine_revision="fake-runner-v3",
+                patch_identity="deterministic-protocol-simulation",
+                atom_order=atom_order,
+                fixed_atoms=request.fixed_atoms,
+                device=device,
+                fallback_disabled=True,
+                denoising_update_count=denoising_updates,
+                projection_errors_angstrom=projection_errors,
+                final_fixed_coordinate_restoration=final_restoration,
+                sampler_evidence_complete=True,
+            ),
+        )
         candidates.append(
             RunnerCandidate(
                 candidate_id=candidate_id,
@@ -46,6 +90,7 @@ def main() -> int:
                     path=output_path.as_posix(),
                     sha256=_sha256(output_path),
                 ),
+                sampler_trace_artifact=trace_artifact,
                 generated_atoms=request.generated_atoms,
                 generated_residues=tuple(
                     residue
@@ -66,11 +111,11 @@ def main() -> int:
             backend="dvbfixer-fake",
             runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="builtin://dvbfixer",
-            engine_revision="fake-runner-v2",
+            engine_revision="fake-runner-v3",
             source_license="project-license",
             environment_hash=_environment_hash(),
             environment_identity="core-python-environment",
-            device="cpu",
+            device=device,
             precision="byte-copy",
             framework="python",
             deterministic_algorithms=True,
@@ -85,7 +130,7 @@ def _environment_hash() -> str:
     payload: dict[str, Any] = {
         "contract_schema_version": DIFFUSION_SCHEMA_VERSION,
         "runner_protocol_version": DIFFUSION_RUNNER_PROTOCOL_VERSION,
-        "implementation": "dvbfixer-fake-runner-v2",
+        "implementation": "dvbfixer-fake-runner-v3",
     }
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()

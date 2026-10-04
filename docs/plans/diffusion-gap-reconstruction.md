@@ -163,10 +163,12 @@
 
 - [x] Add `src/dvbfixer/model/diffusion/runner.py`.
 - [x] Use a versioned subprocess protocol:
-  - [x] DVBFixer writes `request.json` into an isolated workspace.
+  - [x] DVBFixer writes `request.json` into a dedicated private workspace; this
+    directory boundary is not an OS/filesystem sandbox for the trusted runner.
   - [x] The external runner writes a raw `RunnerResult` in `result.json` plus candidate artifacts; independent `DiffusionResult` validation summaries remain DVBFixer-owned.
   - [x] DVBFixer validates every returned path and digest.
-- [x] Enforce workspace path containment.
+- [x] Enforce workspace path containment for returned artifacts. Maintained
+  wrappers promise not to write elsewhere, but core cannot enforce that promise.
 - [x] Reject symlink and path-traversal escapes.
 - [x] Bound runtime and captured output.
 - [x] Capture exit code, stdout, and stderr without leaking credentials.
@@ -248,7 +250,8 @@
 - [x] Update the research note with engine, licensing, and hardware findings.
 - [x] Add or update the DDD implementation task without presenting the backend as shipped.
 - [x] Accept an ADR covering:
-  - [x] subprocess/container isolation;
+  - [x] trusted subprocess protocol boundary and deployment-supplied container
+    isolation when enforcement is required;
   - [x] separate diffusion provenance;
   - [x] no automatic scientific fallback;
   - [x] MODELLER remaining the default;
@@ -319,20 +322,21 @@
 ### Phase 4: Experimental `model` CLI
 
 - [x] Complete the Phase 3 scientific selection gate for the narrow supported slice.
-- [ ] Accept a successor ADR or ADR 0010 update that authorizes an opt-in
+- [x] Accept a successor ADR or ADR 0010 update that authorizes an opt-in
   experimental public backend without authorizing a default-backend change.
-- [ ] Add `--backend {modeller,diffusion}`.
-- [x] Keep `modeller` as the default; no public diffusion dispatch currently exists.
-- [ ] Keep Protenix v1 as the only public diffusion engine in this phase; do not
-  expose Boltz-2 as a selectable backend.
-- [ ] Add diffusion runner, checkpoint, device, candidate-count, seed, timeout,
-  and optional bundle-retention options in a separate argparse group.
-- [ ] Reject MODELLER-only options when `--backend diffusion` is selected.
+- [x] Add `--backend {modeller,diffusion}`.
+- [x] Keep `modeller` as the default while diffusion requires explicit opt-in.
+- [x] Expose only the selected Protenix profile and the separately evaluated
+  Protpardelle Apple profile; do not expose Boltz-2 as a selectable backend.
+- [x] Add profile, runner, checkpoint, digest, repeatable seed, timeout, and work
+  parent options in a separate argparse group; do not expose automatic device
+  selection.
+- [x] Reject MODELLER-only options when `--backend diffusion` is selected.
 - [ ] Reject unsupported diffusion scope before starting an external process and
   direct users to rerun explicitly with `--backend modeller` when appropriate.
-- [ ] Preserve FASTA/SEQRES and content-selection semantics where the diffusion scope supports them.
+- [x] Preserve FASTA/SEQRES semantics where the diffusion scope supports them.
 - [x] Do not fall back automatically to MODELLER.
-- [ ] Do not propagate diffusion options through `zbs` in this phase.
+- [x] Do not propagate diffusion options through `zbs` in this phase.
 - [ ] Expose diffusion through the existing asynchronous managed-job API only after the experimental CLI gates pass; do not add a synchronous inference route or duplicate adapter science in Node.
 
 #### Production Orchestration Boundary
@@ -342,70 +346,73 @@
 - [ ] Keep common preprocessing responsible for CIF-normalized PDB input, CONECT
   inference, content selection, FASTA/SEQRES extraction, case-sensitive chain
   discovery, output naming, and final publication.
-- [ ] Wrap the existing MODELLER path behind the backend boundary without changing
+- [x] Wrap the existing MODELLER path behind the backend boundary without changing
   its default behavior or output naming.
-- [ ] Route diffusion generation through `model/diffusion/pipeline.py` and keep
+- [x] Route diffusion generation through `model/diffusion/pipeline.py` and keep
   engine-specific Python/CUDA packages outside the core environment.
-- [ ] Keep `zbs` and `homology` on their existing MODELLER paths during Phase 4.
+- [x] Keep `zbs` and `homology` on their existing MODELLER paths during Phase 4.
 
 #### Production Request Builder
 
-- [ ] Build `DiffusionRequest` directly from the authoritative production
+- [x] Build `DiffusionRequest` directly from the shared production
   sequence placement rather than reconstructing placement inside the runner.
 - [ ] Reuse `model/renumber.py` residue allocation so generated identities cannot
   collide with observed protein or HETATM residue numbers.
-- [ ] Preserve `(chain, resid, icode)` and `(chain, resid, icode, atom)` identity
+- [x] Preserve `(chain, resid, icode)` and `(chain, resid, icode, atom)` identity
   without case normalization or insertion-code loss.
-- [ ] Require complete canonical generated-heavy-atom identities from the target
+- [x] Require complete canonical generated-heavy-atom identities from the target
   sequence, independent of deposited side-chain completeness.
-- [ ] Include every supported fixed heavy atom and retained explicit link in the
+- [x] Include every supported fixed heavy atom and retained explicit link in the
   request, with deterministic source and identity digests.
-- [ ] Fail closed on ambiguous placement, terminal gaps, multiple MODEL blocks,
+- [x] Fail closed on ambiguous placement, terminal gaps, multiple MODEL blocks,
   unsupported noncanonical chemistry, unsupported heterogens, and unsupported
   external covalent links.
-- [ ] Freeze the first public scope to one canonical protein target chain and one
+- [x] Freeze the first public scope to one canonical protein target chain and one
   internal two-anchor gap of 3-12 residues unless additional strata pass the
   same confirmatory gates.
 
 #### Protenix Protocol Adapter
 
-- [ ] Replace the research-only build, checkpoint-smoke, and refinement sequence
+- [x] Replace the research-only build, checkpoint-smoke, and refinement sequence
   with one protocol-compliant Protenix runner executable.
 - [ ] Verify the pinned source revision, maintained patch digest, checkpoint
   SHA-256, protocol version, and device before model loading.
-- [ ] Build the stable atom axis and reject unresolved or duplicate request mapping.
-- [ ] Apply weighted frame synchronization and exact fixed-coordinate reinjection
+- [x] Build the stable atom axis and reject unresolved or duplicate request mapping.
+- [x] Apply weighted frame synchronization and exact fixed-coordinate reinjection
   after every denoising update.
-- [ ] Run localized boundary refinement only on eligible generated or temporarily
+- [x] Run localized boundary refinement only on eligible generated or temporarily
   completed atoms and record every chirality repair.
-- [ ] Attach sampler trace evidence to each returned candidate: ablation mode,
-  expected and observed callback counts, fixed-identity digest, fixed-coordinate
-  digest, maximum post-projection error, seed, and refinement revision.
+- [x] Attach bounded sampler trace evidence to each returned candidate: profile,
+  capability, sampler atom order, complete request fixed set, represented fixed
+  subset, atom-order/fixed-mask digests, evidence-completeness marker, separate
+  denoising-update and observed callback counts, fixed-coordinate tolerance,
+  maximum observed post-projection error (or `null` without callbacks), final
+  restoration, device/fallback, refinement, and resource metrics.
 - [ ] Materialize original fixed records without losing chain IDs, insertion codes,
   occupancies, B factors, ANISOU, or unrelated headers.
 - [ ] Return protocol `unsupported` or `failed` outcomes without candidate publication.
 
 #### Validation And Public Output
 
-- [ ] Preserve every confirmatory hard gate and threshold without backend-specific
+- [x] Preserve every confirmatory hard gate and threshold without backend-specific
   relaxation in the public path.
-- [ ] Rank only candidates that pass identity, fixed-coordinate, completeness,
+- [x] Rank only candidates that pass identity, fixed-coordinate, completeness,
   connectivity, geometry, clash, and chirality gates.
-- [ ] Convert the internal bundle into the public `model` contract: matched PDB,
+- [x] Convert the internal bundle into the public `model` contract: matched PDB,
   `.dat`, diffusion provenance, and optional bundle index.
-- [ ] Build `.dat` only through `DatRecord`, including insertion-code-aware added
+- [x] Build `.dat` only through `DatRecord`, including insertion-code-aware added
   atoms and residue summaries.
-- [ ] Stage all selected outputs below the destination parent, verify their digests,
+- [x] Stage all selected outputs below the destination parent, verify their digests,
   publish as one logical transaction, and remove every destination on failure.
-- [ ] Guarantee that unsupported input, runner failure, validation failure, and
+- [x] Guarantee that unsupported input, runner failure, validation failure, and
   publication failure leave no final PDB, `.dat`, provenance file, or staging orphan.
-- [ ] Apply `--number-from-1` only at a defined pre-request boundary or reject it
+- [x] Apply `--number-from-1` only at a defined pre-request boundary or reject it
   for diffusion until post-numbering identity and validation can be proven.
 
 #### Runtime, Distribution, And Diagnostics
 
-- [ ] Add diffusion preflight to `doctor` without removing stable report sections.
-- [ ] Keep Torch, Protenix, CUDA, checkpoints, and engine caches outside the core
+- [x] Add diffusion preflight to `doctor` without removing stable report sections.
+- [x] Keep Torch, Protenix, CUDA, checkpoints, and engine caches outside the core
   wheel and `environment.yml`.
 - [ ] Require an operator-supplied checkpoint and exact digest verification until
   checkpoint redistribution review is complete.
@@ -430,8 +437,8 @@
   keep the CPU protocol/validation lane mandatory and CUDA-independent.
 - [ ] Update `docs/commands/model.md`, installation, known-issues, pipelines,
   domain/agent maps, and the experimental support matrix.
-- [ ] Regenerate CLI reference and GUI command schema through their generators.
-- [ ] Release the backend as opt-in experimental functionality first.
+- [x] Regenerate CLI reference and GUI command schema through their generators.
+- [x] Release the backend as opt-in experimental functionality first.
 - [ ] Require a separate evidence-backed Phase 6 decision before calling the
   backend production-supported or changing any default.
 
@@ -587,7 +594,7 @@ plan now owns compact-model and local M-series experiments.
 - [x] Add `src/dvbfixer/model/diffusion/sampler.py`.
 - [ ] Change `src/dvbfixer/model/cli.py` only in the experimental CLI phase.
 - [ ] Change `src/dvbfixer/model/pipeline.py` only for explicit backend dispatch after gates pass.
-- [ ] Change `src/dvbfixer/doctor.py` for runner, checkpoint, and device preflight.
+- [x] Change `src/dvbfixer/doctor.py` for runner, checkpoint, and device preflight.
 - [ ] Change `src/dvbfixer/homology_plan.py` only in the mosaic-first phase.
 - [ ] Change `src/dvbfixer/homology.py` only after the homology contract passes focused tests.
 - [ ] Avoid changing `src/dvbfixer/ffutils/dat.py` unless a general sidecar requirement is demonstrated.
@@ -660,7 +667,8 @@ plan now owns compact-model and local M-series experiments.
 - [x] Provide a separate diffusion provenance manifest.
 - [x] Provide a benchmark manifest with predeclared thresholds.
 - [x] Provide CPU-testable adapter preflight and sampler-conformance decisions without claiming a real engine adapter.
-- [x] Pass the CPU/Linux macOS-compatible core suite before beginning the RFdiffusion GPU adapter; an actual Apple Silicon run remains a separate platform check.
+- [x] Pass the CPU/Linux core suite and the separate native Apple Silicon MPS
+  public-CLI smoke without making MPS part of core CI.
 
 ## Remaining External Gates
 
@@ -676,9 +684,10 @@ plan now owns compact-model and local M-series experiments.
   confirmatory cohort selects Protenix v1 over MODELLER; Boltz-2 remains
   proxy-only. Multichain/interface and retained chemistry remain unsupported
   expansion scopes rather than blockers for the narrow Phase 4 implementation.
-- [ ] Phase 4 is implementation-ready but not implemented. Public CLI dispatch,
-  the production Protenix runner, atomic public output adaptation, environment
-  pinning, and deployment acceptance remain open.
+- [ ] Phase 4 is partially implemented. Public CLI dispatch, separate production
+  wrappers, atomic public output, and per-candidate digest-linked sampler traces
+  are present. Resolved Linux environment pinning and
+  checkpoint-backed NVIDIA acceptance remain open.
 - [ ] Phases 5-6 remain intentionally separate and make no homology,
   default-backend, or production-support claim.
 - [x] Record the narrow backend as Phase 4 implementation-ready while keeping

@@ -33,6 +33,9 @@ Profile: `protenix-v1-cuda`.
 - Assert CUDA availability and the effective model/input/output device before
   inference.
 - Preserve per-step fixed-coordinate reinjection evidence.
+- Keep the engine checkout free of untracked importable modules and bytecode
+  caches; the maintained wrapper disables bytecode writes before importing the
+  engine adapter.
 - Keep the ordinary CI lane CUDA-independent; run checkpoint-backed acceptance on
   a self-hosted NVIDIA machine.
 - Do not expose `device=auto` or silently switch to CPU/Apple runners.
@@ -57,6 +60,9 @@ Profile: `protpardelle-1c-mps`.
   Metal-driver, and process-RSS counters.
 - Record final fixed-coordinate restoration honestly; do not claim per-step
   reinjection.
+- Keep the engine checkout free of untracked importable modules and bytecode
+  caches; the maintained wrapper disables bytecode writes before importing the
+  engine adapter.
 - Run OpenMM boundary refinement on CPU and label it separately from MPS
   inference.
 
@@ -96,14 +102,15 @@ DVBFixer does not download or redistribute checkpoints automatically.
 
 ## Preflight And Doctor
 
-- [ ] Verify runner presence and protocol version.
-- [ ] Verify checkpoint presence and digest before model loading.
-- [ ] Verify source, patch, config, environment, and optional image identity.
-- [ ] Verify CUDA for `protenix-v1-cuda` or MPS for
+- [x] Verify runner presence and protocol version.
+- [x] Verify checkpoint presence and digest before model loading.
+- [x] Verify source, patch, config, and environment identity. Optional image
+  identity remains deployment-specific because maintained wrappers are local executables.
+- [x] Verify CUDA for `protenix-v1-cuda` or MPS for
   `protpardelle-1c-mps`.
-- [ ] Verify effective device and fallback-disabled state.
-- [ ] Report refinement platform separately from sampling platform.
-- [ ] Return stable, actionable failure reasons without launching inference when
+- [x] Verify effective device and fallback-disabled state.
+- [x] Report refinement platform separately from sampling platform.
+- [x] Return stable, actionable failure reasons without launching inference when
   preflight fails.
 
 ## Test And Acceptance Matrix
@@ -139,7 +146,8 @@ GUI, `zbs`, `homology`, heterogen support, or automatic profile selection.
   hard validation gate with zero fixed-heavy-atom movement and zero D-Cα.
 - [x] Torch-dependent Boltz research imports made lazy so core CI remains
   Torch-free.
-- [ ] Add the diffusion profile report to `dvbfixer doctor`.
+- [x] Add the diffusion profile report and bounded no-inference handshake to
+  `dvbfixer doctor`.
 - [x] Implement the portable `protenix-v1-cuda` protocol wrapper and core tests.
 - [ ] Pin the resolved Linux environment and accept `protenix-v1-cuda` on a
   Linux/NVIDIA host.

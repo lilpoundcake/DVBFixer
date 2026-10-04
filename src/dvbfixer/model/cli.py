@@ -9,6 +9,7 @@ helpers and the pipeline can import them without a circular dep.
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 
 from dvbfixer.cli_types import positive_int
@@ -209,8 +210,8 @@ def _validate_backend_options(
                 "--backend diffusion requires --diffusion-profile, "
                 "--diffusion-runner, and --diffusion-checkpoint"
             )
-    if args.diffusion_timeout <= 0:
-        parser.error("--diffusion-timeout must be positive")
+    if not math.isfinite(args.diffusion_timeout) or args.diffusion_timeout <= 0:
+        parser.error("--diffusion-timeout must be a positive finite number")
     seeds = args.diffusion_seeds or [7]
     if any(seed < 0 for seed in seeds) or len(seeds) != len(set(seeds)):
         parser.error("--diffusion-seed values must be unique non-negative integers")

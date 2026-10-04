@@ -15,6 +15,7 @@ from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
     AtomIdentity,
+    BackendOption,
     BackendProvenance,
     DiffusionCandidate,
     DiffusionRequest,
@@ -33,6 +34,7 @@ from dvbfixer.model.diffusion.pipeline import (
     publish_diffusion_bundle,
     run_diffusion_pipeline,
 )
+from dvbfixer.model.diffusion.trace import build_sampler_trace
 
 FIXTURE = Path(__file__).parent / "fixtures" / "8cz8" / "8cz8_a_u.pdb"
 GENERATED_NUMBERS = tuple(str(number) for number in range(65, 70))
@@ -132,6 +134,7 @@ def _source_candidate_request() -> tuple[bytes, bytes, DiffusionRequest]:
         retained_explicit_links=(),
         candidate_count=1,
         seeds=(7,),
+        backend_options=(BackendOption("profile", "test"),),
     )
     return source, candidate, request
 
@@ -140,12 +143,17 @@ def _validated_result(
     request: DiffusionRequest,
     candidate_bytes: bytes,
 ) -> DiffusionResult:
+    trace_bytes = _trace_bytes(request)
     candidate = DiffusionCandidate(
         candidate_id="candidate-0001",
         seed=7,
         coordinate_artifact=ArtifactReference(
             "candidates/candidate-0001.pdb",
             _digest(candidate_bytes),
+        ),
+        sampler_trace_artifact=ArtifactReference(
+            "candidates/candidate-0001.trace.json",
+            _digest(trace_bytes),
         ),
         generated_atoms=request.generated_atoms,
         generated_residues=request.gaps[0].generated_residues,
@@ -163,6 +171,7 @@ def _validated_result(
             runner_protocol_version=2,
             engine_repository="builtin://test",
             engine_revision="test",
+            device="cpu",
         ),
     )
 
@@ -171,11 +180,35 @@ def _workspace(
     tmp_path: Path,
     candidate_bytes: bytes,
 ) -> Path:
+    _source, _candidate, request = _source_candidate_request()
     workspace = tmp_path / "workspace"
     candidate_path = workspace / "candidates" / "candidate-0001.pdb"
     candidate_path.parent.mkdir(parents=True)
     candidate_path.write_bytes(candidate_bytes)
+    (workspace / "candidates" / "candidate-0001.trace.json").write_bytes(
+        _trace_bytes(request)
+    )
     return workspace
+
+
+def _trace_bytes(
+    request: DiffusionRequest,
+    *,
+    fixed_atoms: tuple[AtomIdentity, ...] | None = None,
+) -> bytes:
+    active_fixed_atoms = request.fixed_atoms if fixed_atoms is None else fixed_atoms
+    return build_sampler_trace(
+        profile="test",
+        engine_repository="builtin://test",
+        engine_revision="test",
+        patch_identity="none",
+        atom_order=(*request.fixed_atoms, *request.generated_atoms),
+        fixed_atoms=active_fixed_atoms,
+        device="cpu",
+        fallback_disabled=True,
+        denoising_update_count=0,
+        final_fixed_coordinate_restoration=True,
+    ).to_json().encode()
 
 
 def test_publish_bundle_writes_candidate_matched_dat_and_manifest(
@@ -200,6 +233,7 @@ def test_publish_bundle_writes_candidate_matched_dat_and_manifest(
         "candidate-0001.dat",
         "candidate-0001.diffusion.json",
         "candidate-0001.pdb",
+        "candidate-0001.sampler-trace.json",
     ]
     dat = DatRecord.load(destination / "candidate-0001.dat")
     assert dat.added_keys() == {
@@ -216,8 +250,61 @@ def test_publish_bundle_writes_candidate_matched_dat_and_manifest(
         (destination / "candidate-0001.diffusion.json").read_text()
     )
     assert bundle["candidates"][0]["seed"] == 7
+    assert bundle["requested_profile"] == "test"
     assert manifest["candidate"]["seed"] == 7
+    assert manifest["candidate"]["sampler_trace_artifact"] == {
+        "path": "candidate-0001.sampler-trace.json",
+        "sha256": _digest(_trace_bytes(request)),
+    }
     assert manifest["artifacts"][0]["sha256"] == _digest(candidate_bytes)
+    assert bundle["candidates"][0]["sampler_trace"]["sha256"] == _digest(
+        _trace_bytes(request)
+    )
+    assert any(
+        artifact["role"] == "sampler-trace"
+        and artifact["sha256"] == _digest(_trace_bytes(request))
+        for artifact in manifest["artifacts"]
+    )
+
+
+@pytest.mark.parametrize("malformed", (True, False))
+def test_publication_rejects_invalid_sampler_trace_before_staging(
+    tmp_path: Path,
+    malformed: bool,
+) -> None:
+    _source, candidate_bytes, request = _source_candidate_request()
+    result = _validated_result(request, candidate_bytes)
+    workspace = _workspace(tmp_path, candidate_bytes)
+    trace_path = workspace / "candidates" / "candidate-0001.trace.json"
+    trace_bytes = (
+        b"not-json"
+        if malformed
+        else _trace_bytes(request, fixed_atoms=request.fixed_atoms[:-1])
+    )
+    trace_path.write_bytes(trace_bytes)
+    candidate = replace(
+        result.candidates[0],
+        sampler_trace_artifact=ArtifactReference(
+            "candidates/candidate-0001.trace.json",
+            _digest(trace_bytes),
+        ),
+    )
+    result = replace(result, candidates=(candidate,))
+    destination = tmp_path / ("malformed-trace" if malformed else "mismatched-trace")
+
+    with pytest.raises(
+        DiffusionPipelineError,
+        match="invalid sampler trace",
+    ):
+        publish_diffusion_bundle(
+            request,
+            result,
+            workspace=workspace,
+            destination_bundle=destination,
+        )
+
+    assert not destination.exists()
+    assert not list(tmp_path.glob(f".{destination.name}.*.tmp"))
 
 
 def test_publication_rejects_existing_destination_and_cleans_staging(

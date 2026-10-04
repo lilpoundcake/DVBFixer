@@ -35,6 +35,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResourceMetrics,
     RunnerResult,
 )
+from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 from dvbfixer.model.diffusion.validate import validate_runner_result
 
 if TYPE_CHECKING:
@@ -455,11 +456,40 @@ def run(
         request,
         passthrough_coordinates,
     )
+    resource_metrics = RunnerResourceMetrics(
+        wall_time_seconds=time.perf_counter() - start,
+        model_load_seconds=model_load_seconds,
+        peak_vram_bytes=torch.cuda.max_memory_allocated(),
+    )
+    trace_artifact = write_sampler_trace(
+        workspace,
+        output_dir / "sampler-trace.json",
+        build_sampler_trace(
+            profile="boltz-2-research",
+            engine_repository="https://github.com/jwohlwend/boltz",
+            engine_revision=_BOLTZ_REVISION,
+            patch_identity="maintained-per-step-callback-patch",
+            atom_order=atom_axis,
+            fixed_atoms=request.fixed_atoms,
+            represented_fixed_atoms=represented_fixed,
+            device=torch.cuda.get_device_name(0),
+            fallback_disabled=True,
+            denoising_update_count=sampling_steps,
+            projection_errors_angstrom=tuple(
+                float(step["post_projection_max_error_angstrom"])
+                for step in callback.steps
+            ),
+            final_fixed_coordinate_restoration=False,
+            resource_metrics=resource_metrics,
+            sampler_evidence_complete=True,
+        ),
+    )
 
     candidate = RunnerCandidate(
         candidate_id=f"boltz-2-reinjection-seed-{seed}",
         seed=seed,
         coordinate_artifact=_relative_artifact(workspace, candidate_path),
+        sampler_trace_artifact=trace_artifact,
         generated_atoms=request.generated_atoms,
         generated_residues=tuple(
             residue for gap in request.gaps for residue in gap.generated_residues
@@ -474,7 +504,7 @@ def run(
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
             backend="boltz-2-hook-spike",
-            runner_protocol_version=3,
+            runner_protocol_version=4,
             engine_repository="https://github.com/jwohlwend/boltz",
             engine_revision=_BOLTZ_REVISION,
             checkpoint_sha256=_CHECKPOINT_SHA256,
@@ -486,11 +516,7 @@ def run(
             deterministic_algorithms=torch.are_deterministic_algorithms_enabled(),
             deterministic_flags=("CUBLAS_WORKSPACE_CONFIG=:4096:8",),
         ),
-        resource_metrics=RunnerResourceMetrics(
-            wall_time_seconds=time.perf_counter() - start,
-            model_load_seconds=model_load_seconds,
-            peak_vram_bytes=torch.cuda.max_memory_allocated(),
-        ),
+        resource_metrics=resource_metrics,
     )
     validation = validate_runner_result(request, runner_result, workspace=workspace)[0]
     summary = {

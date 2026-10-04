@@ -2,6 +2,23 @@
 
 [← README](../README.md)
 
+- **The diffusion model backend is experimental and profile-specific.** It
+  accepts only one canonical protein chain with one internal 3-12-residue gap
+  and is unavailable through batch, GUI, `zbs`, and `homology`. It requires an
+  operator-managed external environment and checkpoint and never falls back to
+  MODELLER or another device. The Apple MPS smoke passed, but its evidence is
+  descriptive and training membership remains unresolved. The Linux/CUDA
+  production wrapper still requires checkpoint-backed NVIDIA acceptance.
+  Each candidate bundle includes a bounded, digest-verified sampler trace.
+  `doctor` now reports static profile status and can perform a selected-profile,
+  no-inference runner handshake; a passing handshake does not replace the
+  outstanding hardware acceptance. Operator-supplied runner commands are
+  trusted code: core containment checks validate returned artifacts but do not
+  prevent the process from writing outside its workspace. Maintained wrappers
+  are required to keep writes inside that workspace; use an external sandbox
+  or container when this must be enforced. See
+  [the model command](commands/model.md#experimental-diffusion-scope).
+
 - **OpenMM CUDA must not use a toolkit newer than the host driver supports.**
   The A100 research host uses NVIDIA driver `535.104.05` (CUDA 12.2
   compatibility), while the main environment resolved CUDA/NVRTC 12.9 alongside

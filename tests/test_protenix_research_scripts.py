@@ -5,7 +5,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 
 import numpy as np
 import pytest
@@ -18,6 +18,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerDiagnostics,
     RunnerResult,
 )
+from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CHECKPOINT_SMOKE = REPO_ROOT / "deploy/protenix-v1/checkpoint_gap_smoke.py"
@@ -30,6 +31,16 @@ def _load_refinement_script() -> ModuleType:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def test_legacy_refinement_does_not_claim_sampler_evidence() -> None:
+    source = (REPO_ROOT / "deploy/protenix-v1/refine_candidate.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'profile="unknown-source-legacy-refinement"' in source
+    assert "denoising_update_count=None" in source
+    assert "sampler_evidence_complete=False" in source
 
 
 def _load_production_runner() -> ModuleType:
@@ -109,7 +120,7 @@ def test_production_runner_writes_protocol_result(
         runner_diagnostics=RunnerDiagnostics(exit_code=1, timed_out=False),
         backend_provenance=BackendProvenance(
             backend="fake-protenix",
-            runner_protocol_version=3,
+            runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="builtin://test",
             engine_revision="test",
             device="cuda:0",
@@ -160,3 +171,77 @@ def test_production_runner_rejects_wrong_profile(tmp_path: Path) -> None:
             profile="protpardelle-1c-mps",
             checkpoint=tmp_path / "checkpoint.pt",
         )
+
+
+def test_production_source_tree_rejects_unapproved_python_changes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production = _load_production_runner()
+    untracked = ""
+
+    def fake_run(command: list[str], **_kwargs: object) -> SimpleNamespace:
+        if "--name-only" in command:
+            return SimpleNamespace(
+                stdout="protenix/model/generator.py\nprotenix/model/protenix.py\n"
+            )
+        return SimpleNamespace(stdout=untracked)
+
+    monkeypatch.setattr(production.subprocess, "run", fake_run)
+
+    assert production._source_tree_is_frozen(tmp_path)
+    untracked = "protenix/model/__pycache__/generator.cpython-313.pyc\n"
+    assert not production._source_tree_is_frozen(tmp_path)
+    untracked = "protenix/model/debug_hook.cpython-313.so\n"
+    assert not production._source_tree_is_frozen(tmp_path)
+
+
+def test_production_preflight_reports_cuda_without_loading_adapter(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production = _load_production_runner()
+    checkpoint = tmp_path / "checkpoint.pt"
+    checkpoint.write_bytes(b"checkpoint")
+    patch_text = (REPO_ROOT / "deploy/protenix-v1/per-step-callback.patch").read_text()
+    monkeypatch.setattr(production.sys, "platform", "linux")
+    monkeypatch.setattr(production.sys, "version_info", (3, 13))
+    monkeypatch.setattr(production.platform, "machine", lambda: "x86_64")
+    monkeypatch.setenv("PYTHONNOUSERSITE", "1")
+    monkeypatch.setattr(production.shutil, "which", lambda _name: "/usr/bin/kalign")
+    monkeypatch.setattr(production, "_source_root", lambda: tmp_path)
+    monkeypatch.setattr(production, "_source_tree_is_frozen", lambda _root: True)
+    monkeypatch.setattr(
+        production,
+        "_sha256",
+        lambda path: production.PATCH_SHA256
+        if path.name == "per-step-callback.patch"
+        else production.CHECKPOINT_SHA256,
+    )
+    monkeypatch.setattr(
+        production.subprocess,
+        "run",
+        lambda command, **_kwargs: SimpleNamespace(
+            stdout=production.ENGINE_REVISION if command[-2:] == ["rev-parse", "HEAD"] else patch_text
+        ),
+    )
+    fake_torch = SimpleNamespace(
+        __version__="2.13.0+cu129",
+        version=SimpleNamespace(cuda="12.9"),
+        cuda=SimpleNamespace(
+            is_available=lambda: False,
+            current_device=lambda: 0,
+            is_bf16_supported=lambda: True,
+        ),
+    )
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setattr(
+        production,
+        "_load_production_scripts",
+        lambda: pytest.fail("preflight must not load production adapters"),
+    )
+
+    report = production.preflight_report(production.PROFILE, checkpoint)
+
+    assert {issue.code.value for issue in report.issues} == {"missing-cuda"}
+    assert report.facts.accelerator_available is False

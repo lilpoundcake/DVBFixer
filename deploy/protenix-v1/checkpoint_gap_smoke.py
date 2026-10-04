@@ -32,6 +32,7 @@ from dvbfixer.model.diffusion.contract import (
 from dvbfixer.model.diffusion.geometry import weighted_kabsch
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 from dvbfixer.model.diffusion.sampler import SamplingAblationMode
+from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 from dvbfixer.model.diffusion.validate import validate_runner_result
 
 _ONE_TO_THREE = {
@@ -59,6 +60,7 @@ _ONE_TO_THREE = {
 
 _CHECKPOINT_NAME = "protenix_base_default_v1.0.0.pt"
 _CHECKPOINT_SHA256 = "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
+_PATCH_SHA256 = "244cfe4fc876fd71df8737b805fb9b290069211fecc5178ef02029424b2895d0"
 
 
 def _sha256(path: Path) -> str:
@@ -357,10 +359,41 @@ def run(
         final = _synchronize_frame(final, atom_axis, fixed_coordinates)
     output_path = output_dir / "candidate.pdb"
     _write_candidate(output_path, final, atom_axis, residue_names, elements, request)
+    resource_metrics = RunnerResourceMetrics(
+        wall_time_seconds=time.perf_counter() - start,
+        peak_vram_bytes=torch.cuda.max_memory_allocated(),
+    )
+    trace_artifact = write_sampler_trace(
+        workspace,
+        output_dir / "sampler-trace.json",
+        build_sampler_trace(
+            profile=(
+                "protenix-v1-cuda"
+                if ablation_mode is SamplingAblationMode.REINJECTION
+                else "protenix-v1-template-only-research"
+            ),
+            engine_repository="https://github.com/bytedance/Protenix",
+            engine_revision="85767b811c40ed46e73a9b39519cf6bfca8701ba",
+            patch_identity=f"sha256:{_PATCH_SHA256}",
+            atom_order=atom_axis,
+            fixed_atoms=request.fixed_atoms,
+            device=str(runner.device),
+            fallback_disabled=True,
+            denoising_update_count=steps,
+            projection_errors_angstrom=tuple(
+                float(step["post_projection_max_error_angstrom"])
+                for step in callback_steps
+            ),
+            final_fixed_coordinate_restoration=False,
+            resource_metrics=resource_metrics,
+            sampler_evidence_complete=True,
+        ),
+    )
     candidate = RunnerCandidate(
         candidate_id=f"protenix-v1-{ablation_mode.value}-seed-{seed}",
         seed=seed,
         coordinate_artifact=_relative_artifact(workspace, output_path),
+        sampler_trace_artifact=trace_artifact,
         generated_atoms=request.generated_atoms,
         generated_residues=tuple(
             residue for gap in request.gaps for residue in gap.generated_residues
@@ -386,10 +419,7 @@ def run(
             cuda_version=str(torch.version.cuda or ""),
             deterministic_algorithms=bool(runner.configs.deterministic),
         ),
-        resource_metrics=RunnerResourceMetrics(
-            wall_time_seconds=time.perf_counter() - start,
-            peak_vram_bytes=torch.cuda.max_memory_allocated(),
-        ),
+        resource_metrics=resource_metrics,
     )
     validation = validate_runner_result(request, runner_result, workspace=workspace)[0]
     summary = {

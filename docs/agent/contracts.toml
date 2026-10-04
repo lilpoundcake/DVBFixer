@@ -324,34 +324,39 @@ known_divergences = ["Legacy amber and charmm retain permissive component handli
 [contracts.diffusion-runner-publication-provenance]
 status = "partial"
 owner = "src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline"
-description = "Internal versioned diffusion request/runner/validation boundary with fail-closed scope admission, candidate-matched DatRecord generation, separate provenance, and one-rename result-bundle publication."
+description = "Public opt-in experimental diffusion request/runner/validation boundary with fail-closed scope admission, candidate-matched DatRecord generation, bounded digest-linked sampler traces, separate provenance, and one-rename result-bundle publication."
 producers = [
+  "src/dvbfixer/model/diffusion_cli.py::run_diffusion_model",
   "src/dvbfixer/model/diffusion/runner.py::run_diffusion_runner",
   "src/dvbfixer/model/diffusion/validate.py::build_validated_result",
   "src/dvbfixer/model/diffusion/pipeline.py::publish_diffusion_bundle",
 ]
 consumers = [
-  "research and future explicit diffusion adapters",
+  "src/dvbfixer/model/pipeline.py::main",
+  "explicit Protenix CUDA and Protpardelle MPS protocol runners",
   "downstream minimize through the published candidate DatRecord",
 ]
 identity_keys = [
   "atom=(case-sensitive chain,residue_number,insertion_code,atom_name)",
   "residue=(case-sensitive chain,residue_number,insertion_code)",
   "candidate=(candidate_id,seed,coordinate SHA-256)",
+  "sampler trace=(candidate_id,trace SHA-256)",
   "bundle=destination directory committed by one same-parent rename",
 ]
 source_mutation = "The normalized source is read-only. Runner and validation artifacts remain in a removable isolated workspace; publication writes a new destination directory and rejects an existing one."
-commit_behavior = "Each selected candidate is re-read as a private regular digest-matched file; PDB, DatRecord JSON, sanitized provenance, and bundle index are fsynced in a hidden same-parent directory, then exposed by one directory rename."
-failure_behavior = "Unsupported scope does not launch a runner. Runner, parsing, validation, digest, file-type, staging, or rename failure publishes no destination bundle and cleans hidden staging; external engine scientific/GPU phases remain unimplemented."
+commit_behavior = "Each selected candidate and sampler trace is re-read as a private regular digest-matched file; PDB, DatRecord JSON, bounded trace, sanitized provenance, and bundle index are fsynced in a hidden same-parent directory, then exposed by one directory rename."
+failure_behavior = "Unsupported scope does not launch a runner. Runner, parsing, validation, digest, file-type, staging, or rename failure publishes no destination bundle and cleans hidden staging; there is no automatic backend or device fallback."
 test_files = [
+  "tests/test_diffusion_cli.py",
   "tests/test_diffusion_pipeline.py",
   "tests/test_diffusion_provenance.py",
   "tests/test_diffusion_runner.py",
+  "tests/test_diffusion_runner_refinement.py",
   "tests/test_diffusion_scope.py",
   "tests/test_diffusion_validate.py",
 ]
 known_divergences = [
-  "The internal pipeline is not wired to public model, homology, zbs, GUI, or argparse dispatch.",
+  "Public dispatch is limited to single-input model CLI; homology, zbs, batch, and GUI do not expose diffusion.",
   "Atomic directory rename assumes one local filesystem; durability still depends on host filesystem semantics.",
-  "The pinned RFdiffusion v1 adapter has repeatable passing refined A100 candidates across regular, difficult, interface, and insertion-code strata. The private maintained Protenix path passes a three-way ablation and four repeatable single-chain cases. The private Boltz-2 patch passes synthetic sampler hooks and base-model inference, but lacks checkpoint-backed request-identity gap mapping. No diffusion engine is wired to public dispatch.",
+  "The Apple MPS public smoke passed, but evidence remains descriptive and training membership unresolved; the Linux production wrapper still requires checkpoint-backed NVIDIA acceptance.",
 ]

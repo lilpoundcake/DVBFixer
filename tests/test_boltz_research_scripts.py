@@ -8,7 +8,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
+from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity, fixed_mask_digest
+from dvbfixer.model.diffusion.trace import build_sampler_trace
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PATCH = REPO_ROOT / "deploy/boltz-2/per-step-callback.patch"
@@ -89,6 +90,9 @@ def test_checkpoint_input_and_refinement_remain_fail_closed() -> None:
     assert "generated_atoms=request.generated_atoms" in refinement
     assert "validate_runner_result(request, runner_result" in refinement
     assert 'backend="boltz-2-hook-spike+boundary-refinement"' in refinement
+    assert 'profile="unknown-source-legacy-refinement"' in refinement
+    assert "denoising_update_count=None" in refinement
+    assert "sampler_evidence_complete=False" in refinement
 
 
 def test_atom_mapping_validates_token_and_feature_axes() -> None:
@@ -202,6 +206,23 @@ def test_terminal_oxt_is_exact_pass_through_not_a_model_atom() -> None:
 
     assert represented == request.fixed_atoms[:2]
     assert passthrough == (AtomIdentity("A", "11", "", "OXT"),)
+    trace = build_sampler_trace(
+        profile="boltz-2-research",
+        engine_repository="https://github.com/jwohlwend/boltz",
+        engine_revision="test",
+        patch_identity="test",
+        atom_order=axis,
+        fixed_atoms=request.fixed_atoms,
+        represented_fixed_atoms=represented,
+        device="cuda:test",
+        fallback_disabled=True,
+        denoising_update_count=1,
+        projection_errors_angstrom=(0.0,),
+        final_fixed_coordinate_restoration=False,
+    )
+    assert trace.fixed_atoms == request.fixed_atoms
+    assert trace.represented_fixed_atoms == represented
+    assert trace.fixed_mask_sha256 == fixed_mask_digest(axis, represented)
 
 
 def test_checkpoint_writer_restores_terminal_oxt_exactly(tmp_path: Path) -> None:

@@ -137,6 +137,33 @@ does not remove or deprecate MODELLER. It remains the supported production
 baseline unless a later, evidence-backed decision changes that policy; see the
 [backend research note](research/reconstruction-and-modeling-backends.md).
 
+## Experimental diffusion runner environments
+
+`dvbfixer model --backend diffusion` is an explicit, narrow experimental path;
+MODELLER remains the default. The core DVBFixer environment intentionally does
+not install PyTorch, CUDA/MPS packages, Protenix, Protpardelle, or checkpoints.
+Create the selected runner environment separately and provide both the runner
+and local checkpoint paths to the CLI. DVBFixer never downloads checkpoints and
+never falls back to another profile or MODELLER.
+
+- Linux/NVIDIA `protenix-v1-cuda`: follow
+  [`deploy/protenix-v1/README.md`](../deploy/protenix-v1/README.md). The portable
+  wrapper exists, but checkpoint-backed acceptance on the pinned NVIDIA host is
+  still required.
+- Native Apple Silicon `protpardelle-1c-mps`: follow
+  [`deploy/protpardelle-1c/README.md`](../deploy/protpardelle-1c/README.md) and
+  use its pinned arm64 environment. Set `PYTORCH_ENABLE_MPS_FALLBACK=0` before
+  Python starts. Apple evidence is descriptive and training membership remains
+  unresolved.
+
+The supported input slice and directory-bundle output are documented under
+[`dvbfixer model`](commands/model.md#experimental-diffusion-scope).
+Before inference, inspect static profile status or run the no-inference
+environment handshake with `dvbfixer doctor`; see the
+[`doctor` command](commands/doctor.md). A successful handshake verifies the
+selected wrapper and checkpoint environment but does not replace hardware
+cohort acceptance or prove broader scientific support.
+
 **Free RESP charges (PySCF)** — already included in `environment.yml`:
 
 PySCF is pip-installed automatically by `environment.yml`. It enables the recommended free RESP path:

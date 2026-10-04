@@ -16,10 +16,11 @@ backends are:
 - `tleap-reduce` (opt-in): deterministic pure-protein AmberTools/Reduce path
   that rejects unsupported chemistry.
 
-PDBFixer and Salilab MODELLER are supported production dependencies. Research
-into atom-reconstruction, loop-modeling, homology-modeling, diffusion, or
-geometry-regularization alternatives does not deprecate them and must not be
-described as shipped behavior.
+PDBFixer and Salilab MODELLER are supported production dependencies. The narrow
+`model --backend diffusion` path is shipped only as an explicit experimental
+CLI; batch, GUI, ZBS, and Homology do not expose it. Other atom-reconstruction,
+loop-modeling, homology-modeling, and geometry-regularization alternatives
+remain research and must not be described as shipped behavior.
 
 ## Required workflow
 

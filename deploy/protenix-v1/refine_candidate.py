@@ -6,7 +6,7 @@ import argparse
 import hashlib
 import json
 import time
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 
 import numpy as np
@@ -20,6 +20,7 @@ from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
     AtomIdentity,
+    BackendOption,
     BackendProvenance,
     DiffusionRequest,
     DiffusionStatus,
@@ -28,6 +29,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResourceMetrics,
     RunnerResult,
 )
+from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 from dvbfixer.model.diffusion.validate import validate_runner_result
 
 
@@ -134,11 +136,43 @@ def run(
     )
     output_path = output_dir / "candidate.pdb"
     output_path.write_text(refined_text, encoding="ascii")
+    resource_metrics = RunnerResourceMetrics(wall_time_seconds=time.perf_counter() - start)
+    trace = build_sampler_trace(
+        profile="unknown-source-legacy-refinement",
+        engine_repository=engine_repository,
+        engine_revision=engine_revision,
+        patch_identity="sampler-evidence-unavailable",
+        atom_order=(*request.fixed_atoms, *request.generated_atoms),
+        fixed_atoms=request.fixed_atoms,
+        represented_fixed_atoms=(),
+        device="unknown-input-sampler-device",
+        fallback_disabled=False,
+        denoising_update_count=None,
+        final_fixed_coordinate_restoration=False,
+        resource_metrics=resource_metrics,
+        sampler_evidence_complete=False,
+    )
+    trace = replace(
+        trace,
+        refinement_mode="localized-openmm-boundary-refinement",
+        refinement_parameters=(
+            BackendOption("platform", refinement.platform),
+            BackendOption("restart_count", str(restart_count)),
+        ),
+        localized_refinement_residues=gap.movable_junction_residues,
+        final_heavy_coordinate_operations=("localized-openmm-boundary-refinement",),
+    )
+    trace_artifact = write_sampler_trace(
+        workspace,
+        output_dir / "sampler-trace.json",
+        trace,
+    )
 
     candidate = RunnerCandidate(
         candidate_id=f"{backend}-refined-seed-{request.seeds[0]}",
         seed=request.seeds[0],
         coordinate_artifact=_relative_artifact(workspace, output_path),
+        sampler_trace_artifact=trace_artifact,
         generated_atoms=request.generated_atoms,
         generated_residues=gap.generated_residues,
         raw_backend_score=None,
@@ -151,11 +185,11 @@ def run(
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
             backend=f"{backend}+boundary-refinement",
-            runner_protocol_version=3,
+            runner_protocol_version=4,
             engine_repository=engine_repository,
             engine_revision=engine_revision,
             checkpoint_sha256=checkpoint_sha256,
-            device="cuda" if refinement.platform == "CUDA" else "cpu",
+            device="unknown-input-sampler-device",
             precision="mixed" if refinement.platform == "CUDA" else "float64",
             framework="OpenMM",
             deterministic_algorithms=refinement.platform == "Reference",
@@ -170,7 +204,7 @@ def run(
                 else (f"OpenMM {refinement.platform} minimization",)
             ),
         ),
-        resource_metrics=RunnerResourceMetrics(wall_time_seconds=time.perf_counter() - start),
+        resource_metrics=resource_metrics,
     )
     validation = validate_runner_result(request, runner_result, workspace=workspace)[0]
     reference_path = workspace / "reference.pdb"

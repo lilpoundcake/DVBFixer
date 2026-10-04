@@ -2,9 +2,9 @@
 
 Status: partial
 
-Verified on: 2026-09-22
+Verified on: 2026-10-02
 
-Verified at commit: `7671952f89ea7b635b80e4d633f37e45f41825d4`
+Verified at commit: `68d878f50d069268b60250cb162da2b9adf486cb`
 
 ## Purpose
 
@@ -37,7 +37,7 @@ contracts; it does not reproduce scientific algorithms.
 | Pure-protein tleap/Reduce preparation | implemented | `prep_backend.py::run_prep` | Opt-in; unsupported chemistry fails rather than falling back automatically |
 | Protonation decisions and H placement | implemented | `protonate.py::decide_protonation`, `prepare/pipeline.py::_run_propka_reduce_variants` | Decision evidence, topology H placement, and output naming remain separate concerns |
 | Preparation provenance handoff | implemented | `ffutils/dat.py::DatRecord` | Model/homology produce; prepare merges; minimize consumes |
-| Diffusion protocol and private engine benchmarks | partial | `model/diffusion/contract.py`, `masks.py`, `scope.py`, `geometry.py`, `boundary_refinement.py`, `runner.py`, `validate.py`, `pipeline.py`, `preflight.py`, `provenance.py`, `benchmark.py`, `sampler.py`, `rfdiffusion_v1.py` | Versioned protocol, containment, independent validation, provenance, publication, and benchmark metrics are implemented. RFdiffusion has repeatable passing A100/MODELLER evidence across regular, difficult, interface, and insertion-code strata. The maintained Protenix path passes its initial three-way ablation plus three additional single-chain cases. The maintained Boltz-2 hook and base-model checkpoint smokes pass, but checkpoint-backed gap identity mapping remains open. Complete residue-dependent validation, multichain/chemical-context all-atom evidence, final image smoke, and public dispatch remain open. |
+| Experimental diffusion gap reconstruction | partial | `model/diffusion_cli.py`, `model/diffusion/contract.py`, `scope.py`, `runner.py`, `validate.py`, `pipeline.py`, `provenance.py`, `deploy/protenix-v1/production_runner.py`, `deploy/protpardelle-1c/production_runner.py` | Explicit single-input `model --backend diffusion` supports a narrow one-chain, one-internal-gap canonical-protein scope and publishes an independently validated atomic directory bundle with a bounded digest-linked sampler trace per candidate. MODELLER remains default. Doctor reporting and Apple production-wrapper acceptance over the frozen 231-case cohort are complete; Linux/NVIDIA production acceptance, broader chemistry/scope, batch, GUI, ZBS, and Homology remain open. |
 | Uniform hard L-chirality output gate | partial | `ffutils/geometry.py::assert_all_l` | Modeled candidates assert; prepare/protonate paths can only repair or warn before minimize |
 
 ## Entry Points
@@ -45,16 +45,17 @@ contracts; it does not reproduce scientific algorithms.
 | Change | Start symbol |
 |---|---|
 | Gap-model workflow | `src/dvbfixer/model/pipeline.py::main` |
-| Proposed diffusion contract | `src/dvbfixer/model/diffusion/contract.py::DiffusionRequest`, `DiffusionResult` |
-| Proposed diffusion scope boundary | `src/dvbfixer/model/diffusion/scope.py::assess_diffusion_scope` |
-| Proposed diffusion internal pipeline | `src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline` |
-| Proposed diffusion adapter preflight | `src/dvbfixer/model/diffusion/preflight.py::assess_adapter_preflight` |
-| Proposed diffusion provenance | `src/dvbfixer/model/diffusion/provenance.py::DiffusionProvenanceManifest` |
+| Experimental diffusion CLI | `src/dvbfixer/model/diffusion_cli.py::run_diffusion_model` |
+| Diffusion contract | `src/dvbfixer/model/diffusion/contract.py::DiffusionRequest`, `DiffusionResult` |
+| Diffusion scope boundary | `src/dvbfixer/model/diffusion/scope.py::assess_diffusion_scope` |
+| Diffusion pipeline | `src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline` |
+| Diffusion adapter preflight | `src/dvbfixer/model/diffusion/preflight.py::assess_adapter_preflight` |
+| Diffusion provenance | `src/dvbfixer/model/diffusion/provenance.py::DiffusionProvenanceManifest` |
 | Proposed diffusion CPU benchmarks | `src/dvbfixer/model/diffusion/benchmark.py::assess_same_seed_repeatability` |
 | Proposed diffusion sampler conformance | `src/dvbfixer/model/diffusion/sampler.py::assess_sampler_conformance` |
-| Proposed diffusion runner boundary | `src/dvbfixer/model/diffusion/runner.py::run_diffusion_runner` |
+| Diffusion runner boundary | `src/dvbfixer/model/diffusion/runner.py::run_diffusion_runner` |
 | Internal RFdiffusion v1 benchmark adapter | `src/dvbfixer/model/diffusion/rfdiffusion_v1.py::run_adapter` |
-| Proposed diffusion validation boundary | `src/dvbfixer/model/diffusion/validate.py::validate_runner_result`, `build_validated_result` |
+| Diffusion validation boundary | `src/dvbfixer/model/diffusion/validate.py::validate_runner_result`, `build_validated_result` |
 | Legacy atom completion | `src/dvbfixer/prepare/pipeline.py::run_pdbfixer` |
 | Backend selection/final prepare writes | `src/dvbfixer/prepare/pipeline.py::main` |
 | tleap/Reduce behavior | `src/dvbfixer/prep_backend.py::run_prep` |
@@ -77,6 +78,9 @@ contracts; it does not reproduce scientific algorithms.
 - Model marks every atom in a rebuilt residue as added. Prepare records its own
   additions and merges an adjacent upstream sidecar when found. Minimize
   re-resolves those identities against its final topology before restraint use.
+- Diffusion is explicit opt-in and never falls back to MODELLER or another
+  profile/device. Its `-o` destination is a new directory bundle; MODELLER keeps
+  the existing file-output contract.
 - Supplied ligand SMILES is authoritative for mapped, isolated, single-residue
   molecules. It is legacy-only, incompatible with heterogen stripping and
   disabled heterogen-H placement, and must fail rather than guess on an
@@ -135,7 +139,7 @@ contracts; it does not reproduce scientific algorithms.
 - Model may materialize an inferred-CONECT input, creates a temporary workspace,
   and writes one or more candidate PDBs with candidate-matched sidecars when
   provenance exists. The no-SEQRES/no-FASTA shortcut only copies the PDB.
-- The proposed diffusion scope boundary verifies the normalized-input digest
+- The diffusion scope boundary verifies the normalized-input digest
   before parsing and returns explicit unsupported reasons for out-of-slice target
   sequence, gap, model, altloc, chemistry, heavy fixed-mask, placement, retained
   source-link, and detectable D-chirality cases. The runner creates an isolated
@@ -145,16 +149,18 @@ contracts; it does not reproduce scientific algorithms.
   claim independent validation. Validation reopens verified source/candidate
   artifacts, applies first-slice hard gates, calls final `assert_all_l`, rejects
   failed candidates, and deterministically ranks passing candidates without
-  treating backend-native scores as commensurate. The internal pipeline launches
+  treating backend-native scores as commensurate. The pipeline launches
   no runner for unsupported scope, publishes nothing for failed results, builds
   each candidate `.dat` through `DatRecord`, writes sanitized separate provenance,
   fsyncs a hidden same-parent bundle, and exposes the complete set with one
-  atomic no-replace directory rename. Local adapter preflight checks executable,
+  atomic no-replace directory rename. The public single-input `model` dispatcher
+  builds the request and requires an explicit profile, runner, and local
+  checkpoint. Local adapter preflight checks executable,
   immutable image identity, checkpoint presence/digest, CUDA availability, and
   protocol compatibility without downloading artifacts. Sampler conformance
   keeps ordinary template conditioning distinct from evidence-backed per-step
-  reinjection and boundary refinement. This internal path still has no public
-  model dispatch.
+  reinjection and boundary refinement. Batch, GUI, ZBS, and Homology do not
+  expose this path.
 - Legacy prepare can create temporary inferred, renamed, deletion-cleaned,
   capped, GLYCAM, PROPKA, and canonical-CONECT PDBs. It writes/replaces the
   output PDB and sidecar and may rewrite the output for variants, heterogen H,
@@ -199,19 +205,19 @@ contracts; it does not reproduce scientific algorithms.
 - No geometry-regularization backend is shipped. The
   [`whole-complex relaxation note`](../../research/whole-complex-relaxation.md)
   is research, not current preparation behavior.
-- Alternative atom-reconstruction, loop-modeling, homology-modeling, and
-  independently implemented template-constrained diffusion backends remain
-  research or proposed work, not shipped behavior. The accepted
+- Alternative atom-reconstruction, loop-modeling, and homology-modeling
+  backends remain research or proposed work. The accepted
   [`experimental diffusion boundary ADR`](../../adr/0010-experimental-diffusion-gap-reconstruction-boundary.md)
-  fixes the isolation, provenance, no-fallback, default-backend, and independent
-  implementation policies without accepting a public diffusion capability. See
+  and its [`public CLI successor`](../../adr/0011-experimental-diffusion-cli.md)
+  fix the isolation, provenance, no-fallback, default-backend, narrow-scope, and
+  profile-evidence policies. See
   the [`reconstruction and modeling backend note`](../../research/reconstruction-and-modeling-backends.md),
   its versioned
   [`diffusion research inventory`](../../research/diffusion-gap-reconstruction-inventory.toml),
-  and the proposed
+  and the active
   [`diffusion gap-reconstruction implementation plan`](../../plans/diffusion-gap-reconstruction.md).
-  PDBFixer and Salilab MODELLER remain supported production baselines; none of
-  these documents deprecates either dependency.
+  PDBFixer and Salilab MODELLER remain supported production baselines; the
+  experimental diffusion CLI does not deprecate either dependency.
 
 ## Focused Verification
 

@@ -161,9 +161,10 @@ eligibility or the preregistered selection rule.
 - [x] Prohibit automatic fallback between diffusion and MODELLER.
 - [x] Keep Boltz-2 as proxy-only evidence.
 - [x] Preserve every frozen hard gate in the production path.
-- [ ] Complete the production runner environment and checkpoint distribution review.
-- [ ] Add public CLI dispatch and production request construction.
-- [ ] Add production PDB/`.dat` publication without partial outputs.
+- [ ] Complete the Linux production runner environment and checkpoint-backed
+  NVIDIA acceptance; checkpoint redistribution remains out of scope.
+- [x] Add public CLI dispatch and production request construction.
+- [x] Add production PDB/`.dat` publication without partial outputs.
 - [ ] Add representative multichain/interface evidence before claiming that scope.
 - [ ] Add retained ligand, glycan, PTM, cofactor, metal, or covalent-link evidence before claiming those scopes.
 - [ ] Make production support a separate release decision after the experimental integration passes deployment acceptance.

@@ -12,9 +12,10 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ### Added
 
-- Added an internal versioned diffusion request, scope-admission, isolated
-  runner, independent validation, provenance, and atomic bundle-publication
-  foundation for canonical-protein gap reconstruction research.
+- Added an explicit experimental `model --backend diffusion` CLI for a narrow
+  canonical-protein internal-gap scope, backed by a versioned isolated runner,
+  independent validation, bounded digest-linked sampler traces, provenance, and
+  atomic directory-bundle publication.
 - Added pinned Protenix, Boltz, RFdiffusion, and Protpardelle research adapters,
   benchmark tooling, fixtures, and frozen evidence records without adding ML
   frameworks or checkpoints to the core environment.
@@ -28,21 +29,29 @@ best-effort summaries; consult `git log` for exact provenance.
 - Kept diffusion-only Ramachandran and pooled chi1/chi2 hard gates inside the
   experimental diffusion package so generic `diagnose` retains its current
   report-only contract and dependency boundary.
-- Recorded the physical Apple Silicon handoff and required CPU/MPS smoke gates
-  before production-runner or public CLI work continues.
+- Added separate protocol runners for the Apple MPS Protpardelle profile and the
+  Linux/CUDA Protenix profile, plus a bounded no-inference `doctor` handshake
+  that is also enforced before public diffusion inference. The Apple public CLI
+  smoke and frozen 231-case production-wrapper cohort completed; Linux
+  checkpoint-backed production acceptance remains pending.
+- Raised the runner contract to schema 4 with mandatory per-candidate sampler
+  traces, exact generated/fixed sampler-axis identity checks, profile evidence
+  labels in publication provenance, and frozen source-tree verification.
 
 ### Compatibility
 
-- MODELLER remains the default and only public backend of `dvbfixer model`.
-  Diffusion is not yet exposed through CLI, GUI, batch, Homology, or ZBS, and
-  no automatic scientific fallback or checkpoint download was introduced.
+- MODELLER remains the default and production-supported backend of
+  `dvbfixer model`. Diffusion is explicit and experimental, is not exposed
+  through GUI, batch, Homology, or ZBS, and introduces no automatic scientific
+  fallback or checkpoint download.
 
 ### Verification
 
 - The hardware-independent integration passed the full Python 3.11 non-slow
-  suite (850 passed, 9 skipped), the GUI suite (235 passed), mypy, Ruff,
+  suite (907 passed, 9 skipped), the GUI suite (235 passed), mypy, Ruff,
   generated-reference checks, DDD map validation, and whitespace validation.
-  Physical MPS acceptance remains required on Apple Silicon.
+  Later Apple runner smoke passed on native M3 Pro hardware; Linux/NVIDIA
+  production-runner acceptance remains required.
 
 ## [0.8.9] — 2026-09-30
 

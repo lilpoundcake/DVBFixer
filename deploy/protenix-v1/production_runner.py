@@ -17,7 +17,14 @@ from functools import partial
 from pathlib import Path
 from types import ModuleType
 
-from dvbfixer.model.diffusion.contract import RunnerResult
+from dvbfixer.model.diffusion.contract import DIFFUSION_SCHEMA_VERSION, RunnerResult
+from dvbfixer.model.diffusion.preflight import (
+    AdapterPreflightCode,
+    AdapterPreflightIssue,
+    RunnerPreflightReport,
+    runtime_preflight_facts,
+)
+from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 from dvbfixer.model.diffusion.runner_refinement import refine_runner_result
 from dvbfixer.model.diffusion.sampler import SamplingAblationMode
 
@@ -26,10 +33,14 @@ ENGINE_REVISION = "85767b811c40ed46e73a9b39519cf6bfca8701ba"
 PATCH_SHA256 = "244cfe4fc876fd71df8737b805fb9b290069211fecc5178ef02029424b2895d0"
 TORCH_VERSION = "2.13.0"
 CUDA_VERSION = "12.9"
+CHECKPOINT_SHA256 = "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
+PATCH_IDENTITY = f"sha256:{PATCH_SHA256}"
+REFINEMENT_PLATFORM = "OpenMM Reference"
 
 
 def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
 def _load_script(name: str, path: Path) -> ModuleType:
@@ -53,6 +64,30 @@ def _normalized_patch(text: str) -> str:
     return "".join(line for line in text.splitlines(keepends=True) if not line.startswith("index "))
 
 
+def _source_tree_is_frozen(root: Path) -> bool:
+    changed = subprocess.run(
+        ["git", "-C", str(root), "diff", "--name-only", "HEAD", "--"],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    ).stdout.splitlines()
+    untracked_modules = subprocess.run(
+        [
+            "git", "-C", str(root), "ls-files", "--others", "--",
+            "*.py", "*.pyc", "*.so", "*.pyd", "*.dylib",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    ).stdout.splitlines()
+    return set(changed) == {
+        "protenix/model/generator.py",
+        "protenix/model/protenix.py",
+    } and not untracked_modules
+
+
 def _verify_profile_environment() -> None:
     if sys.platform != "linux" or platform.machine() not in {"x86_64", "amd64"}:
         raise RuntimeError("protenix-v1-cuda requires Linux amd64")
@@ -70,6 +105,8 @@ def _verify_profile_environment() -> None:
     ).stdout.strip()
     if revision != ENGINE_REVISION:
         raise RuntimeError(f"Protenix revision mismatch: {revision}")
+    if not _source_tree_is_frozen(root):
+        raise RuntimeError("Protenix source tree contains changes outside the maintained patch")
     patch_path = Path(__file__).with_name("per-step-callback.patch")
     if _sha256(patch_path) != PATCH_SHA256:
         raise RuntimeError("Protenix callback patch digest mismatch")
@@ -79,6 +116,7 @@ def _verify_profile_environment() -> None:
             "-C",
             str(root),
             "diff",
+            "HEAD",
             "--",
             "protenix/model/generator.py",
             "protenix/model/protenix.py",
@@ -98,6 +136,108 @@ def _verify_profile_environment() -> None:
         raise RuntimeError(f"protenix-v1-cuda requires available CUDA {CUDA_VERSION}")
     if not torch.cuda.is_bf16_supported():
         raise RuntimeError("protenix-v1-cuda requires GPU bfloat16 support")
+
+
+def preflight_report(profile: str, checkpoint: Path) -> RunnerPreflightReport:
+    """Verify the frozen environment without importing adapters or loading weights."""
+    issues: list[AdapterPreflightIssue] = []
+
+    def issue(code: AdapterPreflightCode, message: str) -> None:
+        issues.append(AdapterPreflightIssue(code, message))
+
+    if profile != PROFILE:
+        issue(AdapterPreflightCode.INCOMPATIBLE_ENVIRONMENT, "runner does not support the requested profile")
+    if sys.platform != "linux":
+        issue(AdapterPreflightCode.INCOMPATIBLE_PLATFORM, "profile requires Linux")
+    if platform.machine() not in {"x86_64", "amd64"}:
+        issue(AdapterPreflightCode.INCOMPATIBLE_ARCHITECTURE, "profile requires amd64")
+    if sys.version_info[:2] != (3, 13):
+        issue(AdapterPreflightCode.INCOMPATIBLE_PYTHON, "profile requires Python 3.13")
+    if os.environ.get("PYTHONNOUSERSITE") != "1":
+        issue(AdapterPreflightCode.INCOMPATIBLE_ENVIRONMENT, "PYTHONNOUSERSITE must be enabled")
+    if shutil.which("kalign") is None:
+        issue(AdapterPreflightCode.MISSING_RESOURCE, "required kalign executable is unavailable")
+    if importlib.util.find_spec("openmm") is None:
+        issue(AdapterPreflightCode.MISSING_RESOURCE, "required OpenMM refinement runtime is unavailable")
+
+    checkpoint_sha256 = ""
+    if checkpoint.is_symlink() or not checkpoint.is_file():
+        issue(AdapterPreflightCode.MISSING_CHECKPOINT, "required checkpoint is unavailable")
+    else:
+        try:
+            checkpoint_sha256 = _sha256(checkpoint)
+        except OSError:
+            issue(AdapterPreflightCode.MISSING_CHECKPOINT, "required checkpoint could not be read")
+        if checkpoint_sha256 and checkpoint_sha256 != CHECKPOINT_SHA256:
+            issue(AdapterPreflightCode.CHECKPOINT_DIGEST_MISMATCH, "checkpoint digest does not match the frozen profile")
+
+    revision = ""
+    try:
+        root = _source_root()
+        revision = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout.strip()
+        if revision != ENGINE_REVISION:
+            issue(AdapterPreflightCode.INCOMPATIBLE_SOURCE, "Protenix revision does not match the frozen profile")
+        patch_path = Path(__file__).with_name("per-step-callback.patch")
+        if _sha256(patch_path) != PATCH_SHA256:
+            issue(AdapterPreflightCode.INCOMPATIBLE_PATCH, "maintained callback patch digest is invalid")
+        else:
+            if not _source_tree_is_frozen(root):
+                issue(AdapterPreflightCode.INCOMPATIBLE_SOURCE, "Protenix source tree contains unapproved changes")
+            applied = subprocess.run(
+                ["git", "-C", str(root), "diff", "HEAD", "--", "protenix/model/generator.py", "protenix/model/protenix.py"],
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            ).stdout
+            if _normalized_patch(applied) != _normalized_patch(patch_path.read_text()):
+                issue(AdapterPreflightCode.INCOMPATIBLE_PATCH, "Protenix patch state does not match the frozen profile")
+    except (OSError, RuntimeError, subprocess.SubprocessError):
+        issue(AdapterPreflightCode.INCOMPATIBLE_SOURCE, "Protenix source identity could not be verified")
+
+    framework_version = ""
+    accelerator_available = False
+    effective_device = ""
+    try:
+        import torch
+
+        framework_version = torch.__version__.split("+")[0]
+        if framework_version != TORCH_VERSION or str(torch.version.cuda or "") != CUDA_VERSION:
+            issue(AdapterPreflightCode.INCOMPATIBLE_FRAMEWORK, "PyTorch or CUDA version does not match the frozen profile")
+        accelerator_available = bool(torch.cuda.is_available())
+        if not accelerator_available:
+            issue(AdapterPreflightCode.MISSING_CUDA, "required CUDA device is unavailable")
+        else:
+            effective_device = f"cuda:{torch.cuda.current_device()}"
+            if not torch.cuda.is_bf16_supported():
+                issue(AdapterPreflightCode.INCOMPATIBLE_DEVICE, "CUDA device lacks required bfloat16 support")
+    except (ImportError, RuntimeError):
+        issue(AdapterPreflightCode.INCOMPATIBLE_FRAMEWORK, "frozen PyTorch CUDA runtime is unavailable")
+
+    return RunnerPreflightReport(
+        profile=profile,
+        runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
+        contract_schema_version=DIFFUSION_SCHEMA_VERSION,
+        facts=runtime_preflight_facts(
+            engine_revision=revision,
+            patch_identity=PATCH_IDENTITY,
+            environment_identity="linux-amd64;python=3.13;torch=2.13.0;cuda=12.9",
+            checkpoint_sha256=checkpoint_sha256,
+            framework_version=framework_version,
+            accelerator_available=accelerator_available,
+            effective_device=effective_device,
+            fallback_disabled=True,
+            sampling_platform="Linux amd64 / NVIDIA CUDA 12.9",
+            refinement_platform=REFINEMENT_PLATFORM,
+        ),
+        issues=tuple(issues),
+    )
 
 
 def _load_production_scripts() -> tuple[ModuleType, ModuleType]:
@@ -123,6 +263,7 @@ def run(
     if profile != PROFILE:
         raise ValueError(f"unsupported Protenix profile: {profile}")
     preflight()
+    sys.dont_write_bytecode = True
 
     request_path = Path(os.environ.get("DVBFIXER_DIFFUSION_REQUEST", "request.json"))
     result_path = Path(os.environ.get("DVBFIXER_DIFFUSION_RESULT", "result.json"))
@@ -170,9 +311,13 @@ def run(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--preflight", action="store_true")
     parser.add_argument("--profile", required=True)
     parser.add_argument("--checkpoint", required=True, type=Path)
     args = parser.parse_args()
+    if args.preflight:
+        print(preflight_report(args.profile, args.checkpoint).to_json(), end="")
+        return
     run(profile=args.profile, checkpoint=args.checkpoint)
 
 
