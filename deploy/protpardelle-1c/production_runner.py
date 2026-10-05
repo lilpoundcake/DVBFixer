@@ -260,6 +260,7 @@ def run(
     result_path = Path(os.environ.get("DVBFIXER_DIFFUSION_RESULT", "result.json"))
     checkpoint = checkpoint.expanduser().resolve()
     config = _config_for_checkpoint(checkpoint)
+    os.environ["PROTPARDELLE_MODEL_PARAMS"] = str(checkpoint.parent.parent)
     output_root = Path("candidates") / PROFILE
     raw_output_dir = output_root / "raw"
     raw_output_dir.mkdir(parents=True, exist_ok=False)

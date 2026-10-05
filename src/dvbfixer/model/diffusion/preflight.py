@@ -11,7 +11,6 @@ import shutil
 import stat
 import subprocess
 import threading
-import time
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -24,6 +23,7 @@ DIFFUSION_PREFLIGHT_SCHEMA_VERSION = 1
 MAX_PREFLIGHT_OUTPUT_BYTES = 65_536
 MAX_PREFLIGHT_ISSUES = 32
 MAX_PREFLIGHT_TEXT_LENGTH = 256
+_PREFLIGHT_PIPE_DRAIN_TIMEOUT_SECONDS = 1.0
 
 
 class AdapterPreflightCode(StrEnum):
@@ -441,7 +441,6 @@ def invoke_runner_preflight(
     )
     for thread in threads:
         thread.start()
-    deadline = time.monotonic() + timeout_seconds
     timed_out = False
     try:
         return_code = process.wait(timeout=timeout_seconds)
@@ -457,7 +456,7 @@ def invoke_runner_preflight(
     if process.poll() is None:
         return_code = process.wait()
     for thread in threads:
-        thread.join(timeout=max(0.0, deadline - time.monotonic()))
+        thread.join(timeout=_PREFLIGHT_PIPE_DRAIN_TIMEOUT_SECONDS)
     readers_alive = any(thread.is_alive() for thread in threads)
     if readers_alive:
         timed_out = True

@@ -807,10 +807,58 @@ def test_runner_reports_nonzero_exit_with_bounded_diagnostics(tmp_path: Path) ->
     assert error.value.diagnostics.stderr == "bounded failure detail\n"
 
 
+def test_runner_kills_process_group_when_workspace_limit_is_exceeded(
+    tmp_path: Path,
+) -> None:
+    input_bytes = b"END\n"
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    _write_input(source_root, input_bytes)
+    oversized = _write_runner(
+        tmp_path,
+        """
+        import time
+        from pathlib import Path
+
+        Path("unreported.bin").write_bytes(b"X" * 100_000)
+        time.sleep(10)
+        """,
+    )
+
+    with pytest.raises(DiffusionRunnerError, match="workspace size limit") as error:
+        run_diffusion_runner(
+            _request(input_bytes),
+            _command(oversized),
+            source_root=source_root,
+            workspace=tmp_path / "workspace",
+            limits=RunnerLimits(
+                timeout_seconds=5.0,
+                max_workspace_bytes=50_000,
+            ),
+        )
+
+    assert error.value.diagnostics is not None
+    assert error.value.diagnostics.timed_out is False
+
+
 @pytest.mark.parametrize("timeout", [0.0, -1.0, float("nan"), float("inf")])
 def test_runner_limits_require_positive_finite_timeout(timeout: float) -> None:
     with pytest.raises(ValueError, match="positive finite"):
         RunnerLimits(timeout_seconds=timeout)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "max_output_bytes",
+        "max_manifest_bytes",
+        "max_artifact_bytes",
+        "max_workspace_bytes",
+    ],
+)
+def test_runner_limits_require_positive_byte_bounds(field: str) -> None:
+    with pytest.raises(ValueError, match=f"{field} must be positive"):
+        RunnerLimits(**{field: 0})
 
 
 def test_runner_rejects_incompatible_protocol_and_input_mutation(tmp_path: Path) -> None:

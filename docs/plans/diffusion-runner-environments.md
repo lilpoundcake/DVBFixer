@@ -144,6 +144,12 @@ GUI, `zbs`, `homology`, heterogen support, or automatic profile selection.
   preflight and CPU OpenMM boundary refinement.
 - [x] Public CLI smoke passed on Apple M3 Pro; the refined candidate passed every
   hard validation gate with zero fixed-heavy-atom movement and zero D-Cα.
+- [x] Protocol-v4 `doctor` and public CLI handshakes passed again on a clean
+  Protpardelle checkout on 2026-10-05. The production wrapper now derives
+  `PROTPARDELLE_MODEL_PARAMS` from the operator-provided checkpoint layout, so
+  source attestation no longer conflicts with an untracked model-parameter link.
+- [x] Bound private runner workspace growth and terminate the complete process
+  group when the limit is exceeded; this applies equally to the Apple MPS lane.
 - [x] Torch-dependent Boltz research imports made lazy so core CI remains
   Torch-free.
 - [x] Add the diffusion profile report and bounded no-inference handshake to

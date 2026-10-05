@@ -318,7 +318,7 @@ lanes below pass and a full repeat has a stated decision value.
   baseline is raw `101/231`, refined `217/231`, and validation-first selected
   `217/231`; Apple runs must use a separate output namespace and report rather
   than update those values.
-- [ ] Freeze an Apple manifest before the first outcome-bearing run. It must
+- [x] Freeze an Apple manifest before the first outcome-bearing run. It must
   preserve sampling and validation settings, select OpenMM `CPU` refinement,
   name the exact pilot cases, and use a new output namespace. Never edit either
   Linux full-follow-up manifest for Apple execution.
@@ -344,18 +344,18 @@ lanes below pass and a full repeat has a stated decision value.
 
 #### Native Environment And Inventory
 
-- [ ] Check out the frozen repository revision and verify the transfer inventory
+- [x] Check out the frozen repository revision and verify the transfer inventory
   before installing or running anything.
-- [ ] Confirm `uname -m` reports `arm64`; reject a Rosetta/x86_64 Python. Record
+- [x] Confirm `uname -m` reports `arm64`; reject a Rosetta/x86_64 Python. Record
   `sw_vers`, `system_profiler SPHardwareDataType`, `xcode-select -p`, free disk,
   and physical unified memory.
-- [ ] Create separate native arm64 DVBFixer and Protpardelle environments. Record
+- [x] Create separate native arm64 DVBFixer and Protpardelle environments. Record
   exact Python, PyTorch, OpenMM, NumPy, MDAnalysis, and model dependency versions
   plus the final explicit environment export and installed size.
-- [ ] Verify `torch.backends.mps.is_built()` and `is_available()`. Set
+- [x] Verify `torch.backends.mps.is_built()` and `is_available()`. Set
   `PYTORCH_ENABLE_MPS_FALLBACK=0` for every acceptance run so an unsupported
   operator fails instead of silently running on CPU.
-- [ ] Verify the selected OpenMM macOS `CPU` platform independently. Record its
+- [x] Verify the selected OpenMM macOS `CPU` platform independently. Record its
   name, version, precision properties, thread count, and generated-only
   refinement runtime; do not describe it as MPS acceleration.
 - [ ] Disconnect networking after dependency and checkpoint installation and
@@ -410,27 +410,27 @@ lanes below pass and a full repeat has a stated decision value.
 
 #### Measurements And Stop Rules
 
-- [ ] Record model load, feature construction, denoising, synchronization,
+- [x] Record model load, feature construction, denoising, synchronization,
   refinement, validation, and total wall time separately for every case. Record
   peak RSS and MPS memory, physical memory, output digests, failures, and whether
   each stage executed on CPU or MPS.
   Synchronize MPS at timing boundaries. Treat sampled MPS tensor allocation,
   Metal driver allocation, and process RSS as overlapping unified-memory views;
   report them separately and never add them together.
-- [ ] Stop the MPS track immediately on silent CPU fallback, wrong-device tensors,
+- [x] Stop the MPS track immediately on silent CPU fallback, wrong-device tensors,
   non-finite coordinates, identity/atom-set mismatch, non-exact published fixed
   atoms, checkpoint/config digest mismatch, or an unsupported operator without a
   narrowly documented scientifically equivalent implementation.
 - [ ] If MPS is unavailable but native CPU works, classify the host as CPU-only
   feasibility; do not weaken the MPS goal or report CPU execution as an MPS result.
-- [ ] Require both `36hb` repeats and all six Lane 4 selected candidates to pass
+- [x] Require both `36hb` repeats and all six Lane 4 selected candidates to pass
   scientific hard gates before Lane 5. MPS nondeterminism is acceptable only when
   quantified and both repeats remain valid.
-- [ ] Require at least `21/24` selected passes in Lane 5, no systematic new failure
+- [x] Require at least `21/24` selected passes in Lane 5, no systematic new failure
   class, peak unified memory below 60% of physical memory, and projected p95 below
   five minutes before the 100-case soak. This threshold is frozen before Apple
   outcomes and is one failure looser than the Linux `22/24` exploratory result.
-- [ ] Require 100/100 operational completions in Lane 6 with no memory-pressure
+- [x] Require 100/100 operational completions in Lane 6 with no memory-pressure
   termination, leaked process, or unreclaimed workspace. Scientific failures stay
   in the denominator but do not count as operational failures when validation
   completes normally.
@@ -572,7 +572,7 @@ a basis for changing the selected Protenix backend.
 
 ### Phase 3: Apple Operator And Footprint Smoke
 
-- [ ] Complete the handoff runbook above, then move only the Protpardelle-1c
+- [x] Complete the handoff runbook above, then move only the Protpardelle-1c
   Linux survivor to a physical Apple Silicon machine.
 - [x] Run native arm64 CPU/MPS load and one-step smokes without silent CPU fallback.
 - [x] Record unsupported operators, device transfers, memory, runtime, and numerical

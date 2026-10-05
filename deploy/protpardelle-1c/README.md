@@ -124,9 +124,11 @@ dvbfixer model INPUT.pdb --fasta TARGET.fasta \
 
 Run the command from the native Protpardelle environment so the runner shebang
 resolves that environment's Python. `MODEL_PARAMS` must also contain
-`configs/cc89.yaml`. The wrapper uses the frozen 500-step float32 MPS settings,
-disables per-step reinjection, performs generated-only OpenMM refinement on the
-CPU, and writes the versioned `result.json` expected by core DVBFixer. Provenance
-continues to identify MPS as the sampling device and records CPU refinement
-separately. Core DVBFixer remains responsible for independent validation and
-atomic publication.
+`configs/cc89.yaml`. The wrapper derives `PROTPARDELLE_MODEL_PARAMS` from this
+checkpoint layout before importing Protpardelle, so the clean engine checkout
+does not need an untracked `model_params` symlink. It uses the frozen 500-step
+float32 MPS settings, disables per-step reinjection, performs generated-only
+OpenMM refinement on the CPU, and writes the versioned `result.json` expected by
+core DVBFixer. Provenance continues to identify MPS as the sampling device and
+records CPU refinement separately. Core DVBFixer remains responsible for
+independent validation and atomic publication.

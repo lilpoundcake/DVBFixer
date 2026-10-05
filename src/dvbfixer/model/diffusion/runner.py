@@ -10,6 +10,7 @@ import signal
 import stat
 import subprocess
 import threading
+import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path
@@ -72,6 +73,7 @@ class RunnerLimits:
     max_output_bytes: int = 1_000_000
     max_manifest_bytes: int = 10_000_000
     max_artifact_bytes: int = 1_000_000_000
+    max_workspace_bytes: int = 2_000_000_000
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.timeout_seconds) or self.timeout_seconds <= 0:
@@ -82,6 +84,8 @@ class RunnerLimits:
             raise ValueError("max_manifest_bytes must be positive")
         if self.max_artifact_bytes <= 0:
             raise ValueError("max_artifact_bytes must be positive")
+        if self.max_workspace_bytes <= 0:
+            raise ValueError("max_workspace_bytes must be positive")
 
 
 @dataclass(frozen=True, slots=True)
@@ -567,12 +571,30 @@ def _execute(
         thread.start()
 
     timed_out = False
+    workspace_exceeded = False
+    deadline = time.monotonic() + limits.timeout_seconds
     try:
-        exit_code = process.wait(timeout=limits.timeout_seconds)
-    except subprocess.TimeoutExpired:
-        timed_out = True
-        _terminate_process_group(process)
-        exit_code = process.wait()
+        while True:
+            if _workspace_size_exceeds(cwd, limits.max_workspace_bytes):
+                workspace_exceeded = True
+                _terminate_process_group(process)
+                exit_code = process.wait()
+                break
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                timed_out = True
+                _terminate_process_group(process)
+                exit_code = process.wait()
+                break
+            try:
+                exit_code = process.wait(timeout=min(remaining, 0.1))
+                workspace_exceeded = _workspace_size_exceeds(
+                    cwd,
+                    limits.max_workspace_bytes,
+                )
+                break
+            except subprocess.TimeoutExpired:
+                continue
     finally:
         _terminate_process_group(process, include_descendants=True)
         for thread in threads:
@@ -586,12 +608,41 @@ def _execute(
         process.stdout.close()
         process.stderr.close()
 
-    return RunnerDiagnostics(
+    diagnostics = RunnerDiagnostics(
         exit_code=exit_code,
         timed_out=timed_out,
         stdout=stdout_capture.text(),
         stderr=stderr_capture.text(),
     )
+    if workspace_exceeded:
+        raise DiffusionRunnerError(
+            "external diffusion runner exceeded the workspace size limit",
+            diagnostics=diagnostics,
+        )
+    return diagnostics
+
+
+def _workspace_size_exceeds(root: Path, limit: int) -> bool:
+    """Return early once regular files below ``root`` exceed ``limit`` bytes."""
+    total = 0
+    pending = [root]
+    while pending:
+        directory = pending.pop()
+        try:
+            entries = tuple(os.scandir(directory))
+        except OSError:
+            return True
+        for entry in entries:
+            try:
+                if entry.is_dir(follow_symlinks=False):
+                    pending.append(Path(entry.path))
+                elif entry.is_file(follow_symlinks=False):
+                    total += entry.stat(follow_symlinks=False).st_size
+                    if total > limit:
+                        return True
+            except OSError:
+                return True
+    return False
 
 
 def _terminate_process_group(

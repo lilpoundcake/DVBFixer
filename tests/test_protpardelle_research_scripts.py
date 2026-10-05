@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
@@ -555,6 +556,7 @@ def test_production_runner_writes_protocol_result(
     assert observed.message == expected.message
     assert observed.backend_provenance.source_license == "MIT"
     assert observed.backend_provenance.environment_identity.startswith("macos-arm64")
+    assert os.environ["PROTPARDELLE_MODEL_PARAMS"] == str(params.resolve())
     assert RunnerResult.from_json((tmp_path / "result.json").read_text()) == observed
 
 
