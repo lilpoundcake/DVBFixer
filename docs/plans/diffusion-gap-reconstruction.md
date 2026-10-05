@@ -332,7 +332,7 @@
   parent options in a separate argparse group; do not expose automatic device
   selection.
 - [x] Reject MODELLER-only options when `--backend diffusion` is selected.
-- [ ] Reject unsupported diffusion scope before starting an external process and
+- [x] Reject unsupported diffusion scope before starting an external process and
   direct users to rerun explicitly with `--backend modeller` when appropriate.
 - [x] Preserve FASTA/SEQRES semantics where the diffusion scope supports them.
 - [x] Do not fall back automatically to MODELLER.
@@ -356,8 +356,10 @@
 
 - [x] Build `DiffusionRequest` directly from the shared production
   sequence placement rather than reconstructing placement inside the runner.
-- [ ] Reuse `model/renumber.py` residue allocation so generated identities cannot
-  collide with observed protein or HETATM residue numbers.
+- [x] Allocate generated identities without collisions: use reserved integer
+  numbers when available and insertion codes when deposited numbering leaves no
+  room, preserving every observed protein identity. HETATM inputs remain outside
+  the admitted diffusion scope and are rejected before runner launch.
 - [x] Preserve `(chain, resid, icode)` and `(chain, resid, icode, atom)` identity
   without case normalization or insertion-code loss.
 - [x] Require complete canonical generated-heavy-atom identities from the target
@@ -375,7 +377,7 @@
 
 - [x] Replace the research-only build, checkpoint-smoke, and refinement sequence
   with one protocol-compliant Protenix runner executable.
-- [ ] Verify the pinned source revision, maintained patch digest, checkpoint
+- [x] Verify the pinned source revision, maintained patch digest, checkpoint
   SHA-256, protocol version, and device before model loading.
 - [x] Build the stable atom axis and reject unresolved or duplicate request mapping.
 - [x] Apply weighted frame synchronization and exact fixed-coordinate reinjection
@@ -388,9 +390,10 @@
   denoising-update and observed callback counts, fixed-coordinate tolerance,
   maximum observed post-projection error (or `null` without callbacks), final
   restoration, device/fallback, refinement, and resource metrics.
-- [ ] Materialize original fixed records without losing chain IDs, insertion codes,
+- [x] Materialize original fixed records without losing chain IDs, insertion codes,
   occupancies, B factors, ANISOU, or unrelated headers.
-- [ ] Return protocol `unsupported` or `failed` outcomes without candidate publication.
+- [x] Return protocol `unsupported` or `failed` outcomes without refinement or
+  candidate publication.
 
 #### Validation And Public Output
 
@@ -414,7 +417,7 @@
 - [x] Add diffusion preflight to `doctor` without removing stable report sections.
 - [x] Keep Torch, Protenix, CUDA, checkpoints, and engine caches outside the core
   wheel and `environment.yml`.
-- [ ] Require an operator-supplied checkpoint and exact digest verification until
+- [x] Require an operator-supplied checkpoint and exact digest verification until
   checkpoint redistribution review is complete.
 - [ ] Pin the production environment or image, package lock, maintained patch,
   source revision, base image, and final image digest.

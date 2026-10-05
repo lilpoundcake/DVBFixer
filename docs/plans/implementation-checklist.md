@@ -250,8 +250,10 @@ these checked workflow-state items cover one-host multi-process operation.
 - [x] Record the confirmatory result: Protenix 220/231, MODELLER 169/231, noninferiority demonstrated, and `candidate-preferred` decision.
 - [ ] Complete Phase 4: experimental `model --backend diffusion` while retaining
   MODELLER as the default and without automatic fallback. Public CLI, production
-  wrappers, and additive Doctor preflight are implemented; resolved Linux
-  environment pinning and hardware acceptance remain separate evidence tasks.
+  wrappers, additive Doctor preflight, fail-closed batch/GUI admission,
+  record-preserving candidate materialization, and portable protocol failure
+  handling are implemented and CPU-tested. Resolved Linux environment pinning
+  and hardware acceptance remain separate evidence tasks.
 - [ ] Complete Phase 5: mosaic-first homology evaluation preserving authoritative template coordinates.
 - [ ] Complete Phase 6: separate evidence-backed production decision.
 - [x] Execute the macOS Apple Silicon CPU/MPS portability evaluation separately

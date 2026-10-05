@@ -86,3 +86,13 @@ def test_gui_schema_excludes_doctor_diffusion_options() -> None:
         "--diffusion-checkpoint",
         "--diffusion-timeout",
     }
+
+
+def test_gui_schema_excludes_model_backend_and_diffusion_options() -> None:
+    from scripts.gen_gui_spec import command_schema
+
+    model = command_schema("model", COMMAND_BY_NAME["model"].description)
+    flags = {field["flag"] for field in model["flags"]}
+
+    assert "--backend" not in flags
+    assert not any(flag.startswith("--diffusion-") for flag in flags)

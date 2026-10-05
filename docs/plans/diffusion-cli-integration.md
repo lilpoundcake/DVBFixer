@@ -399,6 +399,9 @@ engine.
   - generator явно исключает unsupported backend option из GUI exposure либо описывает capability gate;
   - MODELLER batch/GUI остаются без изменений.
 - Не позволять `gen_gui_spec.py` автоматически выставить неработающую diffusion option.
+- Реализовано для первого этапа: generic directory batch отклоняет diffusion до
+  создания output, а generated GUI schema не содержит `--backend` или
+  `--diffusion-*` для `model`; MODELLER batch/GUI contract не изменён.
 - Отдельным последующим change group, не смешанным с initial CLI promotion:
   - расширить command metadata для backend-dependent output mode;
   - определить batch directories `<stem>_model_diffusion/`;
@@ -504,6 +507,10 @@ evidence и training-membership labels выбранного profile.
   - heterogens/noncanonical residues;
   - unsupported links;
   - input chirality.
+- Portable Phase 4 additions also cover tight deposited numbering through
+  insertion-code allocation, fixed-record/header/ANISOU preservation, runner
+  protocol-version enforcement, non-success outcomes without refinement, bounded
+  nonzero-exit diagnostics, and private-workspace cleanup after runner failure.
 - Validator tests:
   - missing/extra atoms;
   - identity mismatch;

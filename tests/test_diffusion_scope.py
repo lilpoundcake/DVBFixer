@@ -150,6 +150,37 @@ def test_scope_accepts_canonical_two_anchor_internal_gap() -> None:
     assert admission.reasons == ()
 
 
+def test_scope_rejects_ter_between_gap_anchors() -> None:
+    source, request = _source_and_request()
+    right_line = next(
+        line
+        for line in source.splitlines(keepends=True)
+        if line.startswith(b"ATOM  ") and line[22:26].strip() == b"70"
+    )
+    broken = source.replace(right_line, b"TER\n" + right_line, 1)
+
+    admission = assess_diffusion_scope(_replace_source(request, broken), broken)
+
+    assert not admission.supported
+    assert "terminator-between-gap-anchors" in admission.reasons
+
+
+def test_scope_drops_whole_partially_stale_conect_record() -> None:
+    source, request = _source_and_request()
+    atom_lines = [line for line in source.splitlines() if line.startswith(b"ATOM  ")]
+    first_serial = int(atom_lines[0][6:11])
+    second_serial = int(atom_lines[1][6:11])
+    conect = f"CONECT{first_serial:5d}{second_serial:5d}{99999:5d}\n".encode()
+    linked_source = source.replace(b"TER\n", conect + b"TER\n")
+
+    admission = assess_diffusion_scope(
+        _replace_source(request, linked_source),
+        linked_source,
+    )
+
+    assert admission.supported
+
+
 def test_scope_rejects_multiple_models_and_target_ambiguity() -> None:
     source, request = _source_and_request()
     first_end = source.rfind(b"END")

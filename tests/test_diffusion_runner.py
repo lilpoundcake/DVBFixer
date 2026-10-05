@@ -779,6 +779,40 @@ def test_runner_times_out_and_bounds_stdout_and_stderr(tmp_path: Path) -> None:
     assert "truncated" in diagnostics.stderr
 
 
+def test_runner_reports_nonzero_exit_with_bounded_diagnostics(tmp_path: Path) -> None:
+    input_bytes = b"END\n"
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    _write_input(source_root, input_bytes)
+    failing = _write_runner(
+        tmp_path,
+        """
+        import sys
+
+        print("bounded failure detail", file=sys.stderr)
+        raise SystemExit(7)
+        """,
+    )
+
+    with pytest.raises(DiffusionRunnerError, match="exited with code 7") as error:
+        run_diffusion_runner(
+            _request(input_bytes),
+            _command(failing),
+            source_root=source_root,
+            workspace=tmp_path / "workspace",
+        )
+
+    assert error.value.diagnostics is not None
+    assert error.value.diagnostics.exit_code == 7
+    assert error.value.diagnostics.stderr == "bounded failure detail\n"
+
+
+@pytest.mark.parametrize("timeout", [0.0, -1.0, float("nan"), float("inf")])
+def test_runner_limits_require_positive_finite_timeout(timeout: float) -> None:
+    with pytest.raises(ValueError, match="positive finite"):
+        RunnerLimits(timeout_seconds=timeout)
+
+
 def test_runner_rejects_incompatible_protocol_and_input_mutation(tmp_path: Path) -> None:
     input_bytes = b"END\n"
     source_root = tmp_path / "source"

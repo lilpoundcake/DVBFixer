@@ -64,6 +64,29 @@ def test_diffusion_parser_requires_explicit_runtime_inputs(tmp_path: Path) -> No
     assert args.diffusion_seeds == [7, 11]
 
 
+def test_modeller_remains_the_default_backend() -> None:
+    assert parse_args(["input.pdb"]).backend == "modeller"
+
+
+@pytest.mark.parametrize(
+    "omitted",
+    ["--diffusion-profile", "--diffusion-runner", "--diffusion-checkpoint"],
+)
+def test_diffusion_parser_requires_each_runtime_input(omitted: str) -> None:
+    values = {
+        "--diffusion-profile": "protenix-v1-cuda",
+        "--diffusion-runner": "runner",
+        "--diffusion-checkpoint": "checkpoint.pt",
+    }
+    argv = ["input.pdb", "--backend", "diffusion"]
+    for option, value in values.items():
+        if option != omitted:
+            argv.extend((option, value))
+
+    with pytest.raises(SystemExit):
+        parse_args(argv)
+
+
 def test_diffusion_parser_rejects_modeller_only_options() -> None:
     with pytest.raises(SystemExit):
         parse_args(
@@ -118,6 +141,31 @@ def test_request_builder_produces_admitted_one_gap_request(tmp_path: Path) -> No
         "65", "66", "67", "68", "69",
     ]
     assert request.candidate_count == 1
+    assert assess_diffusion_scope(request, input_path.read_bytes()).supported
+
+
+def test_request_builder_uses_insertion_codes_when_numbers_are_not_reserved(
+    tmp_path: Path,
+) -> None:
+    input_path = _gap_input(tmp_path)
+    renumbered: list[str] = []
+    for line in input_path.read_text(encoding="utf-8").splitlines(keepends=True):
+        if line.startswith("ATOM  ") and int(line[22:26]) >= 70:
+            line = f"{line[:22]}{int(line[22:26]) - 5:4d}{line[26:]}"
+        renumbered.append(line)
+    input_path.write_text("".join(renumbered), encoding="utf-8")
+
+    request = build_cli_diffusion_request(
+        input_path,
+        {"C": "SNRFSGSKSGNTA"},
+        seeds=(7,),
+        profile="protpardelle-1c-mps",
+    )
+
+    generated = request.gaps[0].generated_residues
+    assert [residue.residue_number for residue in generated] == ["64"] * 5
+    assert [residue.insertion_code for residue in generated] == list("ABCDE")
+    assert not set(generated) & set(request.sequence_placements[0].observed_residues)
     assert assess_diffusion_scope(request, input_path.read_bytes()).supported
 
 

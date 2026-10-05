@@ -343,8 +343,24 @@ def test_candidate_writer_preserves_requested_atom_set_and_insertion_code(
     coordinates = np.arange(len(identities) * 3, dtype=np.float64).reshape((-1, 3))
     residue_names = tuple("ALA" if atom in request.fixed_atoms else "GLY" for atom in identities)
     output = tmp_path / "candidate.pdb"
+    source = tmp_path / "source.pdb"
+    source.write_text(
+        "".join(
+            _atom_line(index, atom.atom_name, int(atom.residue_number), chain=atom.chain)
+            for index, atom in enumerate(request.fixed_atoms, 1)
+        )
+        + "END\n",
+        encoding="ascii",
+    )
 
-    adapter._write_candidate(output, identities, coordinates, residue_names, request)
+    adapter._write_candidate(
+        output,
+        source,
+        identities,
+        coordinates,
+        residue_names,
+        request,
+    )
 
     atom_lines = [
         line
@@ -364,10 +380,20 @@ def test_candidate_writer_rejects_incomplete_generated_atom_set(tmp_path: Path) 
     request = _request()
     identities = request.fixed_atoms + request.generated_atoms[:-1]
     coordinates = np.zeros((len(identities), 3), dtype=np.float64)
+    source = tmp_path / "source.pdb"
+    source.write_text(
+        "".join(
+            _atom_line(index, atom.atom_name, int(atom.residue_number), chain=atom.chain)
+            for index, atom in enumerate(request.fixed_atoms, 1)
+        )
+        + "END\n",
+        encoding="ascii",
+    )
 
-    with pytest.raises(ValueError, match="candidate atom set mismatch: missing=1"):
+    with pytest.raises(ValueError, match="omits 1 requested atoms"):
         adapter._write_candidate(
             tmp_path / "candidate.pdb",
+            source,
             identities,
             coordinates,
             ("ALA",) * len(identities),
@@ -486,6 +512,10 @@ def test_production_runner_writes_protocol_result(
     (tmp_path / "request.json").write_text("{}")
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "0")
+    monkeypatch.setenv(
+        "DVBFIXER_DIFFUSION_PROTOCOL_VERSION",
+        str(DIFFUSION_RUNNER_PROTOCOL_VERSION),
+    )
 
     expected = RunnerResult(
         schema_version=DIFFUSION_SCHEMA_VERSION,
@@ -517,7 +547,7 @@ def test_production_runner_writes_protocol_result(
         profile="protpardelle-1c-mps",
         checkpoint=checkpoint,
         adapter=FakeAdapter(),
-        refiner=lambda _request, result, _output: result,
+        refiner=lambda *_args: pytest.fail("failed results must not be refined"),
         preflight=lambda: None,
     )
 

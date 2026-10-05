@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
 import os
 import time
 from dataclasses import asdict
@@ -30,6 +29,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
 )
 from dvbfixer.model.diffusion.geometry import weighted_kabsch
+from dvbfixer.model.diffusion.pdb_materialize import materialize_candidate_pdb
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 from dvbfixer.model.diffusion.sampler import SamplingAblationMode
 from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
@@ -197,16 +197,9 @@ class _TracingCallback:
         return projected
 
 
-def _atom_name_field(atom_name: str, element: str) -> str:
-    if len(atom_name) == 4 or (atom_name and atom_name[0].isdigit()):
-        return f"{atom_name:<4}"
-    if len(element) == 2:
-        return f"{atom_name:<4}"
-    return f" {atom_name:<3}"
-
-
 def _write_candidate(
     output_path: Path,
+    source_path: Path,
     coordinates: np.ndarray,
     atom_axis: tuple[AtomIdentity, ...],
     residue_names: tuple[str, ...],
@@ -215,40 +208,17 @@ def _write_candidate(
 ) -> None:
     if coordinates.shape != (len(atom_axis), 3) or not np.isfinite(coordinates).all():
         raise ValueError("prediction has invalid coordinate shape or non-finite values")
-    included = set(request.fixed_atoms) | set(request.generated_atoms)
-    lines: list[str] = []
-    last: tuple[AtomIdentity, str] | None = None
-    serial = 1
-    for identity, residue_name, element, xyz in zip(
-        atom_axis, residue_names, elements, coordinates
-    ):
-        if identity not in included:
-            continue
-        try:
-            residue_number = int(identity.residue_number)
-        except ValueError as exc:
-            raise ValueError("PDB smoke output requires integer residue numbers") from exc
-        if not all(
-            math.isfinite(float(value)) and len(f"{float(value):8.3f}") == 8 for value in xyz
-        ):
-            raise ValueError("coordinate cannot be represented in PDB format")
-        atom_field = _atom_name_field(identity.atom_name, element)
-        lines.append(
-            f"ATOM  {serial:5d} {atom_field} {residue_name:>3} "
-            f"{identity.chain}{residue_number:4d}{identity.insertion_code or ' ':1}   "
-            f"{xyz[0]:8.3f}{xyz[1]:8.3f}{xyz[2]:8.3f}"
-            f"  1.00  0.00          {element:>2}\n"
-        )
-        last = identity, residue_name
-        serial += 1
-    if last is None or serial - 1 != len(included):
-        raise ValueError("candidate output did not contain every requested atom exactly once")
-    identity, residue_name = last
-    lines.append(
-        f"TER   {serial:5d}      {residue_name:>3} {identity.chain}"
-        f"{int(identity.residue_number):4d}{identity.insertion_code or ' ':1}\nEND\n"
+    output_path.write_text(
+        materialize_candidate_pdb(
+            source_path.read_text(encoding="ascii"),
+            atom_axis,
+            coordinates,
+            residue_names,
+            request,
+            elements=elements,
+        ),
+        encoding="ascii",
     )
-    output_path.write_text("".join(lines), encoding="ascii")
 
 
 def _synchronize_frame(
@@ -358,7 +328,15 @@ def run(
     if final_frame_synchronization:
         final = _synchronize_frame(final, atom_axis, fixed_coordinates)
     output_path = output_dir / "candidate.pdb"
-    _write_candidate(output_path, final, atom_axis, residue_names, elements, request)
+    _write_candidate(
+        output_path,
+        source_path,
+        final,
+        atom_axis,
+        residue_names,
+        elements,
+        request,
+    )
     resource_metrics = RunnerResourceMetrics(
         wall_time_seconds=time.perf_counter() - start,
         peak_vram_bytes=torch.cuda.max_memory_allocated(),

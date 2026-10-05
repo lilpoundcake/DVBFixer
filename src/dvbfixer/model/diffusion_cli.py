@@ -127,20 +127,17 @@ def build_cli_diffusion_request(
     left_anchor = by_target[start - 1]
     right_anchor = by_target[stop]
     try:
-        left_number = int(left_anchor.residue_number)
-        right_number = int(right_anchor.residue_number)
+        int(left_anchor.residue_number)
+        int(right_anchor.residue_number)
     except ValueError as exc:
         raise DiffusionCliError("diffusion requires integer PDB residue numbers") from exc
-    if right_number - left_number - 1 < gap_length:
-        raise DiffusionCliError(
-            "input numbering does not reserve enough residue numbers for the gap"
-        )
-    generated_residues = tuple(
-        ResidueIdentity(chain, str(left_number + offset))
-        for offset in range(1, gap_length + 1)
+    generated_residues = _allocate_generated_residues(
+        chain,
+        left_anchor,
+        right_anchor,
+        gap_length,
+        set(placement.observed_residues),
     )
-    if set(generated_residues) & set(placement.observed_residues):
-        raise DiffusionCliError("generated residue numbering collides with observed residues")
     gap = GapRegion(
         chain=chain,
         target_interval=TargetInterval(start, stop),
@@ -178,6 +175,58 @@ def build_cli_diffusion_request(
         seeds=seeds,
         backend_options=(BackendOption("profile", profile),),
     )
+
+
+def _allocate_generated_residues(
+    chain: str,
+    left_anchor: ResidueIdentity,
+    right_anchor: ResidueIdentity,
+    gap_length: int,
+    occupied: set[ResidueIdentity],
+) -> tuple[ResidueIdentity, ...]:
+    """Allocate gap identities without changing any observed residue identity."""
+    left_number = int(left_anchor.residue_number)
+    right_number = int(right_anchor.residue_number)
+    numeric = tuple(
+        ResidueIdentity(chain, str(left_number + offset))
+        for offset in range(1, gap_length + 1)
+    )
+    if left_number + gap_length < right_number and not set(numeric) & occupied:
+        return numeric
+
+    insertion_codes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    if left_anchor.insertion_code:
+        try:
+            first_code = insertion_codes.index(left_anchor.insertion_code) + 1
+        except ValueError as exc:
+            raise DiffusionCliError(
+                "diffusion cannot allocate generated residues after this insertion code"
+            ) from exc
+    else:
+        first_code = 0
+    last_code = first_code + gap_length
+    if last_code > len(insertion_codes):
+        raise DiffusionCliError("diffusion cannot allocate insertion codes for the gap")
+    if right_number < left_number:
+        raise DiffusionCliError("diffusion requires increasing PDB residue numbering")
+    if right_number == left_number:
+        try:
+            right_code = insertion_codes.index(right_anchor.insertion_code)
+        except ValueError as exc:
+            raise DiffusionCliError(
+                "diffusion cannot allocate generated residues before the right anchor"
+            ) from exc
+        if last_code > right_code:
+            raise DiffusionCliError(
+                "input numbering does not leave enough insertion codes for the gap"
+            )
+    generated = tuple(
+        ResidueIdentity(chain, left_anchor.residue_number, code)
+        for code in insertion_codes[first_code:last_code]
+    )
+    if set(generated) & occupied:
+        raise DiffusionCliError("generated residue numbering collides with observed residues")
+    return generated
 
 
 def run_diffusion_model(args: argparse.Namespace) -> None:

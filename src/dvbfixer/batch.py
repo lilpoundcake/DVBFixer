@@ -137,6 +137,16 @@ def run_directory(
         raise SystemExit(
             f"dvbfixer {command} does not support --input-dir. Supported commands: {supported}"
         )
+    if command == "model" and any(
+        token == "--backend=diffusion"
+        or (token == "--backend" and index + 1 < len(command_argv)
+            and command_argv[index + 1] == "diffusion")
+        for index, token in enumerate(command_argv)
+    ):
+        raise SystemExit(
+            "dvbfixer model --backend diffusion supports only single-input mode; "
+            "directory batch input is unavailable"
+        )
     if "-o" in command_argv or "--output" in command_argv:
         raise SystemExit("Use --output-dir, not -o/--output, with --input-dir")
 

@@ -112,6 +112,10 @@ def test_production_runner_writes_protocol_result(
     (tmp_path / "request.json").write_text("{}")
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(production.shutil, "which", lambda _name: "/usr/bin/true")
+    monkeypatch.setenv(
+        "DVBFIXER_DIFFUSION_PROTOCOL_VERSION",
+        str(DIFFUSION_RUNNER_PROTOCOL_VERSION),
+    )
 
     expected = RunnerResult(
         schema_version=DIFFUSION_SCHEMA_VERSION,
@@ -153,7 +157,7 @@ def test_production_runner_writes_protocol_result(
         profile="protenix-v1-cuda",
         checkpoint=checkpoint,
         scripts=(FakeBuilder(), FakeAdapter()),
-        refiner=lambda _request, result, _output: result,
+        refiner=lambda *_args: pytest.fail("failed results must not be refined"),
         preflight=lambda: None,
     )
 
@@ -170,6 +174,19 @@ def test_production_runner_rejects_wrong_profile(tmp_path: Path) -> None:
         production.run(
             profile="protpardelle-1c-mps",
             checkpoint=tmp_path / "checkpoint.pt",
+        )
+
+
+def test_production_runner_rejects_missing_execution_protocol(
+    tmp_path: Path,
+) -> None:
+    production = _load_production_runner()
+
+    with pytest.raises(RuntimeError, match="protocol version"):
+        production.run(
+            profile="protenix-v1-cuda",
+            checkpoint=tmp_path / "checkpoint.pt",
+            preflight=lambda: pytest.fail("protocol check must run first"),
         )
 
 

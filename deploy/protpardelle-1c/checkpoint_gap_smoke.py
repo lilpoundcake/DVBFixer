@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
 import os
 import resource
 import shutil
@@ -36,6 +35,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerResult,
 )
 from dvbfixer.model.diffusion.geometry import synchronize_and_reinject, weighted_kabsch
+from dvbfixer.model.diffusion.pdb_materialize import materialize_candidate_pdb
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 from dvbfixer.model.diffusion.trace import build_sampler_trace, write_sampler_trace
 from dvbfixer.model.diffusion.validate import validate_runner_result
@@ -452,54 +452,24 @@ def _make_per_step_reinjector(
     return callback, stats
 
 
-def _atom_name_field(atom_name: str, element: str) -> str:
-    if len(atom_name) == 4 or (atom_name and atom_name[0].isdigit()) or len(element) == 2:
-        return f"{atom_name:<4}"
-    return f" {atom_name:<3}"
-
-
 def _write_candidate(
     path: Path,
+    source_path: Path,
     identities: tuple[AtomIdentity, ...],
     coordinates: np.ndarray,
     residue_names: tuple[str, ...],
     request: DiffusionRequest,
 ) -> None:
-    included = set(request.fixed_atoms) | set(request.generated_atoms)
-    lines: list[str] = []
-    seen: set[AtomIdentity] = set()
-    serial = 1
-    last: tuple[AtomIdentity, str] | None = None
-    for identity, xyz, residue_name in zip(identities, coordinates, residue_names):
-        if identity not in included:
-            continue
-        if identity in seen:
-            raise ValueError(f"duplicate output atom: {identity}")
-        seen.add(identity)
-        try:
-            residue_number = int(identity.residue_number)
-        except ValueError as exc:
-            raise ValueError("cc89 benchmark output requires integer residue numbers") from exc
-        if not all(math.isfinite(float(value)) and len(f"{float(value):8.3f}") == 8 for value in xyz):
-            raise ValueError(f"coordinate cannot be represented in PDB: {identity}")
-        element = identity.atom_name[0]
-        atom_field = _atom_name_field(identity.atom_name, element)
-        lines.append(
-            f"ATOM  {serial:5d} {atom_field} {residue_name:>3} "
-            f"{identity.chain}{residue_number:4d}{identity.insertion_code or ' ':1}   "
-            f"{xyz[0]:8.3f}{xyz[1]:8.3f}{xyz[2]:8.3f}"
-            f"  1.00  0.00          {element:>2}\n"
-        )
-        serial += 1
-        last = identity, residue_name
-    if seen != included or last is None:
-        raise ValueError(f"candidate atom set mismatch: missing={len(included - seen)}")
-    identity, residue_name = last
-    lines.append(
-        f"TER   {serial:5d}      {residue_name:>3} {identity.chain}"
-        f"{int(identity.residue_number):4d}{identity.insertion_code or ' ':1}\nEND\n"
+    path.write_text(
+        materialize_candidate_pdb(
+            source_path.read_text(encoding="ascii"),
+            identities,
+            coordinates,
+            residue_names,
+            request,
+        ),
+        encoding="ascii",
     )
-    path.write_text("".join(lines), encoding="ascii")
 
 
 def _artifact(workspace: Path, path: Path) -> ArtifactReference:
@@ -696,7 +666,14 @@ def _run_staged(
         fixed_residue_names,
     )
     candidate_path = output_dir / "candidate.pdb"
-    _write_candidate(candidate_path, identities, coordinates, residue_names, request)
+    _write_candidate(
+        candidate_path,
+        source,
+        identities,
+        coordinates,
+        residue_names,
+        request,
+    )
     elapsed = time.perf_counter() - start
     memory = telemetry.stop()
     resource_metrics = RunnerResourceMetrics(

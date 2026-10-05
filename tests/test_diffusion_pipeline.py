@@ -34,6 +34,7 @@ from dvbfixer.model.diffusion.pipeline import (
     publish_diffusion_bundle,
     run_diffusion_pipeline,
 )
+from dvbfixer.model.diffusion.runner import DiffusionRunnerError
 from dvbfixer.model.diffusion.trace import build_sampler_trace
 
 FIXTURE = Path(__file__).parent / "fixtures" / "8cz8" / "8cz8_a_u.pdb"
@@ -209,6 +210,35 @@ def _trace_bytes(
         denoising_update_count=0,
         final_fixed_coordinate_restoration=True,
     ).to_json().encode()
+
+
+def test_runner_failure_cleans_private_workspace_and_publishes_nothing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source, _candidate, request = _source_candidate_request()
+    source_root = tmp_path / "source"
+    source_path = source_root / "input" / "normalized.pdb"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_bytes(source)
+    destination = tmp_path / "published"
+
+    def fail_runner(*_args: object, **_kwargs: object) -> None:
+        raise DiffusionRunnerError("injected runner failure")
+
+    monkeypatch.setattr(diffusion_pipeline, "run_diffusion_runner", fail_runner)
+
+    with pytest.raises(DiffusionRunnerError, match="injected runner failure"):
+        run_diffusion_pipeline(
+            request,
+            ("unused-runner",),
+            source_root=source_root,
+            work_parent=tmp_path,
+            destination_bundle=destination,
+        )
+
+    assert not destination.exists()
+    assert not list(tmp_path.glob(".dvbfixer-diffusion-run.*"))
 
 
 def test_publish_bundle_writes_candidate_matched_dat_and_manifest(
@@ -514,3 +544,40 @@ def test_unsupported_scope_does_not_launch_runner_or_publish(
     assert outcome.published_bundle is None
     assert not destination.exists()
     assert not list(tmp_path.glob(".dvbfixer-diffusion-run.*"))
+
+
+def test_internal_ter_does_not_launch_runner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source, _candidate_bytes, request = _source_candidate_request()
+    right_line = next(
+        line
+        for line in source.splitlines(keepends=True)
+        if line.startswith(b"ATOM  ") and line[22:26].strip() == b"70"
+    )
+    source = source.replace(right_line, b"TER\n" + right_line, 1)
+    request = replace(
+        request,
+        normalized_pdb=ArtifactReference("input/normalized.pdb", _digest(source)),
+    )
+    source_root = tmp_path / "source"
+    input_path = source_root / "input" / "normalized.pdb"
+    input_path.parent.mkdir(parents=True)
+    input_path.write_bytes(source)
+    monkeypatch.setattr(
+        diffusion_pipeline,
+        "run_diffusion_runner",
+        lambda *_args, **_kwargs: pytest.fail("runner must not launch"),
+    )
+
+    outcome = run_diffusion_pipeline(
+        request,
+        ("missing-runner",),
+        source_root=source_root,
+        work_parent=tmp_path,
+        destination_bundle=tmp_path / "published",
+    )
+
+    assert outcome.status is DiffusionStatus.UNSUPPORTED
+    assert "terminator-between-gap-anchors" in outcome.message

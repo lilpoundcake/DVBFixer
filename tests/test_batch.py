@@ -246,6 +246,37 @@ def test_directory_rejects_ambiguous_output_option(tmp_path: Path):
         )
 
 
+@pytest.mark.parametrize(
+    "backend_args",
+    (["--backend", "diffusion"], ["--backend=diffusion"]),
+)
+def test_directory_rejects_diffusion_before_creating_output_or_running(
+    tmp_path: Path,
+    backend_args: list[str],
+):
+    source = tmp_path / "structures"
+    source.mkdir()
+    (source / "a.pdb").write_text("END\n")
+    output = tmp_path / "results"
+    calls: list[list[str]] = []
+
+    with pytest.raises(SystemExit, match="only single-input mode"):
+        run_directory(
+            "model",
+            calls.append,
+            Namespace(
+                input_dir=str(source),
+                output_dir=str(output),
+                recursive=False,
+                fail_fast=False,
+            ),
+            backend_args,
+        )
+
+    assert calls == []
+    assert not output.exists()
+
+
 def test_directory_continues_by_default_and_prints_clear_summary(tmp_path: Path, capsys):
     (tmp_path / "a.pdb").write_text("END\n")
     (tmp_path / "b.pdb").write_text("END\n")

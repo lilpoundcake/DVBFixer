@@ -176,6 +176,11 @@ def assess_diffusion_scope(
         coordinate_lines
     )
     source_explicit_links = _parse_explicit_links(coordinate_lines, atoms)
+    if any(
+        _has_ter_between_anchors(coordinate_lines, gap.left_anchor, gap.right_anchor)
+        for gap in request.gaps
+    ):
+        reasons.append("terminator-between-gap-anchors")
     generated_residues = {
         residue
         for gap in request.gaps
@@ -437,6 +442,7 @@ def _parse_explicit_links(
     for line in lines:
         if line.startswith("CONECT"):
             serial_values: list[int] = []
+            malformed = False
             remainder = line[6:]
             while len(remainder) >= 5:
                 chunk = remainder[:5].strip()
@@ -446,8 +452,13 @@ def _parse_explicit_links(
                 try:
                     serial_values.append(int(chunk))
                 except ValueError:
-                    continue
-            if len(serial_values) < 2 or serial_values[0] not in serials:
+                    malformed = True
+                    break
+            if (
+                malformed
+                or len(serial_values) < 2
+                or any(serial not in serials for serial in serial_values)
+            ):
                 continue
             source = serials[serial_values[0]]
             for serial in serial_values[1:]:
@@ -488,6 +499,25 @@ def _parse_explicit_links(
                 first, second = sorted((first, second))
                 links.add((first, second))
     return links
+
+
+def _has_ter_between_anchors(
+    lines: list[str],
+    left_anchor: ResidueIdentity,
+    right_anchor: ResidueIdentity,
+) -> bool:
+    left_seen = False
+    for line in lines:
+        if line.startswith("TER") and left_seen:
+            return True
+        if line[:6].strip() not in {"ATOM", "HETATM"} or len(line) < 27:
+            continue
+        residue = ResidueIdentity(line[21], line[22:26].strip(), line[26].strip())
+        if residue == right_anchor:
+            return False
+        if residue == left_anchor:
+            left_seen = True
+    return False
 
 
 def _link_key(

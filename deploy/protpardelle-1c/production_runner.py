@@ -16,7 +16,11 @@ from functools import partial
 from pathlib import Path
 from types import ModuleType
 
-from dvbfixer.model.diffusion.contract import DIFFUSION_SCHEMA_VERSION, RunnerResult
+from dvbfixer.model.diffusion.contract import (
+    DIFFUSION_SCHEMA_VERSION,
+    DiffusionStatus,
+    RunnerResult,
+)
 from dvbfixer.model.diffusion.preflight import (
     AdapterPreflightCode,
     AdapterPreflightIssue,
@@ -245,6 +249,10 @@ def run(
         raise ValueError(f"unsupported Protpardelle profile: {profile}")
     if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
         raise RuntimeError("PYTORCH_ENABLE_MPS_FALLBACK=0 is required")
+    if os.environ.get("DVBFIXER_DIFFUSION_PROTOCOL_VERSION") != str(
+        DIFFUSION_RUNNER_PROTOCOL_VERSION
+    ):
+        raise RuntimeError("diffusion execution protocol version is incompatible")
     preflight()
     sys.dont_write_bytecode = True
 
@@ -269,11 +277,6 @@ def run(
         device_name="mps",
         mps_profile=False,
     )
-    if (
-        raw_result.backend_provenance.device != "mps"
-        or raw_result.backend_provenance.framework_version != "2.6.0"
-    ):
-        raise RuntimeError("runner did not use the frozen PyTorch 2.6.0 MPS profile")
     raw_result = replace(
         raw_result,
         backend_provenance=replace(
@@ -283,6 +286,14 @@ def run(
             known_nondeterministic_operations=("PyTorch MPS sampling",),
         ),
     )
+    if raw_result.status is not DiffusionStatus.SUCCESS:
+        result_path.write_text(raw_result.to_json(), encoding="utf-8")
+        return raw_result
+    if (
+        raw_result.backend_provenance.device != "mps"
+        or raw_result.backend_provenance.framework_version != "2.6.0"
+    ):
+        raise RuntimeError("runner did not use the frozen PyTorch 2.6.0 MPS profile")
     result = refiner(request_path, raw_result, output_root / "refined")
     result_path.write_text(result.to_json(), encoding="utf-8")
     return result

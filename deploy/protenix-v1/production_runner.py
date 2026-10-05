@@ -17,7 +17,11 @@ from functools import partial
 from pathlib import Path
 from types import ModuleType
 
-from dvbfixer.model.diffusion.contract import DIFFUSION_SCHEMA_VERSION, RunnerResult
+from dvbfixer.model.diffusion.contract import (
+    DIFFUSION_SCHEMA_VERSION,
+    DiffusionStatus,
+    RunnerResult,
+)
 from dvbfixer.model.diffusion.preflight import (
     AdapterPreflightCode,
     AdapterPreflightIssue,
@@ -262,6 +266,10 @@ def run(
 ) -> RunnerResult:
     if profile != PROFILE:
         raise ValueError(f"unsupported Protenix profile: {profile}")
+    if os.environ.get("DVBFIXER_DIFFUSION_PROTOCOL_VERSION") != str(
+        DIFFUSION_RUNNER_PROTOCOL_VERSION
+    ):
+        raise RuntimeError("diffusion execution protocol version is incompatible")
     preflight()
     sys.dont_write_bytecode = True
 
@@ -288,6 +296,18 @@ def run(
         steps=200,
         ablation_mode=SamplingAblationMode.REINJECTION,
     )
+    raw_result = replace(
+        raw_result,
+        backend_provenance=replace(
+            raw_result.backend_provenance,
+            source_license="Apache-2.0",
+            checkpoint_license="Apache-2.0 (upstream claim)",
+            environment_identity="linux-amd64;python=3.13;torch=2.13.0;cuda=12.9",
+        ),
+    )
+    if raw_result.status is not DiffusionStatus.SUCCESS:
+        result_path.write_text(raw_result.to_json(), encoding="utf-8")
+        return raw_result
     provenance = raw_result.backend_provenance
     if (
         not provenance.device.startswith("cuda")
@@ -295,15 +315,6 @@ def run(
         or provenance.cuda_version != CUDA_VERSION
     ):
         raise RuntimeError("runner did not use the frozen PyTorch/CUDA profile")
-    raw_result = replace(
-        raw_result,
-        backend_provenance=replace(
-            provenance,
-            source_license="Apache-2.0",
-            checkpoint_license="Apache-2.0 (upstream claim)",
-            environment_identity="linux-amd64;python=3.13;torch=2.13.0;cuda=12.9",
-        ),
-    )
     result = refiner(request_path, raw_result, output_root / "refined")
     result_path.write_text(result.to_json(), encoding="utf-8")
     return result

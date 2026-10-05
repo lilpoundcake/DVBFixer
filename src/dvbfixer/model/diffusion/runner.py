@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import os
 import shutil
 import signal
@@ -28,6 +29,7 @@ DIFFUSION_RUNNER_PROTOCOL_VERSION = 4
 REQUEST_MANIFEST = "request.json"
 RESULT_MANIFEST = "result.json"
 _TRUNCATION_MARKER = b"\n...[output truncated by DVBFixer]"
+_PIPE_DRAIN_TIMEOUT_SECONDS = 1.0
 _ENVIRONMENT_ALLOWLIST = (
     "CUDA_VISIBLE_DEVICES",
     "LANG",
@@ -72,8 +74,8 @@ class RunnerLimits:
     max_artifact_bytes: int = 1_000_000_000
 
     def __post_init__(self) -> None:
-        if self.timeout_seconds <= 0:
-            raise ValueError("timeout_seconds must be positive")
+        if not math.isfinite(self.timeout_seconds) or self.timeout_seconds <= 0:
+            raise ValueError("timeout_seconds must be a positive finite number")
         if self.max_output_bytes <= 0:
             raise ValueError("max_output_bytes must be positive")
         if self.max_manifest_bytes <= 0:
@@ -97,8 +99,17 @@ class _BoundedCapture:
         self._data = bytearray()
         self._truncated = False
 
-    def drain(self, stream: BinaryIO) -> None:
-        while chunk := stream.read(65536):
+    def drain(self, stream: BinaryIO, stop: threading.Event) -> None:
+        descriptor = stream.fileno()
+        os.set_blocking(descriptor, False)
+        while not stop.is_set():
+            try:
+                chunk = os.read(descriptor, 65536)
+            except BlockingIOError:
+                stop.wait(0.01)
+                continue
+            if not chunk:
+                return
             remaining = self._limit - len(self._data)
             if remaining > 0:
                 self._data.extend(chunk[:remaining])
@@ -539,9 +550,18 @@ def _execute(
     assert process.stderr is not None
     stdout_capture = _BoundedCapture(limits.max_output_bytes)
     stderr_capture = _BoundedCapture(limits.max_output_bytes)
+    stop_readers = threading.Event()
     threads = (
-        threading.Thread(target=stdout_capture.drain, args=(process.stdout,), daemon=True),
-        threading.Thread(target=stderr_capture.drain, args=(process.stderr,), daemon=True),
+        threading.Thread(
+            target=stdout_capture.drain,
+            args=(process.stdout, stop_readers),
+            daemon=True,
+        ),
+        threading.Thread(
+            target=stderr_capture.drain,
+            args=(process.stderr, stop_readers),
+            daemon=True,
+        ),
     )
     for thread in threads:
         thread.start()
@@ -555,6 +575,12 @@ def _execute(
         exit_code = process.wait()
     finally:
         _terminate_process_group(process, include_descendants=True)
+        for thread in threads:
+            thread.join(timeout=_PIPE_DRAIN_TIMEOUT_SECONDS)
+        readers_alive = any(thread.is_alive() for thread in threads)
+        if readers_alive:
+            timed_out = True
+        stop_readers.set()
         for thread in threads:
             thread.join()
         process.stdout.close()
