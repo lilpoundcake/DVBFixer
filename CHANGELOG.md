@@ -63,6 +63,11 @@ best-effort summaries; consult `git log` for exact provenance.
   profile, including explicit gap kinds, deterministic PDB numbering, terminal
   materialization, single-junction validation, localized refinement, provenance,
   and fail-closed rejection on profiles without accepted terminal evidence.
+- Added an opt-in Protpardelle fixed-heterogen geometric-conditioning slice for
+  complete isolated ligands with authoritative SMILES and explicit CONECT graphs.
+  The pinned sampler now consumes transformed HETATM coordinates through
+  generated-atom repulsion guidance; request/trace/provenance retain exact atom
+  mappings and graph digests, while unsupported chemistry remains fail closed.
 
 ### Compatibility
 

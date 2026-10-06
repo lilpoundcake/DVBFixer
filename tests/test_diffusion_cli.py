@@ -104,6 +104,18 @@ def test_diffusion_parser_accepts_no_terminal() -> None:
     assert args.no_terminal is True
 
 
+def test_diffusion_parser_accepts_authoritative_heterogen_smiles() -> None:
+    args = parse_args([
+        "input.pdb",
+        "--backend",
+        "diffusion",
+        "--diffusion-heterogen-smiles",
+        "LIG=CO",
+    ])
+
+    assert args.diffusion_heterogen_smiles == ["LIG=CO"]
+
+
 def test_diffusion_parser_rejects_modeller_only_options() -> None:
     with pytest.raises(SystemExit):
         parse_args(

@@ -50,6 +50,13 @@ dvbfixer model input.pdb --keep-workdir -v
 dvbfixer model input.pdb --fasta sequence.fasta \
   --backend diffusion -o input_model_diffusion
 
+# Retain an isolated ligand as fixed geometric denoiser context. The supplied
+# SMILES is authoritative for graph/charge/stereochemistry admission.
+dvbfixer model input.pdb --fasta sequence.fasta --backend diffusion \
+  --diffusion-model protpardelle \
+  --diffusion-heterogen-smiles 'LIG=CC(=O)[O-]' \
+  -o input_model_diffusion
+
 # Ignore missing N/C tails and reconstruct only internal gaps
 dvbfixer model input.pdb --fasta sequence.fasta \
   --backend diffusion --no-terminal -o input_model_diffusion
@@ -67,9 +74,17 @@ that chain's `TER`. Validation applies the single available peptide-junction gat
 plus atom completeness, geometry, clashes, chirality, and exact fixed-coordinate
 checks. Other diffusion profiles reject terminal requests before runner launch.
 Pass `--no-terminal` to crop each target outside its first and last observed
-anchors and reconstruct only internal gaps. Retained
-heterogens, noncanonical residues, ambiguous sequence placement, and unsupported
-links fail before the external runner is started. `--strip-heterogens`
+anchors and reconstruct only internal gaps. Protpardelle can retain complete,
+isolated, single-residue small molecules only when every retained HETATM residue
+has an authoritative repeatable `--diffusion-heterogen-smiles RESNAME=SMILES`
+mapping. DVBFixer requires occupancy 1.00, explicit heavy elements, complete
+intra-residue CONECT connectivity, a unique chemically equivalent graph mapping,
+and no external covalent link. The fixed HETATM coordinates enter the sampler as
+a differentiable 2 Å geometric-exclusion context and remain byte-coordinate exact
+in the output. This does **not** claim learned bond/charge interaction energies,
+ligand generation, parameterization, or support for glycans, metals, waters,
+PTMs, cofactors, and covalent ligands. Unsupported chemistry fails before runner
+launch. `--strip-heterogens`
 explicitly creates a protein-only private input before admission and removes
 associated ANISOU, LINK, and CONECT records; the source file is never changed.
 Batch mode, GUI, `zbs`, and `homology` do not expose diffusion.

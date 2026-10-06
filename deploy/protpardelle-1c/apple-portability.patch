@@ -1,5 +1,5 @@
 diff --git a/src/protpardelle/core/models.py b/src/protpardelle/core/models.py
-index 393924e..0dc1957 100644
+index b32818a..40470f6 100644
 --- a/src/protpardelle/core/models.py
 +++ b/src/protpardelle/core/models.py
 @@ -963,6 +963,7 @@ class Protpardelle(nn.Module):
@@ -19,7 +19,58 @@ index 393924e..0dc1957 100644
          """
  
          cc = apply_dotdict_recursively(conditional_cfg)  # shorthand
-@@ -2121,7 +2124,8 @@ class Protpardelle(nn.Module):
+@@ -1147,9 +1150,12 @@ class Protpardelle(nn.Module):
+                 motif_all_atom = motif_all_atom_stage1.clone()
+             else:
+                 # center the motif on CA coords
+-                motif_all_atom = motif_all_atom - torch.mean(
++                motif_center = torch.mean(
+                     motif_all_atom[..., 1:2, :], dim=-3, keepdim=True
+                 )
++                motif_all_atom = motif_all_atom - motif_center
++                het_atom_pos = torch.stack(all_het_atom_pos)
++                het_atom_pos = het_atom_pos - motif_center[:, 0, :, :]
+ 
+                 # randomly rotate the motif
+                 random_rots = torch.stack(
+@@ -1161,6 +1167,9 @@ class Protpardelle(nn.Module):
+                 motif_all_atom = torch.einsum(
+                     "bij,blaj->blai", random_rots, motif_all_atom
+                 )
++                het_atom_pos = torch.einsum(
++                    "bij,bhj->bhi", random_rots, het_atom_pos
++                )
+                 motif_all_atom = motif_all_atom * motif_atom_mask.unsqueeze(-1).to(
+                     motif_all_atom
+                 )
+@@ -1998,6 +2007,26 @@ class Protpardelle(nn.Module):
+ 
+                         loss = loss_weights.motif * loss
+ 
++                        # Fixed HETATM coordinates are a geometric exclusion
++                        # context only: no bond, charge, or interaction energy is
++                        # inferred. Apply repulsion exclusively to generated atoms.
++                        if het_atom_pos is not None and het_atom_pos.shape[1] > 0:
++                            generated_mask37 = guidance_mask37.clone()
++                            for bi, fixed_indices in enumerate(motif_idx):
++                                generated_mask37[bi, fixed_indices] = 0
++                            hetero_repulsion = x0.new_zeros(())
++                            for bi in range(x0.shape[0]):
++                                generated_coords = x0[bi][generated_mask37[bi]]
++                                if generated_coords.numel() > 0:
++                                    distances = torch.cdist(
++                                        generated_coords.unsqueeze(0),
++                                        het_atom_pos[bi].unsqueeze(0),
++                                    )
++                                    hetero_repulsion = hetero_repulsion + torch.relu(
++                                        2.0 - distances
++                                    ).square().sum()
++                            loss = loss + hetero_repulsion
++
+                         guidance = torch.autograd.grad(loss, xt_hat)[0]
+                         guidance_in = (guidance, guidance_mask37.float())
+                         torch.set_grad_enabled(False)
+@@ -2121,7 +2150,8 @@ class Protpardelle(nn.Module):
                                  curr_step=i,
                              )
  
@@ -29,7 +80,7 @@ index 393924e..0dc1957 100644
  
              else:
                  xt = x0
-@@ -2134,10 +2138,11 @@ class Protpardelle(nn.Module):
+@@ -2134,10 +2164,11 @@ class Protpardelle(nn.Module):
                  torch.sqrt(sigma_next**2 + self.sigma_data**2), xt
              )
              scaled_xt = xt * xt_scale

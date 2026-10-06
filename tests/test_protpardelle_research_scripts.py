@@ -178,6 +178,8 @@ def test_apple_patch_removes_cuda_only_side_effects_and_host_trajectory_copies()
     assert 'sample_options["record_trajectory"] = False' in (
         ROOT / "deploy/protpardelle-1c/checkpoint_gap_smoke.py"
     ).read_text(encoding="utf-8")
+    assert "hetero_repulsion" in patch
+    assert "torch.cdist" in patch
 
 
 def test_adapter_keeps_per_step_reinjection_opt_in() -> None:

@@ -22,6 +22,10 @@ from dvbfixer.model.diffusion.contract import (
     TargetInterval,
     TargetSequence,
 )
+from dvbfixer.model.diffusion.heterogen_context import (
+    HeterogenContextError,
+    build_smiles_heterogen_contexts,
+)
 from dvbfixer.model.diffusion.masks import (
     DiffusionMaskError,
     ObservedResidue,
@@ -43,6 +47,7 @@ from dvbfixer.model.diffusion.scope import (
     assess_diffusion_scope,
     canonical_heavy_atom_identities,
 )
+from dvbfixer.prepare.smiles import SmilesPreparationError, parse_smiles_mappings
 
 
 class DiffusionCliError(ValueError):
@@ -56,6 +61,7 @@ def build_cli_diffusion_request(
     seeds: tuple[int, ...],
     profile: str,
     no_terminal: bool = False,
+    heterogen_smiles: dict[str, str] | None = None,
 ) -> DiffusionRequest:
     """Build a canonical-protein request with internal gaps on one or more chains."""
     source = input_path.read_bytes()
@@ -223,6 +229,13 @@ def build_cli_diffusion_request(
         ExplicitLink(first, second, "PDB")
         for first, second in sorted(_parse_explicit_links(lines, atoms))
     )
+    try:
+        heterogen_contexts = build_smiles_heterogen_contexts(
+            text,
+            heterogen_smiles or {},
+        )
+    except HeterogenContextError as exc:
+        raise DiffusionCliError(str(exc)) from exc
     return DiffusionRequest(
         schema_version=DIFFUSION_SCHEMA_VERSION,
         normalized_pdb=ArtifactReference(input_path.name, hashlib.sha256(source).hexdigest()),
@@ -235,6 +248,7 @@ def build_cli_diffusion_request(
         candidate_count=len(seeds),
         seeds=seeds,
         backend_options=(BackendOption("profile", profile),),
+        heterogen_contexts=heterogen_contexts,
     )
 
 
@@ -359,12 +373,19 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
             )
 
         target_sequences = _target_sequences(model_input, args.fasta)
+        try:
+            heterogen_smiles = parse_smiles_mappings(
+                getattr(args, "diffusion_heterogen_smiles", ())
+            )
+        except SmilesPreparationError as exc:
+            raise DiffusionCliError(str(exc)) from exc
         request = build_cli_diffusion_request(
             model_input,
             target_sequences,
             seeds=tuple(args.diffusion_seeds),
             profile=runtime.profile,
             no_terminal=getattr(args, "no_terminal", False),
+            heterogen_smiles=heterogen_smiles,
         )
         try:
             admission = assess_diffusion_scope(request, model_input.read_bytes())

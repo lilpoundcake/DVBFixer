@@ -118,7 +118,7 @@ DIFFUSION_PROFILES = {
         ),
         engine="Protpardelle-1c",
         source_revision="ee378400f25b801fa481028000f9060183d7fb4c",
-        patch_identity="sha256:a87fe2e9f0c143102441d6a39ff181bd0c2b1c411cdfdf65236d7baf38a8d858",
+        patch_identity="sha256:627891e28d5055cb0d903f542af695569d7133b0480cab8f25d154dc8ccc78c9",
         expected_checkpoint_sha256="dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483",
         sampling_platform="native macOS arm64 / MPS",
         refinement_platform="OpenMM CPU",

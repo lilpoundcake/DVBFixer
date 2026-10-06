@@ -55,20 +55,23 @@ contacts.
 
 ## 3. Heterogen-aware diffusion
 
+**Статус: узкий isolated-SMILES geometric-context slice реализован 2026-10-06.**
+Protpardelle получает fixed HETATM coordinates в differentiable repulsion guidance;
+request/trace/provenance фиксируют exact atom mapping и authoritative graph digest.
+500-step MPS smoke прошёл validation и сохранил HETATM coordinates точно. Это не
+general learned chemical interaction model и не heterogen generation.
+
 Сейчас есть только явное `--strip-heterogens`, создающее приватный protein-only
 input. Это не ligand conditioning.
 
-Не реализовано:
+Остаётся:
 
-- сохранение ligand/glycan/metal context в sampler input;
-- authoritative molecular graph для heterogen;
-- bond order, formal charge, stereochemistry и coordination state;
-- точное engine atom/token mapping;
-- ligand SMILES как источник химической истины;
-- conditioning protein gap по ligand/glycan/metal atoms;
-- сохранение covalent protein–heterogen links;
+- learned graph/charge/bond-order interaction features вместо geometric exclusion;
+- metals и coordination state;
+- glycans, PTMs, cofactors и waters;
+- covalent protein–heterogen links;
 - heterogen-aware refinement и clash/contact validation;
-- отдельные benchmark strata для малых лигандов, металлов, glycans, covalent
+- расширенный benchmark strata для малых лигандов, металлов, glycans, covalent
   ligands, cofactors и waters.
 
 Основной документ:

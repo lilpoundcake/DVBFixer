@@ -46,7 +46,7 @@ from dvbfixer.model.diffusion.validate import validate_runner_result
 _REVISION = "ee378400f25b801fa481028000f9060183d7fb4c"
 _CHECKPOINT_SHA256 = "dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483"
 _CONFIG_SHA256 = "e9999ace79bf3044351cc982a624fc3459add3a4f91cbf97ff5b437b8942eb9d"
-_APPLE_PATCH_SHA256 = "a87fe2e9f0c143102441d6a39ff181bd0c2b1c411cdfdf65236d7baf38a8d858"
+_APPLE_PATCH_SHA256 = "627891e28d5055cb0d903f542af695569d7133b0480cab8f25d154dc8ccc78c9"
 _MPS_ENVIRONMENT_KEYS = (
     "PYTORCH_ENABLE_MPS_FALLBACK",
     "PYTORCH_MPS_FAST_MATH",
@@ -56,6 +56,7 @@ _MPS_ENVIRONMENT_KEYS = (
 )
 _INTERCHAIN_CONTEXT_CUTOFF_ANGSTROM = 12.0
 _INTERCHAIN_CONTEXT_SEQUENCE_PADDING = 2
+_HETEROGEN_REPULSION_CUTOFF_ANGSTROM = 2.0
 
 
 def _resolve_device(torch: Any, requested: str) -> Any:
@@ -276,6 +277,11 @@ def _chain_sampling_requests(
         selected_fixed = set(context_atoms)
         selected_fixed.update(
             atom for atom in request.fixed_atoms if atom.chain == chain
+        )
+        selected_fixed.update(
+            atom
+            for context in request.heterogen_contexts
+            for atom in context.atoms
         )
         requests.append(replace(
             request,
@@ -546,6 +552,9 @@ def _write_motif_input(
     fixed_atom_set = set(request.fixed_atoms)
     target_index = _local_target_indices(request)
     chain_labels = _motif_chain_labels(request)
+    heterogen_atoms = {
+        atom for context in request.heterogen_contexts for atom in context.atoms
+    }
     lines: list[str] = []
     serial = 1
     seen: set[AtomIdentity] = set()
@@ -556,16 +565,21 @@ def _write_motif_input(
             line[21:22], line[22:26].strip(), line[26:27].strip(), line[12:16].strip()
         )
         residue = ResidueIdentity(identity.chain, identity.residue_number, identity.insertion_code)
-        if identity not in fixed_atom_set or residue not in target_index:
+        if identity not in fixed_atom_set:
             continue
         if identity in seen:
             raise ValueError(f"duplicate motif atom: {identity}")
         seen.add(identity)
-        ordinal = target_index[residue] + 1
-        record = (
-            "ATOM  " + f"{serial:5d}" + line[11:21]
-            + chain_labels[residue.chain] + f"{ordinal:4d}" + " " + line[27:]
-        )
+        if identity in heterogen_atoms:
+            record = "HETATM" + f"{serial:5d}" + line[11:]
+        else:
+            if residue not in target_index:
+                continue
+            ordinal = target_index[residue] + 1
+            record = (
+                "ATOM  " + f"{serial:5d}" + line[11:21]
+                + chain_labels[residue.chain] + f"{ordinal:4d}" + " " + line[27:]
+            )
         lines.append(record + "\n")
         serial += 1
     if seen != fixed_atom_set:
@@ -1061,6 +1075,10 @@ def _run_staged(
         )
         sampler_atom_order = tuple(
             identity for identity in identities if identity in requested_atoms
+        ) + tuple(
+            atom
+            for context in sampling_request.heterogen_contexts
+            for atom in context.atoms
         )
         sampler_atom_order_parts.extend(sampler_atom_order)
         fit = _native_conditioning_fit(
@@ -1089,7 +1107,14 @@ def _run_staged(
             coordinates,
             residue_names,
         ):
-            if identity in requested_atoms and identity.chain == primary_chain:
+            if (
+                identity in requested_atoms
+                and identity.chain == primary_chain
+                and all(
+                    identity not in context.atoms
+                    for context in sampling_request.heterogen_contexts
+                )
+            ):
                 candidate_identities.append(identity)
                 candidate_coordinates.append(coordinate)
                 candidate_residue_names.append(residue_name)
@@ -1157,6 +1182,13 @@ def _run_staged(
             resource_metrics=resource_metrics,
             sampler_evidence_complete=True,
             conditioning_contexts=tuple(conditioning_contexts),
+            conditioned_heterogen_atoms=tuple(
+                dict.fromkeys(
+                    atom
+                    for context in request.heterogen_contexts
+                    for atom in context.atoms
+                )
+            ),
         ),
     )
 
@@ -1172,22 +1204,25 @@ def _run_staged(
         raw_backend_score=None,
         score_provenance="protpardelle-1c-cc89:unranked",
     )
+    backend_label = (
+        "protpardelle-1c-cc89-local-interchain-conditioning"
+        + ("+per-step-reinjection" if per_step_reinjection else "")
+        if conditioning_contexts
+        else (
+            "protpardelle-1c-cc89-independent-chain+per-step-reinjection"
+            if per_step_reinjection
+            else "protpardelle-1c-cc89-independent-chain"
+        )
+    )
+    if request.heterogen_contexts:
+        backend_label += "+heterogen-geometric-context"
     result = RunnerResult(
         schema_version=DIFFUSION_SCHEMA_VERSION,
         status=DiffusionStatus.SUCCESS,
         candidates=(candidate,),
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
-            backend=(
-                "protpardelle-1c-cc89-local-interchain-conditioning"
-                + ("+per-step-reinjection" if per_step_reinjection else "")
-                if conditioning_contexts
-                else (
-                    "protpardelle-1c-cc89-independent-chain+per-step-reinjection"
-                    if per_step_reinjection
-                    else "protpardelle-1c-cc89-independent-chain"
-                )
-            ),
+            backend=backend_label,
             runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="https://github.com/ProteinDesignLab/protpardelle-1c",
             engine_revision=_REVISION,
@@ -1206,6 +1241,9 @@ def _run_staged(
                 f"local-interchain-contexts={len(conditioning_contexts)}",
                 "interchain-context-cutoff-angstrom="
                 f"{_INTERCHAIN_CONTEXT_CUTOFF_ANGSTROM}",
+                f"conditioned-heterogens={len(request.heterogen_contexts)}",
+                "heterogen-repulsion-cutoff-angstrom="
+                f"{_HETEROGEN_REPULSION_CUTOFF_ANGSTROM}",
                 f"per-step-reinjection={per_step_reinjection}",
                 f"mps-fallback={os.environ.get('PYTORCH_ENABLE_MPS_FALLBACK', 'unset')}",
             ),
@@ -1267,6 +1305,16 @@ def _run_staged(
                 "partner_atom_count": len(context.partner_atoms),
             }
             for context in conditioning_contexts
+        ],
+        "heterogen_conditioning": [
+            {
+                "residue": asdict(context.residue),
+                "residue_name": context.residue_name,
+                "atom_count": len(context.atoms),
+                "authoritative_graph_sha256": context.authoritative_graph_sha256,
+                "conditioning_mode": context.conditioning_mode,
+            }
+            for context in request.heterogen_contexts
         ],
         "step_scale": step_scale,
         "s_churn": s_churn,

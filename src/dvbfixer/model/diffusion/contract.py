@@ -201,6 +201,34 @@ class ExplicitLink:
 
 
 @dataclass(frozen=True, slots=True)
+class HeterogenContext:
+    residue: ResidueIdentity
+    residue_name: str
+    atoms: tuple[AtomIdentity, ...]
+    canonical_smiles: str
+    authoritative_graph_sha256: str
+    conditioning_mode: str = "fixed-geometric-repulsion"
+
+    def __post_init__(self) -> None:
+        _required_text(self.residue_name, "heterogen residue name")
+        _required_text(self.canonical_smiles, "heterogen canonical SMILES")
+        _required_text(self.conditioning_mode, "heterogen conditioning mode")
+        ArtifactReference("authoritative_graph", self.authoritative_graph_sha256)
+        if not self.atoms or len(set(self.atoms)) != len(self.atoms):
+            raise DiffusionContractError(
+                "heterogen context atoms must be non-empty and unique"
+            )
+        if any(
+            ResidueIdentity(atom.chain, atom.residue_number, atom.insertion_code)
+            != self.residue
+            for atom in self.atoms
+        ):
+            raise DiffusionContractError(
+                "heterogen context atoms must belong to its declared residue"
+            )
+
+
+@dataclass(frozen=True, slots=True)
 class BackendOption:
     name: str
     value: str
@@ -432,6 +460,7 @@ class SamplerTrace:
     localized_refinement_residues: tuple[ResidueIdentity, ...] = ()
     final_heavy_coordinate_operations: tuple[str, ...] = ()
     conditioning_contexts: tuple[SamplerConditioningContext, ...] = ()
+    conditioned_heterogen_atoms: tuple[AtomIdentity, ...] = ()
 
     def __post_init__(self) -> None:
         if self.schema_version != DIFFUSION_SCHEMA_VERSION:
@@ -507,6 +536,18 @@ class SamplerTrace:
         ):
             raise DiffusionContractError(
                 "conditioning partner atoms must be represented fixed atoms"
+            )
+        if len(set(self.conditioned_heterogen_atoms)) != len(
+            self.conditioned_heterogen_atoms
+        ):
+            raise DiffusionContractError(
+                "conditioned heterogen atoms must not contain duplicates"
+            )
+        if not set(self.conditioned_heterogen_atoms) <= set(
+            self.represented_fixed_atoms
+        ):
+            raise DiffusionContractError(
+                "conditioned heterogen atoms must be represented fixed atoms"
             )
         if len(self.steps) > MAX_TRACE_STEPS:
             raise DiffusionContractError("sampler trace exceeds its step count limit")
@@ -793,6 +834,7 @@ class DiffusionRequest(_JsonContract):
     candidate_count: int
     seeds: tuple[int, ...]
     backend_options: tuple[BackendOption, ...] = ()
+    heterogen_contexts: tuple[HeterogenContext, ...] = ()
 
     def __post_init__(self) -> None:
         super(DiffusionRequest, self).__post_init__()
@@ -832,6 +874,16 @@ class DiffusionRequest(_JsonContract):
         overlap = set(self.fixed_atoms) & set(self.generated_atoms)
         if overlap:
             raise DiffusionContractError("fixed_atoms and generated_atoms must be disjoint")
+        context_residues = [context.residue for context in self.heterogen_contexts]
+        if len(context_residues) != len(set(context_residues)):
+            raise DiffusionContractError("heterogen context residues must be unique")
+        context_atoms = {
+            atom for context in self.heterogen_contexts for atom in context.atoms
+        }
+        if not context_atoms <= set(self.fixed_atoms):
+            raise DiffusionContractError(
+                "heterogen context atoms must be part of the fixed atom mask"
+            )
         option_names = [option.name for option in self.backend_options]
         if len(option_names) != len(set(option_names)):
             raise DiffusionContractError("backend option names must be unique")

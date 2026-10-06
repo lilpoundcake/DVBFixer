@@ -25,8 +25,8 @@ Frozen identities:
 
 | Artifact | SHA-256 |
 |---|---|
-| Apple portability patch | `a87fe2e9f0c143102441d6a39ff181bd0c2b1c411cdfdf65236d7baf38a8d858` |
-| Patched `models.py` | `3ad9efdc4e1086e14dbba941d88ca62521e956f13a1df88bba5fc6edec81c19d` |
+| Apple portability/heterogen-guidance patch | `627891e28d5055cb0d903f542af695569d7133b0480cab8f25d154dc8ccc78c9` |
+| Patched `models.py` | `8513fac0d18d3080b14673bb9b6ed3b231e1d31d30449d3b8c6cc09f0445800b` |
 | cc89 config | `e9999ace79bf3044351cc982a624fc3459add3a4f91cbf97ff5b437b8942eb9d` |
 | cc89 checkpoint | `dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483` |
 

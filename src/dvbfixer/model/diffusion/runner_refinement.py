@@ -164,8 +164,13 @@ def refine_runner_result(
                 ) in gap_residues
             )
             short_gap = len(gap.generated_residues) <= 5
+            refinement_input = (
+                _protein_only_refinement_text(refined_text)
+                if request.heterogen_contexts
+                else refined_text
+            )
             refinement = refine_generated_region(
-                refined_text,
+                refinement_input,
                 generated_residues=gap.generated_residues,
                 generated_atoms=gap_atoms,
                 max_iterations=(
@@ -295,4 +300,13 @@ def refine_runner_result(
             peak_ram_bytes=raw_metrics.peak_ram_bytes,
             peak_vram_bytes=raw_metrics.peak_vram_bytes,
         ),
+    )
+
+
+def _protein_only_refinement_text(pdb_text: str) -> str:
+    """Remove retained chemistry from the temporary protein FF refinement input."""
+    return "".join(
+        line
+        for line in pdb_text.splitlines(keepends=True)
+        if not line.startswith(("HETATM", "CONECT", "LINK  "))
     )

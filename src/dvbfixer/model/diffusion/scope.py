@@ -157,6 +157,10 @@ def assess_diffusion_scope(
         requested_profile.startswith("protpardelle-1c")
     ):
         reasons.append("terminal-gaps-unsupported-by-profile")
+    if request.heterogen_contexts and not requested_profile.startswith(
+        "protpardelle-1c"
+    ):
+        reasons.append("heterogen-conditioning-unsupported-by-profile")
     lines = text.splitlines()
     if sum(line.startswith("MODEL ") for line in lines) > 1:
         reasons.append("multiple-models")
@@ -202,6 +206,10 @@ def assess_diffusion_scope(
         for gap in request.gaps
         for residue in gap.generated_residues
     }
+    context_atoms = {
+        atom for context in request.heterogen_contexts for atom in context.atoms
+    }
+    context_residues = {context.residue for context in request.heterogen_contexts}
     movable_residues = {
         residue
         for gap in request.gaps
@@ -209,10 +217,20 @@ def assess_diffusion_scope(
     }
 
     if any(
-        record_name != "ATOM" or residue_name not in _CANONICAL_RESIDUES
-        for record_name, _identity, residue_name, _element in atoms
+        not (
+            (record_name == "ATOM" and residue_name in _CANONICAL_RESIDUES)
+            or (record_name == "HETATM" and identity in context_atoms)
+        )
+        for record_name, identity, residue_name, _element in atoms
     ):
         reasons.append("retained-heterogen-or-noncanonical-residue")
+    observed_context_residues = {
+        _residue(record.identity)
+        for record in atoms
+        if record.record_name == "HETATM" and record.identity in context_atoms
+    }
+    if observed_context_residues != context_residues:
+        reasons.append("heterogen-context-identity-mismatch")
     if altloc_residues & movable_residues:
         reasons.append("adjacent-alternate-location-ambiguity")
     if generated_residues & set(residue_names):
@@ -263,9 +281,10 @@ def assess_diffusion_scope(
     for placement in request.sequence_placements:
         sequence = sequences[placement.chain]
         source_chain_residues = {
-            residue
-            for residue in residue_names
-            if residue.chain == placement.chain
+            _residue(record.identity)
+            for record in atoms
+            if record.record_name == "ATOM"
+            and record.identity.chain == placement.chain
         }
         if set(placement.observed_residues) != source_chain_residues:
             placement_matches = False

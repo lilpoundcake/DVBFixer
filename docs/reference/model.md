@@ -11,6 +11,7 @@ usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA]
                       [--diffusion-seed DIFFUSION_SEEDS]
                       [--diffusion-timeout DIFFUSION_TIMEOUT]
                       [--diffusion-work-parent DIFFUSION_WORK_PARENT]
+                      [--diffusion-heterogen-smiles RESNAME=SMILES]
                       [-n NUM_MODELS] [--num-loops NUM_LOOPS]
                       [--num-output NUM_OUTPUT]
                       [--md-level {none,fast,slow,very_slow,slow_large}]
@@ -57,6 +58,10 @@ Diffusion options:
                         chain sampling/refinement)
   --diffusion-work-parent DIFFUSION_WORK_PARENT
                         Parent directory for the private runner workspace
+  --diffusion-heterogen-smiles RESNAME=SMILES
+                        Authoritative SMILES for a retained isolated HETATM
+                        residue; repeat for multiple residue names
+                        (Protpardelle fixed geometric context only)
 
 Modelling parameters:
   -n NUM_MODELS, --num-models NUM_MODELS

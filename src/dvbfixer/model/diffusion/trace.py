@@ -40,6 +40,7 @@ def build_sampler_trace(
     resource_metrics: RunnerResourceMetrics | None = None,
     sampler_evidence_complete: bool = True,
     conditioning_contexts: tuple[SamplerConditioningContext, ...] = (),
+    conditioned_heterogen_atoms: tuple[AtomIdentity, ...] = (),
 ) -> SamplerTrace:
     """Build the common no-refinement trace from observed sampler evidence."""
     reinjection = bool(projection_errors_angstrom)
@@ -96,6 +97,7 @@ def build_sampler_trace(
             else ()
         ),
         conditioning_contexts=conditioning_contexts,
+        conditioned_heterogen_atoms=conditioned_heterogen_atoms,
     )
 
 
@@ -118,6 +120,13 @@ def validate_sampler_trace_context(
     """Match standalone trace evidence to its request and backend identity."""
     if trace.fixed_atoms != request.fixed_atoms:
         raise DiffusionContractError("sampler trace changed the fixed atom mask")
+    expected_heterogen_atoms = {
+        atom for context in request.heterogen_contexts for atom in context.atoms
+    }
+    if set(trace.conditioned_heterogen_atoms) != expected_heterogen_atoms:
+        raise DiffusionContractError(
+            "sampler trace changed the conditioned heterogen atom mapping"
+        )
     expected_sampler_atoms = set(trace.represented_fixed_atoms) | set(
         request.generated_atoms
     )

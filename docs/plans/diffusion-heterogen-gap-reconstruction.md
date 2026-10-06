@@ -1,6 +1,7 @@
 # Diffusion Gap Reconstruction With Heterogen Context Research Plan
 
-- Status: proposed research; no public capability or implementation commitment.
+- Status: narrow isolated-SMILES geometric-context slice implemented for the
+  Protpardelle profile; broader chemistry classes remain proposed research.
 - Scope owner: Structure Preparation bounded context.
 - Depends on:
   - the narrow protein-only diffusion boundary in
@@ -93,6 +94,28 @@ audit proves otherwise. Final restoration of HETATM coordinates can establish
 retention, not conditioning. Protenix/Boltz-class support must likewise be proven
 against the pinned implementation and checkpoint rather than inferred from model
 marketing or input-schema acceptance.
+
+### Implemented narrow slice (2026-10-06)
+
+- Public opt-in authority is repeatable
+  `--diffusion-heterogen-smiles RESNAME=SMILES`.
+- Admission is limited to complete isolated single-residue HETATM components
+  with occupancy 1.00, explicit heavy elements, explicit CONECT connectivity,
+  no external covalent edge, and one chemically equivalent graph mapping through
+  the shared `prepare.smiles` graph/signature policy.
+- The pinned Protpardelle patch transforms HETATM coordinates with the protein
+  motif and applies differentiable 2 Å geometric repulsion only to generated
+  protein atoms. Upstream previously parsed these coordinates but never consumed
+  them; merely retaining HETATM records was therefore not accepted as evidence.
+- Request, sampler trace, and publication provenance preserve exact PDB atom
+  identities plus an authoritative canonical-SMILES graph digest. Heterogen heavy
+  coordinates remain exact; local OpenMM refinement uses a protein-only temporary
+  topology and writes back only generated protein coordinates.
+- A 500-step MPS smoke with an isolated two-heavy-atom ligand passed independent
+  validation and preserved both HETATM coordinate records exactly.
+- Capability label is deliberately `fixed-geometric-repulsion`, not general
+  chemical interaction conditioning. Glycans, metals, waters, PTMs, cofactors,
+  covalent ligands, partial components, and inferred chemistry remain unsupported.
 
 ## Phase 0: Contract And Policy Design
 

@@ -80,6 +80,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--diffusion-work-parent",
         help="Parent directory for the private runner workspace",
     )
+    diffusion.add_argument(
+        "--diffusion-heterogen-smiles",
+        action="append",
+        default=[],
+        metavar="RESNAME=SMILES",
+        help="Authoritative SMILES for a retained isolated HETATM residue; repeat "
+        "for multiple residue names (Protpardelle fixed geometric context only)",
+    )
 
     modelling = p.add_argument_group("Modelling parameters")
     modelling.add_argument(
@@ -180,6 +188,7 @@ def _validate_backend_options(
         "--diffusion-seed",
         "--diffusion-timeout",
         "--diffusion-work-parent",
+        "--diffusion-heterogen-smiles",
     }
     provided = {token.split("=", 1)[0] for token in argv if token.startswith("-")}
     if args.backend == "modeller":
