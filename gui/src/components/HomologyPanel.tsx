@@ -617,22 +617,36 @@ export function HomologyPanel() {
 
   const runModel = async () => {
     if (!project) return
-    setBusy('Running Modeller')
+    const backend = project.modelOptions['--backend'] === 'diffusion' ? 'diffusion' : 'modeller'
+    setBusy(backend === 'diffusion' ? 'Running mosaic diffusion' : 'Running Modeller')
     setError('')
     setMessage('')
     try {
       const response = await apiFetch('/api/homology/model', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...project, workspaceId: activeWorkspace?.id }),
       })
-      const body = await response.json() as { error?: string; outputFile?: string; stderr?: string }
+      const body = await response.json() as { error?: string; outputFile?: string; stderr?: string; modelStatus?: string }
       if (!response.ok) throw new Error(body.error || body.stderr || `HTTP ${response.status}`)
-      setMessage(`Model complete: ${body.outputFile}`)
+      setMessage(`${body.modelStatus && body.modelStatus !== 'success' ? 'Rejected candidate published' : 'Model complete'}: ${body.outputFile}`)
       await reloadWorkspace()
     } catch (reason: any) {
       setError(reason.message || String(reason))
     } finally {
       setBusy('')
     }
+  }
+
+  const setModelBackend = (backend: string) => {
+    if (!project) return
+    const options: Record<string, string | number | boolean> = {
+      ...project.modelOptions,
+      '--backend': backend,
+    }
+    if (backend === 'modeller') {
+      delete options['--diffusion-model']
+      delete options['--diffusion-seed']
+    }
+    update({ modelOptions: options })
   }
 
   if (!project) return <Box sx={{ p: 2 }}><CircularProgress size={20} /> {busy || 'Loading homology workspace…'}</Box>
@@ -838,17 +852,24 @@ export function HomologyPanel() {
         {tab === 3 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Box sx={homologyToolbarSx}>
-              <TextField sx={toolbarControlSx} size="small" type="number" label="Models" value={project.modelOptions['--num-models'] ?? 5}
-                onChange={event => update({ modelOptions: { ...project.modelOptions, '--num-models': Number(event.target.value) } })} />
-              <FormControl size="small" sx={toolbarControlSx}><InputLabel>MD refinement</InputLabel><Select label="MD refinement" value={project.modelOptions['--md-level'] ?? 'fast'}
-                onChange={event => update({ modelOptions: { ...project.modelOptions, '--md-level': event.target.value } })}>
-                {['none', 'fast', 'slow', 'very_slow', 'slow_large'].map(level => <MenuItem key={level} value={level}>{level}</MenuItem>)}
+              <FormControl size="small" sx={toolbarControlSx}><InputLabel>Backend</InputLabel><Select label="Backend" value={project.modelOptions['--backend'] ?? 'modeller'}
+                onChange={event => setModelBackend(String(event.target.value))}>
+                <MenuItem value="modeller">Modeller</MenuItem><MenuItem value="diffusion">Protpardelle diffusion</MenuItem>
               </Select></FormControl>
+              {(project.modelOptions['--backend'] ?? 'modeller') === 'modeller' ? <>
+                <TextField sx={toolbarControlSx} size="small" type="number" label="Models" value={project.modelOptions['--num-models'] ?? 5}
+                  onChange={event => update({ modelOptions: { ...project.modelOptions, '--num-models': Number(event.target.value) } })} />
+                <FormControl size="small" sx={toolbarControlSx}><InputLabel>MD refinement</InputLabel><Select label="MD refinement" value={project.modelOptions['--md-level'] ?? 'fast'}
+                  onChange={event => update({ modelOptions: { ...project.modelOptions, '--md-level': event.target.value } })}>
+                  {['none', 'fast', 'slow', 'very_slow', 'slow_large'].map(level => <MenuItem key={level} value={level}>{level}</MenuItem>)}
+                </Select></FormControl>
+              </> : <TextField sx={toolbarControlSx} size="small" type="number" label="Seed" value={project.modelOptions['--diffusion-seed'] ?? 7}
+                onChange={event => update({ modelOptions: { ...project.modelOptions, '--diffusion-seed': Number(event.target.value), '--diffusion-model': 'protpardelle' } })} />}
               <Button sx={primaryActionSx} variant="contained"
-                onClick={runModel} disabled={busy !== '' || !project.alignmentGroups.length}>Run Modeller</Button>
+                onClick={runModel} disabled={busy !== '' || !project.alignmentGroups.length}>Run {(project.modelOptions['--backend'] ?? 'modeller') === 'diffusion' ? 'Diffusion' : 'Modeller'}</Button>
             </Box>
             <Typography variant="caption" color="text.secondary">
-              Selected spans are assembled from the fitted structures into one coordinate-preserving mosaic template before Modeller runs. At overlapping columns, the earlier template in the Templates tab has precedence. Rows without masks use their complete aligned coverage.
+              Selected spans are assembled from the fitted structures into one coordinate-preserving mosaic template. At overlapping columns, the earlier template in the Templates tab has precedence. Diffusion keeps covered matching residues fixed and generates only admitted uncovered regions; it never falls back to Modeller.
             </Typography>
           </Box>
         )}

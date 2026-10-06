@@ -91,9 +91,13 @@ describe('homology project materialization', () => {
     expect(validatedModelArgs({ '--num-models': 8, '--md-level': 'slow' })).toEqual([
       '--num-models', '8', '--md-level', 'slow',
     ])
+    expect(validatedModelArgs({ '--backend': 'diffusion', '--diffusion-seed': 11 })).toEqual([
+      '--backend', 'diffusion', '--diffusion-model', 'protpardelle', '--diffusion-seed', '11',
+    ])
     expect(() => validatedModelArgs({ '-o': '/tmp/escape' })).toThrow(/unsupported homology model option/)
     expect(() => validatedModelArgs({ '--num-models': 0 })).toThrow(/integer from 1 to 1000/)
     expect(() => validatedModelArgs({ '--md-level': 'arbitrary' })).toThrow(/unsupported value/)
+    expect(() => validatedModelArgs({ '--diffusion-seed': 7 })).toThrow(/require --backend diffusion/)
   })
 
   it('parses multiple target chains and rejects duplicate ids', () => {

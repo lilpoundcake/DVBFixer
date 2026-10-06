@@ -3249,7 +3249,7 @@ export const GENERATED_COMMANDS = [
         "label": "Keep Workdir",
         "type": "bool",
         "group": "Diagnostics",
-        "help": "Keep Modeller working directory",
+        "help": "Keep homology working directory",
         "required": false,
         "repeatable": false,
         "multi": false,

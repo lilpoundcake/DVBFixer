@@ -21,6 +21,17 @@ before invoking Modeller. This prevents Modeller from independently moving
 non-overlapping fragment templates. Do not combine `--template-plan` with
 `--template` or `--alignment`; the plan produces both internally.
 
+With `--backend diffusion`, the template plan instead feeds the authoritative
+`selected_template_mosaic.pdb` directly to the isolated Protpardelle runner.
+DVBFixer exports `selected_template_mosaic.coverage.json`, preserves the
+zero-based half-open masks and earlier-template-wins ownership, maps logical
+target IDs such as `VH`/`VL` to distinct PDB chains, and records each covered
+residue's template owner in request and publication provenance. Covered residues
+whose amino-acid identity matches the target are fixed exactly; only uncovered
+regions admitted by the normal diffusion scope are generated. A covered
+substitution currently fails closed rather than silently fixing the wrong
+residue. There is no fallback to Modeller.
+
 | JSON key | Type | Description |
 |---|---|---|
 | `templates` | array | Template definitions in precedence order. Earlier templates win overlapping selected columns. |
@@ -52,6 +63,10 @@ dvbfixer homology target.fasta --template fab.pdb --template fullsize.pdb --mini
 
 # Antibody mode
 dvbfixer homology target.fasta --template fab.pdb --template igg.pdb --antibody -v
+
+# Experimental coordinate-preserving mosaic completion
+dvbfixer homology target.fasta --template-plan template-plan.json \
+  --backend diffusion --diffusion-model protpardelle -o target
 ```
 
 ## Inputs and keys
@@ -62,6 +77,11 @@ dvbfixer homology target.fasta --template fab.pdb --template igg.pdb --antibody 
 | `--template PDB` | — | Template structure; repeat for multiple templates. Required unless `--template-plan` is used. |
 | `--template-plan JSON` | — | GUI-compatible chain/range selection plan. Cannot be combined with `--template` or `--alignment`. |
 | `-o`, `--output PREFIX` | FASTA stem | Output prefix for ranked model PDB and `.dat` files. |
+| `--backend` | `modeller` | `modeller` or experimental `diffusion`; diffusion requires `--template-plan`. |
+| `--diffusion-model` | `protpardelle` | Accepted mosaic diffusion engine. |
+| `--diffusion-seed N` | `7` | Candidate seed; repeatable. |
+| `--diffusion-timeout SECONDS` | `900` | Positive finite runner timeout. |
+| `--diffusion-work-parent DIR` | output parent | Parent for the private isolated-runner workspace. |
 | `--alignment PIR` | auto | Use a pre-built PIR alignment instead of automatic alignment. |
 | `--salign` | off | Use Modeller structure-based SALIGN rather than pairwise `align2d`. |
 | `-n`, `--num-models N` | `5` | Number of candidate models to generate. |
@@ -78,8 +98,12 @@ dvbfixer homology target.fasta --template fab.pdb --template igg.pdb --antibody 
 Modeller is required. ANARCI is required only for `--antibody`. Automatic
 multi-template mode maps each target chain to its best template chain;
 `--template-plan` instead materializes the explicitly selected aligned ranges.
-The primary output is the best-ranked PDB plus a matching `.dat` restraint
-sidecar for downstream `prepare`/`minimize`.
+The Modeller output is the best-ranked PDB plus a matching `.dat` restraint
+sidecar for downstream `prepare`/`minimize`. Diffusion writes an atomic directory
+bundle named `<PREFIX>_homology_diffusion`; accepted and rejected bundles retain
+the same validation/provenance semantics as `model --backend diffusion`.
+`--prepare`, `--minimize`, and `--antibody` are rejected in this mode; run later
+preparation explicitly on an accepted candidate PDB.
 
 ## See also
 

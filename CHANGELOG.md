@@ -68,6 +68,11 @@ best-effort summaries; consult `git log` for exact provenance.
   The pinned sampler now consumes transformed HETATM coordinates through
   generated-atom repulsion guidance; request/trace/provenance retain exact atom
   mappings and graph digests, while unsupported chemistry remains fail closed.
+- Added experimental mosaic-first Homology diffusion in both CLI and GUI.
+  Template-plan materialization now exports explicit coverage/ownership metadata;
+  Protpardelle keeps covered matching template atoms exact, generates admitted
+  uncovered regions, and publishes the standard validated bundle without a
+  MODELLER fallback. Covered substitutions remain fail closed.
 
 ### Compatibility
 

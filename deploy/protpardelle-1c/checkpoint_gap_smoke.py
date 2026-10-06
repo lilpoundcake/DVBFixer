@@ -298,6 +298,11 @@ def _chain_sampling_requests(
             generated_atoms=tuple(
                 atom for atom in request.generated_atoms if atom.chain == chain
             ),
+            template_ownership=tuple(
+                ownership
+                for ownership in request.template_ownership
+                if ownership.chain == chain
+            ),
             retained_explicit_links=(),
         ))
     if not requests:

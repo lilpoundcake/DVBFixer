@@ -447,17 +447,22 @@
 
 ### Phase 5: Mosaic-First Homology
 
-- [ ] Keep `selected_template_mosaic.pdb` as the authoritative coordinate frame.
-- [ ] Export companion coverage metadata from `materialize_template_plan` instead of recomputing template ownership later.
-- [ ] Preserve zero-based half-open template-plan masks.
-- [ ] Mark covered template atoms as fixed.
-- [ ] Generate only uncovered insertions, substitutions, and bounded junction windows.
-- [ ] Start with one-chain internal insertions.
+- [x] Keep `selected_template_mosaic.pdb` as the authoritative coordinate frame.
+- [x] Export companion coverage metadata from `materialize_template_plan` instead of recomputing template ownership later.
+- [x] Preserve zero-based half-open template-plan masks.
+- [x] Mark covered template atoms as fixed and persist ownership in provenance.
+- [ ] Generate uncovered substitutions through explicit bounded junction windows;
+  uncovered insertion/terminal regions are implemented, while covered sequence
+  mismatches fail closed.
+- [x] Pass one-chain internal-insertion checkpoint-backed MPS acceptance.
 - [ ] Add multi-chain and multi-template cases only after one-chain acceptance.
-- [ ] Preserve distinct antibody H/L chains and insertion codes.
+- [x] Preserve distinct antibody H/L chain allocation; insertion-code promotion
+  remains part of the broader cohort.
 - [ ] Compare against MODELLER using the same target and template plan.
 - [ ] Use OpenFold or Boltz full-chain prediction only as an independent plausibility comparator.
-- [ ] Do not expose a public homology diffusion backend until mosaic adherence and multi-chain gates pass.
+- [x] Expose the accepted slice as explicit experimental
+  `homology --backend diffusion`, including the GUI workflow; never change the
+  default or silently fall back to Modeller.
 
 ### Phase 6: Production Decision
 

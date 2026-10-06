@@ -7,6 +7,11 @@
 ```
 usage: dvbfixer homology [-h] [--template TEMPLATE]
                          [--template-plan TEMPLATE_PLAN] [-o OUTPUT]
+                         [--backend {modeller,diffusion}]
+                         [--diffusion-model {protpardelle}]
+                         [--diffusion-seed DIFFUSION_SEEDS]
+                         [--diffusion-timeout DIFFUSION_TIMEOUT]
+                         [--diffusion-work-parent DIFFUSION_WORK_PARENT]
                          [--alignment ALIGNMENT] [--salign] [-n NUM_MODELS]
                          [--md-level {none,fast,slow,very_slow,slow_large}]
                          [--no-loop-refine] [--antibody] [--prepare]
@@ -14,8 +19,8 @@ usage: dvbfixer homology [-h] [--template TEMPLATE]
                          [--log-file PATH]
                          fasta
 
-Multi-template homology modeling with Modeller. Builds a composite model from
-multiple template structures.
+Multi-template homology modeling with Modeller or explicit experimental mosaic
+diffusion.
 
 options:
   -h, --help            show this help message and exit
@@ -30,6 +35,21 @@ Input / output:
                         selected parts into one known
   -o OUTPUT, --output OUTPUT
                         Output prefix (default: FASTA stem)
+
+Backend:
+  --backend {modeller,diffusion}
+                        Modeling backend (default: modeller; diffusion is
+                        experimental)
+  --diffusion-model {protpardelle}
+                        Diffusion model for mosaic completion (default:
+                        protpardelle)
+  --diffusion-seed DIFFUSION_SEEDS
+                        Candidate seed; repeat for multiple candidates
+                        (default: 7)
+  --diffusion-timeout DIFFUSION_TIMEOUT
+                        Runner timeout in seconds (default: 900)
+  --diffusion-work-parent DIFFUSION_WORK_PARENT
+                        Parent directory for the private runner workspace
 
 Alignment:
   --alignment ALIGNMENT
@@ -51,7 +71,7 @@ Post-processing pipeline:
   --ph PH               pH for hydrogen addition (default: 7.0)
 
 Diagnostics:
-  --keep-workdir        Keep Modeller working directory
+  --keep-workdir        Keep homology working directory
   -v, --verbose         Verbose output
 
 Global logging:

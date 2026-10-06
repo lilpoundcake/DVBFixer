@@ -229,6 +229,26 @@ class HeterogenContext:
 
 
 @dataclass(frozen=True, slots=True)
+class TemplateOwnership:
+    chain: str
+    target_index: int
+    residue: ResidueIdentity
+    template_id: str
+
+    def __post_init__(self) -> None:
+        _single_character(self.chain, "template ownership chain")
+        if self.target_index < 0:
+            raise DiffusionContractError(
+                "template ownership target index must be non-negative"
+            )
+        if self.residue.chain != self.chain:
+            raise DiffusionContractError(
+                "template ownership residue must belong to its declared chain"
+            )
+        _required_text(self.template_id, "template ownership template ID")
+
+
+@dataclass(frozen=True, slots=True)
 class BackendOption:
     name: str
     value: str
@@ -835,6 +855,7 @@ class DiffusionRequest(_JsonContract):
     seeds: tuple[int, ...]
     backend_options: tuple[BackendOption, ...] = ()
     heterogen_contexts: tuple[HeterogenContext, ...] = ()
+    template_ownership: tuple[TemplateOwnership, ...] = ()
 
     def __post_init__(self) -> None:
         super(DiffusionRequest, self).__post_init__()
@@ -883,6 +904,43 @@ class DiffusionRequest(_JsonContract):
         if not context_atoms <= set(self.fixed_atoms):
             raise DiffusionContractError(
                 "heterogen context atoms must be part of the fixed atom mask"
+            )
+        ownership_keys = [
+            (ownership.chain, ownership.target_index)
+            for ownership in self.template_ownership
+        ]
+        if len(ownership_keys) != len(set(ownership_keys)):
+            raise DiffusionContractError("template ownership positions must be unique")
+        fixed_residues = {
+            ResidueIdentity(atom.chain, atom.residue_number, atom.insertion_code)
+            for atom in self.fixed_atoms
+        }
+        if any(
+            ownership.residue not in fixed_residues
+            for ownership in self.template_ownership
+        ):
+            raise DiffusionContractError(
+                "template-owned residues must be represented by fixed atoms"
+            )
+        target_lengths = {
+            target.chain: len(target.sequence) for target in self.target_sequences
+        }
+        placement_maps = {
+            placement.chain: dict(zip(
+                placement.observed_target_indices,
+                placement.observed_residues,
+            ))
+            for placement in self.sequence_placements
+        }
+        if any(
+            ownership.chain not in target_lengths
+            or ownership.target_index >= target_lengths[ownership.chain]
+            or placement_maps.get(ownership.chain, {}).get(ownership.target_index)
+            != ownership.residue
+            for ownership in self.template_ownership
+        ):
+            raise DiffusionContractError(
+                "template ownership must match an observed target placement"
             )
         option_names = [option.name for option in self.backend_options]
         if len(option_names) != len(set(option_names)):

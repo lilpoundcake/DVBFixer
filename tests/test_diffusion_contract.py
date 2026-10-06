@@ -32,6 +32,7 @@ from dvbfixer.model.diffusion.contract import (
     SequencePlacement,
     TargetInterval,
     TargetSequence,
+    TemplateOwnership,
     ValidationSummary,
 )
 from dvbfixer.model.diffusion.trace import build_sampler_trace, validate_sampler_trace_context
@@ -127,6 +128,22 @@ def test_sampler_trace_records_verified_interchain_context() -> None:
     )
 
     assert SamplerTrace.from_json(trace.to_json()).conditioning_contexts == (context,)
+
+
+def test_request_round_trip_preserves_template_ownership() -> None:
+    request = _request()
+    ownership = TemplateOwnership(
+        chain="D",
+        target_index=0,
+        residue=ResidueIdentity("D", "10"),
+        template_id="template-left",
+    )
+
+    updated = replace(request, template_ownership=(ownership,))
+
+    assert DiffusionRequest.from_json(updated.to_json()).template_ownership == (
+        ownership,
+    )
 
 
 def _success_result() -> DiffusionResult:

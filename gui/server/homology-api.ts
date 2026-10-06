@@ -94,20 +94,39 @@ function resolveArtifact(root: string, relative: string): string {
 }
 
 const MD_LEVELS = new Set(['none', 'fast', 'slow', 'very_slow', 'slow_large'])
+const MODEL_OPTION_FLAGS = new Set([
+  '--num-models', '--md-level', '--backend', '--diffusion-model', '--diffusion-seed',
+])
 
 export function validatedModelArgs(options: Record<string, unknown> | null | undefined): string[] {
   const values = options || {}
-  const unknown = Object.keys(values).filter(flag => flag !== '--num-models' && flag !== '--md-level')
+  const unknown = Object.keys(values).filter(flag => !MODEL_OPTION_FLAGS.has(flag))
   if (unknown.length) throw new Error(`unsupported homology model option: ${unknown[0]}`)
   const args: string[] = []
-  if (values['--num-models'] !== undefined && values['--num-models'] !== '') {
+  const backend = values['--backend'] ?? 'modeller'
+  if (backend !== 'modeller' && backend !== 'diffusion') {
+    throw new Error('--backend has an unsupported value')
+  }
+  if (backend === 'diffusion') {
+    if (values['--diffusion-model'] !== undefined && values['--diffusion-model'] !== 'protpardelle') {
+      throw new Error('--diffusion-model has an unsupported value')
+    }
+    const seed = values['--diffusion-seed'] ?? 7
+    if (typeof seed !== 'number' || !Number.isInteger(seed) || seed < 0) {
+      throw new Error('--diffusion-seed must be a non-negative integer')
+    }
+    args.push('--backend', 'diffusion', '--diffusion-model', 'protpardelle', '--diffusion-seed', String(seed))
+  } else if (values['--diffusion-model'] !== undefined || values['--diffusion-seed'] !== undefined) {
+    throw new Error('diffusion model options require --backend diffusion')
+  }
+  if (backend === 'modeller' && values['--num-models'] !== undefined && values['--num-models'] !== '') {
     const count = values['--num-models']
     if (typeof count !== 'number' || !Number.isInteger(count) || count < 1 || count > 1000) {
       throw new Error('--num-models must be an integer from 1 to 1000')
     }
     args.push('--num-models', String(count))
   }
-  if (values['--md-level'] !== undefined && values['--md-level'] !== '') {
+  if (backend === 'modeller' && values['--md-level'] !== undefined && values['--md-level'] !== '') {
     const level = values['--md-level']
     if (typeof level !== 'string' || !MD_LEVELS.has(level)) {
       throw new Error('--md-level has an unsupported value')
@@ -549,8 +568,18 @@ async function modelProject(
   fs.writeFileSync(path.join(runDir, 'stdout.log'), result.stdout)
   fs.writeFileSync(path.join(runDir, 'stderr.log'), result.stderr)
   const files = listFiles(runDir)
+  const bundleManifest = files.find(file => path.basename(file) === 'bundle.json')
+  let modelStatus = result.code === 0 ? 'success' : 'failed'
+  if (bundleManifest) {
+    try {
+      modelStatus = String(JSON.parse(fs.readFileSync(bundleManifest, 'utf8')).status || modelStatus)
+    } catch {
+      modelStatus = 'invalid-bundle'
+    }
+  }
   const outputFile = result.code === 0 ? registerRun(root, project, files, authorizePublication) : ''
   return { ok: result.code === 0, exitCode: result.code, stdout: result.stdout, stderr: result.stderr,
+    modelStatus,
     outputFile, outputDir: path.relative(root, runDir).replace(/\\/g, '/'),
     artifacts: files.map(file => path.relative(root, file).replace(/\\/g, '/')) }
 }

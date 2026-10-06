@@ -21,6 +21,7 @@ from dvbfixer.model.diffusion.contract import (
     SequencePlacement,
     TargetInterval,
     TargetSequence,
+    TemplateOwnership,
 )
 from dvbfixer.model.diffusion.heterogen_context import (
     HeterogenContextError,
@@ -62,6 +63,7 @@ def build_cli_diffusion_request(
     profile: str,
     no_terminal: bool = False,
     heterogen_smiles: dict[str, str] | None = None,
+    template_ownership: tuple[TemplateOwnership, ...] = (),
 ) -> DiffusionRequest:
     """Build a canonical-protein request with internal gaps on one or more chains."""
     source = input_path.read_bytes()
@@ -249,6 +251,7 @@ def build_cli_diffusion_request(
         seeds=seeds,
         backend_options=(BackendOption("profile", profile),),
         heterogen_contexts=heterogen_contexts,
+        template_ownership=template_ownership,
     )
 
 
@@ -386,6 +389,7 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
             profile=runtime.profile,
             no_terminal=getattr(args, "no_terminal", False),
             heterogen_smiles=heterogen_smiles,
+            template_ownership=getattr(args, "diffusion_template_ownership", ()),
         )
         try:
             admission = assess_diffusion_scope(request, model_input.read_bytes())

@@ -8,6 +8,7 @@ Antibody mode (--antibody): uses ANARCI for numbering/CDR detection.
 """
 
 import argparse
+import math
 import os
 import shutil
 import sys
@@ -619,8 +620,8 @@ def restore_chain_ids(model_path, target_chains):
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog='dvbfixer homology',
-        description='Multi-template homology modeling with Modeller. '
-                    'Builds a composite model from multiple template structures.',
+        description='Multi-template homology modeling with Modeller or explicit '
+                    'experimental mosaic diffusion.',
     )
     io = p.add_argument_group('Input / output')
     io.add_argument('fasta',
@@ -631,6 +632,21 @@ def parse_args(argv=None):
                     help='JSON template-chain selection plan; fits and merges selected parts into one known')
     io.add_argument('-o', '--output', default=None,
                     help='Output prefix (default: FASTA stem)')
+
+    backend = p.add_argument_group('Backend')
+    backend.add_argument('--backend', choices=['modeller', 'diffusion'],
+                         default='modeller',
+                         help='Modeling backend (default: modeller; diffusion is experimental)')
+    backend.add_argument('--diffusion-model', choices=['protpardelle'],
+                         default='protpardelle',
+                         help='Diffusion model for mosaic completion (default: protpardelle)')
+    backend.add_argument('--diffusion-seed', action='append', type=int,
+                         dest='diffusion_seeds',
+                         help='Candidate seed; repeat for multiple candidates (default: 7)')
+    backend.add_argument('--diffusion-timeout', type=float, default=900.0,
+                         help='Runner timeout in seconds (default: 900)')
+    backend.add_argument('--diffusion-work-parent', default=None,
+                         help='Parent directory for the private runner workspace')
 
     alignment = p.add_argument_group('Alignment')
     alignment.add_argument('--alignment', default=None,
@@ -660,13 +676,29 @@ def parse_args(argv=None):
 
     diag = p.add_argument_group('Diagnostics')
     diag.add_argument('--keep-workdir', action='store_true',
-                      help='Keep Modeller working directory')
+                      help='Keep homology working directory')
     diag.add_argument('-v', '--verbose', action='store_true',
                       help='Verbose output')
 
     from dvbfixer.batch import add_runtime_help
     add_runtime_help(p)
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    raw_args = list(sys.argv[1:] if argv is None else argv)
+    provided = {token.split('=', 1)[0] for token in raw_args if token.startswith('-')}
+    diffusion_flags = {
+        '--diffusion-model', '--diffusion-seed', '--diffusion-timeout',
+        '--diffusion-work-parent',
+    }
+    modeller_flags = {'--num-models', '-n', '--md-level', '--no-loop-refine', '--salign'}
+    invalid = (
+        provided & diffusion_flags
+        if args.backend == 'modeller'
+        else provided & modeller_flags
+    )
+    if invalid:
+        required = '--backend diffusion' if args.backend == 'modeller' else '--backend modeller'
+        p.error(f"{', '.join(sorted(invalid))} require {required}")
+    return args
 
 
 def main(argv=None):
@@ -682,6 +714,20 @@ def main(argv=None):
         raise SystemExit('ERROR: provide --template at least once or use --template-plan')
     if args.template_plan and (args.template or args.alignment):
         raise SystemExit('ERROR: --template-plan cannot be combined with --template or --alignment')
+    if args.backend == 'diffusion' and not args.template_plan:
+        raise SystemExit('ERROR: homology diffusion requires --template-plan')
+    if args.backend == 'diffusion' and (args.prepare or args.minimize):
+        raise SystemExit(
+            'ERROR: --prepare/--minimize cannot consume a diffusion bundle; '
+            'run them explicitly on an accepted candidate PDB'
+        )
+    if args.backend == 'diffusion' and args.antibody:
+        raise SystemExit('ERROR: --antibody is not supported by homology diffusion')
+    if not math.isfinite(args.diffusion_timeout) or args.diffusion_timeout <= 0:
+        raise SystemExit('ERROR: --diffusion-timeout must be positive')
+    args.diffusion_seeds = args.diffusion_seeds or [7]
+    if any(seed < 0 for seed in args.diffusion_seeds):
+        raise SystemExit('ERROR: --diffusion-seed must be non-negative')
     for tpl in args.template:
         if not Path(tpl).exists():
             print(f"Error: template {tpl} not found", file=sys.stderr)
@@ -700,6 +746,42 @@ def main(argv=None):
             Path(args.template_plan).resolve(), Path(workdir), verbose=args.verbose)
     else:
         template_paths = [str(Path(t).resolve()) for t in args.template]
+
+    if args.backend == 'diffusion':
+        from dvbfixer.homology_plan import prepare_mosaic_diffusion_inputs
+        from dvbfixer.model.diffusion_cli import DiffusionCliError, run_diffusion_model
+
+        mosaic = Path(template_paths[0])
+        coverage = mosaic.with_name('selected_template_mosaic.coverage.json')
+        try:
+            diffusion_fasta, ownership = prepare_mosaic_diffusion_inputs(
+                coverage,
+                target_chains,
+                Path(workdir),
+            )
+            output_bundle = f"{output_prefix}_homology_diffusion"
+            run_diffusion_model(argparse.Namespace(
+                input=str(mosaic),
+                output=output_bundle,
+                fasta=str(diffusion_fasta),
+                diffusion_model=args.diffusion_model,
+                diffusion_seeds=args.diffusion_seeds,
+                diffusion_timeout=args.diffusion_timeout,
+                diffusion_work_parent=args.diffusion_work_parent,
+                diffusion_heterogen_smiles=[],
+                diffusion_template_ownership=ownership,
+                keep_heterogens=True,
+                no_terminal=False,
+                verbose=args.verbose,
+            ))
+        except (DiffusionCliError, ValueError) as exc:
+            raise SystemExit(f'ERROR: homology diffusion failed: {exc}') from exc
+        finally:
+            if args.keep_workdir:
+                print(f"Homology mosaic workdir: {workdir}")
+            else:
+                shutil.rmtree(workdir, ignore_errors=True)
+        return
 
     # 2. Analyze templates
     template_infos = []

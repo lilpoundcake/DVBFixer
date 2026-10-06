@@ -207,15 +207,18 @@ process-group cleanup.
 
 ## 11. Batch, GUI и managed jobs
 
-Diffusion сейчас доступен только для single-input CLI.
+Diffusion доступен в single-input CLI и в Homology Model workflow GUI. Generated
+GUI schema знает backend options; Homology API запускает процесс через общий
+bounded runner и регистрирует bundle artifacts. Общего Model-panel workflow и
+полноценного bundle viewer пока нет.
 
 Не реализовано:
 
 - batch directory output вида `<stem>_model_diffusion/`;
 - backend-dependent output mode в command registry;
-- diffusion в GUI schema;
-- запуск через managed-job API;
-- отображение bundle/candidates/provenance в GUI;
+- общий `model --backend diffusion` workflow в GUI вне Homology;
+- durable managed-job retry/resume для diffusion;
+- специализированное отображение bundle/candidates/provenance в GUI;
 - retry с другим seed из GUI;
 - просмотр validation failures;
 - архивирование directory bundles;
@@ -223,21 +226,31 @@ Diffusion сейчас доступен только для single-input CLI.
 
 ## 12. Homology/mosaic diffusion
 
-Практически отдельная большая фаза, пока не реализованная.
+**Статус: начальный mosaic-first slice реализован 2026-10-06.**
+`homology --backend diffusion` и GUI Model backend используют authoritative
+`selected_template_mosaic.pdb`; companion coverage сохраняет zero-based
+half-open masks, precedence и template ownership. Covered matching atoms fixed,
+uncovered regions generated через общий contract/validation/publication path.
+One-chain five-residue internal insertion прошёл 500-step MPS acceptance без
+fixed-coordinate drift. MODELLER остаётся default, fallback отсутствует.
 
-Планируется:
+Реализовано:
 
 - использовать `selected_template_mosaic.pdb` как authoritative frame;
 - передавать template coverage metadata;
 - фиксировать покрытые template atoms;
-- генерировать только uncovered regions;
-- сохранять маски template ownership;
-- поддерживать multi-template и multi-chain mosaics;
-- корректно обрабатывать antibody H/L;
-- сравнивать с MODELLER на одинаковом template plan;
+- генерировать uncovered insertion/terminal regions;
+- сохранять маски template ownership в provenance;
+- сохранять distinct antibody H/L PDB chain IDs;
+- запускать и отображать bundle через Homology GUI workflow;
 - добавить отдельный `homology --backend diffusion`.
 
-Публично включать это до mosaic-adherence acceptance не планируется.
+Остаётся:
+
+- bounded-window generation для template-covered substitutions;
+- frozen multi-template и multi-chain mosaic cohorts;
+- causal mosaic-adherence benchmark и сравнение с MODELLER на одинаковом plan;
+- richer candidate/provenance viewer и retry seed в GUI.
 
 ## 13. Scientific benchmarking и production promotion
 

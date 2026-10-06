@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from dvbfixer.homology import AA3TO1
+from dvbfixer.model.diffusion.contract import ResidueIdentity, TemplateOwnership
 from dvbfixer.salign import run_biopython_superposition
 
 
@@ -71,6 +73,7 @@ def materialize_template_plan(plan_path: Path, workdir: Path,
             fitted_by_id[item["id"]] = fitted_path
 
     blocks: list[str] = []
+    coverage_groups: list[dict[str, Any]] = []
     pdb_lines: list[str] = []
     serial = 1
     first = last = None
@@ -93,7 +96,7 @@ def materialize_template_plan(plan_path: Path, workdir: Path,
         length = len(target["sequence"])
         if any(len(row["sequence"]) != length for row in rows):
             raise ValueError(f"alignment rows for target chain {group['chainId']} differ in length")
-        chosen = [None] * length
+        chosen: list[tuple[dict[str, Any], str] | None] = [None] * length
         for row in (row for row in rows if row.get("kind") == "template"):
             template_id = row.get("templateId", row["id"])
             template = by_id.get(template_id)
@@ -115,16 +118,35 @@ def materialize_template_plan(plan_path: Path, workdir: Path,
             for span in spans:
                 for column in range(max(0, span["start"]), min(length, span["end"])):
                     if target["sequence"][column] != "-" and chosen[column] is None:
-                        chosen[column] = by_column[column]
+                        residue = by_column[column]
+                        if residue is not None:
+                            chosen[column] = (residue, template_id)
 
         ordinal = 0
         block = []
+        coverage: list[dict[str, Any]] = []
         chain = group_chains[str(group["chainId"])]
         for column, target_aa in enumerate(target["sequence"]):
             if target_aa != "-":
                 ordinal += 1
-            residue = chosen[column]
+            selected = chosen[column]
+            residue = selected[0] if selected is not None else None
+            owner = selected[1] if selected is not None else None
             block.append(residue["aa"] if residue else "-")
+            if target_aa != "-":
+                coverage.append({
+                    "targetIndex": ordinal - 1,
+                    "alignmentColumn": column,
+                    "targetResidue": target_aa,
+                    "covered": residue is not None,
+                    "templateId": owner,
+                    "templateResidue": residue["aa"] if residue else None,
+                    "pdbResidue": {
+                        "chain": chain,
+                        "residueNumber": str(ordinal),
+                        "insertionCode": "",
+                    },
+                })
             if residue is None:
                 continue
             first = first or (ordinal, chain)
@@ -132,10 +154,16 @@ def materialize_template_plan(plan_path: Path, workdir: Path,
             for raw in residue["lines"]:
                 line = raw.ljust(80)
                 pdb_lines.append(
-                    f"{line[:6]}{serial:5d}{line[11:21]}{chain}{ordinal:4d} {line[27:]}\n"
+                    f"ATOM  {serial:5d}{line[11:21]}{chain}{ordinal:4d} {line[27:]}\n"
                 )
                 serial += 1
         blocks.append("".join(block))
+        coverage_groups.append({
+            "targetChain": str(group["chainId"]),
+            "pdbChain": chain,
+            "targetSequence": target["sequence"].replace("-", ""),
+            "coverage": coverage,
+        })
         pdb_lines.append("TER\n")
 
     if first is None or last is None:
@@ -143,6 +171,24 @@ def materialize_template_plan(plan_path: Path, workdir: Path,
     code = "selected_template_mosaic"
     pdb = workdir / f"{code}.pdb"
     pdb.write_text("".join(pdb_lines) + "END\n")
+    coverage_path = workdir / "selected_template_mosaic.coverage.json"
+    coverage_path.write_text(
+        json.dumps(
+            {
+                "schemaVersion": 1,
+                "sourcePlan": str(plan_path.resolve()),
+                "mosaic": pdb.name,
+                "maskConvention": "zero-based-half-open",
+                "overlapPolicy": "earlier-template-wins",
+                "groups": coverage_groups,
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     target_blocks = [next(row for row in group["rows"] if row.get("kind") == "target")["sequence"]
                      for group in groups]
     pir = workdir / "selected_template_mosaic.pir"
@@ -151,3 +197,79 @@ def materialize_template_plan(plan_path: Path, workdir: Path,
         f"{'/'.join(blocks)}*\n>P1;target\nsequence:target::::::::\n{'/'.join(target_blocks)}*\n"
     )
     return [str(pdb)], str(pir)
+
+
+def prepare_mosaic_diffusion_inputs(
+    coverage_path: Path,
+    target_chains: list[tuple[str, str]],
+    workdir: Path,
+) -> tuple[Path, tuple[TemplateOwnership, ...]]:
+    """Validate template ownership and write a PDB-chain-keyed target FASTA."""
+    raw = json.loads(coverage_path.read_text(encoding="utf-8"))
+    if raw.get("schemaVersion") != 1:
+        raise ValueError("unsupported mosaic coverage schema")
+    targets = dict(target_chains)
+    groups = raw.get("groups")
+    if not isinstance(groups, list) or not groups:
+        raise ValueError("mosaic coverage contains no target groups")
+
+    fasta_lines: list[str] = []
+    ownership: list[TemplateOwnership] = []
+    seen_pdb_chains: set[str] = set()
+    uncovered = 0
+    for group in groups:
+        logical_chain = str(group.get("targetChain", ""))
+        pdb_chain = str(group.get("pdbChain", ""))
+        expected_sequence = str(group.get("targetSequence", ""))
+        if logical_chain not in targets:
+            raise ValueError(
+                f"mosaic target chain {logical_chain!r} is absent from target FASTA"
+            )
+        if targets[logical_chain] != expected_sequence:
+            raise ValueError(
+                f"mosaic target sequence for chain {logical_chain!r} does not match FASTA"
+            )
+        if len(pdb_chain) != 1 or pdb_chain in seen_pdb_chains:
+            raise ValueError("mosaic PDB chain mapping must be unique and one character")
+        seen_pdb_chains.add(pdb_chain)
+        coverage = group.get("coverage")
+        if not isinstance(coverage, list) or len(coverage) != len(expected_sequence):
+            raise ValueError("mosaic coverage length does not match its target sequence")
+        for expected_index, item in enumerate(coverage):
+            if item.get("targetIndex") != expected_index:
+                raise ValueError("mosaic coverage target indices must be contiguous")
+            if not item.get("covered"):
+                uncovered += 1
+                continue
+            if item.get("templateResidue") != item.get("targetResidue"):
+                raise ValueError(
+                    "mosaic diffusion does not yet support template-covered substitutions"
+                )
+            residue = item.get("pdbResidue", {})
+            if residue.get("chain") != pdb_chain:
+                raise ValueError("mosaic coverage residue chain mapping is inconsistent")
+            ownership.append(TemplateOwnership(
+                chain=pdb_chain,
+                target_index=expected_index,
+                residue=ResidueIdentity(
+                    pdb_chain,
+                    str(residue.get("residueNumber", "")),
+                    str(residue.get("insertionCode", "")),
+                ),
+                template_id=str(item.get("templateId", "")),
+            ))
+        fasta_lines.extend((f">{pdb_chain}", expected_sequence))
+
+    extra_targets = set(targets) - {
+        str(group.get("targetChain", "")) for group in groups
+    }
+    if extra_targets:
+        raise ValueError(
+            "target FASTA contains chains absent from mosaic plan: "
+            + ", ".join(sorted(extra_targets))
+        )
+    if not uncovered:
+        raise ValueError("mosaic diffusion requires at least one uncovered target residue")
+    fasta_path = workdir / "selected_template_mosaic.target.fasta"
+    fasta_path.write_text("\n".join(fasta_lines) + "\n", encoding="utf-8")
+    return fasta_path, tuple(ownership)

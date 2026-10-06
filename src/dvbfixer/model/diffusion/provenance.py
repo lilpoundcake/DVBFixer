@@ -22,6 +22,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerDiagnostics,
     RunnerResourceMetrics,
     TargetSequence,
+    TemplateOwnership,
     ValidationSummary,
 )
 from dvbfixer.model.diffusion.preflight import DIFFUSION_PROFILES
@@ -66,6 +67,7 @@ class DiffusionProvenanceManifest:
     fixed_atoms: tuple[AtomIdentity, ...]
     generated_atoms: tuple[AtomIdentity, ...]
     heterogen_contexts: tuple[HeterogenContext, ...]
+    template_ownership: tuple[TemplateOwnership, ...]
     requested_profile: str
     profile_status: str
     profile_evidence_labels: tuple[str, ...]
@@ -116,6 +118,7 @@ class DiffusionProvenanceManifest:
             "fixed_atoms": _encode(self.fixed_atoms),
             "generated_atoms": _encode(self.generated_atoms),
             "heterogen_contexts": _encode(self.heterogen_contexts),
+            "template_ownership": _encode(self.template_ownership),
             "requested_profile": self.requested_profile,
             "profile_status": self.profile_status,
             "profile_evidence_labels": list(self.profile_evidence_labels),
@@ -170,6 +173,7 @@ def build_provenance_manifest(
         fixed_atoms=request.fixed_atoms,
         generated_atoms=request.generated_atoms,
         heterogen_contexts=request.heterogen_contexts,
+        template_ownership=request.template_ownership,
         requested_profile=requested_profile,
         profile_status=profile.status if profile is not None else "unregistered",
         profile_evidence_labels=profile.evidence_labels if profile is not None else (),

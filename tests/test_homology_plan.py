@@ -1,7 +1,12 @@
 import json
 import shutil
 
-from dvbfixer.homology_plan import materialize_template_plan
+import pytest
+
+from dvbfixer.homology_plan import (
+    materialize_template_plan,
+    prepare_mosaic_diffusion_inputs,
+)
 
 
 def _atom(serial, residue, number, x):
@@ -50,6 +55,19 @@ def test_template_plan_builds_one_fitted_mosaic(tmp_path, monkeypatch):
     assert "   1.000" in mosaic
     assert "  32.000" in mosaic
     assert ">P1;selected_template_mosaic" in open(alignment).read()
+    coverage = json.loads(
+        (tmp_path / "work" / "selected_template_mosaic.coverage.json").read_text()
+    )
+    assert coverage["maskConvention"] == "zero-based-half-open"
+    assert coverage["overlapPolicy"] == "earlier-template-wins"
+    assert [item["templateId"] for item in coverage["groups"][0]["coverage"]] == [
+        "left",
+        "right",
+    ]
+    assert [item["pdbResidue"]["residueNumber"] for item in coverage["groups"][0]["coverage"]] == [
+        "1",
+        "2",
+    ]
 
 
 def test_vh_vl_groups_get_distinct_pdb_chain_ids(tmp_path):
@@ -78,3 +96,72 @@ def test_vh_vl_groups_get_distinct_pdb_chain_ids(tmp_path):
     templates, _ = materialize_template_plan(plan, tmp_path / "work")
     atom_lines = [line for line in open(templates[0]) if line.startswith("ATOM")]
     assert [line[21] for line in atom_lines] == ["H", "L"]
+
+
+def test_mosaic_diffusion_inputs_preserve_ownership_and_chain_mapping(tmp_path):
+    coverage = tmp_path / "selected_template_mosaic.coverage.json"
+    coverage.write_text(json.dumps({
+        "schemaVersion": 1,
+        "groups": [{
+            "targetChain": "VH",
+            "pdbChain": "H",
+            "targetSequence": "AGST",
+            "coverage": [
+                {
+                    "targetIndex": index,
+                    "targetResidue": residue,
+                    "covered": index in {0, 3},
+                    "templateId": "left" if index == 0 else "right" if index == 3 else None,
+                    "templateResidue": residue if index in {0, 3} else None,
+                    "pdbResidue": {
+                        "chain": "H",
+                        "residueNumber": str(index + 1),
+                        "insertionCode": "",
+                    },
+                }
+                for index, residue in enumerate("AGST")
+            ],
+        }],
+    }))
+
+    fasta, ownership = prepare_mosaic_diffusion_inputs(
+        coverage,
+        [("VH", "AGST")],
+        tmp_path,
+    )
+
+    assert fasta.read_text() == ">H\nAGST\n"
+    assert [(item.chain, item.target_index, item.template_id) for item in ownership] == [
+        ("H", 0, "left"),
+        ("H", 3, "right"),
+    ]
+
+
+def test_mosaic_diffusion_rejects_covered_substitution(tmp_path):
+    coverage = tmp_path / "selected_template_mosaic.coverage.json"
+    coverage.write_text(json.dumps({
+        "schemaVersion": 1,
+        "groups": [{
+            "targetChain": "A",
+            "pdbChain": "A",
+            "targetSequence": "AGGG",
+            "coverage": [
+                {
+                    "targetIndex": index,
+                    "targetResidue": "A" if index == 0 else "G",
+                    "covered": index != 2,
+                    "templateId": "template" if index != 2 else None,
+                    "templateResidue": "S" if index == 1 else "A" if index == 0 else "G" if index == 3 else None,
+                    "pdbResidue": {
+                        "chain": "A",
+                        "residueNumber": str(index + 1),
+                        "insertionCode": "",
+                    },
+                }
+                for index in range(4)
+            ],
+        }],
+    }))
+
+    with pytest.raises(ValueError, match="covered substitutions"):
+        prepare_mosaic_diffusion_inputs(coverage, [("A", "AGGG")], tmp_path)
