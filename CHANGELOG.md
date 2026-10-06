@@ -48,7 +48,10 @@ best-effort summaries; consult `git log` for exact provenance.
   merge them into one structure, and locally refine generated regions while
   retaining fixed atoms exactly. Added `--no-terminal` support to crop missing
   tails, a 900-second multi-chain default timeout, and an 8 MB bounded trace
-  limit. Neighboring chains are retained but are not claimed as denoiser context.
+  limit. Each invocation can now include deterministic fixed partner-chain crops
+  within 12 Å of a gap anchor as real multi-chain denoiser context. Exact context
+  atom identities are recorded in the sampler trace; gap-bearing chains remain
+  independently sampled rather than jointly generated.
 - Validation failures now publish an atomic `validation_failed` inspection bundle
   with failed gates and warnings instead of discarding a successfully materialized
   candidate; runner, protocol, digest, and containment failures still publish

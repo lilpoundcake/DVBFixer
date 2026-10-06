@@ -13,6 +13,7 @@ from dvbfixer.model.diffusion.contract import (
     DiffusionContractError,
     DiffusionRequest,
     RunnerResourceMetrics,
+    SamplerConditioningContext,
     SamplerStepTrace,
     SamplerTrace,
     atom_identity_digest,
@@ -38,6 +39,7 @@ def build_sampler_trace(
     fixed_tolerance_angstrom: float = 0.01,
     resource_metrics: RunnerResourceMetrics | None = None,
     sampler_evidence_complete: bool = True,
+    conditioning_contexts: tuple[SamplerConditioningContext, ...] = (),
 ) -> SamplerTrace:
     """Build the common no-refinement trace from observed sampler evidence."""
     reinjection = bool(projection_errors_angstrom)
@@ -93,6 +95,7 @@ def build_sampler_trace(
             if final_fixed_coordinate_restoration
             else ()
         ),
+        conditioning_contexts=conditioning_contexts,
     )
 
 

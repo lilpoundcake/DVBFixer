@@ -25,6 +25,14 @@ hardware cohort и сложные multi-chain numbering fixtures ещё нужн
 
 ## 2. Настоящее межцепочечное conditioning
 
+**Статус: локальный protein-partner context реализован 2026-10-06.** Для каждой
+gap-bearing chain Protpardelle получает отдельные contiguous crops соседних
+protein chains, если fixed heavy atoms находятся в пределах 12 Å от anchor.
+Partner residues входят в реальный multi-chain sampler axis как fixed motif;
+trace записывает точное отображение target chain → partner chains/atoms. Общий
+лимит axis остаётся 512 residues. Gap-bearing chains по-прежнему запускаются
+независимо — это не whole-complex joint sampling.
+
 Сейчас Protpardelle:
 
 - отдельно запускается для каждой gap-bearing chain;
@@ -32,16 +40,15 @@ hardware cohort и сложные multi-chain numbering fixtures ещё нужн
 - остальные цепи сохраняются;
 - полная структура используется при OpenMM refinement и clash validation.
 
-Но соседние цепи не попадают в denoiser.
-
-Не реализовано:
+Остаётся:
 
 - совместное представление нескольких цепей без превышения лимита 512;
-- локальный crop вокруг gap с partner-chain atoms;
-- conditioning gap одной цепи атомами других цепей;
-- проверяемое отображение chain/residue/atom identities в sampler state;
-- межцепочечные attention/contact features;
-- доказательство того, что partner atoms действительно влияют на denoising.
+- адаптивный spatial crop относительно предсказанной траектории gap, а не только
+  исходных anchor coordinates;
+- whole-complex joint sampling нескольких gap-bearing chains;
+- отдельный frozen interface benchmark и causal ablation partner-on/off;
+- специализированные межцепочечные contact features сверх нативного
+  Protpardelle multi-chain representation.
 
 Это особенно важно для интерфейсов антител, олигомеров и protein–protein
 contacts.

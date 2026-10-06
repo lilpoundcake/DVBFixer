@@ -26,6 +26,7 @@ from dvbfixer.model.diffusion.contract import (
     RunnerDiagnostics,
     RunnerResourceMetrics,
     RunnerResult,
+    SamplerConditioningContext,
     SamplerTrace,
     SamplingAblationMode,
     SequencePlacement,
@@ -100,6 +101,32 @@ def test_terminal_gap_contract_requires_exactly_one_directional_anchor() -> None
             left_anchor=ResidueIdentity("D", "6"),
             movable_junction_residues=(ResidueIdentity("D", "6"), *generated, anchor),
         )
+
+
+def test_sampler_trace_records_verified_interchain_context() -> None:
+    generated = AtomIdentity("A", "2", "", "CA")
+    target_fixed = AtomIdentity("A", "1", "", "CA")
+    partner_fixed = AtomIdentity("B", "8", "", "CA")
+    context = SamplerConditioningContext(
+        target_chain="A",
+        partner_chains=("B",),
+        partner_atoms=(partner_fixed,),
+    )
+    trace = build_sampler_trace(
+        profile="test",
+        engine_repository="builtin://test",
+        engine_revision="revision",
+        patch_identity="none",
+        atom_order=(target_fixed, partner_fixed, generated),
+        fixed_atoms=(target_fixed, partner_fixed),
+        device="cpu",
+        fallback_disabled=True,
+        denoising_update_count=1,
+        final_fixed_coordinate_restoration=True,
+        conditioning_contexts=(context,),
+    )
+
+    assert SamplerTrace.from_json(trace.to_json()).conditioning_contexts == (context,)
 
 
 def _success_result() -> DiffusionResult:

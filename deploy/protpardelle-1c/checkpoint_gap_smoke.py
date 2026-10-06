@@ -33,6 +33,9 @@ from dvbfixer.model.diffusion.contract import (
     RunnerDiagnostics,
     RunnerResourceMetrics,
     RunnerResult,
+    SamplerConditioningContext,
+    SequencePlacement,
+    TargetSequence,
 )
 from dvbfixer.model.diffusion.geometry import synchronize_and_reinject, weighted_kabsch
 from dvbfixer.model.diffusion.pdb_materialize import materialize_candidate_pdb
@@ -51,6 +54,8 @@ _MPS_ENVIRONMENT_KEYS = (
     "PYTORCH_MPS_HIGH_WATERMARK_RATIO",
     "PYTORCH_MPS_LOW_WATERMARK_RATIO",
 )
+_INTERCHAIN_CONTEXT_CUTOFF_ANGSTROM = 12.0
+_INTERCHAIN_CONTEXT_SEQUENCE_PADDING = 2
 
 
 def _resolve_device(torch: Any, requested: str) -> Any:
@@ -240,8 +245,11 @@ def _target_sequence(request: DiffusionRequest) -> str:
     return "".join(target.sequence for target in request.target_sequences)
 
 
-def _chain_sampling_requests(request: DiffusionRequest) -> tuple[DiffusionRequest, ...]:
-    """Split a request into independent gap-bearing chain sampler invocations."""
+def _chain_sampling_requests(
+    request: DiffusionRequest,
+    fixed_coordinates: dict[AtomIdentity, np.ndarray] | None = None,
+) -> tuple[DiffusionRequest, ...]:
+    """Build gap-chain invocations with optional local fixed partner context."""
     gap_chains = {gap.chain for gap in request.gaps}
     requests: list[DiffusionRequest] = []
     for target in request.target_sequences:
@@ -253,16 +261,34 @@ def _chain_sampling_requests(request: DiffusionRequest) -> tuple[DiffusionReques
                 f"target chain {chain} length {len(target.sequence)} exceeds "
                 "the cc89 fixed-size limit of 512 residues"
             )
+        context_targets: tuple[TargetSequence, ...] = ()
+        context_placements: tuple[SequencePlacement, ...] = ()
+        context_atoms: tuple[AtomIdentity, ...] = ()
+        if fixed_coordinates is not None:
+            context_targets, context_placements, context_atoms = (
+                _local_partner_context(
+                    request,
+                    chain,
+                    fixed_coordinates,
+                    residue_budget=512 - len(target.sequence),
+                )
+            )
+        selected_fixed = set(context_atoms)
+        selected_fixed.update(
+            atom for atom in request.fixed_atoms if atom.chain == chain
+        )
         requests.append(replace(
             request,
-            target_sequences=(target,),
+            target_sequences=(target, *context_targets),
             sequence_placements=tuple(
                 placement
                 for placement in request.sequence_placements
                 if placement.chain == chain
-            ),
+            ) + context_placements,
             gaps=tuple(gap for gap in request.gaps if gap.chain == chain),
-            fixed_atoms=tuple(atom for atom in request.fixed_atoms if atom.chain == chain),
+            fixed_atoms=tuple(
+                atom for atom in request.fixed_atoms if atom in selected_fixed
+            ),
             generated_atoms=tuple(
                 atom for atom in request.generated_atoms if atom.chain == chain
             ),
@@ -271,6 +297,145 @@ def _chain_sampling_requests(request: DiffusionRequest) -> tuple[DiffusionReques
     if not requests:
         raise ValueError("cc89 request contains no gap-bearing target chains")
     return tuple(requests)
+
+
+def _local_partner_context(
+    request: DiffusionRequest,
+    target_chain: str,
+    fixed_coordinates: dict[AtomIdentity, np.ndarray],
+    *,
+    residue_budget: int,
+) -> tuple[
+    tuple[TargetSequence, ...],
+    tuple[SequencePlacement, ...],
+    tuple[AtomIdentity, ...],
+]:
+    """Select deterministic contiguous partner-chain crops near gap anchors."""
+    if residue_budget <= 0:
+        return (), (), ()
+    anchor_residues = {
+        anchor
+        for gap in request.gaps
+        if gap.chain == target_chain
+        for anchor in (gap.left_anchor, gap.right_anchor)
+        if anchor is not None
+    }
+    anchor_coordinates = np.asarray([
+        coordinate
+        for atom, coordinate in fixed_coordinates.items()
+        if ResidueIdentity(
+            atom.chain,
+            atom.residue_number,
+            atom.insertion_code,
+        ) in anchor_residues
+    ])
+    if len(anchor_coordinates) == 0:
+        return (), (), ()
+
+    targets = {target.chain: target for target in request.target_sequences}
+    placements = {
+        placement.chain: placement for placement in request.sequence_placements
+    }
+    candidates: list[
+        tuple[float, str, int, int, int, tuple[tuple[int, ResidueIdentity], ...]]
+    ] = []
+    for partner_chain, target in targets.items():
+        if partner_chain == target_chain:
+            continue
+        placement = placements[partner_chain]
+        observed = tuple(zip(
+            placement.observed_target_indices,
+            placement.observed_residues,
+        ))
+        distance_by_index: dict[int, float] = {}
+        for index, residue in observed:
+            residue_coordinates = np.asarray([
+                coordinate
+                for atom, coordinate in fixed_coordinates.items()
+                if ResidueIdentity(
+                    atom.chain,
+                    atom.residue_number,
+                    atom.insertion_code,
+                ) == residue
+            ])
+            if len(residue_coordinates) == 0:
+                continue
+            distances = np.linalg.norm(
+                residue_coordinates[:, None, :] - anchor_coordinates[None, :, :],
+                axis=2,
+            )
+            minimum = float(np.min(distances))
+            if minimum <= _INTERCHAIN_CONTEXT_CUTOFF_ANGSTROM:
+                distance_by_index[index] = minimum
+        if not distance_by_index:
+            continue
+
+        runs: list[list[tuple[int, ResidueIdentity]]] = []
+        for item in observed:
+            if not runs or item[0] != runs[-1][-1][0] + 1:
+                runs.append([item])
+            else:
+                runs[-1].append(item)
+        eligible = [
+            run for run in runs if any(index in distance_by_index for index, _ in run)
+        ]
+        run = min(
+            eligible,
+            key=lambda items: (
+                -sum(index in distance_by_index for index, _ in items),
+                min(distance_by_index.get(index, float("inf")) for index, _ in items),
+                items[0][0],
+            ),
+        )
+        contact_indices = [index for index, _ in run if index in distance_by_index]
+        start = max(run[0][0], min(contact_indices) - _INTERCHAIN_CONTEXT_SEQUENCE_PADDING)
+        stop = min(run[-1][0] + 1, max(contact_indices) + 1 + _INTERCHAIN_CONTEXT_SEQUENCE_PADDING)
+        candidates.append((
+            min(distance_by_index[index] for index in contact_indices),
+            partner_chain,
+            start,
+            stop,
+            min(contact_indices, key=distance_by_index.__getitem__),
+            tuple(run),
+        ))
+
+    selected_targets: list[TargetSequence] = []
+    selected_placements: list[SequencePlacement] = []
+    selected_residues: set[ResidueIdentity] = set()
+    remaining = residue_budget
+    for _distance, partner_chain, start, stop, closest_contact, run in sorted(candidates):
+        if remaining <= 0:
+            break
+        if stop - start > remaining:
+            start = max(start, closest_contact - (remaining - 1) // 2)
+            stop = min(stop, start + remaining)
+            start = max(run[0][0], stop - remaining)
+        selected = tuple(
+            (index, residue) for index, residue in run if start <= index < stop
+        )
+        if not selected:
+            continue
+        sequence = targets[partner_chain].sequence[start:stop]
+        selected_targets.append(TargetSequence(partner_chain, sequence))
+        selected_placements.append(SequencePlacement(
+            chain=partner_chain,
+            target_length=len(sequence),
+            observed_target_indices=tuple(index - start for index, _ in selected),
+            observed_residues=tuple(residue for _, residue in selected),
+        ))
+        selected_residues.update(residue for _, residue in selected)
+        remaining -= len(sequence)
+
+    selected_atoms = tuple(
+        atom
+        for atom in request.fixed_atoms
+        if ResidueIdentity(
+            atom.chain,
+            atom.residue_number,
+            atom.insertion_code,
+        ) in selected_residues
+    )
+    return tuple(selected_targets), tuple(selected_placements), selected_atoms
 
 
 def _motif_chain_labels(request: DiffusionRequest) -> dict[str, str]:
@@ -698,13 +863,12 @@ def _run_staged(
         for amino_acid in target.sequence
     ):
         raise ValueError("target sequence contains a non-canonical residue")
-    sampling_requests = _chain_sampling_requests(request)
-
     source = workspace.joinpath(*Path(request.normalized_pdb.path).parts)
     if _sha256(source) != request.normalized_pdb.sha256:
         raise ValueError("normalized PDB digest mismatch")
     fixed_coordinates = _read_fixed_coordinates(source, request.fixed_atoms)
     fixed_residue_names = _read_fixed_residue_names(source, request.fixed_atoms)
+    sampling_requests = _chain_sampling_requests(request, fixed_coordinates)
 
     device = _resolve_device(torch, device_name)
     if mps_profile and device.type != "mps":
@@ -760,6 +924,7 @@ def _run_staged(
     fit_source_only = 0
     fit_squared_displacement = 0.0
     fit_max_displacement = 0.0
+    conditioning_contexts: list[SamplerConditioningContext] = []
     for invocation_index, sampling_request in enumerate(sampling_requests):
         invocation_seed = seed + invocation_index
         seed_everything(invocation_seed)
@@ -773,7 +938,9 @@ def _run_staged(
         motif_path = output_dir / f"motif-{invocation_index + 1}.pdb"
         _write_motif_input(source, motif_path, sampling_request)
         seq_mask, residue_index, chain_index = model.make_seq_mask_for_sampling(
-            prot_lens_per_chain=torch.tensor([[len(target_sequence)]])
+            prot_lens_per_chain=torch.tensor([[
+                len(target.sequence) for target in sampling_request.target_sequences
+            ]])
         )
         seq_mask = seq_mask.to(device=device)
         residue_index = residue_index.to(device=device)
@@ -809,13 +976,28 @@ def _run_staged(
         chain_fixed_coordinates = {
             atom: coordinate
             for atom, coordinate in fixed_coordinates.items()
-            if atom.chain == sampling_request.target_sequences[0].chain
+            if atom in set(sampling_request.fixed_atoms)
         }
         chain_fixed_residue_names = {
             atom: name
             for atom, name in fixed_residue_names.items()
-            if atom.chain == sampling_request.target_sequences[0].chain
+            if atom in set(sampling_request.fixed_atoms)
         }
+        primary_chain = sampling_request.gaps[0].chain
+        partner_chains = tuple(
+            target.chain
+            for target in sampling_request.target_sequences
+            if target.chain != primary_chain
+        )
+        partner_atoms = tuple(
+            atom for atom in sampling_request.fixed_atoms if atom.chain in partner_chains
+        )
+        if partner_atoms:
+            conditioning_contexts.append(SamplerConditioningContext(
+                target_chain=primary_chain,
+                partner_chains=partner_chains,
+                partner_atoms=partner_atoms,
+            ))
         if per_step_reinjection:
             callback, invocation_callback_stats = _make_per_step_reinjector(
                 sampling_request,
@@ -907,12 +1089,12 @@ def _run_staged(
             coordinates,
             residue_names,
         ):
-            if identity in requested_atoms:
+            if identity in requested_atoms and identity.chain == primary_chain:
                 candidate_identities.append(identity)
                 candidate_coordinates.append(coordinate)
                 candidate_residue_names.append(residue_name)
 
-    sampler_atom_order = tuple(sampler_atom_order_parts)
+    sampler_atom_order = tuple(dict.fromkeys(sampler_atom_order_parts))
     sampler_atom_set = set(sampler_atom_order)
     represented_fixed_atoms = tuple(
         atom for atom in request.fixed_atoms if atom in sampler_atom_set
@@ -974,6 +1156,7 @@ def _run_staged(
             final_fixed_coordinate_restoration=True,
             resource_metrics=resource_metrics,
             sampler_evidence_complete=True,
+            conditioning_contexts=tuple(conditioning_contexts),
         ),
     )
 
@@ -996,9 +1179,14 @@ def _run_staged(
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
             backend=(
-                "protpardelle-1c-cc89-independent-chain+per-step-reinjection"
-                if per_step_reinjection
-                else "protpardelle-1c-cc89-independent-chain"
+                "protpardelle-1c-cc89-local-interchain-conditioning"
+                + ("+per-step-reinjection" if per_step_reinjection else "")
+                if conditioning_contexts
+                else (
+                    "protpardelle-1c-cc89-independent-chain+per-step-reinjection"
+                    if per_step_reinjection
+                    else "protpardelle-1c-cc89-independent-chain"
+                )
             ),
             runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="https://github.com/ProteinDesignLab/protpardelle-1c",
@@ -1015,6 +1203,9 @@ def _run_staged(
                 "fixed-sequence",
                 "mpnn-disabled",
                 f"independent-chain-invocations={len(sampling_requests)}",
+                f"local-interchain-contexts={len(conditioning_contexts)}",
+                "interchain-context-cutoff-angstrom="
+                f"{_INTERCHAIN_CONTEXT_CUTOFF_ANGSTROM}",
                 f"per-step-reinjection={per_step_reinjection}",
                 f"mps-fallback={os.environ.get('PYTORCH_ENABLE_MPS_FALLBACK', 'unset')}",
             ),
@@ -1069,6 +1260,14 @@ def _run_staged(
         "diffusion_steps": steps,
         "total_denoising_updates": steps * len(sampling_requests),
         "independent_chain_invocations": len(sampling_requests),
+        "local_interchain_conditioning": [
+            {
+                "target_chain": context.target_chain,
+                "partner_chains": list(context.partner_chains),
+                "partner_atom_count": len(context.partner_atoms),
+            }
+            for context in conditioning_contexts
+        ],
         "step_scale": step_scale,
         "s_churn": s_churn,
         "motif_placements": placements,

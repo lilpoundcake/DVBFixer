@@ -78,11 +78,16 @@ For a multi-chain structure, the Protpardelle profile runs each gap-bearing
 protein chain as an independent sampler invocation and then DVBFixer merges the
 generated regions into the original structure. Chains without generated gaps
 and all fixed atoms are restored exactly. The CLI prints a warning when this
-path is used. This is **not inter-chain conditioning**: neighboring chains do
-not reach the Protpardelle denoiser, even though they are retained in the final
-candidate. The split also keeps each invocation within Protpardelle cc89's
-512-residue sampler-axis limit; any single gap-bearing chain longer than 512
-residues is still rejected.
+path is used. Each invocation now admits deterministic contiguous crops of
+fixed residues from partner protein chains when their heavy atoms lie within
+12 Å of a gap anchor. Those partner residues occupy separate chains on the
+actual Protpardelle sampler axis and therefore provide real local inter-chain
+denoiser context. The sampler trace records the exact partner atom identities
+for each target chain. The gap-bearing chains are still sampled in independent
+invocations: distant, omitted, or over-budget partner regions do not condition
+the denoiser, and this is not whole-complex joint sampling. The 512-residue
+axis budget includes the local crops; a single gap-bearing chain longer than
+512 residues is still rejected.
 
 An installed private launcher receives the versioned `request.json` protocol and
 must write a valid `result.json` plus contained candidate artifacts. The launcher

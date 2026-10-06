@@ -414,6 +414,30 @@ promotion task.
 - [x] Обновить scope/help/docs и provenance так, чтобы terminal
   generation была явно отличима от `--no-terminal` cropping.
 
+### A.8.2. Локальное межцепочечное conditioning
+
+**Implemented for Protpardelle protein partners (2026-10-06).** Каждый
+gap-bearing target по-прежнему получает отдельный sampler invocation, но adapter
+детерминированно выбирает contiguous crops других canonical protein chains,
+heavy atoms которых находятся в пределах 12 Å от gap anchor. Crop расширяется
+на два sequence neighbours, ограничивается непрерывным observed run и общим
+cc89 axis budget 512 residues.
+
+- Partner crop передаётся в `make_seq_mask_for_sampling` отдельной chain, входит
+  в motif PDB и fixed motif placement; это реальный input denoiser, а не
+  post-hoc clash check.
+- Candidate materialization публикует только generated target coordinates;
+  partner atoms восстанавливаются из source без изменений.
+- `SamplerTrace.conditioning_contexts` хранит точные target/partner chain IDs и
+  partner atom identities. Contract проверяет, что они присутствуют среди
+  represented fixed atoms sampler axis.
+- Несколько gap-bearing chains всё ещё sampling-independent. Distant,
+  discontinuous, omitted и over-budget partner regions не участвуют; нельзя
+  описывать режим как whole-complex joint conditioning.
+- Короткий checkpoint-backed two-chain smoke подтвердил multi-chain motif grammar
+  и наличие partner atoms в sampler trace. Для production promotion остаются
+  frozen interface cohort и causal partner-on/off ablation.
+
 ## A.9. Output и atomic publication
 
 - Сохранить MODELLER contract:

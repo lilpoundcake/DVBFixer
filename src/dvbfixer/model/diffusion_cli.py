@@ -381,8 +381,10 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 "WARNING: Protpardelle will reconstruct gaps using "
                 f"{len(sampled_chains)} independent chain-level sampler "
                 "invocation(s), then DVBFixer will merge the generated regions "
-                "and restore fixed atoms exactly. Other chains do not condition "
-                "the Protpardelle denoiser."
+                "and restore fixed atoms exactly. Each invocation may include a "
+                "bounded crop of nearby fixed partner-chain residues as local "
+                "denoiser context; the gap-bearing chains are not jointly sampled, "
+                "and distant or omitted partner regions do not condition it."
             )
 
         preflight = invoke_runner_preflight(

@@ -191,6 +191,63 @@ def test_request_builder_supports_gaps_across_multiple_chains(tmp_path: Path) ->
     assert assess_diffusion_scope(request, input_path.read_bytes()).supported
 
 
+def test_multichain_cli_warning_distinguishes_local_context_from_joint_sampling(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    input_path = _multichain_gap_input(tmp_path)
+    fasta = tmp_path / "target.fasta"
+    fasta.write_text(
+        ">C\nSNRFSGSKSGNTA\n>D\nSNRFSGSKSGNTA\n",
+        encoding="utf-8",
+    )
+    output = tmp_path / "output"
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
+        lambda _model: DiffusionRuntime(
+            "protpardelle",
+            "protpardelle-1c-mps",
+            "/installed/protpardelle-runner",
+        ),
+    )
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.invoke_runner_preflight",
+        lambda **_kwargs: RunnerPreflightReport(
+            profile="protpardelle-1c-mps",
+            runner_protocol_version=4,
+            contract_schema_version=4,
+            facts=RunnerPreflightFacts(),
+        ),
+    )
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.run_diffusion_pipeline",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            published_bundle=output,
+            status=SimpleNamespace(value="success"),
+        ),
+    )
+    args = SimpleNamespace(
+        input=str(input_path),
+        output=str(output),
+        diffusion_model="protpardelle",
+        diffusion_timeout=1.0,
+        diffusion_seeds=[7],
+        diffusion_work_parent=None,
+        fasta=str(fasta),
+        keep_heterogens=True,
+        no_terminal=False,
+        verbose=False,
+    )
+
+    run_diffusion_model(args)
+
+    warning = capsys.readouterr().out
+    assert "2 independent chain-level sampler invocation(s)" in warning
+    assert "nearby fixed partner-chain residues as local denoiser context" in warning
+    assert "not jointly sampled" in warning
+
+
 def test_request_builder_crops_terminal_targets_under_no_terminal(tmp_path: Path) -> None:
     input_path = _gap_input(tmp_path)
 

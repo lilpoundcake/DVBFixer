@@ -374,6 +374,36 @@ class SamplerStepTrace:
 
 
 @dataclass(frozen=True, slots=True)
+class SamplerConditioningContext:
+    target_chain: str
+    partner_chains: tuple[str, ...]
+    partner_atoms: tuple[AtomIdentity, ...]
+
+    def __post_init__(self) -> None:
+        _single_character(self.target_chain, "conditioning target chain")
+        if not self.partner_chains:
+            raise DiffusionContractError(
+                "conditioning context must contain at least one partner chain"
+            )
+        if len(set(self.partner_chains)) != len(self.partner_chains):
+            raise DiffusionContractError("conditioning partner chains must be unique")
+        for chain in self.partner_chains:
+            _single_character(chain, "conditioning partner chain")
+        if self.target_chain in self.partner_chains:
+            raise DiffusionContractError(
+                "conditioning target chain cannot also be a partner chain"
+            )
+        if not self.partner_atoms or len(set(self.partner_atoms)) != len(self.partner_atoms):
+            raise DiffusionContractError(
+                "conditioning partner atoms must be non-empty and unique"
+            )
+        if any(atom.chain not in self.partner_chains for atom in self.partner_atoms):
+            raise DiffusionContractError(
+                "conditioning partner atom chain is not declared by the context"
+            )
+
+
+@dataclass(frozen=True, slots=True)
 class SamplerTrace:
     schema_version: int
     profile: str
@@ -401,6 +431,7 @@ class SamplerTrace:
     resource_metrics: RunnerResourceMetrics
     localized_refinement_residues: tuple[ResidueIdentity, ...] = ()
     final_heavy_coordinate_operations: tuple[str, ...] = ()
+    conditioning_contexts: tuple[SamplerConditioningContext, ...] = ()
 
     def __post_init__(self) -> None:
         if self.schema_version != DIFFUSION_SCHEMA_VERSION:
@@ -464,6 +495,18 @@ class SamplerTrace:
         if not set(self.represented_fixed_atoms) <= set(self.atom_order):
             raise DiffusionContractError(
                 "represented fixed atoms must be present on atom_order"
+            )
+        context_targets = [context.target_chain for context in self.conditioning_contexts]
+        if len(context_targets) != len(set(context_targets)):
+            raise DiffusionContractError(
+                "sampler conditioning contexts must have unique target chains"
+            )
+        if any(
+            not set(context.partner_atoms) <= set(self.represented_fixed_atoms)
+            for context in self.conditioning_contexts
+        ):
+            raise DiffusionContractError(
+                "conditioning partner atoms must be represented fixed atoms"
             )
         if len(self.steps) > MAX_TRACE_STEPS:
             raise DiffusionContractError("sampler trace exceeds its step count limit")

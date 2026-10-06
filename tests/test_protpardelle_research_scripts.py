@@ -367,6 +367,53 @@ def test_multichain_request_is_split_into_gap_bearing_chain_invocations() -> Non
     ]
 
 
+def test_multichain_invocations_include_nearby_partner_crops() -> None:
+    adapter = _load_adapter()
+    request = _multichain_request()
+    coordinates = {
+        atom: np.asarray(
+            [
+                float(index % 3),
+                0.0 if atom.chain == "d" else 2.0,
+                0.0,
+            ]
+        )
+        for index, atom in enumerate(request.fixed_atoms)
+    }
+
+    requests = adapter._chain_sampling_requests(request, coordinates)
+
+    assert [tuple(target.chain for target in item.target_sequences) for item in requests] == [
+        ("d", "E"),
+        ("E", "d"),
+    ]
+    assert all(len(item.target_sequences[1].sequence) >= 1 for item in requests)
+    assert [
+        {atom.chain for atom in item.fixed_atoms}
+        for item in requests
+    ] == [{"d", "E"}, {"d", "E"}]
+
+
+def test_multichain_invocations_exclude_distant_partner_chains() -> None:
+    adapter = _load_adapter()
+    request = _multichain_request()
+    coordinates = {
+        atom: np.asarray([
+            float(index % 3),
+            0.0 if atom.chain == "d" else 100.0,
+            0.0,
+        ])
+        for index, atom in enumerate(request.fixed_atoms)
+    }
+
+    requests = adapter._chain_sampling_requests(request, coordinates)
+
+    assert [tuple(target.chain for target in item.target_sequences) for item in requests] == [
+        ("d",),
+        ("E",),
+    ]
+
+
 def test_motif_writer_renumbers_observed_residues_to_target_ordinals(
     tmp_path: Path,
 ) -> None:
