@@ -1,14 +1,15 @@
 # Nonprotein reconstruction and parameterization architecture plan
 
-- **Status:** partially implemented. The offline Class A production slice is
-  implemented as an opt-in typed Python application service; the CLI/GUI,
-  Classes B/C, online enrichment, and MD backend gates remain unimplemented.
+- **Status:** partially implemented. The offline Class A production slice,
+  bounded CCD information API, and opt-in single-component PDB CLI are
+  implemented. Classes B/C, online reconstruction authority, a dedicated GUI
+  workflow, and MD backend gates remain unimplemented.
 - **Scope:** reconstruct and prepare retained *nonprotein* components for a later,
   explicitly requested MD parameterization step. Components include isolated small
   molecules, glycans, PTMs, covalently attached ligands, cofactors, and metal
   systems.
-- **Non-claim:** the implemented slice does not add a CLI option, remote service,
-  force-field template, actual MD parameter generation, or MD-ready output. It does not replace PDBFixer,
+- **Non-claim:** the implemented slice does not add a remote reconstruction
+  service, force-field template, actual MD parameter generation, or MD-ready output. It does not replace PDBFixer,
   Salilab MODELLER, current ligand handling, or existing force-field adapters.
 - **Core rule:** coordinate reconstruction/geometry regularization and MD
   parameterization are separate stages. Passing the former is never evidence that
@@ -25,7 +26,16 @@
 - `dvbfixer.nonprotein_reconstruction` implements one opt-in Python boundary.
   It supports per-instance user-mapped complete graphs and a bounded JSON
   extraction from a checksum-pinned local CCD snapshot. The extraction format is
-  `dvbfixer-ccd-snapshot-v1`; raw CCD monomer CIF ingestion is not claimed.
+  `dvbfixer-ccd-snapshot-v1`.
+- `dvbfixer.ccd` parses one bounded raw wwPDB component CIF. The read-only
+  `component-info` command can fetch explicitly from a fixed HTTPS endpoint and
+  caches the exact response by SHA-256. Reconstruction accepts only an explicit
+  local CIF, converts its non-ambiguous declared state to a locked heavy-atom
+  graph, and never uses an online fallback.
+- `reconstruct-component` maps one exact PDB HETATM instance, detects explicit
+  external LINK/CONECT evidence, invokes the Class A service, checks generated
+  atoms against the environment, and atomically publishes a whole-PDB and
+  provenance bundle. It is not integrated into preparation defaults.
 - V1 reconstructs only Class A known isolated components. It keeps every
   observed coordinate fixed, rigidly fits authority ideal geometry from at least
   three non-collinear observed anchors, generates absent atoms, and validates

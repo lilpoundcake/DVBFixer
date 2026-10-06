@@ -630,6 +630,8 @@ start = [
 ]
 callers = [
   "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_and_publish",
+  "src/dvbfixer/pdb_component_reconstruction.py::reconstruct_pdb_component",
+  "src/dvbfixer/reconstruct_component.py::main",
 ]
 contracts = ["nonprotein-reconstruction-bundle"]
 invariants = [
@@ -638,9 +640,9 @@ invariants = [
   "INV-NONPROTEIN-ATOMIC-PUBLICATION",
 ]
 change_group = "nonprotein-reconstruction"
-test_files = ["tests/test_nonprotein_reconstruction.py"]
+test_files = ["tests/test_nonprotein_reconstruction.py", "tests/test_ccd_component_reconstruction.py"]
 verification = [
-  "pytest -q tests/test_nonprotein_reconstruction.py tests/test_scientific_domain.py",
+  "pytest -q tests/test_nonprotein_reconstruction.py tests/test_ccd_component_reconstruction.py tests/test_scientific_domain.py",
   "mypy src/dvbfixer/nonprotein_reconstruction.py src/dvbfixer/domain/nonprotein_reconstruction.py src/dvbfixer/domain/structure_identity.py",
 ]
 
@@ -672,6 +674,10 @@ reason = "Authority, exact identity, geometry provenance, validation, MD handoff
 files = [
   "src/dvbfixer/domain/nonprotein_reconstruction.py",
   "src/dvbfixer/nonprotein_reconstruction.py",
+  "src/dvbfixer/ccd.py",
+  "src/dvbfixer/component_info.py",
+  "src/dvbfixer/pdb_component_reconstruction.py",
+  "src/dvbfixer/reconstruct_component.py",
   "src/dvbfixer/domain/structure_identity.py",
   "src/dvbfixer/domain/parameterization.py",
   "docs/plans/nonprotein-reconstruction-parameterization.md",

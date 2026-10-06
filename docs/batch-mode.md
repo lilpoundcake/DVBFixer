@@ -47,6 +47,8 @@ an invalid shared invocation cannot fail differently from file to file.
 | `transplant` | No | Its source/target relationship is not a directory batch operation. |
 | `cluster` | No | Operates on an explicitly selected trajectory or structure set. |
 | `parametrize` | No | Requires explicit ligand/parameterization inputs. |
+| `component-info` | No | Queries one explicitly selected CCD component. |
+| `reconstruct-component` | No | Requires one exact component identity and one pinned CCD authority. |
 | `homology` | No | Requires explicit query, template, and alignment relationships. |
 | `msa` | No | Operates on an explicitly selected sequence set. |
 | `salign` | No | Operates on explicitly selected structures/sequences. |

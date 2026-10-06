@@ -21,6 +21,7 @@ public command therefore updates all three surfaces from the same contract.
 |---------|--------------|----------------|
 | [`atom-names`](atom-names.md) | Convert PDB residue and atom names for legacy AMBER, Amber19SB, or CHARMM GROMACS consumers without modifying the source | Utilities |
 | [`cluster`](cluster.md) | Glycan conformational clustering from MD trajectories (GFDB-style) | Analysis |
+| [`component-info`](component-info.md) | Query wwPDB CCD chemistry and compare heavy-atom completeness | Topology & chemistry |
 | [`conect`](conect.md) | Infer missing CONECT records (SS, glycosidic, glycosylation) into a PDB | Utilities |
 | [`convert`](convert.md) | Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants); bidirectional | Glycoprotein prep |
 | [`diagnose`](diagnose.md) | Report structure-quality issues without modifying the input | Analysis |
@@ -36,6 +37,7 @@ public command therefore updates all three surfaces from the same contract.
 | [`puppet`](puppet.md) | Strip a PDB to backbone-only polyglycine (template / visualization) | Utilities |
 | [`rename`](rename.md) | Canonicalize residue names (AMBER/CHARMM/MSE → standard PDB) | Utilities |
 | [`renumber`](renumber.md) | FASTA/SEQRES renumbering OR antibody schemes (Kabat/Chothia/IMGT/Martin/Aho/EU) | Structure prep |
+| [`reconstruct-component`](reconstruct-component.md) | Reconstruct one isolated Class A component from pinned CCD ideal geometry | Topology & chemistry |
 | [`salign`](salign.md) | Sequence-guided Cα superposition with Biopython by default; optional Modeller SALIGN | Modeling |
 | [`split`](split.md) | Empirical PDB/GRO chain splitting or REMARK 350/BIOMT assembly extraction | Structure prep |
 | [`top`](top.md) | GROMACS topology from PDB/GRO (AMBER, CHARMM, or ACPYPE pipeline) | Topology |

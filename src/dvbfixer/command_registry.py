@@ -52,6 +52,8 @@ COMMAND_REGISTRY: tuple[CommandSpec, ...] = (
     CommandSpec("conect", "dvbfixer.conect", "Add inferred CONECT records (SS bonds, glycosidic links, glycosylation)", "Utilities", batch_output_suffix="_conect.pdb"),
     CommandSpec("cluster", "dvbfixer.cluster", "Cluster glycan conformations from MD trajectory", "Analysis", output_extension="", output_mode="directory"),
     CommandSpec("parametrize", "dvbfixer.parametrize", "Parametrize small molecules with GAFF2 + AM1-BCC/RESP", "Topology & chemistry", output_extension="", output_mode="directory"),
+    CommandSpec("component-info", "dvbfixer.component_info", "Query authoritative CCD chemistry and compare component completeness", "Topology & chemistry", output_mode="stdout", output_kind="report", normalize_cif=False),
+    CommandSpec("reconstruct-component", "dvbfixer.reconstruct_component", "Reconstruct one isolated component from pinned CCD geometry", "Topology & chemistry", output_extension="", output_mode="directory", normalize_cif=False),
     CommandSpec("homology", "dvbfixer.homology", "Multi-template homology modeling with Modeller", "Modeling & alignment", output_mode="prefix", specialized=True),
     CommandSpec("msa", "dvbfixer.msa", "Multiple protein-sequence alignment with MAFFT, MUSCLE 5, or Clustal Omega", "Modeling & alignment", output_extension=".fasta"),
     CommandSpec("salign", "dvbfixer.salign", "Structure-based multiple alignment with Modeller SALIGN", "Modeling & alignment", output_extension=".pir"),

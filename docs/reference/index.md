@@ -22,6 +22,8 @@
 | `dvbfixer conect` | [`conect.md`](conect.md) |
 | `dvbfixer cluster` | [`cluster.md`](cluster.md) |
 | `dvbfixer parametrize` | [`parametrize.md`](parametrize.md) |
+| `dvbfixer component-info` | [`component-info.md`](component-info.md) |
+| `dvbfixer reconstruct-component` | [`reconstruct-component.md`](reconstruct-component.md) |
 | `dvbfixer homology` | [`homology.md`](homology.md) |
 | `dvbfixer msa` | [`msa.md`](msa.md) |
 | `dvbfixer salign` | [`salign.md`](salign.md) |

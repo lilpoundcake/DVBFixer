@@ -86,6 +86,24 @@ def test_gui_schema_excludes_doctor_diffusion_options() -> None:
     }
 
 
+def test_component_commands_keep_gui_paths_workspace_scoped() -> None:
+    from scripts.gen_gui_spec import command_schema
+
+    info = command_schema("component-info", COMMAND_BY_NAME["component-info"].description)
+    info_fields = {field["flag"]: field for field in info["flags"]}
+    assert info_fields["--ccd-cif"]["type"] == "artifact"
+    assert info_fields["--structure"]["type"] == "artifact"
+    assert "--cache-dir" not in info_fields
+    assert "--json" not in info_fields
+
+    reconstruction = command_schema(
+        "reconstruct-component", COMMAND_BY_NAME["reconstruct-component"].description
+    )
+    reconstruction_fields = {field["flag"]: field for field in reconstruction["flags"]}
+    assert reconstruction_fields["--ccd-cif"]["type"] == "artifact"
+    assert "--output-root" not in reconstruction_fields
+
+
 def test_gui_schema_excludes_model_backend_and_diffusion_options() -> None:
     from scripts.gen_gui_spec import command_schema
 

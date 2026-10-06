@@ -68,6 +68,15 @@ pH and authority-declared ranges; a mapped user graph is a locked microspecies.
 Observed coordinates remain fixed. Missing coordinates come only from a rigidly
 fitted authority ideal geometry and carry per-atom provenance.
 
+`dvbfixer.ccd` additionally provides a bounded raw wwPDB component-CIF
+information adapter. `component-info` exposes local or explicitly requested
+online discovery with content-addressed provenance. `reconstruct-component`
+converts an explicitly selected local, non-ambiguous CCD record into a locked
+heavy-atom graph and applies the Class A service to one exact PDB `HETATM`
+instance. It checks explicit LINK/CONECT evidence, preserves source coordinate
+records, validates generated atoms against the surrounding structure, and
+publishes the whole PDB with provenance through one directory rename.
+
 Class B linked chemistry and Class C cofactor/metal/redox/coordination chemistry
 are structured refusals, not guessed reconstructions. Geometry validation and
 atomic bundle publication do not parameterize a molecule. The separate route
@@ -109,7 +118,7 @@ template names; OpenMM subsequently checks atom/bond compatibility. The
 presence of an XML template name therefore does not establish that an
 incomplete or differently bonded residue can be used.
 
-There is no general whole-structure component inventory, metal/redox-state resolver,
+There is no general connected-component inventory, metal/redox-state resolver,
 or domain service for whole-complex geometry regularization. PDB multi-residue
 heterogens are not yet grouped by connected-component analysis for naming.
 Engine setup and fallback behavior still live in `minimize/pipeline.py` and
@@ -123,5 +132,5 @@ bundle boundary remain in `model/diffusion*`, not in the domain package. Static
 profile metadata and the typed, bounded runner preflight report also live at
 that backend-neutral boundary; `doctor` is only their CLI presentation adapter.
 PDBFixer and Salilab MODELLER remain supported production baselines, and
-MODELLER remains the default. The Class A service is not wired into those
-defaults or exposed as a CLI/GUI command.
+MODELLER remains the default. Class A reconstruction is opt-in and is not wired
+into `prepare`, `model`, `minimize`, `zbs`, or an automatic fallback.

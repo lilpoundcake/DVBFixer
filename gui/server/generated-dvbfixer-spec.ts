@@ -866,7 +866,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--ph",
         "dest": "ph",
-        "label": "Ph",
+        "label": "pH",
         "type": "number",
         "group": "Force field / pH",
         "help": "pH for adding hydrogens (default: 7.0)",
@@ -1101,7 +1101,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--ph",
         "dest": "ph",
-        "label": "Ph",
+        "label": "pH",
         "type": "number",
         "group": "Force field",
         "help": "pH for hydrogen addition if needed (default: 7.0)",
@@ -1499,7 +1499,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--ph",
         "dest": "ph",
-        "label": "Ph",
+        "label": "pH",
         "type": "number",
         "group": "pH-driven decisions",
         "help": "Target pH for protonation assignment (default: 7.0)",
@@ -3086,6 +3086,261 @@ export const GENERATED_COMMANDS = [
     "specialized": false
   },
   {
+    "name": "component-info",
+    "label": "Component Info",
+    "description": "Query authoritative CCD chemistry and compare component completeness",
+    "category": "Topology & chemistry",
+    "inputs": [
+      {
+        "flag": "component",
+        "dest": "component",
+        "label": "Component",
+        "type": "text",
+        "group": "positional arguments",
+        "help": "CCD component ID, for example FAD or LBN",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "component",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--ccd-cif",
+        "dest": "ccd_cif",
+        "label": "CCD CIF",
+        "type": "artifact",
+        "group": "options",
+        "help": "Explicit local CCD component CIF",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "exclusiveGroup": "component-info:exclusive:0"
+      },
+      {
+        "flag": "--online",
+        "dest": "online",
+        "label": "Online",
+        "type": "bool",
+        "group": "options",
+        "help": "Explicitly allow a bounded HTTPS request to files.rcsb.org",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "exclusiveGroup": "component-info:exclusive:0",
+        "default": false
+      },
+      {
+        "flag": "--structure",
+        "dest": "structure",
+        "label": "Structure",
+        "type": "artifact",
+        "group": "options",
+        "help": "Optional PDB to compare by residue name",
+        "required": false,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--timeout",
+        "dest": "timeout",
+        "label": "Timeout",
+        "type": "number",
+        "group": "options",
+        "help": "Online request timeout in seconds (default: 15)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": 15.0
+      }
+    ],
+    "groups": [
+      {
+        "name": "options",
+        "fields": [
+          "--ccd-cif",
+          "--online",
+          "--structure",
+          "--timeout"
+        ]
+      }
+    ],
+    "outputExtension": ".pdb",
+    "outputMode": "stdout",
+    "hasOutput": false,
+    "outputKind": "report",
+    "batch": false,
+    "successCodes": [
+      0
+    ],
+    "specialized": false
+  },
+  {
+    "name": "reconstruct-component",
+    "label": "Reconstruct Component",
+    "description": "Reconstruct one isolated component from pinned CCD geometry",
+    "category": "Topology & chemistry",
+    "inputs": [
+      {
+        "flag": "input",
+        "dest": "input",
+        "label": "Input",
+        "type": "artifact",
+        "group": "positional arguments",
+        "help": "Input PDB (source is never modified)",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "input",
+        "nargs": null
+      },
+      {
+        "flag": "component",
+        "dest": "component",
+        "label": "Component",
+        "type": "text",
+        "group": "positional arguments",
+        "help": "Exact CCD/PDB component ID",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "component",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--ccd-cif",
+        "dest": "ccd_cif",
+        "label": "CCD CIF",
+        "type": "artifact",
+        "group": "options",
+        "help": "Pinned local CCD component CIF",
+        "required": true,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--ccd-sha256",
+        "dest": "ccd_sha256",
+        "label": "CCD SHA-256",
+        "type": "text",
+        "group": "options",
+        "help": "Required lowercase SHA-256 pin for --ccd-cif",
+        "required": true,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--chain",
+        "dest": "chain",
+        "label": "Chain",
+        "type": "text",
+        "group": "options",
+        "help": "Exact case-sensitive one-character chain ID",
+        "required": true,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--residue",
+        "dest": "residue",
+        "label": "Residue",
+        "type": "text",
+        "group": "options",
+        "help": "Exact PDB residue sequence number",
+        "required": true,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--icode",
+        "dest": "icode",
+        "label": "Icode",
+        "type": "text",
+        "group": "options",
+        "help": "Exact insertion code (default: blank)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": ""
+      },
+      {
+        "flag": "--model",
+        "dest": "model",
+        "label": "Model",
+        "type": "number",
+        "group": "options",
+        "help": "Exact MODEL serial (default: 1)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": 1
+      },
+      {
+        "flag": "--occurrence",
+        "dest": "occurrence",
+        "label": "Occurrence",
+        "type": "number",
+        "group": "options",
+        "help": "Occurrence when an exact residue identity repeats (default: 1)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": 1
+      },
+      {
+        "flag": "--ph",
+        "dest": "ph",
+        "label": "pH",
+        "type": "number",
+        "group": "options",
+        "help": "Recorded pH; CCD state is not changed (default: 7.0)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": 7.0
+      },
+      {
+        "flag": "--bundle-name",
+        "dest": "bundle_name",
+        "label": "Bundle Name",
+        "type": "text",
+        "group": "options",
+        "help": "Name of the new atomic output bundle directory",
+        "required": true,
+        "repeatable": false,
+        "multi": false
+      }
+    ],
+    "groups": [
+      {
+        "name": "options",
+        "fields": [
+          "--ccd-cif",
+          "--ccd-sha256",
+          "--chain",
+          "--residue",
+          "--icode",
+          "--model",
+          "--occurrence",
+          "--ph",
+          "--bundle-name"
+        ]
+      }
+    ],
+    "outputExtension": "",
+    "outputMode": "directory",
+    "hasOutput": false,
+    "outputKind": "artifact",
+    "batch": false,
+    "successCodes": [
+      0
+    ],
+    "specialized": false
+  },
+  {
     "name": "homology",
     "label": "Homology",
     "description": "Multi-template homology modeling with Modeller",
@@ -3234,7 +3489,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--ph",
         "dest": "ph",
-        "label": "Ph",
+        "label": "pH",
         "type": "number",
         "group": "Post-processing pipeline",
         "help": "pH for hydrogen addition (default: 7.0)",
@@ -3830,7 +4085,7 @@ export const GENERATED_COMMANDS = [
       {
         "flag": "--ph",
         "dest": "ph",
-        "label": "Ph",
+        "label": "pH",
         "type": "number",
         "group": "Force field",
         "help": "pH for protonation and hydrogen addition (default: 7.0)",

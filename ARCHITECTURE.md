@@ -21,7 +21,11 @@ geometry-only Class A application service with bounded pinned-local and
 user-mapped authority, deterministic explicit-pH state selection, structured
 Class B/C/online refusals, validation, and atomic bundle publication. Its
 separate parameterization decision selects only a candidate route and always
-returns `md_ready=False`; no existing preparation default or MD adapter changed.
+returns `md_ready=False`. `ccd.py` adds bounded component-CIF information and
+locked heavy-atom graph conversion; `pdb_component_reconstruction.py` maps one
+exact PDB instance and atomically publishes a whole-PDB/provenance bundle. The
+`component-info` and `reconstruct-component` commands expose those opt-in
+boundaries; no existing preparation default or MD adapter changed.
 
 `model --backend diffusion` is an explicit experimental path for one canonical
 protein chain with one internal gap. `model/diffusion_cli.py` builds the request;
@@ -52,6 +56,8 @@ src/dvbfixer/
 ├── cli_types.py                   — shared argparse numeric and structured-selector validators
 ├── force_field_naming.py          — pure typed PDB naming conversion application service
 ├── nonprotein_reconstruction.py   — offline Class A geometry-only reconstruction and atomic publication
+├── ccd.py                         — bounded wwPDB CCD lookup, parsing, provenance, and graph conversion
+├── pdb_component_reconstruction.py — strict PDB instance mapping/materialization and atomic bundles
 ├── domain/                        — scientific value objects and policies: structure identity,
 │                                     nonprotein reconstruction, parameterization routing, and force-field naming
 ├── __init__.py          24 lines   — __version__, MDAnalysis warning filters

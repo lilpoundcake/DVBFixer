@@ -88,9 +88,11 @@ owner = "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_nonprotein"
 enforcement = [
   "src/dvbfixer/nonprotein_reconstruction.py::_resolve_authority",
   "src/dvbfixer/nonprotein_reconstruction.py::_classify",
+  "src/dvbfixer/ccd.py::ccd_to_heavy_atom_graph",
+  "src/dvbfixer/pdb_component_reconstruction.py::build_reconstruction_request",
 ]
 failure_mode = "The service could guess chemistry, silently switch evidence sources, or apply isolated-ligand geometry to links, metals, redox systems, or cofactors."
-test_files = ["tests/test_nonprotein_reconstruction.py"]
+test_files = ["tests/test_nonprotein_reconstruction.py", "tests/test_ccd_component_reconstruction.py"]
 known_exceptions = []
 
 [invariants.INV-NONPROTEIN-GEOMETRY-NOT-MD]
@@ -112,9 +114,10 @@ owner = "src/dvbfixer/nonprotein_reconstruction.py::publish_reconstruction"
 enforcement = [
   "src/dvbfixer/nonprotein_reconstruction.py::publish_reconstruction",
   "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_and_publish",
+  "src/dvbfixer/pdb_component_reconstruction.py::publish_pdb_bundle",
 ]
 failure_mode = "A caller could observe partial geometry, missing provenance, or an artifact from a failed scientific operation."
-test_files = ["tests/test_nonprotein_reconstruction.py"]
+test_files = ["tests/test_nonprotein_reconstruction.py", "tests/test_ccd_component_reconstruction.py"]
 known_exceptions = ["Atomic rename and fsync durability require the publication root and staging directory to share one local filesystem."]
 
 [invariants.INV-DAT-SCHEMA-CENTRALIZED]

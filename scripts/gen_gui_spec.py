@@ -21,13 +21,17 @@ BATCH = {command.name for command in COMMAND_REGISTRY if command.batch}
 ARTIFACT_DESTS = {
     "input", "topology", "trajectory", "acceptor", "donor", "graft", "template",
     "fasta", "alignment", "dat", "gaussian_log", "variant_overrides",
+    "ccd_cif", "structure",
 }
-HIDDEN_DESTS = {"report_json"}
+HIDDEN_DESTS = {"report_json", "cache_dir", "json_path", "output_root"}
 OUTPUT_EXTENSIONS = {
     command.name: command.output_extension for command in COMMAND_REGISTRY
 }
 OUTPUT_MODES = {command.name: command.output_mode for command in COMMAND_REGISTRY}
 FIELD_LABELS = {
+    "ccd_cif": "CCD CIF",
+    "ccd_sha256": "CCD SHA-256",
+    "ph": "pH",
     "propka": "PROPKA",
     "protassign": "ProtAssign",
     "protassign_binary": "ProtAssign Binary",

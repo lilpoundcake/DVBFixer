@@ -280,10 +280,12 @@ known_divergences = [
 [contracts.nonprotein-reconstruction-bundle]
 status = "implemented"
 owner = "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_and_publish"
-description = "Typed offline Class A geometry result and atomically published geometry/provenance directory, separate from MD route selection."
+description = "Typed Class A geometry result plus atomic geometry-only or whole-PDB/provenance bundles, separate from MD route selection."
 producers = [
   "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_nonprotein",
   "src/dvbfixer/nonprotein_reconstruction.py::reconstruct_and_publish",
+  "src/dvbfixer/pdb_component_reconstruction.py::reconstruct_pdb_component",
+  "src/dvbfixer/pdb_component_reconstruction.py::publish_pdb_bundle",
 ]
 consumers = [
   "src/dvbfixer/nonprotein_reconstruction.py::decide_parameterization",
@@ -293,13 +295,13 @@ identity_keys = [
   "atom=(component identity,atom name)",
   "authority=(exclusive mode,content digest,component,state)",
 ]
-source_mutation = "Observed coordinates, authority files, and source structures are read-only; V1 generates only absent atom coordinates."
-commit_behavior = "A successful bundle stages geometry.json and provenance.json, fsyncs files and directory, and publishes both with one directory rename; geometry success remains unapproved and not MD-ready."
+source_mutation = "Observed coordinates, authority files, and source structures are read-only; V1 generates only absent heavy-atom coordinates and preserves source coordinate records byte-for-byte."
+commit_behavior = "A successful bundle stages geometry/provenance or whole-PDB/provenance files, fsyncs files and directory, and publishes them with one directory rename; geometry success remains unapproved and not MD-ready."
 failure_behavior = "Unsupported, ambiguous, invalid, and failed results contain no coordinates or output digest and publish nothing; publication errors remove private staging and any just-committed destination before propagating."
-test_files = ["tests/test_nonprotein_reconstruction.py"]
+test_files = ["tests/test_nonprotein_reconstruction.py", "tests/test_ccd_component_reconstruction.py"]
 known_divergences = [
-  "No CLI/GUI or existing preparation pipeline consumes the contract.",
-  "The local authority format is a bounded JSON extraction from a pinned CCD, not a raw CCD CIF reader.",
+  "No dedicated GUI workflow or existing preparation pipeline consumes the contract.",
+  "Online CCD access is read-only discovery and cannot serve as reconstruction authority.",
   "Classes B/C, online authority, and actual MD generation are explicit unsupported boundaries.",
 ]
 
