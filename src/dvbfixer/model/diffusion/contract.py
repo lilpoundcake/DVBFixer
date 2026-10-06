@@ -631,6 +631,7 @@ class DiffusionCandidate:
     raw_backend_score: float | None
     score_provenance: str
     warnings: tuple[str, ...] = ()
+    postprocessing_failures: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         _required_text(self.candidate_id, "candidate_id")
@@ -641,6 +642,10 @@ class DiffusionCandidate:
             raise DiffusionContractError("generated_atoms must not contain duplicates")
         if len(set(self.generated_residues)) != len(self.generated_residues):
             raise DiffusionContractError("generated_residues must not contain duplicates")
+        if len(set(self.postprocessing_failures)) != len(self.postprocessing_failures):
+            raise DiffusionContractError("postprocessing_failures must not contain duplicates")
+        for failure in self.postprocessing_failures:
+            _required_text(failure, "postprocessing failure")
 
 
 @dataclass(frozen=True, slots=True)
@@ -654,6 +659,7 @@ class RunnerCandidate:
     raw_backend_score: float | None
     score_provenance: str
     warnings: tuple[str, ...] = ()
+    postprocessing_failures: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         _required_text(self.candidate_id, "candidate_id")
@@ -664,6 +670,10 @@ class RunnerCandidate:
             raise DiffusionContractError("generated_atoms must not contain duplicates")
         if len(set(self.generated_residues)) != len(self.generated_residues):
             raise DiffusionContractError("generated_residues must not contain duplicates")
+        if len(set(self.postprocessing_failures)) != len(self.postprocessing_failures):
+            raise DiffusionContractError("postprocessing_failures must not contain duplicates")
+        for failure in self.postprocessing_failures:
+            _required_text(failure, "postprocessing failure")
 
 
 T = TypeVar("T", bound="_JsonContract")

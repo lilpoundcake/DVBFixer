@@ -160,6 +160,8 @@ def validate_runner_result(
             source,
             structure,
             active_thresholds,
+            postprocessing_failures=candidate.postprocessing_failures,
+            candidate_warnings=candidate.warnings,
         )
         validations.append(
             CandidateValidation(
@@ -237,10 +239,15 @@ def _validate_candidate(
     source: _Structure,
     candidate: _Structure,
     thresholds: ValidationThresholds,
+    *,
+    postprocessing_failures: tuple[str, ...] = (),
+    candidate_warnings: tuple[str, ...] = (),
 ) -> tuple[ValidationSummary, tuple[Metric, ...]]:
     failures: list[str] = []
     warnings: list[str] = []
     metrics: list[Metric] = []
+    failures.extend(postprocessing_failures)
+    warnings.extend(candidate_warnings)
     generated_residues = {
         residue for gap in request.gaps for residue in gap.generated_residues
     }
@@ -543,6 +550,7 @@ def _validated_candidate(candidate: RunnerCandidate) -> DiffusionCandidate:
         raw_backend_score=candidate.raw_backend_score,
         score_provenance=candidate.score_provenance,
         warnings=candidate.warnings,
+        postprocessing_failures=candidate.postprocessing_failures,
     )
 
 

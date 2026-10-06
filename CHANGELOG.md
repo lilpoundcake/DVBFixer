@@ -53,6 +53,9 @@ best-effort summaries; consult `git log` for exact provenance.
   with failed gates and warnings instead of discarding a successfully materialized
   candidate; runner, protocol, digest, and containment failures still publish
   nothing.
+- Localized OpenMM boundary-refinement failures now retain the unchanged raw
+  sampler candidate and publish it as an explicitly rejected inspection bundle;
+  the candidate carries a machine-readable postprocessing failure gate.
 
 ### Compatibility
 

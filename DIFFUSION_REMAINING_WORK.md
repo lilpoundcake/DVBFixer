@@ -145,17 +145,20 @@ CLI принимает повторяемый `--diffusion-seed`, но productio
 
 ## 8. Refinement failure как rejected output
 
-Scientific validation failure уже публикует `validation_failed` bundle.
+**Статус: реализовано 2026-10-06.** Ожидаемый сбой localized OpenMM refinement
+сохраняет неизменённый raw sampler candidate и публикует его только как
+`validation_failed` bundle с hard gate
+`localized-openmm-boundary-refinement-failed`. Ошибки artifact integrity,
+containment и неожиданные исключения остаются фатальными.
 
-Ещё не полностью оформлен случай, когда падает сама локальная OpenMM
-refinement:
+Реализованное поведение:
 
-- исключение refinement всё ещё может классифицироваться как runner failure;
-- желательно сохранять raw sampler candidate;
-- отмечать `refinement_failed`;
-- публиковать его как rejected bundle;
-- сохранять тип и стадию ошибки без raw internal paths;
-- отдельно рекомендовать другой seed или полный `dvbfixer minimize`.
+- raw sampler candidate сохраняется без изменения координат и digest;
+- стадия ошибки записывается в contract/provenance без внутренних путей;
+- independent validation принудительно отклоняет такой candidate;
+- CLI рекомендует другой seed или full-system minimization;
+- protocol, digest, containment и неожиданные runtime errors не маскируются под
+  scientific rejection.
 
 ## 9. Linux/NVIDIA и Protenix production acceptance
 

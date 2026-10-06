@@ -16,6 +16,7 @@ from dvbfixer.model.diffusion.boundary_refinement import (
     BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM,
     BOUNDARY_REFINEMENT_RESTART_COUNT,
     BOUNDARY_REFINEMENT_REVISION,
+    BoundaryRefinementError,
     refine_generated_region,
 )
 from dvbfixer.model.diffusion.contract import (
@@ -150,36 +151,66 @@ def refine_runner_result(
     start = time.perf_counter()
     refined_text = raw_text
     refinement_platform = platform_name
-    for gap_index, gap in enumerate(request.gaps):
-        gap_residues = set(gap.generated_residues)
-        gap_atoms = tuple(
-            atom
-            for atom in request.generated_atoms
-            if ResidueIdentity(
-                atom.chain,
-                atom.residue_number,
-                atom.insertion_code,
-            ) in gap_residues
-        )
-        short_gap = len(gap.generated_residues) <= 5
-        refinement = refine_generated_region(
-            refined_text,
-            generated_residues=gap.generated_residues,
-            generated_atoms=gap_atoms,
-            max_iterations=(
-                500 if short_gap else BOUNDARY_REFINEMENT_MAX_ITERATIONS
+    try:
+        for gap_index, gap in enumerate(request.gaps):
+            gap_residues = set(gap.generated_residues)
+            gap_atoms = tuple(
+                atom
+                for atom in request.generated_atoms
+                if ResidueIdentity(
+                    atom.chain,
+                    atom.residue_number,
+                    atom.insertion_code,
+                ) in gap_residues
+            )
+            short_gap = len(gap.generated_residues) <= 5
+            refinement = refine_generated_region(
+                refined_text,
+                generated_residues=gap.generated_residues,
+                generated_atoms=gap_atoms,
+                max_iterations=(
+                    500 if short_gap else BOUNDARY_REFINEMENT_MAX_ITERATIONS
+                ),
+                restart_count=BOUNDARY_REFINEMENT_RESTART_COUNT,
+                perturbation_angstrom=(
+                    0.25 if short_gap else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM
+                ),
+                platform_name=platform_name,
+                random_seed=request.seeds[0] + gap_index,
+            )
+            refinement_platform = refinement.platform
+            refined_text = rewrite_generated_coordinates(
+                refined_text,
+                refinement.coordinates_angstrom,
+            )
+    except BoundaryRefinementError:
+        elapsed = time.perf_counter() - start
+        rejected = replace(
+            raw_candidate,
+            warnings=(
+                *raw_candidate.warnings,
+                "Localized OpenMM boundary refinement failed; the raw sampler "
+                "candidate was retained for inspection.",
             ),
-            restart_count=BOUNDARY_REFINEMENT_RESTART_COUNT,
-            perturbation_angstrom=(
-                0.25 if short_gap else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM
+            postprocessing_failures=(
+                *raw_candidate.postprocessing_failures,
+                "localized-openmm-boundary-refinement-failed",
             ),
-            platform_name=platform_name,
-            random_seed=request.seeds[0] + gap_index,
         )
-        refinement_platform = refinement.platform
-        refined_text = rewrite_generated_coordinates(
-            refined_text,
-            refinement.coordinates_angstrom,
+        raw_metrics = raw_result.resource_metrics
+        return replace(
+            raw_result,
+            candidates=(rejected,),
+            resource_metrics=RunnerResourceMetrics(
+                wall_time_seconds=(raw_metrics.wall_time_seconds or 0.0) + elapsed,
+                model_load_seconds=raw_metrics.model_load_seconds,
+                peak_ram_bytes=raw_metrics.peak_ram_bytes,
+                peak_vram_bytes=raw_metrics.peak_vram_bytes,
+            ),
+            message=(
+                "localized OpenMM boundary refinement failed; raw sampler "
+                "candidate retained"
+            ),
         )
     output_dir.mkdir(parents=True, exist_ok=False)
     refined_path = output_dir / "candidate.pdb"
@@ -229,6 +260,7 @@ def refine_runner_result(
         raw_backend_score=raw_candidate.raw_backend_score,
         score_provenance=f"{BOUNDARY_REFINEMENT_REVISION}:unranked",
         warnings=raw_candidate.warnings,
+        postprocessing_failures=raw_candidate.postprocessing_failures,
     )
     raw_metrics = raw_result.resource_metrics
     elapsed = time.perf_counter() - start

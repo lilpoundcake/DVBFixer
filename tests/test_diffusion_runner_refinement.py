@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 import dvbfixer.model.diffusion.runner_refinement as runner_refinement
+from dvbfixer.model.diffusion.boundary_refinement import BoundaryRefinementError
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
@@ -223,3 +224,25 @@ def test_reference_refinement_preserves_and_updates_sampler_trace(
     assert refined_trace.refinement_mode == "localized-openmm-boundary-refinement"
     assert refined_trace.localized_refinement_residues == request.gaps[0].movable_junction_residues
     assert refined.backend_provenance.known_nondeterministic_operations == ()
+
+    def fail_refinement(*_args: object, **_kwargs: object) -> None:
+        raise BoundaryRefinementError("injected scientific refinement failure")
+
+    monkeypatch.setattr(
+        runner_refinement,
+        "refine_generated_region",
+        fail_refinement,
+    )
+    rejected = refine_runner_result(
+        request_path,
+        raw_result,
+        tmp_path / "failed-refinement",
+        platform_name="Reference",
+    )
+
+    assert rejected.candidates[0].coordinate_artifact == raw_result.candidates[0].coordinate_artifact
+    assert rejected.candidates[0].postprocessing_failures == (
+        "localized-openmm-boundary-refinement-failed",
+    )
+    assert "raw sampler candidate retained" in rejected.message
+    assert not (tmp_path / "failed-refinement").exists()

@@ -417,6 +417,33 @@ def test_validation_accepts_complete_fixture_candidate(tmp_path: Path) -> None:
     assert metrics["detectable-d-ca"] == 0.0
 
 
+def test_validation_rejects_raw_candidate_after_refinement_failure(
+    tmp_path: Path,
+) -> None:
+    workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
+    candidate_path = workspace / "candidates" / "raw.pdb"
+    candidate_path.write_bytes(candidate_bytes)
+    raw = _candidate(
+        "raw",
+        "candidates/raw.pdb",
+        candidate_bytes,
+        generated_atoms,
+        score=4.0,
+    )
+    runner_result = _runner_result((replace(
+        raw,
+        postprocessing_failures=("localized-openmm-boundary-refinement-failed",),
+    ),))
+
+    result = build_validated_result(request, runner_result, workspace=workspace)
+
+    assert result.status is DiffusionStatus.FAILED
+    assert result.candidates[0].coordinate_artifact == raw.coordinate_artifact
+    assert result.validation_summaries[0].hard_gate_failures == (
+        "localized-openmm-boundary-refinement-failed",
+    )
+
+
 def test_validation_rejects_outside_identity_and_fixed_coordinate_drift(tmp_path: Path) -> None:
     workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
     outside_atom = AtomIdentity("C", "64", "", "CA")

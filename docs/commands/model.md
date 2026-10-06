@@ -96,6 +96,12 @@ simulation-ready; the user may inspect it, try another `--diffusion-seed`, or ru
 a deliberate full-system minimization. Runner/protocol/artifact failures still
 publish nothing.
 
+An expected localized OpenMM boundary-refinement failure follows the same policy:
+the unchanged raw sampler candidate is retained, provenance records
+`localized-openmm-boundary-refinement-failed`, and validation publishes it only
+as a rejected bundle. Unexpected exceptions and artifact-integrity failures remain
+fatal and publish nothing.
+
 ## Options
 
 | Flag | Default | Description |
