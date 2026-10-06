@@ -32,6 +32,12 @@ class DiffusionStatus(StrEnum):
     FAILED = "failed"
 
 
+class GapKind(StrEnum):
+    INTERNAL = "internal"
+    N_TERMINAL = "n_terminal"
+    C_TERMINAL = "c_terminal"
+
+
 def _required_text(value: str, field_name: str) -> None:
     if not value:
         raise DiffusionContractError(f"{field_name} must not be empty")
@@ -124,17 +130,38 @@ class SequencePlacement:
 class GapRegion:
     chain: str
     target_interval: TargetInterval
-    left_anchor: ResidueIdentity
-    right_anchor: ResidueIdentity
+    left_anchor: ResidueIdentity | None
+    right_anchor: ResidueIdentity | None
     generated_residues: tuple[ResidueIdentity, ...]
     movable_junction_residues: tuple[ResidueIdentity, ...]
+    gap_kind: GapKind = GapKind.INTERNAL
 
     def __post_init__(self) -> None:
         _single_character(self.chain, "gap chain")
-        if self.left_anchor.chain != self.chain or self.right_anchor.chain != self.chain:
+        if not isinstance(self.gap_kind, GapKind):
+            try:
+                object.__setattr__(self, "gap_kind", GapKind(self.gap_kind))
+            except ValueError as exc:
+                raise DiffusionContractError(f"unknown gap kind: {self.gap_kind}") from exc
+        anchors = tuple(
+            anchor
+            for anchor in (self.left_anchor, self.right_anchor)
+            if anchor is not None
+        )
+        if any(anchor.chain != self.chain for anchor in anchors):
             raise DiffusionContractError("gap anchors must belong to the target chain")
-        if self.left_anchor == self.right_anchor:
+        if len(set(anchors)) != len(anchors):
             raise DiffusionContractError("left and right anchors must be distinct")
+        if self.gap_kind is GapKind.INTERNAL and len(anchors) != 2:
+            raise DiffusionContractError("internal gap requires left and right anchors")
+        if self.gap_kind is GapKind.N_TERMINAL and (
+            self.left_anchor is not None or self.right_anchor is None
+        ):
+            raise DiffusionContractError("N-terminal gap requires only a right anchor")
+        if self.gap_kind is GapKind.C_TERMINAL and (
+            self.left_anchor is None or self.right_anchor is not None
+        ):
+            raise DiffusionContractError("C-terminal gap requires only a left anchor")
         expected_count = self.target_interval.stop - self.target_interval.start
         if len(self.generated_residues) != expected_count:
             raise DiffusionContractError(
@@ -154,14 +181,10 @@ class GapRegion:
             raise DiffusionContractError(
                 "movable_junction_residues must not contain duplicates"
             )
-        required_movable = {
-            self.left_anchor,
-            self.right_anchor,
-            *self.generated_residues,
-        }
+        required_movable = {*anchors, *self.generated_residues}
         if not required_movable <= set(self.movable_junction_residues):
             raise DiffusionContractError(
-                "movable_junction_residues must contain both anchors and all generated residues"
+                "movable_junction_residues must contain every anchor and generated residue"
             )
 
 

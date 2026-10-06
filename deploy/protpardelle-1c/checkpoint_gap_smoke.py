@@ -474,7 +474,11 @@ def _synchronize_and_restore_fixed_atoms(
             )
     else:
         for gap in request.gaps:
-            anchor_residues = {gap.left_anchor, gap.right_anchor}
+            anchor_residues = {
+                anchor
+                for anchor in (gap.left_anchor, gap.right_anchor)
+                if anchor is not None
+            }
             anchor_atoms = tuple(
                 identity
                 for identity in identities
@@ -688,13 +692,6 @@ def _run_staged(
     request = DiffusionRequest.from_json(request_path.read_text(encoding="utf-8"))
     if request.candidate_count != 1 or len(request.seeds) != 1:
         raise ValueError("cc89 benchmark requires one candidate")
-    targets = {target.chain: target.sequence for target in request.target_sequences}
-    for gap in request.gaps:
-        if (
-            gap.target_interval.start <= 0
-            or gap.target_interval.stop >= len(targets[gap.chain])
-        ):
-            raise ValueError("cc89 benchmark requires two-anchor internal gaps")
     if any(
         amino_acid not in residue_constants.restype_order
         for target in request.target_sequences
@@ -1052,6 +1049,7 @@ def _run_staged(
                 residue
                 for gap in request.gaps
                 for residue in (gap.left_anchor, gap.right_anchor)
+                if residue is not None
             },
             closure_passed=(
                 "junction-peptide-connectivity"

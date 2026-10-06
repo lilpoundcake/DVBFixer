@@ -18,6 +18,7 @@ from dvbfixer.model.diffusion.contract import (
     DiffusionRequest,
     DiffusionResult,
     DiffusionStatus,
+    GapKind,
     GapRegion,
     Metric,
     ResidueIdentity,
@@ -77,6 +78,28 @@ def _request() -> DiffusionRequest:
         seeds=(7, 11),
         backend_options=(BackendOption("precision", "float32"),),
     )
+
+
+def test_terminal_gap_contract_requires_exactly_one_directional_anchor() -> None:
+    anchor = ResidueIdentity("D", "10")
+    generated = tuple(ResidueIdentity("D", str(number)) for number in range(7, 10))
+    gap = GapRegion(
+        chain="D",
+        target_interval=TargetInterval(0, 3),
+        left_anchor=None,
+        right_anchor=anchor,
+        generated_residues=generated,
+        movable_junction_residues=(*generated, anchor),
+        gap_kind=GapKind.N_TERMINAL,
+    )
+
+    assert gap.gap_kind is GapKind.N_TERMINAL
+    with pytest.raises(DiffusionContractError, match="requires only a right anchor"):
+        replace(
+            gap,
+            left_anchor=ResidueIdentity("D", "6"),
+            movable_junction_residues=(ResidueIdentity("D", "6"), *generated, anchor),
+        )
 
 
 def _success_result() -> DiffusionResult:

@@ -355,14 +355,19 @@ def _validate_candidate(
     junction_distances: list[float] = []
     backbone_distances: list[float] = []
     for gap in request.gaps:
-        ordered = (gap.left_anchor, *gap.generated_residues, gap.right_anchor)
+        ordered = (
+            *((gap.left_anchor,) if gap.left_anchor is not None else ()),
+            *gap.generated_residues,
+            *((gap.right_anchor,) if gap.right_anchor is not None else ()),
+        )
+        anchors = {gap.left_anchor, gap.right_anchor} - {None}
         for index, (left, right) in enumerate(zip(ordered, ordered[1:])):
             distance = _cn_distance(candidate, left, right)
             if distance is None:
                 failures.append("generated-backbone-atoms-missing")
                 continue
             backbone_distances.append(distance)
-            if index == 0 or index == len(ordered) - 2:
+            if left in anchors or right in anchors:
                 junction_distances.append(distance)
                 if not (
                     thresholds.junction_cn_angstrom_min
@@ -412,8 +417,11 @@ def _validate_candidate(
         failures.append("retained-explicit-link-unexpected")
 
     generated_or_junction = generated_residues | {
-        gap.left_anchor for gap in request.gaps
-    } | {gap.right_anchor for gap in request.gaps}
+        anchor
+        for gap in request.gaps
+        for anchor in (gap.left_anchor, gap.right_anchor)
+        if anchor is not None
+    }
     bond_length_findings = [
         finding
         for finding in check_bond_lengths(candidate.pdb.topology, candidate.pdb.positions)

@@ -56,6 +56,10 @@ best-effort summaries; consult `git log` for exact provenance.
 - Localized OpenMM boundary-refinement failures now retain the unchanged raw
   sampler candidate and publish it as an explicitly rejected inspection bundle;
   the candidate carries a machine-readable postprocessing failure gate.
+- Added one-anchor N- and C-terminal diffusion generation for the Protpardelle
+  profile, including explicit gap kinds, deterministic PDB numbering, terminal
+  materialization, single-junction validation, localized refinement, provenance,
+  and fail-closed rejection on profiles without accepted terminal evidence.
 
 ### Compatibility
 

@@ -5,7 +5,8 @@
 Rebuilds missing loops and gaps using Modeller's LoopModel. Identifies missing regions by aligning ATOM records to the SEQRES sequence (or a user-provided FASTA), then runs Modeller's loop modeling with MD refinement to fill them.
 
 MODELLER remains the default. An experimental, explicit diffusion path is also
-available for canonical protein chains with two-anchor internal gaps. It runs an
+available for canonical protein chains with internal gaps and, on the accepted
+Protpardelle profile, one-anchor N/C-terminal regions. It runs an
 operator-provided protocol-compatible executable; DVBFixer does not install ML
 frameworks, download checkpoints, or fall back to MODELLER automatically.
 
@@ -56,12 +57,17 @@ dvbfixer model input.pdb --fasta sequence.fasta \
 
 ### Experimental diffusion scope
 
-The current CLI accepts canonical protein chains with unambiguous two-anchor
-internal gaps of 3–12 residues and target sequences from SEQRES or `--fasta`.
-The input numbering must reserve enough residue numbers for each gap. Terminal
-generation is not yet supported because it requires a separately validated
-one-anchor protocol. Pass `--no-terminal` to crop each target outside its first
-and last observed anchors and reconstruct only internal gaps. Retained
+The current CLI accepts canonical protein chains with unambiguous missing regions
+of 3–12 residues and target sequences from SEQRES or `--fasta`. Internal gaps use
+two anchors. The Protpardelle profile also supports one-anchor N-terminal and
+C-terminal generation; generated terminal identities extend deterministically
+before or after the observed PDB residue-number range. The materializer inserts
+N-terminal atoms before the first observed residue and C-terminal atoms before
+that chain's `TER`. Validation applies the single available peptide-junction gate
+plus atom completeness, geometry, clashes, chirality, and exact fixed-coordinate
+checks. Other diffusion profiles reject terminal requests before runner launch.
+Pass `--no-terminal` to crop each target outside its first and last observed
+anchors and reconstruct only internal gaps. Retained
 heterogens, noncanonical residues, ambiguous sequence placement, and unsupported
 links fail before the external runner is started. `--strip-heterogens`
 explicitly creates a protein-only private input before admission and removes

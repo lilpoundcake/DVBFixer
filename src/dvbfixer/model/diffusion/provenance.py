@@ -212,6 +212,7 @@ def _git_commit(repository_root: Path | None) -> str:
 def _gap_dict(gap: Any) -> dict[str, Any]:
     return {
         "chain": gap.chain,
+        "gap_kind": gap.gap_kind.value,
         "target_interval": {
             "start": gap.target_interval.start,
             "stop": gap.target_interval.stop,

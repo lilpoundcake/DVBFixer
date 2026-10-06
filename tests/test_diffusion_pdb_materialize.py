@@ -10,6 +10,7 @@ from dvbfixer.model.diffusion.contract import (
     AtomIdentity,
     DiffusionContractError,
     DiffusionRequest,
+    GapKind,
     GapRegion,
     ResidueIdentity,
     SequencePlacement,
@@ -143,6 +144,77 @@ def test_materializer_preserves_unrepresented_fixed_atoms_from_source() -> None:
 
     assert left in rendered
     assert right in rendered
+
+
+@pytest.mark.parametrize(
+    ("gap_kind", "generated_numbers", "expected_before_anchor"),
+    [
+        (GapKind.N_TERMINAL, (7, 8, 9), True),
+        (GapKind.C_TERMINAL, (11, 12, 13), False),
+    ],
+)
+def test_materializer_inserts_one_anchor_terminal_atoms(
+    gap_kind: GapKind,
+    generated_numbers: tuple[int, ...],
+    expected_before_anchor: bool,
+) -> None:
+    anchor = ResidueIdentity("A", "10")
+    generated = tuple(
+        ResidueIdentity("A", str(number)) for number in generated_numbers
+    )
+    left_anchor = anchor if gap_kind is GapKind.C_TERMINAL else None
+    right_anchor = anchor if gap_kind is GapKind.N_TERMINAL else None
+    request = DiffusionRequest(
+        schema_version=DIFFUSION_SCHEMA_VERSION,
+        normalized_pdb=ArtifactReference("input.pdb", "a" * 64),
+        target_sequences=(TargetSequence("A", "AAAA"),),
+        sequence_placements=(
+            SequencePlacement(
+                "A",
+                4,
+                (3,) if gap_kind is GapKind.N_TERMINAL else (0,),
+                (anchor,),
+            ),
+        ),
+        gaps=(GapRegion(
+            "A",
+            TargetInterval(0, 3) if gap_kind is GapKind.N_TERMINAL else TargetInterval(1, 4),
+            left_anchor,
+            right_anchor,
+            generated,
+            (*generated, anchor),
+            gap_kind,
+        ),),
+        fixed_atoms=(AtomIdentity("A", "10", "", "CA"),),
+        generated_atoms=tuple(
+            AtomIdentity("A", residue.residue_number, "", "CA")
+            for residue in generated
+        ),
+        retained_explicit_links=(),
+        candidate_count=1,
+        seeds=(7,),
+    )
+    source = _atom_line(10, 10, 1.0, occupancy=1.0, bfactor=0.0) + "TER\nEND\n"
+    rendered = materialize_candidate_pdb(
+        source,
+        request.generated_atoms,
+        tuple((float(index), 2.0, 3.0) for index in range(3)),
+        ("ALA",) * 3,
+        request,
+        elements=("C",) * 3,
+    )
+    atom_residues = [
+        int(line[22:26])
+        for line in rendered.splitlines()
+        if line.startswith("ATOM  ")
+    ]
+
+    assert atom_residues == (
+        [*generated_numbers, 10]
+        if expected_before_anchor
+        else [10, *generated_numbers]
+    )
+    assert rendered.index(f"A{generated_numbers[-1]:4d}") < rendered.index("TER")
 
 
 def test_materializer_rejects_ter_between_gap_anchors() -> None:

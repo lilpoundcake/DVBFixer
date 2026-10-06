@@ -8,6 +8,7 @@ from types import SimpleNamespace
 import pytest
 
 from dvbfixer.model.cli import parse_args
+from dvbfixer.model.diffusion.contract import GapKind
 from dvbfixer.model.diffusion.preflight import (
     AdapterPreflightCode,
     AdapterPreflightIssue,
@@ -203,6 +204,50 @@ def test_request_builder_crops_terminal_targets_under_no_terminal(tmp_path: Path
 
     assert request.target_sequences[0].sequence == "SNRFSGSKSGNTA"
     assert len(request.gaps) == 1
+
+
+def test_request_builder_generates_one_anchor_terminal_regions(tmp_path: Path) -> None:
+    input_path = _gap_input(tmp_path)
+
+    request = build_cli_diffusion_request(
+        input_path,
+        {"C": "AAASNRFSGSKSGNTAGGG"},
+        seeds=(7,),
+        profile="protpardelle-1c-mps",
+    )
+
+    assert [gap.gap_kind for gap in request.gaps] == [
+        GapKind.N_TERMINAL,
+        GapKind.INTERNAL,
+        GapKind.C_TERMINAL,
+    ]
+    n_terminal, _internal, c_terminal = request.gaps
+    assert n_terminal.left_anchor is None
+    assert n_terminal.right_anchor == request.sequence_placements[0].observed_residues[0]
+    assert [residue.residue_number for residue in n_terminal.generated_residues] == [
+        "58", "59", "60",
+    ]
+    assert c_terminal.right_anchor is None
+    assert c_terminal.left_anchor == request.sequence_placements[0].observed_residues[-1]
+    assert [residue.residue_number for residue in c_terminal.generated_residues] == [
+        "74", "75", "76",
+    ]
+    assert assess_diffusion_scope(request, input_path.read_bytes()).supported
+
+
+def test_terminal_regions_are_fail_closed_for_unaccepted_profile(tmp_path: Path) -> None:
+    input_path = _gap_input(tmp_path)
+    request = build_cli_diffusion_request(
+        input_path,
+        {"C": "AAASNRFSGSKSGNTA"},
+        seeds=(7,),
+        profile="protenix-v1-cuda",
+    )
+
+    admission = assess_diffusion_scope(request, input_path.read_bytes())
+
+    assert admission.supported is False
+    assert "terminal-gaps-unsupported-by-profile" in admission.reasons
 
 
 def test_failed_profile_preflight_blocks_inference(

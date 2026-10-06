@@ -9,6 +9,7 @@ from dvbfixer.model.diffusion.contract import (
     AtomIdentity,
     DiffusionContractError,
     DiffusionRequest,
+    GapKind,
     ResidueIdentity,
 )
 
@@ -109,13 +110,33 @@ def materialize_candidate_pdb(
     generated = set(request.generated_atoms)
     fixed_seen: set[AtomIdentity] = set()
     inserted: set[int] = set()
-    pending: set[int] = set()
+    pending_internal: set[int] = set()
     left_anchors: dict[ResidueIdentity, list[int]] = {}
     right_anchors: dict[ResidueIdentity, list[int]] = {}
+    n_terminal_anchors: dict[ResidueIdentity, list[int]] = {}
+    c_terminal_anchors: dict[ResidueIdentity, list[int]] = {}
     for index, gap in enumerate(request.gaps):
-        left_anchors.setdefault(gap.left_anchor, []).append(index)
-        right_anchors.setdefault(gap.right_anchor, []).append(index)
+        if gap.gap_kind is GapKind.N_TERMINAL:
+            assert gap.right_anchor is not None
+            n_terminal_anchors.setdefault(gap.right_anchor, []).append(index)
+        elif gap.gap_kind is GapKind.C_TERMINAL:
+            assert gap.left_anchor is not None
+            c_terminal_anchors.setdefault(gap.left_anchor, []).append(index)
+        else:
+            assert gap.left_anchor is not None and gap.right_anchor is not None
+            left_anchors.setdefault(gap.left_anchor, []).append(index)
+            right_anchors.setdefault(gap.right_anchor, []).append(index)
     output: list[str] = []
+    previous_residue: ResidueIdentity | None = None
+
+    def insert_c_terminal_after(residue: ResidueIdentity | None) -> None:
+        if residue is None:
+            return
+        for gap_index in c_terminal_anchors.get(residue, ()):
+            if gap_index not in inserted:
+                output.extend(generated_lines_by_gap[gap_index])
+                inserted.add(gap_index)
+
     for line in source_lines:
         record = line[:6].strip()
         if record == "MASTER":
@@ -124,7 +145,13 @@ def materialize_candidate_pdb(
             endpoints = _conect_serials(line)
             if endpoints is None or not set(endpoints) <= source_atom_serials:
                 continue
-        if record == "TER" and pending:
+        if record in {"END", "ENDMDL"}:
+            insert_c_terminal_after(previous_residue)
+            previous_residue = None
+        if record == "TER":
+            insert_c_terminal_after(previous_residue)
+            previous_residue = None
+        if record == "TER" and pending_internal:
             raise DiffusionContractError(
                 "source PDB contains TER between the diffusion gap anchors"
             )
@@ -135,12 +162,18 @@ def materialize_candidate_pdb(
                 source_identity.residue_number,
                 source_identity.insertion_code,
             )
-            pending.update(left_anchors.get(residue, ()))
+            if previous_residue is not None and residue != previous_residue:
+                insert_c_terminal_after(previous_residue)
+            for gap_index in n_terminal_anchors.get(residue, ()):
+                if gap_index not in inserted:
+                    output.extend(generated_lines_by_gap[gap_index])
+                    inserted.add(gap_index)
+            pending_internal.update(left_anchors.get(residue, ()))
             for gap_index in right_anchors.get(residue, ()):
                 if gap_index not in inserted:
                     output.extend(generated_lines_by_gap[gap_index])
                     inserted.add(gap_index)
-                    pending.discard(gap_index)
+                    pending_internal.discard(gap_index)
             if source_identity in generated:
                 raise DiffusionContractError(
                     "source PDB already contains a requested generated atom"
@@ -158,7 +191,10 @@ def materialize_candidate_pdb(
                         + "".join(f"{value:8.3f}" for value in xyz)
                         + line[54:]
                     )
+            previous_residue = residue
         output.append(line)
+
+    insert_c_terminal_after(previous_residue)
 
     if fixed_seen != fixed:
         raise DiffusionContractError(
@@ -166,7 +202,7 @@ def materialize_candidate_pdb(
         )
     if len(inserted) != len(request.gaps):
         raise DiffusionContractError(
-            f"source PDB omits {len(request.gaps) - len(inserted)} right anchor insertion point(s)"
+            f"source PDB omits {len(request.gaps) - len(inserted)} gap insertion point(s)"
         )
     return "".join(output)
 

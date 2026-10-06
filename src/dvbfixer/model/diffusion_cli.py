@@ -15,6 +15,7 @@ from dvbfixer.model.diffusion.contract import (
     BackendOption,
     DiffusionRequest,
     ExplicitLink,
+    GapKind,
     GapRegion,
     ResidueIdentity,
     SequencePlacement,
@@ -128,14 +129,6 @@ def build_cli_diffusion_request(
                 ),
                 observed_residues=placement.observed_residues,
             )
-        if (
-            placement.observed_target_indices[0] != 0
-            or placement.observed_target_indices[-1] != len(target) - 1
-        ):
-            raise DiffusionCliError(
-                f"terminal gaps are unsupported by diffusion (chain {chain}); "
-                "pass --no-terminal to trim the target to its observed anchors"
-            )
         targets.append(TargetSequence(chain, target))
         placements.append(placement)
         target_by_chain[chain] = target
@@ -144,37 +137,57 @@ def build_cli_diffusion_request(
             placement.observed_target_indices,
             placement.observed_residues,
         ))
-        intervals = [
-            (left + 1, right)
+        intervals: list[tuple[int, int, GapKind]] = []
+        first_observed = placement.observed_target_indices[0]
+        last_observed = placement.observed_target_indices[-1]
+        if first_observed > 0:
+            intervals.append((0, first_observed, GapKind.N_TERMINAL))
+        intervals.extend(
+            (left + 1, right, GapKind.INTERNAL)
             for left, right in zip(
                 placement.observed_target_indices,
                 placement.observed_target_indices[1:],
             )
             if right > left + 1
-        ]
-        for start, stop in intervals:
+        )
+        if last_observed < len(target) - 1:
+            intervals.append((last_observed + 1, len(target), GapKind.C_TERMINAL))
+        for start, stop, gap_kind in intervals:
             gap_length = stop - start
             if not MINIMUM_GAP_LENGTH <= gap_length <= MAXIMUM_GAP_LENGTH:
                 raise DiffusionCliError(
                     f"gap length {gap_length} on chain {chain} is outside supported range "
                     f"{MINIMUM_GAP_LENGTH}-{MAXIMUM_GAP_LENGTH}"
                 )
-            left_anchor = by_target[start - 1]
-            right_anchor = by_target[stop]
+            left_anchor = by_target[start - 1] if start > 0 else None
+            right_anchor = by_target[stop] if stop < len(target) else None
             try:
-                int(left_anchor.residue_number)
-                int(right_anchor.residue_number)
+                for anchor in (left_anchor, right_anchor):
+                    if anchor is not None:
+                        int(anchor.residue_number)
             except ValueError as exc:
                 raise DiffusionCliError(
                     "diffusion requires integer PDB residue numbers"
                 ) from exc
-            generated_residues = _allocate_generated_residues(
-                chain,
-                left_anchor,
-                right_anchor,
-                gap_length,
-                occupied,
-            )
+            if gap_kind is GapKind.INTERNAL:
+                assert left_anchor is not None and right_anchor is not None
+                generated_residues = _allocate_generated_residues(
+                    chain,
+                    left_anchor,
+                    right_anchor,
+                    gap_length,
+                    occupied,
+                )
+            else:
+                terminal_anchor = right_anchor if left_anchor is None else left_anchor
+                assert terminal_anchor is not None
+                generated_residues = _allocate_terminal_generated_residues(
+                    chain,
+                    terminal_anchor,
+                    gap_length,
+                    occupied,
+                    n_terminal=gap_kind is GapKind.N_TERMINAL,
+                )
             occupied.update(generated_residues)
             gap_regions.append(GapRegion(
                 chain=chain,
@@ -183,13 +196,14 @@ def build_cli_diffusion_request(
                 right_anchor=right_anchor,
                 generated_residues=generated_residues,
                 movable_junction_residues=(
-                    left_anchor,
+                    *((left_anchor,) if left_anchor is not None else ()),
                     *generated_residues,
-                    right_anchor,
+                    *((right_anchor,) if right_anchor is not None else ()),
                 ),
+                gap_kind=gap_kind,
             ))
     if not gap_regions:
-        raise DiffusionCliError("diffusion requires at least one internal gap")
+        raise DiffusionCliError("diffusion requires at least one missing target region")
 
     fixed_atoms = tuple(
         record.identity for record in atoms if record.element.upper() != "H"
@@ -273,6 +287,31 @@ def _allocate_generated_residues(
     )
     if set(generated) & occupied:
         raise DiffusionCliError("generated residue numbering collides with observed residues")
+    return generated
+
+
+def _allocate_terminal_generated_residues(
+    chain: str,
+    anchor: ResidueIdentity,
+    gap_length: int,
+    occupied: set[ResidueIdentity],
+    *,
+    n_terminal: bool,
+) -> tuple[ResidueIdentity, ...]:
+    """Allocate ordered one-anchor terminal identities in the PDB resSeq range."""
+    anchor_number = int(anchor.residue_number)
+    numbers = (
+        range(anchor_number - gap_length, anchor_number)
+        if n_terminal
+        else range(anchor_number + 1, anchor_number + gap_length + 1)
+    )
+    generated = tuple(ResidueIdentity(chain, str(number)) for number in numbers)
+    if any(not -999 <= int(residue.residue_number) <= 9999 for residue in generated):
+        raise DiffusionCliError(
+            "terminal residue numbering exceeds the PDB resSeq field"
+        )
+    if set(generated) & occupied:
+        raise DiffusionCliError("terminal residue numbering collides with observed residues")
     return generated
 
 

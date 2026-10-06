@@ -16,6 +16,7 @@ from dvbfixer.model.diffusion.contract import (
     DiffusionContractError,
     DiffusionRequest,
     ExplicitLink,
+    GapKind,
     ResidueIdentity,
 )
 
@@ -144,6 +145,18 @@ def assess_diffusion_scope(
         raise DiffusionScopeError("normalized PDB is not valid UTF-8") from exc
 
     reasons: list[str] = []
+    requested_profile = next(
+        (
+            option.value
+            for option in request.backend_options
+            if option.name == "profile"
+        ),
+        "",
+    )
+    if any(gap.gap_kind is not GapKind.INTERNAL for gap in request.gaps) and not (
+        requested_profile.startswith("protpardelle-1c")
+    ):
+        reasons.append("terminal-gaps-unsupported-by-profile")
     lines = text.splitlines()
     if sum(line.startswith("MODEL ") for line in lines) > 1:
         reasons.append("multiple-models")
@@ -177,7 +190,10 @@ def assess_diffusion_scope(
     )
     source_explicit_links = _parse_explicit_links(coordinate_lines, atoms)
     if any(
-        _has_ter_between_anchors(coordinate_lines, gap.left_anchor, gap.right_anchor)
+        gap.gap_kind is GapKind.INTERNAL
+        and gap.left_anchor is not None
+        and gap.right_anchor is not None
+        and _has_ter_between_anchors(coordinate_lines, gap.left_anchor, gap.right_anchor)
         for gap in request.gaps
     ):
         reasons.append("terminator-between-gap-anchors")
@@ -287,10 +303,23 @@ def assess_diffusion_scope(
         gap_length = gap.target_interval.stop - gap.target_interval.start
         if not MINIMUM_GAP_LENGTH <= gap_length <= MAXIMUM_GAP_LENGTH:
             reasons.append("unsupported-gap-length")
-        if (
-            placement_indices.get(gap.left_anchor) != gap.target_interval.start - 1
-            or placement_indices.get(gap.right_anchor) != gap.target_interval.stop
-        ):
+        left_matches = (
+            gap.left_anchor is not None
+            and placement_indices.get(gap.left_anchor)
+            == gap.target_interval.start - 1
+        )
+        right_matches = (
+            gap.right_anchor is not None
+            and placement_indices.get(gap.right_anchor) == gap.target_interval.stop
+        )
+        anchors_match = (
+            left_matches and right_matches
+            if gap.gap_kind is GapKind.INTERNAL
+            else right_matches
+            if gap.gap_kind is GapKind.N_TERMINAL
+            else left_matches
+        )
+        if not anchors_match:
             reasons.append("gap-anchor-placement-mismatch")
 
     requested_explicit_links = {

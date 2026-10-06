@@ -366,40 +366,52 @@ engine.
 
 ### A.8.1. План поддержки генерации N/C-концов
 
+**Implemented for the accepted Protpardelle profile (2026-10-06).** The request
+contract now records `gap_kind = internal | n_terminal | c_terminal` and uses
+`null` rather than a fabricated identity for the absent terminal anchor. The CLI
+allocates deterministic PDB-representable terminal residue identities; the
+materializer, validator, localized refinement, provenance, and scope admission
+handle one-anchor regions. Protpardelle samples terminal residues as part of the
+full target axis; a 500-step MPS smoke with simultaneous N-tail, internal gap,
+and C-tail passed all independent gates. Profiles without accepted one-anchor
+evidence remain fail closed. Broader frozen CUDA/MPS cohort acceptance remains a
+promotion task.
+
 `--no-terminal` уже является общим для MODELLER и diffusion режимом: target
 обрезается снаружи первого/последнего наблюдаемого anchor, после чего
 реконструируются только внутренние gaps. Полноценная terminal generation остаётся
 отдельным acceptance stratum и не должна включаться снятием одной проверки.
 
-- Расширить versioned request contract так, чтобы terminal gap имел ровно один
+- [x] Расширить versioned request contract так, чтобы terminal gap имел ровно один
   anchor: правый для N-конца или левый для C-конца. Не кодировать отсутствующий
   anchor фиктивным residue identity.
-- Добавить явный `gap_kind = internal | n_terminal | c_terminal`; внутренний gap
+- [x] Добавить явный `gap_kind = internal | n_terminal | c_terminal`; внутренний gap
   сохраняет два anchor и текущие validation gates.
-- Расширить authoritative residue allocator для terminal generated identities:
+- [x] Расширить authoritative residue allocator для terminal generated identities:
   сохранять case-sensitive chain ID и insertion codes, детерминированно выделять
   номера до первого или после последнего наблюдаемого residue и fail closed при
   невозможности представить их в PDB.
-- На backend adapter уровне проверить one-anchor motif grammar отдельно для
-  Protpardelle и Protenix. Для каждого profile зафиксировать доказательство, что
+- [x] На backend adapter уровне проверить one-anchor motif grammar для
+  Protpardelle. Для каждого принятого profile зафиксировать доказательство, что
   terminal residues действительно входят в denoising state, а не дописываются
   post-hoc.
-- Materializer должен вставлять N-terminal atoms перед первым coordinate record
+- [x] Materializer должен вставлять N-terminal atoms перед первым coordinate record
   соответствующей цепи, а C-terminal atoms перед её `TER`, сохраняя headers,
   ANISOU, explicit connectivity и все нетронутые atom serial identities.
-- Validator должен применять один peptide-junction gate вместо двух, проверять
+- [x] Validator должен применять один peptide-junction gate вместо двух, проверять
   полный canonical heavy-atom set, bond lengths/angles, amide planarity,
   Ramachandran/chirality, clashes и отсутствие движения fixed atoms. Нельзя
   объявлять terminal pass только по наличию координат.
-- Refinement должен двигать terminal generated residues и единственный anchor
+- [x] Refinement должен двигать terminal generated residues и единственный anchor
   flank, не ослабляя exact-fixed policy для остальных атомов.
-- Добавить N-only, C-only и simultaneous N+C fixtures, включая несколько цепей,
+- [ ] Расширить frozen fixtures beyond the implemented N-only, C-only and
+  simultaneous N+C unit/MPS smoke cases: добавить несколько цепей,
   короткие/длинные tails, tight numbering, insertion codes и case-sensitive
   chain IDs. Отдельно проверить сочетание terminal и internal gaps.
-- Провести frozen hardware acceptance отдельно от internal-gap cohort для MPS и
+- [ ] Провести frozen hardware acceptance отдельно от internal-gap cohort для MPS и
   CUDA. До прохождения gates default остаётся fail closed с подсказкой
   `--no-terminal`; никакого silent fallback на MODELLER.
-- После acceptance обновить scope/help/docs и provenance так, чтобы terminal
+- [x] Обновить scope/help/docs и provenance так, чтобы terminal
   generation была явно отличима от `--no-terminal` cropping.
 
 ## A.9. Output и atomic publication

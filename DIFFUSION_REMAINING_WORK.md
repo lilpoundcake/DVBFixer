@@ -5,18 +5,20 @@
 
 ## 1. Генерация N/C-концов
 
+**Статус: реализовано для Protpardelle 2026-10-06.** One-anchor contract,
+детерминированная нумерация, materialization, validation, localized refinement и
+provenance поддерживают N/C regions. Одновременный N+internal+C 500-step MPS
+smoke прошёл все gates. Другие profiles остаются fail closed; расширенный frozen
+hardware cohort и сложные multi-chain numbering fixtures ещё нужны.
+
 Сейчас реализован только `--no-terminal`: target обрезается снаружи первого и
 последнего наблюдаемого остатка, после чего моделируются внутренние gap’ы.
 
-Не реализовано:
+Остаётся для promotion:
 
-- одноякорное представление N-terminal и C-terminal gap;
-- отдельные `gap_kind`;
-- выделение residue numbers до или после наблюдаемой цепи;
-- вставка атомов перед первым residue или перед `TER`;
-- одноякорные geometry gates;
-- refinement терминального участка;
-- MPS/CUDA acceptance для N-only, C-only и N+C случаев.
+- frozen MPS/CUDA cohort для N-only, C-only и N+C случаев;
+- multi-chain tight-numbering и insertion-code fixtures;
+- принятие one-anchor protocol для CUDA/Protenix.
 
 Детальный план находится в
 `docs/plans/diffusion-cli-integration.md`, раздел **A.8.1**.
