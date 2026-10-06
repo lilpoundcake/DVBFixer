@@ -71,6 +71,46 @@ an incomplete model with stated limits, or exclude the component. Renaming the
 fragment as a complete FAD template would conceal this decision. No cofactor
 reconstruction or full-complex relaxation benchmark was performed for this note.
 
+## 8UCD HEM: deposited coordination and CHARMM evidence
+
+An audit on 2026-10-06 found that each of the three HEM instances in the tracked
+8UCD fixture has one, and only one, deposited axial metal connection. PDB `LINK`
+and `CONECT` records and mmCIF `_struct_conn` agree on `HIS NE2`–`HEM FE`:
+
+| HEM | Deposited axial ligand | Distance |
+|---|---|---:|
+| A/HEM404 | A/HIS268 NE2 | 2.322 Å |
+| B/HEM403 | B/HIS175 NE2 | 2.298 Å |
+| C/HEM402 | C/HIS175 NE2 | 2.287 Å |
+
+Each iron also has another histidine NE2 at 2.82–2.88 Å, but those contacts are
+not deposited as metal coordination. A distance cutoff would therefore change
+the declared five-coordinate model into an unsupported six-coordinate model and
+must not be used as chemical authority.
+
+The tracked CHARMM36 July 2022 GROMACS port contains useful, but narrower,
+parameterization evidence. `FF/charmm36_ljpme-jul2022.ff/aminoacids.r2b` maps
+PDB `HEM` to the `HEME` RTP block. That block is labelled “6-liganded planar
+heme”, assigns the porphyrin atom types and partial charges, and bonds FE to the
+four porphyrin nitrogens. `ffbonded.itp`, derived from
+`toppar_all36_prot_heme.str`, additionally supplies `NR2`–`FE` bond, angle, and
+torsion terms suitable for a neutral histidine NE2 donor. The coordinating
+histidine must consequently use CHARMM HSD (proton on ND1, unprotonated
+`NE2:NR2`), not the project's ordinary-HIS default HSE (proton on NE2).
+
+These files do **not** by themselves select iron oxidation/spin state or axial
+ligand count, and force-field partial charges must not be reinterpreted as formal
+oxidation-state evidence. The current `top` pipeline can recognize the isolated
+HEME RTP but does not materialize a complete cross-molecule Fe–His bonded
+neighbourhood or apply an explicit-link-driven HSD override. Therefore running
+`top --ff charmm` is not yet an approved HEM route. A future curated profile must
+pin the CHARMM asset/version, require the exact deposited connection, select HSD
+only for its exact residue identity, and emit and validate all required
+cross-molecule bonded/exclusion terms. It must also provide a validated
+five-coordinate parameter model or refuse 8UCD; the six-liganded label cannot be
+silently reinterpreted as authorization for the deposited state. Reconstruction
+from CCD coordinates and MD parameterization remain separate decisions.
+
 ## Backend comparison
 
 | Route | Available in dvbfixer 0.8.5? | Capability and limitation |
