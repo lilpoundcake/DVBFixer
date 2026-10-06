@@ -163,9 +163,20 @@ def build_cli_diffusion_request(
         for start, stop, gap_kind in intervals:
             gap_length = stop - start
             if not MINIMUM_GAP_LENGTH <= gap_length <= MAXIMUM_GAP_LENGTH:
+                region = {
+                    GapKind.INTERNAL: "internal gap",
+                    GapKind.N_TERMINAL: "N-terminal missing region",
+                    GapKind.C_TERMINAL: "C-terminal missing region",
+                }[gap_kind]
+                remedy = (
+                    "; pass --no-terminal to crop unobserved tails"
+                    if gap_kind is not GapKind.INTERNAL
+                    else ""
+                )
                 raise DiffusionCliError(
-                    f"gap length {gap_length} on chain {chain} is outside supported range "
-                    f"{MINIMUM_GAP_LENGTH}-{MAXIMUM_GAP_LENGTH}"
+                    f"{region} length {gap_length} on chain {chain} is outside "
+                    f"the accepted range {MINIMUM_GAP_LENGTH}-{MAXIMUM_GAP_LENGTH}"
+                    f"{remedy}"
                 )
             left_anchor = by_target[start - 1] if start > 0 else None
             right_anchor = by_target[stop] if stop < len(target) else None

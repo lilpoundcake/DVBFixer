@@ -304,6 +304,24 @@ def test_request_builder_generates_one_anchor_terminal_regions(tmp_path: Path) -
     assert assess_diffusion_scope(request, input_path.read_bytes()).supported
 
 
+def test_oversized_terminal_region_recommends_no_terminal(tmp_path: Path) -> None:
+    input_path = _gap_input(tmp_path)
+
+    with pytest.raises(
+        DiffusionCliError,
+        match=(
+            "N-terminal missing region length 13 on chain C.*"
+            "pass --no-terminal"
+        ),
+    ):
+        build_cli_diffusion_request(
+            input_path,
+            {"C": "A" * 13 + "SNRFSGSKSGNTA"},
+            seeds=(7,),
+            profile="protpardelle-1c-mps",
+        )
+
+
 def test_terminal_regions_are_fail_closed_for_unaccepted_profile(tmp_path: Path) -> None:
     input_path = _gap_input(tmp_path)
     request = build_cli_diffusion_request(
