@@ -40,6 +40,25 @@ def _gap_input(tmp_path: Path) -> Path:
     return path
 
 
+def _multichain_gap_input(tmp_path: Path) -> Path:
+    single = _gap_input(tmp_path)
+    chain_c = [
+        line
+        for line in single.read_text(encoding="utf-8").splitlines(keepends=True)
+        if line.startswith("ATOM  ")
+    ]
+    chain_d = []
+    for line in chain_c:
+        x = float(line[30:38]) + 50.0
+        chain_d.append(f"{line[:21]}D{line[22:30]}{x:8.3f}{line[38:]}")
+    path = tmp_path / "multichain-gap.pdb"
+    path.write_text(
+        "".join(chain_c) + "TER\n" + "".join(chain_d) + "TER\nEND\n",
+        encoding="utf-8",
+    )
+    return path
+
+
 def test_diffusion_parser_accepts_optional_model_selection() -> None:
     args = parse_args(
         [
@@ -68,6 +87,20 @@ def test_diffusion_parser_allows_automatic_runtime_selection() -> None:
     args = parse_args(["input.pdb", "--backend", "diffusion"])
 
     assert args.diffusion_model is None
+
+
+def test_diffusion_parser_accepts_explicit_heterogen_stripping() -> None:
+    args = parse_args([
+        "input.pdb", "--backend", "diffusion", "--strip-heterogens",
+    ])
+
+    assert args.keep_heterogens is False
+
+
+def test_diffusion_parser_accepts_no_terminal() -> None:
+    args = parse_args(["input.pdb", "--backend", "diffusion", "--no-terminal"])
+
+    assert args.no_terminal is True
 
 
 def test_diffusion_parser_rejects_modeller_only_options() -> None:
@@ -140,6 +173,38 @@ def test_request_builder_uses_insertion_codes_when_numbers_are_not_reserved(
     assert assess_diffusion_scope(request, input_path.read_bytes()).supported
 
 
+def test_request_builder_supports_gaps_across_multiple_chains(tmp_path: Path) -> None:
+    input_path = _multichain_gap_input(tmp_path)
+
+    request = build_cli_diffusion_request(
+        input_path,
+        {"C": "SNRFSGSKSGNTA", "D": "SNRFSGSKSGNTA"},
+        seeds=(7,),
+        profile="protpardelle-1c-mps",
+    )
+
+    assert [target.chain for target in request.target_sequences] == ["C", "D"]
+    assert [gap.chain for gap in request.gaps] == ["C", "D"]
+    assert [len(gap.generated_residues) for gap in request.gaps] == [5, 5]
+    assert {atom.chain for atom in request.generated_atoms} == {"C", "D"}
+    assert assess_diffusion_scope(request, input_path.read_bytes()).supported
+
+
+def test_request_builder_crops_terminal_targets_under_no_terminal(tmp_path: Path) -> None:
+    input_path = _gap_input(tmp_path)
+
+    request = build_cli_diffusion_request(
+        input_path,
+        {"C": "AAASNRFSGSKSGNTA"},
+        seeds=(7,),
+        profile="protpardelle-1c-mps",
+        no_terminal=True,
+    )
+
+    assert request.target_sequences[0].sequence == "SNRFSGSKSGNTA"
+    assert len(request.gaps) == 1
+
+
 def test_failed_profile_preflight_blocks_inference(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -181,6 +246,8 @@ def test_failed_profile_preflight_blocks_inference(
         diffusion_seeds=[7],
         diffusion_work_parent=None,
         fasta=str(fasta),
+        keep_heterogens=True,
+        verbose=False,
     )
 
     with pytest.raises(DiffusionCliError, match="missing-cuda"):
@@ -213,7 +280,69 @@ def test_scope_rejection_precedes_runner_preflight(
         diffusion_seeds=[7],
         diffusion_work_parent=None,
         fasta=str(fasta),
+        keep_heterogens=True,
+        verbose=False,
     )
 
     with pytest.raises(DiffusionCliError):
         run_diffusion_model(args)
+
+
+def test_diffusion_strip_heterogens_preprocesses_without_mutating_input(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    input_path = _gap_input(tmp_path)
+    original = input_path.read_text(encoding="utf-8")
+    heterogen = (
+        "HETATM 9001  C1  LIG C 900      20.000  20.000  20.000  1.00  0.00           C  \n"
+    )
+    input_path.write_text(
+        original.replace("TER\n", heterogen + "CONECT 9001    1\nTER\n"),
+        encoding="utf-8",
+    )
+    source_with_heterogen = input_path.read_text(encoding="utf-8")
+    fasta = tmp_path / "target.fasta"
+    fasta.write_text(">C\nSNRFSGSKSGNTA\n", encoding="utf-8")
+    output = tmp_path / "output"
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
+        lambda _model: DiffusionRuntime(
+            "protpardelle", "protpardelle-1c-mps", "/installed/protpardelle-runner"
+        ),
+    )
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.invoke_runner_preflight",
+        lambda **_kwargs: RunnerPreflightReport(
+            profile="protpardelle-1c-mps",
+            runner_protocol_version=4,
+            contract_schema_version=4,
+            facts=RunnerPreflightFacts(),
+        ),
+    )
+
+    def fake_pipeline(request, _command, *, source_root, **_kwargs):
+        prepared = (source_root / request.normalized_pdb.path).read_text(encoding="utf-8")
+        assert "HETATM" not in prepared
+        assert "CONECT 9001" not in prepared
+        return SimpleNamespace(published_bundle=output, status=SimpleNamespace(value="success"))
+
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.run_diffusion_pipeline",
+        fake_pipeline,
+    )
+    args = SimpleNamespace(
+        input=str(input_path),
+        output=str(output),
+        diffusion_model=None,
+        diffusion_timeout=1.0,
+        diffusion_seeds=[7],
+        diffusion_work_parent=None,
+        fasta=str(fasta),
+        keep_heterogens=False,
+        verbose=False,
+    )
+
+    run_diffusion_model(args)
+
+    assert input_path.read_text(encoding="utf-8") == source_with_heterogen

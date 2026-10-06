@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import tempfile
+from contextlib import ExitStack
 from pathlib import Path
 
 from dvbfixer.model.cli import AA3TO1
@@ -15,6 +17,7 @@ from dvbfixer.model.diffusion.contract import (
     ExplicitLink,
     GapRegion,
     ResidueIdentity,
+    SequencePlacement,
     TargetInterval,
     TargetSequence,
 )
@@ -51,8 +54,9 @@ def build_cli_diffusion_request(
     *,
     seeds: tuple[int, ...],
     profile: str,
+    no_terminal: bool = False,
 ) -> DiffusionRequest:
-    """Build the initial one-chain, one-gap canonical-protein request."""
+    """Build a canonical-protein request with internal gaps on one or more chains."""
     source = input_path.read_bytes()
     try:
         text = source.decode("utf-8")
@@ -85,81 +89,121 @@ def build_cli_diffusion_request(
         protein_residues.append(ObservedResidue(residue, one_letter, ("CA",)))
 
     chains = tuple(dict.fromkeys(residue.identity.chain for residue in protein_residues))
-    if len(chains) != 1:
-        raise DiffusionCliError("diffusion currently requires exactly one protein chain")
-    chain = chains[0]
-    if set(target_sequences) != {chain}:
-        raise DiffusionCliError(
-            "diffusion target sequence must cover exactly the single input protein chain"
+    if not chains:
+        raise DiffusionCliError("diffusion input contains no protein chains")
+    targets: list[TargetSequence] = []
+    placements = []
+    gap_regions: list[GapRegion] = []
+    target_by_chain: dict[str, str] = {}
+    for chain in chains:
+        observed = tuple(
+            ObservedResidue(
+                residue.identity,
+                residue.one_letter_code,
+                tuple(dict.fromkeys(atom_names[residue.identity])),
+            )
+            for residue in protein_residues
+            if residue.identity.chain == chain
         )
-    observed = tuple(
-        ObservedResidue(
-            residue.identity,
-            residue.one_letter_code,
-            tuple(dict.fromkeys(atom_names[residue.identity])),
-        )
-        for residue in protein_residues
-    )
-    target = target_sequences[chain].upper()
-    try:
-        placement = build_sequence_placement(chain, observed, target)
-    except DiffusionMaskError as exc:
-        raise DiffusionCliError(str(exc)) from exc
-
-    gaps = [
-        (left + 1, right)
-        for left, right in zip(
+        target = target_sequences.get(
+            chain,
+            "".join(residue.one_letter_code for residue in observed),
+        ).upper()
+        try:
+            placement = build_sequence_placement(chain, observed, target)
+        except DiffusionMaskError as exc:
+            raise DiffusionCliError(str(exc)) from exc
+        if no_terminal and (
+            placement.observed_target_indices[0] != 0
+            or placement.observed_target_indices[-1] != len(target) - 1
+        ):
+            first = placement.observed_target_indices[0]
+            last = placement.observed_target_indices[-1]
+            target = target[first : last + 1]
+            placement = SequencePlacement(
+                chain=chain,
+                target_length=len(target),
+                observed_target_indices=tuple(
+                    index - first for index in placement.observed_target_indices
+                ),
+                observed_residues=placement.observed_residues,
+            )
+        if (
+            placement.observed_target_indices[0] != 0
+            or placement.observed_target_indices[-1] != len(target) - 1
+        ):
+            raise DiffusionCliError(
+                f"terminal gaps are unsupported by diffusion (chain {chain}); "
+                "pass --no-terminal to trim the target to its observed anchors"
+            )
+        targets.append(TargetSequence(chain, target))
+        placements.append(placement)
+        target_by_chain[chain] = target
+        occupied = set(placement.observed_residues)
+        by_target = dict(zip(
             placement.observed_target_indices,
-            placement.observed_target_indices[1:],
-        )
-        if right > left + 1
-    ]
-    if placement.observed_target_indices[0] != 0 or placement.observed_target_indices[-1] != len(target) - 1:
-        raise DiffusionCliError("terminal gaps are unsupported by diffusion")
-    if len(gaps) != 1:
-        raise DiffusionCliError("diffusion currently requires exactly one internal gap")
-    start, stop = gaps[0]
-    gap_length = stop - start
-    if not MINIMUM_GAP_LENGTH <= gap_length <= MAXIMUM_GAP_LENGTH:
-        raise DiffusionCliError(
-            f"gap length {gap_length} is outside supported range "
-            f"{MINIMUM_GAP_LENGTH}-{MAXIMUM_GAP_LENGTH}"
-        )
-
-    by_target = dict(zip(placement.observed_target_indices, placement.observed_residues))
-    left_anchor = by_target[start - 1]
-    right_anchor = by_target[stop]
-    try:
-        int(left_anchor.residue_number)
-        int(right_anchor.residue_number)
-    except ValueError as exc:
-        raise DiffusionCliError("diffusion requires integer PDB residue numbers") from exc
-    generated_residues = _allocate_generated_residues(
-        chain,
-        left_anchor,
-        right_anchor,
-        gap_length,
-        set(placement.observed_residues),
-    )
-    gap = GapRegion(
-        chain=chain,
-        target_interval=TargetInterval(start, stop),
-        left_anchor=left_anchor,
-        right_anchor=right_anchor,
-        generated_residues=generated_residues,
-        movable_junction_residues=(left_anchor, *generated_residues, right_anchor),
-    )
+            placement.observed_residues,
+        ))
+        intervals = [
+            (left + 1, right)
+            for left, right in zip(
+                placement.observed_target_indices,
+                placement.observed_target_indices[1:],
+            )
+            if right > left + 1
+        ]
+        for start, stop in intervals:
+            gap_length = stop - start
+            if not MINIMUM_GAP_LENGTH <= gap_length <= MAXIMUM_GAP_LENGTH:
+                raise DiffusionCliError(
+                    f"gap length {gap_length} on chain {chain} is outside supported range "
+                    f"{MINIMUM_GAP_LENGTH}-{MAXIMUM_GAP_LENGTH}"
+                )
+            left_anchor = by_target[start - 1]
+            right_anchor = by_target[stop]
+            try:
+                int(left_anchor.residue_number)
+                int(right_anchor.residue_number)
+            except ValueError as exc:
+                raise DiffusionCliError(
+                    "diffusion requires integer PDB residue numbers"
+                ) from exc
+            generated_residues = _allocate_generated_residues(
+                chain,
+                left_anchor,
+                right_anchor,
+                gap_length,
+                occupied,
+            )
+            occupied.update(generated_residues)
+            gap_regions.append(GapRegion(
+                chain=chain,
+                target_interval=TargetInterval(start, stop),
+                left_anchor=left_anchor,
+                right_anchor=right_anchor,
+                generated_residues=generated_residues,
+                movable_junction_residues=(
+                    left_anchor,
+                    *generated_residues,
+                    right_anchor,
+                ),
+            ))
+    if not gap_regions:
+        raise DiffusionCliError("diffusion requires at least one internal gap")
 
     fixed_atoms = tuple(
         record.identity for record in atoms if record.element.upper() != "H"
     )
     generated_atoms = tuple(
         atom
-        for target_index, residue in zip(range(start, stop), generated_residues)
-        for atom in canonical_heavy_atom_identities(
-            residue,
-            _one_to_three(target[target_index]),
+        for gap in gap_regions
+        for target_index, residue in zip(
+            range(gap.target_interval.start, gap.target_interval.stop),
+            gap.generated_residues,
         )
+        for atom in canonical_heavy_atom_identities(residue, _one_to_three(
+            target_by_chain[gap.chain][target_index]
+        ))
     )
     links = tuple(
         ExplicitLink(first, second, "PDB")
@@ -168,9 +212,9 @@ def build_cli_diffusion_request(
     return DiffusionRequest(
         schema_version=DIFFUSION_SCHEMA_VERSION,
         normalized_pdb=ArtifactReference(input_path.name, hashlib.sha256(source).hexdigest()),
-        target_sequences=(TargetSequence(chain, target),),
-        sequence_placements=(placement,),
-        gaps=(gap,),
+        target_sequences=tuple(targets),
+        sequence_placements=tuple(placements),
+        gaps=tuple(gap_regions),
         fixed_atoms=fixed_atoms,
         generated_atoms=generated_atoms,
         retained_explicit_links=links,
@@ -245,18 +289,6 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
     if output_path.exists() or output_path.is_symlink():
         raise DiffusionCliError(f"diffusion output directory already exists: {output_path}")
 
-    try:
-        runtime = resolve_diffusion_runtime(args.diffusion_model)
-    except DiffusionRuntimeError as exc:
-        raise DiffusionCliError(str(exc)) from exc
-
-    target_sequences = _target_sequences(input_path, args.fasta)
-    request = build_cli_diffusion_request(
-        input_path,
-        target_sequences,
-        seeds=tuple(args.diffusion_seeds),
-        profile=runtime.profile,
-    )
     work_parent_value = args.diffusion_work_parent
     work_parent = (
         Path(work_parent_value).expanduser().resolve()
@@ -265,42 +297,97 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
     )
     if not work_parent.is_dir():
         raise DiffusionCliError(f"diffusion work parent is not a directory: {work_parent}")
-    try:
-        admission = assess_diffusion_scope(request, input_path.read_bytes())
-    except DiffusionScopeError as exc:
-        raise DiffusionCliError(str(exc)) from exc
-    if not admission.supported:
-        raise DiffusionCliError(
-            "diffusion input is outside the supported scope: "
-            + ", ".join(admission.reasons)
-        )
 
-    preflight = invoke_runner_preflight(
-        profile=runtime.profile,
-        runner=runtime.runner,
-        timeout_seconds=args.diffusion_timeout,
-    )
-    if not preflight.passed:
-        reasons = "; ".join(
-            f"{issue.code.value}: {issue.message}" for issue in preflight.issues
+    try:
+        runtime = resolve_diffusion_runtime(args.diffusion_model)
+    except DiffusionRuntimeError as exc:
+        raise DiffusionCliError(str(exc)) from exc
+
+    with ExitStack() as resources:
+        model_input = input_path
+        if not args.keep_heterogens:
+            from dvbfixer.model.pipeline import _strip_hetatm_lines
+
+            prep_root = Path(resources.enter_context(tempfile.TemporaryDirectory(
+                prefix=".dvbfixer-diffusion-input.",
+                dir=work_parent,
+            )))
+            model_input = prep_root / input_path.name
+            lines = input_path.read_text(encoding="utf-8").splitlines(keepends=True)
+            model_input.write_text(
+                "".join(_strip_hetatm_lines(lines, keep_water=False, verbose=args.verbose)),
+                encoding="utf-8",
+            )
+
+        target_sequences = _target_sequences(model_input, args.fasta)
+        request = build_cli_diffusion_request(
+            model_input,
+            target_sequences,
+            seeds=tuple(args.diffusion_seeds),
+            profile=runtime.profile,
+            no_terminal=getattr(args, "no_terminal", False),
         )
-        raise DiffusionCliError(f"diffusion runner preflight failed: {reasons}")
-    command = (
-        runtime.runner,
-        "--profile",
-        runtime.profile,
-    )
-    outcome = run_diffusion_pipeline(
-        request,
-        command,
-        source_root=input_path.parent,
-        work_parent=work_parent,
-        destination_bundle=output_path,
-        limits=RunnerLimits(timeout_seconds=args.diffusion_timeout),
-    )
-    if outcome.published_bundle is None:
-        raise DiffusionCliError(outcome.message or f"diffusion ended with {outcome.status.value}")
-    print(f"Wrote diffusion bundle {outcome.published_bundle}")
+        try:
+            admission = assess_diffusion_scope(request, model_input.read_bytes())
+        except DiffusionScopeError as exc:
+            raise DiffusionCliError(str(exc)) from exc
+        if not admission.supported:
+            raise DiffusionCliError(
+                "diffusion input is outside the supported scope: "
+                + ", ".join(admission.reasons)
+            )
+        if runtime.model == "protpardelle" and len(request.target_sequences) > 1:
+            sampled_chains = tuple(dict.fromkeys(gap.chain for gap in request.gaps))
+            print(
+                "WARNING: Protpardelle will reconstruct gaps using "
+                f"{len(sampled_chains)} independent chain-level sampler "
+                "invocation(s), then DVBFixer will merge the generated regions "
+                "and restore fixed atoms exactly. Other chains do not condition "
+                "the Protpardelle denoiser."
+            )
+
+        preflight = invoke_runner_preflight(
+            profile=runtime.profile,
+            runner=runtime.runner,
+            timeout_seconds=args.diffusion_timeout,
+        )
+        if not preflight.passed:
+            reasons = "; ".join(
+                f"{issue.code.value}: {issue.message}" for issue in preflight.issues
+            )
+            raise DiffusionCliError(f"diffusion runner preflight failed: {reasons}")
+        command = (
+            runtime.runner,
+            "--profile",
+            runtime.profile,
+        )
+        outcome = run_diffusion_pipeline(
+            request,
+            command,
+            source_root=model_input.parent,
+            work_parent=work_parent,
+            destination_bundle=output_path,
+            limits=RunnerLimits(timeout_seconds=args.diffusion_timeout),
+        )
+        if outcome.published_bundle is None:
+            raise DiffusionCliError(
+                outcome.message or f"diffusion ended with {outcome.status.value}"
+            )
+    if outcome.status.value == "failed":
+        failures = tuple(dict.fromkeys(
+            failure
+            for summary in (outcome.result.validation_summaries if outcome.result else ())
+            for failure in summary.hard_gate_failures
+        ))
+        print(
+            "WARNING: Diffusion candidate was published but failed independent "
+            "DVBFixer validation. Inspect it before use; consider another seed "
+            "or a full-system minimization. Failed gates: "
+            + (", ".join(failures) if failures else "unspecified")
+        )
+        print(f"Wrote rejected diffusion bundle {outcome.published_bundle}")
+    else:
+        print(f"Wrote diffusion bundle {outcome.published_bundle}")
 
 
 def _target_sequences(input_path: Path, fasta_path: str | None) -> dict[str, str]:

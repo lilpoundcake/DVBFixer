@@ -131,18 +131,36 @@ def _strip_hetatm_lines(lines, keep_water=False, verbose=False):
     n_before = len(lines)
     kept_water_set = WATER_RESNAMES if keep_water else frozenset()
     dropped_serials = set()
-    kept = []
+    dropped_residues = set()
     for ln in lines:
         if ln.startswith("HETATM") and len(ln) >= 20:
             resname = ln[17:20].strip()
             if resname in kept_water_set:
-                kept.append(ln)
                 continue
             try:
                 dropped_serials.add(int(ln[6:11]))
             except ValueError:
                 pass
-            continue
+            if len(ln) >= 27:
+                dropped_residues.add((ln[17:20].strip(), ln[21], ln[22:26].strip(), ln[26].strip()))
+
+    kept = []
+    for ln in lines:
+        if ln.startswith("HETATM") and len(ln) >= 20:
+            resname = ln[17:20].strip()
+            if resname not in kept_water_set:
+                continue
+        if ln.startswith("ANISOU"):
+            try:
+                if int(ln[6:11]) in dropped_serials:
+                    continue
+            except ValueError:
+                pass
+        if ln.startswith("LINK") and len(ln) >= 57:
+            first = (ln[17:20].strip(), ln[21], ln[22:26].strip(), ln[26].strip())
+            second = (ln[47:50].strip(), ln[51], ln[52:56].strip(), ln[56].strip())
+            if first in dropped_residues or second in dropped_residues:
+                continue
         if ln.startswith("CONECT") and dropped_serials:
             try:
                 # CONECT record columns: 7-11, 12-16, 17-21, 22-26, 27-31

@@ -53,7 +53,8 @@ Diffusion options:
                         Candidate seed; repeat for multiple candidates
                         (default: 7)
   --diffusion-timeout DIFFUSION_TIMEOUT
-                        Runner timeout in seconds (default: 300)
+                        Runner timeout in seconds (default: 900; covers multi-
+                        chain sampling/refinement)
   --diffusion-work-parent DIFFUSION_WORK_PARENT
                         Parent directory for the private runner workspace
 
@@ -84,7 +85,8 @@ Modelling parameters:
   --no-terminal         Do not model missing N/C terminal residues. Align to
                         the complete reference first, trim outside the
                         first/last observed anchors, and rebuild only gaps
-                        between those anchors.
+                        between those anchors. Supported by both MODELLER and
+                        diffusion backends.
   --number-from-1       Shift each completed output chain so its first
                         retained protein residue is 1; applies even when
                         missing N-terminal residues were not modeled
@@ -93,11 +95,12 @@ Content selection:
   --keep-water          Keep water molecules (HOH, WAT, TIP3, SOL) in output
                         (default: remove)
   --strip-heterogens    Remove all HETATM records (ligands, sugars, ions,
-                        cofactors) before Modeller runs. Waters are also
-                        removed unless --keep-water is passed. Off by default
-                        — Modeller usually benefits from heterogen context for
-                        loop refinement, but in some cases (bad ligand
-                        geometry, ambiguous CONECT) they cause artifacts.
+                        cofactors) before modeling. Waters are also removed
+                        unless --keep-water is passed (MODELLER only). Off by
+                        default — MODELLER usually benefits from heterogen
+                        context for loop refinement, but in some cases (bad
+                        ligand geometry, ambiguous CONECT) they cause
+                        artifacts.
   --no-infer-conect     Skip automatic CONECT inference before Modeller runs.
                         Default: infer missing CONECT bonds
                         (SS/glycosidic/glycosylation) from coordinates first,

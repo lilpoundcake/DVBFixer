@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import BinaryIO
 
 from dvbfixer.model.diffusion.contract import (
+    MAX_TRACE_BYTES,
     ArtifactReference,
     DiffusionContractError,
     DiffusionRequest,
@@ -440,10 +441,12 @@ def _validate_result_artifacts(
         trace_path = _validated_artifact_path(
             root,
             candidate.sampler_trace_artifact,
-            max_bytes=min(max_artifact_bytes, 1_000_000),
+            max_bytes=min(max_artifact_bytes, MAX_TRACE_BYTES),
         )
         try:
-            trace = SamplerTrace.from_json(_read_bounded_text(trace_path, 1_000_000))
+            trace = SamplerTrace.from_json(
+                _read_bounded_text(trace_path, MAX_TRACE_BYTES)
+            )
         except (DiffusionContractError, OSError, UnicodeError) as exc:
             raise DiffusionRunnerError(
                 f"candidate {candidate.candidate_id!r} has an invalid sampler trace: {exc}"

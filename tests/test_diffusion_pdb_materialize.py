@@ -126,6 +126,25 @@ def test_materializer_preserves_headers_metadata_anisou_and_links() -> None:
     assert {int(line[6:11]) for line in generated}.isdisjoint({10, 40, 41})
 
 
+def test_materializer_preserves_unrepresented_fixed_atoms_from_source() -> None:
+    request = _request()
+    left = _atom_line(10, 10, 1.0, occupancy=1.0, bfactor=0.0)
+    right = _atom_line(40, 14, 9.0, occupancy=1.0, bfactor=0.0)
+    source = left + right + "END\n"
+
+    rendered = materialize_candidate_pdb(
+        source,
+        request.generated_atoms,
+        ((4.0, 5.0, 6.0), (5.0, 6.0, 7.0), (6.0, 7.0, 8.0)),
+        ("ALA",) * 3,
+        request,
+        elements=("C",) * 3,
+    )
+
+    assert left in rendered
+    assert right in rendered
+
+
 def test_materializer_rejects_ter_between_gap_anchors() -> None:
     request = _request()
     source = (

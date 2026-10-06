@@ -14,6 +14,7 @@ from dvbfixer.model.diffusion.sampler import SamplerCapabilities, SamplingAblati
 
 DIFFUSION_SCHEMA_VERSION = 4
 MAX_TRACE_ATOMS = 1_000_000
+MAX_TRACE_BYTES = 8_000_000
 MAX_TRACE_STEPS = 10_000
 MAX_TRACE_PARAMETERS = 64
 MAX_TRACE_TEXT_LENGTH = 512
@@ -812,8 +813,17 @@ class DiffusionResult(_JsonContract):
                 )
             if not all(summary.passed for summary in self.validation_summaries):
                 raise DiffusionContractError("successful result cannot contain failed validation")
+        elif self.status is DiffusionStatus.FAILED and self.candidates:
+            if len(self.candidates) != len(self.validation_summaries):
+                raise DiffusionContractError(
+                    "failed result candidates require matching validation summaries"
+                )
+            if any(summary.passed for summary in self.validation_summaries):
+                raise DiffusionContractError(
+                    "failed result cannot contain a passing published candidate"
+                )
         elif self.candidates:
-            raise DiffusionContractError("unsupported or failed result cannot publish candidates")
+            raise DiffusionContractError("unsupported result cannot publish candidates")
         if self.status is DiffusionStatus.UNSUPPORTED and not self.message:
             raise DiffusionContractError("unsupported result must include a message")
 

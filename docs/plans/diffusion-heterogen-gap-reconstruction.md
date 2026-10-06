@@ -11,6 +11,11 @@
     [`../research/reconstruction-and-modeling-backends.md`](../research/reconstruction-and-modeling-backends.md).
 - Production baseline retained: MODELLER remains the default and continues to
   preserve supported heterogen context through its existing path.
+- Implemented preprocessing boundary: the explicit public
+  `--strip-heterogens` option may create a private protein-only diffusion input
+  and remove associated ANISOU/LINK/CONECT records without mutating the source.
+  This is user-requested problem reduction, not heterogen retention or
+  conditioning, and does not broaden the capability claims below.
 
 ## Research Question
 

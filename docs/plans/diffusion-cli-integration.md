@@ -358,9 +358,49 @@ engine.
   - отсутствие adjacent altloc ambiguity;
   - отсутствие multiple MODEL;
   - отсутствие retained heterogens/noncanonical chemistry;
+  - explicit `--strip-heterogens` is applied before request construction and
+    scope admission without mutating the source input;
   - отсутствие unsupported covalent links;
   - входная структура проходит chirality admission.
 - Unsupported scope возвращает stable reason list и не запускает runner.
+
+### A.8.1. План поддержки генерации N/C-концов
+
+`--no-terminal` уже является общим для MODELLER и diffusion режимом: target
+обрезается снаружи первого/последнего наблюдаемого anchor, после чего
+реконструируются только внутренние gaps. Полноценная terminal generation остаётся
+отдельным acceptance stratum и не должна включаться снятием одной проверки.
+
+- Расширить versioned request contract так, чтобы terminal gap имел ровно один
+  anchor: правый для N-конца или левый для C-конца. Не кодировать отсутствующий
+  anchor фиктивным residue identity.
+- Добавить явный `gap_kind = internal | n_terminal | c_terminal`; внутренний gap
+  сохраняет два anchor и текущие validation gates.
+- Расширить authoritative residue allocator для terminal generated identities:
+  сохранять case-sensitive chain ID и insertion codes, детерминированно выделять
+  номера до первого или после последнего наблюдаемого residue и fail closed при
+  невозможности представить их в PDB.
+- На backend adapter уровне проверить one-anchor motif grammar отдельно для
+  Protpardelle и Protenix. Для каждого profile зафиксировать доказательство, что
+  terminal residues действительно входят в denoising state, а не дописываются
+  post-hoc.
+- Materializer должен вставлять N-terminal atoms перед первым coordinate record
+  соответствующей цепи, а C-terminal atoms перед её `TER`, сохраняя headers,
+  ANISOU, explicit connectivity и все нетронутые atom serial identities.
+- Validator должен применять один peptide-junction gate вместо двух, проверять
+  полный canonical heavy-atom set, bond lengths/angles, amide planarity,
+  Ramachandran/chirality, clashes и отсутствие движения fixed atoms. Нельзя
+  объявлять terminal pass только по наличию координат.
+- Refinement должен двигать terminal generated residues и единственный anchor
+  flank, не ослабляя exact-fixed policy для остальных атомов.
+- Добавить N-only, C-only и simultaneous N+C fixtures, включая несколько цепей,
+  короткие/длинные tails, tight numbering, insertion codes и case-sensitive
+  chain IDs. Отдельно проверить сочетание terminal и internal gaps.
+- Провести frozen hardware acceptance отдельно от internal-gap cohort для MPS и
+  CUDA. До прохождения gates default остаётся fail closed с подсказкой
+  `--no-terminal`; никакого silent fallback на MODELLER.
+- После acceptance обновить scope/help/docs и provenance так, чтобы terminal
+  generation была явно отличима от `--no-terminal` cropping.
 
 ## A.9. Output и atomic publication
 
@@ -374,14 +414,19 @@ engine.
   - separate diffusion provenance JSON;
   - sampler trace artifact;
   - `bundle.json` с artifact digests/schema/profile identity.
-- Публиковать bundle только:
+- Публиковать accepted либо явно маркированный validation-failed bundle только:
   - через hidden same-parent staging directory;
   - после полного validation и manifest generation;
   - одной no-replace directory rename;
   - с Linux `renameat2(RENAME_NOREPLACE)` и macOS `renamex_np(RENAME_EXCL)` paths.
 - Не публиковать loose PDB вторым действием после bundle rename.
 - Не перезаписывать существующую destination.
-- При любой ошибке очищать private staging/workspace согласно policy и не оставлять partial public output.
+- Scientific hard-gate failure после корректного sampling/materialization
+  публикует `validation_failed` bundle с candidate PDB, полным списком gates и
+  warning; он не считается success и не объявляется simulation-ready. Пользователь
+  может выбрать другой seed или отдельно выполнить full-system minimization.
+- Runner/protocol/digest/containment/materialization errors очищают private
+  staging/workspace согласно policy и не оставляют partial public output.
 - Сохранить `.dat` engine-neutral; runner metadata находится только в provenance/trace.
 
 ## A.10. Batch, command registry и GUI

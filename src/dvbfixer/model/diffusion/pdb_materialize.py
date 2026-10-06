@@ -46,14 +46,17 @@ def materialize_candidate_pdb(
         element = elements[index].strip().upper() if elements is not None else _element(identity)
         represented[identity] = (residue_name, element, xyz)
 
-    required = set(request.fixed_atoms) | set(request.generated_atoms)
+    allowed = set(request.fixed_atoms) | set(request.generated_atoms)
+    unexpected = set(represented) - allowed
+    if unexpected:
+        raise DiffusionContractError(
+            f"candidate atom axis contains {len(unexpected)} unrequested atoms"
+        )
+    required = set(request.generated_atoms)
     if not required <= set(represented):
         raise DiffusionContractError(
-            f"candidate atom axis omits {len(required - set(represented))} requested atoms"
+            f"candidate atom axis omits {len(required - set(represented))} generated atoms"
         )
-    if len(request.gaps) != 1:
-        raise DiffusionContractError("candidate materialization requires exactly one gap")
-
     source_lines = source_text.splitlines(keepends=True)
     source_atom_serials = {
         serial
@@ -72,19 +75,46 @@ def materialize_candidate_pdb(
     available_serials = (
         serial for serial in range(1, 100_000) if serial not in used_serials
     )
-    generated_lines = _generated_lines(
-        request.generated_atoms,
-        represented,
-        available_serials,
-    )
+    gap_by_generated_residue = {
+        residue: index
+        for index, gap in enumerate(request.gaps)
+        for residue in gap.generated_residues
+    }
+    if len(gap_by_generated_residue) != sum(
+        len(gap.generated_residues) for gap in request.gaps
+    ):
+        raise DiffusionContractError("generated residues overlap between gaps")
+    generated_atoms_by_gap: list[list[AtomIdentity]] = [
+        [] for _gap in request.gaps
+    ]
+    for identity in request.generated_atoms:
+        residue = ResidueIdentity(
+            identity.chain,
+            identity.residue_number,
+            identity.insertion_code,
+        )
+        try:
+            gap_index = gap_by_generated_residue[residue]
+        except KeyError as exc:
+            raise DiffusionContractError(
+                "generated atom does not belong to a requested gap"
+            ) from exc
+        generated_atoms_by_gap[gap_index].append(identity)
+    generated_lines_by_gap = [
+        _generated_lines(tuple(atoms), represented, available_serials)
+        for atoms in generated_atoms_by_gap
+    ]
 
     fixed = set(request.fixed_atoms)
     generated = set(request.generated_atoms)
     fixed_seen: set[AtomIdentity] = set()
-    inserted = False
-    left_seen = False
-    left_anchor = request.gaps[0].left_anchor
-    right_anchor = request.gaps[0].right_anchor
+    inserted: set[int] = set()
+    pending: set[int] = set()
+    left_anchors: dict[ResidueIdentity, list[int]] = {}
+    right_anchors: dict[ResidueIdentity, list[int]] = {}
+    for index, gap in enumerate(request.gaps):
+        left_anchors.setdefault(gap.left_anchor, []).append(index)
+        right_anchors.setdefault(gap.right_anchor, []).append(index)
     output: list[str] = []
     for line in source_lines:
         record = line[:6].strip()
@@ -94,7 +124,7 @@ def materialize_candidate_pdb(
             endpoints = _conect_serials(line)
             if endpoints is None or not set(endpoints) <= source_atom_serials:
                 continue
-        if record == "TER" and left_seen and not inserted:
+        if record == "TER" and pending:
             raise DiffusionContractError(
                 "source PDB contains TER between the diffusion gap anchors"
             )
@@ -105,11 +135,12 @@ def materialize_candidate_pdb(
                 source_identity.residue_number,
                 source_identity.insertion_code,
             )
-            if residue == left_anchor:
-                left_seen = True
-            if residue == right_anchor and not inserted:
-                output.extend(generated_lines)
-                inserted = True
+            pending.update(left_anchors.get(residue, ()))
+            for gap_index in right_anchors.get(residue, ()):
+                if gap_index not in inserted:
+                    output.extend(generated_lines_by_gap[gap_index])
+                    inserted.add(gap_index)
+                    pending.discard(gap_index)
             if source_identity in generated:
                 raise DiffusionContractError(
                     "source PDB already contains a requested generated atom"
@@ -120,16 +151,23 @@ def materialize_candidate_pdb(
                         "source PDB contains a duplicate requested fixed atom"
                     )
                 fixed_seen.add(source_identity)
-                xyz = represented[source_identity][2]
-                line = line[:30] + "".join(f"{value:8.3f}" for value in xyz) + line[54:]
+                if source_identity in represented:
+                    xyz = represented[source_identity][2]
+                    line = (
+                        line[:30]
+                        + "".join(f"{value:8.3f}" for value in xyz)
+                        + line[54:]
+                    )
         output.append(line)
 
     if fixed_seen != fixed:
         raise DiffusionContractError(
             f"source PDB omits {len(fixed - fixed_seen)} requested fixed atoms"
         )
-    if not inserted:
-        raise DiffusionContractError("source PDB omits the right anchor insertion point")
+    if len(inserted) != len(request.gaps):
+        raise DiffusionContractError(
+            f"source PDB omits {len(request.gaps) - len(inserted)} right anchor insertion point(s)"
+        )
     return "".join(output)
 
 

@@ -110,6 +110,51 @@ def _request() -> DiffusionRequest:
     )
 
 
+def _multichain_request() -> DiffusionRequest:
+    first = _request()
+    second_residues = (
+        ResidueIdentity("E", "10"),
+        ResidueIdentity("E", "11"),
+        ResidueIdentity("E", "12"),
+        ResidueIdentity("E", "13"),
+    )
+    second_fixed = tuple(
+        AtomIdentity("E", number, "", atom)
+        for number in ("10", "13")
+        for atom in ("N", "CA", "C")
+    )
+    second_generated = tuple(
+        AtomIdentity("E", number, "", atom)
+        for number in ("11", "12")
+        for atom in ("N", "CA", "C", "O")
+    )
+    return DiffusionRequest(
+        schema_version=first.schema_version,
+        normalized_pdb=first.normalized_pdb,
+        target_sequences=(*first.target_sequences, TargetSequence("E", "AGGA")),
+        sequence_placements=(*first.sequence_placements, SequencePlacement(
+            chain="E",
+            target_length=4,
+            observed_target_indices=(0, 3),
+            observed_residues=(second_residues[0], second_residues[3]),
+        )),
+        gaps=(*first.gaps, GapRegion(
+            chain="E",
+            target_interval=TargetInterval(1, 3),
+            left_anchor=second_residues[0],
+            right_anchor=second_residues[3],
+            generated_residues=second_residues[1:3],
+            movable_junction_residues=second_residues,
+        )),
+        fixed_atoms=(*first.fixed_atoms, *second_fixed),
+        generated_atoms=(*first.generated_atoms, *second_generated),
+        retained_explicit_links=(),
+        candidate_count=1,
+        seeds=first.seeds,
+        backend_options=(),
+    )
+
+
 def test_callback_patch_runs_after_update_and_preserves_jump_state() -> None:
     patch = PATCH.read_text(encoding="utf-8")
     update = patch.index("xt = x0")
@@ -225,7 +270,7 @@ def test_adapter_records_resolved_device_not_requested_label() -> None:
     assert 'device=str(device)' in source
     assert '"device": str(device)' in source
     assert 'load_model(config_path, checkpoint_path, device=str(device))' in source
-    assert source.index("sampler_atom_order = identities") < source.index(
+    assert source.index("sampler_atom_order = tuple(") < source.index(
         "identities, coordinates, residue_names = _synchronize_and_restore_fixed_atoms("
     )
     assert "atom_order=sampler_atom_order" in source
@@ -289,6 +334,37 @@ def test_target_mapping_preserves_case_and_insertion_codes() -> None:
         2: ResidueIdentity("d", "83"),
         3: ResidueIdentity("d", "84"),
     }
+
+
+def test_multichain_target_mapping_and_motif_placement() -> None:
+    adapter = _load_adapter()
+    request = _multichain_request()
+
+    mapping = adapter._target_residue_map(request)
+    placement, fixed_positions = adapter._motif_placement(request)
+
+    assert mapping[0] == ResidueIdentity("d", "82")
+    assert mapping[4] == ResidueIdentity("E", "10")
+    assert mapping[7] == ResidueIdentity("E", "13")
+    assert placement == "A1-1/2/A4-4;/;B1-1/2/B4-4"
+    assert fixed_positions == [0, 3, 4, 7]
+
+
+def test_multichain_request_is_split_into_gap_bearing_chain_invocations() -> None:
+    adapter = _load_adapter()
+
+    requests = adapter._chain_sampling_requests(_multichain_request())
+
+    assert [request.target_sequences[0].chain for request in requests] == ["d", "E"]
+    assert [len(request.target_sequences) for request in requests] == [1, 1]
+    assert [{gap.chain for gap in request.gaps} for request in requests] == [
+        {"d"},
+        {"E"},
+    ]
+    assert [{atom.chain for atom in request.fixed_atoms} for request in requests] == [
+        {"d"},
+        {"E"},
+    ]
 
 
 def test_motif_writer_renumbers_observed_residues_to_target_ordinals(
@@ -391,7 +467,7 @@ def test_candidate_writer_rejects_incomplete_generated_atom_set(tmp_path: Path) 
         encoding="ascii",
     )
 
-    with pytest.raises(ValueError, match="omits 1 requested atoms"):
+    with pytest.raises(ValueError, match="omits 1 generated atoms"):
         adapter._write_candidate(
             tmp_path / "candidate.pdb",
             source,

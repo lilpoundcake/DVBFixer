@@ -155,6 +155,10 @@ GUI, `zbs`, `homology`, heterogen support, or automatic profile selection.
   command is now `dvbfixer model ... --backend diffusion`; an optional
   `--diffusion-model protpardelle` only disambiguates model choice. A public CLI
   smoke using no deployment paths passed on Apple M3 Pro on 2026-10-06.
+- [x] Accept explicit `--strip-heterogens` before diffusion admission. A native
+  Apple MPS smoke with a synthetic retained ligand and CONECT record confirmed
+  private-input stripping, unchanged source digest, successful reconstruction,
+  and protein-only publication on 2026-10-06.
 - [x] Torch-dependent Boltz research imports made lazy so core CI remains
   Torch-free.
 - [x] Add the diffusion profile report and bounded no-inference handshake to

@@ -24,6 +24,7 @@ from dvbfixer.diagnose.steric import clashes_python
 from dvbfixer.ffutils.geometry import ChiralityError, assert_all_l
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
+    MAX_TRACE_BYTES,
     ArtifactReference,
     AtomIdentity,
     DiffusionCandidate,
@@ -177,7 +178,7 @@ def build_validated_result(
     workspace: Path,
     thresholds: ValidationThresholds | None = None,
 ) -> DiffusionResult:
-    """Return only passing candidates, deterministically ordered by DVBFixer metrics."""
+    """Rank candidates and retain failed ones as explicitly rejected artifacts."""
     if runner_result.status is not DiffusionStatus.SUCCESS:
         return DiffusionResult(
             schema_version=DIFFUSION_SCHEMA_VERSION,
@@ -201,6 +202,7 @@ def build_validated_result(
         key=_ranking_key,
     )
     if not passing:
+        failed = sorted(validations, key=_ranking_key)
         failed_ids = ", ".join(item.candidate.candidate_id for item in validations)
         message = "all diffusion candidates failed independent DVBFixer validation"
         if failed_ids:
@@ -208,8 +210,8 @@ def build_validated_result(
         return DiffusionResult(
             schema_version=DIFFUSION_SCHEMA_VERSION,
             status=DiffusionStatus.FAILED,
-            candidates=(),
-            validation_summaries=tuple(item.summary for item in validations),
+            candidates=tuple(_validated_candidate(item.candidate) for item in failed),
+            validation_summaries=tuple(item.summary for item in failed),
             runner_diagnostics=runner_result.runner_diagnostics,
             backend_provenance=runner_result.backend_provenance,
             resource_metrics=runner_result.resource_metrics,
@@ -689,7 +691,7 @@ def _load_structure(
 
 
 def _load_sampler_trace(workspace: Path, artifact: ArtifactReference) -> SamplerTrace:
-    data = _read_private_artifact(workspace, artifact, max_bytes=1_000_000)
+    data = _read_private_artifact(workspace, artifact, max_bytes=MAX_TRACE_BYTES)
     try:
         return SamplerTrace.from_json(data.decode("utf-8"))
     except (DiffusionContractError, UnicodeDecodeError) as exc:

@@ -19,10 +19,12 @@ from dvbfixer.model.diffusion.boundary_refinement import (
     refine_generated_region,
 )
 from dvbfixer.model.diffusion.contract import (
+    MAX_TRACE_BYTES,
     ArtifactReference,
     AtomIdentity,
     BackendOption,
     DiffusionRequest,
+    ResidueIdentity,
     RunnerCandidate,
     RunnerResourceMetrics,
     RunnerResult,
@@ -121,8 +123,8 @@ def refine_runner_result(
     request_path = request_path.resolve()
     workspace = request_path.parent
     request = DiffusionRequest.from_json(request_path.read_text(encoding="utf-8"))
-    if len(raw_result.candidates) != 1 or len(request.gaps) != 1:
-        raise ValueError("production refinement requires one candidate and one gap")
+    if len(raw_result.candidates) != 1:
+        raise ValueError("production refinement requires one candidate")
     raw_candidate = raw_result.candidates[0]
     raw_text = _read_private_artifact(
         workspace,
@@ -136,49 +138,70 @@ def refine_runner_result(
             workspace,
             raw_candidate.sampler_trace_artifact,
             label="sampler trace",
-            max_bytes=1_000_000,
+            max_bytes=MAX_TRACE_BYTES,
             encoding="utf-8",
         )
     )
-    gap = request.gaps[0]
-    short_gap = len(gap.generated_residues) <= 5
+    movable_residues = tuple(dict.fromkeys(
+        residue for gap in request.gaps for residue in gap.movable_junction_residues
+    ))
+    short_gaps = all(len(gap.generated_residues) <= 5 for gap in request.gaps)
 
     start = time.perf_counter()
-    refinement = refine_generated_region(
-        raw_text,
-        generated_residues=gap.generated_residues,
-        generated_atoms=request.generated_atoms,
-        max_iterations=500 if short_gap else BOUNDARY_REFINEMENT_MAX_ITERATIONS,
-        restart_count=BOUNDARY_REFINEMENT_RESTART_COUNT,
-        perturbation_angstrom=(
-            0.25 if short_gap else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM
-        ),
-        platform_name=platform_name,
-        random_seed=request.seeds[0],
-    )
+    refined_text = raw_text
+    refinement_platform = platform_name
+    for gap_index, gap in enumerate(request.gaps):
+        gap_residues = set(gap.generated_residues)
+        gap_atoms = tuple(
+            atom
+            for atom in request.generated_atoms
+            if ResidueIdentity(
+                atom.chain,
+                atom.residue_number,
+                atom.insertion_code,
+            ) in gap_residues
+        )
+        short_gap = len(gap.generated_residues) <= 5
+        refinement = refine_generated_region(
+            refined_text,
+            generated_residues=gap.generated_residues,
+            generated_atoms=gap_atoms,
+            max_iterations=(
+                500 if short_gap else BOUNDARY_REFINEMENT_MAX_ITERATIONS
+            ),
+            restart_count=BOUNDARY_REFINEMENT_RESTART_COUNT,
+            perturbation_angstrom=(
+                0.25 if short_gap else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM
+            ),
+            platform_name=platform_name,
+            random_seed=request.seeds[0] + gap_index,
+        )
+        refinement_platform = refinement.platform
+        refined_text = rewrite_generated_coordinates(
+            refined_text,
+            refinement.coordinates_angstrom,
+        )
     output_dir.mkdir(parents=True, exist_ok=False)
     refined_path = output_dir / "candidate.pdb"
-    refined_path.write_text(
-        rewrite_generated_coordinates(raw_text, refinement.coordinates_angstrom),
-        encoding="ascii",
-    )
+    refined_path.write_text(refined_text, encoding="ascii")
     trace_path = output_dir / "sampler-trace.json"
     trace = replace(
         raw_trace,
         refinement_mode="localized-openmm-boundary-refinement",
         refinement_parameters=(
-            BackendOption("platform", refinement.platform),
+            BackendOption("platform", refinement_platform),
+            BackendOption("gap_count", str(len(request.gaps))),
             BackendOption(
                 "max_iterations",
-                str(500 if short_gap else BOUNDARY_REFINEMENT_MAX_ITERATIONS),
+                str(500 if short_gaps else BOUNDARY_REFINEMENT_MAX_ITERATIONS),
             ),
             BackendOption("restart_count", str(BOUNDARY_REFINEMENT_RESTART_COUNT)),
             BackendOption(
                 "perturbation_angstrom",
-                str(0.25 if short_gap else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM),
+                str(0.25 if short_gaps else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM),
             ),
         ),
-        localized_refinement_residues=gap.movable_junction_residues,
+        localized_refinement_residues=movable_residues,
         final_heavy_coordinate_operations=(
             *raw_trace.final_heavy_coordinate_operations,
             "localized-openmm-boundary-refinement",

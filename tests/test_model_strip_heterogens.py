@@ -69,3 +69,17 @@ def test_verbose_reports_count(capsys) -> None:
     assert "--strip-heterogens" in captured
     # 4 HETATM + 2 CONECT = 6 dropped.
     assert "6" in captured
+
+
+def test_strip_removes_anisou_and_link_records_for_dropped_residue() -> None:
+    lines = [
+        *_SAMPLE_LINES[:3],
+        "HETATM    6  C1  CIT A 200      30.000  30.000  30.000  1.00  0.00           C  \n",
+        "ANISOU    6  C1  CIT A 200     1000   1000   1000      0      0      0       C  \n",
+        "LINK         C   ALA A   1                 C1  CIT A 200     1555   1555  1.50\n",
+        "END\n",
+    ]
+
+    kept = _strip_hetatm_lines(lines)
+
+    assert not any(line.startswith(("HETATM", "ANISOU", "LINK")) for line in kept)

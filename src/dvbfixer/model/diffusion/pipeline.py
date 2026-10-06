@@ -17,6 +17,7 @@ from pathlib import Path
 
 from dvbfixer.ffutils.dat import AddedAtom, DatRecord, ResidueSummary
 from dvbfixer.model.diffusion.contract import (
+    MAX_TRACE_BYTES,
     ArtifactReference,
     AtomIdentity,
     DiffusionCandidate,
@@ -85,7 +86,7 @@ def run_diffusion_pipeline(
     thresholds: ValidationThresholds | None = None,
     repository_root: Path | None = None,
 ) -> DiffusionPipelineOutcome:
-    """Run one internal diffusion request and publish only validated outputs."""
+    """Run one request and publish validated or explicitly rejected candidates."""
     source_bytes = _read_source_artifact(
         source_root,
         request.normalized_pdb,
@@ -126,7 +127,14 @@ def run_diffusion_pipeline(
             workspace=workspace,
             thresholds=thresholds,
         )
-        if result.status is not DiffusionStatus.SUCCESS:
+        if result.status not in {DiffusionStatus.SUCCESS, DiffusionStatus.FAILED}:
+            return DiffusionPipelineOutcome(
+                result=result,
+                admission=admission,
+                published_bundle=None,
+                message=result.message,
+            )
+        if not result.candidates:
             return DiffusionPipelineOutcome(
                 result=result,
                 admission=admission,
@@ -159,9 +167,9 @@ def publish_diffusion_bundle(
     repository_root: Path | None = None,
     before_commit: Callable[[Path], None] | None = None,
 ) -> Path:
-    """Publish selected PDB/.dat/provenance sets with one directory rename."""
-    if result.status is not DiffusionStatus.SUCCESS:
-        raise DiffusionPipelineError("only a successful validated result can be published")
+    """Publish accepted or explicitly validation-failed candidates atomically."""
+    if result.status not in {DiffusionStatus.SUCCESS, DiffusionStatus.FAILED}:
+        raise DiffusionPipelineError("unsupported diffusion result cannot be published")
     if len(result.candidates) != len(result.validation_summaries):
         raise DiffusionPipelineError("candidate and validation counts do not match")
 
@@ -203,7 +211,12 @@ def publish_diffusion_bundle(
                 json.dumps(
                     {
                         "schema_version": BUNDLE_INDEX_SCHEMA_VERSION,
-                        "status": "success",
+                        "status": (
+                            "success"
+                            if result.status is DiffusionStatus.SUCCESS
+                            else "validation_failed"
+                        ),
+                        "message": result.message,
                         "requested_profile": next(
                             (
                                 option.value
@@ -256,7 +269,7 @@ def _stage_candidate(
     trace_bytes = _read_contained_artifact(
         workspace,
         candidate.sampler_trace_artifact,
-        max_bytes=1_000_000,
+        max_bytes=MAX_TRACE_BYTES,
     )
     try:
         trace = SamplerTrace.from_json(trace_bytes.decode("utf-8"))
@@ -321,6 +334,8 @@ def _stage_candidate(
     return {
         "candidate_id": candidate.candidate_id,
         "seed": candidate.seed,
+        "validation_passed": summary.passed,
+        "hard_gate_failures": list(summary.hard_gate_failures),
         "pdb": {
             "path": pdb_name,
             "sha256": artifacts[0].sha256,

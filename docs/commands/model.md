@@ -5,7 +5,7 @@
 Rebuilds missing loops and gaps using Modeller's LoopModel. Identifies missing regions by aligning ATOM records to the SEQRES sequence (or a user-provided FASTA), then runs Modeller's loop modeling with MD refinement to fill them.
 
 MODELLER remains the default. An experimental, explicit diffusion path is also
-available for a narrow one-chain, one-internal-gap protein scope. It runs an
+available for canonical protein chains with two-anchor internal gaps. It runs an
 operator-provided protocol-compatible executable; DVBFixer does not install ML
 frameworks, download checkpoints, or fall back to MODELLER automatically.
 
@@ -48,16 +48,35 @@ dvbfixer model input.pdb --keep-workdir -v
 # Experimental diffusion; -o is a new directory bundle, not a PDB file
 dvbfixer model input.pdb --fasta sequence.fasta \
   --backend diffusion -o input_model_diffusion
+
+# Ignore missing N/C tails and reconstruct only internal gaps
+dvbfixer model input.pdb --fasta sequence.fasta \
+  --backend diffusion --no-terminal -o input_model_diffusion
 ```
 
 ### Experimental diffusion scope
 
-The initial CLI slice accepts exactly one canonical protein chain, one
-unambiguous two-anchor internal gap of 3–12 residues, and a target sequence from
-SEQRES or `--fasta`. The input numbering must reserve enough residue numbers for
-the gap. Heterogens, noncanonical residues, terminal or multiple gaps, ambiguous
-sequence placement, and unsupported links fail before the external runner is
-started. Batch mode, GUI, `zbs`, and `homology` do not expose diffusion.
+The current CLI accepts canonical protein chains with unambiguous two-anchor
+internal gaps of 3–12 residues and target sequences from SEQRES or `--fasta`.
+The input numbering must reserve enough residue numbers for each gap. Terminal
+generation is not yet supported because it requires a separately validated
+one-anchor protocol. Pass `--no-terminal` to crop each target outside its first
+and last observed anchors and reconstruct only internal gaps. Retained
+heterogens, noncanonical residues, ambiguous sequence placement, and unsupported
+links fail before the external runner is started. `--strip-heterogens`
+explicitly creates a protein-only private input before admission and removes
+associated ANISOU, LINK, and CONECT records; the source file is never changed.
+Batch mode, GUI, `zbs`, and `homology` do not expose diffusion.
+
+For a multi-chain structure, the Protpardelle profile runs each gap-bearing
+protein chain as an independent sampler invocation and then DVBFixer merges the
+generated regions into the original structure. Chains without generated gaps
+and all fixed atoms are restored exactly. The CLI prints a warning when this
+path is used. This is **not inter-chain conditioning**: neighboring chains do
+not reach the Protpardelle denoiser, even though they are retained in the final
+candidate. The split also keeps each invocation within Protpardelle cc89's
+512-residue sampler-axis limit; any single gap-bearing chain longer than 512
+residues is still rejected.
 
 An installed private launcher receives the versioned `request.json` protocol and
 must write a valid `result.json` plus contained candidate artifacts. The launcher
@@ -66,8 +85,16 @@ none are per-run file arguments. DVBFixer then independently
 checks identity, complete generated heavy atoms, fixed-coordinate preservation,
 peptide closure, clashes, geometry, and chirality. A successful output directory
 contains candidate PDB/`.dat`/provenance files, a bounded digest-verified sampler
-trace for each candidate, and `bundle.json`; it is published atomically only
-after validation succeeds.
+trace for each candidate, and `bundle.json`; accepted and explicitly rejected
+bundles are both published atomically with distinct status values.
+
+If sampling and materialization complete but every candidate fails scientific
+validation, DVBFixer still publishes an atomic **rejected bundle** for inspection.
+Its `bundle.json` status is `validation_failed`, each candidate lists the failed
+gates, and the CLI prints a prominent warning. Such a PDB is not asserted to be
+simulation-ready; the user may inspect it, try another `--diffusion-seed`, or run
+a deliberate full-system minimization. Runner/protocol/artifact failures still
+publish nothing.
 
 ## Options
 
@@ -78,7 +105,7 @@ after validation succeeds.
 | `--backend` | `modeller` | Select `modeller` or the explicit experimental `diffusion` path |
 | `--diffusion-model` | auto | Optional model choice: `protpardelle` or `protenix`; by default DVBFixer selects an installed model compatible with the machine |
 | `--diffusion-seed` | 7 | Candidate seed; repeat for multiple candidates |
-| `--diffusion-timeout` | 300 | External runner timeout in seconds |
+| `--diffusion-timeout` | 900 | External runner timeout in seconds; the default covers sequential multi-chain sampling and local refinement |
 | `--diffusion-work-parent` | output parent | Existing directory under which the private runner workspace is created |
 | `-n`, `--num-models` | 1 | Number of initial models to generate |
 | `--num-loops` | 2 | Number of loop refinement models per initial model |
@@ -88,7 +115,7 @@ after validation succeeds.
 | `--no-terminal` | off | Align to the complete reference, trim outside the first/last observed anchors, and rebuild only genuine gaps between those anchors. |
 | `--number-from-1` | off | Normalize each completed candidate so its first retained protein residue is 1; matching `.dat` residue keys are shifted too. |
 | `--keep-water` | off | Keep water molecules (HOH, WAT, TIP3, SOL) — removed by default |
-| `--strip-heterogens` | off | Remove all HETATM records (ligands, sugars, ions, cofactors) before Modeller runs. Useful when heterogen geometry causes loop-refinement artifacts. Waters preserved only if `--keep-water` is also set. |
+| `--strip-heterogens` | off | Remove HETATM records and associated connectivity before modeling. For diffusion this creates a private protein-only input and removes water; for MODELLER water can be retained with `--keep-water`. |
 | `--keep-workdir` | off | Keep Modeller temp directory |
 | `--no-infer-conect` | off | Skip automatic CONECT inference before Modeller runs (see below) |
 | `-v`, `--verbose` | off | Print Modeller progress |

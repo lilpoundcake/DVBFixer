@@ -73,8 +73,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     diffusion.add_argument(
         "--diffusion-timeout",
         type=float,
-        default=300.0,
-        help="Runner timeout in seconds (default: 300)",
+        default=900.0,
+        help="Runner timeout in seconds (default: 900; covers multi-chain sampling/refinement)",
     )
     diffusion.add_argument(
         "--diffusion-work-parent",
@@ -118,7 +118,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--no-terminal", action="store_true",
         help="Do not model missing N/C terminal residues. Align to the complete "
              "reference first, trim outside the first/last observed anchors, "
-             "and rebuild only gaps between those anchors."
+             "and rebuild only gaps between those anchors. Supported by both "
+             "MODELLER and diffusion backends."
     )
     modelling.add_argument(
         "--number-from-1", action="store_true",
@@ -134,8 +135,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--strip-heterogens", dest="keep_heterogens",
         action="store_false", default=True,
         help="Remove all HETATM records (ligands, sugars, ions, cofactors) "
-             "before Modeller runs. Waters are also removed unless "
-             "--keep-water is passed. Off by default — Modeller usually "
+             "before modeling. Waters are also removed unless "
+             "--keep-water is passed (MODELLER only). Off by default — MODELLER usually "
              "benefits from heterogen context for loop refinement, but "
              "in some cases (bad ligand geometry, ambiguous CONECT) they "
              "cause artifacts.",
@@ -198,8 +199,8 @@ def _validate_backend_options(
 
     modeller_only = {
         "-n", "--num-models", "--num-loops", "--num-output", "--md-level",
-        "--pin-input", "--no-pin-input", "--no-terminal", "--number-from-1",
-        "--keep-water", "--strip-heterogens", "--no-infer-conect", "--keep-workdir",
+        "--pin-input", "--no-pin-input", "--number-from-1",
+        "--keep-water", "--no-infer-conect", "--keep-workdir",
     }
     invalid = sorted(provided & modeller_only)
     if invalid:

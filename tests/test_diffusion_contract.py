@@ -607,7 +607,7 @@ def test_result_status_controls_candidate_publication() -> None:
     )
     assert DiffusionResult.from_json(unsupported.to_json()) == unsupported
 
-    with pytest.raises(DiffusionContractError, match="cannot publish candidates"):
+    with pytest.raises(DiffusionContractError, match="matching validation summaries"):
         DiffusionResult(
             schema_version=DIFFUSION_SCHEMA_VERSION,
             status=DiffusionStatus.FAILED,

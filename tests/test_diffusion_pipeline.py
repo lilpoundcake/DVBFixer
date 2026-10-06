@@ -177,6 +177,36 @@ def _validated_result(
     )
 
 
+def test_publication_marks_validation_failed_candidate_as_rejected(
+    tmp_path: Path,
+) -> None:
+    _source, candidate_bytes, request = _source_candidate_request()
+    result = _validated_result(request, candidate_bytes)
+    rejected = replace(
+        result,
+        status=DiffusionStatus.FAILED,
+        validation_summaries=(ValidationSummary(
+            passed=False,
+            hard_gate_failures=("severe-steric-overlap",),
+        ),),
+        message="candidate requires inspection",
+    )
+    workspace = _workspace(tmp_path, candidate_bytes)
+    destination = tmp_path / "rejected"
+
+    publish_diffusion_bundle(
+        request,
+        rejected,
+        workspace=workspace,
+        destination_bundle=destination,
+    )
+
+    bundle = json.loads((destination / "bundle.json").read_text(encoding="utf-8"))
+    assert bundle["status"] == "validation_failed"
+    assert bundle["candidates"][0]["validation_passed"] is False
+    assert bundle["candidates"][0]["hard_gate_failures"] == [
+        "severe-steric-overlap"
+    ]
 def _workspace(
     tmp_path: Path,
     candidate_bytes: bytes,

@@ -14,7 +14,7 @@ import threading
 import time
 from collections.abc import Callable
 from contextlib import nullcontext
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any
 
@@ -200,26 +200,133 @@ def _sha256(path: Path) -> str:
 
 
 def _target_residue_map(request: DiffusionRequest) -> dict[int, ResidueIdentity]:
-    if len(request.target_sequences) != 1 or len(request.sequence_placements) != 1:
-        raise ValueError("cc89 benchmark requires exactly one target chain")
-    target = request.target_sequences[0]
-    placement = request.sequence_placements[0]
-    if placement.chain != target.chain:
-        raise ValueError("target sequence and placement chains differ")
-    if placement.target_length != len(target.sequence):
-        raise ValueError("sequence placement length differs from target sequence")
-    mapping = dict(zip(placement.observed_target_indices, placement.observed_residues))
+    placements = {placement.chain: placement for placement in request.sequence_placements}
+    mapping: dict[int, ResidueIdentity] = {}
+    offsets: dict[str, int] = {}
+    offset = 0
+    for target in request.target_sequences:
+        try:
+            placement = placements[target.chain]
+        except KeyError as exc:
+            raise ValueError("target sequence omits its placement") from exc
+        if placement.target_length != len(target.sequence):
+            raise ValueError("sequence placement length differs from target sequence")
+        offsets[target.chain] = offset
+        mapping.update({
+            offset + index: residue
+            for index, residue in zip(
+                placement.observed_target_indices,
+                placement.observed_residues,
+            )
+        })
+        offset += len(target.sequence)
     for gap in request.gaps:
+        chain_offset = offsets[gap.chain]
         for index, residue in zip(
             range(gap.target_interval.start, gap.target_interval.stop),
             gap.generated_residues,
         ):
-            if index in mapping:
+            flat_index = chain_offset + index
+            if flat_index in mapping:
                 raise ValueError(f"target index {index} is mapped more than once")
-            mapping[index] = residue
-    if set(mapping) != set(range(len(target.sequence))):
+            mapping[flat_index] = residue
+    total_length = sum(len(target.sequence) for target in request.target_sequences)
+    if set(mapping) != set(range(total_length)):
         raise ValueError("request does not map every target residue exactly once")
     return mapping
+
+
+def _target_sequence(request: DiffusionRequest) -> str:
+    return "".join(target.sequence for target in request.target_sequences)
+
+
+def _chain_sampling_requests(request: DiffusionRequest) -> tuple[DiffusionRequest, ...]:
+    """Split a request into independent gap-bearing chain sampler invocations."""
+    gap_chains = {gap.chain for gap in request.gaps}
+    requests: list[DiffusionRequest] = []
+    for target in request.target_sequences:
+        if target.chain not in gap_chains:
+            continue
+        chain = target.chain
+        if len(target.sequence) > 512:
+            raise ValueError(
+                f"target chain {chain} length {len(target.sequence)} exceeds "
+                "the cc89 fixed-size limit of 512 residues"
+            )
+        requests.append(replace(
+            request,
+            target_sequences=(target,),
+            sequence_placements=tuple(
+                placement
+                for placement in request.sequence_placements
+                if placement.chain == chain
+            ),
+            gaps=tuple(gap for gap in request.gaps if gap.chain == chain),
+            fixed_atoms=tuple(atom for atom in request.fixed_atoms if atom.chain == chain),
+            generated_atoms=tuple(
+                atom for atom in request.generated_atoms if atom.chain == chain
+            ),
+            retained_explicit_links=(),
+        ))
+    if not requests:
+        raise ValueError("cc89 request contains no gap-bearing target chains")
+    return tuple(requests)
+
+
+def _motif_chain_labels(request: DiffusionRequest) -> dict[str, str]:
+    labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    if len(request.target_sequences) > len(labels):
+        raise ValueError("cc89 benchmark supports at most 26 protein chains")
+    return {
+        target.chain: labels[index]
+        for index, target in enumerate(request.target_sequences)
+    }
+
+
+def _local_target_indices(request: DiffusionRequest) -> dict[ResidueIdentity, int]:
+    return {
+        residue: index
+        for placement in request.sequence_placements
+        for index, residue in zip(
+            placement.observed_target_indices,
+            placement.observed_residues,
+        )
+    }
+
+
+def _motif_placement(request: DiffusionRequest) -> tuple[str, list[int]]:
+    labels = _motif_chain_labels(request)
+    offset = 0
+    placements: list[str] = []
+    fixed_positions: list[int] = []
+    gaps_by_chain = {
+        target.chain: sorted(
+            (gap for gap in request.gaps if gap.chain == target.chain),
+            key=lambda gap: gap.target_interval.start,
+        )
+        for target in request.target_sequences
+    }
+    for target in request.target_sequences:
+        segments: list[str] = []
+        cursor = 0
+        for gap in gaps_by_chain[target.chain]:
+            start = gap.target_interval.start
+            stop = gap.target_interval.stop
+            if start < cursor:
+                raise ValueError("diffusion gaps overlap on a target chain")
+            if cursor < start:
+                segments.append(f"{labels[target.chain]}{cursor + 1}-{start}")
+                fixed_positions.extend(range(offset + cursor, offset + start))
+            segments.append(str(stop - start))
+            cursor = stop
+        if cursor < len(target.sequence):
+            segments.append(
+                f"{labels[target.chain]}{cursor + 1}-{len(target.sequence)}"
+            )
+            fixed_positions.extend(range(offset + cursor, offset + len(target.sequence)))
+        placements.append("/".join(segments))
+        offset += len(target.sequence)
+    return ";/;".join(placements), fixed_positions
 
 
 def _read_fixed_coordinates(
@@ -247,17 +354,33 @@ def _read_fixed_coordinates(
     return coordinates
 
 
+def _read_fixed_residue_names(
+    path: Path,
+    fixed_atoms: tuple[AtomIdentity, ...],
+) -> dict[AtomIdentity, str]:
+    expected = set(fixed_atoms)
+    names: dict[AtomIdentity, str] = {}
+    for line in path.read_text(encoding="ascii").splitlines():
+        if not line.startswith(("ATOM  ", "HETATM")) or line[16:17] not in {"", " ", "A"}:
+            continue
+        identity = AtomIdentity(
+            line[21:22], line[22:26].strip(), line[26:27].strip(), line[12:16].strip()
+        )
+        if identity in expected:
+            names[identity] = line[17:20].strip()
+    if set(names) != expected:
+        raise ValueError(f"normalized PDB omits {len(expected - set(names))} fixed atom names")
+    return names
+
+
 def _write_motif_input(
     source: Path,
     destination: Path,
     request: DiffusionRequest,
 ) -> None:
-    placement = request.sequence_placements[0]
     fixed_atom_set = set(request.fixed_atoms)
-    target_index = {
-        residue: index
-        for index, residue in zip(placement.observed_target_indices, placement.observed_residues)
-    }
+    target_index = _local_target_indices(request)
+    chain_labels = _motif_chain_labels(request)
     lines: list[str] = []
     serial = 1
     seen: set[AtomIdentity] = set()
@@ -274,7 +397,10 @@ def _write_motif_input(
             raise ValueError(f"duplicate motif atom: {identity}")
         seen.add(identity)
         ordinal = target_index[residue] + 1
-        record = "ATOM  " + f"{serial:5d}" + line[11:21] + "A" + f"{ordinal:4d}" + " " + line[27:]
+        record = (
+            "ATOM  " + f"{serial:5d}" + line[11:21]
+            + chain_labels[residue.chain] + f"{ordinal:4d}" + " " + line[27:]
+        )
         lines.append(record + "\n")
         serial += 1
     if seen != fixed_atom_set:
@@ -292,14 +418,14 @@ def _model_atoms(
 ) -> tuple[tuple[AtomIdentity, ...], np.ndarray, tuple[str, ...]]:
     from protpardelle.common import residue_constants
 
-    target = request.target_sequences[0]
+    target_sequence = _target_sequence(request)
     residue_map = _target_residue_map(request)
-    if coordinates.shape != (len(target.sequence), 37, 3):
+    if coordinates.shape != (len(target_sequence), 37, 3):
         raise ValueError(f"unexpected cc89 coordinate shape: {coordinates.shape}")
     identities: list[AtomIdentity] = []
     values: list[np.ndarray] = []
     residue_names: list[str] = []
-    for index, amino_acid in enumerate(target.sequence):
+    for index, amino_acid in enumerate(target_sequence):
         aatype = residue_constants.restype_order[amino_acid]
         residue = residue_map[index]
         residue_name = residue_constants.restype_1to3[amino_acid]
@@ -325,14 +451,63 @@ def _synchronize_and_restore_fixed_atoms(
     residue_names: tuple[str, ...],
     fixed_coordinates: dict[AtomIdentity, np.ndarray],
     fixed_residue_names: dict[AtomIdentity, str],
+    request: DiffusionRequest | None = None,
 ) -> tuple[tuple[AtomIdentity, ...], np.ndarray, tuple[str, ...]]:
     represented = set(identities)
-    alignment_fixed = {
-        identity: coordinate
-        for identity, coordinate in fixed_coordinates.items()
-        if identity in represented
-    }
-    synchronized = synchronize_and_reinject(identities, coordinates, alignment_fixed)
+    synchronized = coordinates.copy()
+    index_by_identity = {identity: index for index, identity in enumerate(identities)}
+    if request is None:
+        for chain in dict.fromkeys(identity.chain for identity in identities):
+            indices = [
+                index for index, identity in enumerate(identities) if identity.chain == chain
+            ]
+            chain_identities = tuple(identities[index] for index in indices)
+            alignment_fixed = {
+                identity: coordinate
+                for identity, coordinate in fixed_coordinates.items()
+                if identity.chain == chain and identity in represented
+            }
+            synchronized[indices] = synchronize_and_reinject(
+                chain_identities,
+                coordinates[indices],
+                alignment_fixed,
+            )
+    else:
+        for gap in request.gaps:
+            anchor_residues = {gap.left_anchor, gap.right_anchor}
+            anchor_atoms = tuple(
+                identity
+                for identity in identities
+                if ResidueIdentity(
+                    identity.chain,
+                    identity.residue_number,
+                    identity.insertion_code,
+                ) in anchor_residues
+                and identity in fixed_coordinates
+            )
+            if len(anchor_atoms) < 3:
+                raise ValueError("gap synchronization requires at least three anchor atoms")
+            mobile = np.vstack([
+                coordinates[index_by_identity[identity]] for identity in anchor_atoms
+            ])
+            target = np.vstack([fixed_coordinates[identity] for identity in anchor_atoms])
+            transform = weighted_kabsch(mobile, target)
+            generated_residues = set(gap.generated_residues)
+            generated_indices = [
+                index
+                for index, identity in enumerate(identities)
+                if ResidueIdentity(
+                    identity.chain,
+                    identity.residue_number,
+                    identity.insertion_code,
+                ) in generated_residues
+            ]
+            synchronized[generated_indices] = transform.apply(
+                coordinates[generated_indices]
+            )
+        for identity, coordinate in fixed_coordinates.items():
+            if identity in index_by_identity:
+                synchronized[index_by_identity[identity]] = coordinate
     source_only = tuple(sorted(set(fixed_coordinates) - represented))
     if not source_only:
         return identities, synchronized, residue_names
@@ -357,10 +532,20 @@ def _native_conditioning_fit(
     represented = tuple(sorted(set(fixed_coordinates) & set(index_by_identity)))
     if len(represented) < 3:
         raise ValueError("native conditioning fit requires at least three represented fixed atoms")
-    mobile = np.vstack([coordinates[index_by_identity[identity]] for identity in represented])
-    target = np.vstack([fixed_coordinates[identity] for identity in represented])
-    aligned = weighted_kabsch(mobile, target).apply(mobile)
-    displacements = np.linalg.norm(aligned - target, axis=1)
+    displacement_groups: list[np.ndarray] = []
+    for chain in dict.fromkeys(identity.chain for identity in represented):
+        chain_atoms = tuple(identity for identity in represented if identity.chain == chain)
+        if len(chain_atoms) < 3:
+            raise ValueError(
+                f"native conditioning fit requires at least three fixed atoms on chain {chain}"
+            )
+        mobile = np.vstack([
+            coordinates[index_by_identity[identity]] for identity in chain_atoms
+        ])
+        target = np.vstack([fixed_coordinates[identity] for identity in chain_atoms])
+        aligned = weighted_kabsch(mobile, target).apply(mobile)
+        displacement_groups.append(np.linalg.norm(aligned - target, axis=1))
+    displacements = np.concatenate(displacement_groups)
     return {
         "represented_fixed_atom_count": len(represented),
         "source_only_fixed_atom_count": len(fixed_coordinates) - len(represented),
@@ -376,10 +561,10 @@ def _make_per_step_reinjector(
     import torch
     from protpardelle.common import residue_constants
 
-    target = request.target_sequences[0]
     target_index_by_residue = {
         residue: index for index, residue in _target_residue_map(request).items()
     }
+    target_sequence = _target_sequence(request)
     represented: list[tuple[int, int, np.ndarray]] = []
     for identity in sorted(fixed_coordinates):
         residue = ResidueIdentity(
@@ -391,7 +576,7 @@ def _make_per_step_reinjector(
         atom_index = residue_constants.atom_order.get(identity.atom_name)
         if target_index is None or atom_index is None:
             continue
-        aatype = residue_constants.restype_order[target.sequence[target_index]]
+        aatype = residue_constants.restype_order[target_sequence[target_index]]
         if not residue_constants.restype_atom37_mask[aatype][atom_index]:
             continue
         represented.append((target_index, atom_index, fixed_coordinates[identity]))
@@ -501,34 +686,28 @@ def _run_staged(
     request_path = request_path.resolve()
     workspace = request_path.parent
     request = DiffusionRequest.from_json(request_path.read_text(encoding="utf-8"))
-    if len(request.gaps) != 1 or request.candidate_count != 1 or len(request.seeds) != 1:
-        raise ValueError("cc89 benchmark requires one internal gap and one candidate")
-    gap = request.gaps[0]
-    target = request.target_sequences[0]
-    if gap.target_interval.start <= 0 or gap.target_interval.stop >= len(target.sequence):
-        raise ValueError("cc89 benchmark requires a two-anchor internal gap")
-    if len(target.sequence) > 512:
-        raise ValueError("target exceeds the cc89 fixed-size limit")
-    if any(amino_acid not in residue_constants.restype_order for amino_acid in target.sequence):
+    if request.candidate_count != 1 or len(request.seeds) != 1:
+        raise ValueError("cc89 benchmark requires one candidate")
+    targets = {target.chain: target.sequence for target in request.target_sequences}
+    for gap in request.gaps:
+        if (
+            gap.target_interval.start <= 0
+            or gap.target_interval.stop >= len(targets[gap.chain])
+        ):
+            raise ValueError("cc89 benchmark requires two-anchor internal gaps")
+    if any(
+        amino_acid not in residue_constants.restype_order
+        for target in request.target_sequences
+        for amino_acid in target.sequence
+    ):
         raise ValueError("target sequence contains a non-canonical residue")
+    sampling_requests = _chain_sampling_requests(request)
 
     source = workspace.joinpath(*Path(request.normalized_pdb.path).parts)
     if _sha256(source) != request.normalized_pdb.sha256:
         raise ValueError("normalized PDB digest mismatch")
     fixed_coordinates = _read_fixed_coordinates(source, request.fixed_atoms)
-    residue_map = _target_residue_map(request)
-    residue_name_by_residue = {
-        residue_map[index]: residue_constants.restype_1to3[amino_acid]
-        for index, amino_acid in enumerate(target.sequence)
-    }
-    fixed_residue_names = {
-        atom: residue_name_by_residue[
-            ResidueIdentity(atom.chain, atom.residue_number, atom.insertion_code)
-        ]
-        for atom in request.fixed_atoms
-    }
-    motif_path = output_dir / "motif.pdb"
-    _write_motif_input(source, motif_path, request)
+    fixed_residue_names = _read_fixed_residue_names(source, request.fixed_atoms)
 
     device = _resolve_device(torch, device_name)
     if mps_profile and device.type != "mps":
@@ -537,50 +716,17 @@ def _run_staged(
     start = time.perf_counter()
     telemetry.start()
     seed = request.seeds[0]
-    seed_everything(seed)
-    torch.manual_seed(seed)
-    if device.type == "cuda":
-        torch.cuda.manual_seed_all(seed)
-    elif device.type == "mps":
-        torch.mps.manual_seed(seed)
     model_load_start = time.perf_counter()
     model = load_model(config_path, checkpoint_path, device=str(device))
     _synchronize(torch, device)
     model_load_seconds = time.perf_counter() - model_load_start
     _assert_model_device(model, device)
-    seq_mask, residue_index, chain_index = model.make_seq_mask_for_sampling(
-        prot_lens_per_chain=torch.tensor([[len(target.sequence)]])
-    )
-    seq_mask = seq_mask.to(device=device)
-    residue_index = residue_index.to(device=device)
-    chain_index = chain_index.to(device=device)
-    gt_aatype = torch.tensor(
-        [[residue_constants.restype_order[amino_acid] for amino_acid in target.sequence]],
-        dtype=torch.long,
-        device=device,
-    )
-    for name, value in (
-        ("seq_mask", seq_mask),
-        ("residue_index", residue_index),
-        ("chain_index", chain_index),
-        ("gt_aatype", gt_aatype),
-    ):
-        _assert_tensor_device(name, value, device)
-    fixed_positions = [
-        *range(gap.target_interval.start),
-        *range(gap.target_interval.stop, len(target.sequence)),
-    ]
-    placement = (
-        f"A1-{gap.target_interval.start}/"
-        f"{gap.target_interval.stop - gap.target_interval.start}/"
-        f"A{gap.target_interval.stop + 1}-{len(target.sequence)}"
-    )
     conditional = {
         "enabled": True,
         "discontiguous_motif_assignment": {
             "enabled": True,
             "strategy": "fixed",
-            "fixed_motif_pos": fixed_positions,
+            "fixed_motif_pos": [],
         },
         "num_recurrence_steps": 1,
         "crop_conditional_guidance": {
@@ -607,64 +753,183 @@ def _run_staged(
         "represented_fixed_atom_count": 0,
         "maximum_post_projection_error_angstrom": 0.0,
     }
-    sample_options: dict[str, Any] = {}
-    if device.type == "mps":
-        sample_options["record_trajectory"] = False
-    if per_step_reinjection:
-        callback, callback_stats = _make_per_step_reinjector(request, fixed_coordinates)
-        sample_options["step_callback"] = callback
-    _synchronize(torch, device)
-    denoising_start = time.perf_counter()
-    profile_context = torch.mps.profiler.profile() if mps_profile else nullcontext()
-    with profile_context:
-        sampled = model.sample(
-            seq_mask=seq_mask,
-            residue_index=residue_index,
-            chain_index=chain_index,
-            gt_aatype=gt_aatype,
-            num_steps=steps,
-            step_scale=step_scale,
-            s_churn=s_churn,
-            motif_file_path=str(motif_path),
-            motif_placements_full=[placement],
-            dummy_fill_mode=model.config.data.dummy_fill_mode,
-            partial_diffusion={"enabled": False, "pdb_file_path": None, "num_steps": 100},
-            conditional_cfg=conditional,
-            sidechain_mode=False,
-            skip_mpnn_proportion=1.0,
-            use_fullmpnn=False,
-            use_fullmpnn_for_final=False,
-            jump_steps=False,
-            uniform_steps=True,
-            **sample_options,
+    denoising_seconds = 0.0
+    placements: list[str] = []
+    sampler_atom_order_parts: list[AtomIdentity] = []
+    candidate_identities: list[AtomIdentity] = []
+    candidate_coordinates: list[np.ndarray] = []
+    candidate_residue_names: list[str] = []
+    fit_count = 0
+    fit_source_only = 0
+    fit_squared_displacement = 0.0
+    fit_max_displacement = 0.0
+    for invocation_index, sampling_request in enumerate(sampling_requests):
+        invocation_seed = seed + invocation_index
+        seed_everything(invocation_seed)
+        torch.manual_seed(invocation_seed)
+        if device.type == "cuda":
+            torch.cuda.manual_seed_all(invocation_seed)
+        elif device.type == "mps":
+            torch.mps.manual_seed(invocation_seed)
+
+        target_sequence = _target_sequence(sampling_request)
+        motif_path = output_dir / f"motif-{invocation_index + 1}.pdb"
+        _write_motif_input(source, motif_path, sampling_request)
+        seq_mask, residue_index, chain_index = model.make_seq_mask_for_sampling(
+            prot_lens_per_chain=torch.tensor([[len(target_sequence)]])
         )
-    _assert_tensor_device("sampled coordinates", sampled["x"], device)
-    _synchronize(torch, device)
-    denoising_seconds = time.perf_counter() - denoising_start
-    if per_step_reinjection and callback_stats["callback_count"] != steps:
-        raise RuntimeError(
-            "per-step callback count mismatch: "
-            f"expected {steps}, observed {callback_stats['callback_count']}"
+        seq_mask = seq_mask.to(device=device)
+        residue_index = residue_index.to(device=device)
+        chain_index = chain_index.to(device=device)
+        gt_aatype = torch.tensor(
+            [[
+                residue_constants.restype_order[amino_acid]
+                for amino_acid in target_sequence
+            ]],
+            dtype=torch.long,
+            device=device,
         )
-    raw = _coordinates_to_numpy(torch, sampled["x"][0])
-    identities, coordinates, residue_names = _model_atoms(request, raw)
-    sampler_atom_order = identities
+        for name, value in (
+            ("seq_mask", seq_mask),
+            ("residue_index", residue_index),
+            ("chain_index", chain_index),
+            ("gt_aatype", gt_aatype),
+        ):
+            _assert_tensor_device(name, value, device)
+        placement, fixed_positions = _motif_placement(sampling_request)
+        placements.append(placement)
+        conditional["discontiguous_motif_assignment"]["fixed_motif_pos"] = (
+            fixed_positions
+        )
+        invocation_callback_stats: dict[str, float | int] = {
+            "callback_count": 0,
+            "represented_fixed_atom_count": 0,
+            "maximum_post_projection_error_angstrom": 0.0,
+        }
+        sample_options: dict[str, Any] = {}
+        if device.type == "mps":
+            sample_options["record_trajectory"] = False
+        chain_fixed_coordinates = {
+            atom: coordinate
+            for atom, coordinate in fixed_coordinates.items()
+            if atom.chain == sampling_request.target_sequences[0].chain
+        }
+        chain_fixed_residue_names = {
+            atom: name
+            for atom, name in fixed_residue_names.items()
+            if atom.chain == sampling_request.target_sequences[0].chain
+        }
+        if per_step_reinjection:
+            callback, invocation_callback_stats = _make_per_step_reinjector(
+                sampling_request,
+                chain_fixed_coordinates,
+            )
+            sample_options["step_callback"] = callback
+        _synchronize(torch, device)
+        denoising_start = time.perf_counter()
+        profile_context = torch.mps.profiler.profile() if mps_profile else nullcontext()
+        with profile_context:
+            sampled = model.sample(
+                seq_mask=seq_mask,
+                residue_index=residue_index,
+                chain_index=chain_index,
+                gt_aatype=gt_aatype,
+                num_steps=steps,
+                step_scale=step_scale,
+                s_churn=s_churn,
+                motif_file_path=str(motif_path),
+                motif_placements_full=[placement],
+                dummy_fill_mode=model.config.data.dummy_fill_mode,
+                partial_diffusion={
+                    "enabled": False,
+                    "pdb_file_path": None,
+                    "num_steps": 100,
+                },
+                conditional_cfg=conditional,
+                sidechain_mode=False,
+                skip_mpnn_proportion=1.0,
+                use_fullmpnn=False,
+                use_fullmpnn_for_final=False,
+                jump_steps=False,
+                uniform_steps=True,
+                **sample_options,
+            )
+        _assert_tensor_device("sampled coordinates", sampled["x"], device)
+        _synchronize(torch, device)
+        denoising_seconds += time.perf_counter() - denoising_start
+        observed_callbacks = int(invocation_callback_stats["callback_count"])
+        if per_step_reinjection and observed_callbacks != steps:
+            raise RuntimeError(
+                "per-step callback count mismatch: "
+                f"expected {steps}, observed {observed_callbacks}"
+            )
+        callback_stats["callback_count"] = (
+            int(callback_stats["callback_count"]) + observed_callbacks
+        )
+        callback_stats["represented_fixed_atom_count"] = (
+            int(callback_stats["represented_fixed_atom_count"])
+            + int(invocation_callback_stats["represented_fixed_atom_count"])
+        )
+        callback_stats["maximum_post_projection_error_angstrom"] = max(
+            float(callback_stats["maximum_post_projection_error_angstrom"]),
+            float(invocation_callback_stats["maximum_post_projection_error_angstrom"]),
+        )
+
+        raw = _coordinates_to_numpy(torch, sampled["x"][0])
+        identities, coordinates, residue_names = _model_atoms(sampling_request, raw)
+        requested_atoms = set(sampling_request.fixed_atoms) | set(
+            sampling_request.generated_atoms
+        )
+        sampler_atom_order = tuple(
+            identity for identity in identities if identity in requested_atoms
+        )
+        sampler_atom_order_parts.extend(sampler_atom_order)
+        fit = _native_conditioning_fit(
+            identities,
+            coordinates,
+            chain_fixed_coordinates,
+        )
+        represented_count = int(fit["represented_fixed_atom_count"])
+        fit_count += represented_count
+        fit_source_only += int(fit["source_only_fixed_atom_count"])
+        fit_squared_displacement += float(fit["rmsd_angstrom"]) ** 2 * represented_count
+        fit_max_displacement = max(
+            fit_max_displacement,
+            float(fit["max_displacement_angstrom"]),
+        )
+        identities, coordinates, residue_names = _synchronize_and_restore_fixed_atoms(
+            identities,
+            coordinates,
+            residue_names,
+            chain_fixed_coordinates,
+            chain_fixed_residue_names,
+            sampling_request,
+        )
+        for identity, coordinate, residue_name in zip(
+            identities,
+            coordinates,
+            residue_names,
+        ):
+            if identity in requested_atoms:
+                candidate_identities.append(identity)
+                candidate_coordinates.append(coordinate)
+                candidate_residue_names.append(residue_name)
+
+    sampler_atom_order = tuple(sampler_atom_order_parts)
     sampler_atom_set = set(sampler_atom_order)
     represented_fixed_atoms = tuple(
         atom for atom in request.fixed_atoms if atom in sampler_atom_set
     )
-    native_conditioning_fit = _native_conditioning_fit(
-        identities,
-        coordinates,
-        fixed_coordinates,
-    )
-    identities, coordinates, residue_names = _synchronize_and_restore_fixed_atoms(
-        identities,
-        coordinates,
-        residue_names,
-        fixed_coordinates,
-        fixed_residue_names,
-    )
+    native_conditioning_fit = {
+        "represented_fixed_atom_count": fit_count,
+        "source_only_fixed_atom_count": fit_source_only,
+        "rmsd_angstrom": float(np.sqrt(fit_squared_displacement / fit_count)),
+        "max_displacement_angstrom": fit_max_displacement,
+        "independent_chain_invocations": len(sampling_requests),
+    }
+    identities = tuple(candidate_identities)
+    coordinates = np.asarray(candidate_coordinates, dtype=np.float64)
+    residue_names = tuple(candidate_residue_names)
     candidate_path = output_dir / "candidate.pdb"
     _write_candidate(
         candidate_path,
@@ -721,7 +986,9 @@ def _run_staged(
         coordinate_artifact=_artifact(workspace, candidate_path),
         sampler_trace_artifact=trace_artifact,
         generated_atoms=request.generated_atoms,
-        generated_residues=gap.generated_residues,
+        generated_residues=tuple(
+            residue for gap in request.gaps for residue in gap.generated_residues
+        ),
         raw_backend_score=None,
         score_provenance="protpardelle-1c-cc89:unranked",
     )
@@ -732,9 +999,9 @@ def _run_staged(
         runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
         backend_provenance=BackendProvenance(
             backend=(
-                "protpardelle-1c-cc89-proxy-only+per-step-reinjection"
+                "protpardelle-1c-cc89-independent-chain+per-step-reinjection"
                 if per_step_reinjection
-                else "protpardelle-1c-cc89-proxy-only"
+                else "protpardelle-1c-cc89-independent-chain"
             ),
             runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="https://github.com/ProteinDesignLab/protpardelle-1c",
@@ -750,6 +1017,7 @@ def _run_staged(
                 f"seed={seed}",
                 "fixed-sequence",
                 "mpnn-disabled",
+                f"independent-chain-invocations={len(sampling_requests)}",
                 f"per-step-reinjection={per_step_reinjection}",
                 f"mps-fallback={os.environ.get('PYTORCH_ENABLE_MPS_FALLBACK', 'unset')}",
             ),
@@ -776,9 +1044,15 @@ def _run_staged(
             candidate.candidate_id,
             reference,
             candidate_coordinates,
-            generated_residues=set(gap.generated_residues),
+            generated_residues={
+                residue for gap in request.gaps for residue in gap.generated_residues
+            },
             fixed_atoms=set(request.fixed_atoms),
-            anchor_residues={gap.left_anchor, gap.right_anchor},
+            anchor_residues={
+                residue
+                for gap in request.gaps
+                for residue in (gap.left_anchor, gap.right_anchor)
+            },
             closure_passed=(
                 "junction-peptide-connectivity"
                 not in validation.summary.hard_gate_failures
@@ -795,9 +1069,11 @@ def _run_staged(
         "config_sha256": _CONFIG_SHA256,
         "checkpoint_sha256": _CHECKPOINT_SHA256,
         "diffusion_steps": steps,
+        "total_denoising_updates": steps * len(sampling_requests),
+        "independent_chain_invocations": len(sampling_requests),
         "step_scale": step_scale,
         "s_churn": s_churn,
-        "motif_placement": placement,
+        "motif_placements": placements,
         "native_conditioning_fit": native_conditioning_fit,
         "per_step_reinjection": per_step_reinjection,
         "per_step_callback": callback_stats,

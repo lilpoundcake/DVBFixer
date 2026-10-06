@@ -40,6 +40,19 @@ best-effort summaries; consult `git log` for exact provenance.
 - Replaced per-run diffusion profile, runner, checkpoint, and digest arguments
   with one-time private backend registration, hardware-aware discovery, and an
   optional model-level selector.
+- Allowed explicit `model --backend diffusion --strip-heterogens` preprocessing;
+  the private normalized input drops HETATM records and associated
+  ANISOU/LINK/CONECT metadata while leaving the source untouched.
+- Extended the Apple Protpardelle path to reconstruct gaps on multiple protein
+  chains through explicitly reported independent chain-level sampler invocations,
+  merge them into one structure, and locally refine generated regions while
+  retaining fixed atoms exactly. Added `--no-terminal` support to crop missing
+  tails, a 900-second multi-chain default timeout, and an 8 MB bounded trace
+  limit. Neighboring chains are retained but are not claimed as denoiser context.
+- Validation failures now publish an atomic `validation_failed` inspection bundle
+  with failed gates and warnings instead of discarding a successfully materialized
+  candidate; runner, protocol, digest, and containment failures still publish
+  nothing.
 
 ### Compatibility
 

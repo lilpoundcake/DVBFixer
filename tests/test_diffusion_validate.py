@@ -436,7 +436,7 @@ def test_validation_rejects_outside_identity_and_fixed_coordinate_drift(tmp_path
     assert "fixed-heavy-atoms-missing" in validation.hard_gate_failures
     assert "fixed-heavy-atom-max-displacement" in validation.hard_gate_failures
     assert result.status is DiffusionStatus.FAILED
-    assert result.candidates == ()
+    assert [candidate.candidate_id for candidate in result.candidates] == ["drifted"]
     assert len(result.validation_summaries) == 1
     assert result.validation_summaries[0].passed is False
     assert result.resource_metrics.wall_time_seconds == 1.5
