@@ -11,22 +11,18 @@ invalid or missing license is reported as unavailable without crashing Doctor.
 ```bash
 dvbfixer doctor
 dvbfixer doctor --format json
-dvbfixer doctor --format json \
-  --diffusion-profile protenix-v1-cuda \
-  --diffusion-runner /path/to/production_runner.py \
-  --diffusion-checkpoint /path/to/protenix_base_default_v1.0.0.pt
+dvbfixer doctor --format json --diffusion-model protpardelle
 ```
 
 Missing optional tools are reported rather than treated as an error. Use the
 JSON form in CI or before submitting a large folder-input run.
 
-Without `--diffusion-profile`, the additive `diffusion` section reports only
+Without `--diffusion-model`, the additive `diffusion` section reports only
 the two profiles' immutable status, evidence labels, engine/source/patch and
 checkpoint identities, sampling/refinement platforms, protocol versions,
-fallback policy, and training-membership status. Selecting a profile performs
-a bounded JSON handshake with the supplied production runner. Missing runner or
-checkpoint arguments are structured issues in the report rather than parser
-errors.
+fallback policy, and training-membership status. Selecting a model discovers
+its installed, host-compatible private launcher and performs a bounded JSON
+handshake. Runner and checkpoint paths are backend-installation details.
 
 The handshake verifies the pinned platform, architecture, Python, engine and
 patch state, checkpoint digest, framework version, CUDA or MPS availability,

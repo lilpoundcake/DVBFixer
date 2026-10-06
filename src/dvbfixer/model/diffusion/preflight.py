@@ -24,6 +24,7 @@ MAX_PREFLIGHT_OUTPUT_BYTES = 65_536
 MAX_PREFLIGHT_ISSUES = 32
 MAX_PREFLIGHT_TEXT_LENGTH = 256
 _PREFLIGHT_PIPE_DRAIN_TIMEOUT_SECONDS = 1.0
+_PREFLIGHT_PROCESS_STARTUP_GRACE_SECONDS = 0.5
 
 
 class AdapterPreflightCode(StrEnum):
@@ -375,7 +376,7 @@ def invoke_runner_preflight(
     *,
     profile: str,
     runner: str,
-    checkpoint: Path,
+    checkpoint: Path | None = None,
     timeout_seconds: float = 30.0,
 ) -> RunnerPreflightReport:
     """Run one bounded no-inference handshake and validate immutable profile facts."""
@@ -417,9 +418,12 @@ def invoke_runner_preflight(
         )
         if name in os.environ
     }
+    command = [runner, "--preflight", "--profile", profile]
+    if checkpoint is not None:
+        command.extend(("--checkpoint", str(checkpoint)))
     try:
         process = subprocess.Popen(
-            [runner, "--preflight", "--profile", profile, "--checkpoint", str(checkpoint)],
+            command,
             env=allowed_environment,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
@@ -443,7 +447,9 @@ def invoke_runner_preflight(
         thread.start()
     timed_out = False
     try:
-        return_code = process.wait(timeout=timeout_seconds)
+        return_code = process.wait(
+            timeout=timeout_seconds + _PREFLIGHT_PROCESS_STARTUP_GRACE_SECONDS
+        )
     except subprocess.TimeoutExpired:
         timed_out = True
         return_code = -1

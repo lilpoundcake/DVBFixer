@@ -142,9 +142,11 @@ baseline unless a later, evidence-backed decision changes that policy; see the
 `dvbfixer model --backend diffusion` is an explicit, narrow experimental path;
 MODELLER remains the default. The core DVBFixer environment intentionally does
 not install PyTorch, CUDA/MPS packages, Protenix, Protpardelle, or checkpoints.
-Create the selected runner environment separately and provide both the runner
-and local checkpoint paths to the CLI. DVBFixer never downloads checkpoints and
-never falls back to another profile or MODELLER.
+Create the selected runner environment separately and register it once with its
+deployment README. The registration verifies the local checkpoint and installs
+a private launcher; normal `model --backend diffusion` calls do not accept or
+require runner, profile, checkpoint, or digest paths. DVBFixer never downloads
+checkpoints and never falls back to another profile or MODELLER.
 
 - Linux/NVIDIA `protenix-v1-cuda`: follow
   [`deploy/protenix-v1/README.md`](../deploy/protenix-v1/README.md). The portable

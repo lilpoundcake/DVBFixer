@@ -71,17 +71,17 @@ macOS tests.
 On the pinned Linux environment:
 
 ```bash
-export PYTHONNOUSERSITE=1
+python "$DVBFIXER_ROOT/scripts/install_diffusion_backend.py" \
+  protenix /path/to/protenix_base_default_v1.0.0.pt \
+  --engine-root /path/to/Protenix
 
 dvbfixer model INPUT.pdb --fasta TARGET.fasta \
-  --backend diffusion \
-  --diffusion-profile protenix-v1-cuda \
-  --diffusion-runner "$DVBFIXER_ROOT/deploy/protenix-v1/production_runner.py" \
-  --diffusion-checkpoint /path/to/protenix_base_default_v1.0.0.pt \
-  --diffusion-checkpoint-sha256 \
-    2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04 \
-  -o OUTPUT_BUNDLE
+  --backend diffusion -o OUTPUT_BUNDLE
 ```
+
+The one-time installer verifies the frozen checkpoint digest and creates a
+private launcher bound to the backend environment. Runtime profile, runner,
+checkpoint, and digest are not user-facing model options.
 
 The runner requires Linux amd64, Python 3.13, PyTorch 2.13.0, CUDA 12.9,
 bfloat16-capable NVIDIA hardware, `kalign`, the exact patched source tree, and

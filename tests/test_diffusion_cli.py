@@ -14,6 +14,7 @@ from dvbfixer.model.diffusion.preflight import (
     RunnerPreflightFacts,
     RunnerPreflightReport,
 )
+from dvbfixer.model.diffusion.runtime import DiffusionRuntime
 from dvbfixer.model.diffusion.scope import assess_diffusion_scope
 from dvbfixer.model.diffusion_cli import (
     DiffusionCliError,
@@ -39,20 +40,14 @@ def _gap_input(tmp_path: Path) -> Path:
     return path
 
 
-def test_diffusion_parser_requires_explicit_runtime_inputs(tmp_path: Path) -> None:
-    checkpoint = tmp_path / "model.pt"
-    checkpoint.write_bytes(b"checkpoint")
+def test_diffusion_parser_accepts_optional_model_selection() -> None:
     args = parse_args(
         [
             "input.pdb",
             "--backend",
             "diffusion",
-            "--diffusion-profile",
-            "protpardelle-1c-mps",
-            "--diffusion-runner",
-            "runner",
-            "--diffusion-checkpoint",
-            str(checkpoint),
+            "--diffusion-model",
+            "protpardelle",
             "--diffusion-seed",
             "7",
             "--diffusion-seed",
@@ -61,6 +56,7 @@ def test_diffusion_parser_requires_explicit_runtime_inputs(tmp_path: Path) -> No
     )
 
     assert args.backend == "diffusion"
+    assert args.diffusion_model == "protpardelle"
     assert args.diffusion_seeds == [7, 11]
 
 
@@ -68,23 +64,10 @@ def test_modeller_remains_the_default_backend() -> None:
     assert parse_args(["input.pdb"]).backend == "modeller"
 
 
-@pytest.mark.parametrize(
-    "omitted",
-    ["--diffusion-profile", "--diffusion-runner", "--diffusion-checkpoint"],
-)
-def test_diffusion_parser_requires_each_runtime_input(omitted: str) -> None:
-    values = {
-        "--diffusion-profile": "protenix-v1-cuda",
-        "--diffusion-runner": "runner",
-        "--diffusion-checkpoint": "checkpoint.pt",
-    }
-    argv = ["input.pdb", "--backend", "diffusion"]
-    for option, value in values.items():
-        if option != omitted:
-            argv.extend((option, value))
+def test_diffusion_parser_allows_automatic_runtime_selection() -> None:
+    args = parse_args(["input.pdb", "--backend", "diffusion"])
 
-    with pytest.raises(SystemExit):
-        parse_args(argv)
+    assert args.diffusion_model is None
 
 
 def test_diffusion_parser_rejects_modeller_only_options() -> None:
@@ -94,12 +77,6 @@ def test_diffusion_parser_rejects_modeller_only_options() -> None:
                 "input.pdb",
                 "--backend",
                 "diffusion",
-                "--diffusion-profile",
-                "protpardelle-1c-mps",
-                "--diffusion-runner",
-                "runner",
-                "--diffusion-checkpoint",
-                "model.pt",
                 "--num-loops",
                 "3",
             ]
@@ -114,12 +91,6 @@ def test_diffusion_parser_rejects_invalid_timeout(timeout: str) -> None:
                 "input.pdb",
                 "--backend",
                 "diffusion",
-                "--diffusion-profile",
-                "protenix-v1-cuda",
-                "--diffusion-runner",
-                "runner",
-                "--diffusion-checkpoint",
-                "model.pt",
                 "--diffusion-timeout",
                 timeout,
             ]
@@ -176,8 +147,6 @@ def test_failed_profile_preflight_blocks_inference(
     input_path = _gap_input(tmp_path)
     fasta = tmp_path / "target.fasta"
     fasta.write_text(">C\nSNRFSGSKSGNTA\n")
-    checkpoint = tmp_path / "checkpoint.pt"
-    checkpoint.write_bytes(b"checkpoint")
     report = RunnerPreflightReport(
         profile="protenix-v1-cuda",
         runner_protocol_version=4,
@@ -195,16 +164,19 @@ def test_failed_profile_preflight_blocks_inference(
         lambda **_kwargs: report,
     )
     monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
+        lambda _model: DiffusionRuntime(
+            "protenix", "protenix-v1-cuda", "/installed/protenix-runner"
+        ),
+    )
+    monkeypatch.setattr(
         "dvbfixer.model.diffusion_cli.run_diffusion_pipeline",
         lambda *_args, **_kwargs: pytest.fail("inference must not run"),
     )
     args = SimpleNamespace(
         input=str(input_path),
         output=str(tmp_path / "output"),
-        diffusion_checkpoint=str(checkpoint),
-        diffusion_checkpoint_sha256=None,
-        diffusion_profile="protenix-v1-cuda",
-        diffusion_runner="runner",
+        diffusion_model=None,
         diffusion_timeout=1.0,
         diffusion_seeds=[7],
         diffusion_work_parent=None,
@@ -223,8 +195,12 @@ def test_scope_rejection_precedes_runner_preflight(
     input_path.write_text(input_path.read_text().replace("ATOM  ", "HETATM", 1))
     fasta = tmp_path / "target.fasta"
     fasta.write_text(">C\nSNRFSGSKSGNTA\n")
-    checkpoint = tmp_path / "checkpoint.pt"
-    checkpoint.write_bytes(b"checkpoint")
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
+        lambda _model: DiffusionRuntime(
+            "protenix", "protenix-v1-cuda", "/installed/protenix-runner"
+        ),
+    )
     monkeypatch.setattr(
         "dvbfixer.model.diffusion_cli.invoke_runner_preflight",
         lambda **_kwargs: pytest.fail("preflight must follow scope admission"),
@@ -232,10 +208,7 @@ def test_scope_rejection_precedes_runner_preflight(
     args = SimpleNamespace(
         input=str(input_path),
         output=str(tmp_path / "output"),
-        diffusion_checkpoint=str(checkpoint),
-        diffusion_checkpoint_sha256=None,
-        diffusion_profile="protenix-v1-cuda",
-        diffusion_runner="runner",
+        diffusion_model=None,
         diffusion_timeout=1.0,
         diffusion_seeds=[7],
         diffusion_work_parent=None,

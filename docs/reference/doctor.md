@@ -6,8 +6,7 @@
 
 ```
 usage: dvbfixer doctor [-h] [--format {text,json}]
-                       [--diffusion-profile {protenix-v1-cuda,protpardelle-1c-mps}]
-                       [--diffusion-runner PATH] [--diffusion-checkpoint PATH]
+                       [--diffusion-model {protpardelle,protenix}]
                        [--diffusion-timeout SECONDS] [--log-file PATH]
 
 Report optional packages, executables, OpenMM platforms, and diffusion
@@ -18,15 +17,8 @@ options:
   --format {text,json}  Report format (default: text)
 
 Diffusion options:
-  --diffusion-profile {protenix-v1-cuda,protpardelle-1c-mps}
-                        Optionally preflight one experimental diffusion
-                        profile
-  --diffusion-runner PATH
-                        Production runner executable for the selected
-                        diffusion profile
-  --diffusion-checkpoint PATH
-                        Locally provisioned checkpoint for the selected
-                        diffusion profile
+  --diffusion-model {protpardelle,protenix}
+                        Optionally preflight an installed diffusion model
   --diffusion-timeout SECONDS
                         Preflight handshake timeout in seconds (default: 30)
 

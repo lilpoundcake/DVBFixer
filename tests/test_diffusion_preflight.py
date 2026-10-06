@@ -281,3 +281,20 @@ def test_runner_preflight_timeout_cleans_up_inherited_output_pipes(tmp_path: Pat
 
     assert time.monotonic() - started < 2.0
     assert report.passed
+
+
+def test_runner_preflight_allows_launcher_owned_checkpoint(tmp_path: Path) -> None:
+    response = _successful_response()
+    runner = _preflight_runner(
+        tmp_path,
+        "import sys\n"
+        "assert '--checkpoint' not in sys.argv\n"
+        f"print({response.to_json()!r}, end='')",
+    )
+
+    report = invoke_runner_preflight(
+        profile="protenix-v1-cuda",
+        runner=str(runner),
+    )
+
+    assert report.passed

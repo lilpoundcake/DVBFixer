@@ -37,6 +37,9 @@ best-effort summaries; consult `git log` for exact provenance.
 - Raised the runner contract to schema 4 with mandatory per-candidate sampler
   traces, exact generated/fixed sampler-axis identity checks, profile evidence
   labels in publication provenance, and frozen source-tree verification.
+- Replaced per-run diffusion profile, runner, checkpoint, and digest arguments
+  with one-time private backend registration, hardware-aware discovery, and an
+  optional model-level selector.
 
 ### Compatibility
 

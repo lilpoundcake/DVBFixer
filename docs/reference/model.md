@@ -7,10 +7,7 @@
 ```
 usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA]
                       [--backend {modeller,diffusion}]
-                      [--diffusion-profile {protenix-v1-cuda,protpardelle-1c-mps}]
-                      [--diffusion-runner DIFFUSION_RUNNER]
-                      [--diffusion-checkpoint DIFFUSION_CHECKPOINT]
-                      [--diffusion-checkpoint-sha256 DIFFUSION_CHECKPOINT_SHA256]
+                      [--diffusion-model {protpardelle,protenix}]
                       [--diffusion-seed DIFFUSION_SEEDS]
                       [--diffusion-timeout DIFFUSION_TIMEOUT]
                       [--diffusion-work-parent DIFFUSION_WORK_PARENT]
@@ -49,14 +46,9 @@ Backend:
                         experimental)
 
 Diffusion options:
-  --diffusion-profile {protenix-v1-cuda,protpardelle-1c-mps}
-                        Explicit experimental diffusion runtime profile
-  --diffusion-runner DIFFUSION_RUNNER
-                        Protocol-compatible diffusion runner executable
-  --diffusion-checkpoint DIFFUSION_CHECKPOINT
-                        Locally provisioned model checkpoint
-  --diffusion-checkpoint-sha256 DIFFUSION_CHECKPOINT_SHA256
-                        Expected SHA-256 of --diffusion-checkpoint
+  --diffusion-model {protpardelle,protenix}
+                        Diffusion model (default: select an installed model
+                        for this machine)
   --diffusion-seed DIFFUSION_SEEDS
                         Candidate seed; repeat for multiple candidates
                         (default: 7)

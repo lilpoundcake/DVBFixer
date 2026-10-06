@@ -150,6 +150,11 @@ GUI, `zbs`, `homology`, heterogen support, or automatic profile selection.
   source attestation no longer conflicts with an untracked model-parameter link.
 - [x] Bound private runner workspace growth and terminate the complete process
   group when the limit is exceeded; this applies equally to the Apple MPS lane.
+- [x] Replace per-run profile/runner/checkpoint arguments with one-time private
+  backend registration and hardware-aware launcher discovery. The normal Apple
+  command is now `dvbfixer model ... --backend diffusion`; an optional
+  `--diffusion-model protpardelle` only disambiguates model choice. A public CLI
+  smoke using no deployment paths passed on Apple M3 Pro on 2026-10-06.
 - [x] Torch-dependent Boltz research imports made lazy so core CI remains
   Torch-free.
 - [x] Add the diffusion profile report and bounded no-inference handshake to

@@ -23,6 +23,7 @@ from dvbfixer.model.diffusion.preflight import (
     invoke_runner_preflight,
 )
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
+from dvbfixer.model.diffusion.runtime import resolve_diffusion_runtime
 
 PYTHON_PACKAGES = {
     "OpenMM": "openmm", "PDBFixer": "pdbfixer", "Modeller": "modeller",
@@ -58,12 +59,17 @@ def _package_status(module: str) -> dict[str, Any]:
 
 def collect_capabilities(
     *,
+    diffusion_model: str | None = None,
     diffusion_profile: str | None = None,
     diffusion_runner: str | None = None,
     diffusion_checkpoint: str | None = None,
     diffusion_timeout: float = 30.0,
 ) -> dict[str, Any]:
     """Collect capabilities without importing heavyweight optional packages."""
+    if diffusion_model is not None:
+        runtime = resolve_diffusion_runtime(diffusion_model)
+        diffusion_profile = runtime.profile
+        diffusion_runner = runtime.runner
     packages = {name: _package_status(module) for name, module in PYTHON_PACKAGES.items()}
     if packages["Modeller"]["available"]:
         try:
@@ -113,16 +119,16 @@ def collect_capabilities(
         if not diffusion_runner or not runner_path:
             issues.append(AdapterPreflightIssue(
                 AdapterPreflightCode.MISSING_RUNNER,
-                "selecting a diffusion profile requires an executable --diffusion-runner",
+                "the selected diffusion model has no installed executable launcher",
             ))
         checkpoint = Path(diffusion_checkpoint).expanduser() if diffusion_checkpoint else None
-        if checkpoint is None or checkpoint.is_symlink() or not checkpoint.is_file():
+        if checkpoint is not None and (checkpoint.is_symlink() or not checkpoint.is_file()):
             issues.append(AdapterPreflightIssue(
                 AdapterPreflightCode.MISSING_CHECKPOINT,
-                "selecting a diffusion profile requires a regular --diffusion-checkpoint file",
+                "the diffusion checkpoint is not a regular file",
             ))
         if not issues:
-            assert runner_path is not None and checkpoint is not None
+            assert runner_path is not None
             preflight = invoke_runner_preflight(
                 profile=diffusion_profile,
                 runner=runner_path,
@@ -155,19 +161,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help="Report format (default: text)")
     diffusion = parser.add_argument_group("Diffusion options")
     diffusion.add_argument(
-        "--diffusion-profile",
-        choices=tuple(DIFFUSION_PROFILES),
-        help="Optionally preflight one experimental diffusion profile",
-    )
-    diffusion.add_argument(
-        "--diffusion-runner",
-        metavar="PATH",
-        help="Production runner executable for the selected diffusion profile",
-    )
-    diffusion.add_argument(
-        "--diffusion-checkpoint",
-        metavar="PATH",
-        help="Locally provisioned checkpoint for the selected diffusion profile",
+        "--diffusion-model",
+        choices=("protpardelle", "protenix"),
+        help="Optionally preflight an installed diffusion model",
     )
     diffusion.add_argument(
         "--diffusion-timeout",
@@ -181,19 +177,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     args = parser.parse_args(argv)
     if not math.isfinite(args.diffusion_timeout) or args.diffusion_timeout <= 0:
         parser.error("--diffusion-timeout must be a positive finite number")
-    if args.diffusion_profile is None and (
-        args.diffusion_runner is not None or args.diffusion_checkpoint is not None
-    ):
-        parser.error("--diffusion-runner and --diffusion-checkpoint require --diffusion-profile")
     return args
 
 
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
     report = collect_capabilities(
-        diffusion_profile=args.diffusion_profile,
-        diffusion_runner=args.diffusion_runner,
-        diffusion_checkpoint=args.diffusion_checkpoint,
+        diffusion_model=args.diffusion_model,
         diffusion_timeout=args.diffusion_timeout,
     )
     if args.format == "json":

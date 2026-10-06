@@ -325,20 +325,19 @@ engine.
   - `--backend {modeller,diffusion}`;
   - default `modeller`;
   - отдельную `Diffusion options` argparse group;
-  - `--diffusion-profile {protenix-v1-cuda,protpardelle-1c-mps}`;
-  - explicit runner path/spec;
-  - checkpoint path;
-  - optional expected checkpoint digest, если он не закреплён profile spec;
+  - optional `--diffusion-model {protpardelle,protenix}`;
+  - automatic host-compatible profile selection from installed private launchers;
+  - runner, checkpoint path, and checkpoint digest remain backend-installation details and are not public model options;
   - candidate count;
   - seeds;
   - timeout;
   - work-parent;
   - bounded resource overrides только в безопасных пределах.
-- Не добавлять ambiguous `--device auto`, который может молча выбрать другой backend/device.
+- Не добавлять `--device`: model/profile selection is hardware-aware and never falls back to another backend.
 - До preprocessing/runner invocation:
   - отклонять MODELLER-only flags с `--backend diffusion`;
   - отклонять diffusion-only flags с `--backend modeller`;
-  - требовать explicit diffusion profile;
+  - resolve exactly one compatible installed profile, using `--diffusion-model` only when requested or needed to disambiguate;
   - проверять output semantics;
   - проверять batch/GUI restrictions.
 - Production request builder должен:
@@ -424,13 +423,13 @@ evidence и training-membership labels выбранного profile.
 
 - [x] Добавить additive `diffusion` section в `src/dvbfixer/doctor.py`.
 - [x] Обновить exact-key assertions в `tests/test_doctor.py`.
-- [x] Поддержать проверку выбранного profile:
-  - runner presence;
+- [x] Поддержать проверку выбранной модели и автоматически разрешённого profile:
+  - installed private launcher presence;
   - runner protocol/schema;
   - engine/source revision;
   - patch identity;
   - environment/container identity;
-  - checkpoint path and digest;
+  - launcher-owned checkpoint identity and digest;
   - CUDA либо MPS availability;
   - effective device;
   - fallback-disabled status;
@@ -458,7 +457,7 @@ evidence и training-membership labels выбранного profile.
 ## A.12. Документация и generated artifacts
 
 - Обновить user documentation:
-  - CLI examples для обоих profiles;
+  - CLI examples для automatic selection и optional model choice;
   - installation разделы Linux CUDA и Apple MPS;
   - checkpoint provisioning без automatic download;
   - supported scope/rejection reasons;
@@ -530,7 +529,7 @@ evidence и training-membership labels выбранного profile.
 - CLI tests:
   - MODELLER remains default;
   - existing MODELLER invocations unchanged;
-  - explicit profile required;
+  - automatic compatible-profile selection and optional explicit model choice;
   - incompatible option rejection before runner;
   - no fallback;
   - unsupported input no runner invocation;

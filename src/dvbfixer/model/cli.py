@@ -59,21 +59,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     diffusion = p.add_argument_group("Diffusion options")
     diffusion.add_argument(
-        "--diffusion-profile",
-        choices=("protenix-v1-cuda", "protpardelle-1c-mps"),
-        help="Explicit experimental diffusion runtime profile",
-    )
-    diffusion.add_argument(
-        "--diffusion-runner",
-        help="Protocol-compatible diffusion runner executable",
-    )
-    diffusion.add_argument(
-        "--diffusion-checkpoint",
-        help="Locally provisioned model checkpoint",
-    )
-    diffusion.add_argument(
-        "--diffusion-checkpoint-sha256",
-        help="Expected SHA-256 of --diffusion-checkpoint",
+        "--diffusion-model",
+        choices=("protpardelle", "protenix"),
+        help="Diffusion model (default: select an installed model for this machine)",
     )
     diffusion.add_argument(
         "--diffusion-seed",
@@ -187,10 +175,7 @@ def _validate_backend_options(
     argv: list[str],
 ) -> None:
     diffusion_options = {
-        "--diffusion-profile",
-        "--diffusion-runner",
-        "--diffusion-checkpoint",
-        "--diffusion-checkpoint-sha256",
+        "--diffusion-model",
         "--diffusion-seed",
         "--diffusion-timeout",
         "--diffusion-work-parent",
@@ -204,12 +189,6 @@ def _validate_backend_options(
             )
         return
 
-    for name in ("diffusion_profile", "diffusion_runner", "diffusion_checkpoint"):
-        if not getattr(args, name):
-            parser.error(
-                "--backend diffusion requires --diffusion-profile, "
-                "--diffusion-runner, and --diffusion-checkpoint"
-            )
     if not math.isfinite(args.diffusion_timeout) or args.diffusion_timeout <= 0:
         parser.error("--diffusion-timeout must be a positive finite number")
     seeds = args.diffusion_seeds or [7]

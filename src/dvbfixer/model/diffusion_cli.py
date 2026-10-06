@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import os
 from pathlib import Path
 
 from dvbfixer.model.cli import AA3TO1
@@ -27,6 +26,10 @@ from dvbfixer.model.diffusion.masks import (
 from dvbfixer.model.diffusion.pipeline import run_diffusion_pipeline
 from dvbfixer.model.diffusion.preflight import invoke_runner_preflight
 from dvbfixer.model.diffusion.runner import RunnerLimits
+from dvbfixer.model.diffusion.runtime import (
+    DiffusionRuntimeError,
+    resolve_diffusion_runtime,
+)
 from dvbfixer.model.diffusion.scope import (
     MAXIMUM_GAP_LENGTH,
     MINIMUM_GAP_LENGTH,
@@ -242,21 +245,17 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
     if output_path.exists() or output_path.is_symlink():
         raise DiffusionCliError(f"diffusion output directory already exists: {output_path}")
 
-    checkpoint = Path(args.diffusion_checkpoint).expanduser().resolve()
-    if not checkpoint.is_file():
-        raise DiffusionCliError(f"diffusion checkpoint does not exist: {checkpoint}")
-    expected_digest = args.diffusion_checkpoint_sha256
-    if expected_digest:
-        actual_digest = _sha256(checkpoint)
-        if actual_digest.lower() != expected_digest.lower():
-            raise DiffusionCliError("diffusion checkpoint SHA-256 does not match")
+    try:
+        runtime = resolve_diffusion_runtime(args.diffusion_model)
+    except DiffusionRuntimeError as exc:
+        raise DiffusionCliError(str(exc)) from exc
 
     target_sequences = _target_sequences(input_path, args.fasta)
     request = build_cli_diffusion_request(
         input_path,
         target_sequences,
         seeds=tuple(args.diffusion_seeds),
-        profile=args.diffusion_profile,
+        profile=runtime.profile,
     )
     work_parent_value = args.diffusion_work_parent
     work_parent = (
@@ -276,11 +275,9 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
             + ", ".join(admission.reasons)
         )
 
-    runner = os.fspath(Path(args.diffusion_runner).expanduser())
     preflight = invoke_runner_preflight(
-        profile=args.diffusion_profile,
-        runner=runner,
-        checkpoint=checkpoint,
+        profile=runtime.profile,
+        runner=runtime.runner,
         timeout_seconds=args.diffusion_timeout,
     )
     if not preflight.passed:
@@ -289,11 +286,9 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
         )
         raise DiffusionCliError(f"diffusion runner preflight failed: {reasons}")
     command = (
-        runner,
+        runtime.runner,
         "--profile",
-        args.diffusion_profile,
-        "--checkpoint",
-        os.fspath(checkpoint),
+        runtime.profile,
     )
     outcome = run_diffusion_pipeline(
         request,
@@ -330,11 +325,3 @@ def _one_to_three(one_letter: str) -> str:
     if not matches:
         raise DiffusionCliError(f"non-canonical target residue is unsupported: {one_letter}")
     return matches[0]
-
-
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        while chunk := handle.read(1024 * 1024):
-            digest.update(chunk)
-    return digest.hexdigest()

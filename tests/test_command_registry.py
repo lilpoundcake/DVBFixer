@@ -81,9 +81,7 @@ def test_gui_schema_excludes_doctor_diffusion_options() -> None:
     flags = {field["flag"] for field in doctor["flags"]}
 
     assert not flags & {
-        "--diffusion-profile",
-        "--diffusion-runner",
-        "--diffusion-checkpoint",
+        "--diffusion-model",
         "--diffusion-timeout",
     }
 

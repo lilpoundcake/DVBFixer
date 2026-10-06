@@ -108,27 +108,26 @@ platform. It is not MPS acceleration.
 
 ## Experimental CLI protocol runner
 
-The Apple environment can expose the frozen profile to the core CLI through:
+Register the frozen backend once from the native Apple environment:
 
 ```bash
-export PYTHONNOUSERSITE=1
-export PYTORCH_ENABLE_MPS_FALLBACK=0
-
-dvbfixer model INPUT.pdb --fasta TARGET.fasta \
-  --backend diffusion \
-  --diffusion-profile protpardelle-1c-mps \
-  --diffusion-runner "$DVBFIXER_ROOT/deploy/protpardelle-1c/production_runner.py" \
-  --diffusion-checkpoint "$MODEL_PARAMS/weights/cc89_epoch415.pth" \
-  -o OUTPUT_BUNDLE
+python "$DVBFIXER_ROOT/scripts/install_diffusion_backend.py" \
+  protpardelle "$MODEL_PARAMS/weights/cc89_epoch415.pth" \
+  --engine-root "$PROTPARDELLE_ROOT"
 ```
 
-Run the command from the native Protpardelle environment so the runner shebang
-resolves that environment's Python. `MODEL_PARAMS` must also contain
-`configs/cc89.yaml`. The wrapper derives `PROTPARDELLE_MODEL_PARAMS` from this
-checkpoint layout before importing Protpardelle, so the clean engine checkout
-does not need an untracked `model_params` symlink. It uses the frozen 500-step
-float32 MPS settings, disables per-step reinjection, performs generated-only
-OpenMM refinement on the CPU, and writes the versioned `result.json` expected by
-core DVBFixer. Provenance continues to identify MPS as the sampling device and
-records CPU refinement separately. Core DVBFixer remains responsible for
-independent validation and atomic publication.
+The installed private launcher binds the backend Python, runner, checkpoint,
+and required MPS environment. Normal use therefore contains no deployment
+paths:
+
+```bash
+dvbfixer model INPUT.pdb --fasta TARGET.fasta \
+  --backend diffusion -o OUTPUT_BUNDLE
+```
+
+`MODEL_PARAMS` must also contain `configs/cc89.yaml`. The wrapper derives
+`PROTPARDELLE_MODEL_PARAMS` from this checkpoint layout before importing
+Protpardelle. It uses the frozen 500-step float32 MPS settings, disables
+per-step reinjection, performs generated-only OpenMM refinement on the CPU, and
+writes the versioned `result.json` expected by core DVBFixer. Core DVBFixer
+remains responsible for independent validation and atomic publication.

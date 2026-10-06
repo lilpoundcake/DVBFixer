@@ -47,11 +47,7 @@ dvbfixer model input.pdb --keep-workdir -v
 
 # Experimental diffusion; -o is a new directory bundle, not a PDB file
 dvbfixer model input.pdb --fasta sequence.fasta \
-  --backend diffusion \
-  --diffusion-profile protpardelle-1c-mps \
-  --diffusion-runner /path/to/protocol-runner \
-  --diffusion-checkpoint /path/to/cc89_epoch415.pth \
-  -o input_model_diffusion
+  --backend diffusion -o input_model_diffusion
 ```
 
 ### Experimental diffusion scope
@@ -63,10 +59,10 @@ the gap. Heterogens, noncanonical residues, terminal or multiple gaps, ambiguous
 sequence placement, and unsupported links fail before the external runner is
 started. Batch mode, GUI, `zbs`, and `homology` do not expose diffusion.
 
-The runner receives the versioned `request.json` protocol and must write a valid
-`result.json` plus contained candidate artifacts. DVBFixer invokes it as `RUNNER
---profile PROFILE --checkpoint CHECKPOINT`; the request and result names are also
-provided through the existing protocol environment. DVBFixer then independently
+An installed private launcher receives the versioned `request.json` protocol and
+must write a valid `result.json` plus contained candidate artifacts. The launcher
+encapsulates the backend environment, runtime profile, runner, and checkpoint;
+none are per-run file arguments. DVBFixer then independently
 checks identity, complete generated heavy atoms, fixed-coordinate preservation,
 peptide closure, clashes, geometry, and chirality. A successful output directory
 contains candidate PDB/`.dat`/provenance files, a bounded digest-verified sampler
@@ -80,10 +76,7 @@ after validation succeeds.
 | `-o`, `--output` | `<input>_model.pdb` | Output file path |
 | `--fasta` | none | FASTA file with complete sequence(s) (alternative to SEQRES) |
 | `--backend` | `modeller` | Select `modeller` or the explicit experimental `diffusion` path |
-| `--diffusion-profile` | none | Required diffusion profile: `protenix-v1-cuda` or `protpardelle-1c-mps` |
-| `--diffusion-runner` | none | Required protocol-compatible executable; engine dependencies remain outside the core environment |
-| `--diffusion-checkpoint` | none | Required local checkpoint; never downloaded automatically |
-| `--diffusion-checkpoint-sha256` | none | Optional expected checkpoint digest checked before runner launch |
+| `--diffusion-model` | auto | Optional model choice: `protpardelle` or `protenix`; by default DVBFixer selects an installed model compatible with the machine |
 | `--diffusion-seed` | 7 | Candidate seed; repeat for multiple candidates |
 | `--diffusion-timeout` | 300 | External runner timeout in seconds |
 | `--diffusion-work-parent` | output parent | Existing directory under which the private runner workspace is created |

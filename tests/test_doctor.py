@@ -57,10 +57,7 @@ def test_selected_profile_omissions_are_structured_issues():
         "selected_profile"
     ]
     assert selected["passed"] is False
-    assert {issue["code"] for issue in selected["issues"]} == {
-        "missing-runner",
-        "missing-checkpoint",
-    }
+    assert {issue["code"] for issue in selected["issues"]} == {"missing-runner"}
 
 
 def test_successful_handshake_is_sanitized(
@@ -112,7 +109,5 @@ def test_diffusion_timeout_must_be_positive_and_finite(timeout):
         parse_args(["--diffusion-timeout", timeout])
 
 
-@pytest.mark.parametrize("option", ["--diffusion-runner", "--diffusion-checkpoint"])
-def test_diffusion_paths_require_a_selected_profile(option):
-    with pytest.raises(SystemExit):
-        parse_args([option, "/tmp/value"])
+def test_doctor_accepts_optional_diffusion_model():
+    assert parse_args(["--diffusion-model", "protpardelle"]).diffusion_model == "protpardelle"
