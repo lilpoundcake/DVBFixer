@@ -126,10 +126,11 @@ def test_manifest_records_auditable_evidence_without_raw_diagnostics(
     }
     assert payload["candidate"]["seed"] == 7
     assert payload["requested_profile"] == "protenix-v1-cuda"
-    assert payload["profile_status"] == "hardware-acceptance-pending"
+    assert payload["profile_status"] == "single-case-hardware-accepted-cohort-pending"
     assert payload["profile_evidence_labels"] == [
         "experimental",
         "confirmatory-selected-in-frozen-scope",
+        "public-cli-single-case-accepted",
     ]
     assert payload["training_membership_status"] == (
         "temporally-eligible-frozen-cohort"

@@ -150,8 +150,8 @@ checkpoints and never falls back to another profile or MODELLER.
 
 - Linux/NVIDIA `protenix-v1-cuda`: follow
   [`deploy/protenix-v1/README.md`](../deploy/protenix-v1/README.md). The portable
-  wrapper exists, but checkpoint-backed acceptance on the pinned NVIDIA host is
-  still required.
+  wrapper and one public-CLI reconstruction passed on the pinned NVIDIA host;
+  the frozen 231-case production-wrapper replay remains pending.
 - Native Apple Silicon `protpardelle-1c-mps`: follow
   [`deploy/protpardelle-1c/README.md`](../deploy/protpardelle-1c/README.md) and
   use its pinned arm64 environment. Set `PYTORCH_ENABLE_MPS_FALLBACK=0` before

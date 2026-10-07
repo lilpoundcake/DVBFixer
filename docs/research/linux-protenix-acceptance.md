@@ -97,12 +97,38 @@ generated atoms. The adapter now projects the canonical axis onto that exact
 request set before materialization and trace publication, without weakening the
 full-tensor per-step reinjection callback.
 
+## Public CLI Acceptance
+
+The installed private launcher was exercised through the public command, not by
+calling the research adapter directly:
+
+```bash
+dvbfixer model normalized.pdb --fasta target.fasta \
+  --backend diffusion --diffusion-model protenix \
+  --diffusion-work-parent /tmp/opencode -o /tmp/opencode/protenix-cli-e2e-36hb
+```
+
+Case `36hb` completed request construction, scope admission, runner preflight,
+subprocess execution, A100 sampling, localized refinement, independent
+validation, and atomic bundle publication. The bundle status is `success`, its
+candidate has no hard-gate failures, and the final PDB SHA-256 is the same
+deterministic seed-7 identity recorded above:
+`664e65f90a9a7ec6abdd762008b6f28fe20d2e47eaab576bdf1830a246b61ea4`.
+
+This run found and fixed two integration defects that direct adapter execution
+could not expose: the installed launcher now binds the current DVBFixer source,
+pinned engine source, backend Python, and digest-verified Kalign; core preflight
+now expects the production runner's exact profile-lock environment identity.
+The repository bind mount does not support `renameat2(RENAME_NOREPLACE)`, so the
+accepted run used a native `/tmp/opencode` work/output filesystem. Publication
+remains fail-closed on filesystems without atomic no-replace directory rename.
+
 ## Verification
 
-- Focused Protenix and preflight tests after final edits: `31 passed in 2.11s`
-  with `PYTHONPATH=src`.
-- Full non-slow repository suite with source isolation: `977 passed, 6 skipped,
-  31 deselected in 260.59s`. The skips require unavailable GROMACS; existing
+- Focused installer, Protenix preflight, doctor, provenance, CLI, runtime, and
+  pipeline tests after final edits: `69 passed in 2.00s` with `PYTHONPATH=src`.
+- Full non-slow repository suite with source isolation: `990 passed, 6 skipped,
+  31 deselected in 259.90s`. The skips require unavailable GROMACS; existing
   Python 3.13 teardown warnings from `batch._Mirror` remain non-fatal.
 - Ruff on the changed Python surfaces: passed.
 - Callback patch application check against the exact source revision: passed.

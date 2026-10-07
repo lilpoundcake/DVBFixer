@@ -8,7 +8,8 @@
   operator-managed external environment and checkpoint and never falls back to
   MODELLER or another device. The Apple MPS smoke passed, but its evidence is
   descriptive and training membership remains unresolved. The Linux/CUDA
-  production wrapper still requires checkpoint-backed NVIDIA acceptance.
+  production wrapper passed a checkpoint-backed public-CLI case on the pinned
+  A100 host, but its frozen 231-case replay remains pending.
   Each candidate bundle includes a bounded, digest-verified sampler trace.
   `doctor` now reports static profile status and can perform a selected-profile,
   no-inference runner handshake; a passing handshake does not replace the
@@ -18,6 +19,11 @@
   are required to keep writes inside that workspace; use an external sandbox
   or container when this must be enforced. See
   [the model command](commands/model.md#experimental-diffusion-scope).
+  Bundle publication also requires filesystem support for atomic no-replace
+  directory rename (`renameat2(RENAME_NOREPLACE)` on Linux). Some bind-mounted
+  or shared filesystems reject it; place both `--diffusion-work-parent` and the
+  output bundle on a native local filesystem rather than weakening publication
+  atomicity.
 
 - **OpenMM CUDA must not use a toolkit newer than the host driver supports.**
   The A100 research host uses NVIDIA driver `535.104.05` (CUDA 12.2

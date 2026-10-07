@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import shlex
 import stat
 import sys
@@ -20,6 +21,7 @@ class Backend:
     launcher: str
     checkpoint_sha256: str
     engine_python_subdir: str
+    kalign_sha256: str | None = None
     mps: bool = False
 
 
@@ -36,6 +38,7 @@ BACKENDS = {
         "dvbfixer-diffusion-protenix-v1-cuda",
         "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04",
         ".",
+        kalign_sha256="057e7d91f5a56491e7dd097629b4b72a323295716a46de36d447581870597bbc",
     ),
 }
 
@@ -59,6 +62,11 @@ def main() -> None:
         type=Path,
         help="Pinned, patched engine checkout (needed when it is not installed cleanly)",
     )
+    parser.add_argument(
+        "--kalign",
+        type=Path,
+        help="Pinned Kalign executable required by the Protenix profile",
+    )
     args = parser.parse_args()
 
     repository = Path(__file__).resolve().parent.parent
@@ -72,19 +80,35 @@ def main() -> None:
     if _sha256(checkpoint) != backend.checkpoint_sha256:
         parser.error(f"checkpoint does not match the frozen {args.model} model")
 
-    environment = ["export PYTHONNOUSERSITE=1"]
+    python_paths = [repository / "src"]
     if args.engine_root is not None:
         engine_root = args.engine_root.expanduser().resolve()
         engine_python_path = engine_root / backend.engine_python_subdir
         if not engine_python_path.is_dir():
             parser.error(f"engine Python source directory is missing: {engine_python_path}")
-        environment.append(f"export PYTHONPATH={shlex.quote(str(engine_python_path))}")
+        python_paths.insert(0, engine_python_path)
+    environment = [
+        "export PYTHONNOUSERSITE=1",
+        "export PYTHONDONTWRITEBYTECODE=1",
+        f"export PYTHONPATH={shlex.quote(os.pathsep.join(map(str, python_paths)))}",
+    ]
+    if backend.kalign_sha256 is not None:
+        if args.kalign is None:
+            parser.error(f"--kalign is required for the {args.model} backend")
+        kalign = args.kalign.expanduser().resolve()
+        if not kalign.is_file() or not os.access(kalign, os.X_OK):
+            parser.error(f"Kalign is not an executable file: {kalign}")
+        if _sha256(kalign) != backend.kalign_sha256:
+            parser.error(f"Kalign does not match the frozen {args.model} profile")
+        environment.append(f"export PATH={shlex.quote(str(kalign.parent))}:$PATH")
     if backend.mps:
-        environment.extend((
-            "export PYTORCH_ENABLE_MPS_FALLBACK=0",
-            "unset PYTORCH_MPS_FAST_MATH PYTORCH_MPS_PREFER_METAL",
-            "unset PYTORCH_MPS_HIGH_WATERMARK_RATIO PYTORCH_MPS_LOW_WATERMARK_RATIO",
-        ))
+        environment.extend(
+            (
+                "export PYTORCH_ENABLE_MPS_FALLBACK=0",
+                "unset PYTORCH_MPS_FAST_MATH PYTORCH_MPS_PREFER_METAL",
+                "unset PYTORCH_MPS_HIGH_WATERMARK_RATIO PYTORCH_MPS_LOW_WATERMARK_RATIO",
+            )
+        )
     command = " ".join(
         shlex.quote(value)
         for value in (

@@ -63,25 +63,27 @@ explicit `protenix-v1-cuda` profile. It freezes the audited Protenix revision,
 callback patch, PyTorch/CUDA identity, 200-step per-step reinjection settings,
 and deterministic OpenMM `Reference` boundary refinement.
 
-The wrapper is committed and dependency-light tests run in core CI, but its
-checkpoint-backed acceptance remains intentionally pending until it is executed
-on a Linux/NVIDIA host. Do not treat the profile as hardware-accepted based on
-macOS tests.
+The wrapper is committed, dependency-light tests run in core CI, and a
+checkpoint-backed public-CLI reconstruction passed on the pinned Linux/A100
+host. The frozen 231-case production-wrapper replay remains pending; do not
+interpret the single-case result as broad hardware or scientific acceptance.
 
 On the pinned Linux environment:
 
 ```bash
-python "$DVBFIXER_ROOT/scripts/install_diffusion_backend.py" \
+/path/to/protenix-env/bin/python "$DVBFIXER_ROOT/scripts/install_diffusion_backend.py" \
   protenix /path/to/protenix_base_default_v1.0.0.pt \
-  --engine-root /path/to/Protenix
+  --engine-root /path/to/Protenix \
+  --kalign /path/to/kalign
 
 dvbfixer model INPUT.pdb --fasta TARGET.fasta \
   --backend diffusion -o OUTPUT_BUNDLE
 ```
 
-The one-time installer verifies the frozen checkpoint digest and creates a
-private launcher bound to the backend environment. Runtime profile, runner,
-checkpoint, and digest are not user-facing model options.
+The one-time installer verifies the frozen checkpoint and Kalign digests and
+creates a private launcher bound to that Python environment, this DVBFixer
+checkout, and the pinned engine source. Runtime profile, runner, checkpoint,
+and digest are not per-run model options.
 
 The runner requires Linux amd64, Python 3.13.15, PyTorch 2.13.0, CUDA 12.9, the
 NVIDIA A100-SXM4-40GB device class, digest-pinned Kalign 3.6.0, the exact patched
@@ -95,5 +97,5 @@ verifies its digest, critical installed package versions, and Kalign executable
 before loading Protenix. It also records the pinned CUDA base-image digest; a
 built image's final digest and a complete accepted package export remain
 operator evidence. The image digest may be supplied as
-`DVBFIXER_PROTENIX_IMAGE_DIGEST`. Checkpoint-backed hardware acceptance and the
-frozen cohort are still pending.
+`DVBFIXER_PROTENIX_IMAGE_DIGEST`. The final image build, self-hosted lane, and
+frozen 231-case cohort are still pending.

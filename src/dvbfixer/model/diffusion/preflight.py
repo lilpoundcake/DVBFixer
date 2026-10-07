@@ -94,8 +94,12 @@ class DiffusionProfileMetadata:
 DIFFUSION_PROFILES = {
     "protenix-v1-cuda": DiffusionProfileMetadata(
         profile="protenix-v1-cuda",
-        status="hardware-acceptance-pending",
-        evidence_labels=("experimental", "confirmatory-selected-in-frozen-scope"),
+        status="single-case-hardware-accepted-cohort-pending",
+        evidence_labels=(
+            "experimental",
+            "confirmatory-selected-in-frozen-scope",
+            "public-cli-single-case-accepted",
+        ),
         engine="Protenix v1",
         source_revision="85767b811c40ed46e73a9b39519cf6bfca8701ba",
         patch_identity="sha256:cc4153be3dfd241124ea183d592884799300046b6ea7d3eccae8409b9fe21aa0",
@@ -147,7 +151,10 @@ _PROFILE_RUNTIME_EXPECTATIONS = {
         python_version="3.13",
         framework_version="2.13.0",
         device_prefix="cuda:",
-        environment_identity="linux-amd64;python=3.13;torch=2.13.0;cuda=12.9",
+        environment_identity=(
+            "linux-amd64;profile-lock-sha256="
+            "3fb3661be2b6748650b90bf9b0aaa7a09cbba9accc13253a6c29f644001b5d2e"
+        ),
     ),
     "protpardelle-1c-mps": _RuntimeExpectation(
         platform="darwin",

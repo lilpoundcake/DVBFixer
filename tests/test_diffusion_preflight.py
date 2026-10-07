@@ -137,7 +137,8 @@ def _successful_response(profile_name: str = "protenix-v1-cuda") -> RunnerPrefli
             engine_revision=profile.source_revision,
             patch_identity=profile.patch_identity,
             environment_identity=(
-                "linux-amd64;python=3.13;torch=2.13.0;cuda=12.9"
+                "linux-amd64;profile-lock-sha256="
+                "3fb3661be2b6748650b90bf9b0aaa7a09cbba9accc13253a6c29f644001b5d2e"
                 if is_cuda
                 else "macos-arm64;python=3.12;torch=2.6.0"
             ),
