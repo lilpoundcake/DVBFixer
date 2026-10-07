@@ -1,7 +1,7 @@
 # Linux Diffusion Expansion Implementation Plan
 
-- Status: proposed implementation plan; execute work packages only after explicit
-  approval.
+- Status: proposed implementation plan rebased onto the 2026-10-06 expansion
+  baseline; execute work packages only after explicit approval.
 - Target branch: `feature/dvbfixer-hardening`.
 - Scope owner: Structure Preparation bounded context.
 - Exclusive coordinating change group: `missing-atom-rebuild-chirality`.
@@ -25,12 +25,37 @@
   score scales into one synthetic score.
 - [ ] Replace the global 3-12 gap limit with profile-specific, evidence-backed
   capability strata.
-- [ ] Implement surrounding-aware gap reconstruction in which the sampler
-  demonstrably consumes fixed same-chain and neighboring-chain context.
-- [ ] Add backend-aware batch output, diffusion-enabled `zbs`, and mosaic-first
-  diffusion for `homology` without changing MODELLER defaults.
+- [ ] Complete causal acceptance and broader engine support for surrounding-aware
+  gap reconstruction, building on the implemented Protpardelle local-partner
+  conditioning slice.
+- [ ] Add backend-aware batch output and diffusion-enabled `zbs`, and expand the
+  implemented one-chain mosaic-first `homology` slice without changing MODELLER
+  defaults.
 - [ ] Preserve fail-closed admission, independent validation, atomic bundle
   publication, exact identities, and zero D-C-alpha output throughout.
+
+## Current Expansion Baseline
+
+- [x] Multichain input, multiple ordinary gaps, and independent per-gap-bearing-
+  chain Protpardelle invocations are implemented.
+- [x] Protpardelle receives deterministic contiguous crops from neighboring
+  canonical protein chains when fixed heavy atoms are within `12 A` of a gap
+  anchor. Partner atoms enter the real multichain motif axis and are recorded in
+  sampler trace context mappings.
+- [x] The current partner selection expands each contact crop by two sequence
+  neighbors, retains contiguous observed runs, and obeys the 512-residue axis
+  budget.
+- [x] N-terminal and C-terminal one-anchor generation is implemented for the
+  accepted Protpardelle profile, with broader frozen hardware cohorts pending.
+- [x] An initial one-chain mosaic-first Homology insertion slice is implemented
+  in CLI and GUI with authoritative coverage metadata and fixed covered atoms.
+- [x] An isolated authoritative-SMILES fixed-ligand geometric-repulsion slice is
+  implemented but remains separate from learned surrounding-protein context and
+  from general heterogen support.
+- [ ] Existing local-partner evidence is a checkpoint smoke, not the required
+  frozen interface cohort or causal partner-on/off ablation.
+- [ ] Multiple gap-bearing chains are not jointly sampled and the current crop
+  does not adapt to the predicted gap trajectory.
 
 ## Non-Goals
 
@@ -234,15 +259,21 @@
   - [ ] No aggregate score hides a hard-gate failure or compares unlike
     objectives as if they shared a physical scale.
 
-## WP5: Backend-Neutral Context Contract
+## WP5: Backend-Neutral Context Contract Expansion
 
 - Suggested owner: contract coordinator; this package lands before any adapter.
 - Owned surfaces:
   - `src/dvbfixer/model/diffusion/contract.py`;
   - protocol serialization and compatibility tests;
   - provenance and sampler-trace schemas.
+- Existing baseline:
+  - [x] Schema version 4 records exact partner-chain/atom conditioning contexts
+    and verifies represented fixed atoms in sampler traces.
+  - [x] Existing provenance distinguishes local protein-partner context and
+    fixed heterogen context.
 - Tasks:
-  - [ ] Version the protocol and represent four disjoint atom roles:
+  - [ ] Extend the protocol to represent four disjoint atom roles consistently
+    across protein, mosaic, and future supported chemistry context:
     - `generated`;
     - `movable-junction`;
     - `fixed-conditioning`;
@@ -265,24 +296,30 @@
   - [ ] A result cannot claim surrounding-aware behavior unless the trace proves
     that the declared fixed context was represented and consumed by the sampler.
 
-## WP6: Deterministic Context Selection
+## WP6: Deterministic Context Selection Expansion
 
 - Suggested owner: context-selection agent.
 - Owned surfaces:
   - a new backend-neutral context-selection module under
     `src/dvbfixer/model/diffusion/`;
   - scope/admission integration and focused tests.
+- Existing baseline:
+  - [x] Protpardelle selects contiguous partner-chain crops within `12 A` of the
+    original anchors, expands by two sequence neighbors, and enforces a shared
+    512-residue axis budget.
 - Tasks:
   - [ ] Always include both anchors and complete selected residues.
-  - [ ] Include configurable same-chain sequence flanks, initially evaluated at
-    8 and 16 residues on each side.
-  - [ ] Select complete protein residues from all chains when any heavy atom lies
-    within preregistered shells:
+  - [ ] Compare the current selector with configurable same-chain sequence
+    flanks, initially evaluated at 8 and 16 residues on each side.
+  - [ ] Compare the current `12 A` anchor selector with complete-residue spatial
+    shells preregistered before outcome-bearing runs:
     - direct context: at most `6 A` from a generated or junction atom;
     - secondary context: greater than `6 A` and at most `10 A`;
     - distant context: ablation-only negative control.
-  - [ ] Expand selected contacts into contiguous chain fragments where required
-    by an engine, recording every expansion.
+  - [x] Expand selected Protpardelle contacts into contiguous chain fragments
+    and record the expansion.
+  - [ ] Generalize the expansion policy into a backend-neutral selector rather
+    than duplicating it in each engine adapter.
   - [ ] Enforce a deterministic context budget with priority order: anchors,
     direct contacts, interface residues, secondary shell, then sequence flanks.
   - [ ] Preserve case-distinct chains and insertion codes; never select through
@@ -319,13 +356,19 @@
 - Owned surfaces:
   - `deploy/protpardelle-1c/` research/audit scripts;
   - compact-model evidence documents.
+- Existing baseline:
+  - [x] The pinned model accepts neighboring canonical protein crops as separate
+    chains on the real multichain motif axis.
+  - [x] Exact target-to-partner chain and atom mappings are recorded and checked
+    against represented fixed sampler atoms.
 - Tasks:
-  - [ ] Determine whether the pinned model natively consumes discontinuous
-    same-chain context, multiple chains, chain identity, and fixed coordinates.
-  - [ ] Prove actual denoiser feature consumption with controlled perturbation or
-    hook evidence; input serialization alone is insufficient.
-  - [ ] If multichain context is unsupported, label the existing profile
-    `preservation-only` for neighboring chains and do not expose a fake adapter.
+  - [ ] Prove causal denoiser use with controlled partner-on/off and perturbed-
+    context ablations; motif-axis representation alone is insufficient for the
+    final scientific claim.
+  - [ ] Quantify which discontinuous same-chain, multiple-chain, chain-identity,
+    and fixed-coordinate features affect generated coordinates.
+  - [ ] Retain `local-partner-conditioned` rather than whole-complex terminology
+    until joint-sampling and frozen interface gates pass.
   - [ ] Do not concatenate neighboring chains with the target sequence.
 
 ### WP7C: Purpose-Trained Compact Context Model, If Required
@@ -452,22 +495,32 @@
   - `src/dvbfixer/homology_plan.py`;
   - Homology backend orchestration;
   - Homology fixtures and focused tests.
+- Existing baseline:
+  - [x] `homology --backend diffusion` and the GUI Model workflow use
+    `selected_template_mosaic.pdb` as the authoritative frame.
+  - [x] Companion coverage records zero-based half-open masks, precedence,
+    template ownership, and fixed covered atoms in provenance.
+  - [x] A one-chain five-residue internal insertion passed a checkpoint-backed
+    MPS smoke without fixed-coordinate drift.
 - Contract tasks:
-  - [ ] Keep `selected_template_mosaic.pdb` as the single authoritative
+  - [x] Keep `selected_template_mosaic.pdb` as the single authoritative
     coordinate frame.
-  - [ ] Export versioned coverage metadata from `materialize_template_plan`:
+  - [x] Export versioned coverage metadata from `materialize_template_plan`:
     target chain, template ownership, zero-based half-open spans, fixed/movable/
     generated masks, source provenance, and frame transforms.
-  - [ ] Never reconstruct template ownership later from the serialized PDB.
-  - [ ] Feed covered mosaic atoms and supported neighboring template chains into
-    the WP5 fixed-conditioning context contract.
+  - [x] Never reconstruct template ownership later from the serialized PDB.
+  - [ ] Feed supported neighboring template chains through the expanded WP5
+    fixed-conditioning contract and prove causal context use.
 - Initial slice:
-  - [ ] Support one target chain and one internal uncovered insertion.
-  - [ ] Generate only uncovered residues and a bounded junction window.
-  - [ ] Keep every covered template atom fixed and validate mosaic adherence.
+  - [x] Support one target chain and one internal uncovered insertion.
+  - [x] Generate uncovered insertion and terminal residues while covered
+    sequence mismatches remain fail closed.
+  - [x] Keep every covered template atom fixed and validate mosaic adherence.
   - [ ] Compare diffusion and MODELLER from the identical target and template
     plan.
 - Expansion sequence:
+  - [ ] Generate template-covered substitutions through explicit bounded
+    junction windows.
   - [ ] Multiple uncovered spans.
   - [ ] Substitutions and deletions.
   - [ ] Multiple templates already fitted into the shared reference frame.
