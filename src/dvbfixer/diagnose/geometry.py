@@ -11,10 +11,34 @@ from __future__ import annotations
 import math
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
+from types import MappingProxyType
 from typing import Any
 
 Point3 = tuple[float, float, float]
 GEOMETRY_SCHEMA_VERSION = "dvbfixer.geometry.v1"
+
+# Standard MolProbity/contact_dots van der Waals radii in angstroms.
+VDW_RADII_ANGSTROM: Mapping[str, float] = MappingProxyType(
+    {
+        "H": 1.20,
+        "C": 1.70,
+        "N": 1.55,
+        "O": 1.52,
+        "S": 1.80,
+        "P": 1.80,
+        "F": 1.47,
+        "CL": 1.75,
+        "BR": 1.85,
+        "I": 1.98,
+        "SE": 1.90,
+        "MG": 1.73,
+        "CA": 2.31,
+        "NA": 2.27,
+        "K": 2.75,
+        "ZN": 1.39,
+        "FE": 2.00,
+    }
+)
 
 
 @dataclass(frozen=True, order=True)
@@ -271,8 +295,12 @@ def signed_dihedral_degrees(
     right = sub(p4, p3)
     left_projection = dot(left, unit)
     right_projection = dot(right, unit)
-    left = sub(left, tuple(left_projection * value for value in unit))
-    right = sub(right, tuple(right_projection * value for value in unit))
+    left = sub(
+        left, (left_projection * unit[0], left_projection * unit[1], left_projection * unit[2])
+    )
+    right = sub(
+        right, (right_projection * unit[0], right_projection * unit[1], right_projection * unit[2])
+    )
     if math.sqrt(dot(left, left)) <= 1e-12 or math.sqrt(dot(right, right)) <= 1e-12:
         return None
     return math.degrees(math.atan2(dot(cross(unit, left), right), dot(left, right)))

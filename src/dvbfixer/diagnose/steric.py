@@ -19,30 +19,14 @@ from pathlib import Path
 from typing import Any
 
 from dvbfixer.diagnose._common import HBOND_HEAVY_ELEMENTS, is_water
-from dvbfixer.diagnose.geometry import GeometryMeasurement, atom_identity
+from dvbfixer.diagnose.geometry import (
+    VDW_RADII_ANGSTROM,
+    GeometryMeasurement,
+    atom_identity,
+)
 from dvbfixer.diagnose.report import Finding, Severity
 
-# van der Waals radii (Å). Standard values from the MolProbity dataset
-# (contact_dots.py) — matches most other structure-quality tools.
-_VDW_A: dict[str, float] = {
-    "H": 1.20,
-    "C": 1.70,
-    "N": 1.55,
-    "O": 1.52,
-    "S": 1.80,
-    "P": 1.80,
-    "F": 1.47,
-    "CL": 1.75,
-    "BR": 1.85,
-    "I": 1.98,
-    "SE": 1.90,
-    "MG": 1.73,
-    "CA": 2.31,
-    "NA": 2.27,
-    "K": 2.75,
-    "ZN": 1.39,
-    "FE": 2.00,
-}
+_VDW_A = VDW_RADII_ANGSTROM
 
 # Preset clash cutoffs (WARN, ERROR) in Å of vdW overlap. Selectable
 # at the CLI via ``--clash-mode``.

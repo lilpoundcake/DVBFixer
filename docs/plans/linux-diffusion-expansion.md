@@ -192,24 +192,24 @@
   - new pure measurement modules approved by the coordinator;
   - focused geometry tests.
 - Tasks:
-  - [ ] Keep measurements free of severity and diffusion-specific pass/fail
+  - [x] Keep measurements free of severity and diffusion-specific pass/fail
     policy.
-  - [ ] Preserve full case-sensitive residue and atom identities, including
+  - [x] Preserve full case-sensitive residue and atom identities, including
     insertion codes.
-  - [ ] Add class-aware Ramachandran measurements for general, GLY, PRO, and
+  - [x] Add class-aware Ramachandran measurements for general, GLY, PRO, and
     pre-PRO residues.
-  - [ ] Add residue-aware chi1-only, chi1/chi2, chi3-chi5, and
+  - [x] Add residue-aware chi1-only, chi1/chi2, chi3-chi5, and
     backbone-dependent rotamer measurements where reference data support them.
-  - [ ] Add residue-specific bond-length, bond-angle, peptide-planarity,
+  - [x] Add residue-specific bond-length, bond-angle, peptide-planarity,
     cis/trans, junction, and terminal measurements.
-  - [ ] Add expected intra-residue, peptide, and disulfide connectivity evidence
+  - [x] Add expected intra-residue, peptide, and disulfide connectivity evidence
     without inferring unsupported chemistry.
-  - [ ] Provide deterministic heavy-atom and hydrogen-aware steric measurements
+  - [x] Provide deterministic heavy-atom and hydrogen-aware steric measurements
     for generated/generated, generated/fixed, and junction neighborhoods.
-  - [ ] Return explicit undefined results for missing, duplicate, degenerate, or
+  - [x] Return explicit undefined results for missing, duplicate, degenerate, or
     unsupported geometry rather than a passing value.
 - Exit gate:
-  - [ ] Existing unscoped `diagnose` behavior remains compatible unless a
+  - [x] Existing unscoped `diagnose` behavior remains compatible unless a
     separately approved diagnostic policy change is documented and tested.
 
 ## WP3: Diffusion Validation Policy
