@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import resource
 import time
 from dataclasses import asdict
 from pathlib import Path
@@ -60,7 +61,7 @@ _ONE_TO_THREE = {
 
 _CHECKPOINT_NAME = "protenix_base_default_v1.0.0.pt"
 _CHECKPOINT_SHA256 = "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
-_PATCH_SHA256 = "244cfe4fc876fd71df8737b805fb9b290069211fecc5178ef02029424b2895d0"
+_PATCH_SHA256 = "cc4153be3dfd241124ea183d592884799300046b6ea7d3eccae8409b9fe21aa0"
 
 
 def _sha256(path: Path) -> str:
@@ -180,9 +181,20 @@ class _TracingCallback:
         ordered = tuple(sorted(fixed_coordinates))
         self._indices = tuple(index_by_identity[identity] for identity in ordered)
         self._target = np.asarray([fixed_coordinates[identity] for identity in ordered])
+        self.device: torch.device | None = None
+        self.dtype: torch.dtype | None = None
         self.steps: list[dict[str, float | int]] = []
 
     def __call__(self, coordinates: torch.Tensor, step_index: int, step_count: int) -> torch.Tensor:
+        if coordinates.device.type != "cuda":
+            raise RuntimeError("sampler coordinates left the CUDA device")
+        if not coordinates.is_floating_point():
+            raise RuntimeError("sampler coordinates are not floating point")
+        if self.device is None:
+            self.device = coordinates.device
+            self.dtype = coordinates.dtype
+        elif coordinates.device != self.device or coordinates.dtype != self.dtype:
+            raise RuntimeError("sampler coordinate device or dtype changed between updates")
         projected = self._reinject(coordinates, step_index, step_count)
         indices = torch.as_tensor(self._indices, device=projected.device)
         target = torch.as_tensor(self._target, dtype=projected.dtype, device=projected.device)
@@ -195,6 +207,14 @@ class _TracingCallback:
             }
         )
         return projected
+
+
+def _assert_model_on_device(model: Any, device: torch.device) -> None:
+    tensors = (*model.parameters(), *model.buffers())
+    if not tensors:
+        raise RuntimeError("Protenix model exposes no parameters or buffers")
+    if any(tensor.device != device for tensor in tensors):
+        raise RuntimeError("Protenix model is not wholly on the requested CUDA device")
 
 
 def _write_candidate(
@@ -292,6 +312,12 @@ def run(
         use_template=True,
         kalign_binary_path=str(kalign.resolve()),
     )
+    device = torch.device(runner.device)
+    if device.type != "cuda" or device.index != torch.cuda.current_device():
+        raise RuntimeError("Protenix runner did not select the current CUDA device")
+    if runner.configs.dtype != "bf16":
+        raise RuntimeError("Protenix runner did not retain the frozen bf16 precision")
+    _assert_model_on_device(runner.model, device)
     runner.configs.deterministic = True
     runner.configs.deterministic_seed = True
     runner.configs.input_json_path = str(input_json.resolve())
@@ -314,14 +340,28 @@ def run(
     runner.update_model_configs(update_inference_configs(runner.configs, data["N_token"].item()))
     prediction = runner.predict(data)
     coordinates = prediction["coordinate"]
+    _assert_model_on_device(runner.model, device)
+    if coordinates.device != device or not coordinates.is_floating_point():
+        raise RuntimeError("Protenix output coordinates are not on the requested CUDA device")
+    if not torch.isfinite(coordinates).all().item():
+        raise RuntimeError("Protenix output coordinates contain non-finite values")
     if coordinates.shape[0] != 1:
         raise ValueError("checkpoint smoke expected exactly one sample")
     callback_steps = [] if callback is None else callback.steps
     expected_callback_count = 0 if ablation_mode is SamplingAblationMode.TEMPLATE_ONLY else steps
-    if len(callback_steps) != expected_callback_count or any(
-        step["step_count"] != steps for step in callback_steps
+    if (
+        len(callback_steps) != expected_callback_count
+        or tuple(step["step_index"] for step in callback_steps)
+        != tuple(range(expected_callback_count))
+        or any(step["step_count"] != steps for step in callback_steps)
     ):
         raise RuntimeError("callback count does not match the requested ablation")
+    if callback is not None and (callback.device != device or callback.dtype is None):
+        raise RuntimeError("callback did not observe the frozen CUDA sampling state")
+    if callback is not None and callback.dtype != coordinates.dtype:
+        raise RuntimeError("sampler input and output coordinate dtypes differ")
+    if not torch.are_deterministic_algorithms_enabled():
+        raise RuntimeError("PyTorch deterministic algorithms are not enabled")
 
     final = coordinates[0].detach().to(dtype=torch.float64, device="cpu").numpy()
     final_frame_synchronization = ablation_mode is SamplingAblationMode.TEMPLATE_ONLY
@@ -339,8 +379,11 @@ def run(
     )
     resource_metrics = RunnerResourceMetrics(
         wall_time_seconds=time.perf_counter() - start,
+        peak_ram_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024,
         peak_vram_bytes=torch.cuda.max_memory_allocated(),
     )
+    if not resource_metrics.peak_ram_bytes or not resource_metrics.peak_vram_bytes:
+        raise RuntimeError("runner did not record nonzero peak RAM and VRAM")
     trace_artifact = write_sampler_trace(
         workspace,
         output_dir / "sampler-trace.json",
@@ -408,6 +451,8 @@ def run(
         "cycles": cycles,
         "diffusion_steps": steps,
         "deterministic_algorithms": torch.are_deterministic_algorithms_enabled(),
+        "sampler_device": str(callback.device) if callback is not None else str(device),
+        "sampler_dtype": str(callback.dtype) if callback is not None else str(coordinates.dtype),
         "callback_count": len(callback_steps),
         "callback_steps": callback_steps,
         "final_frame_synchronization": final_frame_synchronization,
@@ -415,6 +460,7 @@ def run(
         "ranking_metrics": [asdict(metric) for metric in validation.ranking_metrics],
         "wall_time_seconds": runner_result.resource_metrics.wall_time_seconds,
         "peak_vram_bytes": runner_result.resource_metrics.peak_vram_bytes,
+        "peak_ram_bytes": runner_result.resource_metrics.peak_ram_bytes,
     }
     summary_path = output_dir / "summary.json"
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")

@@ -1,0 +1,28 @@
+{
+  "base_image": "nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04@sha256:a2e1e2360c85298ac47ec2543b406ab1e8cec42e31ee47e4d32140ebc82e1067",
+  "checkpoint": {
+    "name": "protenix_base_default_v1.0.0.pt",
+    "sha256": "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
+  },
+  "cuda_runtime": "12.9",
+  "device": {
+    "compute_capability": "8.0",
+    "name": "NVIDIA A100-SXM4-40GB"
+  },
+  "kalign": {
+    "sha256": "057e7d91f5a56491e7dd097629b4b72a323295716a46de36d447581870597bbc",
+    "version": "kalign 3.6.0"
+  },
+  "packages": {
+    "MDAnalysis": "2.10.0",
+    "biopython": "1.88",
+    "gemmi": "0.7.5",
+    "numpy": "2.4.6",
+    "openmm": "8.6.1",
+    "pdbfixer": "1.12.0",
+    "torch": "2.13.0"
+  },
+  "patch_sha256": "cc4153be3dfd241124ea183d592884799300046b6ea7d3eccae8409b9fe21aa0",
+  "protenix_revision": "85767b811c40ed46e73a9b39519cf6bfca8701ba",
+  "python": "3.13.15"
+}

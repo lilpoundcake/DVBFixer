@@ -83,9 +83,17 @@ The one-time installer verifies the frozen checkpoint digest and creates a
 private launcher bound to the backend environment. Runtime profile, runner,
 checkpoint, and digest are not user-facing model options.
 
-The runner requires Linux amd64, Python 3.13, PyTorch 2.13.0, CUDA 12.9,
-bfloat16-capable NVIDIA hardware, `kalign`, the exact patched source tree, and
-the operator-provided checkpoint. DVBFixer does not download or redistribute
-the checkpoint. Remove existing `__pycache__` directories from the Protenix
-checkout before preflight; the wrapper disables bytecode writes before loading
-the engine so accepted runs do not recreate them.
+The runner requires Linux amd64, Python 3.13.15, PyTorch 2.13.0, CUDA 12.9, the
+NVIDIA A100-SXM4-40GB device class, digest-pinned Kalign 3.6.0, the exact patched
+source tree, and the operator-provided checkpoint. DVBFixer does not download or
+redistribute the checkpoint. Remove existing `__pycache__` directories from the
+Protenix checkout before preflight; the wrapper disables bytecode writes before
+loading the engine so accepted runs do not recreate them.
+
+`profile-lock.json` is the tracked candidate profile identity. The runner
+verifies its digest, critical installed package versions, and Kalign executable
+before loading Protenix. It also records the pinned CUDA base-image digest; a
+built image's final digest and a complete accepted package export remain
+operator evidence. The image digest may be supplied as
+`DVBFIXER_PROTENIX_IMAGE_DIGEST`. Checkpoint-backed hardware acceptance and the
+frozen cohort are still pending.

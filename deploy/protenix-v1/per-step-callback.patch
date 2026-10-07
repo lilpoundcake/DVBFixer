@@ -19,7 +19,7 @@ index 7d1e88c..0bfdb13 100644
  
      Returns:
          torch.Tensor: the denoised coordinates of x in inference stage
-@@ -262,6 +265,16 @@ def sample_diffusion(
+@@ -262,6 +265,24 @@ def sample_diffusion(
                  ]  # Line 9 of AF3 uses 'x_l_hat' instead, which we believe  is a typo.
                  dt = c_tau - t_hat
                  x_l = x_noisy + step_scale_eta * dt[..., None, None] * delta
@@ -31,6 +31,14 @@ index 7d1e88c..0bfdb13 100644
 +                if updated.shape != x_l.shape:
 +                    raise ValueError(
 +                        "step_callback must preserve the coordinate tensor shape"
++                    )
++                if updated.device != x_l.device:
++                    raise ValueError(
++                        "step_callback must preserve the coordinate tensor device"
++                    )
++                if updated.dtype != x_l.dtype:
++                    raise ValueError(
++                        "step_callback must preserve the coordinate tensor dtype"
 +                    )
 +                x_l = updated
  

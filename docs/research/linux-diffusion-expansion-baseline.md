@@ -27,9 +27,13 @@
 
 The active installed `dvbfixer` distribution metadata reported `0.8.9`, while
 the checked-out source and synchronized release metadata report `0.9.0`.
-Baseline tests imported the checked-out source tree. A production runner
-environment must install the exact accepted source rather than reuse this
-developer environment implicitly.
+The initial baseline test invocation did not set `PYTHONPATH=src`; a later
+warning proved that this editable installation could resolve modules from an
+older worktree. The recorded initial count below is therefore inventory only,
+not authoritative validation of the frozen checkout. Final WP1 verification
+was repeated with explicit source isolation. A production runner environment
+must install the exact accepted source rather than reuse this developer
+environment implicitly.
 
 ## Frozen Scientific Baseline
 
@@ -61,7 +65,8 @@ aggregation run.
 Commands were run from a second clean worktree at the exact branch tip before
 WP1 changes:
 
-- CPU diffusion suite: `258 passed in 236.82s`.
+- Initial CPU diffusion suite: `258 passed in 236.82s`, but non-authoritative
+  because of the editable-install contamination described above.
 - `ruff check src/dvbfixer`: passed.
 - `python scripts/check_versions.py`: passed at `0.9.0`.
 - `python scripts/gen_gui_spec.py --check`: passed.

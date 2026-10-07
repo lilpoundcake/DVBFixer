@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
@@ -22,6 +23,8 @@ from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CHECKPOINT_SMOKE = REPO_ROOT / "deploy/protenix-v1/checkpoint_gap_smoke.py"
+PROFILE_LOCK = REPO_ROOT / "deploy/protenix-v1/profile-lock.json"
+PROTENIX_PATCH = REPO_ROOT / "deploy/protenix-v1/per-step-callback.patch"
 
 
 def _load_refinement_script() -> ModuleType:
@@ -112,6 +115,8 @@ def test_production_runner_writes_protocol_result(
     (tmp_path / "request.json").write_text("{}")
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(production.shutil, "which", lambda _name: "/usr/bin/true")
+    monkeypatch.setattr(production, "_verify_checkpoint", lambda path: path.resolve())
+    monkeypatch.setattr(production, "_verify_kalign", lambda path, _lock: path)
     monkeypatch.setenv(
         "DVBFIXER_DIFFUSION_PROTOCOL_VERSION",
         str(DIFFUSION_RUNNER_PROTOCOL_VERSION),
@@ -190,6 +195,72 @@ def test_production_runner_rejects_missing_execution_protocol(
         )
 
 
+def test_production_runner_verifies_checkpoint_before_preflight(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production = _load_production_runner()
+    monkeypatch.setenv(
+        "DVBFIXER_DIFFUSION_PROTOCOL_VERSION",
+        str(DIFFUSION_RUNNER_PROTOCOL_VERSION),
+    )
+    checkpoint = tmp_path / production.CHECKPOINT_NAME
+    checkpoint.write_bytes(b"wrong checkpoint")
+
+    with pytest.raises(RuntimeError, match="digest mismatch"):
+        production.run(
+            profile=production.PROFILE,
+            checkpoint=checkpoint,
+            preflight=lambda: pytest.fail("checkpoint must be checked first"),
+        )
+
+
+def test_production_profile_lock_matches_runner_and_patch() -> None:
+    production = _load_production_runner()
+    lock = json.loads(PROFILE_LOCK.read_text())
+
+    assert production._sha256(PROFILE_LOCK) == production.PROFILE_LOCK_SHA256
+    assert production._sha256(PROTENIX_PATCH) == production.PATCH_SHA256
+    assert lock["patch_sha256"] == production.PATCH_SHA256
+    assert lock["checkpoint"]["sha256"] == production.CHECKPOINT_SHA256
+    assert lock["protenix_revision"] == production.ENGINE_REVISION
+
+
+def test_production_result_write_is_atomic_and_exclusive(tmp_path: Path) -> None:
+    production = _load_production_runner()
+    result = RunnerResult(
+        schema_version=DIFFUSION_SCHEMA_VERSION,
+        status=DiffusionStatus.FAILED,
+        candidates=(),
+        runner_diagnostics=RunnerDiagnostics(exit_code=1, timed_out=False),
+        backend_provenance=BackendProvenance(
+            backend="fake-protenix",
+            runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
+            engine_repository="builtin://test",
+            engine_revision="test",
+        ),
+        message="expected failure",
+    )
+    path = tmp_path / "result.json"
+
+    production._write_result_atomic(path, result)
+
+    assert RunnerResult.from_json(path.read_text()) == result
+    assert not (tmp_path / ".result.json.tmp").exists()
+    with pytest.raises(RuntimeError, match="already exists"):
+        production._write_result_atomic(path, result)
+
+
+def test_production_runner_rejects_malformed_container_digest(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production = _load_production_runner()
+    monkeypatch.setenv("DVBFIXER_PROTENIX_IMAGE_DIGEST", "latest")
+
+    with pytest.raises(RuntimeError, match="not a SHA-256 digest"):
+        production._container_digest()
+
+
 def test_production_source_tree_rejects_unapproved_python_changes(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -218,11 +289,11 @@ def test_production_preflight_reports_cuda_without_loading_adapter(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     production = _load_production_runner()
-    checkpoint = tmp_path / "checkpoint.pt"
+    checkpoint = tmp_path / production.CHECKPOINT_NAME
     checkpoint.write_bytes(b"checkpoint")
     patch_text = (REPO_ROOT / "deploy/protenix-v1/per-step-callback.patch").read_text()
     monkeypatch.setattr(production.sys, "platform", "linux")
-    monkeypatch.setattr(production.sys, "version_info", (3, 13))
+    monkeypatch.setattr(production.sys, "version_info", (3, 13, 15))
     monkeypatch.setattr(production.platform, "machine", lambda: "x86_64")
     monkeypatch.setenv("PYTHONNOUSERSITE", "1")
     monkeypatch.setattr(production.shutil, "which", lambda _name: "/usr/bin/kalign")
@@ -249,9 +320,13 @@ def test_production_preflight_reports_cuda_without_loading_adapter(
             is_available=lambda: False,
             current_device=lambda: 0,
             is_bf16_supported=lambda: True,
+            get_device_name=lambda _device: production.GPU_NAME,
+            get_device_capability=lambda _device: production.GPU_COMPUTE_CAPABILITY,
         ),
     )
     monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setattr(production, "_profile_lock", lambda: {"packages": {}})
+    monkeypatch.setattr(production, "_verify_kalign", lambda path, _lock: path)
     monkeypatch.setattr(
         production,
         "_load_production_scripts",
