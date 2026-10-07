@@ -8,6 +8,8 @@
 - Related research:
   - [`../research/reconstruction-and-modeling-backends.md`](../research/reconstruction-and-modeling-backends.md)
   - [`../research/diffusion-confirmatory-results.md`](../research/diffusion-confirmatory-results.md)
+- Expansion implementation plan:
+  - [`linux-diffusion-expansion.md`](linux-diffusion-expansion.md)
 - Production baselines retained:
   - Salilab MODELLER for `model` and `homology`.
   - PDBFixer/OpenMM Modeller in the documented legacy preparation path.
