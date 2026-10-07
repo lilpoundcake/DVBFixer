@@ -22,7 +22,9 @@ from types import ModuleType
 
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
+    DiffusionRequest,
     DiffusionStatus,
+    RunnerResourceMetrics,
     RunnerResult,
     SamplerTrace,
 )
@@ -510,6 +512,54 @@ def _load_production_scripts() -> tuple[ModuleType, ModuleType]:
     return builder, adapter
 
 
+def _profile_result(raw_result: RunnerResult) -> RunnerResult:
+    return replace(
+        raw_result,
+        backend_provenance=replace(
+            raw_result.backend_provenance,
+            source_license="Apache-2.0",
+            checkpoint_license="Apache-2.0 (upstream claim)",
+            environment_identity=(f"linux-amd64;profile-lock-sha256={PROFILE_LOCK_SHA256}"),
+            container_digest=_container_digest(),
+        ),
+    )
+
+
+def _merge_candidate_results(results: tuple[RunnerResult, ...]) -> RunnerResult:
+    if not results:
+        raise RuntimeError("Protenix multi-seed execution produced no results")
+    first = results[0]
+    if any(result.status is not DiffusionStatus.SUCCESS for result in results):
+        raise RuntimeError("Protenix multi-seed execution contains a failed result")
+    if any(result.backend_provenance != first.backend_provenance for result in results[1:]):
+        raise RuntimeError("Protenix multi-seed provenance changed between candidates")
+
+    metrics = tuple(result.resource_metrics for result in results)
+    wall_times = tuple(
+        metric.wall_time_seconds for metric in metrics if metric.wall_time_seconds is not None
+    )
+    model_load_times = tuple(
+        metric.model_load_seconds for metric in metrics if metric.model_load_seconds is not None
+    )
+    peak_ram = tuple(
+        metric.peak_ram_bytes for metric in metrics if metric.peak_ram_bytes is not None
+    )
+    peak_vram = tuple(
+        metric.peak_vram_bytes for metric in metrics if metric.peak_vram_bytes is not None
+    )
+    return replace(
+        first,
+        candidates=tuple(candidate for result in results for candidate in result.candidates),
+        resource_metrics=RunnerResourceMetrics(
+            wall_time_seconds=sum(wall_times) if wall_times else None,
+            model_load_seconds=sum(model_load_times) if model_load_times else None,
+            peak_ram_bytes=max(peak_ram) if peak_ram else None,
+            peak_vram_bytes=max(peak_vram) if peak_vram else None,
+        ),
+        message=f"generated {len(results)} deterministic Protenix candidates",
+    )
+
+
 def run(
     *,
     profile: str,
@@ -543,35 +593,47 @@ def run(
 
     builder, adapter = scripts or _load_production_scripts()
     output_root = Path("candidates") / PROFILE
-    input_json = builder.build_input(request_path, output_root / "input")
-    raw_result, _summary_path = adapter.run(
-        request_path,
-        input_json,
-        output_root / "raw",
-        kalign_path,
-        checkpoint,
-        cycles=1,
-        steps=200,
-        ablation_mode=SamplingAblationMode.REINJECTION,
-    )
-    raw_result = replace(
-        raw_result,
-        backend_provenance=replace(
-            raw_result.backend_provenance,
-            source_license="Apache-2.0",
-            checkpoint_license="Apache-2.0 (upstream claim)",
-            environment_identity=(
-                f"linux-amd64;profile-lock-sha256={PROFILE_LOCK_SHA256}"
-            ),
-            container_digest=_container_digest(),
-        ),
-    )
-    if raw_result.status is not DiffusionStatus.SUCCESS:
-        _write_result_atomic(result_path, raw_result)
-        return raw_result
-    _verify_success_result(raw_result, Path.cwd().resolve(), refined=False)
-    result = refiner(request_path, raw_result, output_root / "refined")
-    _verify_success_result(result, Path.cwd().resolve(), refined=True)
+    request_data = json.loads(request_path.read_text(encoding="utf-8"))
+    request_seeds = request_data.get("seeds") if isinstance(request_data, dict) else None
+    if not isinstance(request_seeds, list) or len(request_seeds) <= 1:
+        candidate_requests = ((request_path, output_root),)
+    else:
+        request = DiffusionRequest.from_json(request_path.read_text(encoding="utf-8"))
+        candidate_requests_list: list[tuple[Path, Path]] = []
+        for seed in request.seeds:
+            candidate_request_path = request_path.with_name(f".protenix-seed-{seed}.request.json")
+            with candidate_request_path.open("x", encoding="utf-8") as stream:
+                stream.write(replace(request, candidate_count=1, seeds=(seed,)).to_json())
+            candidate_requests_list.append((candidate_request_path, output_root / f"seed-{seed}"))
+        candidate_requests = tuple(candidate_requests_list)
+
+    candidate_results: list[RunnerResult] = []
+    for candidate_request_path, candidate_root in candidate_requests:
+        input_json = builder.build_input(candidate_request_path, candidate_root / "input")
+        raw_result, _summary_path = adapter.run(
+            candidate_request_path,
+            input_json,
+            candidate_root / "raw",
+            kalign_path,
+            checkpoint,
+            cycles=1,
+            steps=200,
+            ablation_mode=SamplingAblationMode.REINJECTION,
+        )
+        raw_result = _profile_result(raw_result)
+        if raw_result.status is not DiffusionStatus.SUCCESS:
+            _write_result_atomic(result_path, raw_result)
+            return raw_result
+        _verify_success_result(raw_result, Path.cwd().resolve(), refined=False)
+        refined_result = refiner(
+            candidate_request_path,
+            raw_result,
+            candidate_root / "refined",
+        )
+        _verify_success_result(refined_result, Path.cwd().resolve(), refined=True)
+        candidate_results.append(refined_result)
+
+    result = _merge_candidate_results(tuple(candidate_results))
     _write_result_atomic(result_path, result)
     return result
 
