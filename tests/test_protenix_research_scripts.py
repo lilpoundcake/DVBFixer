@@ -31,6 +31,45 @@ PROFILE_LOCK = REPO_ROOT / "deploy/protenix-v1/profile-lock.json"
 PROTENIX_PATCH = REPO_ROOT / "deploy/protenix-v1/per-step-callback.patch"
 
 
+@dataclass(frozen=True)
+class _FakeSeedRequest:
+    candidate_count: int
+    seeds: tuple[int, ...]
+
+    def to_json(self) -> str:
+        return json.dumps({"candidate_count": self.candidate_count, "seeds": list(self.seeds)})
+
+
+def _fake_seed_result(seed: int, *, engine_revision: str = "test") -> RunnerResult:
+    candidate = RunnerCandidate(
+        candidate_id=f"candidate-{seed}",
+        seed=seed,
+        coordinate_artifact=ArtifactReference(f"candidate-{seed}.pdb", "a" * 64),
+        sampler_trace_artifact=ArtifactReference(f"trace-{seed}.json", "b" * 64),
+        generated_atoms=(),
+        generated_residues=(),
+        raw_backend_score=None,
+        score_provenance="test",
+    )
+    return RunnerResult(
+        schema_version=DIFFUSION_SCHEMA_VERSION,
+        status=DiffusionStatus.SUCCESS,
+        candidates=(candidate,),
+        runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
+        backend_provenance=BackendProvenance(
+            backend="fake-protenix",
+            runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
+            engine_repository="builtin://test",
+            engine_revision=engine_revision,
+        ),
+        resource_metrics=RunnerResourceMetrics(
+            wall_time_seconds=float(seed),
+            peak_ram_bytes=seed,
+            peak_vram_bytes=seed * 2,
+        ),
+    )
+
+
 def _load_refinement_script() -> ModuleType:
     path = REPO_ROOT / "deploy/protenix-v1/refine_candidate.py"
     spec = importlib.util.spec_from_file_location("protenix_refine_candidate", path)
@@ -254,18 +293,10 @@ def test_production_runner_executes_and_merges_each_requested_seed(
         str(DIFFUSION_RUNNER_PROTOCOL_VERSION),
     )
 
-    @dataclass(frozen=True)
-    class FakeRequest:
-        candidate_count: int
-        seeds: tuple[int, ...]
-
-        def to_json(self) -> str:
-            return json.dumps({"candidate_count": self.candidate_count, "seeds": list(self.seeds)})
-
     monkeypatch.setattr(
         production.DiffusionRequest,
         "from_json",
-        classmethod(lambda _cls, _text: FakeRequest(2, (7, 11))),
+        classmethod(lambda _cls, _text: _FakeSeedRequest(2, (7, 11))),
     )
     observed_builder_seeds: list[int] = []
     observed_adapter_seeds: list[int] = []
@@ -289,36 +320,7 @@ def test_production_runner_executes_and_merges_each_requested_seed(
         ) -> tuple[RunnerResult, Path]:
             seed = json.loads(request_path.read_text())["seeds"][0]
             observed_adapter_seeds.append(seed)
-            candidate = RunnerCandidate(
-                candidate_id=f"candidate-{seed}",
-                seed=seed,
-                coordinate_artifact=ArtifactReference(f"candidate-{seed}.pdb", "a" * 64),
-                sampler_trace_artifact=ArtifactReference(f"trace-{seed}.json", "b" * 64),
-                generated_atoms=(),
-                generated_residues=(),
-                raw_backend_score=None,
-                score_provenance="test",
-            )
-            return (
-                RunnerResult(
-                    schema_version=DIFFUSION_SCHEMA_VERSION,
-                    status=DiffusionStatus.SUCCESS,
-                    candidates=(candidate,),
-                    runner_diagnostics=RunnerDiagnostics(exit_code=0, timed_out=False),
-                    backend_provenance=BackendProvenance(
-                        backend="fake-protenix",
-                        runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
-                        engine_repository="builtin://test",
-                        engine_revision="test",
-                    ),
-                    resource_metrics=RunnerResourceMetrics(
-                        wall_time_seconds=float(seed),
-                        peak_ram_bytes=seed,
-                        peak_vram_bytes=seed * 2,
-                    ),
-                ),
-                Path("summary.json"),
-            )
+            return _fake_seed_result(seed), Path("summary.json")
 
     result = production.run(
         profile="protenix-v1-cuda",
@@ -335,6 +337,83 @@ def test_production_runner_executes_and_merges_each_requested_seed(
     assert result.resource_metrics.peak_ram_bytes == 11
     assert result.resource_metrics.peak_vram_bytes == 22
     assert RunnerResult.from_json((tmp_path / "result.json").read_text()) == result
+    assert not tuple(tmp_path.glob(".protenix-seed-*.request.json"))
+
+
+def test_production_runner_fails_all_candidates_when_one_seed_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production = _load_production_runner()
+    checkpoint = tmp_path / "protenix_base_default_v1.0.0.pt"
+    checkpoint.write_bytes(b"checkpoint")
+    (tmp_path / "request.json").write_text(
+        json.dumps({"candidate_count": 2, "seeds": [7, 11]})
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(production.shutil, "which", lambda _name: "/usr/bin/true")
+    monkeypatch.setattr(production, "_verify_checkpoint", lambda path: path.resolve())
+    monkeypatch.setattr(production, "_verify_kalign", lambda path, _lock: path)
+    monkeypatch.setattr(production, "_verify_success_result", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        production.DiffusionRequest,
+        "from_json",
+        classmethod(lambda _cls, _text: _FakeSeedRequest(2, (7, 11))),
+    )
+    monkeypatch.setenv(
+        "DVBFIXER_DIFFUSION_PROTOCOL_VERSION",
+        str(DIFFUSION_RUNNER_PROTOCOL_VERSION),
+    )
+    observed_seeds: list[int] = []
+
+    class FakeBuilder:
+        @staticmethod
+        def build_input(_request_path: Path, output: Path) -> Path:
+            output.mkdir(parents=True)
+            return output / "input.json"
+
+    class FakeAdapter:
+        @staticmethod
+        def run(request_path: Path, *_args: object, **_kwargs: object) -> tuple[RunnerResult, Path]:
+            seed = json.loads(request_path.read_text())["seeds"][0]
+            observed_seeds.append(seed)
+            if seed == 7:
+                return _fake_seed_result(seed), Path("summary.json")
+            return (
+                RunnerResult(
+                    schema_version=DIFFUSION_SCHEMA_VERSION,
+                    status=DiffusionStatus.FAILED,
+                    candidates=(),
+                    runner_diagnostics=RunnerDiagnostics(exit_code=1, timed_out=False),
+                    backend_provenance=_fake_seed_result(seed).backend_provenance,
+                    message="sampling failed",
+                ),
+                Path("summary.json"),
+            )
+
+    result = production.run(
+        profile="protenix-v1-cuda",
+        checkpoint=checkpoint,
+        scripts=(FakeBuilder(), FakeAdapter()),
+        refiner=lambda _request, raw, _output: raw,
+        preflight=lambda: None,
+    )
+
+    assert observed_seeds == [7, 11]
+    assert result.status is DiffusionStatus.FAILED
+    assert result.candidates == ()
+    assert result.message == "Protenix seed 11 failed: sampling failed"
+    assert RunnerResult.from_json((tmp_path / "result.json").read_text()) == result
+    assert not tuple(tmp_path.glob(".protenix-seed-*.request.json"))
+
+
+def test_production_runner_rejects_changed_multi_seed_provenance() -> None:
+    production = _load_production_runner()
+
+    with pytest.raises(RuntimeError, match="provenance changed"):
+        production._merge_candidate_results(
+            (_fake_seed_result(7), _fake_seed_result(11, engine_revision="changed"))
+        )
 
 
 def test_production_runner_rejects_wrong_profile(tmp_path: Path) -> None:

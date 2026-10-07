@@ -1,7 +1,7 @@
 # Linux/NVIDIA Protenix Acceptance
 
 - Evaluation date: 2026-10-07.
-- Status: single-case hardware acceptance passed; full WP1 acceptance remains
+- Status: bounded hardware workflow verification passed; full WP1 acceptance remains
   blocked on the frozen 231-case replay and self-hosted lane.
 - Profile: `protenix-v1-cuda`.
 - DVBFixer branch baseline: `bf6496de5e6da76db14282c2862847bb4406ef56`.
@@ -52,6 +52,11 @@ runner results are accepted only when provenance, private artifact digests,
 sampler trace, fallback policy, resource metrics, and refinement state all match
 the frozen profile. Result JSON is written atomically and never replaces an
 existing result.
+
+Multi-seed execution is all-or-nothing at the runner boundary. Each seed is
+sampled and refined independently, partial `success` results are rejected, and
+any failed seed produces an empty failed result rather than exposing earlier
+candidates. Per-seed request manifests are removed after execution.
 
 ## Preflight Result
 
@@ -123,12 +128,33 @@ The repository bind mount does not support `renameat2(RENAME_NOREPLACE)`, so the
 accepted run used a native `/tmp/opencode` work/output filesystem. Publication
 remains fail-closed on filesystems without atomic no-replace directory rename.
 
+## Bounded Public CLI Replay
+
+A bounded replay used frozen-cohort inputs and the same public CLI path without
+changing any scientific threshold:
+
+- `36hb`, seeds 7 and 11: bundle `success`; both candidates passed every hard
+  gate. Their PDB SHA-256 values were
+  `664e65f90a9a7ec6abdd762008b6f28fe20d2e47eaab576bdf1830a246b61ea4` and
+  `effcb40bbd42fdba2f95924bd51d3e851cac6f4f594e64f9240ae8d303dd1af4`,
+  matching the prior independent single-seed runs.
+- `9gtp`, seed 7: bundle `success`; the candidate passed every hard gate and
+  had PDB SHA-256
+  `51db55e596507507354771d9125f4ebeab33d7e9169edacb0eda114f65b4ba98`.
+- `24rc`, seed 7: bundle `validation_failed`; independent validation rejected
+  the candidate on `generated-or-junction-ramachandran`, with PDB SHA-256
+  `dbc6d4cb23652797dab3dfbdf5ea07fc92b04d8ae1a5ddffe8aee8073ccb251c`.
+
+The `24rc` outcome is retained as rejection-path evidence, not counted as a
+scientific pass. This three-case replay remains bounded evidence and does not
+replace the frozen 231-case production-wrapper replay.
+
 ## Verification
 
-- Focused installer, Protenix preflight, doctor, provenance, CLI, runtime, and
-  pipeline tests after final edits: `69 passed in 2.00s` with `PYTHONPATH=src`.
-- Full non-slow repository suite with source isolation: `990 passed, 6 skipped,
-  31 deselected in 259.90s`. The skips require unavailable GROMACS; existing
+- Focused runner, Protenix wrapper, validation, and pipeline tests after final
+  edits: `80 passed in 21.69s` with `PYTHONPATH=src`.
+- Full non-slow repository suite with source isolation: `994 passed, 6 skipped,
+  31 deselected in 261.05s`. The skips require unavailable GROMACS; existing
   Python 3.13 teardown warnings from `batch._Mirror` remain non-fatal.
 - Ruff on the changed Python surfaces: passed.
 - Callback patch application check against the exact source revision: passed.
@@ -137,10 +163,10 @@ remains fail-closed on filesystems without atomic no-replace directory rename.
 
 ## Stop Gate
 
-Checkpoint-backed reconstruction, independent same-seed repeats, a
-different-seed candidate, and checkpoint failure injection passed. The frozen
-231-case production-wrapper replay has not run, no final OCI image digest is
-available, and a self-hosted acceptance lane is not enabled. Therefore the
+Checkpoint-backed reconstruction, independent same-seed repeats, multi-seed
+execution, bounded public replay, and checkpoint failure injection passed. The
+frozen 231-case production-wrapper replay has not run, no final OCI image digest
+is available, and a self-hosted acceptance lane is not enabled. Therefore the
 accepted baseline has not yet been reproduced end to end and full WP1 acceptance
 is not claimed. No public scope, default, fallback, batch, ZBS, or Homology claim
 changes. MODELLER remains the default.

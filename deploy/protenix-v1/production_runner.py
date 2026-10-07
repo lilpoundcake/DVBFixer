@@ -595,47 +595,58 @@ def run(
     output_root = Path("candidates") / PROFILE
     request_data = json.loads(request_path.read_text(encoding="utf-8"))
     request_seeds = request_data.get("seeds") if isinstance(request_data, dict) else None
-    if not isinstance(request_seeds, list) or len(request_seeds) <= 1:
-        candidate_requests = ((request_path, output_root),)
-    else:
-        request = DiffusionRequest.from_json(request_path.read_text(encoding="utf-8"))
-        candidate_requests_list: list[tuple[Path, Path]] = []
-        for seed in request.seeds:
-            candidate_request_path = request_path.with_name(f".protenix-seed-{seed}.request.json")
-            with candidate_request_path.open("x", encoding="utf-8") as stream:
-                stream.write(replace(request, candidate_count=1, seeds=(seed,)).to_json())
-            candidate_requests_list.append((candidate_request_path, output_root / f"seed-{seed}"))
-        candidate_requests = tuple(candidate_requests_list)
+    generated_request_paths: list[Path] = []
+    try:
+        if not isinstance(request_seeds, list) or len(request_seeds) <= 1:
+            candidate_requests = ((request_path, output_root, None),)
+        else:
+            request = DiffusionRequest.from_json(request_path.read_text(encoding="utf-8"))
+            candidate_requests_list: list[tuple[Path, Path, int]] = []
+            for seed in request.seeds:
+                candidate_request_path = request_path.with_name(f".protenix-seed-{seed}.request.json")
+                with candidate_request_path.open("x", encoding="utf-8") as stream:
+                    stream.write(replace(request, candidate_count=1, seeds=(seed,)).to_json())
+                generated_request_paths.append(candidate_request_path)
+                candidate_requests_list.append(
+                    (candidate_request_path, output_root / f"seed-{seed}", seed)
+                )
+            candidate_requests = tuple(candidate_requests_list)
 
-    candidate_results: list[RunnerResult] = []
-    for candidate_request_path, candidate_root in candidate_requests:
-        input_json = builder.build_input(candidate_request_path, candidate_root / "input")
-        raw_result, _summary_path = adapter.run(
-            candidate_request_path,
-            input_json,
-            candidate_root / "raw",
-            kalign_path,
-            checkpoint,
-            cycles=1,
-            steps=200,
-            ablation_mode=SamplingAblationMode.REINJECTION,
-        )
-        raw_result = _profile_result(raw_result)
-        if raw_result.status is not DiffusionStatus.SUCCESS:
-            _write_result_atomic(result_path, raw_result)
-            return raw_result
-        _verify_success_result(raw_result, Path.cwd().resolve(), refined=False)
-        refined_result = refiner(
-            candidate_request_path,
-            raw_result,
-            candidate_root / "refined",
-        )
-        _verify_success_result(refined_result, Path.cwd().resolve(), refined=True)
-        candidate_results.append(refined_result)
+        candidate_results: list[RunnerResult] = []
+        for candidate_request_path, candidate_root, seed in candidate_requests:
+            input_json = builder.build_input(candidate_request_path, candidate_root / "input")
+            raw_result, _summary_path = adapter.run(
+                candidate_request_path,
+                input_json,
+                candidate_root / "raw",
+                kalign_path,
+                checkpoint,
+                cycles=1,
+                steps=200,
+                ablation_mode=SamplingAblationMode.REINJECTION,
+            )
+            raw_result = _profile_result(raw_result)
+            if raw_result.status is not DiffusionStatus.SUCCESS:
+                if seed is not None:
+                    detail = f": {raw_result.message}" if raw_result.message else ""
+                    raw_result = replace(raw_result, message=f"Protenix seed {seed} failed{detail}")
+                _write_result_atomic(result_path, raw_result)
+                return raw_result
+            _verify_success_result(raw_result, Path.cwd().resolve(), refined=False)
+            refined_result = refiner(
+                candidate_request_path,
+                raw_result,
+                candidate_root / "refined",
+            )
+            _verify_success_result(refined_result, Path.cwd().resolve(), refined=True)
+            candidate_results.append(refined_result)
 
-    result = _merge_candidate_results(tuple(candidate_results))
-    _write_result_atomic(result_path, result)
-    return result
+        result = _merge_candidate_results(tuple(candidate_results))
+        _write_result_atomic(result_path, result)
+        return result
+    finally:
+        for generated_request_path in generated_request_paths:
+            generated_request_path.unlink(missing_ok=True)
 
 
 def main() -> None:

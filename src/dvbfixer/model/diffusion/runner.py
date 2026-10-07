@@ -21,6 +21,7 @@ from dvbfixer.model.diffusion.contract import (
     ArtifactReference,
     DiffusionContractError,
     DiffusionRequest,
+    DiffusionStatus,
     RunnerDiagnostics,
     RunnerResult,
     SamplerTrace,
@@ -402,6 +403,10 @@ def _validate_result_artifacts(
         raise DiffusionRunnerError("external diffusion runner returned duplicate candidate seeds")
     if not set(seeds) <= set(request.seeds):
         raise DiffusionRunnerError("external diffusion runner returned an unrequested candidate seed")
+    if result.status is DiffusionStatus.SUCCESS and len(result.candidates) != request.candidate_count:
+        raise DiffusionRunnerError(
+            "external diffusion runner did not return the requested candidate count"
+        )
 
     paths = [
         path

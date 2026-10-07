@@ -73,8 +73,8 @@ def _request(input_bytes: bytes) -> DiffusionRequest:
         ),
         generated_atoms=generated_atoms,
         retained_explicit_links=(),
-        candidate_count=2,
-        seeds=(7, 11),
+        candidate_count=1,
+        seeds=(7,),
     )
 
 
@@ -327,7 +327,7 @@ def test_builtin_fake_runner_is_deterministic_and_external(tmp_path: Path) -> No
 
     assert first_result == second_result
     assert len(first_result.candidates) == request.candidate_count
-    assert [candidate.raw_backend_score for candidate in first_result.candidates] == [7.0, 11.0]
+    assert [candidate.raw_backend_score for candidate in first_result.candidates] == [7.0]
     assert all(
         candidate.coordinate_artifact.sha256 == request.normalized_pdb.sha256
         for candidate in first_result.candidates
@@ -386,8 +386,7 @@ def test_runner_rejects_modified_prepared_request(tmp_path: Path) -> None:
         workspace=tmp_path / "workspace",
     )
     raw = json.loads(prepared.request_manifest.read_text(encoding="utf-8"))
-    raw["candidate_count"] = 1
-    raw["seeds"] = [7]
+    raw["seeds"] = [11]
     prepared.request_manifest.write_text(json.dumps(raw), encoding="utf-8")
 
     with pytest.raises(DiffusionRunnerError, match="does not match"):
@@ -974,12 +973,28 @@ def test_runner_rejects_unrequested_candidate_seed(tmp_path: Path) -> None:
         )
 
 
+def test_runner_rejects_partial_success(tmp_path: Path) -> None:
+    input_bytes = b"END\n"
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    _write_input(source_root, input_bytes)
+    request = replace(_request(input_bytes), candidate_count=2, seeds=(7, 11))
+
+    with pytest.raises(DiffusionRunnerError, match="requested candidate count"):
+        run_diffusion_runner(
+            request,
+            _command(_valid_runner(tmp_path)),
+            source_root=source_root,
+            workspace=tmp_path / "partial-success-workspace",
+        )
+
+
 def test_runner_rejects_duplicate_candidate_seeds(tmp_path: Path) -> None:
     input_bytes = b"END\n"
     source_root = tmp_path / "source"
     source_root.mkdir()
     _write_input(source_root, input_bytes)
-    request = _request(input_bytes)
+    request = replace(_request(input_bytes), candidate_count=2, seeds=(7, 11))
     duplicate_seeds = _write_runner(
         tmp_path,
         f"""
