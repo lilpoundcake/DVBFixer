@@ -1,7 +1,8 @@
 # Linux/NVIDIA Protenix Acceptance
 
 - Evaluation date: 2026-10-07.
-- Status: blocked before checkpoint loading; hardware acceptance is not claimed.
+- Status: single-case hardware acceptance passed; full WP1 acceptance remains
+  blocked on the frozen 231-case replay and self-hosted lane.
 - Profile: `protenix-v1-cuda`.
 - DVBFixer branch baseline: `bf6496de5e6da76db14282c2862847bb4406ef56`.
 
@@ -25,7 +26,7 @@
 - Kalign: `3.6.0`, executable SHA-256
   `057e7d91f5a56491e7dd097629b4b72a323295716a46de36d447581870597bbc`.
 - Candidate profile-lock SHA-256:
-  `b93eee004a4c10a1c7e1a55b2b9b25dcda914c361a7c03bfbee7efc82bdf621f`.
+  `3fb3661be2b6748650b90bf9b0aaa7a09cbba9accc13253a6c29f644001b5d2e`.
 - Base image:
   `nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04@sha256:a2e1e2360c85298ac47ec2543b406ab1e8cec42e31ee47e4d32140ebc82e1067`.
 
@@ -39,9 +40,9 @@ credential, private URL, or private path is tracked.
 The production wrapper now fails closed unless all candidate profile identities
 match before inference. It verifies the checkpoint before importing the adapter,
 requires a bounded cgroup memory limit, rejects source changes outside the
-maintained patch, verifies critical package and Kalign identities, checks the
-exact A100 device class and CUDA runtime, and records fallback-disabled profile
-facts.
+maintained patch, verifies exact patched-source and auxiliary-artifact digests,
+verifies critical package and Kalign identities, checks the exact A100 device
+class and CUDA runtime, and records fallback-disabled profile facts.
 
 The checkpoint adapter verifies model, sampler, and output device placement,
 floating dtype continuity, contiguous callback indices and count, deterministic
@@ -54,25 +55,52 @@ existing result.
 
 ## Preflight Result
 
-The bounded preflight ran on the visible A100 without loading a model. It
-reported:
+The bounded preflight ran on the visible A100 with the exact local checkpoint,
+source tree, auxiliary artifacts, and Kalign executable. It reported:
 
 - contract schema 4 and runner protocol 4;
 - CUDA available on `cuda:0`;
 - framework `2.13.0`;
 - fallback disabled;
 - expected patch and profile-lock identities;
-- `missing-resource`: pinned Kalign was unavailable in the active environment;
-- `missing-checkpoint`: the operator checkpoint was not provided;
-- `incompatible-source`: the pinned Protenix checkout was unavailable.
+- exact checkpoint, patched-source, and auxiliary-artifact identities;
+- no issues.
 
-This is the required fail-closed outcome. The operator-provided checkpoint path
-was neither available nor recorded.
+The tracked evidence records only the checkpoint digest, never its private path.
+An injected invalid checkpoint used `README.md` as the input and failed closed
+with only `missing-checkpoint` and `checkpoint-digest-mismatch`; no model was
+loaded and no result was published.
+
+## Checkpoint-Backed Reconstruction
+
+Case `36hb` was rematerialized through the current schema-4 confirmatory cohort
+builder and executed twice in independent workspaces with seed 7. Both refined
+candidates passed every independent hard gate, preserved fixed heavy atoms at
+`0.0` Angstrom RMSD and maximum displacement, recorded 200 callback updates with
+maximum post-projection error `0.0` Angstrom, and produced the byte-identical
+candidate SHA-256
+`664e65f90a9a7ec6abdd762008b6f28fe20d2e47eaab576bdf1830a246b61ea4`.
+Sampler traces were identical after excluding per-run RAM and wall-time fields.
+
+The two seed-7 runs used 121.39 and 118.59 seconds, respectively, peaked at
+3,051,652,096 bytes VRAM, and peaked at 3,935,883,264 and 3,915,182,080 bytes
+RAM. A separately materialized seed-11 run passed every hard gate and produced
+the distinct candidate SHA-256
+`effcb40bbd42fdba2f95924bd51d3e851cac6f4f594e64f9240ae8d303dd1af4`.
+It used 159.98 seconds, 3,051,652,096 bytes peak VRAM, and 3,926,147,072 bytes
+peak RAM.
+
+The production smoke also exposed and fixed a publication regression: Protenix's
+canonical tensor may include model-only terminal `OXT`, while the candidate and
+sampler-trace contracts permit exactly the represented fixed and requested
+generated atoms. The adapter now projects the canonical axis onto that exact
+request set before materialization and trace publication, without weakening the
+full-tensor per-step reinjection callback.
 
 ## Verification
 
-- Focused Protenix, preflight, inventory, and sampler tests after final edits:
-  `43 passed in 2.95s` with `PYTHONPATH=src`.
+- Focused Protenix and preflight tests after final edits: `31 passed in 2.11s`
+  with `PYTHONPATH=src`.
 - Full non-slow repository suite with source isolation: `977 passed, 6 skipped,
   31 deselected in 260.59s`. The skips require unavailable GROMACS; existing
   Python 3.13 teardown warnings from `batch._Mirror` remain non-fatal.
@@ -83,9 +111,10 @@ was neither available nor recorded.
 
 ## Stop Gate
 
-Checkpoint-backed reconstruction, independent same-seed repeats,
-different-seed candidates, failure injection, and the frozen 231-case replay
-were not run. A self-hosted acceptance lane is not enabled until it can execute
-the production wrapper for every outcome-bearing case rather than bypassing it
-through a research adapter. No public scope, default, fallback, batch, ZBS, or
-Homology claim changes. MODELLER remains the default.
+Checkpoint-backed reconstruction, independent same-seed repeats, a
+different-seed candidate, and checkpoint failure injection passed. The frozen
+231-case production-wrapper replay has not run, no final OCI image digest is
+available, and a self-hosted acceptance lane is not enabled. Therefore the
+accepted baseline has not yet been reproduced end to end and full WP1 acceptance
+is not claimed. No public scope, default, fallback, batch, ZBS, or Homology claim
+changes. MODELLER remains the default.

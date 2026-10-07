@@ -36,6 +36,20 @@ def _load_refinement_script() -> ModuleType:
     return module
 
 
+def _load_checkpoint_smoke() -> ModuleType:
+    spec = importlib.util.spec_from_file_location(
+        "protenix_checkpoint_gap_smoke", CHECKPOINT_SMOKE
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.path.insert(0, str(CHECKPOINT_SMOKE.parent))
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.path.pop(0)
+    return module
+
+
 def test_legacy_refinement_does_not_claim_sampler_evidence() -> None:
     source = (REPO_ROOT / "deploy/protenix-v1/refine_candidate.py").read_text(
         encoding="utf-8"
@@ -103,6 +117,51 @@ def test_checkpoint_smoke_reports_peak_vram() -> None:
     assert "torch.cuda.reset_peak_memory_stats()" in smoke
     assert "peak_vram_bytes=torch.cuda.max_memory_allocated()" in smoke
     assert '"peak_vram_bytes": runner_result.resource_metrics.peak_vram_bytes' in smoke
+
+
+def test_checkpoint_writer_projects_out_unrequested_model_atoms(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    smoke = _load_checkpoint_smoke()
+    requested = AtomIdentity("A", "1", "", "CA")
+    model_only = AtomIdentity("A", "1", "", "OXT")
+    source = tmp_path / "input.pdb"
+    source.write_text(_atom_line(1, 1, "CA", 1.0) + "END\n")
+    observed: dict[str, object] = {}
+
+    def fake_materialize(
+        _source_text: str,
+        atom_axis: tuple[AtomIdentity, ...],
+        coordinates: np.ndarray,
+        residue_names: tuple[str, ...],
+        _request: object,
+        *,
+        elements: tuple[str, ...],
+    ) -> str:
+        observed.update(
+            atom_axis=atom_axis,
+            coordinates=coordinates,
+            residue_names=residue_names,
+            elements=elements,
+        )
+        return "END\n"
+
+    monkeypatch.setattr(smoke, "materialize_candidate_pdb", fake_materialize)
+    smoke._write_candidate(
+        tmp_path / "candidate.pdb",
+        source,
+        np.asarray(((1.0, 2.0, 3.0), (4.0, 5.0, 6.0))),
+        (requested, model_only),
+        ("ALA", "ALA"),
+        ("C", "O"),
+        SimpleNamespace(fixed_atoms=(requested,), generated_atoms=()),
+    )
+
+    assert observed["atom_axis"] == (requested,)
+    assert np.array_equal(observed["coordinates"], ((1.0, 2.0, 3.0),))
+    assert observed["residue_names"] == ("ALA",)
+    assert observed["elements"] == ("C",)
 
 
 def test_production_runner_writes_protocol_result(
@@ -224,6 +283,18 @@ def test_production_profile_lock_matches_runner_and_patch() -> None:
     assert lock["patch_sha256"] == production.PATCH_SHA256
     assert lock["checkpoint"]["sha256"] == production.CHECKPOINT_SHA256
     assert lock["protenix_revision"] == production.ENGINE_REVISION
+    assert set(lock["patched_source_sha256"]) == {
+        "protenix/model/generator.py",
+        "protenix/model/protenix.py",
+    }
+    assert set(lock["auxiliary_artifact_sha256"]) == {
+        "common/clusters-by-entity-40.txt",
+        "common/components.cif",
+        "common/components.cif.rdkit_mol.pkl",
+        "common/obsolete_release_date.csv",
+        "common/obsolete_to_successor.json",
+        "common/release_date_cache.json",
+    }
 
 
 def test_production_result_write_is_atomic_and_exclusive(tmp_path: Path) -> None:
@@ -327,6 +398,8 @@ def test_production_preflight_reports_cuda_without_loading_adapter(
     monkeypatch.setitem(sys.modules, "torch", fake_torch)
     monkeypatch.setattr(production, "_profile_lock", lambda: {"packages": {}})
     monkeypatch.setattr(production, "_verify_kalign", lambda path, _lock: path)
+    monkeypatch.setattr(production, "_verify_patched_sources", lambda _root, _lock: None)
+    monkeypatch.setattr(production, "_verify_auxiliary_artifacts", lambda _root, _lock: None)
     monkeypatch.setattr(
         production,
         "_load_production_scripts",

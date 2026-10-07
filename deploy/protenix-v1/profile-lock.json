@@ -1,5 +1,13 @@
 {
   "base_image": "nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04@sha256:a2e1e2360c85298ac47ec2543b406ab1e8cec42e31ee47e4d32140ebc82e1067",
+  "auxiliary_artifact_sha256": {
+    "common/clusters-by-entity-40.txt": "1ab4af905e75b382eda8dec59917dc3608bee0729e36b9e71baf860bbe86850c",
+    "common/components.cif": "bb31ae5cf6c8bc669924313077cb4231ee5ffefd3a20118cd14f3ec89f8bb6a5",
+    "common/components.cif.rdkit_mol.pkl": "d1cfb71f5993a3ebea7c47877022d7f597bbfbaf86e28a4770e957da6c50cd35",
+    "common/obsolete_release_date.csv": "a4f3f63ac5d7eebd78b07995cc669b9eccd6f5d8813c9492c9df02868893cf33",
+    "common/obsolete_to_successor.json": "2bc08348d0efba438c109bb27be6fa25b611d371c60b8a8da3de387a4a0698ad",
+    "common/release_date_cache.json": "8b1ef12ddc01a0d5eb2d388c77ded91aa906eebce7440726c57b6f8d1a3ec142"
+  },
   "checkpoint": {
     "name": "protenix_base_default_v1.0.0.pt",
     "sha256": "2b7d5a8b30494514fc47fd2271a16260528cdba170ba09cc112fdecd8f85ec04"
@@ -23,6 +31,10 @@
     "torch": "2.13.0"
   },
   "patch_sha256": "cc4153be3dfd241124ea183d592884799300046b6ea7d3eccae8409b9fe21aa0",
+  "patched_source_sha256": {
+    "protenix/model/generator.py": "a0159354cd94a14ad75ec631a0b0ce43a6b2e113b4a55c3761aab7db0941fed6",
+    "protenix/model/protenix.py": "8e4c85546c747f13ba0b0abc4ac0b14aeff9cadf5ef11313f5ca80521127593c"
+  },
   "protenix_revision": "85767b811c40ed46e73a9b39519cf6bfca8701ba",
   "python": "3.13.15"
 }

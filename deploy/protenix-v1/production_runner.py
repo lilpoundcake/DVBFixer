@@ -47,7 +47,7 @@ PYTHON_VERSION = (3, 13, 15)
 GPU_NAME = "NVIDIA A100-SXM4-40GB"
 GPU_COMPUTE_CAPABILITY = (8, 0)
 MAX_RAM_BYTES = 150_323_855_360
-PROFILE_LOCK_SHA256 = "b93eee004a4c10a1c7e1a55b2b9b25dcda914c361a7c03bfbee7efc82bdf621f"
+PROFILE_LOCK_SHA256 = "3fb3661be2b6748650b90bf9b0aaa7a09cbba9accc13253a6c29f644001b5d2e"
 PATCH_IDENTITY = f"sha256:{PATCH_SHA256}"
 REFINEMENT_PLATFORM = "OpenMM Reference"
 
@@ -258,10 +258,6 @@ def _source_root() -> Path:
     return Path(spec.origin).resolve().parent.parent
 
 
-def _normalized_patch(text: str) -> str:
-    return "".join(line for line in text.splitlines(keepends=True) if not line.startswith("index "))
-
-
 def _source_tree_is_frozen(root: Path) -> bool:
     changed = subprocess.run(
         ["git", "-C", str(root), "diff", "--name-only", "HEAD", "--"],
@@ -284,6 +280,30 @@ def _source_tree_is_frozen(root: Path) -> bool:
         "protenix/model/generator.py",
         "protenix/model/protenix.py",
     } and not untracked_modules
+
+
+def _verify_patched_sources(root: Path, lock: dict[str, object]) -> None:
+    identities = lock.get("patched_source_sha256")
+    if not isinstance(identities, dict) or not identities:
+        raise RuntimeError("Protenix profile lock omits patched source identities")
+    for relative_path, expected_digest in identities.items():
+        if not isinstance(relative_path, str) or not isinstance(expected_digest, str):
+            raise RuntimeError("Protenix profile lock contains an invalid source identity")
+        path = root.joinpath(*Path(relative_path).parts)
+        if path.is_symlink() or not path.is_file() or _sha256(path) != expected_digest:
+            raise RuntimeError(f"patched Protenix source mismatch: {relative_path}")
+
+
+def _verify_auxiliary_artifacts(root: Path, lock: dict[str, object]) -> None:
+    identities = lock.get("auxiliary_artifact_sha256")
+    if not isinstance(identities, dict) or not identities:
+        raise RuntimeError("Protenix profile lock omits auxiliary artifact identities")
+    for relative_path, expected_digest in identities.items():
+        if not isinstance(relative_path, str) or not isinstance(expected_digest, str):
+            raise RuntimeError("Protenix profile lock contains an invalid artifact identity")
+        path = root.joinpath(*Path(relative_path).parts)
+        if path.is_symlink() or not path.is_file() or _sha256(path) != expected_digest:
+            raise RuntimeError(f"Protenix auxiliary artifact mismatch: {relative_path}")
 
 
 def _verify_profile_environment() -> None:
@@ -312,26 +332,11 @@ def _verify_profile_environment() -> None:
         raise RuntimeError(f"Protenix revision mismatch: {revision}")
     if not _source_tree_is_frozen(root):
         raise RuntimeError("Protenix source tree contains changes outside the maintained patch")
+    _verify_patched_sources(root, lock)
+    _verify_auxiliary_artifacts(root, lock)
     patch_path = Path(__file__).with_name("per-step-callback.patch")
     if _sha256(patch_path) != PATCH_SHA256:
         raise RuntimeError("Protenix callback patch digest mismatch")
-    applied = subprocess.run(
-        [
-            "git",
-            "-C",
-            str(root),
-            "diff",
-            "HEAD",
-            "--",
-            "protenix/model/generator.py",
-            "protenix/model/protenix.py",
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout
-    if _normalized_patch(applied) != _normalized_patch(patch_path.read_text()):
-        raise RuntimeError("Protenix source does not match the maintained callback patch")
 
     import torch
 
@@ -429,15 +434,20 @@ def preflight_report(profile: str, checkpoint: Path) -> RunnerPreflightReport:
         else:
             if not _source_tree_is_frozen(root):
                 issue(AdapterPreflightCode.INCOMPATIBLE_SOURCE, "Protenix source tree contains unapproved changes")
-            applied = subprocess.run(
-                ["git", "-C", str(root), "diff", "HEAD", "--", "protenix/model/generator.py", "protenix/model/protenix.py"],
-                check=True,
-                capture_output=True,
-                text=True,
-                timeout=10,
-            ).stdout
-            if _normalized_patch(applied) != _normalized_patch(patch_path.read_text()):
-                issue(AdapterPreflightCode.INCOMPATIBLE_PATCH, "Protenix patch state does not match the frozen profile")
+            try:
+                _verify_patched_sources(root, _profile_lock())
+            except RuntimeError:
+                issue(
+                    AdapterPreflightCode.INCOMPATIBLE_PATCH,
+                    "Protenix patch state does not match the frozen profile",
+                )
+            try:
+                _verify_auxiliary_artifacts(root, _profile_lock())
+            except RuntimeError:
+                issue(
+                    AdapterPreflightCode.MISSING_RESOURCE,
+                    "Protenix auxiliary artifacts do not match the frozen profile",
+                )
     except (OSError, RuntimeError, subprocess.SubprocessError):
         issue(AdapterPreflightCode.INCOMPATIBLE_SOURCE, "Protenix source identity could not be verified")
 

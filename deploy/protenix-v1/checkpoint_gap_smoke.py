@@ -217,6 +217,19 @@ def _assert_model_on_device(model: Any, device: torch.device) -> None:
         raise RuntimeError("Protenix model is not wholly on the requested CUDA device")
 
 
+def _requested_atom_indices(
+    atom_axis: tuple[AtomIdentity, ...],
+    request: DiffusionRequest,
+) -> tuple[int, ...]:
+    included = set(request.fixed_atoms) | set(request.generated_atoms)
+    selected = tuple(
+        index for index, identity in enumerate(atom_axis) if identity in included
+    )
+    if {atom_axis[index] for index in selected} != included:
+        raise ValueError("candidate output did not contain every requested atom exactly once")
+    return selected
+
+
 def _write_candidate(
     output_path: Path,
     source_path: Path,
@@ -228,14 +241,16 @@ def _write_candidate(
 ) -> None:
     if coordinates.shape != (len(atom_axis), 3) or not np.isfinite(coordinates).all():
         raise ValueError("prediction has invalid coordinate shape or non-finite values")
+    selected_indices = _requested_atom_indices(atom_axis, request)
+    selected_axis = tuple(atom_axis[index] for index in selected_indices)
     output_path.write_text(
         materialize_candidate_pdb(
             source_path.read_text(encoding="ascii"),
-            atom_axis,
-            coordinates,
-            residue_names,
+            selected_axis,
+            coordinates[list(selected_indices)],
+            tuple(residue_names[index] for index in selected_indices),
             request,
-            elements=elements,
+            elements=tuple(elements[index] for index in selected_indices),
         ),
         encoding="ascii",
     )
@@ -384,6 +399,9 @@ def run(
     )
     if not resource_metrics.peak_ram_bytes or not resource_metrics.peak_vram_bytes:
         raise RuntimeError("runner did not record nonzero peak RAM and VRAM")
+    represented_atom_axis = tuple(
+        atom_axis[index] for index in _requested_atom_indices(atom_axis, request)
+    )
     trace_artifact = write_sampler_trace(
         workspace,
         output_dir / "sampler-trace.json",
@@ -396,7 +414,7 @@ def run(
             engine_repository="https://github.com/bytedance/Protenix",
             engine_revision="85767b811c40ed46e73a9b39519cf6bfca8701ba",
             patch_identity=f"sha256:{_PATCH_SHA256}",
-            atom_order=atom_axis,
+            atom_order=represented_atom_axis,
             fixed_atoms=request.fixed_atoms,
             device=str(runner.device),
             fallback_disabled=True,
