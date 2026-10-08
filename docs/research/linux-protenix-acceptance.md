@@ -178,6 +178,23 @@ validation. Full-cohort results remain pending. The replay's rejected `9eho`
 candidate failed `generated-or-junction-sidechain-chi12`; it remains in the
 denominator and is not replaced.
 
+The temporary replay directory and launcher were subsequently found missing,
+and no process or final replay report remained. The previously observed ten
+bundles therefore cannot establish a completed 231-case replay. The launcher was
+restored from the pinned assets and preflight passed again. New runs use
+`--archive-root .artifacts/protenix-public-231` so each verified case bundle,
+log, and replay-input migration record is staged into persistent storage before
+the next case starts. Reports are saved there as well. Resume digest-verifies
+the archived bundles and does not resample them if temporary publication storage
+has disappeared. The public CLI's atomic no-replace publication still runs on
+the native temporary filesystem; the persistent copy is a research archive.
+
+```bash
+python scripts/run_protenix_public_cohort.py \
+  .artifacts/diffusion-confirmatory-cohort-500-v5 /tmp/opencode/protenix-public-231 \
+  --work-parent /tmp/opencode --archive-root .artifacts/protenix-public-231
+```
+
 ### Test Results
 
 - Focused runner, Protenix wrapper, validation, and pipeline tests after final

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from dvbfixer.model.diffusion.runtime import (
@@ -39,10 +41,14 @@ def test_explicit_incompatible_model_reports_host(
 
 def test_missing_backend_names_expected_launcher(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
     monkeypatch.setattr("dvbfixer.model.diffusion.runtime.sys.platform", "linux")
     monkeypatch.setattr("dvbfixer.model.diffusion.runtime.platform.machine", lambda: "x86_64")
     monkeypatch.setattr("dvbfixer.model.diffusion.runtime.shutil.which", lambda _name: None)
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion.runtime.diffusion_runner_directory", lambda: tmp_path,
+    )
 
     with pytest.raises(
         DiffusionRuntimeError,

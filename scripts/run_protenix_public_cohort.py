@@ -10,6 +10,7 @@ import os
 import shutil
 import stat
 import subprocess
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -279,6 +280,34 @@ def validate_bundle(bundle: Path, *, case_id: str, seed: int) -> dict[str, Any]:
     }
 
 
+def archive_case(case_root: Path, archive_root: Path, *, case_id: str, seed: int) -> None:
+    """Copy verified published evidence into a durable, staged research archive."""
+    validate_bundle(case_root / "bundle", case_id=case_id, seed=seed)
+    parent = archive_root / "cases"
+    parent.mkdir(parents=True, exist_ok=True)
+    destination = parent / case_id
+    if destination.exists():
+        archived = validate_bundle(destination / "bundle", case_id=case_id, seed=seed)
+        current = validate_bundle(case_root / "bundle", case_id=case_id, seed=seed)
+        if archived != current:
+            raise PublicCohortError(f"archive evidence changed for {case_id}")
+        return
+    with tempfile.TemporaryDirectory(prefix=f".{case_id}.archive.", dir=parent) as temporary:
+        staged = Path(temporary) / case_id
+        shutil.copytree(case_root, staged)
+        validate_bundle(staged / "bundle", case_id=case_id, seed=seed)
+        for path in staged.rglob("*"):
+            if path.is_file():
+                with path.open("rb") as stream:
+                    os.fsync(stream.fileno())
+        staged.rename(destination)
+    descriptor = os.open(parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
 def _run_case(
     *,
     executable: Path,
@@ -359,6 +388,7 @@ def replay(
     selected_case_ids: frozenset[str] = frozenset(),
     max_cases: int | None = None,
     dry_run: bool = False,
+    archive_root: Path | None = None,
 ) -> dict[str, Any]:
     manifest, manifest_cases = load_manifest(manifest_path)
     source_cohort_sha256 = manifest.get("source_cohort_sha256")
@@ -376,6 +406,12 @@ def replay(
     if output_root.is_symlink():
         raise PublicCohortError("output root must not be a symlink")
     output_root.mkdir(exist_ok=True)
+    if archive_root is not None:
+        if archive_root.resolve() == output_root.resolve():
+            raise PublicCohortError("archive root must differ from publication root")
+        if archive_root.is_symlink() or not archive_root.parent.is_dir():
+            raise PublicCohortError("archive parent must exist and archive root must not be a symlink")
+        archive_root.mkdir(exist_ok=True)
     if not _regular_file(executable):
         raise PublicCohortError(f"DVBFixer executable is unavailable: {executable}")
 
@@ -402,8 +438,18 @@ def replay(
         )
         case_root = output_root / "cases" / case_id
         bundle = case_root / "bundle"
+        archived_bundle = (
+            archive_root / "cases" / case_id / "bundle"
+            if archive_root is not None else None
+        )
+        if archived_bundle is not None and archived_bundle.exists():
+            result = validate_bundle(archived_bundle, case_id=case_id, seed=seed)
+            results.append({**case, **result, "resumed": True, "archived": True})
+            continue
         if bundle.exists():
             result = validate_bundle(bundle, case_id=case_id, seed=seed)
+            if archive_root is not None and not dry_run:
+                archive_case(case_root, archive_root, case_id=case_id, seed=seed)
             results.append({**case, **result, "resumed": True})
             continue
         if dry_run:
@@ -440,6 +486,8 @@ def replay(
                 f"case {case_id} failed operationally with exit status {exit_status}"
             )
         result = validate_bundle(bundle, case_id=case_id, seed=seed)
+        if archive_root is not None:
+            archive_case(case_root, archive_root, case_id=case_id, seed=seed)
         results.append(
             {**case, **result, "resumed": False, "log_sha256": _sha256(log)}
         )
@@ -454,6 +502,8 @@ def replay(
                 cases=tuple(results),
             ),
         )
+        if archive_root is not None:
+            _atomic_json(archive_root / "report.json", _read_json(output_root / "report.json"))
 
     report = _report(
         manifest_path=manifest_path,
@@ -465,6 +515,8 @@ def replay(
     )
     if not dry_run:
         _atomic_json(output_root / "report.json", report)
+        if archive_root is not None:
+            _atomic_json(archive_root / "report.json", report)
     return report
 
 
@@ -480,6 +532,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--case", action="append", default=[])
     parser.add_argument("--max-cases", type=int)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--archive-root", type=Path, help="Persistent archive of verified case bundles and logs")
     return parser.parse_args()
 
 
@@ -507,6 +560,7 @@ def main() -> int:
             selected_case_ids=frozenset(args.case),
             max_cases=args.max_cases,
             dry_run=args.dry_run,
+            archive_root=args.archive_root.absolute() if args.archive_root else None,
         )
     except PublicCohortError as exc:
         print(f"ERROR: {exc}")

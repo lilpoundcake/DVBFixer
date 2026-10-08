@@ -326,3 +326,47 @@ def test_dry_run_does_not_claim_completion(
     assert report["completed_case_count"] == 0
     assert report["complete"] is False
     assert not (output / "report.json").exists()
+
+
+def test_archive_survives_loss_of_temporary_publication_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import shutil
+
+    runner = _load_runner()
+    case = {"case_id": "one", "screening_index": 1, "gap_length": 5, "target_length": 10}
+    manifest = _manifest(tmp_path / "manifest.json", [case])
+    cohort = tmp_path / "cohort"
+    _materialized_case(cohort, case)
+    output = tmp_path / "temporary"
+    case_root = output / "cases/one"
+    _bundle(case_root / "bundle")
+    (case_root / "dvbfixer.log").write_text("accepted")
+    archive = tmp_path / "durable"
+    runner.archive_case(case_root, archive, case_id="one", seed=7)
+    assert (archive / "cases/one/dvbfixer.log").read_text() == "accepted"
+    shutil.rmtree(output)
+    executable = tmp_path / "dvbfixer"
+    executable.write_text("#!/bin/sh\n")
+    monkeypatch.setattr(runner, "EXPECTED_CASES", 1)
+    monkeypatch.setattr(runner, "EXPECTED_STRATA", {5: 1})
+    monkeypatch.setattr(runner, "_run_case", lambda **_kwargs: pytest.fail("archive must resume"))
+    report = runner.replay(
+        manifest_path=manifest, cohort_root=cohort, output_root=output,
+        work_parent=tmp_path, executable=executable, seed=7, timeout=3600,
+        archive_root=archive,
+    )
+    assert report["complete"] is True
+    assert report["cases"][0]["archived"] is True
+    assert json.loads((archive / "report.json").read_text()) == report
+
+
+def test_corrupt_bundle_is_never_archived(tmp_path: Path) -> None:
+    runner = _load_runner()
+    case_root = tmp_path / "case"
+    _bundle(case_root / "bundle")
+    (case_root / "bundle/candidate.pdb").write_text("corrupt")
+    archive = tmp_path / "archive"
+    with pytest.raises(runner.PublicCohortError, match="digest mismatch"):
+        runner.archive_case(case_root, archive, case_id="one", seed=7)
+    assert not (archive / "cases/one").exists()
