@@ -64,6 +64,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Diffusion model (default: select an installed model for this machine)",
     )
     diffusion.add_argument(
+        "--diffusion-request",
+        help="Use an existing schema-4 diffusion request instead of reconstructing "
+        "sequence placement and masks from FASTA/SEQRES",
+    )
+    diffusion.add_argument(
         "--diffusion-seed",
         action="append",
         type=int,
@@ -185,6 +190,7 @@ def _validate_backend_options(
 ) -> None:
     diffusion_options = {
         "--diffusion-model",
+        "--diffusion-request",
         "--diffusion-seed",
         "--diffusion-timeout",
         "--diffusion-work-parent",
@@ -205,6 +211,20 @@ def _validate_backend_options(
     if any(seed < 0 for seed in seeds) or len(seeds) != len(set(seeds)):
         parser.error("--diffusion-seed values must be unique non-negative integers")
     args.diffusion_seeds = seeds
+
+    if args.diffusion_request:
+        construction_options = {
+            "--fasta",
+            "--diffusion-seed",
+            "--diffusion-heterogen-smiles",
+            "--no-terminal",
+            "--strip-heterogens",
+        }
+        invalid = sorted(provided & construction_options)
+        if invalid:
+            parser.error(
+                f"{', '.join(invalid)} cannot be combined with --diffusion-request"
+            )
 
     modeller_only = {
         "-n", "--num-models", "--num-loops", "--num-output", "--md-level",

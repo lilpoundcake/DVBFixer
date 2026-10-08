@@ -435,6 +435,7 @@ def normalized_command_inputs(command: str, argv: Sequence[str]) -> Iterator[lis
     non_input_path_options = {
         "-o", "--output", "--pdb", "--dat", "--fit-dir", "--gromacs",
         "--postflight-report",
+        "--diffusion-request",
     }
     references = [
         None if index and original[index - 1] in non_input_path_options

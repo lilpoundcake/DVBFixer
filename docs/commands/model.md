@@ -60,6 +60,11 @@ dvbfixer model input.pdb --fasta sequence.fasta --backend diffusion \
 # Ignore missing N/C tails and reconstruct only internal gaps
 dvbfixer model input.pdb --fasta sequence.fasta \
   --backend diffusion --no-terminal -o input_model_diffusion
+
+# Replay an existing schema-4 request without reconstructing an ambiguous
+# sequence placement. input/normalized.pdb must be the request's exact artifact.
+dvbfixer model workspace/input/normalized.pdb --backend diffusion \
+  --diffusion-request workspace/request.json -o input_model_diffusion
 ```
 
 ### Experimental diffusion scope
@@ -88,6 +93,17 @@ launch. `--strip-heterogens`
 explicitly creates a protein-only private input before admission and removes
 associated ANISOU, LINK, and CONECT records; the source file is never changed.
 Batch mode, GUI, `zbs`, and `homology` do not expose diffusion.
+
+`--diffusion-request` accepts an existing schema-4 request when sequence
+placement and masks were materialized independently. The positional input must
+be the exact normalized PDB referenced by that request. Profile-bound requests
+are passed unchanged and still undergo scope admission, runner preflight, independent
+validation, and atomic publication. Options that reconstruct or alter request
+semantics (`--fasta`, `--diffusion-seed`, `--diffusion-heterogen-smiles`,
+`--no-terminal`, and `--strip-heterogens`) cannot be combined with it.
+Legacy requests without a `profile` backend option require an explicit
+`--diffusion-model`; DVBFixer binds that selected runtime profile while leaving
+the persisted placement, masks, seeds, and artifact identity unchanged.
 
 For a multi-chain structure, the Protpardelle profile runs each gap-bearing
 protein chain as an independent sampler invocation and then DVBFixer merges the
@@ -136,6 +152,7 @@ fatal and publish nothing.
 | `--fasta` | none | FASTA file with complete sequence(s) (alternative to SEQRES) |
 | `--backend` | `modeller` | Select `modeller` or the explicit experimental `diffusion` path |
 | `--diffusion-model` | auto | Optional model choice: `protpardelle` or `protenix`; by default DVBFixer selects an installed model compatible with the machine |
+| `--diffusion-request` | none | Existing schema-4 request with explicit sequence placement and masks; requires its exact referenced normalized PDB |
 | `--diffusion-seed` | 7 | Candidate seed; repeat for multiple candidates |
 | `--diffusion-timeout` | 900 | External runner timeout in seconds; the default covers sequential multi-chain sampling and local refinement |
 | `--diffusion-work-parent` | output parent | Existing directory under which the private runner workspace is created |

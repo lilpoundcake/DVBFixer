@@ -8,6 +8,7 @@
 usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA]
                       [--backend {modeller,diffusion}]
                       [--diffusion-model {protpardelle,protenix}]
+                      [--diffusion-request DIFFUSION_REQUEST]
                       [--diffusion-seed DIFFUSION_SEEDS]
                       [--diffusion-timeout DIFFUSION_TIMEOUT]
                       [--diffusion-work-parent DIFFUSION_WORK_PARENT]
@@ -32,8 +33,7 @@ options:
 Input / output:
   input                 Input PDB or PDBx/mmCIF file (must contain polymer
                         sequence metadata or use --fasta)
-  -o OUTPUT, --output OUTPUT
-                        MODELLER output PDB, or a new directory bundle for
+  -o, --output OUTPUT   MODELLER output PDB, or a new directory bundle for
                         diffusion (defaults: <input>_model.pdb or
                         <input>_model_diffusion)
   --fasta FASTA         FASTA file with complete sequence(s). Headers must
@@ -50,6 +50,10 @@ Diffusion options:
   --diffusion-model {protpardelle,protenix}
                         Diffusion model (default: select an installed model
                         for this machine)
+  --diffusion-request DIFFUSION_REQUEST
+                        Use an existing schema-4 diffusion request instead of
+                        reconstructing sequence placement and masks from
+                        FASTA/SEQRES
   --diffusion-seed DIFFUSION_SEEDS
                         Candidate seed; repeat for multiple candidates
                         (default: 7)
@@ -64,7 +68,7 @@ Diffusion options:
                         (Protpardelle fixed geometric context only)
 
 Modelling parameters:
-  -n NUM_MODELS, --num-models NUM_MODELS
+  -n, --num-models NUM_MODELS
                         Number of initial models to generate (default: 1)
   --num-loops NUM_LOOPS
                         Number of loop refinement models per initial model

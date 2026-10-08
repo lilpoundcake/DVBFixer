@@ -151,6 +151,35 @@ replace the frozen 231-case production-wrapper replay.
 
 ## Verification
 
+### Full Replay Preparation and Operational Stops
+
+`scripts/run_protenix_public_cohort.py` consumes the exact tracked 231-case
+membership in `small-diffusion-full-followup-v2.json` (SHA-256
+`fa2bd455ef44c0a413cc2a174a4dfd017af51a99617fb69eb7bdc364eba0850f`).
+It verifies frozen materialization digests, invokes the public model CLI, checks
+published bundle digests, and resumes completed cases without resampling.
+
+The first replay stopped on `9ina` after a 900-second operational timeout. The
+historical frozen run took approximately 1,740 seconds for that case, with a
+cohort maximum of approximately 1,872 seconds. The replay timeout was increased
+to 3,600 seconds; sampling, refinement, and scientific thresholds were unchanged.
+
+The resumed run completed nine cases (eight accepted, one scientific rejection)
+before `9e85` failed request construction with ambiguous sequence placement.
+That case has an explicit frozen placement, but its persisted request uses schema
+3, not the current schema 4. Replay now makes a private, explicitly recorded v3
+to v4 migration, retaining placement, masks, seed and input identity and applying
+the current contract and scope checks. Original checksum-verified materialization
+is never overwritten. The public `--diffusion-request` option consumes this copy;
+legacy requests without a profile require an explicit model selection.
+
+`9e85` subsequently passed the full public production workflow and independent
+validation. Full-cohort results remain pending. The replay's rejected `9eho`
+candidate failed `generated-or-junction-sidechain-chi12`; it remains in the
+denominator and is not replaced.
+
+### Test Results
+
 - Focused runner, Protenix wrapper, validation, and pipeline tests after final
   edits: `80 passed in 21.69s` with `PYTHONPATH=src`.
 - Full non-slow repository suite with source isolation: `994 passed, 6 skipped,

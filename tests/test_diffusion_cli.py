@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -78,6 +79,40 @@ def test_diffusion_parser_accepts_optional_model_selection() -> None:
     assert args.backend == "diffusion"
     assert args.diffusion_model == "protpardelle"
     assert args.diffusion_seeds == [7, 11]
+
+
+def test_diffusion_parser_accepts_frozen_request() -> None:
+    args = parse_args(
+        ["input.pdb", "--backend", "diffusion", "--diffusion-request", "request.json"]
+    )
+
+    assert args.diffusion_request == "request.json"
+
+
+@pytest.mark.parametrize(
+    "option",
+    (
+        ("--fasta", "target.fasta"),
+        ("--diffusion-seed", "11"),
+        ("--diffusion-heterogen-smiles", "LIG=CO"),
+        ("--no-terminal",),
+        ("--strip-heterogens",),
+    ),
+)
+def test_frozen_request_rejects_request_construction_options(
+    option: tuple[str, ...],
+) -> None:
+    with pytest.raises(SystemExit):
+        parse_args(
+            [
+                "input.pdb",
+                "--backend",
+                "diffusion",
+                "--diffusion-request",
+                "request.json",
+                *option,
+            ]
+        )
 
 
 def test_modeller_remains_the_default_backend() -> None:
@@ -159,6 +194,154 @@ def test_request_builder_produces_admitted_one_gap_request(tmp_path: Path) -> No
     ]
     assert request.candidate_count == 1
     assert assess_diffusion_scope(request, input_path.read_bytes()).supported
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_frozen_request_uses_exact_request_and_source_root(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    legacy: bool,
+) -> None:
+    (tmp_path / "input").mkdir()
+    input_path = _gap_input(tmp_path / "input")
+    request = build_cli_diffusion_request(
+        input_path,
+        {"C": "SNRFSGSKSGNTA"},
+        seeds=(7,),
+        profile="protpardelle-1c-mps",
+    )
+    request_path = tmp_path / "request.json"
+    persisted = replace(request, backend_options=()) if legacy else request
+    request = replace(
+        request,
+        normalized_pdb=replace(request.normalized_pdb, path="input/gap.pdb"),
+    )
+    persisted = replace(persisted, normalized_pdb=request.normalized_pdb)
+    request_path.write_text(persisted.to_json(), encoding="utf-8")
+    output = tmp_path / "output"
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
+        lambda _model: DiffusionRuntime(
+            "protpardelle", "protpardelle-1c-mps", "/installed/protpardelle-runner"
+        ),
+    )
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.invoke_runner_preflight",
+        lambda **_kwargs: RunnerPreflightReport(
+            profile="protpardelle-1c-mps",
+            runner_protocol_version=4,
+            contract_schema_version=4,
+            facts=RunnerPreflightFacts(),
+        ),
+    )
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli._target_sequences",
+        lambda *_args: pytest.fail("frozen request must not reconstruct placement"),
+    )
+
+    def fake_pipeline(observed, _command, *, source_root, **_kwargs):
+        assert observed == request
+        assert source_root == tmp_path
+        return SimpleNamespace(published_bundle=output, status=SimpleNamespace(value="success"))
+
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.run_diffusion_pipeline",
+        fake_pipeline,
+    )
+    args = parse_args(
+        [
+            str(input_path),
+            "--backend",
+            "diffusion",
+            "--diffusion-model",
+            "protpardelle",
+            "--diffusion-request",
+            str(request_path),
+            "-o",
+            str(output),
+        ]
+    )
+
+    run_diffusion_model(args)
+
+
+def test_frozen_request_rejects_mutated_input_before_preflight(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    input_path = _gap_input(tmp_path)
+    request = build_cli_diffusion_request(
+        input_path,
+        {"C": "SNRFSGSKSGNTA"},
+        seeds=(7,),
+        profile="protpardelle-1c-mps",
+    )
+    request_path = tmp_path / "request.json"
+    request_path.write_text(request.to_json(), encoding="utf-8")
+    input_path.write_text(input_path.read_text() + "REMARK mutated\n")
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
+        lambda _model: DiffusionRuntime(
+            "protpardelle", "protpardelle-1c-mps", "/installed/protpardelle-runner"
+        ),
+    )
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.invoke_runner_preflight",
+        lambda **_kwargs: pytest.fail("digest admission must precede preflight"),
+    )
+    args = parse_args(
+        [
+            str(input_path),
+            "--backend",
+            "diffusion",
+            "--diffusion-request",
+            str(request_path),
+            "-o",
+            str(tmp_path / "output"),
+        ]
+    )
+
+    with pytest.raises(DiffusionCliError, match="SHA-256"):
+        run_diffusion_model(args)
+
+
+@pytest.mark.parametrize(
+    ("problem", "message"),
+    (
+        ("input", "normalized PDB referenced"),
+        ("profile", "profile does not match"),
+        ("legacy", "requires --diffusion-model"),
+    ),
+)
+def test_frozen_request_rejects_input_or_profile_mismatch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, problem: str, message: str,
+) -> None:
+    input_path = _gap_input(tmp_path)
+    request = build_cli_diffusion_request(
+        input_path, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protpardelle-1c-mps",
+    )
+    if problem == "legacy":
+        request = replace(request, backend_options=())
+    request_path = tmp_path / "request.json"
+    request_path.write_text(request.to_json())
+    if problem == "input":
+        other = tmp_path / "other.pdb"
+        other.write_bytes(input_path.read_bytes())
+        input_path = other
+    runtime_profile = "protenix-v1-cuda" if problem == "profile" else "protpardelle-1c-mps"
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
+        lambda _model: DiffusionRuntime("protpardelle", runtime_profile, "/installed/runner"),
+    )
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.invoke_runner_preflight",
+        lambda **_kwargs: pytest.fail("invalid request must fail before preflight"),
+    )
+    args = parse_args([
+        str(input_path), "--backend", "diffusion", "--diffusion-request", str(request_path),
+    ])
+    with pytest.raises(DiffusionCliError, match=message):
+        run_diffusion_model(args)
 
 
 def test_request_builder_uses_insertion_codes_when_numbers_are_not_reserved(

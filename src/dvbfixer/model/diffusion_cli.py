@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import tempfile
 from contextlib import ExitStack
+from dataclasses import replace
 from pathlib import Path
 
 from dvbfixer.model.cli import AA3TO1
@@ -13,6 +14,7 @@ from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
     BackendOption,
+    DiffusionContractError,
     DiffusionRequest,
     ExplicitLink,
     GapKind,
@@ -365,14 +367,65 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
     if not work_parent.is_dir():
         raise DiffusionCliError(f"diffusion work parent is not a directory: {work_parent}")
 
+    request_value = getattr(args, "diffusion_request", None)
+    frozen_request: DiffusionRequest | None = None
+    source_root = input_path.parent
+    if request_value:
+        request_path = Path(request_value).expanduser().resolve()
+        if not request_path.is_file():
+            raise DiffusionCliError(f"diffusion request does not exist: {request_path}")
+        limits = RunnerLimits(timeout_seconds=args.diffusion_timeout)
+        if request_path.stat().st_size > limits.max_manifest_bytes:
+            raise DiffusionCliError("diffusion request exceeds the manifest size limit")
+        try:
+            with request_path.open("rb") as stream:
+                request_bytes = stream.read(limits.max_manifest_bytes + 1)
+            if len(request_bytes) > limits.max_manifest_bytes:
+                raise DiffusionCliError("diffusion request exceeds the manifest size limit")
+            frozen_request = DiffusionRequest.from_json(request_bytes.decode("utf-8"))
+        except (DiffusionContractError, OSError, UnicodeDecodeError) as exc:
+            raise DiffusionCliError(f"invalid diffusion request: {exc}") from exc
+        source_root = request_path.parent
+        referenced_input = (source_root / frozen_request.normalized_pdb.path).resolve()
+        if referenced_input != input_path:
+            raise DiffusionCliError(
+                "input must be the normalized PDB referenced by --diffusion-request"
+            )
+
     try:
         runtime = resolve_diffusion_runtime(args.diffusion_model)
     except DiffusionRuntimeError as exc:
         raise DiffusionCliError(str(exc)) from exc
+    if frozen_request is not None:
+        requested_profile = next(
+            (
+                option.value
+                for option in frozen_request.backend_options
+                if option.name == "profile"
+            ),
+            "",
+        )
+        if requested_profile and requested_profile != runtime.profile:
+            raise DiffusionCliError(
+                "diffusion request profile does not match the selected runtime"
+            )
+        if not requested_profile:
+            if args.diffusion_model is None:
+                raise DiffusionCliError(
+                    "legacy diffusion request without a profile requires "
+                    "--diffusion-model"
+                )
+            frozen_request = replace(
+                frozen_request,
+                backend_options=(
+                    *frozen_request.backend_options,
+                    BackendOption("profile", runtime.profile),
+                ),
+            )
 
     with ExitStack() as resources:
         model_input = input_path
-        if not args.keep_heterogens:
+        if frozen_request is None and not args.keep_heterogens:
             from dvbfixer.model.pipeline import _strip_hetatm_lines
 
             prep_root = Path(resources.enter_context(tempfile.TemporaryDirectory(
@@ -385,23 +438,28 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 "".join(_strip_hetatm_lines(lines, keep_water=False, verbose=args.verbose)),
                 encoding="utf-8",
             )
+        if frozen_request is None:
+            source_root = model_input.parent
 
-        target_sequences = _target_sequences(model_input, args.fasta)
-        try:
-            heterogen_smiles = parse_smiles_mappings(
-                getattr(args, "diffusion_heterogen_smiles", ())
+        if frozen_request is None:
+            target_sequences = _target_sequences(model_input, args.fasta)
+            try:
+                heterogen_smiles = parse_smiles_mappings(
+                    getattr(args, "diffusion_heterogen_smiles", ())
+                )
+            except SmilesPreparationError as exc:
+                raise DiffusionCliError(str(exc)) from exc
+            request = build_cli_diffusion_request(
+                model_input,
+                target_sequences,
+                seeds=tuple(args.diffusion_seeds),
+                profile=runtime.profile,
+                no_terminal=getattr(args, "no_terminal", False),
+                heterogen_smiles=heterogen_smiles,
+                template_ownership=getattr(args, "diffusion_template_ownership", ()),
             )
-        except SmilesPreparationError as exc:
-            raise DiffusionCliError(str(exc)) from exc
-        request = build_cli_diffusion_request(
-            model_input,
-            target_sequences,
-            seeds=tuple(args.diffusion_seeds),
-            profile=runtime.profile,
-            no_terminal=getattr(args, "no_terminal", False),
-            heterogen_smiles=heterogen_smiles,
-            template_ownership=getattr(args, "diffusion_template_ownership", ()),
-        )
+        else:
+            request = frozen_request
         try:
             admission = assess_diffusion_scope(request, model_input.read_bytes())
         except DiffusionScopeError as exc:
@@ -441,7 +499,7 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
         outcome = run_diffusion_pipeline(
             request,
             command,
-            source_root=model_input.parent,
+            source_root=source_root,
             work_parent=work_parent,
             destination_bundle=output_path,
             limits=RunnerLimits(timeout_seconds=args.diffusion_timeout),

@@ -7,7 +7,7 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 
 import pytest
 
@@ -50,7 +50,18 @@ def _materialized_case(root: Path, case: dict[str, object]) -> Path:
     for name, data in (
         ("input/normalized.pdb", b"END\n"),
         ("target.fasta", b">A\nAAAAA\n"),
-        ("request.json", b"{}"),
+        (
+            "request.json",
+            json.dumps(
+                {
+                    "candidate_count": 1,
+                    "seeds": [7],
+                    "backend_options": [
+                        {"name": "profile", "value": "protenix-v1-cuda"}
+                    ],
+                }
+            ).encode(),
+        ),
     ):
         artifact = workspace / name
         artifact.write_bytes(data)
@@ -127,6 +138,65 @@ def test_load_manifest_rejects_membership_drift(tmp_path: Path) -> None:
         runner.load_manifest(manifest)
 
 
+def test_public_command_passes_request_without_construction_options(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runner = _load_runner()
+    observed = []
+
+    def fake_run(command, **kwargs):
+        observed.extend(command)
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    assert runner._run_case(
+        executable=tmp_path / "dvbfixer",
+        workspace=tmp_path,
+        bundle=tmp_path / "bundle",
+        work_parent=tmp_path,
+        seed=7,
+        timeout=3600,
+        log=tmp_path / "command.log",
+    ) == 0
+    assert "--diffusion-request" in observed
+    assert "--fasta" not in observed
+    assert "--diffusion-seed" not in observed
+
+
+def test_migration_preserves_frozen_masks_and_original_request(tmp_path: Path) -> None:
+    from dvbfixer.model.diffusion.contract import DiffusionRequest
+    from dvbfixer.model.diffusion_cli import build_cli_diffusion_request
+
+    runner = _load_runner()
+    source = tmp_path / "source"
+    (source / "input").mkdir(parents=True)
+    fixture = ROOT / "tests/fixtures/8cz8/8cz8_a_u.pdb"
+    retained = {61, 62, 63, 64, 70, 71, 72, 73}
+    text = "".join(
+        line for line in fixture.read_text().splitlines(keepends=True)
+        if line.startswith("ATOM  ") and line[21] == "C"
+        and int(line[22:26]) in retained
+    ) + "TER\nEND\n"
+    pdb = source / "input/normalized.pdb"
+    pdb.write_text(text)
+    request = build_cli_diffusion_request(
+        pdb, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protenix-v1-cuda",
+    )
+    raw = request.to_dict()
+    raw["normalized_pdb"]["path"] = "input/normalized.pdb"
+    raw["schema_version"] = 3
+    (source / "request.json").write_text(json.dumps(raw))
+    before = (source / "request.json").read_bytes()
+    destination = runner.prepare_replay_request(source, tmp_path / "replay-input")
+    migrated = DiffusionRequest.from_json((destination / "request.json").read_text())
+    assert migrated.schema_version == 4
+    assert migrated.gaps == request.gaps
+    assert migrated.sequence_placements == request.sequence_placements
+    assert migrated.seeds == request.seeds
+    assert (source / "request.json").read_bytes() == before
+    assert (destination / "input/normalized.pdb").read_bytes() == pdb.read_bytes()
+
+
 def test_replay_resumes_valid_bundle_and_runs_missing_case(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -162,6 +232,7 @@ def test_replay_resumes_valid_bundle_and_runs_missing_case(
     monkeypatch.setattr(runner, "EXPECTED_CASES", 2)
     monkeypatch.setattr(runner, "EXPECTED_STRATA", {5: 1, 10: 1})
     monkeypatch.setattr(runner, "_run_case", fake_run_case)
+    monkeypatch.setattr(runner, "prepare_replay_request", lambda source, _destination: source)
     report = runner.replay(
         manifest_path=manifest,
         cohort_root=cohort,
@@ -206,6 +277,7 @@ def test_replay_stops_and_records_operational_failure(
     monkeypatch.setattr(runner, "EXPECTED_CASES", 1)
     monkeypatch.setattr(runner, "EXPECTED_STRATA", {5: 1})
     monkeypatch.setattr(runner, "_run_case", fake_run_case)
+    monkeypatch.setattr(runner, "prepare_replay_request", lambda source, _destination: source)
     with pytest.raises(runner.PublicCohortError, match="failed operationally"):
         runner.replay(
             manifest_path=manifest,

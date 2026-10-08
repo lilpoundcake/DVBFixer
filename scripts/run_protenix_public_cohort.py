@@ -14,6 +14,13 @@ import time
 from pathlib import Path
 from typing import Any
 
+from dvbfixer.model.diffusion.contract import (
+    DIFFUSION_SCHEMA_VERSION,
+    DiffusionContractError,
+    DiffusionRequest,
+)
+from dvbfixer.model.diffusion.scope import assess_diffusion_scope
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = ROOT / "docs/research/small-diffusion-full-followup-v2.json"
 FROZEN_MANIFEST_SHA256 = "fa2bd455ef44c0a413cc2a174a4dfd017af51a99617fb69eb7bdc364eba0850f"
@@ -121,6 +128,7 @@ def validate_materialized_case(
     case: dict[str, Any],
     *,
     source_cohort_sha256: str,
+    seed: int,
 ) -> Path:
     case_root = cohort_root / "cases" / case["case_id"]
     completion = _read_json(case_root / ".complete.json")
@@ -155,6 +163,21 @@ def validate_materialized_case(
             raise PublicCohortError(
                 f"materialized artifact digest mismatch for {case['case_id']}: {name}"
             )
+    request = _read_json(case_root / "workspace/request.json")
+    profile = next(
+        (
+            option.get("value")
+            for option in request.get("backend_options", [])
+            if isinstance(option, dict) and option.get("name") == "profile"
+        ),
+        None,
+    )
+    if (
+        request.get("candidate_count") != 1
+        or request.get("seeds") != [seed]
+        or profile not in {None, PROFILE}
+    ):
+        raise PublicCohortError(f"materialized request policy mismatch for {case['case_id']}")
     return case_root / "workspace"
 
 
@@ -172,6 +195,44 @@ def _contained_artifact(bundle: Path, value: object, label: str) -> tuple[str, s
     if not _regular_file(artifact) or _sha256(artifact) != digest:
         raise PublicCohortError(f"bundle {label} digest mismatch")
     return relative, digest
+
+
+def prepare_replay_request(source: Path, destination: Path) -> Path:
+    """Explicitly migrate frozen v3 internal-gap requests into a private v4 copy.
+
+    V4 added optional terminal/context/ownership fields. V3's persisted internal
+    placements, masks and seeds are retained verbatim and validated by the current
+    contract and scope admission; original materialization is never overwritten.
+    """
+    raw = _read_json(source / "request.json")
+    version = raw.get("schema_version")
+    if version not in {3, DIFFUSION_SCHEMA_VERSION}:
+        raise PublicCohortError(f"unsupported frozen request schema {version}")
+    if version == 3:
+        raw["schema_version"] = DIFFUSION_SCHEMA_VERSION
+    try:
+        request = DiffusionRequest.from_dict(raw)
+    except DiffusionContractError as exc:
+        raise PublicCohortError(f"invalid migrated request: {exc}") from exc
+    source_bytes = (source / "input/normalized.pdb").read_bytes()
+    admission = assess_diffusion_scope(request, source_bytes)
+    if not admission.supported:
+        raise PublicCohortError(f"migrated request is outside scope: {admission.reasons}")
+    if request.normalized_pdb.path != "input/normalized.pdb":
+        raise PublicCohortError("frozen request must reference input/normalized.pdb")
+    (destination / "input").mkdir(parents=True, exist_ok=True)
+    (destination / "input/normalized.pdb").write_bytes(source_bytes)
+    _atomic_json(destination / "request.json", request.to_dict())
+    _atomic_json(
+        destination / "migration.json",
+        {
+            "source_schema_version": version,
+            "schema_version": DIFFUSION_SCHEMA_VERSION,
+            "source_request_sha256": _sha256(source / "request.json"),
+            "replay_request_sha256": _sha256(destination / "request.json"),
+        },
+    )
+    return destination
 
 
 def validate_bundle(bundle: Path, *, case_id: str, seed: int) -> dict[str, Any]:
@@ -232,14 +293,12 @@ def _run_case(
         str(executable),
         "model",
         str(workspace / "input/normalized.pdb"),
-        "--fasta",
-        str(workspace / "target.fasta"),
         "--backend",
         "diffusion",
         "--diffusion-model",
         "protenix",
-        "--diffusion-seed",
-        str(seed),
+        "--diffusion-request",
+        str(workspace / "request.json"),
         "--diffusion-timeout",
         str(timeout),
         "--diffusion-work-parent",
@@ -339,6 +398,7 @@ def replay(
             cohort_root,
             case,
             source_cohort_sha256=source_cohort_sha256,
+            seed=seed,
         )
         case_root = output_root / "cases" / case_id
         bundle = case_root / "bundle"
@@ -351,6 +411,7 @@ def replay(
             continue
 
         case_root.mkdir(parents=True, exist_ok=True)
+        workspace = prepare_replay_request(workspace, case_root / "replay-input")
         log = case_root / "dvbfixer.log"
         failure = case_root / "failure.json"
         log.unlink(missing_ok=True)
