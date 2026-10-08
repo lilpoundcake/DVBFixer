@@ -22,6 +22,7 @@ EXPECTED_CASES = 231
 EXPECTED_STRATA = {5: 128, 10: 103}
 REPORT_SCHEMA_VERSION = 1
 BUNDLE_SCHEMA_VERSION = 2
+DEFAULT_TIMEOUT_SECONDS = 3600
 
 
 class PublicCohortError(RuntimeError):
@@ -264,6 +265,7 @@ def _report(
     manifest_sha256: str,
     cohort_root: Path,
     seed: int,
+    timeout: int,
     cases: tuple[dict[str, Any], ...],
 ) -> dict[str, Any]:
     successful = sum(case["status"] == "success" for case in cases)
@@ -273,6 +275,7 @@ def _report(
         "schema_version": REPORT_SCHEMA_VERSION,
         "profile": PROFILE,
         "seed": seed,
+        "timeout_seconds": timeout,
         "manifest": str(manifest_path),
         "manifest_sha256": manifest_sha256,
         "cohort_root": str(cohort_root),
@@ -309,6 +312,8 @@ def replay(
             raise PublicCohortError("source aggregate digest does not match the frozen manifest")
     if not work_parent.is_dir() or not output_root.parent.is_dir():
         raise PublicCohortError("work parent and output parent must already exist")
+    if seed < 0 or timeout <= 0:
+        raise PublicCohortError("seed must be non-negative and timeout must be positive")
     if output_root.is_symlink():
         raise PublicCohortError("output root must not be a symlink")
     output_root.mkdir(exist_ok=True)
@@ -384,6 +389,7 @@ def replay(
                 manifest_sha256=_sha256(manifest_path),
                 cohort_root=cohort_root,
                 seed=seed,
+                timeout=timeout,
                 cases=tuple(results),
             ),
         )
@@ -393,6 +399,7 @@ def replay(
         manifest_sha256=_sha256(manifest_path),
         cohort_root=cohort_root,
         seed=seed,
+        timeout=timeout,
         cases=tuple(results),
     )
     if not dry_run:
@@ -408,7 +415,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--work-parent", required=True, type=Path)
     parser.add_argument("--dvbfixer", default="dvbfixer", type=Path)
     parser.add_argument("--seed", default=7, type=int)
-    parser.add_argument("--timeout", default=900, type=int)
+    parser.add_argument("--timeout", default=DEFAULT_TIMEOUT_SECONDS, type=int)
     parser.add_argument("--case", action="append", default=[])
     parser.add_argument("--max-cases", type=int)
     parser.add_argument("--dry-run", action="store_true")

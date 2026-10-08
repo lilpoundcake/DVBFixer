@@ -176,6 +176,7 @@ def test_replay_resumes_valid_bundle_and_runs_missing_case(
     assert report["complete"] is True
     assert report["success_count"] == 1
     assert report["validation_failed_count"] == 1
+    assert report["timeout_seconds"] == 900
     assert [case["resumed"] for case in report["cases"]] == [True, False]
     assert json.loads((output / "report.json").read_text()) == report
 
