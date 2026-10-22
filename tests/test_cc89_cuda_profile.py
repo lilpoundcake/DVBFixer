@@ -102,6 +102,22 @@ def test_cuda_gap_admission_retains_the_studied_cys_free_boundary(tmp_path, cli_
         prepare_cuda_cc89_request(request, source.read_bytes(), "auto")
 
 
+@pytest.mark.parametrize("profile", ["protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"])
+def test_corrected_profiles_warn_instead_of_rejecting_short_gap(tmp_path, cli_fixture, profile):
+    from dvbfixer.model.diffusion.protein_context import prepare_mps_cc89_request
+
+    source = cli_fixture._gap_input(tmp_path)
+    request = build_cli_diffusion_request(
+        source, {"C": "SNRFAAGNTA"}, seeds=(7,), profile=profile,
+    )
+    prepare = prepare_cuda_cc89_request if profile.endswith("cuda") else prepare_mps_cc89_request
+    selected = prepare(request, source.read_bytes(), "auto")
+    admission = assess_diffusion_scope(selected, source.read_bytes())
+    assert admission.supported
+    assert "length 2" in admission.warnings[0]
+    assert "validated range 5-10" in admission.warnings[0]
+
+
 @pytest.mark.parametrize("prepared", [False, True])
 def test_public_frozen_request_is_never_silently_given_a_new_context(tmp_path, monkeypatch, cli_fixture, prepared):
     from types import SimpleNamespace

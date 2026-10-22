@@ -25,10 +25,6 @@ from dvbfixer.model.diffusion.contract import (
     TargetSequence,
     TemplateOwnership,
 )
-from dvbfixer.model.diffusion.gap_capabilities import (
-    accepted_gap_range_label,
-    gap_capability,
-)
 from dvbfixer.model.diffusion.heterogen_context import (
     HeterogenContextError,
     build_smiles_heterogen_contexts,
@@ -76,7 +72,13 @@ def build_cli_diffusion_request(
     except UnicodeDecodeError as exc:
         raise DiffusionCliError("normalized PDB is not valid UTF-8") from exc
     lines = text.splitlines()
-    atoms, residue_names, _altlocs = _parse_coordinate_records(lines)
+    atoms, residue_names, altlocs = _parse_coordinate_records(lines)
+    if altlocs:
+        raise DiffusionCliError(
+            "input contains alternate-location atoms; select one state per residue "
+            "using GUI Altlocs or 'dvbfixer altlocs input.pdb -o selected.pdb', "
+            "then run diffusion on the new structure"
+        )
 
     protein_residues: list[ObservedResidue] = []
     seen: set[ResidueIdentity] = set()
@@ -166,22 +168,6 @@ def build_cli_diffusion_request(
             intervals.append((last_observed + 1, len(target), GapKind.C_TERMINAL))
         for start, stop, gap_kind in intervals:
             gap_length = stop - start
-            if not gap_capability(profile, gap_length).accepted:
-                region = {
-                    GapKind.INTERNAL: "internal gap",
-                    GapKind.N_TERMINAL: "N-terminal missing region",
-                    GapKind.C_TERMINAL: "C-terminal missing region",
-                }[gap_kind]
-                remedy = (
-                    "; pass --no-terminal to crop unobserved tails"
-                    if gap_kind is not GapKind.INTERNAL
-                    else ""
-                )
-                raise DiffusionCliError(
-                    f"{region} length {gap_length} on chain {chain} is outside "
-                    f"the accepted range {accepted_gap_range_label(profile)}"
-                    f"{remedy}"
-                )
             left_anchor = by_target[start - 1] if start > 0 else None
             right_anchor = by_target[stop] if stop < len(target) else None
             try:
@@ -522,9 +508,11 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
         if not admission.supported:
             raise DiffusionCliError(
                 "diffusion input is outside the supported scope: "
-                + ", ".join(admission.reasons)
+                + admission.message
             )
         if resume and output_path.exists():
+            for warning in admission.warnings:
+                print(f"WARNING: {warning}", flush=True)
             from dvbfixer.model.diffusion.publication import read_published_bundle
 
             published = read_published_bundle(

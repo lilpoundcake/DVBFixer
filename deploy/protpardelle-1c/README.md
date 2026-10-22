@@ -9,11 +9,15 @@ production-supported backend.
 
 `protpardelle-1c-cuda` is available through `model`, mosaic-first `homology`,
 their existing batch/ZBS adapters, and the GUI's **Protpardelle** selection.
-It supports **one CYS-free internal gap of 5–10 residues**, a whole canonical-protein
+Its validated slice is **one CYS-free internal gap of 5–10 residues**, a whole canonical-protein
 source of at most **512 residues**, and the fixed source-only local context
 policy. Surrounding protein chains are retained. Terminal OXT stays preserved-only;
 nonwater heterogens, terminal generation, joint/multiple gaps, adaptive context,
 and full-complex neural sampling are outside this profile.
+
+Gap lengths outside 5–10 now produce a warning and an experimental reconstruction
+attempt, not a length-only rejection. This does not promote them into the validated
+slice or relax chemistry, topology, context, whole-source budget, or output gates.
 
 `--diffusion-context auto` is the CLI/GUI default: local for this profile, legacy
 behavior for existing MPS/Protenix profiles. Explicit `none` or `full` is rejected
@@ -107,7 +111,8 @@ see the [paired comparison](../../docs/research/cc89-input-correction-comparison
 New Apple registrations select **`protpardelle-1c-mps-local-v1`**, an explicitly
 versioned corrected public profile. It uses fixed source-only local context,
 neutral denoiser chain phase and physical source positions for **one CYS-free
-internal gap of 5–10 residues**, at most 512 whole-source canonical residues.
+internal gap** (validated length 5–10 residues), at most 512 whole-source canonical residues.
+Other positive lengths warn and are attempted experimentally, as on CUDA.
 Explicit `none`/`full`, terminal/multiple gaps and nonwater heterogens fail closed.
 MPS sampling has no fallback; generated-only refinement runs in a separate CPU
 process. MODELLER remains default and wider operational acceptance is still pending.

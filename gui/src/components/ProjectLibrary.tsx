@@ -31,7 +31,7 @@ import { reorderVisibleArtifacts } from '../lib/workspace-order'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 import { apiFetch, downloadApiBlob, openApiBlob } from '../lib/api-client'
 import { useWorkspaceImportStore } from '../stores/workspaceImportStore'
-import { actionGroupSx, panelToolbarSx } from '../ui/layout'
+import { actionGroupSx, panelToolbarSx, workspaceRowColors } from '../ui/layout'
 import { ArtifactFileIdentity } from './ArtifactFileIdentity'
 import { visibleWorkspaceArtifacts } from '../lib/artifact-presentation'
 
@@ -288,9 +288,9 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
         sx={{
           py: 0.2,
           '& .MuiListItemText-root': { my: 0.25 },
-          bgcolor: active?.id === workspace.id ? 'rgba(29,50,97,0.24)' : index % 2 ? 'rgba(29,50,97,0.045)' : 'transparent',
-          '&.Mui-selected': { bgcolor: 'rgba(29,50,97,0.24)' },
-          '&.Mui-selected:hover': { bgcolor: 'rgba(29,50,97,0.31)' },
+          bgcolor: active?.id === workspace.id ? workspaceRowColors.selected : index % 2 ? workspaceRowColors.stripe : workspaceRowColors.base,
+          '&.Mui-selected': { bgcolor: workspaceRowColors.selected },
+          '&.Mui-selected:hover': { bgcolor: workspaceRowColors.selectedHover },
           borderTop: '2px solid', borderBottom: '2px solid',
           borderTopColor: dropMarker?.kind === 'workspace' && dropMarker.id === workspace.id && dropMarker.position === 'before' ? 'primary.main' : 'transparent',
           borderBottomColor: dropMarker?.kind === 'workspace' && dropMarker.id === workspace.id && dropMarker.position === 'after' ? 'primary.main' : 'transparent',
@@ -334,9 +334,9 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
           }
         }} sx={{
           pl: 2,
-          bgcolor: selectedArtifacts.has(artifact.id) ? 'rgba(29,50,97,0.24)' : index % 2 ? 'rgba(29,50,97,0.045)' : 'transparent',
-          '&.Mui-selected': { bgcolor: 'rgba(29,50,97,0.24)' },
-          '&.Mui-selected:hover': { bgcolor: 'rgba(29,50,97,0.31)' },
+          bgcolor: selectedArtifacts.has(artifact.id) ? workspaceRowColors.selected : index % 2 ? workspaceRowColors.stripe : workspaceRowColors.base,
+          '&.Mui-selected': { bgcolor: workspaceRowColors.selected },
+          '&.Mui-selected:hover': { bgcolor: workspaceRowColors.selectedHover },
           borderTop: '2px solid', borderBottom: '2px solid',
           borderTopColor: dropMarker?.kind === 'artifact' && dropMarker.id === artifact.id && dropMarker.position === 'before' ? 'primary.main' : 'transparent',
           borderBottomColor: dropMarker?.kind === 'artifact' && dropMarker.id === artifact.id && dropMarker.position === 'after' ? 'primary.main' : 'transparent',

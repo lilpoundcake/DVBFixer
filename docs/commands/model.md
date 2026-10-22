@@ -19,6 +19,20 @@ guarantee for the full modeling pipeline.
 
 ## Defaults and limits
 
+Equal-scoring sequence placements produce a warning and use the shared
+deterministic leftmost-best alignment, including on the diffusion path. Inspect
+the reported chain, reference interval, and gaps when repeats make placement
+ambiguous. Observed residue identities must still match the selected target
+positions; impossible placements and mismatches remain errors.
+
+Diffusion gap lengths outside a profile's validated range produce a **WARNING**
+and reconstruction is attempted rather than blocked solely by length. This
+applies to short internal gaps and long missing terminal regions, to Protpardelle
+and Protenix, and to CLI, batch, ZBS, and Homology requests. These attempts do not
+expand the scientifically validated range. Backend topology/chemistry/resource
+limits and independent output validation still apply. `--no-terminal` remains
+the explicit way to crop unobserved tails rather than reconstruct them.
+
 MODELLER remains the default. An experimental, explicit diffusion path is also
 available for canonical protein chains with internal gaps and, on the accepted
 Protpardelle MPS profile, one-anchor N/C-terminal regions. It runs an
@@ -111,7 +125,7 @@ dvbfixer model --input-dir structures --output-dir models \
 ### Experimental diffusion scope
 
 On Linux/NVIDIA, `--diffusion-model protpardelle` selects the installed
-`protpardelle-1c-cuda` profile. It accepts one CYS-free internal gap of **5–10 residues** in
+`protpardelle-1c-cuda` profile. Its validated slice is one CYS-free internal gap of **5–10 residues** in
 a canonical-protein source totaling at most **512 residues**, including surrounding
 protein chains. The default `--diffusion-context auto` applies the validated
 source-only local selector, physical source-chain positions and neutral denoiser
@@ -144,7 +158,8 @@ preserved-only atoms are distinguished in provenance. See the
 [bounded causal pilot and remaining acceptance](../research/protein-context-pilot.md).
 
 The legacy MPS and Protenix profiles accept canonical protein chains with unambiguous
-missing regions of 3–12 residues and target sequences from SEQRES or `--fasta`.
+missing regions (validated length 3–12 residues) and target sequences from SEQRES
+or `--fasta`. Other positive lengths warn and are attempted without a quality claim.
 Internal gaps use two anchors. The legacy Protpardelle MPS profile also supports one-anchor N-terminal and
 C-terminal generation; generated terminal identities extend deterministically
 before or after the observed PDB residue-number range. The materializer inserts

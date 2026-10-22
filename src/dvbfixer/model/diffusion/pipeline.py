@@ -96,12 +96,14 @@ def run_diffusion_pipeline(
         admission = assess_diffusion_scope(request, source_bytes)
     except DiffusionScopeError as exc:
         raise DiffusionPipelineError(str(exc)) from exc
+    for warning in admission.warnings:
+        print(f"WARNING: {warning}", flush=True)
     if not admission.supported:
         return DiffusionPipelineOutcome(
             result=None,
             admission=admission,
             published_bundle=None,
-            message=", ".join(admission.reasons),
+            message=admission.message,
         )
 
     work_parent = _require_directory(work_parent, "work_parent")

@@ -22,6 +22,7 @@ to its generated reference for exact flags and defaults.
 | [renumber](renumber.md) | Full-sequence positions or antibody numbering schemes |
 | [model](model.md) | Coordinates for missing protein sequence |
 | [prepare](prepare.md) | Missing-atom repair, hydrogen placement, mutations, and caps |
+| [altlocs](altlocs.md) | Choose one alternate state per residue before modeling |
 | [minimize](minimize.md) | Coordinate relaxation with selective restraints |
 | [protonate](protonate.md) | Reassign supported pH-dependent states and rebuild H |
 | [pull](pull.md) | Local relaxation to bring selected bond endpoints together |

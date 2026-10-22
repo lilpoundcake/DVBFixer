@@ -41,6 +41,14 @@ export interface WorkspaceArtifact {
   scheme?: 'EU' | 'Kabat'
   namingProvenance?: NamingConversionProvenance
   workflowProvenance?: WorkflowProvenance
+  altlocProvenance?: {
+    sourceArtifactId: string
+    sourceSha256: string
+    outputSha256: string
+    report: string
+    selections: Record<string, string>
+    toolVersion: string
+  }
 }
 
 export interface WorkflowProvenance {

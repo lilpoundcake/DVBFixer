@@ -817,7 +817,11 @@ def _parse_pdb_text(
         if not atom_name or not residue_name:
             raise DiffusionValidationError(f"missing atom or residue name on line {line_number}")
         if altloc:
-            raise DiffusionValidationError("alternate-location atoms are unsupported")
+            raise DiffusionValidationError(
+                "alternate-location atoms are unsupported; use dvbfixer altlocs "
+                "to select one state before diffusion "
+                f"(line {line_number}, {chain}:{residue_number}{insertion_code}:{atom_name})"
+            )
         identity = AtomIdentity(chain, residue_number, insertion_code, atom_name)
         residue = ResidueIdentity(chain, residue_number, insertion_code)
         if identity in atoms:

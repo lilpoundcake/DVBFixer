@@ -17,6 +17,7 @@ import {
 } from './managed-jobs'
 import { registerHomologyApi } from './homology-api'
 import { registerNamingApi } from './naming-api'
+import { registerAltlocApi } from './altloc-api'
 import {
   initializeDvbfixerProcessAdmission, resetDvbfixerProcessAdmission, runDvbfixerArgs,
   shutdownDvbfixerProcesses, getDvbfixerProcessAdmissionSnapshot,
@@ -143,6 +144,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       const principalId = (request: IncomingMessage) => getApiPrincipal(request).id
       registerWorkspaceApi(server, structuresDir, principalId, legacyWorkspaceOwner, !authConfig.enabled)
       registerHomologyApi(server, structuresDir, principalId, legacyWorkspaceOwner)
+      registerAltlocApi(server, structuresDir, principalId, legacyWorkspaceOwner)
       registerManagedJobApi(server, structuresDir, principalId, legacyWorkspaceOwner, serviceVersion)
       registerNamingApi(
         server, structuresDir, runDvbfixerArgs, principalId, legacyWorkspaceOwner, serviceVersion,

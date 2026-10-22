@@ -20,6 +20,31 @@ export const panelToolbarSx = {
   ...toolbarSx, borderBottom: 1, borderColor: 'divider',
 } as const
 
+/** Workspace and scientific inspectors share the exact same row palette. */
+export const workspaceRowColors = {
+  base: 'transparent', stripe: 'rgba(29,50,97,0.045)', hover: 'action.hover',
+  selected: 'rgba(29,50,97,0.24)', selectedHover: 'rgba(29,50,97,0.31)',
+} as const
+
+/** Shared inspection-table appearance, based on the Interactions density. */
+export const inspectionTableSx = {
+  '& > thead > tr > th, & > tbody > tr > td': {
+    px: 1.5, py: 0.75, fontSize: '0.75rem', lineHeight: '18px',
+  },
+  '& > thead > tr > th': { fontWeight: 700, bgcolor: 'background.paper' },
+  '& > tbody > tr > td[align="right"]': { fontVariantNumeric: 'tabular-nums' },
+  '& > tbody > tr': {
+    height: 32,
+    bgcolor: workspaceRowColors.base,
+    '&:nth-of-type(even)': { bgcolor: workspaceRowColors.stripe },
+    '&.MuiTableRow-hover:hover': { bgcolor: workspaceRowColors.hover },
+    '&.Mui-selected': { bgcolor: workspaceRowColors.selected },
+    '&.Mui-selected:hover': { bgcolor: workspaceRowColors.selectedHover },
+    '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: -2 },
+  },
+  '& > tbody > tr > td.MuiTableCell-paddingCheckbox': { px: 0.5, py: 0 },
+} as const
+
 export const actionGroupSx = {
   display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, ml: 'auto',
 } as const

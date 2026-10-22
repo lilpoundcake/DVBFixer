@@ -19,7 +19,7 @@ from dvbfixer.model.diffusion.contract import (
     GapKind,
     ResidueIdentity,
 )
-from dvbfixer.model.diffusion.gap_capabilities import gap_capability
+from dvbfixer.model.diffusion.gap_capabilities import gap_length_warning
 
 MINIMUM_GAP_LENGTH = 3
 MAXIMUM_GAP_LENGTH = 12
@@ -119,6 +119,12 @@ class ScopeAdmission:
 
     supported: bool
     reasons: tuple[str, ...] = ()
+    warnings: tuple[str, ...] = ()
+    details: tuple[str, ...] = ()
+
+    @property
+    def message(self) -> str:
+        return "; ".join(filter(None, (", ".join(self.reasons), *self.details)))
 
     def __post_init__(self) -> None:
         if self.supported and self.reasons:
@@ -156,6 +162,7 @@ def assess_diffusion_scope(
         raise DiffusionScopeError("normalized PDB is not valid UTF-8") from exc
 
     reasons: list[str] = []
+    warnings: list[str] = []
     from dvbfixer.model.diffusion.protein_context import (
         ProteinContextError,
         is_corrected_cc89,
@@ -261,6 +268,8 @@ def assess_diffusion_scope(
         reasons.append("heterogen-context-identity-mismatch")
     if altloc_residues & movable_residues:
         reasons.append("adjacent-alternate-location-ambiguity")
+    elif altloc_residues:
+        reasons.append("unresolved-alternate-locations-use-altlocs")
     if generated_residues & set(residue_names):
         reasons.append("generated-residue-present-in-input")
 
@@ -348,8 +357,18 @@ def assess_diffusion_scope(
 
     for gap in request.gaps:
         gap_length = gap.target_interval.stop - gap.target_interval.start
-        if not gap_capability(requested_profile, gap_length).accepted:
-            reasons.append("unsupported-gap-length")
+        region = {
+            GapKind.INTERNAL: "internal gap",
+            GapKind.N_TERMINAL: "N-terminal missing region",
+            GapKind.C_TERMINAL: "C-terminal missing region",
+        }[gap.gap_kind]
+        warning = gap_length_warning(
+            requested_profile, gap_length, f"{region} on chain {gap.chain}",
+        )
+        if warning is not None:
+            if gap.gap_kind is not GapKind.INTERNAL:
+                warning += " Use --no-terminal to crop unobserved tails instead."
+            warnings.append(warning)
         left_matches = (
             gap.left_anchor is not None
             and placement_indices.get(gap.left_anchor)
@@ -380,10 +399,14 @@ def assess_diffusion_scope(
         reasons.append("retained-explicit-link-atom-missing")
     if requested_explicit_links != source_explicit_links:
         reasons.append("retained-explicit-link-mismatch")
-    if any(
-        _link_is_unsupported_near_gap(link, movable_residues, placement_indices)
-        for link in request.retained_explicit_links
-    ):
+    fixed_atom_identities = frozenset(request.fixed_atoms)
+    unsupported_links = tuple(
+        link for link in request.retained_explicit_links
+        if _link_is_unsupported_near_gap(
+            link, movable_residues, placement_indices, fixed_atoms=fixed_atom_identities,
+        )
+    )
+    if unsupported_links:
         reasons.append("external-covalent-link-near-generated-region")
 
     if "multiple-models" not in reasons and not any(
@@ -403,8 +426,18 @@ def assess_diffusion_scope(
 
     unique_reasons = tuple(dict.fromkeys(reasons))
     if unique_reasons:
-        return ScopeAdmission(supported=False, reasons=unique_reasons)
-    return ScopeAdmission(supported=True)
+        details = tuple(
+            "unsupported external covalent link: "
+            + " -- ".join(
+                f"{atom.chain or '_'}:{atom.residue_number}{atom.insertion_code}:{atom.atom_name}"
+                for atom in (link.atom1, link.atom2)
+            )
+            for link in unsupported_links
+        )
+        return ScopeAdmission(
+            supported=False, reasons=unique_reasons, warnings=tuple(warnings), details=details,
+        )
+    return ScopeAdmission(supported=True, warnings=tuple(warnings))
 
 
 def _parse_coordinate_records(
@@ -607,7 +640,14 @@ def _link_is_unsupported_near_gap(
     link: ExplicitLink,
     movable_residues: set[ResidueIdentity],
     placement_indices: dict[ResidueIdentity, int],
+    *,
+    fixed_atoms: frozenset[AtomIdentity] = frozenset(),
 ) -> bool:
+    if link.atom1 in fixed_atoms and link.atom2 in fixed_atoms:
+        # A junction residue may be called "movable" for local geometry checks,
+        # but fixed source atoms and their links must survive reconstruction.
+        # Proximity to a gap does not make a fixed disulfide unsupported.
+        return False
     first_residue = _residue(link.atom1)
     second_residue = _residue(link.atom2)
     if first_residue not in movable_residues and second_residue not in movable_residues:

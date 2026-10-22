@@ -6,10 +6,8 @@ import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
-import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
@@ -23,6 +21,7 @@ import { useStructureStore } from '../stores/structureStore'
 import { computeClashes, type Clash } from '../lib/clash-detection'
 import { showClashAndFocus, clearClashSticks } from '../lib/molstar-helpers'
 import { compactIconButtonSx, panelToolbarSx } from '../ui/layout'
+import { InspectionBadge, InspectionRow, InspectionTable, ResidueLabel } from './InspectionTable'
 
 type SeverityFilter = 'all' | 'bad' | 'severe'
 
@@ -279,22 +278,21 @@ export function ClashesPanel() {
       )}
 
       {!loading && filtered.length > 0 && (
-        <TableContainer sx={{ flex: 1, minHeight: 0 }}>
-          <Table size="small" stickyHeader>
+          <InspectionTable aria-label="Clashes">
             <TableHead>
               <TableRow>
                 {groupByResidue && (
-                  <TableCell sx={{ fontSize: '0.65rem', fontWeight: 700, py: 0.5, width: 28, p: 0 }} />
+                  <TableCell padding="checkbox" />
                 )}
-                <TableCell sx={{ fontSize: '0.65rem', fontWeight: 700, py: 0.5 }}>Severity</TableCell>
-                <TableCell sx={{ fontSize: '0.65rem', fontWeight: 700, py: 0.5 }}>
+                <TableCell>Severity</TableCell>
+                <TableCell align="right">
                   {groupByResidue ? 'Worst (Å)' : 'Overlap (Å)'}
                 </TableCell>
-                <TableCell sx={{ fontSize: '0.65rem', fontWeight: 700, py: 0.5 }}>Distance (Å)</TableCell>
-                <TableCell sx={{ fontSize: '0.65rem', fontWeight: 700, py: 0.5 }}>
+                <TableCell align="right">Distance (Å)</TableCell>
+                <TableCell>
                   {groupByResidue ? 'Residue A' : 'Atom A'}
                 </TableCell>
-                <TableCell sx={{ fontSize: '0.65rem', fontWeight: 700, py: 0.5 }}>
+                <TableCell>
                   {groupByResidue ? 'Residue B' : 'Atom B'}
                 </TableCell>
               </TableRow>
@@ -304,51 +302,25 @@ export function ClashesPanel() {
                 const isActive = activeId === c.id
                 const sevColor = c.severity === 'severe' ? '#c62828' : '#e68a00'
                 return (
-                  <TableRow
+                  <InspectionRow
                     key={c.id}
                     onClick={() => handleRowClick(c)}
-                    hover
                     selected={isActive}
-                    sx={{
-                      cursor: 'pointer',
-                      ...(isActive && {
-                        backgroundColor: 'rgba(74, 118, 196, 0.18) !important',
-                        '& .MuiTableCell-root': { fontWeight: 600 },
-                      }),
-                    }}
                   >
-                    <TableCell sx={{ py: 0.25 }}>
-                      <Chip
-                        label={c.severity}
-                        size="small"
-                        sx={{
-                          height: 16,
-                          fontSize: '0.55rem',
-                          bgcolor: `${sevColor}22`,
-                          color: sevColor,
-                          textTransform: 'uppercase',
-                          letterSpacing: 0.5,
-                          fontWeight: 700,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ py: 0.25, fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: sevColor, fontWeight: 600 }}>
+                    <TableCell><InspectionBadge label={c.severity} color={sevColor} /></TableCell>
+                    <TableCell align="right" sx={{ color: sevColor, fontVariantNumeric: 'tabular-nums' }}>
                       {c.overlap.toFixed(2)}
                     </TableCell>
-                    <TableCell sx={{ py: 0.25, fontSize: '0.7rem', fontFamily: 'ui-monospace, monospace' }}>
+                    <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>
                       {c.distance.toFixed(2)}
                     </TableCell>
-                    <TableCell sx={{ py: 0.25, fontSize: '0.7rem' }}>
-                      <Box component="span" sx={{ fontWeight: 600 }}>{c.chainA}</Box>
-                      {' '}{c.resNameA} {c.resIdA}{' · '}
-                      <Box component="span" sx={{ fontFamily: 'ui-monospace, monospace' }}>{c.atomA}</Box>
+                    <TableCell>
+                      <ResidueLabel chain={c.chainA} name={c.resNameA} number={c.resIdA} atom={c.atomA} />
                     </TableCell>
-                    <TableCell sx={{ py: 0.25, fontSize: '0.7rem' }}>
-                      <Box component="span" sx={{ fontWeight: 600 }}>{c.chainB}</Box>
-                      {' '}{c.resNameB} {c.resIdB}{' · '}
-                      <Box component="span" sx={{ fontFamily: 'ui-monospace, monospace' }}>{c.atomB}</Box>
+                    <TableCell>
+                      <ResidueLabel chain={c.chainB} name={c.resNameB} number={c.resIdB} atom={c.atomB} />
                     </TableCell>
-                  </TableRow>
+                  </InspectionRow>
                 )
               })}
 
@@ -362,19 +334,11 @@ export function ClashesPanel() {
                   : g.worstSeverity
                 return (
                   <Fragment key={g.key}>
-                    <TableRow
-                      hover
+                    <InspectionRow
                       selected={activeInGroup}
                       onClick={() => handleGroupClick(g)}
-                      sx={{
-                        cursor: 'pointer',
-                        ...(activeInGroup && {
-                          backgroundColor: 'rgba(74, 118, 196, 0.18) !important',
-                          '& .MuiTableCell-root': { fontWeight: 600 },
-                        }),
-                      }}
                     >
-                      <TableCell sx={{ py: 0.25, p: 0, width: 28 }}>
+                      <TableCell padding="checkbox">
                         <IconButton
                           aria-label={isOpen ? 'Collapse residue pair' : 'Expand residue pair'}
                           aria-expanded={isOpen}
@@ -387,37 +351,18 @@ export function ClashesPanel() {
                             : <ChevronRightIcon sx={{ fontSize: 16 }} />}
                         </IconButton>
                       </TableCell>
-                      <TableCell sx={{ py: 0.25 }}>
-                        <Chip
-                          label={sevLabel}
-                          size="small"
-                          sx={{
-                            height: 16,
-                            fontSize: '0.55rem',
-                            bgcolor: `${sevColor}22`,
-                            color: sevColor,
-                            textTransform: 'uppercase',
-                            letterSpacing: 0.5,
-                            fontWeight: 700,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ py: 0.25, fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: sevColor, fontWeight: 600 }}>
+                      <TableCell><InspectionBadge label={sevLabel} color={sevColor} /></TableCell>
+                      <TableCell align="right" sx={{ color: sevColor, fontVariantNumeric: 'tabular-nums' }}>
                         {g.worstOverlap.toFixed(2)}
                       </TableCell>
-                      <TableCell sx={{ py: 0.25, fontSize: '0.7rem', color: 'text.secondary' }}>—</TableCell>
-                      <TableCell sx={{ py: 0.25, fontSize: '0.7rem' }}>
-                        <Box component="span" sx={{ fontWeight: 600 }}>{g.chainA}</Box>
-                        {' '}{g.resNameA} {g.resIdA}
-                        <Box sx={{ fontSize: '0.6rem', color: 'text.secondary', mt: 0.1 }}>
-                          {totalCount} atom{totalCount > 1 ? 's' : ''}
-                        </Box>
+                      <TableCell align="right" sx={{ color: 'text.secondary' }}>—</TableCell>
+                      <TableCell>
+                        <ResidueLabel chain={g.chainA} name={g.resNameA} number={g.resIdA} />
                       </TableCell>
-                      <TableCell sx={{ py: 0.25, fontSize: '0.7rem' }}>
-                        <Box component="span" sx={{ fontWeight: 600 }}>{g.chainB}</Box>
-                        {' '}{g.resNameB} {g.resIdB}
+                      <TableCell>
+                        <ResidueLabel chain={g.chainB} name={g.resNameB} number={g.resIdB} />
                       </TableCell>
-                    </TableRow>
+                    </InspectionRow>
 
                     {isOpen && g.clashes.map(c => {
                       const isActive = activeId === c.id
@@ -431,59 +376,35 @@ export function ClashesPanel() {
                         ? { chain: c.chainA, resName: c.resNameA, resId: c.resIdA, atom: c.atomA }
                         : { chain: c.chainB, resName: c.resNameB, resId: c.resIdB, atom: c.atomB }
                       return (
-                        <TableRow
+                        <InspectionRow
                           key={c.id}
-                          hover
                           selected={isActive}
                           onClick={() => handleRowClick(c)}
-                          sx={{
-                            cursor: 'pointer',
-                            backgroundColor: 'rgba(0, 0, 0, 0.015)',
-                            ...(isActive && {
-                              backgroundColor: 'rgba(74, 118, 196, 0.22) !important',
-                              '& .MuiTableCell-root': { fontWeight: 600 },
-                            }),
-                          }}
                         >
-                          <TableCell sx={{ py: 0.25, p: 0, width: 28 }} />
-                          <TableCell sx={{ py: 0.2, pl: 2.5 }}>
-                            <Chip
-                              label={c.severity}
-                              size="small"
-                              sx={{
-                                height: 14,
-                                fontSize: '0.5rem',
-                                bgcolor: `${cSevColor}22`,
-                                color: cSevColor,
-                                textTransform: 'uppercase',
-                                letterSpacing: 0.5,
-                                fontWeight: 700,
-                              }}
-                            />
+                          <TableCell padding="checkbox" />
+                          <TableCell>
+                            <Box sx={{ pl: 1 }}><InspectionBadge label={c.severity} color={cSevColor} /></Box>
                           </TableCell>
-                          <TableCell sx={{ py: 0.2, fontSize: '0.7rem', fontFamily: 'ui-monospace, monospace', color: cSevColor, fontWeight: 600 }}>
+                          <TableCell align="right" sx={{ color: cSevColor, fontVariantNumeric: 'tabular-nums' }}>
                             {c.overlap.toFixed(2)}
                           </TableCell>
-                          <TableCell sx={{ py: 0.2, fontSize: '0.7rem', fontFamily: 'ui-monospace, monospace' }}>
+                          <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>
                             {c.distance.toFixed(2)}
                           </TableCell>
-                          <TableCell sx={{ py: 0.2, fontSize: '0.7rem' }}>
-                            <Box component="span" sx={{ color: 'text.secondary' }}>{lhs.chain} {lhs.resName} {lhs.resId} · </Box>
-                            <Box component="span" sx={{ fontFamily: 'ui-monospace, monospace', fontWeight: 600 }}>{lhs.atom}</Box>
+                          <TableCell>
+                            <ResidueLabel chain={lhs.chain} name={lhs.resName} number={lhs.resId} atom={lhs.atom} />
                           </TableCell>
-                          <TableCell sx={{ py: 0.2, fontSize: '0.7rem' }}>
-                            <Box component="span" sx={{ color: 'text.secondary' }}>{rhs.chain} {rhs.resName} {rhs.resId} · </Box>
-                            <Box component="span" sx={{ fontFamily: 'ui-monospace, monospace', fontWeight: 600 }}>{rhs.atom}</Box>
+                          <TableCell>
+                            <ResidueLabel chain={rhs.chain} name={rhs.resName} number={rhs.resId} atom={rhs.atom} />
                           </TableCell>
-                        </TableRow>
+                        </InspectionRow>
                       )
                     })}
                   </Fragment>
                 )
               })}
             </TableBody>
-          </Table>
-        </TableContainer>
+          </InspectionTable>
       )}
     </Box>
   )

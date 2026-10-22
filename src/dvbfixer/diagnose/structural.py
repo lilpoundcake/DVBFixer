@@ -194,7 +194,7 @@ def check_altloc_conflicts(pdb_path: str | Path) -> list[Finding]:
                 resid=_resid_str(resid, icode),
                 resname=per_res_names[(chain, resid, icode)],
                 message=f"alternative locations: {joined}",
-                fix_hint="manual: pick one altLoc (e.g. via pymol / PDB editor)",
+                fix_hint="dvbfixer altlocs: review and select one state per residue before modeling",
             )
         )
     return findings

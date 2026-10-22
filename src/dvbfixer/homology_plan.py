@@ -23,7 +23,6 @@ from dvbfixer.model.diffusion.contract import (
     TargetSequence,
     TemplateOwnership,
 )
-from dvbfixer.model.diffusion.gap_capabilities import accepted_gap_range_label, gap_capability
 from dvbfixer.model.diffusion.scope import (
     _CANONICAL_ONE_TO_THREE,
     MINIMUM_GAP_LENGTH,
@@ -405,8 +404,6 @@ def build_mosaic_diffusion_request(
         observed = tuple(index for index, item in enumerate(coverage) if item["covered"] and index not in mutable)
         placements.append(SequencePlacement(chain, len(sequence), observed, tuple(residues[index] for index in observed)))
         for start, stop in _index_runs(mutable):
-            if not gap_capability(profile, stop - start).accepted:
-                raise ValueError(f"mosaic regeneration window {chain}:{start}-{stop} is outside the accepted {accepted_gap_range_label(profile)} range")
             left = residues[start - 1] if start else None
             right = residues[stop] if stop < len(sequence) else None
             generated = residues[start:stop]

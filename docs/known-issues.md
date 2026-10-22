@@ -144,6 +144,28 @@ across CPU/GPU backends or thread configurations.
 
 ## Experimental diffusion limits
 
+### Alternate locations
+
+Diffusion requires one state per residue and no altloc labels, including residues
+far from the modeled gap. Use [Altlocs](commands/altlocs.md) in the GUI or CLI to
+review/select states and write a separate single-state PDB. Input checks reject
+unresolved altlocs before sampler launch; they are not silently resolved by atom
+encounter order. The final validator independently checks the candidate too.
+
+`external-covalent-link-near-generated-region` refers to unsupported
+linkage chemistry involving non-fixed atoms near a generated region. CONECT
+bonds within a fixed anchor residue and links between two fixed atoms (including
+disulfides) are allowed even at gap boundaries. The source coordinates and link
+records must be preserved, and independent validation checks them. If a refusal
+remains, the error lists exact `chain:residue:atom` endpoints. Inspect the masks
+and actual chemistry; do not delete a genuine link to bypass a mismatch.
+
+Gap length outside the selected profile's validated range is advisory: the tool
+warns and attempts reconstruction. This includes internal gaps shorter than three
+residues and long terminal tails. Use `--no-terminal` to crop tails instead.
+This does not waive independent output validation or backend-specific topology,
+chemistry, context, or resource restrictions.
+
 Diffusion requires a separately installed compatible runner and checkpoint.
 Availability, gap sizes, terminal support, ligands, and batch/GUI integration
 depend on the selected profile and workflow. There is no silent MODELLER fallback.

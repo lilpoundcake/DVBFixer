@@ -72,6 +72,14 @@ Trash actions are recoverable; files move to workspace trash rather than being
 immediately erased. Internal manifests and temporary helper files are hidden
 from ordinary file pickers.
 
+## Alternate locations
+
+Use **DVBfixer → Altlocs** to analyze a structure, choose a policy and review
+exactly one checkbox per alternate residue. The embedded Mol* preview focuses
+the selected residue without replacing the main viewers. Apply creates a new
+single-state PDB and retains a selection report; source coordinates and occupancy
+are unchanged. See [altlocs](commands/altlocs.md) for policy and connectivity rules.
+
 ## Homology modeling
 
 For target sequences, templates, alignment editing, selected template regions,

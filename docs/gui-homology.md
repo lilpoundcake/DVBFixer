@@ -29,10 +29,15 @@ an independently installed, preflight-compatible runner for the selected model.
 
 On Linux/NVIDIA, installed Protpardelle uses `protpardelle-1c-cuda`. **Protein
 context → Profile default** selects its fixed local context automatically. The
-initial CUDA slice is one CYS-free internal gap of 5–10 residues in canonical
+validated CUDA slice is one CYS-free internal gap of 5–10 residues in canonical
 protein sources of at most 512 residues. Explicit Legacy/none or Full is rejected
 for this profile; the GUI forwards the choice without silently changing it.
 See the [CUDA setup](../deploy/protpardelle-1c/README.md#public-linuxnvidia-cuda-profile).
+
+Lengths outside the validated range warn and allow an experimental attempt;
+they no longer stop a run solely because of length. The other profile restrictions
+and independent output validation remain mandatory. See
+[model limits](commands/model.md#defaults-and-limits).
 
 Rejected candidates remain inspectable and are labeled `[rejected]`; they are
 not automatically selected as primary output. A published bundle is not by itself

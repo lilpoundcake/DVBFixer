@@ -180,7 +180,9 @@ checkpoints and never falls back to another profile or MODELLER.
 - Linux/NVIDIA `protpardelle-1c-cuda`: follow the
   [CUDA setup](../deploy/protpardelle-1c/README.md#public-linuxnvidia-cuda-profile).
   Sampling and refinement use separate pinned environments. The profile provides
-  automatic local context for one internal 5–10-residue gap in canonical proteins.
+  automatic local context for one internal gap in canonical proteins. The
+  validated length range is 5–10 residues; other lengths warn and are attempted
+  experimentally, subject to the remaining profile limits.
 - Native Apple Silicon `protpardelle-1c-mps-local-v1`: follow
   [`deploy/protpardelle-1c/README.md`](../deploy/protpardelle-1c/README.md) and
   use its pinned arm64 sampling environment and a separate core CPU-refinement

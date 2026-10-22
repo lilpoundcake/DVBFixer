@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
-import { compactIconButtonSx } from '../ui/layout'
+import { compactIconButtonSx, workspaceRowColors } from '../ui/layout'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Collapse from '@mui/material/Collapse'
@@ -226,6 +226,7 @@ export function ElementsTable() {
     if (!grouped.has(comp.category)) grouped.set(comp.category, [])
     grouped.get(comp.category)!.push(comp)
   }
+  let visibleChainIndex = 0
 
   return (
     <Box sx={{ height: '100%', overflow: 'auto' }}>
@@ -281,7 +282,9 @@ export function ElementsTable() {
             <Collapse in={isCatExpanded}>
               {catComps.map(comp => (
                 <Box key={comp.ref}>
-                  {comp.chains.map(chain => (
+                  {comp.chains.map(chain => {
+                    const stripe = isCatExpanded && visibleChainIndex++ % 2 === 1
+                    return (
                     <Box
                       key={`${comp.ref}:${chain.chainId}`}
                       onClick={() => selectChainInComponent(comp.ref, chain.chainId)}
@@ -289,10 +292,11 @@ export function ElementsTable() {
                         display: 'flex', alignItems: 'center',
                         pl: 1, pr: 1, py: 0.35,
                         cursor: 'pointer',
+                        bgcolor: stripe ? workspaceRowColors.stripe : workspaceRowColors.base,
                         opacity: comp.isHidden ? 0.3 : 1,
                         borderBottom: '1px solid', borderColor: 'divider',
                         transition: 'opacity 150ms, background-color 100ms',
-                        '&:hover': { bgcolor: 'action.hover' },
+                        '&:hover': { bgcolor: workspaceRowColors.hover },
                       }}
                     >
                       <IconButton
@@ -363,7 +367,8 @@ export function ElementsTable() {
                         )
                       })()}
                     </Box>
-                  ))}
+                    )
+                  })}
                 </Box>
               ))}
             </Collapse>

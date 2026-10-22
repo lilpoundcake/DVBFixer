@@ -11,7 +11,10 @@ from dvbfixer.model.diffusion.contract import (
     SequencePlacement,
     TargetInterval,
 )
-from dvbfixer.sequence_alignment import align_observed_to_reference
+from dvbfixer.sequence_alignment import (
+    align_observed_to_reference,
+    format_alignment_diagnostic,
+)
 
 
 class DiffusionMaskError(ValueError):
@@ -59,7 +62,11 @@ def build_sequence_placement(
     if alignment is None:
         raise DiffusionMaskError("observed sequence cannot be placed in target sequence")
     if alignment.ambiguous:
-        raise DiffusionMaskError("observed sequence placement is ambiguous")
+        print(
+            f"  [alignment] WARNING: {format_alignment_diagnostic(chain, alignment)}; "
+            "using deterministic leftmost best alignment",
+            flush=True,
+        )
 
     return SequencePlacement(
         chain=chain,
@@ -108,9 +115,10 @@ def build_diffusion_masks(
         stop = right_index
         gap_length = stop - start
         if not minimum_gap_length <= gap_length <= maximum_gap_length:
-            raise DiffusionMaskError(
-                f"gap length {gap_length} is outside supported range "
-                f"{minimum_gap_length}-{maximum_gap_length}"
+            print(
+                f"WARNING: internal gap length {gap_length} on chain {chain} is outside "
+                f"the validated range {minimum_gap_length}-{maximum_gap_length}; "
+                "continuing with experimental mask construction."
             )
 
         left_anchor = by_target[left_index].identity

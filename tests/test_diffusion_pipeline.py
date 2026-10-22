@@ -22,6 +22,7 @@ from dvbfixer.model.diffusion.contract import (
     DiffusionRequest,
     DiffusionResult,
     DiffusionStatus,
+    ExplicitLink,
     GapRegion,
     ResidueIdentity,
     RunnerDiagnostics,
@@ -266,11 +267,27 @@ def _trace_bytes(
     ).to_json().encode()
 
 
+@pytest.mark.parametrize("anchor_conect", [False, True])
 def test_runner_failure_cleans_private_workspace_and_publishes_nothing(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    anchor_conect: bool,
 ) -> None:
     source, _candidate, request = _source_candidate_request()
+    if anchor_conect:
+        serials = {
+            _atom_identity(line): int(line[6:11])
+            for line in source.decode().splitlines() if line.startswith("ATOM  ")
+        }
+        first, second = (AtomIdentity("C", "64", "", name) for name in ("N", "CA"))
+        source = source.replace(
+            b"TER\n", f"CONECT{serials[first]:5d}{serials[second]:5d}\nTER\n".encode(),
+        )
+        request = replace(
+            request,
+            normalized_pdb=ArtifactReference(request.normalized_pdb.path, _digest(source)),
+            retained_explicit_links=(ExplicitLink(first, second, "PDB"),),
+        )
     source_root = tmp_path / "source"
     source_path = source_root / "input" / "normalized.pdb"
     source_path.parent.mkdir(parents=True)
@@ -293,6 +310,35 @@ def test_runner_failure_cleans_private_workspace_and_publishes_nothing(
 
     assert not destination.exists()
     assert not list(tmp_path.glob(".dvbfixer-diffusion-run.*"))
+
+
+@pytest.mark.parametrize("profile", ["protpardelle-1c-mps", "protenix-v1-cuda"])
+def test_length_warning_still_launches_runner(tmp_path, monkeypatch, capsys, profile):
+    from dvbfixer.model.diffusion import gap_capabilities
+
+    source, _candidate, request = _source_candidate_request()
+    request = replace(request, backend_options=(BackendOption("profile", profile),))
+    # The existing five-residue fixture is now outside the studied range.
+    monkeypatch.setattr(gap_capabilities, "ACCEPTED_INTERNAL_RANGES", {profile: ((3, 4),)})
+    source_path = tmp_path / request.normalized_pdb.path
+    source_path.parent.mkdir(parents=True)
+    source_path.write_bytes(source)
+    launched = []
+
+    def runner(received, *_args, **_kwargs):
+        launched.append(received)
+        raise DiffusionRunnerError("runner was launched")
+
+    monkeypatch.setattr(diffusion_pipeline, "run_diffusion_runner", runner)
+    with pytest.raises(DiffusionRunnerError, match="runner was launched"):
+        run_diffusion_pipeline(
+            request, ("runner",), source_root=tmp_path, work_parent=tmp_path,
+            destination_bundle=tmp_path / "output",
+        )
+    assert launched == [request]
+    output = capsys.readouterr().out
+    assert "WARNING:" in output and "validated range 3-4" in output
+    assert not (tmp_path / "output").exists()
 
 
 def test_publish_bundle_writes_candidate_matched_dat_and_manifest(

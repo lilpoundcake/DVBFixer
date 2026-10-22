@@ -67,11 +67,25 @@ def test_cli_and_scope_use_the_same_profile_specific_length_policy(tmp_path, mon
     path = _gap_input(tmp_path)
     request = build_cli_diffusion_request(path, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protenix-v1-cuda")
     monkeypatch.setattr(gap_capabilities, "ACCEPTED_INTERNAL_RANGES", {"protenix-v1-cuda": ((3, 4),)})
-    with pytest.raises(DiffusionCliError, match="accepted range 3-4"):
-        build_cli_diffusion_request(path, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protenix-v1-cuda")
-    assert not assess_diffusion_scope(request, path.read_bytes()).supported
+    rebuilt = build_cli_diffusion_request(path, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protenix-v1-cuda")
+    assert rebuilt == request
+    admission = assess_diffusion_scope(request, path.read_bytes())
+    assert admission.supported
+    assert "validated range 3-4" in admission.warnings[0]
     other = build_cli_diffusion_request(path, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protpardelle-1c-mps")
     assert assess_diffusion_scope(other, path.read_bytes()).supported
+
+
+def test_altloc_far_from_gap_is_rejected_before_runner_with_resolution_hint(tmp_path, monkeypatch):
+    source = _gap_input(tmp_path)
+    lines = source.read_text().splitlines(keepends=True)
+    # Mark a single alternative far from the two gap anchors: even A alone
+    # must be resolved/cleared before the independent validator can parse it.
+    lines[0] = lines[0][:16] + "A" + lines[0][17:]
+    source.write_text("".join(lines))
+    monkeypatch.setattr("dvbfixer.model.diffusion_cli.run_diffusion_pipeline", lambda *_a, **_kw: pytest.fail("sampler must not run"))
+    with pytest.raises(DiffusionCliError, match="dvbfixer altlocs"):
+        build_cli_diffusion_request(source, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protpardelle-1c-mps")
 
 
 def test_diffusion_parser_accepts_optional_model_selection() -> None:
@@ -503,19 +517,50 @@ def test_request_builder_generates_one_anchor_terminal_regions(tmp_path: Path) -
 def test_oversized_terminal_region_recommends_no_terminal(tmp_path: Path) -> None:
     input_path = _gap_input(tmp_path)
 
-    with pytest.raises(
-        DiffusionCliError,
-        match=(
-            "N-terminal missing region length 13 on chain C.*"
-            "pass --no-terminal"
-        ),
-    ):
-        build_cli_diffusion_request(
-            input_path,
-            {"C": "A" * 13 + "SNRFSGSKSGNTA"},
-            seeds=(7,),
-            profile="protpardelle-1c-mps",
-        )
+    request = build_cli_diffusion_request(
+        input_path,
+        {"C": "A" * 20 + "SNRFSGSKSGNTA"},
+        seeds=(7,),
+        profile="protpardelle-1c-mps",
+    )
+    admission = assess_diffusion_scope(request, input_path.read_bytes())
+    assert admission.supported
+    assert len(request.gaps[0].generated_residues) == 20
+    assert "N-terminal missing region on chain C length 20" in admission.warnings[0]
+    assert "--no-terminal" in admission.warnings[0]
+
+
+@pytest.mark.parametrize("profile", ["protpardelle-1c-mps", "protenix-v1-cuda"])
+@pytest.mark.parametrize("length", [1, 2, 13, 20])
+def test_out_of_range_internal_lengths_warn_without_blocking_scope(tmp_path, profile, length):
+    from dvbfixer.model.cli import AA3TO1
+
+    # Long-gap placement needs substantial flanks; an eight-residue toy input
+    # legitimately prefers a compact semi-global alignment at long lengths.
+    lines = []
+    residues = {}
+    for line in FIXTURE.read_text().splitlines(keepends=True):
+        if not line.startswith("ATOM  ") or line[21] != "C":
+            continue
+        number = int(line[22:26])
+        if not 40 <= number <= 100:
+            continue
+        residues[number] = AA3TO1[line[17:20].strip()]
+        if not 65 <= number <= 69:
+            lines.append(line)
+    path = tmp_path / "long-flanks.pdb"
+    path.write_text("".join(lines) + "TER\nEND\n")
+    before = "".join(code for number, code in residues.items() if number < 65)
+    after = "".join(code for number, code in residues.items() if number > 69)
+    request = build_cli_diffusion_request(
+        path, {"C": before + "A" * length + after}, seeds=(7,), profile=profile,
+    )
+    admission = assess_diffusion_scope(request, path.read_bytes())
+    assert admission.supported
+    assert len(request.gaps[0].generated_residues) == length
+    assert len(admission.warnings) == 1
+    assert f"length {length}" in admission.warnings[0]
+    assert "continuing with experimental reconstruction" in admission.warnings[0]
 
 
 def test_terminal_regions_are_fail_closed_for_unaccepted_profile(tmp_path: Path) -> None:
@@ -531,6 +576,51 @@ def test_terminal_regions_are_fail_closed_for_unaccepted_profile(tmp_path: Path)
 
     assert admission.supported is False
     assert "terminal-gaps-unsupported-by-profile" in admission.reasons
+
+
+@pytest.mark.parametrize("model,profile", [
+    ("protpardelle", "protpardelle-1c-mps"),
+    ("protenix", "protenix-v1-cuda"),
+])
+def test_ambiguous_cli_placement_warns_and_reaches_runner(tmp_path, monkeypatch, capsys, model, profile):
+    from dvbfixer.model.diffusion.runner import DiffusionRunnerError
+
+    source = _gap_input(tmp_path)
+    fasta = tmp_path / "target.fasta"
+    # Three equal G positions give equivalent two-residue internal-gap masks.
+    fasta.write_text(">C\nSNRFGGGNTA\n")
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
+        lambda _model: DiffusionRuntime(model, profile, "/installed/runner"),
+    )
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion_cli.invoke_runner_preflight",
+        lambda **_kwargs: RunnerPreflightReport(
+            profile=profile, runner_protocol_version=4, contract_schema_version=4,
+            facts=RunnerPreflightFacts(),
+        ),
+    )
+    launched = []
+
+    def runner(request, *_args, **_kwargs):
+        launched.append(request)
+        raise DiffusionRunnerError("injected after runner launch")
+
+    monkeypatch.setattr("dvbfixer.model.diffusion.pipeline.run_diffusion_runner", runner)
+    args = parse_args([
+        str(source), "--backend", "diffusion", "--diffusion-model", model,
+        "--fasta", str(fasta), "-o", str(tmp_path / "bundle"),
+    ])
+    with pytest.raises(DiffusionCliError, match="injected after runner launch"):
+        run_diffusion_model(args)
+    assert len(launched) == 1
+    assert launched[0].sequence_placements[0].observed_target_indices == (0, 1, 2, 3, 6, 7, 8, 9)
+    assert len(launched[0].gaps[0].generated_residues) == 2
+    output = capsys.readouterr().out
+    assert "ambiguous-best; using deterministic leftmost best alignment" in output
+    assert "WARNING:" in output and "validated range 3-12" in output
+    assert "observed sequence placement is ambiguous" not in output
+    assert not (tmp_path / "bundle").exists()
 
 
 def test_failed_profile_preflight_blocks_inference(

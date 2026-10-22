@@ -93,14 +93,28 @@ def test_insertion_codes_and_case_distinct_chains_are_preserved() -> None:
     assert upper_masks.fixed_atoms[4] != lower_masks.fixed_atoms[4]
 
 
-def test_ambiguous_placement_is_rejected() -> None:
+def test_ambiguous_placement_warns_and_uses_shared_deterministic_alignment(capsys) -> None:
     observed = (
         _residue("A", "1", "A"),
         _residue("A", "2", "C"),
     )
 
-    with pytest.raises(DiffusionMaskError, match="ambiguous"):
-        build_sequence_placement("A", observed, "ACGGGAC")
+    first = build_sequence_placement("A", observed, "ACGGGAC")
+    second = build_sequence_placement("A", observed, "ACGGGAC")
+    assert first == second
+    assert first.observed_target_indices == (0, 1)
+    assert first.observed_residues == tuple(residue.identity for residue in observed)
+    output = capsys.readouterr().out
+    assert "WARNING:" in output
+    assert "chain A" in output and "ambiguous-best" in output
+    assert "using deterministic leftmost best alignment" in output
+    assert "ERROR" not in output
+
+
+def test_impossible_placement_is_still_rejected() -> None:
+    observed = (_residue("C", "1", "A"), _residue("C", "2", "G"))
+    with pytest.raises(DiffusionMaskError, match="cannot be placed"):
+        build_sequence_placement("C", observed, "A")
 
 
 def test_terminal_one_anchor_gaps_are_rejected() -> None:
@@ -121,16 +135,14 @@ def test_terminal_one_anchor_gaps_are_rejected() -> None:
         build_diffusion_masks("A", c_terminal_missing, "ACDGGG")
 
 
-def test_gap_length_outside_configured_slice_is_rejected() -> None:
+def test_gap_length_outside_configured_slice_warns_and_builds(capsys) -> None:
     observed = tuple(
         _residue("A", str(number), code)
         for number, code in zip((1, 2, 3, 20, 21, 22), "MKTWQH")
     )
 
-    with pytest.raises(DiffusionMaskError, match="outside supported range"):
-        build_diffusion_masks(
-            "A",
-            observed,
-            "MKT" + "A" * 10 + "WQH",
-            maximum_gap_length=9,
-        )
+    masks = build_diffusion_masks(
+        "A", observed, "MKT" + "A" * 10 + "WQH", maximum_gap_length=9,
+    )
+    assert len(masks.gaps[0].generated_residues) == 10
+    assert "WARNING: internal gap length 10" in capsys.readouterr().out

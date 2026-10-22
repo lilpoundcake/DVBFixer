@@ -96,7 +96,7 @@ def _prepare_corrected_cc89_request(
 
 
 def validate_cuda_cc89_request(request: DiffusionRequest) -> None:
-    """Public scope is narrower than the research adapter's tensor capacity."""
+    """Validate mandatory profile limits, independent of length evidence."""
     _validate_corrected_cc89_request(request, CUDA_CC89_PROFILE, "CUDA cc89")
 
 
@@ -109,8 +109,8 @@ def _validate_corrected_cc89_request(request: DiffusionRequest, profile: str, la
         raise ProteinContextError(f"{label} request must declare its profile")
     if len(request.gaps) != 1 or request.gaps[0].gap_kind is not GapKind.INTERNAL:
         raise ProteinContextError(f"{label} supports one internal gap per request")
-    if not 5 <= len(request.gaps[0].generated_residues) <= 10:
-        raise ProteinContextError(f"{label} supports internal gaps of 5-10 residues")
+    # Length is an evidence boundary, reported by scope admission as a warning.
+    # Keep topology, chemistry, context and total-resource limits mandatory.
     gap = request.gaps[0]
     sequence = next(target.sequence for target in request.target_sequences if target.chain == gap.chain)
     if "C" in sequence[gap.target_interval.start:gap.target_interval.stop]:

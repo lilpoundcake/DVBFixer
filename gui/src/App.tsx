@@ -42,13 +42,16 @@ import { DVBFixerPanel } from './components/DVBFixerPanel'
 import { HomologyPanel } from './components/HomologyPanel'
 import { SettingsPanel } from './components/SettingsPanel'
 import { TextFileViewer } from './components/TextFileViewer'
+import { AltlocTable } from './components/AltlocTable'
+import { useAltlocViewer } from './hooks/useAltlocViewer'
+import { focusAltlocTable, focusAltlocViewer } from './lib/focus-altloc-table'
 import { useStructureStore } from './stores/structureStore'
 import { useSelectionStore } from './stores/selectionStore'
 import { useMolstarSync } from './hooks/useMolstarSync'
 import { useSequenceSync } from './hooks/useSequenceSync'
 import { useCameraSync } from './hooks/useCameraSync'
 import { useWorkspaceStore } from './stores/workspaceStore'
-import { DEFAULT_MAIN_PANELS, PANEL_DEFINITIONS } from './app-panels'
+import { DEFAULT_MAIN_PANELS, PANEL_DEFINITIONS, PINNED_ALTLOC_TAB } from './app-panels'
 import { focusTextViewer } from './lib/focus-text-viewer'
 import { compactIconButtonSx, toolbarSx } from './ui/layout'
 
@@ -57,7 +60,7 @@ const PANEL_ICONS = {
   'text-viewer': TextSnippetIcon, elements: ListAltIcon, interactions: HubIcon,
   clashes: WarningIcon, alignment: CompareArrowsIcon, dvbfixer: BuildIcon,
   homology: BiotechIcon, library: FolderIcon, workspace: FolderOpenIcon,
-  info: InfoIcon, settings: SettingsIcon,
+  info: InfoIcon, settings: SettingsIcon, altlocs: ListAltIcon,
 }
 
 const PANEL_TYPES = PANEL_DEFINITIONS.map(panel => {
@@ -130,6 +133,7 @@ const layoutJson: IJsonModel = {
                   { type: 'tab', name: 'Elements', component: 'elements' },
                   { type: 'tab', name: 'Interactions', component: 'interactions' },
                   { type: 'tab', name: 'Clashes', component: 'clashes' },
+                  PINNED_ALTLOC_TAB,
                 ],
               },
             ],
@@ -158,6 +162,7 @@ function App() { // @dsp obj-a1000002
   useMolstarSync()
   useSequenceSync()
   useCameraSync()
+  useAltlocViewer()
 
   useEffect(() => {
     initializeWorkspace().catch(() => {})
@@ -167,6 +172,17 @@ function App() { // @dsp obj-a1000002
     const openTextViewer = () => focusTextViewer(modelRef.current)
     window.addEventListener('dvbfixer:open-text-viewer', openTextViewer)
     return () => window.removeEventListener('dvbfixer:open-text-viewer', openTextViewer)
+  }, [])
+
+  useEffect(() => {
+    const review = () => { focusAltlocTable(modelRef.current); focusAltlocViewer(modelRef.current) }
+    const focus = () => focusAltlocViewer(modelRef.current)
+    window.addEventListener('dvbfixer:open-altlocs', review)
+    window.addEventListener('dvbfixer:focus-altloc-viewer', focus)
+    return () => {
+      window.removeEventListener('dvbfixer:open-altlocs', review)
+      window.removeEventListener('dvbfixer:focus-altloc-viewer', focus)
+    }
   }, [])
 
   useEffect(() => {
@@ -203,6 +219,7 @@ function App() { // @dsp obj-a1000002
       case 'workspace': return <WorkspacePanel />
       case 'info': return <StructureInfo />
       case 'elements': return <ElementsTable />
+      case 'altlocs': return <AltlocTable />
       case 'interactions': return <InteractionsPanel />
       case 'clashes': return <ClashesPanel />
       case 'alignment': return <AlignmentPanel />
@@ -215,6 +232,12 @@ function App() { // @dsp obj-a1000002
 
   const handleAddPanel = useCallback((component: string, name: string) => {
     if (!menuTabSetId) return
+    if (component === 'altlocs') {
+      focusAltlocTable(modelRef.current)
+      setMenuAnchor(null)
+      setMenuTabSetId(null)
+      return
+    }
     tabCounter++
     modelRef.current.doAction(
       Actions.addNode(

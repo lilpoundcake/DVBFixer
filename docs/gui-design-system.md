@@ -77,6 +77,19 @@ the action against the combined input-plus-helper height.
 - Do not impose toolbar-wide child selectors that override a deliberately wider
   field. Prefer an explicit `sx={controlSx}` on the field itself.
 
+### Inspection tables
+
+Interactions, Clashes and Altlocs use `InspectionTable` / `InspectionRow`
+with `inspectionTableSx`: 32 px baseline rows,
+6 px vertical cell padding and alternating Workspace-style backgrounds.
+Hover and selected-row colors override the stripes. Rows grow for multiline
+content; compact checkboxes fit without increasing the baseline height.
+Keep scientific severity/type colors and output checkboxes independent of
+the tapped-row highlight. `ResidueLabel` shares case-sensitive monospace identity
+formatting; `InspectionBadge` supplies 18 px type/severity labels with 10 px text.
+Do not override cell typography or padding locally. Altlocs owns the Review
+states / 3D display toolbar; CLI input, policy and execution stay in DVBfixer.
+
 ### Reports
 
 The selected tool owns its status and output; another tool's output must never

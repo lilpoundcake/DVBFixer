@@ -30,6 +30,7 @@ import { apiFetch, apiSse } from '../lib/api-client'
 import { v1Client } from '../lib/v1-client'
 import { workflowOptionActive, workflowValues } from '../lib/workflow-backend-options'
 import { ToolOutput } from './ToolOutput'
+import { AltlocPanel } from './AltlocPanel'
 import { loadToolReports, type ToolReportPreview } from '../lib/tool-output'
 import { orderToolTabs } from '../lib/tool-tab-order'
 import { namingOutputMatches, runNamingConversion } from '../lib/naming-conversion'
@@ -749,7 +750,7 @@ export function DVBFixerPanel() {
 
       {/* Body */}
       <Box sx={{ flex: 1, overflow: 'auto', p: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        {activeCmd && (
+        {activeCmd?.name === 'altlocs' ? <AltlocPanel key={workspace?.id || 'no-workspace'} /> : activeCmd && (
           <>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
               {activeCmd.description}

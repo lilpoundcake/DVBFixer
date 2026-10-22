@@ -7,9 +7,19 @@ import Box from '@mui/material/Box'
 import AddIcon from '@mui/icons-material/Add'
 import { describe, expect, it } from 'vitest'
 import { theme } from '../theme'
-import { UI, actionGroupSx, compactIconButtonSx, formActionRowSx, panelToolbarSx, primaryActionSx, workflowToolbarSx } from './layout'
+import { UI, actionGroupSx, compactIconButtonSx, formActionRowSx, inspectionTableSx, panelToolbarSx, primaryActionSx, workflowToolbarSx } from './layout'
 
 describe('shared GUI control geometry', () => {
+  it('shares Interactions row density, alternating backgrounds and distinct selection styling', () => {
+    expect(inspectionTableSx['& > thead > tr > th, & > tbody > tr > td']).toMatchObject({ py: 0.75, lineHeight: '18px' })
+    const row = inspectionTableSx['& > tbody > tr']
+    expect(row.height).toBe(32)
+    expect(row['&:nth-of-type(even)'].bgcolor).toBe('rgba(29,50,97,0.045)')
+    expect(row['&.MuiTableRow-hover:hover'].bgcolor).toBe('action.hover')
+    expect(row['&.Mui-selected'].bgcolor).toBe('rgba(29,50,97,0.24)')
+    expect(row['&.Mui-selected:hover'].bgcolor).toBe('rgba(29,50,97,0.31)')
+    expect(inspectionTableSx['& > tbody > tr > td.MuiTableCell-paddingCheckbox'].py).toBe(0)
+  })
   it('uses one height for buttons, icon buttons, toggles and input controls', () => {
     expect(theme.components?.MuiButton?.styleOverrides?.root).toMatchObject({ height: UI.controlHeight, minHeight: UI.controlHeight })
     expect(theme.components?.MuiIconButton?.styleOverrides?.root).toMatchObject({ width: UI.controlHeight, height: UI.controlHeight })

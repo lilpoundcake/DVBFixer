@@ -1997,6 +1997,150 @@ export const GENERATED_COMMANDS = [
     "specialized": false
   },
   {
+    "name": "altlocs",
+    "label": "Altlocs",
+    "description": "Select one alternate state per residue",
+    "category": "Structure preparation",
+    "inputs": [
+      {
+        "flag": "input",
+        "dest": "input",
+        "label": "Input",
+        "type": "artifact",
+        "group": "Input / output",
+        "help": "PDB, ENT, CIF or mmCIF structure",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "input",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--selection-plan",
+        "dest": "selection_plan",
+        "label": "Selection Plan",
+        "type": "text",
+        "group": "Input / output",
+        "help": "Version-1 JSON plan bound to source SHA-256",
+        "required": false,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--policy",
+        "dest": "policy",
+        "label": "Policy",
+        "type": "select",
+        "group": "Selection",
+        "help": "Residue-coherent automatic or manual state selection",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "occupancy",
+        "options": [
+          "manual",
+          "occupancy",
+          "first",
+          "prefer"
+        ]
+      },
+      {
+        "flag": "--prefer",
+        "dest": "prefer",
+        "label": "Prefer",
+        "type": "text",
+        "group": "Selection",
+        "help": "Preferred altloc label (case-sensitive)",
+        "required": false,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--fallback",
+        "dest": "fallback",
+        "label": "Fallback",
+        "type": "select",
+        "group": "Selection",
+        "help": "Fallback when preferred label is absent",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "error",
+        "options": [
+          "error",
+          "occupancy",
+          "first"
+        ]
+      },
+      {
+        "flag": "--select",
+        "dest": "select",
+        "label": "Select",
+        "type": "text",
+        "group": "Selection",
+        "help": "Manual override (repeatable); insertion codes supported, _ means blank chain; ambiguous MODEL/occurrence requires JSON plan",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
+        "flag": "--dry-run",
+        "dest": "dry_run",
+        "label": "Dry Run",
+        "type": "bool",
+        "group": "Selection",
+        "help": "Analyze without publishing a structure",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--include-structure",
+        "dest": "include_structure",
+        "label": "Include Structure",
+        "type": "bool",
+        "group": "Selection",
+        "help": "Include normalized PDB text in analysis JSON for graphical preview",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      }
+    ],
+    "groups": [
+      {
+        "name": "Input / output",
+        "fields": [
+          "--selection-plan"
+        ]
+      },
+      {
+        "name": "Selection",
+        "fields": [
+          "--policy",
+          "--prefer",
+          "--fallback",
+          "--select",
+          "--dry-run",
+          "--include-structure"
+        ]
+      }
+    ],
+    "outputExtension": ".pdb",
+    "outputMode": "file",
+    "hasOutput": true,
+    "outputKind": "artifact",
+    "batch": false,
+    "successCodes": [
+      0
+    ],
+    "specialized": false
+  },
+  {
     "name": "top",
     "label": "Top",
     "description": "Generate GROMACS .itp/.top topology files from a structure",
