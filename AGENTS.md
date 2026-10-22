@@ -617,6 +617,14 @@ command parser merely to inspect generated labels.
   manifest before retrying. Preserve newly registered artifacts and unrelated
   panel state. Reload must preserve edits arriving during its GET and ignore
   responses for a superseded workspace or revision.
+- **GUI runs share compact storage.** `gui/server/run-storage.ts` keeps declared
+  outputs and complete diffusion bundles unpacked and archives only extra
+  diagnostics into a verified `diagnostics.tar.gz` with checksums. Managed jobs,
+  Homology modeling, MSA and structural fitting reuse it; do not recursively
+  register raw runtime files as independent Workspace outputs. Keep failure and
+  cancellation evidence, skip runtime caches, preserve original files if packing
+  fails, and never auto-load rejected/partial structures. Workspace run grouping
+  is presentation-only for historical files; do not migrate/delete old runs.
 - **The V1 naming API resolves inputs by workspace artifact ID.**
   `gui/server/naming-api.ts` must invoke `dvbfixer atom-names`, validate its
   bounded report and output digest, re-read the latest manifest immediately

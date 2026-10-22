@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 import { readDiffusionPublication } from './diffusion-bundle'
+import { compactRun, copyNativeRun, outputFiles, RUN_ARCHIVE, RUN_SUMMARY, type RunStatus } from './run-storage'
 import { runDvbfixerArgs, type DvbfixerRunResult } from './dvbfixer-runner'
 import {
   assertWorkspaceAccess, loadWorkspace, updateWorkspace, workspaceRoot, writeJsonAtomic,
@@ -368,14 +369,15 @@ async function alignProject(
   authorizePublication: () => void = () => {},
   signal?: AbortSignal,
 ): Promise<HomologyProject> {
+  return homologyOperation(root, project, 'msa', authorizePublication, signal, async (directory, execute) => {
   const records = parseFasta(project.targetFasta)
-  const directory = path.dirname(projectPath(root, project.id))
   const groups: AlignmentGroup[] = []
+  const outputs: string[] = []
   for (const record of records) {
     const templates = project.templates.filter(template => template.targetChain === record.id)
     if (!templates.length) throw new Error(`target chain ${record.id} has no assigned template`)
     const input = path.join(directory, `_target_${record.id}.fasta`)
-    const output = path.join(directory, `_alignment_${record.id}.fasta`)
+    const output = path.join(directory, `alignment_${record.id}.fasta`)
     fs.writeFileSync(input, `>${record.id}\n${record.sequence}\n`)
     const args = [input, '-o', output, '--engine', project.engine]
     for (const template of templates) {
@@ -385,10 +387,11 @@ async function alignProject(
       const source = resolveArtifact(root, template.file)
       args.push('--template', `${source}:${template.chain}`)
     }
-    const result = await runDvbfixerArgs('msa', args, directory, { signal })
+    const result = await execute(args)
     assertRunAdmitted(result)
     if (result.code !== 0) throw new Error(result.stderr || result.stdout || `MSA failed for ${record.id}`)
     const aligned = parseAlignedFasta(output)
+    outputs.push(output)
     const rows: AlignmentRow[] = aligned.map(row => {
       if (row.id === record.id) return { ...row, kind: 'target' as const }
       const match = /^template_(\d+)_/.exec(row.id)
@@ -400,7 +403,8 @@ async function alignProject(
     groups.push({ chainId: record.id, rows, masks: {}, maskModes: Object.fromEntries(rows.filter(row => row.kind === 'template').map(row => [row.id, 'all'])) })
   }
   authorizePublication()
-  return saveHomologyProject(root, { ...project, alignmentGroups: groups })
+  return { value: saveHomologyProject(root, { ...project, alignmentGroups: groups }), outputs }
+  })
 }
 
 interface PdbResidue { key: string; chain: string; number: string; aa: string; lines: string[] }
@@ -537,9 +541,11 @@ function registerRun(
   files: string[],
   authorizePublication: () => void,
   diffusion?: ReturnType<typeof readDiffusionPublication>,
+  status: RunStatus = diffusion?.status === 'validation_failed' ? 'validation_failed' : 'succeeded',
+  command = 'homology',
 ): string {
   const relativeFiles = files.map(file => path.relative(root, file).replace(/\\/g, '/'))
-  const primary = diffusion ? (diffusion.primary ? path.relative(root, diffusion.primary).replace(/\\/g, '/') : null)
+  const primary = status === 'failed' || status === 'cancelled' ? null : diffusion ? (diffusion.primary ? path.relative(root, diffusion.primary).replace(/\\/g, '/') : null)
     : relativeFiles.find(file => file.endsWith('.pdb')) || relativeFiles[0]
   if (relativeFiles.length === 0) return ''
   const dataRoot = path.dirname(path.dirname(root))
@@ -550,19 +556,57 @@ function registerRun(
       if (manifest.artifacts.some(artifact => artifact.file === relative)) continue
       manifest.artifacts.push({
         id: crypto.randomUUID(), file: relative,
-        name: relative === primary ? `${project.name} → homology`
+        name: relative === primary ? `${project.name} → ${command}`
           : `${diffusion?.status === 'validation_failed' && relative.endsWith('.pdb') ? '[rejected] ' : ''}${path.basename(relative)}`,
-        kind: relative.endsWith('.pdb') ? 'structure' : 'artifact', artifactType: 'homology-model',
-        command: 'homology', folder: path.dirname(relative),
+        kind: relative.endsWith('.pdb') ? 'structure' : 'artifact', artifactType: command === 'homology' ? 'homology-model' : command,
+         command, folder: path.dirname(relative), run: { command, status },
         hidden: ['run.json', 'stdout.log', 'stderr.log', 'target.fasta', 'alignment.pir'].includes(path.basename(relative)) ||
-          path.basename(relative).startsWith('_') || (relative.endsWith('.pdb') && relative !== primary &&
-            !(diffusion?.candidates.includes(path.join(root, relative))) && !path.basename(relative).startsWith(sanitize(project.name || 'target'))),
+          path.basename(relative).startsWith('_'),
       })
     }
-    manifest.toolState = { ...manifest.toolState, lastHomologyRun: { projectId: project.id, files: relativeFiles } }
+    if (command === 'homology') manifest.toolState = { ...manifest.toolState, lastHomologyRun: { projectId: project.id, files: relativeFiles } }
     return manifest
   })
   return primary || ''
+}
+
+/** MSA and structural fitting receive the same bounded run packaging as modeling. */
+async function homologyOperation<T>(
+  root: string, project: HomologyProject, command: string, authorize: () => void,
+  signal: AbortSignal | undefined,
+  operation: (directory: string, execute: (args: string[]) => ReturnType<typeof runDvbfixerArgs>) => Promise<{ value: T; outputs: string[] }>,
+): Promise<T> {
+  const directory = path.join(root, 'runs', `homology_${command}_${crypto.randomUUID()}`)
+  fs.mkdirSync(directory, { recursive: true })
+  const invocations: Array<{ args: string[]; exitCode: number }> = []
+  let finalized = false
+  const execute = async (args: string[]) => {
+    const result = await runDvbfixerArgs(command, args, directory, { signal })
+    invocations.push({ args, exitCode: result.code })
+    fs.appendFileSync(path.join(directory, 'stdout.log'), result.stdout)
+    fs.appendFileSync(path.join(directory, 'stderr.log'), result.stderr)
+    return result
+  }
+  try {
+    const { value, outputs } = await operation(directory, execute)
+    const relative = outputs.map(file => path.relative(directory, file).split(path.sep).join('/'))
+    const summary = await compactRun(directory, command, 'succeeded', relative)
+    finalized = true
+    registerRun(root, project, [...relative, RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])].map(file => path.join(directory, file)),
+      authorize, undefined, 'succeeded', command)
+    return value
+  } finally {
+    writeJsonAtomic(path.join(directory, 'run.json'), { projectId: project.id, command, invocations,
+      status: finalized ? 'succeeded' : signal?.aborted ? 'cancelled' : 'failed' })
+    if (!finalized) {
+      try {
+        const status = signal?.aborted ? 'cancelled' : 'failed'
+        const summary = await compactRun(directory, command, status, [])
+        registerRun(root, project, [RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])].map(file => path.join(directory, file)),
+          authorize, undefined, status, command)
+      } catch { /* Preserve original operation failure and its files. */ }
+    }
+  }
 }
 
 async function modelProject(
@@ -571,7 +615,7 @@ async function modelProject(
   authorizePublication: () => void = () => {},
   signal?: AbortSignal,
 ): Promise<unknown> {
-  const runDir = path.join(root, 'runs', `dvb_homology_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}`)
+  const runDir = path.join(root, 'runs', `dvb_homology_${crypto.randomUUID()}`)
   fs.mkdirSync(runDir, { recursive: true })
   const fasta = path.join(runDir, 'target.fasta')
   fs.writeFileSync(fasta, parseFasta(project.targetFasta).map(record => `>${record.id}\n${record.sequence.replace(/[-*]/g, '')}\n`).join(''))
@@ -589,36 +633,65 @@ async function modelProject(
   const args = [fasta, '--template-plan', plan, '-o', prefix]
   args.push(...validatedModelArgs(project.modelOptions))
   if (nativeRoot) args.push('--diffusion-work-parent', nativeRoot)
+  let nativeCopied = false
+  let finalized = false
   try {
   const result = await runDvbfixerArgs('homology', args, runDir, { signal })
   assertRunAdmitted(result)
   writeJsonAtomic(path.join(runDir, 'run.json'), { projectId: project.id, args, exitCode: result.code })
   fs.writeFileSync(path.join(runDir, 'stdout.log'), result.stdout)
   fs.writeFileSync(path.join(runDir, 'stderr.log'), result.stderr)
-  if (nativeRoot && result.code === 0 && !signal?.aborted) {
+  if (nativeRoot) {
     authorizePublication()
-    const indexes = listFiles(nativeRoot).filter(file => path.basename(file) === 'bundle.json')
-    if (indexes.length !== 1) throw new Error('homology diffusion did not publish exactly one complete bundle')
-    for (const index of indexes) readDiffusionPublication(index)
-    for (const entry of fs.readdirSync(nativeRoot)) {
-      fs.cpSync(path.join(nativeRoot, entry), path.join(runDir, entry), { recursive: true, force: false, errorOnExist: true })
+    if (result.code === 0 && !signal?.aborted) {
+      const indexes = listFiles(nativeRoot).filter(file => path.basename(file) === 'bundle.json')
+      if (indexes.length !== 1) throw new Error('homology diffusion did not publish exactly one complete bundle')
+      for (const index of indexes) readDiffusionPublication(index)
     }
+    copyNativeRun(nativeRoot, runDir)
+    nativeCopied = true
   }
   const files = listFiles(runDir)
-  const bundleManifest = files.find(file => path.basename(file) === 'bundle.json')
+  const bundleManifest = result.code === 0 ? files.find(file => path.basename(file) === 'bundle.json') : undefined
   let modelStatus = result.code === 0 ? 'success' : 'failed'
   let diffusion: ReturnType<typeof readDiffusionPublication> | undefined
   if (bundleManifest) {
     diffusion = readDiffusionPublication(bundleManifest)
     modelStatus = diffusion.status
   }
-  const outputFile = result.code === 0 ? registerRun(root, project, files, authorizePublication, diffusion) : ''
+  const status: RunStatus = signal?.aborted ? 'cancelled' : diffusion?.status === 'validation_failed'
+    ? 'validation_failed' : result.code === 0 ? 'succeeded' : 'failed'
+  const relativeFiles = files.map(file => path.relative(runDir, file).split(path.sep).join('/'))
+  const outputs = result.code === 0 && !signal?.aborted ? outputFiles(relativeFiles,
+    path.basename(prefix), bundleManifest ? [path.relative(runDir, path.dirname(bundleManifest)).split(path.sep).join('/')] : []) : []
+  const summary = await compactRun(runDir, 'homology', status, outputs)
+  finalized = true
+  const published = [...outputs, RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])].map(file => path.join(runDir, file))
+  const outputFile = registerRun(root, project, published, authorizePublication, diffusion, status)
   return { ok: result.code === 0, exitCode: result.code, stdout: result.stdout, stderr: result.stderr,
     modelStatus,
     outputFile, outputDir: path.relative(root, runDir).replace(/\\/g, '/'),
-    artifacts: files.map(file => path.relative(root, file).replace(/\\/g, '/')) }
+    artifacts: published.map(file => path.relative(root, file).replace(/\\/g, '/')) }
+  } catch (error) {
+    writeJsonAtomic(path.join(runDir, 'run.json'), { projectId: project.id, args, exitCode: null,
+      error: error instanceof Error ? error.message : String(error) })
+    if (!fs.existsSync(path.join(runDir, 'stderr.log'))) {
+      fs.writeFileSync(path.join(runDir, 'stderr.log'), error instanceof Error ? error.message : String(error))
+    }
+    throw error
   } finally {
-    if (nativeRoot) fs.rmSync(nativeRoot, { recursive: true, force: true })
+    if (nativeRoot && !nativeCopied) {
+      try { copyNativeRun(nativeRoot, runDir); nativeCopied = true } catch { /* Retain native evidence on copy failure. */ }
+    }
+    if (nativeRoot && nativeCopied) fs.rmSync(nativeRoot, { recursive: true, force: true })
+    if (!finalized) {
+      try {
+        const status = signal?.aborted ? 'cancelled' : 'failed'
+        const summary = await compactRun(runDir, 'homology', status, [])
+        registerRun(root, project, [RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])].map(file => path.join(runDir, file)),
+          authorizePublication, undefined, status)
+      } catch { /* Do not replace the scientific error with a publication error. */ }
+    }
   }
 }
 
@@ -628,7 +701,7 @@ async function structurallyAlignGroups(
   authorizePublication: () => void = () => {},
   signal?: AbortSignal,
 ): Promise<HomologyProject> {
-  const directory = path.dirname(projectPath(root, project.id))
+  return homologyOperation(root, project, 'salign', authorizePublication, signal, async (directory, execute) => {
   const templates: TemplateSelection[] = project.templates.map(template => ({ ...template, fittedFile: undefined }))
   const outputs: Record<string, string> = {}
   const targetChains = [...new Set(templates.map(template => template.targetChain))]
@@ -651,7 +724,7 @@ async function structurallyAlignGroups(
     const fitDir = path.join(directory, 'fitted', safeChain)
     const args = group.map(template => `${resolveArtifact(root, template.file)}:${template.chain}`)
     args.push('-o', output, '--fit-dir', fitDir, '--engine', 'biopython')
-    const result = await runDvbfixerArgs('salign', args, directory, { signal })
+    const result = await execute(args)
     assertRunAdmitted(result)
     if (result.code !== 0) throw new Error(result.stderr || result.stdout || `structural alignment failed for target chain ${targetChain}`)
     outputs[targetChain] = path.relative(root, output).replace(/\\/g, '/')
@@ -662,7 +735,10 @@ async function structurallyAlignGroups(
     })
   }
   authorizePublication()
-  return saveHomologyProject(root, { ...project, templates, structuralAlignment: outputs })
+  return { value: saveHomologyProject(root, { ...project, templates, structuralAlignment: outputs }),
+    outputs: [...Object.values(outputs), ...templates.flatMap(template => template.fittedFile ? [template.fittedFile] : [])]
+      .map(file => path.join(root, file)) }
+  })
 }
 
 export function registerHomologyApi(
