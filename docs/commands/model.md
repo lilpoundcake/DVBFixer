@@ -164,14 +164,22 @@ New corrected Protpardelle requests (including Homology template mosaics) retain
 the existing eight-position sequence flanks, 10 Å observed-anchor shells and
 two-residue sequence padding, and **also include residues with any observed heavy
 atom within 10 Å of the finite segment joining the two anchor Cα atoms**. This is
-a union, never a replacement or an infinite-line selection. Terminal gaps have
-only one anchor and retain the original shell/flank selection. The 512-position
-budget still fails explicitly rather than discarding selected contacts.
-The request records `cc89_context_geometry=anchor-shell-segment-union-v1`;
-frozen requests without that option replay their original shell-only policy.
+a union, never a replacement or an infinite-line selection. For N/C-terminal gaps,
+the selector additionally includes residues with any observed heavy atom within
+**20 Å of any observed heavy atom in the eight terminal observed residues,
+including the anchor**. Short observed chains use only the available residues.
+No second terminal anchor or extrapolated direction is invented. The existing
+shells/flanks and two-residue padding remain; the 512-position budget still fails
+explicitly rather than discarding selected contacts.
+New requests record `cc89_context_geometry=anchor-shell-segment-union-v1` and
+`cc89_terminal_context=eight-observed-residues-20a-union-v1`. Frozen requests
+without these options replay their original selection policies unchanged.
 Legacy MPS and Protenix selection are unchanged. The 5J13 internal-gap regression
-passed with this union; it does not establish accuracy for every gap or terminal
-reconstruction. See the [experiment](../research/multi-gap-diffusion-5j13.md).
+passed with the segment union; all seven requested gaps in the user's supplied
+FASTA also passed with terminal expansion. This does not establish accuracy for
+every gap or terminal reconstruction. Use an authoritative `--fasta` for the
+intended construct when deposited SEQRES includes unwanted extensions; the tool
+does not silently crop them. See the [experiments](../research/multi-gap-diffusion-5j13.md).
 
 Protenix can opt into source-only protein context with
 `--diffusion-model protenix --diffusion-context local` (eight sequence flanks and

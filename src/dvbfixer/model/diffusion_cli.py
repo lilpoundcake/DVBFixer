@@ -40,6 +40,7 @@ from dvbfixer.model.diffusion.protein_context import (
     ANCHOR_SEGMENT_OPTION,
     CUDA_CC89_PROFILE,
     MPS_CC89_PROFILE,
+    TERMINAL_SHELL_OPTION,
 )
 from dvbfixer.model.diffusion.runner import DiffusionRunnerError, RunnerLimits
 from dvbfixer.model.diffusion.runtime import (
@@ -261,7 +262,7 @@ def build_cli_diffusion_request(
         seeds=seeds,
         backend_options=(
             BackendOption("profile", profile),
-            *((ANCHOR_SEGMENT_OPTION,)
+            *((ANCHOR_SEGMENT_OPTION, TERMINAL_SHELL_OPTION)
               if profile in {CUDA_CC89_PROFILE, MPS_CC89_PROFILE} else ()),
         ),
         heterogen_contexts=heterogen_contexts,

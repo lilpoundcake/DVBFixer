@@ -343,3 +343,108 @@ silently migrated. For a terminal per-gap view, the new versioned policy retains
 the original shell selection, because a second observed anchor does not exist.
 No terminal direction, additional missing residue or hidden conditioning atom is
 invented. Engine budgets, source preservation and all output gates are unchanged.
+
+## Terminal-window 20 Å union control: rejected
+
+The user requested a full seed-7 rerun adding, rather than replacing, context for
+terminal gaps. The separate option
+`cc89_terminal_context=eight-observed-residues-20a-union-v1` requires the existing
+anchor-segment union option. It additionally selects residues with an observed
+heavy atom within 20 Å of any observed heavy atom in the first/last eight observed
+residues, including the terminal gap's anchor. Short observed chains use only
+available residues, never invented positions. Existing shells, flanks, padding,
+source-only rules and output gates remain unchanged; internal-gap contexts are
+identical to the current default. At the time of this control the terminal option
+was opt-in, not a default-policy change.
+
+The frozen input is `test/errors_diffusion/terminal20-union-input/request.json`;
+the current-rules control is saved alongside as `baseline-current-rules.json`.
+All ten gaps / 124 generated residues, source coordinates, sequence placements
+and seed are unchanged. Engine-axis sizes, including generated residues:
+
+| Terminal gap | Current default | With terminal-window union |
+|---|---:|---:|
+| A N-terminal, 20 residues | 50 | 167 |
+| A C-terminal, 3 residues | 29 | 267 |
+| B N-terminal, 31 residues | 70 | 310 |
+| B C-terminal, 1 residue | 45 | 184 |
+| C N-terminal, 31 residues | 70 | 309 |
+| C C-terminal, 11 residues | 64 | 180 |
+
+Every old conditioning atom is retained, and all views fit the unchanged
+512-position limit. The four internal contexts remain 77, 85, 67 and 51 positions.
+Seventy focused context/profile tests and Ruff pass. The completed full generation
+run at `test/errors_diffusion/terminal20-union-seed7/` is **rejected**. All 124
+generated residues/heavy-atom sets are present, and observed-heavy displacement
+remains exactly zero. Private evidence is retained at
+`test/errors_diffusion/.dvbfixer-diffusion-run.ud15e5oj/`.
+
+| Whole generated/junction region | Raw merged candidate | Refined candidate |
+|---|---:|---:|
+| Bond-length errors | 38 | 31 |
+| Bond-angle errors | 75 | 35 |
+| Non-planar amides | 15 | 28 |
+| Ramachandran outliers | 6 | 4 |
+| Severe overlaps | 125 | 723 |
+| Detectable D-Cα | 1 | 0 |
+
+Final junction C–N distances span 1.3013–1.5382 Å, and the longest generated-region
+C–N distance is 3.0430 Å. The unchanged connectivity and geometry gates therefore
+also fail. Refinement removes detectable D-Cα but does not produce a usable
+minimum; fewer bond/angle errors or finite energy are not acceptance.
+
+Most raw bond/angle defects arise before refinement in the 31-residue N-terminal
+tails: B has 14 bond-length / 37 angle errors, C has 23 / 35. The raw per-gap
+native-conditioning fits also show substantial motif deformation before source
+restoration: B N-terminal motif RMSD 2.4376 Å (maximum 8.4071 Å), C N-terminal
+RMSD 2.1667 Å (maximum 10.4750 Å). These diagnostics distinguish neural motif
+retention from publication's exact source-coordinate restoration. They warrant
+further conditioning/representation investigation, not a conclusion that all
+remaining failures are caused solely by steric omission or minimization.
+
+This is one seed and one input, not a matched full-complex current-default
+rerun/cohort. This failed experiment alone was not used to change a default or
+validation threshold.
+
+## User-supplied FASTA control: all requested gaps pass
+
+The user subsequently supplied `test/errors_diffusion/selected.fasta` as the
+authoritative target sequence for the same normalized structure. With the same
+seed 7, corrected profile, terminal-window union, refinement v8 and unchanged
+validation gates, the run at `test/errors_diffusion/terminal20-fasta-seed7/`
+**passes every independent output gate**.
+
+The FASTA has chain lengths A/B/C = 134/213/226, instead of SEQRES 147/245/263.
+It requests seven gaps / 42 residues, not ten / 124. In particular, the two
+31-residue N-terminal B/C regions are absent from this target; A's N-terminal
+region is seven residues, and C's C-terminal region is five. This is not silent
+terminal cropping: no `--no-terminal` was used, and every missing position in the
+user's FASTA is requested. The source PDB and FASTA bytes were preserved. Frozen
+inputs, target sequences and SHA-256 provenance are retained in
+`test/errors_diffusion/terminal20-fasta-seed7-input/`.
+
+Final independent metrics: zero severe overlaps, zero D-Cα, zero bond-length and
+bond-angle errors, zero non-planar amides, zero Ramachandran and χ1χ2 outliers,
+zero missing/wrong generated atoms or residues, and zero observed-heavy
+displacement. Junction C–N distances span 1.3125–1.3630 Å.
+
+This qualifies the reconstruction against the implemented gates for this one
+input/sequence/seed. It neither rescues the longer SEQRES reconstruction nor
+establishes the experimental conformation of the newly modeled regions or a
+general terminal-backend acceptance cohort.
+
+### Terminal-union default integration
+
+Following the user's approval after the FASTA control, fresh corrected
+Protpardelle CLI and Homology mosaic requests now record both the anchor-segment
+and terminal-window union options by default. Frozen requests without the terminal
+option retain their former terminal shell selection; no saved requests are
+migrated. Internal-gap selection, the 512-position budget, refinement v8 and
+scientific output gates are unchanged. Terminal/long-gap reconstruction remains
+experimental and can still fail, as the longer SEQRES control demonstrated.
+
+The supplied FASTA is now tracked byte-for-byte as
+`tests/fixtures/protein_context/5j13_selected.fasta`, SHA-256
+`853b97081f53b6dee15082e8d169c2728cbfc9387afbb291cade4872b082044d`.
+Regression tests verify default option declaration, exact source-bound context
+sizes and frozen-request replay without running an external diffusion engine.

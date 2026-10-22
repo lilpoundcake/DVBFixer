@@ -18,8 +18,8 @@ from dvbfixer.model.diffusion.contract import (
     DiffusionContractError,
 )
 from dvbfixer.model.diffusion.protein_context import (
-    ANCHOR_SEGMENT_CONTEXT,
     MPS_CC89_PROFILE,
+    TERMINAL_SHELL_CONTEXT,
     ProteinContextError,
     context_evidence,
     prepare_cuda_cc89_request,
@@ -55,7 +55,7 @@ def test_mps_auto_context_is_local_and_replay_is_exact(tmp_path, cli_fixture):
     with pytest.raises(ProteinContextError, match="frozen source-only"):
         validate_mps_cc89_request(request)
     selected = prepare_mps_cc89_request(request, source.read_bytes(), "auto")
-    assert selected.protein_context.policy == ANCHOR_SEGMENT_CONTEXT
+    assert selected.protein_context.policy == TERMINAL_SHELL_CONTEXT
     assert selected.seeds == (7, 19)
     assert assess_diffusion_scope(selected, source.read_bytes()).supported
     assert prepare_mps_cc89_request(selected, source.read_bytes(), "local") == selected
@@ -84,7 +84,7 @@ def test_homology_freezes_a_complete_corrected_request_before_cli_replay(tmp_pat
     normalized, request_path = build_mosaic_diffusion_request(work / "selected_template_mosaic.coverage.json",
         [("C", "SNRFSGSKSGNTA")], work, seeds=(7,), profile=profile)
     request = DiffusionRequest.from_json(request_path.read_text())
-    assert request.protein_context.policy == ANCHOR_SEGMENT_CONTEXT
+    assert request.protein_context.policy == TERMINAL_SHELL_CONTEXT
     assert assess_diffusion_scope(request, normalized.read_bytes()).supported
     prepare = prepare_mps_cc89_request if profile == MPS_CC89_PROFILE else prepare_cuda_cc89_request
     assert prepare(request, normalized.read_bytes(), "auto") == request

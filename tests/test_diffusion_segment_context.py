@@ -14,6 +14,8 @@ from dvbfixer.model.diffusion.protein_context import (
     CUDA_CC89_CONTEXT,
     CUDA_CC89_PROFILE,
     MPS_CC89_PROFILE,
+    TERMINAL_SHELL_CONTEXT,
+    TERMINAL_SHELL_OPTION,
     ProteinContextError,
     _point_segment_distances,
     prepare_mps_cc89_request,
@@ -78,6 +80,7 @@ def test_new_cli_requests_declare_union_only_for_corrected_cc89(tmp_path, profil
     source.write_bytes(pdb)
     request = build_cli_diffusion_request(source, {'D': 'AAAAA', 'd': 'AAA'}, seeds=(7,), profile=profile)
     assert (ANCHOR_SEGMENT_OPTION in request.backend_options) == (profile in {CUDA_CC89_PROFILE, MPS_CC89_PROFILE})
+    assert (TERMINAL_SHELL_OPTION in request.backend_options) == (profile in {CUDA_CC89_PROFILE, MPS_CC89_PROFILE})
 
 
 def test_terminal_views_keep_anchor_shells_and_frozen_requests_do_not_change():
@@ -129,3 +132,61 @@ def test_new_5j13_internal_request_includes_the_previously_omitted_surface(tmp_p
             assert old_atoms < new_atoms
             assert len(new_atoms - old_atoms) == 84
     validate_context_source(request, normalized.read_bytes())
+
+
+def test_terminal20_requires_recorded_options_and_does_not_change_internal_selection():
+    from tests.test_diffusion_independent_gaps import prepared
+
+    old, pdb = prepared()
+    baseline = prepare_mps_cc89_request(replace(old, gap_contexts=None,
+        backend_options=(*old.backend_options, ANCHOR_SEGMENT_OPTION)), pdb, 'auto')
+    expanded = prepare_mps_cc89_request(replace(baseline, gap_contexts=None,
+        backend_options=(*baseline.backend_options, TERMINAL_SHELL_OPTION)), pdb, 'auto')
+    assert expanded.gap_contexts[0].fixed_conditioning == baseline.gap_contexts[0].fixed_conditioning
+    assert expanded.gap_contexts[0].spans == baseline.gap_contexts[0].spans
+    assert all(plan.policy == TERMINAL_SHELL_CONTEXT for plan in expanded.gap_contexts)
+    for prior, plan in zip(baseline.gap_contexts, expanded.gap_contexts, strict=True):
+        assert {item.atom for item in prior.fixed_conditioning} <= {item.atom for item in plan.fixed_conditioning}
+    validate_context_source(expanded, pdb)
+    invalid = replace(old, gap_contexts=None, backend_options=(*old.backend_options, TERMINAL_SHELL_OPTION))
+    with pytest.raises(ProteinContextError, match='matching source geometry'):
+        prepare_mps_cc89_request(invalid, pdb, 'auto')
+
+
+def test_5j13_terminal20_context_fits_budget_and_matches_preflight_counts(tmp_path):
+    from dvbfixer.model.diffusion_cli import _target_sequences, build_cli_diffusion_request
+
+    source = Path(__file__).parent / 'fixtures/protein_context/5j13_selected.pdb'
+    normalized = tmp_path / 'protein.pdb'
+    normalized.write_text(''.join(line for line in source.read_text().splitlines(keepends=True)
+        if not line.startswith(('HETATM', 'CONECT', 'LINK  '))))
+    original = build_cli_diffusion_request(normalized, _target_sequences(normalized, None), seeds=(7,), profile=MPS_CC89_PROFILE)
+    assert TERMINAL_SHELL_OPTION in original.backend_options
+    expanded = prepare_mps_cc89_request(original, normalized.read_bytes(), 'auto')
+    counts = [sum(span.stop - span.start for span in plan.spans) for plan in expanded.gap_contexts]
+    assert counts == [167, 77, 85, 267, 310, 184, 309, 67, 51, 180]
+    assert sum(len(gap.generated_residues) for gap in expanded.gaps) == 124
+    assert expanded.fixed_atoms == original.fixed_atoms
+    validate_context_source(expanded, normalized.read_bytes())
+
+
+def test_new_fasta_request_uses_default_terminal_union_without_extra_options(tmp_path):
+    from dvbfixer.model.diffusion_cli import _target_sequences, build_cli_diffusion_request
+
+    fixture = Path(__file__).parent / 'fixtures/protein_context/5j13_selected.pdb'
+    fasta = fixture.with_suffix('.fasta')
+    before_pdb, before_fasta = fixture.read_bytes(), fasta.read_bytes()
+    source = tmp_path / 'input.pdb'
+    source.write_text(''.join(line for line in before_pdb.decode().splitlines(keepends=True)
+        if not line.startswith(('HETATM', 'CONECT', 'LINK  '))))
+    request = build_cli_diffusion_request(source, _target_sequences(source, str(fasta)), seeds=(7,), profile=MPS_CC89_PROFILE)
+    assert TERMINAL_SHELL_OPTION in request.backend_options
+    prepared = prepare_mps_cc89_request(request, source.read_bytes(), 'auto')
+    assert {target.chain: len(target.sequence) for target in prepared.target_sequences} == {'A': 134, 'B': 213, 'C': 226}
+    assert len(prepared.gaps) == 7
+    assert sum(len(gap.generated_residues) for gap in prepared.gaps) == 42
+    assert [sum(span.stop - span.start for span in plan.spans) for plan in prepared.gap_contexts] == [154, 77, 85, 267, 67, 51, 174]
+    assert all(plan.policy == TERMINAL_SHELL_CONTEXT for plan in prepared.gap_contexts)
+    assert prepare_mps_cc89_request(prepared, source.read_bytes(), 'auto').to_json() == prepared.to_json()
+    assert fixture.read_bytes() == before_pdb and fasta.read_bytes() == before_fasta
+    validate_context_source(prepared, source.read_bytes())
