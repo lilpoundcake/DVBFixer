@@ -124,8 +124,12 @@ def build_cli_diffusion_request(
             chain,
             "".join(residue.one_letter_code for residue in observed),
         ).upper()
+        from dvbfixer.pdbutils.sequence_evidence import observed_peptide_continuity
+
+        continuity = observed_peptide_continuity(lines, chain,
+            tuple((residue.identity.residue_number, residue.identity.insertion_code) for residue in observed))
         try:
-            placement = build_sequence_placement(chain, observed, target)
+            placement = build_sequence_placement(chain, observed, target, peptide_continuity=continuity)
         except DiffusionMaskError as exc:
             raise DiffusionCliError(str(exc)) from exc
         if no_terminal and (
@@ -381,8 +385,15 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 "input must be the normalized PDB referenced by --diffusion-request"
             )
 
+    requested_profile = next(
+        (option.value for option in frozen_request.backend_options if option.name == "profile"),
+        "",
+    ) if frozen_request is not None else ""
     try:
-        runtime = resolve_diffusion_runtime(args.diffusion_model)
+        runtime = (
+            resolve_diffusion_runtime(args.diffusion_model, profile=requested_profile)
+            if requested_profile else resolve_diffusion_runtime(args.diffusion_model)
+        )
     except DiffusionRuntimeError as exc:
         raise DiffusionCliError(str(exc)) from exc
     if frozen_request is not None:
@@ -421,7 +432,7 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
 
     with ExitStack() as resources:
         model_input = input_path
-        if runtime.profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"} and any(
+        if runtime.profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"} and (frozen_request is not None or args.keep_heterogens) and any(
             line.startswith("HETATM") and line[17:20].strip() not in {"HOH", "WAT", "DOD"}
             for line in input_path.read_text(encoding="utf-8").splitlines()
         ):

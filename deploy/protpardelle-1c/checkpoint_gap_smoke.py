@@ -1346,6 +1346,9 @@ def _run_staged(
             residue_names,
         ):
             if engine_to_source:
+                if identity not in engine_to_source:
+                    # Complete predicted sidechains are not observed evidence.
+                    continue
                 identity = engine_to_source[identity]
             if (
                 identity in (set(request.fixed_atoms) | set(request.generated_atoms) if view else requested_atoms)

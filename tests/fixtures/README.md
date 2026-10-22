@@ -14,6 +14,7 @@ verify that none of the source fixtures changed accidentally.
 | Tracked fixture | Historical source | Purpose |
 |---|---|---|
 | `ASN.pdb` | `test/ASN.pdb` | Minimal two-residue ASN input |
+| `protein_context/5j13_selected.pdb` | User-supplied `test/errors_diffusion/selected.pdb`, deposited structure 5J13 after CIF normalization and alternate-state selection | Multi-gap diffusion regression: three case-sensitive chains, 10 missing regions, partial observed sidechains. This is a supplied preparation input, not a pristine RCSB download; no generated diffusion coordinates are included. |
 | `assemblies/8XJ0.pdb`, `assemblies/8XJ0_chain_A_observed.fasta` | `test/homology_modelling/8XJ0.pdb`; FASTA derived from its observed chain A | Four Fab biological assemblies declared by REMARK 350/BIOMT; post-2023 temporal-holdout diffusion pilot |
 | `hinge_CH3_glycosylated.pdb` | `test/default.pdb` | GLYCAM hinge/CH3, CYX, rename/convert/CONECT tests |
 | `multistate.pdb`, `multistate.fasta` | `test/multistate/test_multistate.pdb`, `test/multistate/test.fasta` | Eleven-model split input and companion sequence |

@@ -398,6 +398,13 @@ call bare `dvbfixer` resolve it. See
   restoration must share the same affine semi-global placement. Under
   `--no-terminal`, crop outside the first/last observed reference anchors
   but preserve every reference gap between those anchors for modeling.
+  For equal sequence scores, supply observed peptide connectivity via
+  `pdbutils.sequence_evidence.observed_peptide_continuity` and original residue
+  identities: continuity precedes numbering, and leftmost choice is only the
+  final fallback. Never insert a repeat-derived gap into a known peptide merely
+  because a sequence-only optimum chose it. Regression: 5J13 source CYS139–SER140
+  is bonded; the missing six residues follow SER140, not precede it. Evidence
+  must not override a better primary sequence score or mutate frozen requests.
 - **A bare/minimal `TER\n` line (4 chars, no serial/resname/padding)
   is valid PDB.** `line[11:]` on one returns `''` silently (no
   IndexError on an out-of-range slice) — `renumber.py`'s TER handling

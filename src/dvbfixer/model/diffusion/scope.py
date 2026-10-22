@@ -146,7 +146,7 @@ def assess_diffusion_scope(
     digest = hashlib.sha256(normalized_pdb).hexdigest()
     if digest != request.normalized_pdb.sha256.lower():
         raise DiffusionScopeError("normalized PDB SHA-256 does not match the request")
-    if request.protein_context is not None:
+    if request.protein_context is not None or request.gap_contexts is not None:
         from dvbfixer.model.diffusion.protein_context import (
             ProteinContextError,
             validate_context_source,
@@ -163,6 +163,13 @@ def assess_diffusion_scope(
 
     reasons: list[str] = []
     warnings: list[str] = []
+    if request.gap_contexts is not None:
+        warnings.append(
+            "Corrected Protpardelle uses experimental independent local gap sampling; "
+            "each gap conditions on immutable observed source atoms (missing sidechain "
+            "atoms are not invented). Terminal/CYS-containing gaps are not independently "
+            "qualified; full-complex output validation remains mandatory."
+        )
     from dvbfixer.model.diffusion.protein_context import (
         ProteinContextError,
         is_corrected_cc89,

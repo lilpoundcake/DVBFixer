@@ -39,7 +39,7 @@ from dvbfixer.ffutils.geometry import (
 )
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
-BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v6"
+BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v8"
 BOUNDARY_REFINEMENT_FORCEFIELD = tuple(FF_ALIASES["amber"])
 BOUNDARY_REFINEMENT_MAX_ITERATIONS = 250
 BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM = 10.0
@@ -106,6 +106,9 @@ def refine_generated_region(
 
     pdb = PDBFile(StringIO(pdb_text))
     original_coordinates = _coordinates_by_identity(pdb.topology, pdb.positions)
+    original_heavy = {AtomIdentity(atom.residue.chain.id, str(atom.residue.id), atom.residue.insertionCode.strip(), atom.name) for atom in pdb.topology.atoms()
+        if atom.element is None or atom.element.symbol != "H"}
+    original_coordinates = {atom: xyz for atom, xyz in original_coordinates.items() if atom in original_heavy}
     missing = generated_atom_set - set(original_coordinates)
     if missing:
         raise BoundaryRefinementError(
@@ -130,7 +133,14 @@ def refine_generated_region(
     # A normalized source may contain unrelated incomplete side chains. Complete
     # them only in this temporary force-field topology; publication still copies
     # coordinates exclusively for the requested generated atoms.
-    fixer = PDBFixer(pdbfile=StringIO(pdb_text))
+    # Hydrogens are disposable only in the temporary FF system. Publication
+    # still rewrites generated coordinates exclusively, preserving source lines.
+    temporary = Modeller(pdb.topology, pdb.positions)
+    temporary.delete([atom for atom in temporary.topology.atoms()
+        if atom.element is not None and atom.element.symbol == "H"])
+    heavy_text = StringIO()
+    PDBFile.writeFile(temporary.topology, temporary.positions, heavy_text, keepIds=True)
+    fixer = PDBFixer(pdbfile=StringIO(heavy_text.getvalue()))
     fixer.platform = platform
     fixer.findMissingResidues()
     fixer.missingResidues = {}
@@ -187,15 +197,11 @@ def refine_generated_region(
         constraints=None,
         rigidWater=False,
     )
-    _constrain_generated_heavy_bonds(
-        system,
-        modeller.topology,
-        modeller.positions,
-        generated_residue_set,
+    # Use the force field's equilibrium bond lengths. Constraining generated
+    # bonds to their raw sampled lengths freezes the very defects being repaired.
+    _freeze_observed_heavy_atoms(
+        system, modeller.topology, original_coordinates, generated_atom_set,
     )
-    for atom in modeller.topology.atoms():
-        if _topology_residue(atom.residue) not in generated_residue_set:
-            system.setParticleMass(atom.index, 0.0)
     chirality_force, protected_centres = build_ca_chirality_force(
         modeller.topology,
         modeller.positions,
@@ -232,24 +238,19 @@ def refine_generated_region(
     )
     simulation.context.setPositions(modeller.positions)
     initial_state = simulation.context.getState(getEnergy=True)
-    simulation.minimizeEnergy(
-        tolerance=BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM
-        * kilojoule_per_mole
-        / nanometer,
-        maxIterations=max_iterations,
-    )
-    best_state = simulation.context.getState(getEnergy=True, getPositions=True)
-    if not _state_is_finite(best_state):
-        raise BoundaryRefinementError(
-            "localized refinement produced non-finite initial-minimum state"
+    try:
+        simulation.minimizeEnergy(
+            tolerance=BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM
+            * kilojoule_per_mole / nanometer, maxIterations=max_iterations,
         )
-    best_score = _local_geometry_error_count(
-        modeller.topology,
-        best_state.getPositions(),
-        generated_residue_set,
-    )
+        first_state = simulation.context.getState(getEnergy=True, getPositions=True)
+    except OpenMMException:
+        first_state = None
+    best_state = first_state if _acceptable_minimum(modeller.topology, first_state) else None
+    best_score = (_local_geometry_error_count(modeller.topology, best_state.getPositions(), generated_residue_set)
+        if best_state is not None else float("inf"))
     restart_positions = np.asarray(
-        best_state.getPositions(asNumpy=True).value_in_unit(nanometer),
+        (best_state.getPositions(asNumpy=True) if best_state is not None else modeller.positions).value_in_unit(nanometer),
         dtype=np.float64,
     )
     mobile_atoms = [
@@ -277,7 +278,7 @@ def refine_generated_region(
             except OpenMMException:
                 continue
             state = simulation.context.getState(getEnergy=True, getPositions=True)
-            if not _state_is_finite(state):
+            if not _acceptable_minimum(modeller.topology, state):
                 continue
             score = _local_geometry_error_count(
                 modeller.topology,
@@ -289,12 +290,14 @@ def refine_generated_region(
             )
             best_energy = float(
                 best_state.getPotentialEnergy().value_in_unit(kilojoule_per_mole)
-            )
+            ) if best_state is not None else float("inf")
             if (score, state_energy) < (best_score, best_energy):
                 best_state = state
                 best_score = score
             if best_score == 0:
                 break
+    if best_state is None:
+        raise BoundaryRefinementError("localized refinement found no finite all-L minimum after seeded retries")
     final_state = best_state
     refined_positions = final_state.getPositions()
     initial_energy = float(
@@ -352,6 +355,29 @@ def refine_generated_region(
     )
 
 
+def _freeze_observed_heavy_atoms(
+    system: Any,
+    topology: Any,
+    original_coordinates: dict[AtomIdentity, np.ndarray],
+    generated_atoms: set[AtomIdentity],
+) -> None:
+    """Freeze observed heavy atoms, not disposable temporary FF completions.
+
+    All input hydrogens were stripped and rebuilt. Freezing those new positions
+    can lock enormous steric energies into the objective. Temporary missing heavy
+    atoms likewise need to relax against the immutable observed scaffold. Neither
+    kind of completion is copied into the published source records.
+    """
+    fixed_atoms = original_coordinates.keys() - generated_atoms
+    for atom in topology.atoms():
+        identity = AtomIdentity(
+            atom.residue.chain.id, str(atom.residue.id),
+            atom.residue.insertionCode.strip(), atom.name,
+        )
+        if identity in fixed_atoms:
+            system.setParticleMass(atom.index, 0.0)
+
+
 def _coordinates_by_identity(topology: Any, positions: Any) -> dict[AtomIdentity, np.ndarray]:
     coordinates: dict[AtomIdentity, np.ndarray] = {}
     for atom in topology.atoms():
@@ -380,6 +406,11 @@ def _state_is_finite(state: Any) -> bool:
     )
     energy = float(state.getPotentialEnergy().value_in_unit(kilojoule_per_mole))
     return bool(np.isfinite(positions).all() and math.isfinite(energy))
+
+
+def _acceptable_minimum(topology: Any, state: Any) -> bool:
+    """Chirality is an admission gate, never a tie-breaker against energy."""
+    return state is not None and _state_is_finite(state) and not find_d_residues(topology, state.getPositions())
 
 
 def _build_trans_amide_force(

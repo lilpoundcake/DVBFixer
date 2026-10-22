@@ -248,7 +248,7 @@ def test_frozen_request_uses_exact_request_and_source_root(
     output = tmp_path / "output"
     monkeypatch.setattr(
         "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
-        lambda _model: DiffusionRuntime(
+        lambda _model, **_kwargs: DiffusionRuntime(
             "protpardelle", "protpardelle-1c-mps", "/installed/protpardelle-runner"
         ),
     )
@@ -308,7 +308,7 @@ def test_frozen_request_rejects_mutated_input_before_preflight(
     input_path.write_text(input_path.read_text() + "REMARK mutated\n")
     monkeypatch.setattr(
         "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
-        lambda _model: DiffusionRuntime(
+        lambda _model, **_kwargs: DiffusionRuntime(
             "protpardelle", "protpardelle-1c-mps", "/installed/protpardelle-runner"
         ),
     )
@@ -358,7 +358,7 @@ def test_frozen_request_rejects_input_or_profile_mismatch(
     runtime_profile = "protenix-v1-cuda" if problem == "profile" else "protpardelle-1c-mps"
     monkeypatch.setattr(
         "dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
-        lambda _model: DiffusionRuntime("protpardelle", runtime_profile, "/installed/runner"),
+        lambda _model, **_kwargs: DiffusionRuntime("protpardelle", runtime_profile, "/installed/runner"),
     )
     monkeypatch.setattr(
         "dvbfixer.model.diffusion_cli.invoke_runner_preflight",
@@ -582,7 +582,7 @@ def test_terminal_regions_are_fail_closed_for_unaccepted_profile(tmp_path: Path)
     ("protpardelle", "protpardelle-1c-mps"),
     ("protenix", "protenix-v1-cuda"),
 ])
-def test_ambiguous_cli_placement_warns_and_reaches_runner(tmp_path, monkeypatch, capsys, model, profile):
+def test_ambiguous_cli_placement_uses_evidence_and_reaches_runner(tmp_path, monkeypatch, capsys, model, profile):
     from dvbfixer.model.diffusion.runner import DiffusionRunnerError
 
     source = _gap_input(tmp_path)
@@ -617,7 +617,8 @@ def test_ambiguous_cli_placement_warns_and_reaches_runner(tmp_path, monkeypatch,
     assert launched[0].sequence_placements[0].observed_target_indices == (0, 1, 2, 3, 6, 7, 8, 9)
     assert len(launched[0].gaps[0].generated_residues) == 2
     output = capsys.readouterr().out
-    assert "ambiguous-best; using deterministic leftmost best alignment" in output
+    assert "tie-break=observed-peptide/numbering" in output
+    assert "using deterministic leftmost best alignment" not in output
     assert "WARNING:" in output and "validated range 3-12" in output
     assert "observed sequence placement is ambiguous" not in output
     assert not (tmp_path / "bundle").exists()

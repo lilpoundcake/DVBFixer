@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Tabs from '@mui/material/Tabs'
@@ -34,6 +34,7 @@ import { AltlocPanel } from './AltlocPanel'
 import { loadToolReports, type ToolReportPreview } from '../lib/tool-output'
 import { orderToolTabs } from '../lib/tool-tab-order'
 import { namingOutputMatches, runNamingConversion } from '../lib/naming-conversion'
+import { syncSequenceEditorLayout } from '../lib/sequence-editor-layout'
 import { actionGroupSx, controlSx, formActionRowSx, panelToolbarSx, primaryActionSx, wideControlSx } from '../ui/layout'
 
 // Re-declare the spec types here (mirrors server/dvbfixer-spec.ts) so the
@@ -108,10 +109,9 @@ interface RunResult {
  * Both layers share identical font/padding/wrap rules — alignment is
  * pixel-perfect by construction.
  *
- * Highlighting is gated on `value === parsedSequence`. Edit a single
- * character → the whole box reverts to plain text so user-typed
- * characters can never be mis-classified as "missing from structure".
- * Re-parse → highlighting returns.
+ * Edited sequences are aligned back to the parsed coverage map. The mirror
+ * follows the native editor's client viewport and scroll position after edits,
+ * alignment updates and resizing; it never owns selection or cursor navigation.
  */
 interface HighlightedFastaInputProps {
   value: string
@@ -164,9 +164,20 @@ function HighlightedFastaInput({
   const isHighlighted = coverageMap !== undefined
   const onScroll = useCallback(() => {
     if (underlayRef.current && editorRef.current) {
-      underlayRef.current.scrollTop = editorRef.current.scrollTop
+      syncSequenceEditorLayout(editorRef.current, underlayRef.current)
     }
   }, [])
+  // Deleting a prefix can clamp the native scroll position without a user scroll
+  // event. A scrollbar can also change the wrapping width. Resync after React
+  // updates either text or highlighting, before the mismatched mirror is painted.
+  useLayoutEffect(onScroll, [onScroll, value, coverageMap])
+  useLayoutEffect(() => {
+    const editor = editorRef.current
+    if (!editor || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(onScroll)
+    observer.observe(editor)
+    return () => observer.disconnect()
+  }, [onScroll])
   const FONT = 'ui-monospace, monospace'
   const FONT_SIZE = '0.7rem'
   const LINE_HEIGHT = 1.5
@@ -201,6 +212,7 @@ function HighlightedFastaInput({
             position: 'absolute', inset: 0,
             pointerEvents: 'none', overflow: 'hidden',
             fontFamily: FONT, fontSize: FONT_SIZE, lineHeight: LINE_HEIGHT,
+            fontVariantLigatures: 'none',
             whiteSpace: 'pre-wrap', wordBreak: 'break-all',
             padding: PADDING,
             color: 'text.primary',
@@ -227,9 +239,12 @@ function HighlightedFastaInput({
                   {placeholder ?? ''}
                 </span>
               )}
+          {/* Keep the last empty line scrollable, just like the native textarea. */}
+          {'\u200b'}
         </Box>
         <textarea
           ref={editorRef}
+          aria-label={label}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onScroll={onScroll}
@@ -241,6 +256,7 @@ function HighlightedFastaInput({
             background: 'transparent', color: 'transparent',
             caretColor: '#1976d2',
             fontFamily: FONT, fontSize: FONT_SIZE, lineHeight: LINE_HEIGHT,
+            fontVariantLigatures: 'none',
             padding: PADDING,
             whiteSpace: 'pre-wrap', wordBreak: 'break-all',
             boxSizing: 'border-box',

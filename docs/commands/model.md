@@ -19,11 +19,15 @@ guarantee for the full modeling pipeline.
 
 ## Defaults and limits
 
-Equal-scoring sequence placements produce a warning and use the shared
-deterministic leftmost-best alignment, including on the diffusion path. Inspect
-the reported chain, reference interval, and gaps when repeats make placement
-ambiguous. Observed residue identities must still match the selected target
-positions; impossible placements and mismatches remain errors.
+For equal-scoring sequence placements, the shared aligner first avoids inserting
+gaps inside observed peptide bonds, then uses author residue-number continuity.
+These are tie-breakers only: they never override a better sequence score or assume
+that PDB numbering starts at one. This applies to renumbering and diffusion;
+geometry can correct misleading numbering left by an older renumbering pass.
+Missing/ambiguous backbone atoms provide no geometry evidence. Remaining ties
+produce a warning and retain the deterministic leftmost-best rule. Inspect the
+reported chain, reference interval and gaps. Observed residue identities must
+still match the selected target positions; impossible placements remain errors.
 
 Diffusion gap lengths outside a profile's validated range produce a **WARNING**
 and reconstruction is attempted rather than blocked solely by length. This
@@ -142,6 +146,19 @@ falls back to CPU. The installer requires `--refinement-python`; see the
 [Apple deployment guide](../../deploy/protpardelle-1c/README.md#apple-silicon-preparation).
 The historical `protpardelle-1c-mps` identity is retained for legacy requests;
 installing the corrected version does not relabel or migrate those requests.
+New requests never automatically downgrade to that historical launcher.
+
+Corrected Apple requests with multiple gaps, terminal regions or more than 512
+whole-source residues use the explicit `independent-local-v1` execution policy.
+Every gap receives its own source-only local view (at most 512 engine residues,
+up to 64 views per candidate), preserving physical positions and partner-chain
+separation. Other missing regions are excluded, not fabricated as context. Only
+observed sidechain atoms are conditioned; incomplete backbone context is rejected.
+The generated regions are merged without moving source atoms, jointly refined
+on CPU, and validated as a whole complex, including inter-gap clashes. Each view's
+context and actual RoPE evidence are retained. This wider scope is experimental;
+the earlier single-gap cohort does not establish terminal/multi-gap quality.
+No tails are silently removed; `--no-terminal` remains an explicit user choice.
 
 Protenix can opt into source-only protein context with
 `--diffusion-model protenix --diffusion-context local` (eight sequence flanks and

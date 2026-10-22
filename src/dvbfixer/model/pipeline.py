@@ -197,7 +197,13 @@ def get_chain_order(lines, seqres_only=None):
 
 def get_atom_sequence(lines, chain_id):
     """Get the one-letter amino acid sequence from ATOM records for a chain."""
+    return _atom_sequence_and_keys(lines, chain_id)[0]
+
+
+def _atom_sequence_and_keys(lines, chain_id):
+    """Keep sequence and identity evidence in exactly the same encounter order."""
     residues = []
+    keys = []
     seen = set()
     for line in lines:
         if not line.startswith("ATOM  "):
@@ -214,7 +220,8 @@ def get_atom_sequence(lines, chain_id):
             aa = AA3TO1.get(resname)
             if aa:
                 residues.append(aa)
-    return ''.join(residues)
+                keys.append(key)
+    return ''.join(residues), tuple(keys)
 
 
 def trim_terminal_gaps(protein_seq_map, pdb_lines, verbose=False):
@@ -226,17 +233,20 @@ def trim_terminal_gaps(protein_seq_map, pdb_lines, verbose=False):
     """
     trimmed = {}
     for chain, target_seq in protein_seq_map.items():
-        atom_seq = get_atom_sequence(pdb_lines, chain)
+        atom_seq, residue_keys = _atom_sequence_and_keys(pdb_lines, chain)
         if not atom_seq:
             trimmed[chain] = target_seq
             continue
 
+        from dvbfixer.pdbutils.sequence_evidence import observed_peptide_continuity
         from dvbfixer.sequence_alignment import (
             align_observed_to_reference,
             format_alignment_diagnostic,
         )
 
-        alignment = align_observed_to_reference(atom_seq, target_seq)
+        alignment = align_observed_to_reference(atom_seq, target_seq,
+            residue_ids=residue_keys,
+            peptide_continuity=observed_peptide_continuity(pdb_lines, chain, residue_keys))
         if alignment is None:
             # Alignment failed, keep original target rather than guessing.
             trimmed[chain] = target_seq

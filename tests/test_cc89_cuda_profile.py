@@ -134,7 +134,7 @@ def test_public_frozen_request_is_never_silently_given_a_new_context(tmp_path, m
     request_path = tmp_path / "request.json"
     request_path.write_text(persisted)
     output = tmp_path / "bundle"
-    monkeypatch.setattr("dvbfixer.model.diffusion_cli.resolve_diffusion_runtime", lambda model:
+    monkeypatch.setattr("dvbfixer.model.diffusion_cli.resolve_diffusion_runtime", lambda model, **kwargs:
         DiffusionRuntime("protpardelle", "protpardelle-1c-cuda", "/installed/cc89"))
 
     def preflight(**kwargs):

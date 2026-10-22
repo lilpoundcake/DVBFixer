@@ -341,6 +341,29 @@ def test_length_warning_still_launches_runner(tmp_path, monkeypatch, capsys, pro
     assert not (tmp_path / "output").exists()
 
 
+def test_runner_crash_retains_private_raw_evidence_without_publishing(tmp_path, monkeypatch, capsys):
+    source, candidate, request = _source_candidate_request()
+    source_path = tmp_path / request.normalized_pdb.path
+    source_path.parent.mkdir(parents=True)
+    source_path.write_bytes(source)
+    retained = []
+
+    def runner(*_args, workspace, **_kwargs):
+        workspace.mkdir(mode=0o700)
+        (workspace / "raw.pdb").write_bytes(candidate)
+        retained.append(workspace)
+        raise DiffusionRunnerError("scientific refinement crashed")
+
+    monkeypatch.setattr(diffusion_pipeline, "run_diffusion_runner", runner)
+    with pytest.raises(DiffusionRunnerError, match="refinement crashed"):
+        run_diffusion_pipeline(request, ("runner",), source_root=tmp_path, work_parent=tmp_path,
+            destination_bundle=tmp_path / "output")
+    assert (retained[0] / "raw.pdb").read_bytes() == candidate
+    assert not (tmp_path / "output").exists()
+    assert source_path.read_bytes() == source
+    assert "Retained private diffusion diagnostics:" in capsys.readouterr().out
+
+
 def test_publish_bundle_writes_candidate_matched_dat_and_manifest(
     tmp_path: Path,
 ) -> None:

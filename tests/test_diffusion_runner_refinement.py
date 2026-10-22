@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import hashlib
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
 import pytest
+from openmm import OpenMMException
 
 import dvbfixer.model.diffusion.runner_refinement as runner_refinement
+from dvbfixer.ffutils.geometry import ChiralityError
 from dvbfixer.model.diffusion.boundary_refinement import BoundaryRefinementError
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
@@ -113,9 +116,13 @@ def test_private_coordinate_read_rejects_digest_links_and_oversize(tmp_path: Pat
         )
 
 
+@pytest.mark.parametrize("multiple_gaps", [False, True])
+@pytest.mark.parametrize("failure", ["boundary", "chirality", "openmm"])
 def test_reference_refinement_preserves_and_updates_sampler_trace(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    multiple_gaps: bool,
+    failure: str,
 ) -> None:
     fixed_residue = ResidueIdentity("A", "1")
     generated_residue = ResidueIdentity("A", "2")
@@ -131,6 +138,15 @@ def test_reference_refinement_preserves_and_updates_sampler_trace(
         + _atom_line(3, 3, "CA", 7.0)
         + "END\n"
     )
+    extra_fixed = ResidueIdentity("A", "5")
+    extra_generated = ResidueIdentity("A", "4")
+    generated_atoms = (generated_atom,)
+    generated_residues = (generated_residue,)
+    if multiple_gaps:
+        raw_text = raw_text.removesuffix("END\n") + _atom_line(4, 4, "CA", 5.0) + _atom_line(5, 5, "CA", 6.0) + "END\n"
+        fixed_atoms = (*fixed_atoms, AtomIdentity("A", "5", "", "CA"))
+        generated_atoms = (*generated_atoms, AtomIdentity("A", "4", "", "CA"))
+        generated_residues = (*generated_residues, extra_generated)
     raw_path = tmp_path / "raw.pdb"
     raw_path.write_text(raw_text, encoding="ascii")
     request = DiffusionRequest(
@@ -151,11 +167,17 @@ def test_reference_refinement_preserves_and_updates_sampler_trace(
             ),
         ),
         fixed_atoms=fixed_atoms,
-        generated_atoms=(generated_atom,),
+        generated_atoms=generated_atoms,
         retained_explicit_links=(),
         candidate_count=1,
         seeds=(7,),
     )
+    if multiple_gaps:
+        request = replace(request,
+            target_sequences=(TargetSequence("A", "AAAAA"),),
+            sequence_placements=(SequencePlacement("A", 5, (0, 2, 4), (fixed_residue, right_residue, extra_fixed)),),
+            gaps=(*request.gaps, GapRegion("A", TargetInterval(3, 4), right_residue, extra_fixed,
+                (extra_generated,), (right_residue, extra_generated, extra_fixed))))
     request_path = tmp_path / "request.json"
     request_path.write_text(request.to_json(), encoding="utf-8")
     raw_trace = build_sampler_trace(
@@ -163,7 +185,7 @@ def test_reference_refinement_preserves_and_updates_sampler_trace(
         engine_repository="builtin://test",
         engine_revision="revision",
         patch_identity="patch",
-        atom_order=(*fixed_atoms, generated_atom),
+        atom_order=(*fixed_atoms, *generated_atoms),
         fixed_atoms=fixed_atoms,
         device="cpu",
         fallback_disabled=True,
@@ -183,8 +205,8 @@ def test_reference_refinement_preserves_and_updates_sampler_trace(
                     hashlib.sha256(raw_text.encode()).hexdigest(),
                 ),
                 sampler_trace_artifact=trace_artifact,
-                generated_atoms=(generated_atom,),
-                generated_residues=(generated_residue,),
+                generated_atoms=generated_atoms,
+                generated_residues=generated_residues,
                 raw_backend_score=None,
                 score_provenance="test",
             ),
@@ -200,10 +222,11 @@ def test_reference_refinement_preserves_and_updates_sampler_trace(
     monkeypatch.setattr(
         runner_refinement,
         "refine_generated_region",
-        lambda *_args, **_kwargs: SimpleNamespace(
-            coordinates_angstrom={generated_atom: np.asarray([5.0, 6.0, 7.0])},
+        lambda *_args, **kwargs: SimpleNamespace(
+            coordinates_angstrom={atom: np.asarray([5.0, 6.0, 7.0]) for atom in kwargs["generated_atoms"]},
             platform="Reference",
-        ),
+        ) if set(kwargs["generated_residues"]) == set(generated_residues)
+            else pytest.fail("every generated gap must share one mutable refinement mask"),
     )
 
     refined = refine_runner_result(
@@ -222,10 +245,15 @@ def test_reference_refinement_preserves_and_updates_sampler_trace(
     assert refined_trace.atom_order_sha256 == raw_trace.atom_order_sha256
     assert refined_trace.sampler_evidence_complete == raw_trace.sampler_evidence_complete
     assert refined_trace.refinement_mode == "localized-openmm-boundary-refinement"
-    assert refined_trace.localized_refinement_residues == request.gaps[0].movable_junction_residues
+    assert refined_trace.localized_refinement_residues == tuple(dict.fromkeys(
+        residue for gap in request.gaps for residue in gap.movable_junction_residues))
     assert refined.backend_provenance.known_nondeterministic_operations == ()
 
     def fail_refinement(*_args: object, **_kwargs: object) -> None:
+        if failure == "chirality":
+            raise ChiralityError([("A", "2", "ALA", -0.001)])
+        if failure == "openmm":
+            raise OpenMMException("injected scientific refinement failure")
         raise BoundaryRefinementError("injected scientific refinement failure")
 
     monkeypatch.setattr(
@@ -245,4 +273,5 @@ def test_reference_refinement_preserves_and_updates_sampler_trace(
         "localized-openmm-boundary-refinement-failed",
     )
     assert "raw sampler candidate retained" in rejected.message
+    assert ":" in rejected.message
     assert not (tmp_path / "failed-refinement").exists()

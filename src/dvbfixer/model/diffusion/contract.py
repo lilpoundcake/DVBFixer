@@ -587,6 +587,8 @@ class SamplerTrace:
     conditioning_contexts: tuple[SamplerConditioningContext, ...] = ()
     conditioned_heterogen_atoms: tuple[AtomIdentity, ...] = ()
     protein_context_evidence: ProteinContextEvidence | None = dataclass_field(default=None, metadata={"omit_if_none": True})
+    gap_context_evidence: tuple[ProteinContextEvidence, ...] | None = dataclass_field(default=None, metadata={"omit_if_none": True})
+    gap_atom_orders: tuple[tuple[AtomIdentity, ...], ...] | None = dataclass_field(default=None, metadata={"omit_if_none": True})
 
     def __post_init__(self) -> None:
         if self.schema_version != DIFFUSION_SCHEMA_VERSION:
@@ -645,6 +647,21 @@ class SamplerTrace:
                 raise DiffusionContractError("context evidence changed represented fixed atoms")
             if set(evidence.selected_atoms) & set(evidence.preserved_atoms) or set(evidence.selected_atoms) | set(evidence.preserved_atoms) != set(self.fixed_atoms):
                 raise DiffusionContractError("context evidence must partition the fixed atom mask")
+        if self.gap_context_evidence is not None:
+            if self.profile != "protpardelle-1c-mps-local-v1":
+                raise DiffusionContractError("independent local gap evidence requires the corrected MPS profile")
+            if self.protein_context_evidence is not None or not 1 <= len(self.gap_context_evidence) <= 64:
+                raise DiffusionContractError("independent gap evidence requires 1-64 separate contexts")
+            if self.gap_atom_orders is None or len(self.gap_atom_orders) != len(self.gap_context_evidence):
+                raise DiffusionContractError("each independent gap requires its actual sampled atom axis")
+            selected = {atom for evidence in self.gap_context_evidence for atom in evidence.selected_atoms}
+            if selected != set(self.represented_fixed_atoms):
+                raise DiffusionContractError("independent gap evidence changed represented fixed atoms")
+            for evidence in self.gap_context_evidence:
+                if set(evidence.selected_atoms) & set(evidence.preserved_atoms) or set(evidence.selected_atoms) | set(evidence.preserved_atoms) != set(self.fixed_atoms):
+                    raise DiffusionContractError("each gap context must partition the immutable fixed mask")
+        elif self.gap_atom_orders is not None:
+            raise DiffusionContractError("independent atom axes require gap context evidence")
         if not math.isfinite(self.fixed_tolerance_angstrom) or self.fixed_tolerance_angstrom < 0:
             raise DiffusionContractError(
                 "sampler trace fixed tolerance must be finite and non-negative"
@@ -851,7 +868,7 @@ class SamplerTrace:
                     or self.callback_update_count or self.steps
                     or self.capabilities.supports_per_step_reinjection()
                     or not self.final_fixed_coordinate_restoration
-                    or self.protein_context_evidence is None
+                    or (self.protein_context_evidence is None and self.gap_context_evidence is None)
                     or "cc89-chain-phase=neutral-v1" not in self.patch_identity
                     or "cc89-position-features=source-physical-v1" not in self.patch_identity
                     or "sha256:627891e28d5055cb0d903f542af695569d7133b0480cab8f25d154dc8ccc78c9" not in self.patch_identity):
@@ -991,6 +1008,7 @@ class DiffusionRequest(_JsonContract):
     template_ownership: tuple[TemplateOwnership, ...] = ()
     protein_context: ProteinContextPlan | None = dataclass_field(default=None, metadata={"omit_if_none": True})
     regenerated_template_ownership: tuple[TemplateOwnership, ...] | None = dataclass_field(default=None, metadata={"omit_if_none": True})
+    gap_contexts: tuple[ProteinContextPlan, ...] | None = dataclass_field(default=None, metadata={"omit_if_none": True})
 
     def __post_init__(self) -> None:
         super(DiffusionRequest, self).__post_init__()
@@ -1041,6 +1059,19 @@ class DiffusionRequest(_JsonContract):
             for span in context.spans:
                 if span.chain not in lengths or span.stop > lengths[span.chain]:
                     raise DiffusionContractError("context span exceeds target chain sequence")
+        if self.gap_contexts is not None:
+            if self.protein_context is not None or not 1 <= len(self.gap_contexts) == len(self.gaps) <= 64:
+                raise DiffusionContractError("independent gap contexts must match 1-64 requested gaps")
+            for gap, context in zip(self.gaps, self.gap_contexts, strict=True):
+                if context.source_sha256 != self.normalized_pdb.sha256:
+                    raise DiffusionContractError("gap context source digest mismatch")
+                expected = {atom for atom in self.generated_atoms if ResidueIdentity(atom.chain, atom.residue_number, atom.insertion_code) in set(gap.generated_residues)}
+                if set(context.generated) | set(context.movable_junction) != expected:
+                    raise DiffusionContractError("gap context mutable mask does not match its gap")
+                if {item.atom for item in context.fixed_conditioning} | set(context.preserved_only) != set(self.fixed_atoms):
+                    raise DiffusionContractError("gap context must cover the immutable fixed mask")
+                if any(span.chain not in lengths or span.stop > lengths[span.chain] for span in context.spans):
+                    raise DiffusionContractError("gap context span exceeds target sequence")
         context_residues = [context.residue for context in self.heterogen_contexts]
         if len(context_residues) != len(set(context_residues)):
             raise DiffusionContractError("heterogen context residues must be unique")

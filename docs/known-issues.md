@@ -30,6 +30,25 @@ exist. A clean run has no empty warning banner. See [batch mode and logging](bat
 
 ## Diagnostics report errors after a completed run
 
+### Diffusion has no independently validated candidate
+
+This means the rejected candidate is not safe for downstream preparation; it is
+not permission to bypass geometry or chirality gates. Current Apple runs require
+the corrected `protpardelle-1c-mps-local-v1` launcher. An installed historical
+`protpardelle-1c-mps` launcher alone is insufficient for new requests. See the
+[Apple deployment guide](../deploy/protpardelle-1c/README.md#apple-silicon-preparation).
+
+Scientific refinement failures preserve the raw candidate with the specific
+exception in its provenance. Runner/validation failures retain a private workspace
+under `--diffusion-work-parent`, announced in the log, for operator inspection.
+It may contain the full input structure and should not be shared publicly without
+review. Delete retained diagnostic directories when no longer needed. GUI/container
+hosts can impose their own work-directory lifecycle and quotas.
+The [supplied 5J13 regression](research/multi-gap-diffusion-5j13.md) documents
+the corrected multi-gap run and its remaining, correctly rejected geometry.
+
+### Ordinary diagnostic findings
+
 `diagnose` exit code `1` means analysis found ERROR-level structural findings.
 It is not by itself an execution failure. Inspect the affected residues and
 choose the appropriate repair tool; do not just suppress the report.

@@ -118,7 +118,7 @@ def _find_seqres_offset_by_resseq(orig_residues, seqres_seq, tolerance=0.1):
     return None
 
 
-def _align_atoms_to_seqres(orig_residues, seqres_seq):
+def _align_atoms_to_seqres(orig_residues, seqres_seq, *, peptide_continuity=None):
     """Align ATOM letters to SEQRES letters via semi-global Needleman-Wunsch.
 
     The result is a list of length `len(orig_residues)` giving the SEQRES
@@ -146,7 +146,8 @@ def _align_atoms_to_seqres(orig_residues, seqres_seq):
     from dvbfixer.sequence_alignment import align_observed_to_reference
 
     query = ''.join(r[2] for r in orig_residues)
-    result = align_observed_to_reference(query, seqres_seq)
+    result = align_observed_to_reference(query, seqres_seq,
+        residue_ids=tuple((r[0], r[1]) for r in orig_residues), peptide_continuity=peptide_continuity)
     return list(result.positions) if result is not None else None
 
 
@@ -326,11 +327,9 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
         #    what the user wants: gap-fill residues land inside the gap,
         #    not at the C-terminus.
         #
-        # 2. Letter-only NW alignment (mutation-tolerant fallback). Used
-        #    when K-finder bails (too many letter mismatches). NW handles
-        #    point mutations but doesn't use resseq jumps, so it may place
-        #    the gap one position off when the surrounding letters are
-        #    ambiguous (e.g. repetitive sequence).
+        # 2. Shared affine alignment (mutation-tolerant fallback). Sequence
+        #    score stays primary; observed peptide continuity and author-number
+        #    continuity disambiguate equal scores around repetitive residues.
         #
         # 3. align2d's mask (last resort). Uses Modeller's alignment +
         #    flank interpolation. Susceptible to align2d's gap placement
@@ -352,7 +351,12 @@ def build_resnum_mapping(per_chain_masks, all_chains, protein_chains, original_l
                         break
             if seqres_index is None:
                 # Try NW as fallback
-                nw_result = _align_atoms_to_seqres(orig_letters.get(chain, []), seqres_seq)
+                from dvbfixer.pdbutils.sequence_evidence import observed_peptide_continuity
+
+                chain_residues = orig_letters.get(chain, [])
+                nw_result = _align_atoms_to_seqres(chain_residues, seqres_seq,
+                    peptide_continuity=observed_peptide_continuity(original_lines, chain,
+                        tuple((number, code) for number, code, _letter in chain_residues)))
                 if nw_result is not None:
                     used = 'NW'
                     seqres_index = nw_result
