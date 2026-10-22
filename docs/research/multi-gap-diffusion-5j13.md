@@ -283,3 +283,63 @@ corrections (runtime selection, independent gap masks, alignment and temporary
 atom mobility) must not be described as solving the remaining reconstruction
 quality problem. A geometry-preserving proposal needs a new controlled test,
 not further blind energy-only minimization or publication of these candidates.
+
+## Opt-in anchor-segment union experiment
+
+At the user's request, a new explicit frozen-request option,
+`cc89_context_geometry=anchor-shell-segment-union-v1`, adds a finite CA–CA
+segment neighborhood to the existing source-only context criteria. A residue
+qualifies if any observed heavy atom is within 10 Å of the segment between the
+two observed anchor Cα atoms **or** meets the existing anchor-shell criterion.
+Sequence flanks, padding, immutable-source rules and the 512-position budget
+remain in force. Projection is clamped to the segment endpoints, not extended
+to an infinite line. This experiment requires internal gaps with two anchors;
+terminal directions are not invented. Default profiles retain their original
+policy unless the request declares the option explicitly.
+
+The control is the seed-7 no-terminal run: four gaps / 27 residues, no geometric
+errors or D centres, but seven remaining severe overlaps. Some conflicts were
+already present against PHE77/PRO79 absent from that gap's motif; new SER85
+conflicts appeared during minimization, despite its correct input representation.
+The latter cannot be attributed to missing motif atoms. Model-parser inspection
+confirmed all 446 declared fixed atoms and the fixed-position target sequence;
+SER85 coordinates match to float32 precision. No input-mapping correction was
+made on the basis of those checks.
+
+New request: `test/errors_diffusion/anchor-segment-union-input/request.json`.
+The normalized input, sequences, generated mask, fixed atoms, seed and refinement
+are unchanged from the control. Only the A108–120 context expands: 74→85 engine
+positions, adding 84 observed heavy atoms, including PHE77 and PRO79. All previous
+conditioning atoms are retained. The other three contexts remain identical.
+Focused context/profile tests: 61 pass; the complete fast suite passes 1,411 tests
+with two optional-dependency skips and 31 slow deselections.
+
+The completed seed-7 experiment at
+`test/errors_diffusion/anchor-segment-union-seed7/` **passes all existing independent
+output gates** for the four internal gaps / 27 generated residues:
+
+| Metric | Original context | Anchor-shell + segment union |
+|---|---:|---:|
+| Severe overlaps | 7 | 0 |
+| Detectable D-Cα | 0 | 0 |
+| Bond-length / bond-angle errors | 0 / 0 | 0 / 0 |
+| Non-planar amides | 0 | 0 |
+| Ramachandran / sidechain χ1χ2 outliers | 0 / 0 | 0 / 0 |
+| Maximum fixed-heavy displacement | 0 Å | 0 Å |
+| Junction C–N range | 1.3121–1.3606 Å | 1.3135–1.3613 Å |
+
+No threshold was relaxed, and refinement remains v8. This is a successful
+single-input, single-seed internal-gap reconstruction, not proof of experimental
+conformation, general cohort qualification, terminal reconstruction or justification
+to change the default context policy. Long terminal regions remain unmodeled.
+
+### Integration after the successful control
+
+At the user's subsequent request, fresh corrected Protpardelle CLI and Homology
+mosaic requests now explicitly declare the segment-union option by default.
+Preparation and validation still interpret older frozen requests without the
+option using their original shell-only policy; saved request bytes are not
+silently migrated. For a terminal per-gap view, the new versioned policy retains
+the original shell selection, because a second observed anchor does not exist.
+No terminal direction, additional missing residue or hidden conditioning atom is
+invented. Engine budgets, source preservation and all output gates are unchanged.

@@ -36,6 +36,11 @@ from dvbfixer.model.diffusion.masks import (
 )
 from dvbfixer.model.diffusion.pipeline import run_diffusion_pipeline
 from dvbfixer.model.diffusion.preflight import invoke_runner_preflight
+from dvbfixer.model.diffusion.protein_context import (
+    ANCHOR_SEGMENT_OPTION,
+    CUDA_CC89_PROFILE,
+    MPS_CC89_PROFILE,
+)
 from dvbfixer.model.diffusion.runner import DiffusionRunnerError, RunnerLimits
 from dvbfixer.model.diffusion.runtime import (
     DiffusionRuntimeError,
@@ -254,7 +259,11 @@ def build_cli_diffusion_request(
         retained_explicit_links=links,
         candidate_count=len(seeds),
         seeds=seeds,
-        backend_options=(BackendOption("profile", profile),),
+        backend_options=(
+            BackendOption("profile", profile),
+            *((ANCHOR_SEGMENT_OPTION,)
+              if profile in {CUDA_CC89_PROFILE, MPS_CC89_PROFILE} else ()),
+        ),
         heterogen_contexts=heterogen_contexts,
         template_ownership=template_ownership,
     )

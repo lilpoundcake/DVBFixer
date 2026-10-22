@@ -45,6 +45,19 @@ CUDA_CC89_CONTEXT = ProteinContextPolicy(
     name="atom37-terminal-preservation-v1", target_flanks=8,
     same_chain_spatial=True, partner_mode="local",
 )
+ANCHOR_SEGMENT_OPTION = BackendOption("cc89_context_geometry", "anchor-shell-segment-union-v1")
+ANCHOR_SEGMENT_CONTEXT = replace(CUDA_CC89_CONTEXT, name=ANCHOR_SEGMENT_OPTION.value)
+
+
+def _cc89_context_policy(request: DiffusionRequest) -> ProteinContextPolicy:
+    option = next((item for item in request.backend_options if item.name == ANCHOR_SEGMENT_OPTION.name), None)
+    if option is None:
+        return CUDA_CC89_CONTEXT
+    if option != ANCHOR_SEGMENT_OPTION:
+        raise ProteinContextError("unsupported cc89 context geometry")
+    return ANCHOR_SEGMENT_CONTEXT
+
+
 CUDA_CC89_OPTIONS = (
     BackendOption("cc89_chain_phase", "neutral-v1"),
     BackendOption("cc89_position_features", "source-physical-v1"),
@@ -113,7 +126,7 @@ def prepare_mps_cc89_request(request: DiffusionRequest, pdb: bytes, context_mode
         if request.gap_contexts is None:
             plans = []
             for single in independent_gap_requests(request):
-                plan = select_protein_context(single, pdb, CUDA_CC89_CONTEXT).protein_context
+                plan = select_protein_context(single, pdb, _cc89_context_policy(request)).protein_context
                 assert plan is not None
                 plans.append(plan)
             request = replace(request, gap_contexts=tuple(plans))
@@ -130,8 +143,10 @@ def _prepare_corrected_cc89_request(
         raise ProteinContextError(f"{label} request must declare its profile")
     if context_mode not in {"auto", "local"}:
         raise ProteinContextError(f"{profile} requires --diffusion-context auto|local")
+    if len(request.gaps) != 1 or request.gaps[0].gap_kind is not GapKind.INTERNAL:
+        raise ProteinContextError(f"{label} supports one internal gap per request")
     if request.protein_context is None:
-        request = select_protein_context(request, pdb, CUDA_CC89_CONTEXT)
+        request = select_protein_context(request, pdb, _cc89_context_policy(request))
     options = list(request.backend_options)
     for required in CUDA_CC89_OPTIONS:
         existing = next((option for option in options if option.name == required.name), None)
@@ -177,7 +192,7 @@ def _validate_corrected_cc89_request(request: DiffusionRequest, profile: str, la
     if not independent and sum(len(target.sequence) for target in request.target_sequences) > 512:
         raise ProteinContextError(f"{label} whole-source budget is 512 protein residues")
     plan = request.protein_context
-    if (plan is None or plan.policy != CUDA_CC89_CONTEXT or plan.trajectory_queries is not None
+    if (plan is None or plan.policy != _cc89_context_policy(request) or plan.trajectory_queries is not None
             or plan.retained_conditioning or plan.previous_plan_sha256 is not None):
         raise ProteinContextError(f"{label} requires the frozen source-only local context policy")
     if any(option not in request.backend_options for option in CUDA_CC89_OPTIONS):
@@ -244,6 +259,20 @@ def select_protein_context(
     anchor_points = np.asarray([points[atom] for residue in sorted(anchors) for atom in atoms_by_residue.get(residue, [])])
     if len(anchor_points) < 3:
         raise ProteinContextError("context requires complete observed anchor geometry")
+    anchor_segment = None
+    if policy.name == ANCHOR_SEGMENT_CONTEXT.name:
+        if len(request.gaps) != 1:
+            raise ProteinContextError("anchor-segment context requires one gap per sampling view")
+    if policy.name == ANCHOR_SEGMENT_CONTEXT.name and request.gaps[0].gap_kind is GapKind.INTERNAL:
+        gap = request.gaps[0]
+        assert gap.left_anchor is not None and gap.right_anchor is not None
+        endpoints = []
+        for anchor in (gap.left_anchor, gap.right_anchor):
+            point = points.get(AtomIdentity(anchor.chain, anchor.residue_number, anchor.insertion_code, "CA"))
+            if point is None:
+                raise ProteinContextError("anchor-segment context requires both observed CA atoms")
+            endpoints.append(point)
+        anchor_segment = (endpoints[0], endpoints[1])
     if trajectory_queries is not None:
         expected = {atom for atom in request.generated_atoms if atom.atom_name in {"N", "CA", "C", "O"}}
         if {query.atom for query in trajectory_queries} != expected:
@@ -278,7 +307,13 @@ def select_protein_context(
             residue_atoms = atoms_by_residue.get(residue, [])
             if not residue_atoms:
                 continue
-            distance = float(np.min(np.linalg.norm(np.asarray([points[atom] for atom in residue_atoms])[:, None, :] - anchor_points[None, :, :], axis=2)))
+            residue_points = np.asarray([points[atom] for atom in residue_atoms])
+            distance = float(np.min(np.linalg.norm(residue_points[:, None, :] - anchor_points[None, :, :], axis=2)))
+            if anchor_segment is not None:
+                # Union with the existing atom-based anchor shells, not a
+                # replacement. Clamp projection to the finite CA–CA segment;
+                # a residue beyond an endpoint is not near an infinite line.
+                distance = min(distance, float(np.min(_point_segment_distances(residue_points, *anchor_segment))))
             full_partner = chain not in gap_chains and policy.partner_mode == "full"
             if not full_partner and distance > policy.secondary_radius_angstrom:
                 continue
@@ -329,7 +364,7 @@ def select_protein_context(
                 # atoms. Never invent conditioning coordinates for absent atoms.
             selected_residues.add(residue)
     preserved_terminal_atoms: set[AtomIdentity] = set()
-    if policy.name == "atom37-terminal-preservation-v1":
+    if policy.name in {"atom37-terminal-preservation-v1", ANCHOR_SEGMENT_CONTEXT.name}:
         terminals = {placement.observed_residues[-1] for placement in request.sequence_placements
                      if placement.observed_target_indices and placement.observed_target_indices[-1] == placement.target_length - 1}
         preserved_terminal_atoms = {atom for atom in request.fixed_atoms if atom.atom_name == "OXT"}
@@ -347,6 +382,17 @@ def select_protein_context(
         trajectory_queries, retained_conditioning, previous_plan_sha256, adaptation_source,
     )
     return replace(request, protein_context=plan)
+
+
+def _point_segment_distances(points: np.ndarray, start: np.ndarray, stop: np.ndarray) -> np.ndarray:
+    """Euclidean distances in Å to a finite segment, including degenerate ends."""
+    vector = stop - start
+    squared_length = float(np.dot(vector, vector))
+    if squared_length == 0:
+        return np.linalg.norm(points - start, axis=-1)
+    fraction = np.clip((points - start) @ vector / squared_length, 0.0, 1.0)
+    nearest = start + fraction[:, None] * vector
+    return np.linalg.norm(points - nearest, axis=-1)
 
 
 def _split_native_segments(

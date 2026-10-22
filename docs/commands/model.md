@@ -160,6 +160,19 @@ context and actual RoPE evidence are retained. This wider scope is experimental;
 the earlier single-gap cohort does not establish terminal/multi-gap quality.
 No tails are silently removed; `--no-terminal` remains an explicit user choice.
 
+New corrected Protpardelle requests (including Homology template mosaics) retain
+the existing eight-position sequence flanks, 10 Å observed-anchor shells and
+two-residue sequence padding, and **also include residues with any observed heavy
+atom within 10 Å of the finite segment joining the two anchor Cα atoms**. This is
+a union, never a replacement or an infinite-line selection. Terminal gaps have
+only one anchor and retain the original shell/flank selection. The 512-position
+budget still fails explicitly rather than discarding selected contacts.
+The request records `cc89_context_geometry=anchor-shell-segment-union-v1`;
+frozen requests without that option replay their original shell-only policy.
+Legacy MPS and Protenix selection are unchanged. The 5J13 internal-gap regression
+passed with this union; it does not establish accuracy for every gap or terminal
+reconstruction. See the [experiment](../research/multi-gap-diffusion-5j13.md).
+
 Protenix can opt into source-only protein context with
 `--diffusion-model protenix --diffusion-context local` (eight sequence flanks and
 observed-anchor spatial/partner shells) or `--diffusion-context full` (the

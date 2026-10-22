@@ -8,7 +8,7 @@ import pytest
 
 from dvbfixer.model.diffusion.contract import BackendOption
 from dvbfixer.model.diffusion.protein_context import (
-    CUDA_CC89_CONTEXT,
+    ANCHOR_SEGMENT_CONTEXT,
     CUDA_CC89_OPTIONS,
     ProteinContextError,
     prepare_cuda_cc89_request,
@@ -41,7 +41,7 @@ def test_cuda_default_context_preserves_terminal_oxt_and_replays_identically(tmp
     source.write_text("".join(lines[:-2]) + oxt + "TER\nEND\n")
     request = build_cli_diffusion_request(source, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protpardelle-1c-cuda")
     selected = prepare_cuda_cc89_request(request, source.read_bytes(), "auto")
-    assert selected.protein_context.policy == CUDA_CC89_CONTEXT
+    assert selected.protein_context.policy == ANCHOR_SEGMENT_CONTEXT
     assert all(option in selected.backend_options for option in CUDA_CC89_OPTIONS)
     assert any(atom.atom_name == "OXT" for atom in selected.protein_context.preserved_only)
     assert selected.fixed_atoms == request.fixed_atoms
