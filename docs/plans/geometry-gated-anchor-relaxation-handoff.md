@@ -17,6 +17,66 @@ completion in the [canonical checklist](implementation-checklist.md#geometry-gat
 See the [B-factor study](../research/9cqd-bfactor-anchor-restraints.md) and
 [earlier factorial experiment](../research/cc89-lrd-ablation-9cqd.md) for evidence.
 
+## Real-complex follow-up work packages
+
+Recorded 2026-10-27 after the
+[15-gap pre-anchor benchmark](../research/protein-complex-pre-anchor-benchmark-v1.md).
+All items below remain open. Merging the software is not scientific acceptance
+of the unexecuted alternatives or timed-out cases. Track completion in the
+[canonical checklist](implementation-checklist.md#return-to-the-real-complex-findings).
+
+### 1BRS: incomplete context, not failed reconstruction
+
+- Explicitly test the shipped independent/sparse-context path on D:64–65 with
+  observed GLN D:58 missing OE1/NE2. Confirm its N/CA/C/O backbone is complete.
+- Do not invent conditioning coordinates for the absent atoms. A source-completed
+  control, if needed, must be separately named and provenance-bound, not substituted
+  for the unchanged experimental input.
+- Acceptance: record context admission, raw geometry and actual generated-only
+  output; all observed source records remain exact. Keep the original single-gap
+  refusal and the 2-residue length-extrapolation caveat visible.
+
+### 1GC1: residual generated-loop conformation
+
+- Investigate generated SER G:398: raw phi/psi 171.0°/−15.2°, after generated-only
+  159.7°/−80.1°. Junctions/clashes improved, but gross Ramachandran failure remains.
+- Compare a preregistered seed panel or fixed-anchor conformational search with
+  the saved original raw/failed stage-1 coordinates. Keep all outcomes, not only
+  the best result; use no unknown reference coordinates for selection.
+- Acceptance: full local geometry, all-L, clashes and exact observed-record
+  preservation, not C–N distances alone. Do not relax gates to pass this case.
+  Current problematic-anchor eligibility is empty: observed G:396/G:410 must not
+  be released solely because generated G:398 is bad.
+
+### 1HE8: long-gap resource limits
+
+- Profile A:322–352 (31 residues) and A:528–619 (92 residues): separate temporary
+  topology completion/H placement, minimization and audit time before choosing
+  a new bounded CPU/GPU budget or optimization.
+- Preserve the 240 s timeouts and the raw findings (18 and 85 clashes; the
+  92-residue case also has a bad junction). A timeout is neither a geometric
+  PASS/FAIL after refinement nor typed numerical evidence for anchor escalation.
+- Acceptance: a new declared run records terminal status, time/memory, actual
+  stage-1 coordinates if produced, geometry and source preservation. Do not
+  silently change the old budget or generalize success to all long gaps.
+
+### Live raw/final adapter acceptance
+
+- Execute a small native MPS sampling-to-publication/resume workflow after the
+  `phase="raw"` adapter fix, including a deliberately geometry-failing raw
+  diagnostic and a clean/no-op control where feasible.
+- Acceptance: raw diagnostics do not require future refinement evidence; final
+  validation still requires it. Preserve the actual returned sampler trace,
+  resource/probe result and source-position provenance without reconstruction.
+- Label this as a new protocol/run, not a replacement for the 14 completed neural
+  outputs whose post-sampling bookkeeping failed. Their archival recovery remains
+  valid geometry evidence, but does not provide this complete live-profile proof.
+
+For every work package, freeze inputs, seeds, settings and budgets before new
+outcomes; retain the original negatives. Approved anchor movement limits remain
+0.5 Å backbone RMSD / 0.5 Å Cα / 1.25 Å maximum heavy displacement. Wider B-policy
+calibration and removed-heterogen limitations remain separate research boundaries.
+
 ## Execution progress
 
 Started 2026-10-27 on the research branch. Implemented initial pure

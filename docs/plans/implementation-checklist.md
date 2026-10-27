@@ -42,6 +42,18 @@ The experimental software path is integrated; see
 The remaining broader-cohort item is scientific follow-up: numerical defaults
 are approved engineering limits, not calibrated experimental uncertainty.
 
+### Return to the real-complex findings
+
+Evidence: [pre-anchor benchmark](../research/protein-complex-pre-anchor-benchmark-v1.md).
+Execution and acceptance criteria are in the
+[follow-up work packages](geometry-gated-anchor-relaxation-handoff.md#real-complex-follow-up-work-packages).
+These are open follow-ups, not completed by merging the implementation.
+
+- [ ] **1BRS D:64–65:** run an explicitly declared independent/sparse-context test with incomplete GLN D:58; preserve absent OE1/NE2 as unobserved rather than silently repairing the experimental source. Keep the original single-gap input refusal as a distinct result.
+- [ ] **1GC1 G:397–409:** test resampling or fixed-anchor conformational search for the residual generated SER G:398 Ramachandran outlier. Retain the original failed seed; do not loosen geometry gates or release observed anchors without independent eligibility.
+- [ ] **1HE8 A:322–352 and A:528–619:** profile the 240 s generated-only timeouts, then preregister a separate resource-budget experiment. Distinguish incomplete computation from geometry failure and preserve all raw evidence.
+- [ ] **Live raw/final integration:** rerun a declared native MPS workflow after the raw-diagnostic fix, retaining complete sampler resource/probe provenance through refinement, publication and resume. Archived coordinate recovery does not close this acceptance item.
+
 ## API Phase 0: Decisions And Baseline
 
 ### Accepted Decisions
