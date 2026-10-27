@@ -15,6 +15,17 @@ Use that page for command sequences; this entry point remains for existing links
 - [GROMACS export](docs/pipelines.md#gromacs-topology-generation)
 - [Small-molecule parameters](docs/commands/parametrize.md)
 
+## Diffusion geometry: try a small seed panel
+
+When a diffusion candidate fails geometry after refinement, a small declared
+panel of seeds can yield an acceptable alternative. Keep the input, target,
+context, checkpoint and refinement settings fixed; retain all outcomes and use
+only independently accepted candidates. Do not weaken geometry/chirality gates
+or mistake a zero process exit code for acceptance. More seeds are not a guarantee
+of recovery or experimental accuracy, and execution failures are not geometric
+rejections. See the [multi-seed CLI example](docs/commands/model.md#retrying-geometric-rejections-with-multiple-seeds)
+and the [5J13 cc94 MPS case](docs/research/multi-gap-diffusion-5j13.md#cc94-mps-internal-gap-seed-panel-2026-10-27).
+
 ## Before using an output
 
 Inspect diagnostic findings and modeled regions. Keep matching `.dat` sidecars,

@@ -351,28 +351,49 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
             if index == 1:
                 first_ref = reference
         reports.append(report)
+    candidate = raw_result.candidates[0]
+    selected_stage = staged.selected_stage
+    coordinate_text = staged.coordinate_text
+    refinement_failed = selected_stage is None
+    if refinement_failed:
+        # Diagnostic publication is not scientific acceptance. Keep the last
+        # completed processing result even when its geometry is rejected; raw
+        # and stage-1 coordinates remain digest-bound evidence in the bundle.
+        completed = next((attempt for attempt in reversed(staged.attempts)
+            if attempt.stage != "raw" and attempt.output_text is not None), None)
+        notices.extend(f"Refinement {attempt.stage} failed: {attempt.error}"
+            for attempt in staged.attempts if attempt.error is not None)
+        if completed is not None:
+            selected_stage = completed.stage
+            coordinate_text = completed.output_text
+            notices.append(f"Geometry-gated refinement failed; last completed {selected_stage} "
+                "candidate retained for inspection, not accepted. Raw coordinates are retained separately.")
+        else:
+            notices.append("Geometry-gated refinement failed; no processed coordinates were produced. "
+                "Raw candidate retained for inspection, not accepted.")
     # Failure/cancellation diagnostics remain in the run even when no candidate
     # qualifies. Nonfinite diagnostics are not serialized as invalid JSON.
     (output_dir / "refinement-report.json").write_text(json.dumps(
         {"policy": POLICY_REVISION, "attempts": reports, "notices": notices},
         ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
-    candidate = raw_result.candidates[0]
-    if staged.selected_stage is None:
+    if selected_stage is None:
         for notice in dict.fromkeys(notices):
             print(f"WARNING: {notice}")
         return replace(raw_result, candidates=(replace(candidate,
-            warnings=(*candidate.warnings, *notices, "Geometry-gated refinement failed; raw candidate retained."),
+            warnings=(*candidate.warnings, *notices),
             postprocessing_failures=(*candidate.postprocessing_failures, "geometry-gated-refinement-failed")),),
             resource_metrics=replace(raw_result.resource_metrics,
                 wall_time_seconds=(raw_result.resource_metrics.wall_time_seconds or 0.0) + time.perf_counter() - start))
-    selected_ref = write_text("candidate.pdb", staged.coordinate_text)
+    assert coordinate_text is not None
+    selected_ref = write_text("candidate.pdb", coordinate_text)
     first = staged.attempts[1] if len(staged.attempts) > 1 else None
     evidence = StagedRefinementEvidence(
         request_sha256=hashlib.sha256(request.to_json().encode()).hexdigest(), raw=raw_ref,
-        selected=selected_ref, selected_stage=staged.selected_stage, stage1=first_ref,
+        selected=selected_ref, selected_stage=selected_stage, stage1=first_ref,
         stage1_input_sha256=first.input_sha256 if first is not None else None,
         stage1_failure=first.numerical_failure if first is not None else None,
-        stage2_input_sha256=staged.attempts[2].input_sha256 if len(staged.attempts) > 2 else None,
+        stage2_input_sha256=(staged.attempts[2].input_sha256
+            if selected_stage == "generated-and-anchors" else None),
         report=ArtifactReference((output_dir / "refinement-report.json").relative_to(workspace).as_posix(),
             _sha256(output_dir / "refinement-report.json")),
     )
@@ -387,12 +408,15 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
     evidence_ref = ArtifactReference(evidence_path.relative_to(workspace).as_posix(), _sha256(evidence_path))
     elapsed = time.perf_counter() - start
     trace = bind_evidence(replace(raw_trace,
-        refinement_mode="none" if staged.selected_stage == "raw" else POLICY_REVISION,
-        refinement_parameters=(BackendOption("selected_stage", staged.selected_stage),),
-        localized_refinement_residues=() if staged.selected_stage == "raw" else (
-            *generated_residues, *staged.selected_anchors),
+        refinement_mode="none" if selected_stage == "raw" else POLICY_REVISION,
+        refinement_parameters=(BackendOption("selected_stage", selected_stage),
+            BackendOption("selection_reason", "last-completed-rejected-stage" if refinement_failed
+                else "geometry-accepted-stage")),
+        localized_refinement_residues=() if selected_stage == "raw" else (
+            *generated_residues,
+            *(staged.selected_anchors if selected_stage == "generated-and-anchors" else ())),
         final_heavy_coordinate_operations=raw_trace.final_heavy_coordinate_operations + (
-            () if staged.selected_stage == "raw" else (POLICY_REVISION,)),
+            () if selected_stage == "raw" else (POLICY_REVISION,)),
         resource_metrics=replace(raw_trace.resource_metrics,
             wall_time_seconds=(raw_trace.resource_metrics.wall_time_seconds or 0.0) + elapsed),
     ), evidence_ref)
@@ -402,7 +426,9 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
         coordinate_artifact=selected_ref,
         sampler_trace_artifact=ArtifactReference(trace_path.relative_to(workspace).as_posix(), _sha256(trace_path)),
         warnings=tuple(dict.fromkeys((*candidate.warnings, *notices))),
-        postprocessing_failures=(*candidate.postprocessing_failures, *audit.hard_gate_failures),
+        postprocessing_failures=(*candidate.postprocessing_failures,
+            *(("geometry-gated-refinement-failed",) if refinement_failed else ()),
+            *audit.hard_gate_failures),
         score_provenance=f"{POLICY_REVISION}:unranked")
     provenance = raw_result.backend_provenance
     if platforms:

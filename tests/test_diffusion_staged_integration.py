@@ -13,7 +13,10 @@ pytest.importorskip("openmm")
 pytest.importorskip("pdbfixer")
 
 from dvbfixer.model.diffusion.anchor_acceptance import _structure
-from dvbfixer.model.diffusion.boundary_refinement import BoundaryNumericalError
+from dvbfixer.model.diffusion.boundary_refinement import (
+    BoundaryNumericalError,
+    BoundaryRefinementError,
+)
 from dvbfixer.model.diffusion.contract import ArtifactReference, SamplerTrace
 from dvbfixer.model.diffusion.pipeline import publish_diffusion_bundle
 from dvbfixer.model.diffusion.publication import PublicationError, read_published_bundle
@@ -108,6 +111,76 @@ def test_optout_never_attempts_anchor_motion(tmp_path, monkeypatch):
     assert len(calls) == 1
     validated = build_validated_result(request, refined, workspace=tmp_path)
     assert not validated.validation_summaries[0].passed
+
+
+@pytest.mark.parametrize("scenario", ["stage1", "stage2", "stage2-error", "numerical-stage1", "no-output"])
+def test_rejected_publication_keeps_last_completed_processing_and_raw_evidence(tmp_path, monkeypatch, scenario):
+    request_path, request, result, raw, good = setup_run(
+        tmp_path, raw_bad=True, relax=scenario != "stage1")
+    calls = []
+    completed = []
+
+    def minimize(text, **kwargs):
+        calls.append(text)
+        if scenario == "no-output" or (scenario == "stage2-error" and len(calls) == 2):
+            raise BoundaryRefinementError("injected processing failure")
+        if scenario == "numerical-stage1" and len(calls) == 1:
+            raise BoundaryNumericalError("injected numerical failure")
+        selected_text = shift(good, "69", 0.8 if len(calls) == 1 else 0.4, atom_name="C")
+        if kwargs["observed_anchor_restraints"]:
+            selected_text = shift(selected_text, "70", 0.04)
+        completed.append(selected_text)
+        selected = _structure(selected_text, "processed.pdb")
+        atoms = set(kwargs["generated_atoms"]) | {r.atom for r in kwargs["observed_anchor_restraints"]}
+        return SimpleNamespace(platform="Reference", coordinates_angstrom={
+            atom: selected.atoms[atom].coordinates_angstrom for atom in atoms})
+
+    monkeypatch.setattr("dvbfixer.model.diffusion.runner_refinement.refine_generated_region", minimize)
+    refined = refine_runner_result(request_path, result, tmp_path / "refined", platform_name="Reference")
+    assert all(text == raw for text in calls)
+    assert len(calls) == (1 if scenario in {"stage1", "no-output"} else 2)
+    candidate = refined.candidates[0]
+    expected = completed[-1] if completed else raw
+    assert (tmp_path / candidate.coordinate_artifact.path).read_text() == expected
+    assert "geometry-gated-refinement-failed" in candidate.postprocessing_failures
+    validated = build_validated_result(request, refined, workspace=tmp_path)
+    assert not validated.validation_summaries[0].passed
+    bundle = tmp_path / "bundle"
+    publish_diffusion_bundle(request, validated, workspace=tmp_path, destination_bundle=bundle)
+    published = read_published_bundle(bundle, request=request, source_root=tmp_path, work_parent=tmp_path)
+    assert published.status == "validation_failed"
+    assert published.candidates[0].pdb_bytes == expected.encode()
+    with pytest.raises(PublicationError, match="no independently validated"):
+        published.selected()
+    trace = SamplerTrace.from_json(next(bundle.glob("*.sampler-trace.json")).read_text())
+    reference = evidence_reference(trace)
+    if not completed:
+        assert reference is None
+        assert any("no processed coordinates" in warning for warning in candidate.warnings)
+        assert any("injected processing failure" in warning for warning in candidate.warnings)
+        return
+    assert expected != raw
+    evidence = StagedRefinementEvidence.from_json((bundle / reference.path).read_text())
+    assert evidence.selected_stage == ("generated-and-anchors"
+        if scenario in {"stage2", "numerical-stage1"} else "generated-only")
+    assert (bundle / evidence.raw.path).read_text() == raw
+    assert (bundle / evidence.selected.path).read_text() == expected
+    assert dict((option.name, option.value) for option in trace.refinement_parameters)[
+        "selection_reason"] == "last-completed-rejected-stage"
+    report = json.loads((bundle / evidence.report.path).read_text())
+    assert report["notices"]
+    if scenario == "stage2-error":
+        assert report["attempts"][-1]["error"] == "BoundaryRefinementError: injected processing failure"
+        assert evidence.stage2_input_sha256 is None
+    if scenario == "numerical-stage1":
+        assert evidence.stage1 is None and evidence.stage1_failure is not None
+    # A processed rejected candidate cannot be relabeled as accepted simply by
+    # removing the runner's explicit rejection tag: independent geometry remains.
+    unmarked = replace(refined, candidates=(replace(candidate, postprocessing_failures=()),))
+    assert not build_validated_result(request, unmarked, workspace=tmp_path).validation_summaries[0].passed
+    (bundle / evidence.raw.path).write_text("REMARK tampered\n")
+    with pytest.raises(PublicationError, match="SHA-256|digest"):
+        read_published_bundle(bundle, request=request, source_root=tmp_path, work_parent=tmp_path)
 
 
 def test_missing_or_misbound_evidence_cannot_waive_strict_preservation(tmp_path, monkeypatch):

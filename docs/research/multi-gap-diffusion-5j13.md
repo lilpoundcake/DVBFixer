@@ -479,3 +479,97 @@ The supplied FASTA is now tracked byte-for-byte as
 `853b97081f53b6dee15082e8d169c2728cbfc9387afbb291cade4872b082044d`.
 Regression tests verify default option declaration, exact source-bound context
 sizes and frozen-request replay without running an external diffusion engine.
+
+## cc94 MPS internal-gap seed panel (2026-10-27)
+
+Changing the seed is a practical recovery strategy when a diffusion candidate
+fails geometry after refinement. This case demonstrates seed sensitivity, not
+guaranteed recovery or general cc94/MPS qualification. Do not transfer the earlier
+cc89 successes above to the new checkpoint or silently replace failed trials.
+
+### Fixed protocol
+
+The native Apple M3 Pro run used repository commit `5bdeff1`, profile
+`protpardelle-1c-cc94-mps-v1`, pinned cc94_epoch3100, Torch 2.6.0 and the
+[cc94 ODE/native-relative policy](../../deploy/protpardelle-1c/cc94.md): 500 updates,
+scale 1, churn 0, no per-step reinjection and no MPS-to-CPU sampling fallback.
+Refinement used separate Python 3.12 / OpenMM 8.5.2 CPU / NumPy 2.4.6,
+one CPU thread, with default geometry-gated anchor relaxation and B weighting.
+No standalone full-system `minimize` or solvent stage was run.
+
+The source was the tracked `5j13_selected.pdb` (SHA-256
+`63154130ff3de95ab1a135154370ac91e07d8b776bb16067096c0c62c91e3106`).
+Water and sulfate were removed in a separate protein-only copy, SHA-256
+`34e144ddb55f39b83f79b1aedeb44c075c430cac6e8d6b4ba3ae23c7f6874ba9`;
+the original file was unchanged. Targets came from complete input SEQRES with
+explicit `--no-terminal`, yielding A/B/C lengths **124/213/221** and **four
+internal gaps / 27 generated residues**. This is not the longer ten-gap experiment
+or the seven-gap user-FASTA control above.
+
+After seed 7 failed, the additional panel **19, 42, 101, 202** was fixed before
+execution. Every seed was run in its own bundle with otherwise unchanged settings;
+none was replaced and execution did not stop at the first success.
+
+| Seed | Outcome | Refinement finding |
+|---|---|---|
+| 7 (initial comparison) | Rejected; raw retained | Stage 1 leaves one generated A115 Ramachandran outlier (φ=32.4°, ψ=−89.4°) |
+| 19 | **Published success** | Generated-only stage 1 passes all independent gates |
+| 42 | Rejected; raw retained | Stage 1 leaves four severe overlaps involving generated C/SER142 |
+| 101 | **Published success** | Generated-only stage 1 passes all independent gates |
+| 202 | **Execution failure; no published bundle** | Workspace-size check aborts the wrapper; retained stage-1 result separately passes independent validation |
+
+Seeds **19 and 101** restore every requested generated residue/heavy atom, retain
+zero observed-heavy displacement and have zero bond-length/angle errors,
+nonplanar amides, Ramachandran/χ1χ2 outliers, severe overlaps and detectable D-Cα.
+Neither needs stage 2. For seeds 7 and 42, residual findings do not identify an
+eligible problematic observed anchor, so the controller does not run stage 2.
+
+The seed-202 execution failure is **not** a geometric rejection or a published
+success. Its retained workspace measured about 20 MB after the run, below the
+2 GB limit; the checker also reports filesystem traversal errors as limit
+violations. The precise trigger was not captured, so actual transient quota
+exhaustion versus a filesystem race is unresolved. Post-hoc validation of its
+saved result passes all independent gates without further minimization, but does
+not retroactively repair the failed execution/publication path. Thus the four
+additional attempts produced **two published successes, one geometric rejection
+and one infrastructure failure**, not four comparable geometric trials.
+
+Local, untracked evidence is retained below `.artifacts/apple-cc94/`:
+`5j13-seed-panel-protocol.json`, `5j13-seed-panel-results.json`, per-seed command
+records/logs, the `runs/5j13-internal-seed{19,42,101}/` bundles and
+`5j13-seed202-posthoc-validation.json`. Seed 7 is in `runs/5j13-internal-seed7/`.
+Private workspaces retain stage reports and coordinate attempts, including the
+unpublished seed-202 result. These are operator-local evidence, not CI fixtures.
+
+Use a declared small panel, retain every outcome and inspect per-candidate gates;
+do not select on finite energy, CLI exit code or raw appearance alone. A rejected
+staged-refinement bundle can contain the **raw** PDB, not its improved but still
+failing stage-1 output. See the
+[multi-seed CLI guidance](../commands/model.md#retrying-geometric-rejections-with-multiple-seeds).
+This case supports an operational recovery practice, not native-loop accuracy,
+seed-independent reproducibility or a terminal-gap acceptance claim.
+
+### Subsequent rejected-output retention correction
+
+The seed-panel outcomes above describe the original executions; their bundles
+are not rewritten. The shared staged refiner now preserves the last completed
+processed candidate even when geometry is rejected: stage 2 if it returned
+coordinates, otherwise stage 1. Raw coordinates, stage-1 evidence and the attempt
+report remain separate digest-bound bundle artifacts. Raw is retained as the
+main rejected PDB only when processing produced no coordinates. If a later stage
+raises an expected refinement error, its error remains visible alongside the
+earlier retained result. Scientific acceptance, source-motion/chirality limits
+and downstream refusal of rejected bundles are unchanged. This is an output
+retention correction, not a rescue or relabeling of any historical failed seed.
+
+Native CPU reprocessing of the saved seed-7 raw candidates, without new neural
+sampling, verified publication and independent resume validation of both rejected
+bundles. 5J13 now publishes stage 1 with one Ramachandran outlier and zero severe
+overlaps, instead of its raw candidate with 18 overlaps. The 9CQD internal-gap
+control publishes stage 2 with zero severe overlaps, one nonplanar amide and one
+Ramachandran outlier; that execution also exceeds the W29 backbone movement limit
+(0.5075 Å versus 0.5 Å). Both remain `validation_failed`, with raw/stage-1/report
+artifacts preserved separately. These are new CPU minimization executions, not
+bit-identical replacements for the earlier stage coordinates. Local verification:
+`.artifacts/apple-cc94/processed-rejection-verification.json` and
+`runs/{5j13,9cqd}-internal-seed7-processed-rejection/` below that evidence directory.

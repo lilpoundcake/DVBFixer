@@ -164,6 +164,47 @@ Isolated runner/refinement environments must contain this implementation; an
 older runner that omits the new request-bound evidence is rejected, not silently
 accepted under legacy coordinate-preservation semantics.
 
+### Retrying geometric rejections with multiple seeds
+
+A different seed can produce a conformation that the same refinement can repair.
+For geometric rejection, try a small declared panel (for example 7, 19, 42, 101,
+202) while keeping the input, target sequence, context, checkpoint and refinement
+settings fixed. This is a practical recovery strategy, not a guarantee of success.
+The native cc94 MPS [5J13 internal-gap panel](../research/multi-gap-diffusion-5j13.md#cc94-mps-internal-gap-seed-panel-2026-10-27)
+produced accepted candidates for seeds 19 and 101 after seed 7 failed.
+
+Repeat `--diffusion-seed` to request multiple candidates in one new bundle:
+
+```bash
+dvbfixer model protein.pdb --fasta sequence.fasta \
+  --backend diffusion --diffusion-model protpardelle --no-terminal \
+  --diffusion-seed 7 --diffusion-seed 19 --diffusion-seed 42 \
+  --diffusion-seed 101 --diffusion-seed 202 \
+  --diffusion-timeout 3600 -o protein_seed_panel
+```
+
+Here `--no-terminal` explicitly requests internal gaps only; omit it if missing
+terminal regions are part of the intended target. Multiple seeds increase runtime
+and diagnostic storage; the timeout covers the runner's complete candidate panel.
+For independent failure isolation, run each seed separately with a distinct
+output directory, as in the 5J13 experiment: a runner/protocol failure can prevent
+publication of a combined bundle. `--diffusion-resume` does not generate new seeds.
+
+Inspect each candidate's `validation_passed` and `hard_gate_failures` in
+`bundle.json`; a successful bundle can also contain rejected candidates. Keep the
+matching PDB/`.dat`/provenance files and retain unsuccessful attempts. Neither a
+zero CLI exit code nor finite minimization energy proves scientific acceptance.
+If no stage passes geometry, the rejected PDB retains the **last completed
+processing stage**, not the raw candidate. Raw coordinates, stage-1 evidence and
+the attempt report are preserved separately in the bundle. If stage 2 produces
+no coordinates, stage 1 is retained; raw is the fallback only when neither stage
+produced coordinates, with an explicit failure warning. Selection for diagnostic
+publication does not grant scientific acceptance or permission to use the output.
+Distinguish geometric rejection from execution/resource failure; the latter is
+not evidence that another conformation failed geometry. Do not relax geometry,
+chirality or source-motion gates to make a seed pass. Passing them establishes
+implemented geometric acceptance, not the experimental conformation or MD readiness.
+
 ### Experimental diffusion scope
 
 `--diffusion-model protpardelle` now selects **cc94_epoch3100**, with profile
