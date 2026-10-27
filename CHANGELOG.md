@@ -10,6 +10,12 @@ best-effort summaries; consult `git log` for exact provenance.
 
 ## [0.9.2] — 2026-10-27
 
+### Security
+
+- Update GUI transitive dependencies `body-parser` to 2.4.0 and `zod` to
+  4.6.7 to address denial-of-service advisories GHSA-27r3-jxmh-p828 and
+  GHSA-mrhx-c7xc-m3w5. Keep the dependency audit gate enabled.
+
 ### Fixed
 
 - Respect explicit TER boundaries in `atom-names` terminal naming when separate
