@@ -8,6 +8,29 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.10.0] — 2026-10-27
+
+### Added
+
+- Added `altlocs` and workspace review controls for explicit alternate-state
+  selection.
+- Added independent multi-gap diffusion execution, expanded observed motif
+  context, and regression coverage for terminal and internal reconstruction.
+- Added cc89 local-refinement ablation tooling, source fixtures, and research
+  comparisons with PATCHR.
+
+### Changed
+
+- Compact GUI run storage archives extra diagnostics while preserving declared
+  outputs and complete diffusion bundles; workspace files are grouped by run.
+
+### Fixed
+
+- Reconciled diffusion output SEQRES and dependent PDB annotations with the
+  authoritative request, with independent metadata-consistency validation.
+- Preserved observed peptide continuity when resolving equal-scoring sequence
+  placements and retained multi-gap placement/refinement invariants.
+
 ## [0.9.2] — 2026-10-27
 
 ### Security
