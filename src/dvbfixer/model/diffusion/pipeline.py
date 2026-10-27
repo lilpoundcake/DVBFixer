@@ -96,12 +96,14 @@ def run_diffusion_pipeline(
         admission = assess_diffusion_scope(request, source_bytes)
     except DiffusionScopeError as exc:
         raise DiffusionPipelineError(str(exc)) from exc
+    for warning in admission.warnings:
+        print(f"WARNING: {warning}", flush=True)
     if not admission.supported:
         return DiffusionPipelineOutcome(
             result=None,
             admission=admission,
             published_bundle=None,
-            message=", ".join(admission.reasons),
+            message=admission.message,
         )
 
     work_parent = _require_directory(work_parent, "work_parent")
@@ -112,6 +114,7 @@ def run_diffusion_pipeline(
         )
     )
     shutil.rmtree(workspace)
+    retain_diagnostics = False
     try:
         runner_result = run_diffusion_runner(
             request,
@@ -127,6 +130,7 @@ def run_diffusion_pipeline(
             workspace=workspace,
             thresholds=thresholds,
         )
+        retain_diagnostics = result.status is DiffusionStatus.FAILED
         if result.status not in {DiffusionStatus.SUCCESS, DiffusionStatus.FAILED}:
             return DiffusionPipelineOutcome(
                 result=result,
@@ -154,8 +158,14 @@ def run_diffusion_pipeline(
             published_bundle=destination_bundle,
             message=result.message,
         )
+    except Exception:
+        retain_diagnostics = True
+        raise
     finally:
-        shutil.rmtree(workspace, ignore_errors=True)
+        if retain_diagnostics and workspace.is_dir():
+            print(f"WARNING: Retained private diffusion diagnostics: {workspace}", flush=True)
+        else:
+            shutil.rmtree(workspace, ignore_errors=True)
 
 
 def publish_diffusion_bundle(

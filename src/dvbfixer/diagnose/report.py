@@ -94,7 +94,7 @@ _FIX_TOOL: dict[str, str] = {
     "missing_terminals": "dvbfixer prepare",
     "coincident_atoms": "dvbfixer prepare",
     "misplaced_hydrogen": "dvbfixer prepare",
-    "altloc_conflict": "manual: pick one altLoc",
+    "altloc_conflict": "altlocs: select one state per residue",
     "chain_break": "dvbfixer model  (if it's a real gap)",
     "duplicate_chain_coordinates": "manual: restore MODEL/ENDMDL records or remove the duplicate chain",
     "insertion_codes": "dvbfixer renumber  (if renumbering is desired)",

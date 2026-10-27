@@ -18,6 +18,7 @@ export interface WorkspaceArtifact {
   command?: string
   artifactType?: string
   hidden?: boolean
+  run?: { command: string; status: 'succeeded' | 'failed' | 'cancelled' | 'validation_failed' }
   organism?: string
   method?: string
   resolution?: string | number

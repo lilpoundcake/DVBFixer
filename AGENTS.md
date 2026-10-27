@@ -8,7 +8,7 @@ that discover that filename.
 
 **dvbfixer** — a Python package providing CLI tools for preparing PDB
 (Protein Data Bank) structural biology files. Installed as a single
-`dvbfixer` command with 24 subcommands, plus the React/Node GUI in `gui/`.
+`dvbfixer` command with 25 subcommands, plus the React/Node GUI in `gui/`.
 
 ## Prep backends: `legacy` (default) vs `tleap-reduce` (opt-in)
 
@@ -398,6 +398,13 @@ call bare `dvbfixer` resolve it. See
   restoration must share the same affine semi-global placement. Under
   `--no-terminal`, crop outside the first/last observed reference anchors
   but preserve every reference gap between those anchors for modeling.
+  For equal sequence scores, supply observed peptide connectivity via
+  `pdbutils.sequence_evidence.observed_peptide_continuity` and original residue
+  identities: continuity precedes numbering, and leftmost choice is only the
+  final fallback. Never insert a repeat-derived gap into a known peptide merely
+  because a sequence-only optimum chose it. Regression: 5J13 source CYS139–SER140
+  is bonded; the missing six residues follow SER140, not precede it. Evidence
+  must not override a better primary sequence score or mutate frozen requests.
 - **A bare/minimal `TER\n` line (4 chars, no serial/resname/padding)
   is valid PDB.** `line[11:]` on one returns `''` silently (no
   IndexError on an out-of-range slice) — `renumber.py`'s TER handling
@@ -610,6 +617,14 @@ command parser merely to inspect generated labels.
   manifest before retrying. Preserve newly registered artifacts and unrelated
   panel state. Reload must preserve edits arriving during its GET and ignore
   responses for a superseded workspace or revision.
+- **GUI runs share compact storage.** `gui/server/run-storage.ts` keeps declared
+  outputs and complete diffusion bundles unpacked and archives only extra
+  diagnostics into a verified `diagnostics.tar.gz` with checksums. Managed jobs,
+  Homology modeling, MSA and structural fitting reuse it; do not recursively
+  register raw runtime files as independent Workspace outputs. Keep failure and
+  cancellation evidence, skip runtime caches, preserve original files if packing
+  fails, and never auto-load rejected/partial structures. Workspace run grouping
+  is presentation-only for historical files; do not migrate/delete old runs.
 - **The V1 naming API resolves inputs by workspace artifact ID.**
   `gui/server/naming-api.ts` must invoke `dvbfixer atom-names`, validate its
   bounded report and output digest, re-read the latest manifest immediately

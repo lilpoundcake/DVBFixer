@@ -4,7 +4,8 @@ import { buildArgs } from './api-plugin'
 
 describe('generated DVBfixer command schema', () => {
   it('contains every current command and semantic groups', () => {
-    expect(GENERATED_COMMANDS).toHaveLength(24)
+    expect(GENERATED_COMMANDS).toHaveLength(25)
+    expect(GENERATED_COMMANDS.map(command => command.name)).toContain('altlocs')
     expect(GENERATED_COMMANDS.map(command => command.name)).toContain('salign')
     expect(GENERATED_COMMANDS.map(command => command.name)).toContain('msa')
     const componentInfo = GENERATED_COMMANDS.find(command => command.name === 'component-info')!

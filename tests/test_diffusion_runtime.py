@@ -38,6 +38,18 @@ def test_frozen_legacy_apple_profile_can_select_its_original_launcher(monkeypatc
     assert runtime.runner.endswith("protpardelle-1c-mps")
 
 
+@pytest.mark.parametrize("model", [None, "protpardelle"])
+def test_new_apple_requests_never_downgrade_to_installed_legacy(monkeypatch, model):
+    monkeypatch.setattr("dvbfixer.model.diffusion.runtime.sys.platform", "darwin")
+    monkeypatch.setattr("dvbfixer.model.diffusion.runtime.platform.machine", lambda: "arm64")
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion.runtime._installed_runner",
+        lambda name: "/installed/" + name if name == "dvbfixer-diffusion-protpardelle-1c-mps" else None,
+    )
+    with pytest.raises(DiffusionRuntimeError, match="protpardelle-1c-mps-local-v1"):
+        resolve_diffusion_runtime(model)
+
+
 def test_explicit_incompatible_model_reports_host(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -156,11 +156,20 @@ def run(args):
         single_path = request_path.parent / f"sampling-seed-{seed}.json"
         single_path.write_text(single.to_json())
         directory = request_path.parent / "candidates" / PROFILE / f"seed-{seed}"
-        (directory / "raw").mkdir(parents=True, exist_ok=False)
-        raw, _ = adapter._run_staged(single_path, directory / "raw",
-            args.checkpoint.parent.parent / "configs/cc89.yaml", args.checkpoint,
-            device_name="mps", mps_profile=False, steps=500, step_scale=1.2, s_churn=200.0,
-            per_step_reinjection=False, chain_phase_policy="neutral-v1", position_feature_policy="source-physical-v1")
+        def sample(path, output):
+            raw, _ = adapter._run_staged(path, output,
+                args.checkpoint.parent.parent / "configs/cc89.yaml", args.checkpoint,
+                device_name="mps", mps_profile=False, steps=500, step_scale=1.2, s_churn=200.0,
+                per_step_reinjection=False, chain_phase_policy="neutral-v1", position_feature_policy="source-physical-v1")
+            return raw
+
+        if single.gap_contexts is not None:
+            from dvbfixer.model.diffusion.independent_gaps import sample_independent_gaps
+
+            raw = sample_independent_gaps(single_path, directory / "raw", sample)
+        else:
+            (directory / "raw").mkdir(parents=True, exist_ok=False)
+            raw = sample(single_path, directory / "raw")
         raw = replace(raw, backend_provenance=_sampling_provenance(raw.backend_provenance))
         raw_path = directory / "raw-result.json"
         raw_path.write_text(raw.to_json())

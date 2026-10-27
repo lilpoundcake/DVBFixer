@@ -45,10 +45,46 @@ CUDA_CC89_CONTEXT = ProteinContextPolicy(
     name="atom37-terminal-preservation-v1", target_flanks=8,
     same_chain_spatial=True, partner_mode="local",
 )
+ANCHOR_SEGMENT_OPTION = BackendOption("cc89_context_geometry", "anchor-shell-segment-union-v1")
+ANCHOR_SEGMENT_CONTEXT = replace(CUDA_CC89_CONTEXT, name=ANCHOR_SEGMENT_OPTION.value)
+TERMINAL_SHELL_OPTION = BackendOption("cc89_terminal_context", "eight-observed-residues-20a-union-v1")
+TERMINAL_SHELL_CONTEXT = replace(CUDA_CC89_CONTEXT, name="anchor-shell-segment-terminal20-union-v1")
+
+
+def _cc89_context_policy(request: DiffusionRequest) -> ProteinContextPolicy:
+    option = next((item for item in request.backend_options if item.name == ANCHOR_SEGMENT_OPTION.name), None)
+    terminal = next((item for item in request.backend_options if item.name == TERMINAL_SHELL_OPTION.name), None)
+    if terminal is not None:
+        if terminal != TERMINAL_SHELL_OPTION or option != ANCHOR_SEGMENT_OPTION:
+            raise ProteinContextError("terminal context expansion requires explicit matching source geometry options")
+        return TERMINAL_SHELL_CONTEXT
+    if option is None:
+        return CUDA_CC89_CONTEXT
+    if option != ANCHOR_SEGMENT_OPTION:
+        raise ProteinContextError("unsupported cc89 context geometry")
+    return ANCHOR_SEGMENT_CONTEXT
+
+
 CUDA_CC89_OPTIONS = (
     BackendOption("cc89_chain_phase", "neutral-v1"),
     BackendOption("cc89_position_features", "source-physical-v1"),
 )
+INDEPENDENT_GAPS_OPTION = BackendOption("cc89_gap_execution", "independent-local-v1")
+
+
+def independent_gap_requests(request: DiffusionRequest) -> tuple[DiffusionRequest, ...]:
+    """Immutable per-gap views: other missing regions never become conditioning."""
+    contexts = request.gap_contexts or (None,) * len(request.gaps)
+    result = []
+    for gap, plan in zip(request.gaps, contexts, strict=True):
+        residues = set(gap.generated_residues)
+        result.append(replace(
+            request, gaps=(gap,), gap_contexts=None, protein_context=plan,
+            generated_atoms=tuple(atom for atom in request.generated_atoms if _residue(atom) in residues),
+            regenerated_template_ownership=(tuple(owner for owner in request.regenerated_template_ownership if owner.residue in residues)
+                if request.regenerated_template_ownership is not None else None),
+        ))
+    return tuple(result)
 
 
 def is_cuda_cc89(request: DiffusionRequest) -> bool:
@@ -70,6 +106,40 @@ def prepare_cuda_cc89_request(request: DiffusionRequest, pdb: bytes, context_mod
 
 def prepare_mps_cc89_request(request: DiffusionRequest, pdb: bytes, context_mode: str) -> DiffusionRequest:
     """Prepare the versioned Apple profile without relabeling a CUDA request."""
+    independent = (len(request.gaps) > 1 or request.gaps[0].gap_kind is not GapKind.INTERNAL
+        or sum(len(target.sequence) for target in request.target_sequences) > 512
+        or INDEPENDENT_GAPS_OPTION in request.backend_options)
+    if independent:
+        if len(request.gaps) > 64:
+            raise ProteinContextError("independent local execution supports at most 64 gaps per candidate")
+        if context_mode not in {"auto", "local"}:
+            raise ProteinContextError("MPS independent gaps require --diffusion-context auto|local")
+        if request.protein_context is not None:
+            if len(request.gaps) != 1 or request.gap_contexts is not None:
+                raise ProteinContextError("independent gaps cannot reinterpret a joint context plan")
+            # A frozen per-gap view is already materialized. Verify it exactly;
+            # do not wrap it again in a parent execution plan or change its hash.
+            validate_mps_cc89_request(request)
+            validate_context_source(request, pdb)
+            return request
+        options = list(request.backend_options)
+        for option in (*CUDA_CC89_OPTIONS, INDEPENDENT_GAPS_OPTION):
+            existing = next((item for item in options if item.name == option.name), None)
+            if existing is not None and existing != option:
+                raise ProteinContextError("independent gap execution policy conflicts with the request")
+            if existing is None:
+                options.append(option)
+        request = replace(request, backend_options=tuple(options))
+        if request.gap_contexts is None:
+            plans = []
+            for single in independent_gap_requests(request):
+                plan = select_protein_context(single, pdb, _cc89_context_policy(request)).protein_context
+                assert plan is not None
+                plans.append(plan)
+            request = replace(request, gap_contexts=tuple(plans))
+        validate_mps_cc89_request(request)
+        validate_context_source(request, pdb)
+        return request
     return _prepare_corrected_cc89_request(request, pdb, context_mode, MPS_CC89_PROFILE, "MPS cc89")
 
 
@@ -80,8 +150,10 @@ def _prepare_corrected_cc89_request(
         raise ProteinContextError(f"{label} request must declare its profile")
     if context_mode not in {"auto", "local"}:
         raise ProteinContextError(f"{profile} requires --diffusion-context auto|local")
+    if len(request.gaps) != 1 or request.gaps[0].gap_kind is not GapKind.INTERNAL:
+        raise ProteinContextError(f"{label} supports one internal gap per request")
     if request.protein_context is None:
-        request = select_protein_context(request, pdb, CUDA_CC89_CONTEXT)
+        request = select_protein_context(request, pdb, _cc89_context_policy(request))
     options = list(request.backend_options)
     for required in CUDA_CC89_OPTIONS:
         existing = next((option for option in options if option.name == required.name), None)
@@ -96,7 +168,7 @@ def _prepare_corrected_cc89_request(
 
 
 def validate_cuda_cc89_request(request: DiffusionRequest) -> None:
-    """Public scope is narrower than the research adapter's tensor capacity."""
+    """Validate mandatory profile limits, independent of length evidence."""
     _validate_corrected_cc89_request(request, CUDA_CC89_PROFILE, "CUDA cc89")
 
 
@@ -107,25 +179,34 @@ def validate_mps_cc89_request(request: DiffusionRequest) -> None:
 def _validate_corrected_cc89_request(request: DiffusionRequest, profile: str, label: str) -> None:
     if not any(option.name == "profile" and option.value == profile for option in request.backend_options):
         raise ProteinContextError(f"{label} request must declare its profile")
-    if len(request.gaps) != 1 or request.gaps[0].gap_kind is not GapKind.INTERNAL:
+    independent = profile == MPS_CC89_PROFILE and INDEPENDENT_GAPS_OPTION in request.backend_options
+    if request.gap_contexts is not None:
+        if not independent:
+            raise ProteinContextError("independent gap contexts require their versioned execution policy")
+        for single in independent_gap_requests(request):
+            _validate_corrected_cc89_request(single, profile, label)
+        return
+    if len(request.gaps) != 1 or (not independent and request.gaps[0].gap_kind is not GapKind.INTERNAL):
         raise ProteinContextError(f"{label} supports one internal gap per request")
-    if not 5 <= len(request.gaps[0].generated_residues) <= 10:
-        raise ProteinContextError(f"{label} supports internal gaps of 5-10 residues")
+    # Length is an evidence boundary, reported by scope admission as a warning.
+    # Keep topology, chemistry, context and total-resource limits mandatory.
     gap = request.gaps[0]
     sequence = next(target.sequence for target in request.target_sequences if target.chain == gap.chain)
-    if "C" in sequence[gap.target_interval.start:gap.target_interval.stop]:
+    if not independent and "C" in sequence[gap.target_interval.start:gap.target_interval.stop]:
         raise ProteinContextError(f"{label} gap support is limited to CYS-free windows")
     if request.heterogen_contexts:
         raise ProteinContextError(f"{label} supports canonical protein inputs only")
-    if sum(len(target.sequence) for target in request.target_sequences) > 512:
+    if not independent and sum(len(target.sequence) for target in request.target_sequences) > 512:
         raise ProteinContextError(f"{label} whole-source budget is 512 protein residues")
     plan = request.protein_context
-    if (plan is None or plan.policy != CUDA_CC89_CONTEXT or plan.trajectory_queries is not None
+    if (plan is None or plan.policy != _cc89_context_policy(request) or plan.trajectory_queries is not None
             or plan.retained_conditioning or plan.previous_plan_sha256 is not None):
         raise ProteinContextError(f"{label} requires the frozen source-only local context policy")
     if any(option not in request.backend_options for option in CUDA_CC89_OPTIONS):
         raise ProteinContextError(f"{label} requires neutral phase and physical source positions")
     source_context_position_features(request)
+    if sum(span.stop - span.start for span in plan.spans) > 512:
+        raise ProteinContextError("each independent local engine axis must fit 512 residues")
 
 
 def source_coordinates(request: DiffusionRequest, pdb: bytes) -> dict[AtomIdentity, np.ndarray]:
@@ -185,6 +266,33 @@ def select_protein_context(
     anchor_points = np.asarray([points[atom] for residue in sorted(anchors) for atom in atoms_by_residue.get(residue, [])])
     if len(anchor_points) < 3:
         raise ProteinContextError("context requires complete observed anchor geometry")
+    anchor_segment = None
+    has_segment_union = policy.name in {ANCHOR_SEGMENT_CONTEXT.name, TERMINAL_SHELL_CONTEXT.name}
+    if has_segment_union:
+        if len(request.gaps) != 1:
+            raise ProteinContextError("anchor-segment context requires one gap per sampling view")
+    if has_segment_union and request.gaps[0].gap_kind is GapKind.INTERNAL:
+        gap = request.gaps[0]
+        assert gap.left_anchor is not None and gap.right_anchor is not None
+        endpoints = []
+        for anchor in (gap.left_anchor, gap.right_anchor):
+            point = points.get(AtomIdentity(anchor.chain, anchor.residue_number, anchor.insertion_code, "CA"))
+            if point is None:
+                raise ProteinContextError("anchor-segment context requires both observed CA atoms")
+            endpoints.append(point)
+        anchor_segment = (endpoints[0], endpoints[1])
+    terminal_points = None
+    if policy.name == TERMINAL_SHELL_CONTEXT.name and request.gaps[0].gap_kind is not GapKind.INTERNAL:
+        gap = request.gaps[0]
+        observed = placements[gap.chain].observed_residues
+        anchor = gap.right_anchor if gap.gap_kind is GapKind.N_TERMINAL else gap.left_anchor
+        assert anchor is not None
+        anchor_index = observed.index(anchor)
+        flank = (observed[anchor_index:anchor_index + 8] if gap.gap_kind is GapKind.N_TERMINAL
+                 else observed[max(0, anchor_index - 7):anchor_index + 1])
+        # Only measured atoms from the terminal observed window, never from
+        # generated tails or another invocation's predictions.
+        terminal_points = np.asarray([points[atom] for residue in flank for atom in atoms_by_residue.get(residue, [])])
     if trajectory_queries is not None:
         expected = {atom for atom in request.generated_atoms if atom.atom_name in {"N", "CA", "C", "O"}}
         if {query.atom for query in trajectory_queries} != expected:
@@ -195,6 +303,12 @@ def select_protein_context(
         start = 0 if policy.target_flanks is None else max(0, gap.target_interval.start - policy.target_flanks)
         stop = len(targets[gap.chain].sequence) if policy.target_flanks is None else min(len(targets[gap.chain].sequence), gap.target_interval.stop + policy.target_flanks)
         selected.update((gap.chain, index) for index in range(start, stop))
+    if INDEPENDENT_GAPS_OPTION in request.backend_options:
+        available = {(placement.chain, index) for placement in request.sequence_placements
+            for index in placement.observed_target_indices}
+        available.update((gap.chain, index) for gap in request.gaps
+            for index in range(gap.target_interval.start, gap.target_interval.stop))
+        selected.intersection_update(available)
     if retained_conditioning is not None:
         if not set(retained_conditioning) <= set(request.fixed_atoms):
             raise ProteinContextError("adaptive retained identities must belong to the immutable fixed source")
@@ -213,9 +327,17 @@ def select_protein_context(
             residue_atoms = atoms_by_residue.get(residue, [])
             if not residue_atoms:
                 continue
-            distance = float(np.min(np.linalg.norm(np.asarray([points[atom] for atom in residue_atoms])[:, None, :] - anchor_points[None, :, :], axis=2)))
+            residue_points = np.asarray([points[atom] for atom in residue_atoms])
+            distance = float(np.min(np.linalg.norm(residue_points[:, None, :] - anchor_points[None, :, :], axis=2)))
+            if anchor_segment is not None:
+                # Union with the existing atom-based anchor shells, not a
+                # replacement. Clamp projection to the finite CA–CA segment;
+                # a residue beyond an endpoint is not near an infinite line.
+                distance = min(distance, float(np.min(_point_segment_distances(residue_points, *anchor_segment))))
             full_partner = chain not in gap_chains and policy.partner_mode == "full"
-            if not full_partner and distance > policy.secondary_radius_angstrom:
+            terminal_contact = (terminal_points is not None and
+                float(np.min(np.linalg.norm(residue_points[:, None, :] - terminal_points[None, :, :], axis=2))) <= 20.0)
+            if not full_partner and distance > policy.secondary_radius_angstrom and not terminal_contact:
                 continue
             rank = 0 if distance <= policy.direct_radius_angstrom else 1
             priorities.append((rank, distance, chain, index))
@@ -254,11 +376,17 @@ def select_protein_context(
             if (chain, index) not in selected:
                 continue
             expected = set(canonical_heavy_atom_identities(residue, _CANONICAL_ONE_TO_THREE[targets[chain].sequence[index]]))
-            if not expected <= set(atoms_by_residue.get(residue, [])):
-                raise ProteinContextError(f"selected context residue is heavy-atom-incomplete: {residue}")
+            observed_atoms = set(atoms_by_residue.get(residue, []))
+            if not expected <= observed_atoms:
+                backbone = {AtomIdentity(residue.chain, residue.residue_number, residue.insertion_code, name)
+                    for name in ("N", "CA", "C", "O")}
+                if INDEPENDENT_GAPS_OPTION not in request.backend_options or not backbone <= observed_atoms:
+                    raise ProteinContextError(f"selected context residue is heavy-atom-incomplete: {residue}")
+                # Sparse atom37 motif masks represent only measured sidechain
+                # atoms. Never invent conditioning coordinates for absent atoms.
             selected_residues.add(residue)
     preserved_terminal_atoms: set[AtomIdentity] = set()
-    if policy.name == "atom37-terminal-preservation-v1":
+    if policy.name in {"atom37-terminal-preservation-v1", ANCHOR_SEGMENT_CONTEXT.name, TERMINAL_SHELL_CONTEXT.name}:
         terminals = {placement.observed_residues[-1] for placement in request.sequence_placements
                      if placement.observed_target_indices and placement.observed_target_indices[-1] == placement.target_length - 1}
         preserved_terminal_atoms = {atom for atom in request.fixed_atoms if atom.atom_name == "OXT"}
@@ -276,6 +404,17 @@ def select_protein_context(
         trajectory_queries, retained_conditioning, previous_plan_sha256, adaptation_source,
     )
     return replace(request, protein_context=plan)
+
+
+def _point_segment_distances(points: np.ndarray, start: np.ndarray, stop: np.ndarray) -> np.ndarray:
+    """Euclidean distances in Å to a finite segment, including degenerate ends."""
+    vector = stop - start
+    squared_length = float(np.dot(vector, vector))
+    if squared_length == 0:
+        return np.linalg.norm(points - start, axis=-1)
+    fraction = np.clip((points - start) @ vector / squared_length, 0.0, 1.0)
+    nearest = start + fraction[:, None] * vector
+    return np.linalg.norm(points - nearest, axis=-1)
 
 
 def _split_native_segments(
@@ -491,6 +630,10 @@ def context_evidence(request: DiffusionRequest, atom_axis: tuple[AtomIdentity, .
 
 
 def validate_context_source(request: DiffusionRequest, pdb: bytes) -> None:
+    if request.gap_contexts is not None:
+        for single in independent_gap_requests(request):
+            validate_context_source(single, pdb)
+        return
     if request.protein_context is None:
         return
     points = source_coordinates(request, pdb)
@@ -508,6 +651,12 @@ def validate_context_source(request: DiffusionRequest, pdb: bytes) -> None:
 
 def validate_context_capability(request: DiffusionRequest, model: str) -> None:
     """Reject engine-incompatible plans before preflight or checkpoint loading."""
+    if request.gap_contexts is not None:
+        if not is_mps_cc89(request) or model != "protpardelle":
+            raise ProteinContextError("independent local gap contexts require corrected MPS cc89")
+        for single in independent_gap_requests(request):
+            validate_context_capability(single, model)
+        return
     if is_cuda_cc89(request):
         validate_cuda_cc89_request(request)
     if is_mps_cc89(request):

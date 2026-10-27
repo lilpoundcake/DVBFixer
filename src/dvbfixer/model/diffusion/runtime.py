@@ -87,6 +87,10 @@ def resolve_diffusion_runtime(model: str | None = None, *, profile: str | None =
         and (model is None or spec.model == model)
         and (profile is None or spec.profile == profile)
     ]
+    if profile is None:
+        # Legacy launchers exist only for explicit frozen-request replay. Their
+        # installation is not permission to downgrade a new scientific request.
+        compatible = [spec for spec in compatible if spec.profile != "protpardelle-1c-mps"]
     installed = [
         (spec, runner)
         for spec in compatible

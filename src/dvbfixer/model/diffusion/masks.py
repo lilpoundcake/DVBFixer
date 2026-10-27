@@ -11,7 +11,10 @@ from dvbfixer.model.diffusion.contract import (
     SequencePlacement,
     TargetInterval,
 )
-from dvbfixer.sequence_alignment import align_observed_to_reference
+from dvbfixer.sequence_alignment import (
+    align_observed_to_reference,
+    format_alignment_diagnostic,
+)
 
 
 class DiffusionMaskError(ValueError):
@@ -47,6 +50,8 @@ def build_sequence_placement(
     chain: str,
     observed_residues: tuple[ObservedResidue, ...],
     target_sequence: str,
+    *,
+    peptide_continuity: tuple[bool | None, ...] | None = None,
 ) -> SequencePlacement:
     """Place observed residues with the repository's shared affine alignment."""
     if not observed_residues:
@@ -55,11 +60,19 @@ def build_sequence_placement(
         raise DiffusionMaskError("observed residue chain does not match target chain")
 
     observed_sequence = "".join(residue.one_letter_code.upper() for residue in observed_residues)
-    alignment = align_observed_to_reference(observed_sequence, target_sequence)
+    alignment = align_observed_to_reference(observed_sequence, target_sequence,
+        residue_ids=tuple((residue.identity.residue_number, residue.identity.insertion_code) for residue in observed_residues),
+        peptide_continuity=peptide_continuity)
     if alignment is None:
         raise DiffusionMaskError("observed sequence cannot be placed in target sequence")
     if alignment.ambiguous:
-        raise DiffusionMaskError("observed sequence placement is ambiguous")
+        print(
+            f"  [alignment] WARNING: {format_alignment_diagnostic(chain, alignment)}; "
+            "using deterministic leftmost best alignment",
+            flush=True,
+        )
+    elif alignment.tie_breaker:
+        print(f"  [alignment] {format_alignment_diagnostic(chain, alignment)}", flush=True)
 
     return SequencePlacement(
         chain=chain,
@@ -77,6 +90,7 @@ def build_diffusion_masks(
     minimum_gap_length: int = 3,
     maximum_gap_length: int = 12,
     movable_flank_residues: int = 1,
+    peptide_continuity: tuple[bool | None, ...] | None = None,
 ) -> DiffusionMasks:
     """Build fixed atoms and two-anchor internal gaps from one placement.
 
@@ -90,7 +104,8 @@ def build_diffusion_masks(
     if movable_flank_residues < 0:
         raise DiffusionMaskError("movable_flank_residues must be non-negative")
 
-    placement = build_sequence_placement(chain, observed_residues, target_sequence)
+    placement = build_sequence_placement(chain, observed_residues, target_sequence,
+        peptide_continuity=peptide_continuity)
     by_target = dict(zip(placement.observed_target_indices, observed_residues))
 
     if placement.observed_target_indices[0] > 0:
@@ -108,9 +123,10 @@ def build_diffusion_masks(
         stop = right_index
         gap_length = stop - start
         if not minimum_gap_length <= gap_length <= maximum_gap_length:
-            raise DiffusionMaskError(
-                f"gap length {gap_length} is outside supported range "
-                f"{minimum_gap_length}-{maximum_gap_length}"
+            print(
+                f"WARNING: internal gap length {gap_length} on chain {chain} is outside "
+                f"the validated range {minimum_gap_length}-{maximum_gap_length}; "
+                "continuing with experimental mask construction."
             )
 
         left_anchor = by_target[left_index].identity

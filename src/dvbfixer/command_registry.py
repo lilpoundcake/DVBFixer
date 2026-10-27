@@ -48,6 +48,7 @@ COMMAND_REGISTRY: tuple[CommandSpec, ...] = (
     CommandSpec("protonate", "dvbfixer.protonate", "Set protonation states using PROPKA3 pKa predictions", "Refinement", batch_output_suffix="_prot.pdb"),
     CommandSpec("rename", "dvbfixer.rename", "Rename non-canonical residues (AMBER/CHARMM) to standard names", "Utilities", batch_output_suffix="_canon.pdb"),
     CommandSpec("atom-names", "dvbfixer.atom_names", "Convert PDB atom and residue names for a force field", "Utilities", normalize_cif=False),
+    CommandSpec("altlocs", "dvbfixer.altlocs", "Select one alternate state per residue", "Structure preparation", normalize_cif=False),
     CommandSpec("top", "dvbfixer.top", "Generate GROMACS .itp/.top topology files from a structure", "Topology & chemistry", output_extension=".top"),
     CommandSpec("transplant", "dvbfixer.transplant", "Transplant molecules between donor and acceptor structures", "Glycoprotein preparation"),
     CommandSpec("puppet", "dvbfixer.puppet", "Strip a structure to a backbone-only polyglycine model", "Utilities", batch_output_suffix="_puppet.pdb"),

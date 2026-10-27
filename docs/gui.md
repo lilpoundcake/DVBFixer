@@ -72,6 +72,55 @@ Trash actions are recoverable; files move to workspace trash rather than being
 immediately erased. Internal manifests and temporary helper files are hidden
 from ordinary file pickers.
 
+### Compact run storage
+
+Workspace shows **one collapsible group per run**, rather than a flat list of
+every intermediate file. Expand a group to open its outputs, summary and diagnostic
+archive. The download button on the group saves all archived diagnostics at once.
+Imported source files remain independent rows. The structures-only filter also
+applies inside run groups.
+
+Click a run's label to select its files; Ctrl/Cmd adds or removes groups/files,
+and Shift selects a range. The arrow independently expands or collapses the run
+without clearing selection. Right-click a group (including a collapsed one) for
+its context menu; right-clicking an already selected group or file preserves the
+current multi-selection. Trash actions apply to the selected files, not to the
+whole workspace or unregistered run bookkeeping.
+
+All managed DVBfixer commands and Homology modeling, MSA and structural fitting
+use the same storage policy:
+
+- Declared results, numbered output candidates and companion files remain
+  directly accessible at their original paths. A diffusion publication bundle
+  remains intact, including its digest-bound sidecars and reports.
+- Additional requests, masks, motifs and intermediate structures are compressed
+  into `diagnostics.tar.gz`, with an embedded file-size/SHA-256 manifest. Archive
+  verification completes before the unpacked diagnostic copies are removed.
+- `run-summary.json` records the status, outputs, archive inventory and any
+  packaging warning. Job records and stdout/stderr logs remain available to the
+  run history; runtime cache/home/scratch trees are not copied into publications.
+- Failed and cancelled runs retain diagnostic evidence; their partial structures
+  are not published as usable outputs. Scientifically rejected diffusion
+  candidates remain labelled and are never automatically loaded as accepted ones.
+- If packing fails, diagnostics remain unpacked and the summary records the
+  warning. Storage quotas and access controls still apply.
+
+The dedicated Atom Names and Altlocs APIs already publish bounded single-result
+artifacts; they retain their existing contracts and appear in the same run groups.
+Read-only analysis/dry runs do not create extra output artifacts. Existing run
+files are grouped visually only: this does not migrate or delete historical data.
+
+For offline inspection, download and extract `diagnostics.tar.gz` with a standard
+archive utility. No automatic archive extraction is performed by the server.
+
+## Alternate locations
+
+Use **DVBfixer → Altlocs** to analyze a structure, choose a policy and review
+exactly one checkbox per alternate residue. The embedded Mol* preview focuses
+the selected residue without replacing the main viewers. Apply creates a new
+single-state PDB and retains a selection report; source coordinates and occupancy
+are unchanged. See [altlocs](commands/altlocs.md) for policy and connectivity rules.
+
 ## Homology modeling
 
 For target sequences, templates, alignment editing, selected template regions,

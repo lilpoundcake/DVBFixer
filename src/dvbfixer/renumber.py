@@ -111,7 +111,7 @@ def get_atom_residues(lines, chain):
     return residues
 
 
-def _align_residues_to_reference(atom_residues, seqres):
+def _align_residues_to_reference(atom_residues, seqres, peptide_continuity=None):
     """Return ``(protein_residues, shared_alignment_result)``."""
     from dvbfixer.sequence_alignment import align_observed_to_reference
 
@@ -120,10 +120,12 @@ def _align_residues_to_reference(atom_residues, seqres):
     reference = ''.join(
         r if len(r) == 1 else _AA3TO1.get(r, 'X') for r in seqres
     )
-    return protein, align_observed_to_reference(observed, reference)
+    return protein, align_observed_to_reference(observed, reference,
+        residue_ids=tuple((r[0], r[1]) for r in protein),
+        peptide_continuity=peptide_continuity)
 
 
-def align_to_seqres(atom_residues, seqres, max_gap_search=5):
+def align_to_seqres(atom_residues, seqres, max_gap_search=5, *, peptide_continuity=None):
     """Align protein ATOM residues semi-globally to SEQRES.
     Returns dict: (old_resSeq, old_iCode) -> new_resSeq.
     Non-SEQRES residues (waters, ligands) get None initially.
@@ -133,7 +135,7 @@ def align_to_seqres(atom_residues, seqres, max_gap_search=5):
     terminal reference overhangs consistently with the model step.
     """
     del max_gap_search
-    protein, result = _align_residues_to_reference(atom_residues, seqres)
+    protein, result = _align_residues_to_reference(atom_residues, seqres, peptide_continuity)
     mapping = {(resseq, icode): None for resseq, icode, _ in atom_residues}
     if result is not None:
         for residue, pos in zip(protein, result.positions):
@@ -468,6 +470,10 @@ def main(argv=None):
 
     for chain in atom_chains:
         atom_res = get_atom_residues(lines, chain)
+        from dvbfixer.pdbutils.sequence_evidence import observed_peptide_continuity
+
+        peptide_continuity = observed_peptide_continuity(lines, chain,
+            tuple((number, code) for number, code, name in atom_res if name in _AA3TO1))
 
         # Pick scheme for this chain: per-chain override > global > seqres
         scheme = chain_scheme_override.get(chain, args.scheme)
@@ -483,7 +489,7 @@ def main(argv=None):
                 placed_keys = set(ab_map.keys())
                 fallback = {}
                 if chain in seqres:
-                    seqres_map = align_to_seqres(atom_res, seqres[chain])
+                    seqres_map = align_to_seqres(atom_res, seqres[chain], peptide_continuity=peptide_continuity)
                     next_num = len(seqres[chain]) + 1
                     for key in seqres_map:
                         if seqres_map[key] is None:
@@ -510,10 +516,10 @@ def main(argv=None):
                     print("  no antibody domain detected — falling back to SEQRES")
 
         if chain in seqres:
-            mapping = align_to_seqres(atom_res, seqres[chain])
+            mapping = align_to_seqres(atom_res, seqres[chain], peptide_continuity=peptide_continuity)
 
             _protein, alignment = _align_residues_to_reference(
-                atom_res, seqres[chain]
+                atom_res, seqres[chain], peptide_continuity
             )
             if alignment is not None:
                 from dvbfixer.sequence_alignment import format_alignment_diagnostic

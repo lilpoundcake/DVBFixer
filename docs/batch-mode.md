@@ -46,6 +46,7 @@ an invalid shared invocation cannot fail differently from file to file.
 | `diagnose` | Yes | Writes one diagnostic report per structure. |
 | `zbs` | Yes | Runs the selected ZBS stages independently per structure. |
 | `top` | No | Requires one explicit input per invocation. |
+| `altlocs` | No | Select states for one explicit source with source-specific overrides. |
 | `transplant` | No | Its source/target relationship is not a directory batch operation. |
 | `cluster` | No | Operates on an explicitly selected trajectory or structure set. |
 | `parametrize` | No | Requires explicit ligand/parameterization inputs. |

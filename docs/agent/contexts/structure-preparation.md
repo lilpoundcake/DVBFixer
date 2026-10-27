@@ -30,6 +30,16 @@ contracts; it does not reproduce scientific algorithms.
 
 ## Capabilities
 
+Alternate-state selection is implemented by `altloc_selection.py` with CLI
+`altlocs.py`. All policies select a whole labeled state per residue and retain
+shared atoms. The GUI Altlocs panel uses Python analysis and source-digest-bound
+plans through `gui/server/altloc-api.ts`; Node never duplicates occupancy science.
+Preview serial masks refer to the normalized PDB and explicit model ordinal.
+Keep MODEL, chain case, insertion code, occurrence and connectivity identity
+distinct. Apply writes a new structure; unresolved altlocs are rejected before
+diffusion runner launch. Focused checks: `tests/test_altlocs.py`,
+`gui/server/altloc-api.test.ts`, and `gui/src/lib/altloc-selection.test.ts`.
+
 | Capability | Status | Owner | Boundary |
 |---|---|---|---|
 | Sequence/SEQRES gap rebuilding | implemented | `model/pipeline.py::main` | Modeller changes protein gaps; post-processing restores retained structure context |
@@ -37,7 +47,7 @@ contracts; it does not reproduce scientific algorithms.
 | Pure-protein tleap/Reduce preparation | implemented | `prep_backend.py::run_prep` | Opt-in; unsupported chemistry fails rather than falling back automatically |
 | Protonation decisions and H placement | implemented | `protonate.py::decide_protonation`, `prepare/pipeline.py::_run_propka_reduce_variants` | Decision evidence, topology H placement, and output naming remain separate concerns |
 | Preparation provenance handoff | implemented | `ffutils/dat.py::DatRecord` | Model/homology produce; prepare merges; minimize consumes |
-| Experimental diffusion gap reconstruction | partial | `model/diffusion_cli.py`, `model/diffusion/contract.py`, `scope.py`, `gap_capabilities.py`, `protein_context.py`, `adaptive_context.py`, `runner.py`, `validate.py`, `pipeline.py`, `provenance.py`, `deploy/protenix-v1/production_runner.py`, `deploy/protpardelle-1c/production_runner.py` | Explicit `model --backend diffusion`, sequential batch/resume, ZBS, and GUI/Homology publish independently validated atomic bundles with digest-linked sampler traces. Protenix supports explicit joint multichain/multi-gap context and authoritative mosaic edit windows. Public length admission is shared across CLI/mosaic/scope and remains profile-specific 3–12. Longer gaps, richer cc89 CUDA context, and source-verified between-round adaptive context are implemented research slices awaiting scientific acceptance. MODELLER remains default; Apple MPS expansion is deferred until CUDA implementation completes. |
+| Experimental diffusion gap reconstruction | partial | `model/diffusion_cli.py`, `model/diffusion/contract.py`, `scope.py`, `gap_capabilities.py`, `protein_context.py`, `adaptive_context.py`, `runner.py`, `validate.py`, `pipeline.py`, `provenance.py`, `deploy/protenix-v1/production_runner.py`, `deploy/protpardelle-1c/production_runner.py` | Explicit diffusion workflows publish independently validated atomic bundles with digest-linked sampler traces. Length evidence ranges remain profile-specific, but lengths outside them now warn and permit experimental attempts across CLI/mosaic/scope; no scientific acceptance is implied. Topology, chemistry, context, resource and output-integrity checks remain mandatory. Protenix supports explicit joint multichain/multi-gap context and mosaic edit windows. Richer cc89/adaptive context retains its separate research gates. MODELLER remains default. |
 | Uniform hard L-chirality output gate | partial | `ffutils/geometry.py::assert_all_l` | Modeled candidates assert; prepare/protonate paths can only repair or warn before minimize |
 
 ## Entry Points

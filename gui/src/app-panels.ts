@@ -5,6 +5,7 @@ export const PANEL_DEFINITIONS = [
   { component: 'elements', name: 'Elements' },
   { component: 'interactions', name: 'Interactions' },
   { component: 'clashes', name: 'Clashes' },
+  { component: 'altlocs', name: 'Altlocs' },
   { component: 'alignment', name: 'Alignment' },
   { component: 'dvbfixer', name: 'DVBFixer' },
   { component: 'homology', name: 'Homology' },
@@ -17,3 +18,7 @@ export const PANEL_DEFINITIONS = [
 
 export const DEFAULT_MAIN_PANELS = PANEL_DEFINITIONS.filter(({ component }) =>
   component === 'viewer' || component === 'dvbfixer' || component === 'homology' || component === 'text-viewer')
+
+export const PINNED_ALTLOC_TAB = {
+  type: 'tab' as const, name: 'Altlocs', component: 'altlocs', enableDrag: false, enableClose: false,
+}

@@ -24,6 +24,9 @@ import UploadFileIcon from '@mui/icons-material/UploadFile'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import DownloadIcon from '@mui/icons-material/Download'
 import { useStructureStore, type ViewerSlot } from '../stores/structureStore'
 import { useWorkspaceStore, workspaceFileUrl, type WorkspaceArtifact, type WorkspaceManifest } from '../stores/workspaceStore'
 import { useSelectionStore } from '../stores/selectionStore'
@@ -31,9 +34,10 @@ import { reorderVisibleArtifacts } from '../lib/workspace-order'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 import { apiFetch, downloadApiBlob, openApiBlob } from '../lib/api-client'
 import { useWorkspaceImportStore } from '../stores/workspaceImportStore'
-import { actionGroupSx, panelToolbarSx } from '../ui/layout'
+import { actionGroupSx, panelToolbarSx, workspaceRowColors } from '../ui/layout'
 import { ArtifactFileIdentity } from './ArtifactFileIdentity'
 import { visibleWorkspaceArtifacts } from '../lib/artifact-presentation'
+import { selectWorkspaceContextRow, selectWorkspaceRows, workspaceRowArtifactIds, workspaceRunRows } from '../lib/workspace-run-groups'
 
 export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'workspace' }) {
   const uploadRef = useRef<HTMLInputElement>(null)
@@ -54,15 +58,16 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
   const discardActive = useWorkspaceStore(state => state.discardActive)
   const setTextPreview = useWorkspaceStore(state => state.setTextPreview)
   const [selectedArtifacts, setSelectedArtifacts] = useState<Set<string>>(new Set())
-  const selectionAnchor = useRef<number | null>(null)
+  const selectionAnchor = useRef<string | null>(null)
   const [loadTarget, setLoadTarget] = useState<ViewerSlot>('primary')
-  const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; kind: 'workspace' | 'artifact'; id: string; name: string } | null>(null)
+  const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; kind: 'workspace' | 'artifact' | 'run'; id: string; name: string } | null>(null)
   const [renameTarget, setRenameTarget] = useState<{ kind: 'workspace' | 'artifact'; id: string; name: string } | null>(null)
   const [renameDraft, setRenameDraft] = useState('')
   const [draggedWorkspace, setDraggedWorkspace] = useState<string | null>(null)
   const [draggedArtifact, setDraggedArtifact] = useState<string | null>(null)
   const [dropMarker, setDropMarker] = useState<{ kind: 'workspace' | 'artifact'; id: string; position: 'before' | 'after' } | null>(null)
   const [structuresOnly, setStructuresOnly] = useState(false)
+  const [expandedRuns, setExpandedRuns] = useState<Set<string>>(new Set())
   const plugin = useStructureStore(state => state.plugin)
   const secondaryPlugin = useStructureStore(state => state.secondaryPlugin)
   const setFileName = useStructureStore(state => state.setFileName)
@@ -107,7 +112,7 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
     } finally { setLoading(false) }
   }, [clearSelection, plugin, secondaryPlugin, setError, setFileName, setLoading, setMeta, setSecondaryFileName, setTextPreview, updateWorkspace])
 
-  useEffect(() => { setSelectedArtifacts(new Set()); selectionAnchor.current = null }, [active?.id])
+  useEffect(() => { setSelectedArtifacts(new Set()); setExpandedRuns(new Set()); selectionAnchor.current = null }, [active?.id])
 
   const openWorkspace = useCallback(async (id: string) => {
     const workspace = await activate(id)
@@ -123,10 +128,11 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
     setContextMenu(null)
     setLoading(true); setError(null)
     try {
-      if (target.kind === 'artifact') {
+      if (target.kind !== 'workspace') {
         if (!active) return
         await saveWorkspace()
-        const targetIds = selectedArtifacts.has(target.id) ? [...selectedArtifacts] : [target.id]
+        const targetIds = target.kind === 'run' ? [...selectedArtifacts]
+          : selectedArtifacts.has(target.id) ? [...selectedArtifacts] : [target.id]
         const artifacts = active.artifacts.filter(item => targetIds.includes(item.id))
         for (const artifact of artifacts) {
           const response = await apiFetch(`/api/workspaces/${encodeURIComponent(active.id)}/artifacts/${encodeURIComponent(artifact.id)}`, { method: 'DELETE' })
@@ -198,7 +204,9 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
       filename = `${target.name.replace(/[^a-zA-Z0-9._-]+/g, '_') || 'workspace'}.tar.gz`
     } else {
       if (!active) return
-      const artifact = active.artifacts.find(item => item.id === target.id)
+      const artifact = target.kind === 'run'
+        ? active.artifacts.find(item => item.file === `${target.id}/diagnostics.tar.gz`)
+        : active.artifacts.find(item => item.id === target.id)
       if (!artifact) return
       url = workspaceFileUrl(active.id, artifact.file)
       filename = artifact.file.split('/').pop() || artifact.name
@@ -231,14 +239,25 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
     try { await useWorkspaceStore.getState().save() } catch (reason: any) { setError(reason.message || String(reason)) }
   }
 
-  const visibleArtifacts = visibleWorkspaceArtifacts(active?.artifacts || [], structuresOnly)
+  const rows = workspaceRunRows(visibleWorkspaceArtifacts(active?.artifacts || [], structuresOnly), expandedRuns)
+  const visibleArtifactIds = [...new Set(rows.flatMap(workspaceRowArtifactIds))]
+  const selectRow = (index: number, modifiers: { shiftKey?: boolean; ctrlKey?: boolean; metaKey?: boolean }) => {
+    const next = selectWorkspaceRows(rows, index, selectedArtifacts, selectionAnchor.current, modifiers)
+    setSelectedArtifacts(next.selected)
+    selectionAnchor.current = next.anchor
+  }
+  const selectContextRow = (index: number) => {
+    const next = selectWorkspaceContextRow(rows, index, selectedArtifacts, selectionAnchor.current)
+    setSelectedArtifacts(next.selected)
+    selectionAnchor.current = next.anchor
+  }
 
   const reorderSelected = async (direction: -1 | 1) => {
     if (!active || !selectedArtifacts.size) return
     updateWorkspace({
       artifacts: reorderVisibleArtifacts(
         active.artifacts,
-        visibleArtifacts.map(item => item.id),
+        visibleArtifactIds,
         selectedArtifacts,
         direction,
       ),
@@ -288,9 +307,9 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
         sx={{
           py: 0.2,
           '& .MuiListItemText-root': { my: 0.25 },
-          bgcolor: active?.id === workspace.id ? 'rgba(29,50,97,0.24)' : index % 2 ? 'rgba(29,50,97,0.045)' : 'transparent',
-          '&.Mui-selected': { bgcolor: 'rgba(29,50,97,0.24)' },
-          '&.Mui-selected:hover': { bgcolor: 'rgba(29,50,97,0.31)' },
+          bgcolor: active?.id === workspace.id ? workspaceRowColors.selected : index % 2 ? workspaceRowColors.stripe : workspaceRowColors.base,
+          '&.Mui-selected': { bgcolor: workspaceRowColors.selected },
+          '&.Mui-selected:hover': { bgcolor: workspaceRowColors.selectedHover },
           borderTop: '2px solid', borderBottom: '2px solid',
           borderTopColor: dropMarker?.kind === 'workspace' && dropMarker.id === workspace.id && dropMarker.position === 'before' ? 'primary.main' : 'transparent',
           borderBottomColor: dropMarker?.kind === 'workspace' && dropMarker.id === workspace.id && dropMarker.position === 'after' ? 'primary.main' : 'transparent',
@@ -317,31 +336,60 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
         </Box>
       </Box>
       <List dense disablePadding sx={{ flex: 1, overflow: 'auto' }}>
-        {visibleArtifacts.map((artifact, index, visible) => <ListItemButton key={artifact.id} selected={selectedArtifacts.has(artifact.id)}
+        {rows.map((row, index) => {
+          if (row.type === 'run') {
+            const archive = row.files.find(file => file.file.endsWith('/diagnostics.tar.gz'))
+            const selectedCount = row.files.filter(file => selectedArtifacts.has(file.id)).length
+            const selected = selectedCount === row.files.length
+            return <Box key={row.id} sx={{ display: 'flex', alignItems: 'center', bgcolor: 'background.paper' }}
+              onContextMenu={event => {
+                event.preventDefault()
+                selectContextRow(index)
+                setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, kind: 'run', id: row.id, name: `${row.command} run` })
+              }}>
+            <Tooltip title={expandedRuns.has(row.id) ? 'Collapse run' : 'Expand run'}><IconButton
+              aria-label={`${expandedRuns.has(row.id) ? 'Collapse' : 'Expand'} ${row.command} run`}
+              aria-expanded={expandedRuns.has(row.id)} onClick={() => {
+              setExpandedRuns(current => { const next = new Set(current); if (next.has(row.id)) next.delete(row.id); else next.add(row.id); return next })
+            }}>
+            {expandedRuns.has(row.id) ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
+            </IconButton></Tooltip>
+            <ListItemButton selected={selected} aria-pressed={selected}
+              aria-label={`${row.command} run ${row.id.slice(5)}`} onClick={event => selectRow(index, event)}
+              sx={{ minHeight: 32, minWidth: 0,
+                '&.Mui-selected': { bgcolor: workspaceRowColors.selected },
+                '&.Mui-selected:hover': { bgcolor: workspaceRowColors.selectedHover } }}>
+            <ListItemText primary={`${row.command} · ${row.id.slice(5)}`}
+              secondary={`${row.files.length} files${selectedCount ? ` · ${selectedCount} selected` : ''}${row.status ? ` · ${row.status.replaceAll('_', ' ')}` : ''}`}
+              slotProps={{ primary: { noWrap: true, title: row.id } }} />
+          </ListItemButton>
+          {archive && <Tooltip title="Download run diagnostics"><IconButton aria-label={`Download ${row.command} run diagnostics`}
+            onClick={() => downloadApiBlob(workspaceFileUrl(active.id, archive.file), `${row.command}-${row.id.slice(5)}-diagnostics.tar.gz`)
+              .catch(reason => setError(reason instanceof Error ? reason.message : String(reason)))}>
+            <DownloadIcon fontSize="small" />
+          </IconButton></Tooltip>}
+          </Box>
+          }
+          const artifact = row.artifact
+          return <ListItemButton key={artifact.id} selected={selectedArtifacts.has(artifact.id)} aria-pressed={selectedArtifacts.has(artifact.id)}
           onDragOver={event => { event.preventDefault(); event.stopPropagation(); event.dataTransfer.dropEffect = 'move'; const rect = event.currentTarget.getBoundingClientRect(); setDropMarker({ kind: 'artifact', id: artifact.id, position: event.clientY < rect.top + rect.height / 2 ? 'before' : 'after' }) }}
           onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropMarker(null) }}
           onDrop={event => { event.preventDefault(); event.stopPropagation(); const position = dropMarker?.kind === 'artifact' && dropMarker.id === artifact.id ? dropMarker.position : 'before'; if (draggedArtifact) moveArtifact(draggedArtifact, artifact.id, position).catch(() => {}); setDraggedArtifact(null); setDropMarker(null) }}
-          onClick={event => {
-          if (event.shiftKey && selectionAnchor.current !== null) {
-            const start = Math.min(selectionAnchor.current, index); const end = Math.max(selectionAnchor.current, index)
-            setSelectedArtifacts(current => new Set([...current, ...visible.slice(start, end + 1).map(item => item.id)]))
-          } else if (event.ctrlKey || event.metaKey) {
-            setSelectedArtifacts(current => { const next = new Set(current); if (next.has(artifact.id)) next.delete(artifact.id); else next.add(artifact.id); return next })
-            selectionAnchor.current = index
-          } else {
-            setSelectedArtifacts(new Set([artifact.id])); selectionAnchor.current = index
+           onClick={event => {
+            selectRow(index, event)
+            if (!event.shiftKey && !event.ctrlKey && !event.metaKey) {
             loadArtifact(active, artifact, loadTarget).catch(() => {})
           }
         }} sx={{
           pl: 2,
-          bgcolor: selectedArtifacts.has(artifact.id) ? 'rgba(29,50,97,0.24)' : index % 2 ? 'rgba(29,50,97,0.045)' : 'transparent',
-          '&.Mui-selected': { bgcolor: 'rgba(29,50,97,0.24)' },
-          '&.Mui-selected:hover': { bgcolor: 'rgba(29,50,97,0.31)' },
+          bgcolor: selectedArtifacts.has(artifact.id) ? workspaceRowColors.selected : index % 2 ? workspaceRowColors.stripe : workspaceRowColors.base,
+          '&.Mui-selected': { bgcolor: workspaceRowColors.selected },
+          '&.Mui-selected:hover': { bgcolor: workspaceRowColors.selectedHover },
           borderTop: '2px solid', borderBottom: '2px solid',
           borderTopColor: dropMarker?.kind === 'artifact' && dropMarker.id === artifact.id && dropMarker.position === 'before' ? 'primary.main' : 'transparent',
           borderBottomColor: dropMarker?.kind === 'artifact' && dropMarker.id === artifact.id && dropMarker.position === 'after' ? 'primary.main' : 'transparent',
         }}
-          onContextMenu={event => { event.preventDefault(); setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, kind: 'artifact', id: artifact.id, name: artifact.name }) }}>
+          onContextMenu={event => { event.preventDefault(); selectContextRow(index); setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, kind: 'artifact', id: artifact.id, name: artifact.name }) }}>
           <Box component="span" draggable onMouseDown={event => event.stopPropagation()}
             onClick={event => event.stopPropagation()}
             onDragStart={event => { event.stopPropagation(); event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', artifact.id); setDraggedArtifact(artifact.id) }}
@@ -350,23 +398,24 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
             <DragIndicatorIcon sx={{ fontSize: 16 }} />
           </Box>
           <ArtifactFileIdentity artifact={artifact} />
-        </ListItemButton>)}
+        </ListItemButton>})}
         {!active.artifacts.length && <Box sx={{ p: 2, textAlign: 'center' }}><Typography variant="caption" color="text.secondary">Import files to begin.</Typography></Box>}
       </List>
     </>}
     <Box sx={{ ...actionGroupSx, p: 1, width: '100%', boxSizing: 'border-box', justifyContent: 'flex-end' }}><Button size="small" variant="outlined" onClick={() => refresh()}>Refresh</Button></Box>
     <Menu open={!!contextMenu} onClose={() => setContextMenu(null)} anchorReference="anchorPosition"
       anchorPosition={contextMenu ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined}>
-      <MenuItem onClick={() => {
-        if (!contextMenu) return
+      {contextMenu?.kind !== 'run' && <MenuItem onClick={() => {
+        if (!contextMenu || contextMenu.kind === 'run') return
         setRenameTarget({ kind: contextMenu.kind, id: contextMenu.id, name: contextMenu.name })
         setRenameDraft(contextMenu.name)
         setContextMenu(null)
-      }}>Rename</MenuItem>
-      <MenuItem onClick={() => contextMenu && downloadContextItem(contextMenu)}>
-        Download{contextMenu?.kind === 'workspace' ? ' archive' : ''}
+      }}>Rename</MenuItem>}
+      <MenuItem disabled={contextMenu?.kind === 'run' && !active?.artifacts.some(item => item.file === `${contextMenu.id}/diagnostics.tar.gz`)}
+        onClick={() => contextMenu && downloadContextItem(contextMenu)}>
+        {contextMenu?.kind === 'run' ? 'Download diagnostics' : `Download${contextMenu?.kind === 'workspace' ? ' archive' : ''}`}
       </MenuItem>
-      <MenuItem onClick={() => contextMenu && removeContextItem(contextMenu)}>Move {contextMenu?.kind === 'workspace' ? 'workspace' : contextMenu && selectedArtifacts.has(contextMenu.id) && selectedArtifacts.size > 1 ? `${selectedArtifacts.size} selected files` : 'file'} to trash</MenuItem>
+      <MenuItem onClick={() => contextMenu && removeContextItem(contextMenu)}>Move {contextMenu?.kind === 'workspace' ? 'workspace' : contextMenu && (contextMenu.kind === 'run' || selectedArtifacts.has(contextMenu.id)) && selectedArtifacts.size > 1 ? `${selectedArtifacts.size} selected files` : 'file'} to trash</MenuItem>
     </Menu>
     <Dialog open={!!renameTarget} onClose={() => setRenameTarget(null)} fullWidth maxWidth="xs">
       <DialogTitle>Rename {renameTarget?.kind}</DialogTitle>

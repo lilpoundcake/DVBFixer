@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -85,6 +85,95 @@ afterEach(() => {
 })
 
 describe('managed DVBfixer jobs', () => {
+  it.each(['prepare', 'minimize', 'model', 'split'])('compacts technical files for %s and preserves directly usable outputs', async command => {
+    const dataRoot = root(), workspace = listWorkspaces(dataRoot)[0]
+    fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspace.id), 'input.pdb'), 'END\n')
+    useNode(`
+      const fs=require('node:fs'),path=require('node:path');
+      const output=process.argv[process.argv.indexOf('-o')+1];
+      if (${JSON.stringify(command)}==='split') {
+        fs.mkdirSync(output,{recursive:true});fs.writeFileSync(path.join(output,'chain_A.pdb'),'END\\n');
+      } else {fs.writeFileSync(output,'END\\n');fs.writeFileSync(output.replace(/\\.pdb$/,'.dat'),'{}');}
+      fs.mkdirSync('temporary',{recursive:true});
+      for(let i=0;i<30;i++)fs.writeFileSync(path.join('temporary',i+'.txt'),'diagnostics'.repeat(100));
+    `)
+    const created = createManagedJob(dataRoot, { workspaceId: workspace.id, command, inputFile: 'input.pdb' })
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+    expect(finished.status).toBe('succeeded')
+    expect(finished.outputFile).toMatch(/\.pdb$/)
+    const directory = path.join(workspaceRoot(dataRoot, workspace.id), finished.outputDir)
+    expect(fs.existsSync(path.join(directory, 'temporary'))).toBe(false)
+    expect(fs.existsSync(path.join(directory, 'diagnostics.tar.gz'))).toBe(true)
+    const artifacts = loadWorkspace(dataRoot, workspace.id).artifacts
+    expect(artifacts.length).toBeLessThanOrEqual(4)
+    expect(artifacts.every(item => item.run?.status === 'succeeded')).toBe(true)
+    expect(artifacts.some(item => item.file.endsWith('/diagnostics.tar.gz'))).toBe(true)
+  })
+
+  it('retains failed native diffusion evidence without exposing partial structures as outputs', async () => {
+    const dataRoot = root(), workspace = listWorkspaces(dataRoot)[0]
+    fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspace.id), 'input.pdb'), 'END\n')
+    useNode(`
+      const fs=require('node:fs'),path=require('node:path');
+      const work=process.argv[process.argv.indexOf('--diffusion-work-parent')+1];
+      fs.mkdirSync(path.join(work,'.private-run','raw'),{recursive:true});
+      fs.writeFileSync(path.join(work,'.private-run','raw','candidate.pdb'),'partial');
+      fs.mkdirSync(path.join(work,'.private-run','.cache'),{recursive:true});
+      fs.writeFileSync(path.join(work,'.private-run','.cache','discard'),'cache');
+      process.exit(2);
+    `)
+    const created = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'model', inputFile: 'input.pdb', values: { '--backend': 'diffusion' } })
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+    expect(finished).toMatchObject({ status: 'failed', outputFile: null })
+    const directory = path.join(workspaceRoot(dataRoot, workspace.id), finished.outputDir)
+    const summary = JSON.parse(fs.readFileSync(path.join(directory, 'run-summary.json'), 'utf8'))
+    expect(summary.diagnostics.files.map((item: { file: string }) => item.file)).toEqual(['.private-run/raw/candidate.pdb'])
+    expect(loadWorkspace(dataRoot, workspace.id).artifacts.every(item => item.kind !== 'structure' && item.run?.status === 'failed')).toBe(true)
+  })
+
+  it('keeps non-prefix topology includes directly usable', async () => {
+    const dataRoot = root(), workspace = listWorkspaces(dataRoot)[0]
+    fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspace.id), 'input.pdb'), 'END\n')
+    useNode(`
+      const fs=require('node:fs'),path=require('node:path');
+      const out=process.argv[process.argv.indexOf('-o')+1];
+      fs.writeFileSync(out,'#include "Chain_A.itp"\\n#include "posre_Chain_A.itp"\\n');
+      fs.writeFileSync(path.join(path.dirname(out),'Chain_A.itp'),'topology');
+      fs.writeFileSync(path.join(path.dirname(out),'posre_Chain_A.itp'),'restraints');
+      fs.writeFileSync('scratch.txt','diagnostics');
+    `)
+    const created = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'top', inputFile: 'input.pdb' })
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+    expect(finished).toMatchObject({ status: 'succeeded' })
+    const directory = path.join(workspaceRoot(dataRoot, workspace.id), finished.outputDir)
+    expect(fs.existsSync(path.join(directory, 'Chain_A.itp'))).toBe(true)
+    expect(fs.existsSync(path.join(directory, 'posre_Chain_A.itp'))).toBe(true)
+    expect(loadWorkspace(dataRoot, workspace.id).artifacts.filter(item => item.file.endsWith('.itp'))).toHaveLength(2)
+    expect(fs.existsSync(path.join(directory, 'scratch.txt'))).toBe(false)
+  })
+
+  it('archives partial native evidence after cancellation', async () => {
+    const dataRoot = root(), workspace = listWorkspaces(dataRoot)[0]
+    fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspace.id), 'input.pdb'), 'END\n')
+    useNode(`
+      const fs=require('node:fs'),path=require('node:path');
+      const work=process.argv[process.argv.indexOf('--diffusion-work-parent')+1];
+      fs.writeFileSync(path.join(work,'incomplete.pdb'),'partial');
+      setInterval(()=>{},1000);
+    `)
+    const created = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'model', inputFile: 'input.pdb', values: { '--backend': 'diffusion' } })
+    await vi.waitFor(() => {
+      const record = getManagedJob(dataRoot, workspace.id, created.id)
+      const native = record.args[record.args.indexOf('--diffusion-work-parent') + 1]
+      expect(native && fs.existsSync(path.join(native, 'incomplete.pdb'))).toBe(true)
+    })
+    cancelManagedJob(dataRoot, workspace.id, created.id)
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+    expect(finished).toMatchObject({ status: 'cancelled', outputFile: null })
+    const summary = JSON.parse(fs.readFileSync(path.join(workspaceRoot(dataRoot, workspace.id), finished.outputDir, 'run-summary.json'), 'utf8'))
+    expect(summary).toMatchObject({ status: 'cancelled', diagnostics: { files: [{ file: 'incomplete.pdb' }] } })
+  })
+
   it.each([true, false])('archives native diffusion output without auto-loading rejected candidates (passed=%s)', async passed => {
     const dataRoot = root()
     const workspace = listWorkspaces(dataRoot)[0]
@@ -182,7 +271,7 @@ describe('managed DVBfixer jobs', () => {
       request: { inputs: {}, values: {}, fastaSha256: null },
       resolvedInputs: [],
     })
-    expect(finished.provenance!.outputs).toHaveLength(1)
+    expect(finished.provenance!.outputs).toHaveLength(2) // report + compact run index
   })
 
   it('records reproducible input and output artifact provenance', async () => {
@@ -215,7 +304,7 @@ describe('managed DVBfixer jobs', () => {
       resolvedInputs: [{ artifactId: 'source-id', file: 'files/input.pdb' }],
     })
     expect(finished.provenance!.resolvedInputs[0].sha256).toMatch(/^[a-f0-9]{64}$/)
-    expect(finished.provenance!.outputs).toHaveLength(1)
+    expect(finished.provenance!.outputs).toHaveLength(2) // structure + compact run index
     const artifact = loadWorkspace(dataRoot, workspace.id).artifacts
       .find(candidate => candidate.id === finished.provenance!.outputs[0].artifactId)!
     expect(artifact.workflowProvenance?.outputs[0].sha256)
@@ -234,7 +323,7 @@ describe('managed DVBfixer jobs', () => {
     const finished = await terminal(dataRoot, workspace.id, created.id)
     expect(finished).toMatchObject({ status: 'succeeded', exitCode: 1 })
     expect(finished.outputFile).toMatch(/\.txt$/)
-    expect(finished.provenance!.outputs).toHaveLength(1)
+    expect(finished.provenance!.outputs).toHaveLength(2) // findings + compact run index
   })
 
   it('rejects concurrent jobs in one workspace and cancels the active process', async () => {

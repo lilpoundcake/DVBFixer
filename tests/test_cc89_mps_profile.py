@@ -18,8 +18,8 @@ from dvbfixer.model.diffusion.contract import (
     DiffusionContractError,
 )
 from dvbfixer.model.diffusion.protein_context import (
-    CUDA_CC89_CONTEXT,
     MPS_CC89_PROFILE,
+    TERMINAL_SHELL_CONTEXT,
     ProteinContextError,
     context_evidence,
     prepare_cuda_cc89_request,
@@ -55,7 +55,7 @@ def test_mps_auto_context_is_local_and_replay_is_exact(tmp_path, cli_fixture):
     with pytest.raises(ProteinContextError, match="frozen source-only"):
         validate_mps_cc89_request(request)
     selected = prepare_mps_cc89_request(request, source.read_bytes(), "auto")
-    assert selected.protein_context.policy == CUDA_CC89_CONTEXT
+    assert selected.protein_context.policy == TERMINAL_SHELL_CONTEXT
     assert selected.seeds == (7, 19)
     assert assess_diffusion_scope(selected, source.read_bytes()).supported
     assert prepare_mps_cc89_request(selected, source.read_bytes(), "local") == selected
@@ -84,7 +84,7 @@ def test_homology_freezes_a_complete_corrected_request_before_cli_replay(tmp_pat
     normalized, request_path = build_mosaic_diffusion_request(work / "selected_template_mosaic.coverage.json",
         [("C", "SNRFSGSKSGNTA")], work, seeds=(7,), profile=profile)
     request = DiffusionRequest.from_json(request_path.read_text())
-    assert request.protein_context.policy == CUDA_CC89_CONTEXT
+    assert request.protein_context.policy == TERMINAL_SHELL_CONTEXT
     assert assess_diffusion_scope(request, normalized.read_bytes()).supported
     prepare = prepare_mps_cc89_request if profile == MPS_CC89_PROFILE else prepare_cuda_cc89_request
     assert prepare(request, normalized.read_bytes(), "auto") == request
@@ -98,15 +98,17 @@ def test_mps_rejects_explicit_nonlocal_context(tmp_path, cli_fixture, mode):
         prepare_mps_cc89_request(request, source.read_bytes(), mode)
 
 
-def test_mps_rejects_cys_windows_and_multiple_gaps(tmp_path, cli_fixture):
+def test_mps_keeps_single_gap_cys_guard_and_prepares_multiple_local_views(tmp_path, cli_fixture):
     source = cli_fixture._gap_input(tmp_path)
     request = build_cli_diffusion_request(source, {"C": "SNRFCGSKSGNTA"}, seeds=(7,), profile=MPS_CC89_PROFILE)
     with pytest.raises(ProteinContextError, match="CYS-free"):
         prepare_mps_cc89_request(request, source.read_bytes(), "auto")
     source = cli_fixture._multichain_gap_input(tmp_path)
     request = build_cli_diffusion_request(source, {"C": "SNRFSGSKSGNTA", "D": "SNRFSGSKSGNTA"}, seeds=(7,), profile=MPS_CC89_PROFILE)
-    with pytest.raises(ProteinContextError, match="one internal gap"):
-        prepare_mps_cc89_request(request, source.read_bytes(), "auto")
+    prepared = prepare_mps_cc89_request(request, source.read_bytes(), "auto")
+    assert prepared.gap_contexts is not None
+    assert len(prepared.gap_contexts) == len(request.gaps)
+    assert prepared.fixed_atoms == request.fixed_atoms
 
 
 def test_mps_public_numerical_policy_never_admits_cpu_or_cuda(tmp_path, cli_fixture):
@@ -182,7 +184,7 @@ def test_mps_frozen_replay_never_repairs_an_incomplete_request(tmp_path, cli_fix
         request = prepare_mps_cc89_request(request, source.read_bytes(), "auto")
     path = tmp_path / "request.json"
     path.write_text(request.to_json())
-    monkeypatch.setattr("dvbfixer.model.diffusion_cli.resolve_diffusion_runtime", lambda model:
+    monkeypatch.setattr("dvbfixer.model.diffusion_cli.resolve_diffusion_runtime", lambda model, **kwargs:
         DiffusionRuntime("protpardelle", MPS_CC89_PROFILE, "/installed/mps"))
     monkeypatch.setattr("dvbfixer.model.diffusion_cli.invoke_runner_preflight", lambda **kwargs: SimpleNamespace(passed=True))
 
@@ -226,7 +228,7 @@ def test_frozen_legacy_cli_request_selects_legacy_runtime_without_rewriting(tmp_
     args = cli_fixture.parse_args([str(source), "--backend", "diffusion", "--diffusion-model", "protpardelle",
         "--diffusion-request", str(path), "-o", str(tmp_path / "bundle")])
     run_diffusion_model(args)
-    assert selected == [None, "protpardelle-1c-mps"]
+    assert selected == ["protpardelle-1c-mps"]
     assert path.read_text() == request.to_json()
 
 

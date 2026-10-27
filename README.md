@@ -61,6 +61,7 @@ The local development server opens the browser. Follow the
 | Process my first structure | [Quick start](docs/quick-start.md) |
 | Prepare proteins, glycans, or topology inputs | [Recipes](docs/pipelines.md) |
 | Find a particular tool | [Command index](docs/commands/index.md) |
+| Choose alternate conformations | [Altloc selection](docs/commands/altlocs.md) |
 | Look up exact CLI options | [CLI reference](docs/reference/index.md) |
 | Process a folder or save logs | [Batch mode and logging](docs/batch-mode.md) |
 | Choose a force field | [Force fields](docs/force-fields.md) |

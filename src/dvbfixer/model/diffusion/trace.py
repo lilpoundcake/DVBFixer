@@ -125,6 +125,25 @@ def validate_sampler_trace_context(
     """Match standalone trace evidence to its request and backend identity."""
     if trace.fixed_atoms != request.fixed_atoms:
         raise DiffusionContractError("sampler trace changed the fixed atom mask")
+    if request.gap_contexts is not None:
+        from dvbfixer.model.diffusion.protein_context import (
+            context_evidence,
+            independent_gap_requests,
+        )
+
+        singles = independent_gap_requests(request)
+        if trace.gap_atom_orders is None or len(trace.gap_atom_orders) != len(singles):
+            raise DiffusionContractError("independent gap atom axes are missing")
+        for single, axis in zip(singles, trace.gap_atom_orders, strict=True):
+            plan = single.protein_context
+            assert plan is not None
+            if len(axis) != len(set(axis)) or set(axis) != set(single.generated_atoms) | {item.atom for item in plan.fixed_conditioning}:
+                raise DiffusionContractError("independent gap sampled the wrong atom mask")
+        gap_evidence = tuple(context_evidence(single, axis) for single, axis in zip(singles, trace.gap_atom_orders, strict=True))
+        if trace.gap_context_evidence != gap_evidence:
+            raise DiffusionContractError("sampler trace did not prove every independent gap context")
+    elif trace.gap_context_evidence is not None:
+        raise DiffusionContractError("sampler trace claims undeclared independent gap contexts")
     if request.protein_context is not None:
         from dvbfixer.model.diffusion.protein_context import context_evidence
 
@@ -165,12 +184,17 @@ def validate_sampler_trace_context(
             validate_cuda_cc89_request(request)
         else:
             validate_mps_cc89_request(request)
-        positions, chains = source_context_position_features(request)
-        digest = hashlib.sha256(np.asarray((positions, chains), dtype="<i8").tobytes()).hexdigest()
-        if f"cc89-position-features-sha256={digest}" not in provenance.deterministic_flags:
-            raise DiffusionContractError("corrected cc89 source-position provenance mismatch")
-        if expected_profile == "protpardelle-1c-mps-local-v1" and "cc89-first-layer-rope-calls=1000" not in provenance.deterministic_flags:
-            raise DiffusionContractError("MPS cc89 lacks actual first-layer RoPE evidence")
+        from dvbfixer.model.diffusion.protein_context import independent_gap_requests
+
+        singles = independent_gap_requests(request) if request.gap_contexts is not None else (request,)
+        for index, single in enumerate(singles):
+            positions, chains = source_context_position_features(single)
+            digest = hashlib.sha256(np.asarray((positions, chains), dtype="<i8").tobytes()).hexdigest()
+            prefix = f"gap-{index}:" if request.gap_contexts is not None else ""
+            if f"{prefix}cc89-position-features-sha256={digest}" not in provenance.deterministic_flags:
+                raise DiffusionContractError("corrected cc89 source-position provenance mismatch")
+            if expected_profile == "protpardelle-1c-mps-local-v1" and f"{prefix}cc89-first-layer-rope-calls=1000" not in provenance.deterministic_flags:
+                raise DiffusionContractError("MPS cc89 lacks actual first-layer RoPE evidence")
     if (
         trace.engine_repository != provenance.engine_repository
         or trace.engine_revision != provenance.engine_revision

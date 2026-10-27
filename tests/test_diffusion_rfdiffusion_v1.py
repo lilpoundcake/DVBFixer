@@ -320,7 +320,8 @@ def test_materialization_rejects_partner_context_drift() -> None:
         )
 
 
-def test_boundary_refinement_preserves_fixed_records_and_generated_identity() -> None:
+@pytest.mark.parametrize("source_hydrogen", [False, True])
+def test_boundary_refinement_preserves_fixed_records_and_generated_identity(source_hydrogen: bool) -> None:
     request, source, raw = _case()
     synthetic = build_synthetic_input(request, source)
     unrefined = materialize_candidate(
@@ -329,6 +330,12 @@ def test_boundary_refinement_preserves_fixed_records_and_generated_identity() ->
         synthetic_text=synthetic.pdb_text,
         raw_text=raw,
     )
+
+    if source_hydrogen:
+        atom = next(line for line in unrefined.splitlines() if line.startswith("ATOM"))
+        hydrogen = atom[:6] + "99000 " + " HX1" + atom[16:30] + f"{99.0:8.3f}" * 3 + atom[54:76] + " H\n"
+        unrefined = unrefined.replace(atom + "\n", atom + "\n" + hydrogen, 1)
+        assert hydrogen in unrefined
 
     result = refine_generated_region(
         unrefined,

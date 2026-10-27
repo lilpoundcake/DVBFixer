@@ -17,6 +17,7 @@ the graphical workflow.
 | Task | Guide |
 |---|---|
 | Repair atoms and add hydrogens | [Quick start](quick-start.md) |
+| Choose one alternate conformation per residue | [Altlocs](commands/altlocs.md) |
 | Rebuild missing protein sequence and minimize | [Full pipeline](pipelines.md#quick-full-pipeline-with-zbs) |
 | Control preparation step by step | [Manual pipeline](pipelines.md#manual-step-by-step) |
 | Prepare a glycoprotein | [GLYCAM workflow](pipelines.md#glycoprotein-preparation-with-glycam) |

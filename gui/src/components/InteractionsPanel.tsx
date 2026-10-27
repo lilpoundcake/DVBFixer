@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Box from '@mui/material/Box'
 import { controlWrapperSx, panelToolbarSx } from '../ui/layout'
+import { InspectionBadge, InspectionRow, InspectionTable, ResidueLabel } from './InspectionTable'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -9,10 +10,8 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong'
 import HubIcon from '@mui/icons-material/Hub'
 import Tooltip from '@mui/material/Tooltip'
-import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import FormControl from '@mui/material/FormControl'
@@ -71,6 +70,7 @@ export function InteractionsPanel() {
   const focusedCategory = useStructureStore((s) => s.focusedCategory)
   const setFocusedChain = useStructureStore((s) => s.setFocusedChain)
   const [rows, setRows] = useState<InteractionRow[]>([])
+  const [activeRow, setActiveRow] = useState<InteractionRow | null>(null)
   const [loading, setLoading] = useState(false)
   const [chainPairA, setChainPairA] = useState<string>('') // '' = any
   const [chainPairB, setChainPairB] = useState<string>('') // '' = any
@@ -405,7 +405,7 @@ export function InteractionsPanel() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       <Box sx={panelToolbarSx}>
         <Tooltip title="Recompute interactions">
           <Box component="span" sx={controlWrapperSx}>
@@ -514,8 +514,7 @@ export function InteractionsPanel() {
         </Box>
       )}
 
-      <TableContainer sx={{ flex: 1 }}>
-        <Table size="small" stickyHeader>
+        <InspectionTable aria-label="Interactions">
           <TableHead>
             <TableRow>
               <TableCell>Type</TableCell>
@@ -525,32 +524,17 @@ export function InteractionsPanel() {
           </TableHead>
           <TableBody>
             {filteredRows.map((r, i) => (
-              <TableRow key={i} hover sx={{ cursor: 'pointer' }} onClick={() => focusInteraction(r)}>
+              <InspectionRow key={i} selected={activeRow === r} onClick={() => { setActiveRow(r); focusInteraction(r) }}>
                 <TableCell>
-                  <Chip
-                    label={r.typeLabel}
-                    size="small"
-                    sx={{
-                      height: 18,
-                      fontSize: '0.5rem',
-                      fontWeight: 600,
-                      bgcolor: `${TYPE_COLORS[r.type] ?? '#5a607a'}20`,
-                      color: TYPE_COLORS[r.type] ?? '#5a607a',
-                      '& .MuiChip-label': { px: 0.5 },
-                    }}
-                  />
+                  <InspectionBadge label={r.typeLabel} color={TYPE_COLORS[r.type] ?? '#5a607a'} />
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption" sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}>
-                    {r.chainA}:{r.resA}{r.seqIdA}
-                  </Typography>
+                  <ResidueLabel chain={r.chainA} name={r.resA} number={r.seqIdA} />
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption" sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}>
-                    {r.chainB}:{r.resB}{r.seqIdB}
-                  </Typography>
+                  <ResidueLabel chain={r.chainB} name={r.resB} number={r.seqIdB} />
                 </TableCell>
-              </TableRow>
+              </InspectionRow>
             ))}
             {!loading && filteredRows.length === 0 && (
               <TableRow>
@@ -562,8 +546,7 @@ export function InteractionsPanel() {
               </TableRow>
             )}
           </TableBody>
-        </Table>
-      </TableContainer>
+        </InspectionTable>
 
       <Box sx={{ px: 1, py: 0.5, borderTop: 1, borderColor: 'divider' }}>
         <Typography variant="caption" sx={{ color: 'text.secondary' }}>

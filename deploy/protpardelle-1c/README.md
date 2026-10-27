@@ -9,11 +9,15 @@ production-supported backend.
 
 `protpardelle-1c-cuda` is available through `model`, mosaic-first `homology`,
 their existing batch/ZBS adapters, and the GUI's **Protpardelle** selection.
-It supports **one CYS-free internal gap of 5–10 residues**, a whole canonical-protein
+Its validated slice is **one CYS-free internal gap of 5–10 residues**, a whole canonical-protein
 source of at most **512 residues**, and the fixed source-only local context
 policy. Surrounding protein chains are retained. Terminal OXT stays preserved-only;
 nonwater heterogens, terminal generation, joint/multiple gaps, adaptive context,
 and full-complex neural sampling are outside this profile.
+
+Gap lengths outside 5–10 now produce a warning and an experimental reconstruction
+attempt, not a length-only rejection. This does not promote them into the validated
+slice or relax chemistry, topology, context, whole-source budget, or output gates.
 
 `--diffusion-context auto` is the CLI/GUI default: local for this profile, legacy
 behavior for existing MPS/Protenix profiles. Explicit `none` or `full` is rejected
@@ -104,13 +108,27 @@ see the [paired comparison](../../docs/research/cc89-input-correction-comparison
 
 ## Apple Silicon preparation
 
-New Apple registrations select **`protpardelle-1c-mps-local-v1`**, an explicitly
-versioned corrected public profile. It uses fixed source-only local context,
-neutral denoiser chain phase and physical source positions for **one CYS-free
-internal gap of 5–10 residues**, at most 512 whole-source canonical residues.
-Explicit `none`/`full`, terminal/multiple gaps and nonwater heterogens fail closed.
-MPS sampling has no fallback; generated-only refinement runs in a separate CPU
-process. MODELLER remains default and wider operational acceptance is still pending.
+New Apple runs require **`protpardelle-1c-mps-local-v1`**, the corrected public
+profile. A missing corrected launcher is an installation error, not permission
+to fall back to the historical MPS profile. It uses fixed source-only local
+context, neutral denoiser chain phase and physical source positions.
+
+The qualified slice remains one CYS-free internal 5–10-residue gap and at most
+512 whole-source canonical residues. New multi-gap, terminal or larger-source
+requests declare `cc89_gap_execution=independent-local-v1`: each gap is sampled
+separately from the same immutable source, with its own bounded local context
+and at most 512 engine-axis residues. Other missing regions never become fake
+conditioning residues. Partial observed sidechains contribute only their actual
+atoms; complete observed backbone is required. Up to 64 gap invocations are
+accepted per candidate. This extension, including terminal/CYS-containing gaps,
+is experimental and is not covered by the earlier single-gap acceptance cohort.
+
+Each invocation retains its atom order, context evidence, source-position digest
+and actual RoPE call count. Only generated coordinates are merged, then all
+generated regions undergo joint generated-only CPU refinement and full-complex
+independent validation. Source atoms remain unchanged. Explicit `none`/`full`
+and nonwater heterogens still fail closed. MPS sampling has no CPU fallback;
+refinement runs in its separate CPU process. MODELLER remains default.
 
 The [Apple handoff](../../docs/plans/apple-cc89-handoff.md) includes portable
 tracked controls, the separate `protpardelle-1c-mps-source-physical-research-v1`
@@ -128,7 +146,7 @@ semantics, old trace contract and separate launcher. It is not silently relabele
 or converted into corrected requests. To register that historical path explicitly,
 use `protpardelle-mps-legacy` instead of `protpardelle` below (without
 `--refinement-python`). When both Apple versions are installed, new requests
-prefer corrected local-v1; an explicit frozen legacy request selects its original
+require corrected local-v1; only an explicit frozen legacy request selects its original
 launcher or fails rather than switching profiles.
 
 Use a native arm64 Python environment and apply the Apple patch to the clean,

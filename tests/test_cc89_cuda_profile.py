@@ -8,8 +8,8 @@ import pytest
 
 from dvbfixer.model.diffusion.contract import BackendOption
 from dvbfixer.model.diffusion.protein_context import (
-    CUDA_CC89_CONTEXT,
     CUDA_CC89_OPTIONS,
+    TERMINAL_SHELL_CONTEXT,
     ProteinContextError,
     prepare_cuda_cc89_request,
     validate_context_capability,
@@ -41,7 +41,7 @@ def test_cuda_default_context_preserves_terminal_oxt_and_replays_identically(tmp
     source.write_text("".join(lines[:-2]) + oxt + "TER\nEND\n")
     request = build_cli_diffusion_request(source, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protpardelle-1c-cuda")
     selected = prepare_cuda_cc89_request(request, source.read_bytes(), "auto")
-    assert selected.protein_context.policy == CUDA_CC89_CONTEXT
+    assert selected.protein_context.policy == TERMINAL_SHELL_CONTEXT
     assert all(option in selected.backend_options for option in CUDA_CC89_OPTIONS)
     assert any(atom.atom_name == "OXT" for atom in selected.protein_context.preserved_only)
     assert selected.fixed_atoms == request.fixed_atoms
@@ -102,6 +102,22 @@ def test_cuda_gap_admission_retains_the_studied_cys_free_boundary(tmp_path, cli_
         prepare_cuda_cc89_request(request, source.read_bytes(), "auto")
 
 
+@pytest.mark.parametrize("profile", ["protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"])
+def test_corrected_profiles_warn_instead_of_rejecting_short_gap(tmp_path, cli_fixture, profile):
+    from dvbfixer.model.diffusion.protein_context import prepare_mps_cc89_request
+
+    source = cli_fixture._gap_input(tmp_path)
+    request = build_cli_diffusion_request(
+        source, {"C": "SNRFAAGNTA"}, seeds=(7,), profile=profile,
+    )
+    prepare = prepare_cuda_cc89_request if profile.endswith("cuda") else prepare_mps_cc89_request
+    selected = prepare(request, source.read_bytes(), "auto")
+    admission = assess_diffusion_scope(selected, source.read_bytes())
+    assert admission.supported
+    assert "length 2" in admission.warnings[0]
+    assert "validated range 5-10" in admission.warnings[0]
+
+
 @pytest.mark.parametrize("prepared", [False, True])
 def test_public_frozen_request_is_never_silently_given_a_new_context(tmp_path, monkeypatch, cli_fixture, prepared):
     from types import SimpleNamespace
@@ -118,7 +134,7 @@ def test_public_frozen_request_is_never_silently_given_a_new_context(tmp_path, m
     request_path = tmp_path / "request.json"
     request_path.write_text(persisted)
     output = tmp_path / "bundle"
-    monkeypatch.setattr("dvbfixer.model.diffusion_cli.resolve_diffusion_runtime", lambda model:
+    monkeypatch.setattr("dvbfixer.model.diffusion_cli.resolve_diffusion_runtime", lambda model, **kwargs:
         DiffusionRuntime("protpardelle", "protpardelle-1c-cuda", "/installed/cc89"))
 
     def preflight(**kwargs):

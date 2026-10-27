@@ -23,7 +23,7 @@ ACCEPTED_INTERNAL_RANGES = MappingProxyType({
 
 
 def accepted_gap_ranges(profile: str) -> tuple[tuple[int, int], ...]:
-    """Return the immutable public length boundary used by all request builders.
+    """Return the immutable evidence range used for extrapolation warnings.
 
     Unnamed/internal test adapters retain the initial baseline. They cannot
     inherit a future expansion accepted for a named hardware profile.
@@ -33,6 +33,20 @@ def accepted_gap_ranges(profile: str) -> tuple[tuple[int, int], ...]:
 
 def accepted_gap_range_label(profile: str) -> str:
     return ", ".join(f"{start}-{stop}" for start, stop in accepted_gap_ranges(profile))
+
+
+def gap_length_warning(profile: str, length: int, region: str) -> str | None:
+    """Describe extrapolation without promoting the profile's evidence boundary."""
+    if type(length) is not int or length < 1:
+        raise ValueError("gap length must be a positive integer")
+    if gap_capability(profile, length).accepted:
+        return None
+    return (
+        f"{region} length {length} is outside the validated range "
+        f"{accepted_gap_range_label(profile)} for {profile or 'the selected profile'}; "
+        "continuing with experimental reconstruction. Quality is not established "
+        "for this length; independent output validation remains mandatory."
+    )
 
 
 def gap_capability(profile: str, length: int) -> GapCapability:

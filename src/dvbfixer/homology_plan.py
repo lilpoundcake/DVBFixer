@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +24,6 @@ from dvbfixer.model.diffusion.contract import (
     TargetSequence,
     TemplateOwnership,
 )
-from dvbfixer.model.diffusion.gap_capabilities import accepted_gap_range_label, gap_capability
 from dvbfixer.model.diffusion.scope import (
     _CANONICAL_ONE_TO_THREE,
     MINIMUM_GAP_LENGTH,
@@ -405,8 +405,6 @@ def build_mosaic_diffusion_request(
         observed = tuple(index for index, item in enumerate(coverage) if item["covered"] and index not in mutable)
         placements.append(SequencePlacement(chain, len(sequence), observed, tuple(residues[index] for index in observed)))
         for start, stop in _index_runs(mutable):
-            if not gap_capability(profile, stop - start).accepted:
-                raise ValueError(f"mosaic regeneration window {chain}:{start}-{stop} is outside the accepted {accepted_gap_range_label(profile)} range")
             left = residues[start - 1] if start else None
             right = residues[stop] if stop < len(sequence) else None
             generated = residues[start:stop]
@@ -458,11 +456,14 @@ def build_mosaic_diffusion_request(
     # must validate, never silently add missing context to a frozen request.
     if profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"}:
         from dvbfixer.model.diffusion.protein_context import (
+            ANCHOR_SEGMENT_OPTION,
+            TERMINAL_SHELL_OPTION,
             prepare_cuda_cc89_request,
             prepare_mps_cc89_request,
         )
 
         prepare = prepare_cuda_cc89_request if profile == "protpardelle-1c-cuda" else prepare_mps_cc89_request
+        request = replace(request, backend_options=(*request.backend_options, ANCHOR_SEGMENT_OPTION, TERMINAL_SHELL_OPTION))
         request = prepare(request, normalized_text.encode(), context_mode)
     with input_path.open("x") as stream:
         stream.write(normalized_text)

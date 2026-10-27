@@ -362,5 +362,5 @@ test_files = [
 known_divergences = [
   "Model, sequential batch/resume, ZBS, Homology, and GUI expose scoped experimental diffusion; wider scientific strata require separate acceptance.",
   "Atomic directory rename assumes one local filesystem; durability still depends on host filesystem semantics.",
-  "CUDA cc89 admits one CYS-free internal 5-10 gap with its frozen local/physical-position policy and isolated CUDA refinement. Long gaps, adaptive/full-context cc89 and joint gap-bearing chains remain research-only. Geometry acceptance alone does not establish withheld-coordinate accuracy; MPS expansion is separate.",
+  "CUDA cc89 retains one CYS-free internal gap, frozen local/physical-position policy and isolated CUDA refinement. Lengths outside the validated 5-10 range warn and are attempted experimentally, without promoting scientific acceptance. Adaptive/full-context cc89 and joint gap-bearing chains retain their research gates. Geometry acceptance alone does not establish withheld-coordinate accuracy.",
 ]

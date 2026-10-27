@@ -43,10 +43,11 @@ returns `202` with a persisted job record. `GET` on the same path lists jobs;
 `DELETE` requests cancellation; and `GET .../{jobId}/events` streams persisted
 record changes as server-sent events. Job records contain status, logs, output
 location, and provenance. Workspace artifact downloads use the existing
-workspace API. Every current CLI command except `atom-names` is a managed
-workflow, including `diagnose`, `conect`, `renumber`, `prepare`, `minimize`,
-`model`, `zbs`, and parameterization. Naming is the bounded synchronous
-transform. An unsupported command returns `422`.
+workspace API. Ordinary GUI command forms use managed workflows, including
+`diagnose`, `conect`, `renumber`, `prepare`, `minimize`, `model`, `zbs`, and
+parameterization. Atom Names uses its bounded synchronous transform; the
+interactive Altlocs panel uses the workspace operation below. An unsupported
+managed command returns `422`.
 
 For example, after importing `input.pdb` into a workspace, start a diagnostic
 job with a workspace-relative file name:
@@ -76,6 +77,31 @@ crash are marked failed on recovery and can be submitted again explicitly.
 V1 compatibility and deprecation rules are in
 [`ADR 0009`](adr/0009-versioned-workflows-and-compatibility.md). The old
 `/api/jobs` and synchronous `/api/dvbfixer/:command` routes have been retired.
+
+## GUI alternate-state selection
+
+The interactive **Altlocs** panel uses `POST /api/workspaces/{workspaceId}/altlocs`.
+This is an internal GUI/workspace endpoint, not part of the V1 OpenAPI contract.
+It requires workspace write access and the same authenticated transport as other
+workspace operations. The request selects an `inputArtifactId`, `action`
+(`analyze` or `apply`), `policy`, optional `prefer`, and `fallback`.
+
+Analysis invokes `dvbfixer altlocs` and returns a bounded, validated report with
+normalized PDB text for the model-specific Mol* preview. It registers nothing.
+Apply additionally requires a version-1 `plan` containing `sourceSha256` and
+one selected label for each exact residue key. Python owns the scientific
+selection; Node checks the report/request and output digests, rechecks source
+identity and permissions against the latest manifest, then registers one new
+structure. Reports/logs and the selection plan remain beside it. Responses carry
+`report`, nullable `outputArtifact`, and a `reportFile` path after publication.
+Failures register nothing; temporary failed/analysis operations are removed.
+
+The GUI endpoint limits source/output files to 10 MiB and CLI reports to 25 MiB,
+uses a 60-second tracked process timeout, and observes workspace quotas and run
+locks. CLI-only inputs can be up to 50 MiB. Client disconnect cancels the tracked
+process; state from a superseded workspace/input is ignored by the panel.
+
+See [Altlocs](commands/altlocs.md) for policies and scientific limitations.
 
 ## Authentication
 

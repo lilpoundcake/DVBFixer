@@ -15,6 +15,7 @@ import { ensureRequestId } from './request-observability'
 import { acquireWorkspaceRunLock, WorkspaceRunLockError } from './workspace-lock'
 import { ManagedJobRequestSchema } from './managed-jobs-schema'
 import { executionPolicy } from './execution-policy'
+import { compactRun, copyNativeRun, outputFiles, RUN_ARCHIVE, RUN_SUMMARY, type RunStatus } from './run-storage'
 import {
   assertWorkspaceAccess, loadWorkspace, resolveWorkspaceFile, updateWorkspace, workspaceRoot, writeJsonAtomic,
 } from './workspace-api'
@@ -249,11 +250,11 @@ function prepareArgs(
   return { args, inputBase, resolvedInputs }
 }
 
-function registerOutputs(dataRoot: string, record: ManagedJobRecord, inputBase: string): ManagedJobRecord {
+function registerOutputs(dataRoot: string, record: ManagedJobRecord, inputBase: string, publishedFiles?: string[], runStatus?: RunStatus): ManagedJobRecord {
   const def = COMMANDS.find(command => command.name === record.command)!
   const directory = jobDirectory(dataRoot, record.workspaceId, record.id)
   const control = new Set(['job.json', 'stdout.log', 'stderr.log', 'cancel.requested'])
-  const files = listFiles(directory).filter(file => !control.has(file))
+  const files = (publishedFiles || listFiles(directory)).filter(file => !control.has(file))
   const modelFlag = record.command === 'zbs' ? '--model-backend' : '--backend'
   const usesDiffusion = record.args[record.args.indexOf(modelFlag) + 1] === 'diffusion'
   const manifest = usesDiffusion ? files.find(file => path.basename(file) === 'bundle.json') : undefined
@@ -261,9 +262,10 @@ function registerOutputs(dataRoot: string, record: ManagedJobRecord, inputBase: 
   const declared = record.args?.includes('-o') ? record.args[record.args.indexOf('-o') + 1] : null
   const declaredRelative = declared ? (declared.startsWith(`${directory}${path.sep}`)
     ? path.relative(directory, declared).replace(/\\/g, '/') : path.basename(declared)) : null
-  const primary = declaredRelative && files.includes(declaredRelative) ? declaredRelative
+  const results = files.filter(file => file !== RUN_SUMMARY && file !== RUN_ARCHIVE)
+  const primary = record.status !== 'succeeded' ? null : declaredRelative && results.includes(declaredRelative) ? declaredRelative
     : diffusion ? (diffusion.primary ? path.relative(directory, diffusion.primary).replace(/\\/g, '/') : null)
-      : files.find(file => /\.(pdb|cif|mmcif)$/i.test(file)) || files[0] || null
+      : results.find(file => /\.(pdb|cif|mmcif)$/i.test(file)) || results[0] || null
   if (files.length === 0) return record
   const folder = path.relative(workspaceRoot(dataRoot, record.workspaceId), directory).replace(/\\/g, '/')
   const outputs: ManagedJobProvenance['outputs'] = []
@@ -280,7 +282,8 @@ function registerOutputs(dataRoot: string, record: ManagedJobRecord, inputBase: 
         name: file === primary ? `${inputBase} → ${record.command}`
           : `${diffusion?.status === 'validation_failed' && file.endsWith('.pdb') ? '[rejected] ' : ''}${path.basename(file)}`,
         kind: /\.(pdb|cif|mmcif)$/i.test(file) ? 'structure' : 'artifact',
-        artifactType: def.outputKind, command: record.command, folder,
+         artifactType: def.outputKind, command: record.command, folder,
+        run: { command: record.command, status: runStatus || record.status as RunStatus },
         hidden: path.basename(file).startsWith('_'),
         workflowProvenance: record.provenance && {
           ...record.provenance,
@@ -306,6 +309,8 @@ async function executeJob(
 ): Promise<void> {
   let current = record
   let nativeRoot: string | undefined
+  let nativeCopied = false
+  let finalized = false
   const cancelFile = cancellationPath(dataRoot, record.workspaceId, record.id)
   const cancellationPoll = setInterval(() => {
     if (fs.existsSync(cancelFile)) controller.abort()
@@ -336,15 +341,15 @@ async function executeJob(
         persistJob(dataRoot, current)
       },
     })
-    if (nativeRoot && result.code === 0 && !controller.signal.aborted) {
+    if (nativeRoot) {
       assertWorkspaceAccess(loadWorkspace(dataRoot, record.workspaceId), record.requestedByPrincipalId, 'writer')
-      const indexes = listFiles(nativeRoot).filter(file => path.basename(file) === 'bundle.json')
-      if (indexes.length !== 1) throw new Error('diffusion workflow did not publish exactly one complete bundle')
-      for (const index of indexes) readDiffusionPublication(path.join(nativeRoot, index))
-      for (const entry of fs.readdirSync(nativeRoot)) {
-        fs.cpSync(path.join(nativeRoot, entry), path.join(directory, entry), { recursive: true, errorOnExist: true, force: false })
+      if (result.code === 0 && !controller.signal.aborted) {
+        const indexes = listFiles(nativeRoot).filter(file => path.basename(file) === 'bundle.json')
+        if (indexes.length !== 1) throw new Error('diffusion workflow did not publish exactly one complete bundle')
+        for (const index of indexes) readDiffusionPublication(path.join(nativeRoot, index))
       }
-      for (const index of indexes) readDiffusionPublication(path.join(directory, index))
+      copyNativeRun(nativeRoot, directory)
+      nativeCopied = true
     }
     assertWorkspaceQuota(workspaceRoot(dataRoot, record.workspaceId))
     fs.writeFileSync(path.join(directory, 'stdout.log'), result.stdout)
@@ -363,7 +368,19 @@ async function executeJob(
       finishedAt: new Date().toISOString(),
       error: cancelled ? 'DVBfixer run cancelled' : (succeeded ? undefined : result.stderr || `exit code ${result.code}`),
     }
-    if (current.status === 'succeeded') current = registerOutputs(dataRoot, current, prepared.inputBase)
+    const files = listFiles(directory)
+    const manifests = succeeded ? files.filter(file => path.basename(file) === 'bundle.json') : []
+    const publications = manifests.map(file => readDiffusionPublication(path.join(directory, file)))
+    const status: RunStatus = publications.some(item => item.status === 'validation_failed') ? 'validation_failed' : current.status as RunStatus
+    const declaredPath = current.args.includes('-o') ? current.args[current.args.indexOf('-o') + 1] : null
+    const declared = definition.outputMode === 'stdout' ? `${record.command}.${request.values?.['--format'] === 'json' ? 'json' : 'txt'}`
+      : declaredPath ? path.relative(nativeRoot || directory, declaredPath).split(path.sep).join('/') : null
+    const outputs = current.status === 'succeeded' ? outputFiles(files, declared, manifests.map(file => path.dirname(file))) : []
+    const summary = await compactRun(directory, current.command, status, outputs)
+    finalized = true
+    assertWorkspaceQuota(workspaceRoot(dataRoot, record.workspaceId))
+    current = registerOutputs(dataRoot, current, prepared.inputBase,
+      [...outputs, RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])], status)
   } catch (error: any) {
     if (error instanceof WorkspaceQuotaExceededError) {
       const directory = jobDirectory(dataRoot, record.workspaceId, record.id)
@@ -375,7 +392,15 @@ async function executeJob(
       finishedAt: new Date().toISOString(), error: error?.message || String(error),
     }
   } finally {
-    if (nativeRoot) fs.rmSync(nativeRoot, { recursive: true, force: true })
+    if (nativeRoot && !nativeCopied) {
+      try {
+        copyNativeRun(nativeRoot, jobDirectory(dataRoot, record.workspaceId, record.id))
+        nativeCopied = true
+      } catch {
+        current.error = `${current.error || 'Run failed'}. Native diagnostics retained at ${nativeRoot}`
+      }
+    }
+    if (nativeRoot && nativeCopied) fs.rmSync(nativeRoot, { recursive: true, force: true })
     clearInterval(cancellationPoll)
     fs.rmSync(cancelFile, { force: true })
     const directory = jobDirectory(dataRoot, record.workspaceId, record.id)
@@ -383,6 +408,14 @@ async function executeJob(
     const stderr = path.join(directory, 'stderr.log')
     if (!fs.existsSync(stdout)) fs.writeFileSync(stdout, '')
     if (!fs.existsSync(stderr)) fs.writeFileSync(stderr, current.error || '')
+    if (!finalized) {
+      try {
+        const summary = await compactRun(directory, current.command, current.status as RunStatus, [])
+        assertWorkspaceQuota(workspaceRoot(dataRoot, record.workspaceId))
+        current = registerOutputs(dataRoot, current, current.command,
+          [RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])], current.status as RunStatus)
+      } catch { /* Keep original failure and all evidence, even if publication fails. */ }
+    }
     persistJob(dataRoot, current)
     release()
   }

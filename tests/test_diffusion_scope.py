@@ -339,16 +339,18 @@ def test_scope_rejects_mask_and_sequence_mismatches() -> None:
     assert "sequence-placement-gap-coverage-mismatch" in admission.reasons
 
 
-def test_scope_rejects_external_covalent_link_near_gap() -> None:
+def test_scope_accepts_external_covalent_link_between_fixed_anchor_atoms() -> None:
     source, request = _source_and_request()
     link = ExplicitLink(
         AtomIdentity("C", "64", "", "CA"),
         AtomIdentity("C", "70", "", "CA"),
         "LINK",
     )
-    link_line = (
-        "LINK         CA  SER C  64                 CA  SER C  70\n"
-    )
+    serials = {
+        _atom_identity(line): int(line[6:11])
+        for line in source.decode().splitlines() if line.startswith("ATOM  ")
+    }
+    link_line = f"CONECT{serials[link.atom1]:5d}{serials[link.atom2]:5d}\n"
     linked_source = source.replace(b"TER\n", link_line.encode() + b"TER\n")
     linked = replace(
         _replace_source(request, linked_source),
@@ -357,8 +359,9 @@ def test_scope_rejects_external_covalent_link_near_gap() -> None:
 
     admission = assess_diffusion_scope(linked, linked_source)
 
-    assert admission.supported is False
-    assert "external-covalent-link-near-generated-region" in admission.reasons
+    assert admission.supported is True
+    assert admission.reasons == ()
+    assert admission.details == ()
 
     missing_atom_link = ExplicitLink(
         AtomIdentity("C", "64", "", "CA"),
@@ -370,6 +373,7 @@ def test_scope_rejects_external_covalent_link_near_gap() -> None:
     assert admission.supported is False
     assert "retained-explicit-link-atom-missing" in admission.reasons
     assert "retained-explicit-link-mismatch" in admission.reasons
+    assert "C:64:CA -- C:65:CA" in admission.message
 
 
 def test_scope_rejects_unreported_source_explicit_link() -> None:
@@ -396,6 +400,92 @@ def test_scope_rejects_unreported_source_explicit_link() -> None:
 
     assert admission.supported is False
     assert "retained-explicit-link-mismatch" in admission.reasons
+
+
+@pytest.mark.parametrize("number", ["64", "70"])
+def test_scope_accepts_declared_intra_residue_bonds_on_gap_anchors(number):
+    source, request = _source_and_request()
+    serials = {
+        _atom_identity(line): int(line[6:11])
+        for line in source.decode().splitlines()
+        if line.startswith("ATOM  ")
+    }
+    first = AtomIdentity("C", number, "", "N")
+    second = AtomIdentity("C", number, "", "CA")
+    conect = f"CONECT{serials[first]:5d}{serials[second]:5d}\n".encode()
+    linked_source = source.replace(b"TER\n", conect + b"TER\n")
+    linked_request = replace(
+        _replace_source(request, linked_source),
+        retained_explicit_links=(ExplicitLink(first, second, "PDB"),),
+    )
+    admission = assess_diffusion_scope(linked_request, linked_source)
+    assert admission.supported
+    assert admission.reasons == ()
+    assert admission.details == ()
+
+
+def test_fixed_disulfide_on_gap_anchor_is_admitted_and_materialized_unchanged(tmp_path):
+    from dvbfixer.model.cli import AA3TO1
+    from dvbfixer.model.diffusion.pdb_materialize import materialize_candidate_pdb
+    from dvbfixer.model.diffusion_cli import build_cli_diffusion_request
+
+    lines = [line for line in FIXTURE.read_text().splitlines(keepends=True)
+             if line.startswith("ATOM  ") and line[21] == "C"]
+    residue_codes = {}
+    by_atom = {}
+    for line in lines:
+        residue_codes.setdefault(_residue_identity(line), AA3TO1[line[17:20].strip()])
+        by_atom[_atom_identity(line)] = line
+    first = AtomIdentity("C", "22", "", "SG")
+    second = AtomIdentity("C", "90", "", "SG")
+    conect = f"CONECT{int(by_atom[first][6:11]):5d}{int(by_atom[second][6:11]):5d}\n"
+    # The actual C22-C90 disulfide remains intact; only the two residues
+    # immediately before C90 are removed for this reconstruction request.
+    fixed_lines = [line for line in lines if line[22:26].strip() not in {"88", "89"}]
+    source = "".join(fixed_lines) + conect + "TER\nEND\n"
+    path = tmp_path / "disulfide-anchor.pdb"
+    path.write_text(source)
+    request = build_cli_diffusion_request(
+        path, {"C": "".join(residue_codes.values())}, seeds=(7,), profile="protpardelle-1c-mps",
+    )
+    assert any(gap.right_anchor == ResidueIdentity("C", "90") for gap in request.gaps)
+    assert assess_diffusion_scope(request, source.encode()).supported
+    assert any({link.atom1, link.atom2} == {first, second} for link in request.retained_explicit_links)
+    generated = request.generated_atoms
+    output = materialize_candidate_pdb(
+        source, generated,
+        [tuple(float(by_atom[atom][start:start + 8]) for start in (30, 38, 46)) for atom in generated],
+        tuple(by_atom[atom][17:20].strip() for atom in generated), request,
+    )
+    assert conect in output
+    output_atoms = {_atom_identity(line): line for line in output.splitlines(keepends=True)
+                    if line.startswith("ATOM  ")}
+    assert output_atoms[first] == by_atom[first]
+    assert output_atoms[second] == by_atom[second]
+
+
+@pytest.mark.parametrize("first,second", [
+    (AtomIdentity("C", "64", "", "SG"), AtomIdentity("C", "70", "", "SG")),
+    (AtomIdentity("C", "64", "", "N"), AtomIdentity("c", "64", "", "CA")),
+    (AtomIdentity("C", "64", "", "N"), AtomIdentity("C", "64", "A", "CA")),
+])
+def test_external_links_are_not_exempted_by_matching_number_or_atom_names(first, second):
+    from dvbfixer.model.diffusion.scope import _link_is_unsupported_near_gap
+
+    residue = ResidueIdentity(first.chain, first.residue_number, first.insertion_code)
+    assert _link_is_unsupported_near_gap(
+        ExplicitLink(first, second, "PDB"), {residue}, {residue: 0},
+    )
+    # The same link is safe for diffusion admission when BOTH endpoints are
+    # preserved exactly; a movable/generated endpoint is not exempted.
+    assert not _link_is_unsupported_near_gap(
+        ExplicitLink(first, second, "PDB"), {residue}, {residue: 0},
+        fixed_atoms=frozenset((first, second)),
+    )
+    assert _link_is_unsupported_near_gap(
+        ExplicitLink(first, second, "PDB"), {residue}, {residue: 0},
+        fixed_atoms=frozenset((first,)),
+    )
 
 
 def test_scope_preserves_case_sensitive_chain_identity() -> None:

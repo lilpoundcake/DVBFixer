@@ -25,10 +25,6 @@ from dvbfixer.model.diffusion.contract import (
     TargetSequence,
     TemplateOwnership,
 )
-from dvbfixer.model.diffusion.gap_capabilities import (
-    accepted_gap_range_label,
-    gap_capability,
-)
 from dvbfixer.model.diffusion.heterogen_context import (
     HeterogenContextError,
     build_smiles_heterogen_contexts,
@@ -40,6 +36,12 @@ from dvbfixer.model.diffusion.masks import (
 )
 from dvbfixer.model.diffusion.pipeline import run_diffusion_pipeline
 from dvbfixer.model.diffusion.preflight import invoke_runner_preflight
+from dvbfixer.model.diffusion.protein_context import (
+    ANCHOR_SEGMENT_OPTION,
+    CUDA_CC89_PROFILE,
+    MPS_CC89_PROFILE,
+    TERMINAL_SHELL_OPTION,
+)
 from dvbfixer.model.diffusion.runner import DiffusionRunnerError, RunnerLimits
 from dvbfixer.model.diffusion.runtime import (
     DiffusionRuntimeError,
@@ -76,7 +78,13 @@ def build_cli_diffusion_request(
     except UnicodeDecodeError as exc:
         raise DiffusionCliError("normalized PDB is not valid UTF-8") from exc
     lines = text.splitlines()
-    atoms, residue_names, _altlocs = _parse_coordinate_records(lines)
+    atoms, residue_names, altlocs = _parse_coordinate_records(lines)
+    if altlocs:
+        raise DiffusionCliError(
+            "input contains alternate-location atoms; select one state per residue "
+            "using GUI Altlocs or 'dvbfixer altlocs input.pdb -o selected.pdb', "
+            "then run diffusion on the new structure"
+        )
 
     protein_residues: list[ObservedResidue] = []
     seen: set[ResidueIdentity] = set()
@@ -122,8 +130,12 @@ def build_cli_diffusion_request(
             chain,
             "".join(residue.one_letter_code for residue in observed),
         ).upper()
+        from dvbfixer.pdbutils.sequence_evidence import observed_peptide_continuity
+
+        continuity = observed_peptide_continuity(lines, chain,
+            tuple((residue.identity.residue_number, residue.identity.insertion_code) for residue in observed))
         try:
-            placement = build_sequence_placement(chain, observed, target)
+            placement = build_sequence_placement(chain, observed, target, peptide_continuity=continuity)
         except DiffusionMaskError as exc:
             raise DiffusionCliError(str(exc)) from exc
         if no_terminal and (
@@ -166,22 +178,6 @@ def build_cli_diffusion_request(
             intervals.append((last_observed + 1, len(target), GapKind.C_TERMINAL))
         for start, stop, gap_kind in intervals:
             gap_length = stop - start
-            if not gap_capability(profile, gap_length).accepted:
-                region = {
-                    GapKind.INTERNAL: "internal gap",
-                    GapKind.N_TERMINAL: "N-terminal missing region",
-                    GapKind.C_TERMINAL: "C-terminal missing region",
-                }[gap_kind]
-                remedy = (
-                    "; pass --no-terminal to crop unobserved tails"
-                    if gap_kind is not GapKind.INTERNAL
-                    else ""
-                )
-                raise DiffusionCliError(
-                    f"{region} length {gap_length} on chain {chain} is outside "
-                    f"the accepted range {accepted_gap_range_label(profile)}"
-                    f"{remedy}"
-                )
             left_anchor = by_target[start - 1] if start > 0 else None
             right_anchor = by_target[stop] if stop < len(target) else None
             try:
@@ -264,7 +260,11 @@ def build_cli_diffusion_request(
         retained_explicit_links=links,
         candidate_count=len(seeds),
         seeds=seeds,
-        backend_options=(BackendOption("profile", profile),),
+        backend_options=(
+            BackendOption("profile", profile),
+            *((ANCHOR_SEGMENT_OPTION, TERMINAL_SHELL_OPTION)
+              if profile in {CUDA_CC89_PROFILE, MPS_CC89_PROFILE} else ()),
+        ),
         heterogen_contexts=heterogen_contexts,
         template_ownership=template_ownership,
     )
@@ -395,8 +395,15 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 "input must be the normalized PDB referenced by --diffusion-request"
             )
 
+    requested_profile = next(
+        (option.value for option in frozen_request.backend_options if option.name == "profile"),
+        "",
+    ) if frozen_request is not None else ""
     try:
-        runtime = resolve_diffusion_runtime(args.diffusion_model)
+        runtime = (
+            resolve_diffusion_runtime(args.diffusion_model, profile=requested_profile)
+            if requested_profile else resolve_diffusion_runtime(args.diffusion_model)
+        )
     except DiffusionRuntimeError as exc:
         raise DiffusionCliError(str(exc)) from exc
     if frozen_request is not None:
@@ -435,7 +442,7 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
 
     with ExitStack() as resources:
         model_input = input_path
-        if runtime.profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"} and any(
+        if runtime.profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"} and (frozen_request is not None or args.keep_heterogens) and any(
             line.startswith("HETATM") and line[17:20].strip() not in {"HOH", "WAT", "DOD"}
             for line in input_path.read_text(encoding="utf-8").splitlines()
         ):
@@ -522,9 +529,11 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
         if not admission.supported:
             raise DiffusionCliError(
                 "diffusion input is outside the supported scope: "
-                + ", ".join(admission.reasons)
+                + admission.message
             )
         if resume and output_path.exists():
+            for warning in admission.warnings:
+                print(f"WARNING: {warning}", flush=True)
             from dvbfixer.model.diffusion.publication import read_published_bundle
 
             published = read_published_bundle(

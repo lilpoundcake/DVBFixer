@@ -30,6 +30,25 @@ exist. A clean run has no empty warning banner. See [batch mode and logging](bat
 
 ## Diagnostics report errors after a completed run
 
+### Diffusion has no independently validated candidate
+
+This means the rejected candidate is not safe for downstream preparation; it is
+not permission to bypass geometry or chirality gates. Current Apple runs require
+the corrected `protpardelle-1c-mps-local-v1` launcher. An installed historical
+`protpardelle-1c-mps` launcher alone is insufficient for new requests. See the
+[Apple deployment guide](../deploy/protpardelle-1c/README.md#apple-silicon-preparation).
+
+Scientific refinement failures preserve the raw candidate with the specific
+exception in its provenance. Runner/validation failures retain a private workspace
+under `--diffusion-work-parent`, announced in the log, for operator inspection.
+It may contain the full input structure and should not be shared publicly without
+review. Delete retained diagnostic directories when no longer needed. GUI/container
+hosts can impose their own work-directory lifecycle and quotas.
+The [supplied 5J13 regression](research/multi-gap-diffusion-5j13.md) documents
+the corrected multi-gap run and its remaining, correctly rejected geometry.
+
+### Ordinary diagnostic findings
+
 `diagnose` exit code `1` means analysis found ERROR-level structural findings.
 It is not by itself an execution failure. Inspect the affected residues and
 choose the appropriate repair tool; do not just suppress the report.
@@ -143,6 +162,28 @@ Seeded heavy-atom rebuilds do not imply bit-identical whole-system coordinates
 across CPU/GPU backends or thread configurations.
 
 ## Experimental diffusion limits
+
+### Alternate locations
+
+Diffusion requires one state per residue and no altloc labels, including residues
+far from the modeled gap. Use [Altlocs](commands/altlocs.md) in the GUI or CLI to
+review/select states and write a separate single-state PDB. Input checks reject
+unresolved altlocs before sampler launch; they are not silently resolved by atom
+encounter order. The final validator independently checks the candidate too.
+
+`external-covalent-link-near-generated-region` refers to unsupported
+linkage chemistry involving non-fixed atoms near a generated region. CONECT
+bonds within a fixed anchor residue and links between two fixed atoms (including
+disulfides) are allowed even at gap boundaries. The source coordinates and link
+records must be preserved, and independent validation checks them. If a refusal
+remains, the error lists exact `chain:residue:atom` endpoints. Inspect the masks
+and actual chemistry; do not delete a genuine link to bypass a mismatch.
+
+Gap length outside the selected profile's validated range is advisory: the tool
+warns and attempts reconstruction. This includes internal gaps shorter than three
+residues and long terminal tails. Use `--no-terminal` to crop tails instead.
+This does not waive independent output validation or backend-specific topology,
+chemistry, context, or resource restrictions.
 
 Diffusion requires a separately installed compatible runner and checkpoint.
 Availability, gap sizes, terminal support, ligands, and batch/GUI integration

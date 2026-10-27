@@ -19,6 +19,24 @@ guarantee for the full modeling pipeline.
 
 ## Defaults and limits
 
+For equal-scoring sequence placements, the shared aligner first avoids inserting
+gaps inside observed peptide bonds, then uses author residue-number continuity.
+These are tie-breakers only: they never override a better sequence score or assume
+that PDB numbering starts at one. This applies to renumbering and diffusion;
+geometry can correct misleading numbering left by an older renumbering pass.
+Missing/ambiguous backbone atoms provide no geometry evidence. Remaining ties
+produce a warning and retain the deterministic leftmost-best rule. Inspect the
+reported chain, reference interval and gaps. Observed residue identities must
+still match the selected target positions; impossible placements remain errors.
+
+Diffusion gap lengths outside a profile's validated range produce a **WARNING**
+and reconstruction is attempted rather than blocked solely by length. This
+applies to short internal gaps and long missing terminal regions, to Protpardelle
+and Protenix, and to CLI, batch, ZBS, and Homology requests. These attempts do not
+expand the scientifically validated range. Backend topology/chemistry/resource
+limits and independent output validation still apply. `--no-terminal` remains
+the explicit way to crop unobserved tails rather than reconstruct them.
+
 MODELLER remains the default. An experimental, explicit diffusion path is also
 available for canonical protein chains with internal gaps and, on the accepted
 Protpardelle MPS profile, one-anchor N/C-terminal regions. It runs an
@@ -111,7 +129,7 @@ dvbfixer model --input-dir structures --output-dir models \
 ### Experimental diffusion scope
 
 On Linux/NVIDIA, `--diffusion-model protpardelle` selects the installed
-`protpardelle-1c-cuda` profile. It accepts one CYS-free internal gap of **5–10 residues** in
+`protpardelle-1c-cuda` profile. Its validated slice is one CYS-free internal gap of **5–10 residues** in
 a canonical-protein source totaling at most **512 residues**, including surrounding
 protein chains. The default `--diffusion-context auto` applies the validated
 source-only local selector, physical source-chain positions and neutral denoiser
@@ -128,6 +146,40 @@ falls back to CPU. The installer requires `--refinement-python`; see the
 [Apple deployment guide](../../deploy/protpardelle-1c/README.md#apple-silicon-preparation).
 The historical `protpardelle-1c-mps` identity is retained for legacy requests;
 installing the corrected version does not relabel or migrate those requests.
+New requests never automatically downgrade to that historical launcher.
+
+Corrected Apple requests with multiple gaps, terminal regions or more than 512
+whole-source residues use the explicit `independent-local-v1` execution policy.
+Every gap receives its own source-only local view (at most 512 engine residues,
+up to 64 views per candidate), preserving physical positions and partner-chain
+separation. Other missing regions are excluded, not fabricated as context. Only
+observed sidechain atoms are conditioned; incomplete backbone context is rejected.
+The generated regions are merged without moving source atoms, jointly refined
+on CPU, and validated as a whole complex, including inter-gap clashes. Each view's
+context and actual RoPE evidence are retained. This wider scope is experimental;
+the earlier single-gap cohort does not establish terminal/multi-gap quality.
+No tails are silently removed; `--no-terminal` remains an explicit user choice.
+
+New corrected Protpardelle requests (including Homology template mosaics) retain
+the existing eight-position sequence flanks, 10 Å observed-anchor shells and
+two-residue sequence padding, and **also include residues with any observed heavy
+atom within 10 Å of the finite segment joining the two anchor Cα atoms**. This is
+a union, never a replacement or an infinite-line selection. For N/C-terminal gaps,
+the selector additionally includes residues with any observed heavy atom within
+**20 Å of any observed heavy atom in the eight terminal observed residues,
+including the anchor**. Short observed chains use only the available residues.
+No second terminal anchor or extrapolated direction is invented. The existing
+shells/flanks and two-residue padding remain; the 512-position budget still fails
+explicitly rather than discarding selected contacts.
+New requests record `cc89_context_geometry=anchor-shell-segment-union-v1` and
+`cc89_terminal_context=eight-observed-residues-20a-union-v1`. Frozen requests
+without these options replay their original selection policies unchanged.
+Legacy MPS and Protenix selection are unchanged. The 5J13 internal-gap regression
+passed with the segment union; all seven requested gaps in the user's supplied
+FASTA also passed with terminal expansion. This does not establish accuracy for
+every gap or terminal reconstruction. Use an authoritative `--fasta` for the
+intended construct when deposited SEQRES includes unwanted extensions; the tool
+does not silently crop them. See the [experiments](../research/multi-gap-diffusion-5j13.md).
 
 Protenix can opt into source-only protein context with
 `--diffusion-model protenix --diffusion-context local` (eight sequence flanks and
@@ -144,7 +196,8 @@ preserved-only atoms are distinguished in provenance. See the
 [bounded causal pilot and remaining acceptance](../research/protein-context-pilot.md).
 
 The legacy MPS and Protenix profiles accept canonical protein chains with unambiguous
-missing regions of 3–12 residues and target sequences from SEQRES or `--fasta`.
+missing regions (validated length 3–12 residues) and target sequences from SEQRES
+or `--fasta`. Other positive lengths warn and are attempted without a quality claim.
 Internal gaps use two anchors. The legacy Protpardelle MPS profile also supports one-anchor N-terminal and
 C-terminal generation; generated terminal identities extend deterministically
 before or after the observed PDB residue-number range. The materializer inserts

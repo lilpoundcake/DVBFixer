@@ -22,6 +22,7 @@ export interface WorkspaceArtifact {
   artifactType?: string
   /** Internal run bookkeeping retained on disk but hidden from user pickers. */
   hidden?: boolean
+  run?: { command: string; status: 'succeeded' | 'failed' | 'cancelled' | 'validation_failed' }
   /** Original legacy-library path retained only to make metadata migration exact. */
   legacySourceFile?: string
   organism?: string
@@ -41,6 +42,14 @@ export interface WorkspaceArtifact {
   scheme?: 'EU' | 'Kabat'
   namingProvenance?: NamingConversionProvenance
   workflowProvenance?: WorkflowProvenance
+  altlocProvenance?: {
+    sourceArtifactId: string
+    sourceSha256: string
+    outputSha256: string
+    report: string
+    selections: Record<string, string>
+    toolVersion: string
+  }
 }
 
 export interface WorkflowProvenance {
@@ -266,6 +275,9 @@ function writeBufferAtomic(file: string, content: Buffer): void {
 }
 
 function tarOctal(value: number, width: number): Buffer {
+  if (!Number.isSafeInteger(value) || value < 0 || value.toString(8).length > width - 1) {
+    throw new Error('value exceeds TAR numeric field capacity')
+  }
   return Buffer.from(`${value.toString(8).padStart(width - 1, '0')}\0`, 'ascii')
 }
 
@@ -282,7 +294,7 @@ function splitTarPath(name: string): { name: string; prefix: string } {
   throw new Error(`artifact path is too long for TAR archive: ${name}`)
 }
 
-function tarHeader(name: string, size: number, mtime: number): Buffer {
+export function tarHeader(name: string, size: number, mtime: number): Buffer {
   const header = Buffer.alloc(512)
   const tarPath = splitTarPath(name)
   Buffer.from(tarPath.name).copy(header, 0)
@@ -564,6 +576,9 @@ function sanitizeArtifactMetadata(artifact: WorkspaceArtifact): void {
   if (artifact.scheme !== undefined && artifact.scheme !== 'EU' && artifact.scheme !== 'Kabat') delete artifact.scheme
   if (artifact.namingProvenance !== undefined && !validNamingProvenance(artifact.namingProvenance)) delete artifact.namingProvenance
   if (artifact.workflowProvenance !== undefined && !validWorkflowProvenance(artifact.workflowProvenance)) delete artifact.workflowProvenance
+  if (artifact.run !== undefined && (!artifact.run || typeof artifact.run !== 'object' ||
+      typeof artifact.run.command !== 'string' ||
+      !['succeeded', 'failed', 'cancelled', 'validation_failed'].includes(artifact.run.status))) delete artifact.run
 }
 
 function validWorkflowProvenance(value: unknown): value is WorkflowProvenance {

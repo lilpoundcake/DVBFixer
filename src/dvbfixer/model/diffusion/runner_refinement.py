@@ -10,7 +10,9 @@ from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
+from openmm import OpenMMException
 
+from dvbfixer.ffutils.geometry import ChiralityError
 from dvbfixer.model.diffusion.boundary_refinement import (
     BOUNDARY_REFINEMENT_MAX_ITERATIONS,
     BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM,
@@ -25,7 +27,6 @@ from dvbfixer.model.diffusion.contract import (
     AtomIdentity,
     BackendOption,
     DiffusionRequest,
-    ResidueIdentity,
     RunnerCandidate,
     RunnerResourceMetrics,
     RunnerResult,
@@ -152,50 +153,31 @@ def refine_runner_result(
     refined_text = raw_text
     refinement_platform = platform_name
     try:
-        for gap_index, gap in enumerate(request.gaps):
-            gap_residues = set(gap.generated_residues)
-            gap_atoms = tuple(
-                atom
-                for atom in request.generated_atoms
-                if ResidueIdentity(
-                    atom.chain,
-                    atom.residue_number,
-                    atom.insertion_code,
-                ) in gap_residues
-            )
-            short_gap = len(gap.generated_residues) <= 5
-            refinement_input = (
-                _protein_only_refinement_text(refined_text)
-                if request.heterogen_contexts
-                else refined_text
-            )
-            refinement = refine_generated_region(
-                refinement_input,
-                generated_residues=gap.generated_residues,
-                generated_atoms=gap_atoms,
-                max_iterations=(
-                    500 if short_gap else BOUNDARY_REFINEMENT_MAX_ITERATIONS
-                ),
-                restart_count=BOUNDARY_REFINEMENT_RESTART_COUNT,
-                perturbation_angstrom=(
-                    0.25 if short_gap else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM
-                ),
-                platform_name=platform_name,
-                random_seed=request.seeds[0] + gap_index,
-            )
-            refinement_platform = refinement.platform
-            refined_text = rewrite_generated_coordinates(
-                refined_text,
-                refinement.coordinates_angstrom,
-            )
-    except BoundaryRefinementError:
+        # One immutable-source / mutable-generated mask across all gaps avoids
+        # misclassifying another generated region's D centre as a fixed defect.
+        generated_residues = tuple(dict.fromkeys(
+            residue for gap in request.gaps for residue in gap.generated_residues
+        ))
+        refinement_input = (_protein_only_refinement_text(refined_text)
+            if request.heterogen_contexts else refined_text)
+        refinement = refine_generated_region(
+            refinement_input, generated_residues=generated_residues,
+            generated_atoms=request.generated_atoms,
+            max_iterations=500 if short_gaps else BOUNDARY_REFINEMENT_MAX_ITERATIONS,
+            restart_count=BOUNDARY_REFINEMENT_RESTART_COUNT,
+            perturbation_angstrom=0.25 if short_gaps else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM,
+            platform_name=platform_name, random_seed=request.seeds[0],
+        )
+        refinement_platform = refinement.platform
+        refined_text = rewrite_generated_coordinates(refined_text, refinement.coordinates_angstrom)
+    except (BoundaryRefinementError, ChiralityError, OpenMMException, ValueError) as exc:
         elapsed = time.perf_counter() - start
         rejected = replace(
             raw_candidate,
             warnings=(
                 *raw_candidate.warnings,
                 "Localized OpenMM boundary refinement failed; the raw sampler "
-                "candidate was retained for inspection.",
+                f"candidate was retained for inspection. {type(exc).__name__}: {exc}",
             ),
             postprocessing_failures=(
                 *raw_candidate.postprocessing_failures,
@@ -214,7 +196,7 @@ def refine_runner_result(
             ),
             message=(
                 "localized OpenMM boundary refinement failed; raw sampler "
-                "candidate retained"
+                f"candidate retained: {type(exc).__name__}: {exc}"
             ),
         )
     output_dir.mkdir(parents=True, exist_ok=False)
@@ -236,6 +218,8 @@ def refine_runner_result(
                 "perturbation_angstrom",
                 str(0.25 if short_gaps else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM),
             ),
+            *(BackendOption(name, str(value)) for name in ("initial_energy_kj_mol", "final_energy_kj_mol")
+                if (value := getattr(refinement, name, None)) is not None),
         ),
         localized_refinement_residues=movable_residues,
         final_heavy_coordinate_operations=(
