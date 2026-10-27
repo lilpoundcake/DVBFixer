@@ -102,6 +102,7 @@ const MODEL_OPTION_FLAGS = new Set([
   '--diffusion-context',
   '--diffusion-regenerate-covered',
   '--diffusion-edit-flanks',
+  '--no-relax-anchors', '--no-anchor-bfactor-weighting',
 ])
 
 export function validatedModelArgs(options: Record<string, unknown> | null | undefined): string[] {
@@ -124,6 +125,10 @@ export function validatedModelArgs(options: Record<string, unknown> | null | und
     }
     args.push('--backend', 'diffusion', '--diffusion-seed', String(seed))
     if (values['--diffusion-model']) args.push('--diffusion-model', String(values['--diffusion-model']))
+    for (const flag of ['--no-relax-anchors', '--no-anchor-bfactor-weighting']) {
+      if (values[flag] !== undefined && typeof values[flag] !== 'boolean') throw new Error(`${flag} must be boolean`)
+      if (values[flag] === true) args.push(flag)
+    }
     if (values['--diffusion-context'] !== undefined) {
       if (!['auto', 'none', 'local', 'full'].includes(String(values['--diffusion-context']))) throw new Error('--diffusion-context has an unsupported value')
       args.push('--diffusion-context', String(values['--diffusion-context']))
@@ -137,7 +142,7 @@ export function validatedModelArgs(options: Record<string, unknown> | null | und
       if (values['--diffusion-regenerate-covered'] !== true || !Number.isInteger(flanks) || flanks < 1 || flanks > 5) throw new Error('--diffusion-edit-flanks requires covered regeneration and an integer from 1 to 5')
       args.push('--diffusion-edit-flanks', String(flanks))
     }
-  } else if (values['--diffusion-model'] !== undefined || values['--diffusion-seed'] !== undefined || values['--diffusion-context'] !== undefined || values['--diffusion-regenerate-covered'] !== undefined || values['--diffusion-edit-flanks'] !== undefined) {
+  } else if (values['--diffusion-model'] !== undefined || values['--diffusion-seed'] !== undefined || values['--diffusion-context'] !== undefined || values['--diffusion-regenerate-covered'] !== undefined || values['--diffusion-edit-flanks'] !== undefined || values['--no-relax-anchors'] !== undefined || values['--no-anchor-bfactor-weighting'] !== undefined) {
     throw new Error('diffusion model options require --backend diffusion')
   }
   if (backend === 'modeller' && values['--num-models'] !== undefined && values['--num-models'] !== '') {

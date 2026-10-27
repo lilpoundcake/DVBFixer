@@ -158,7 +158,9 @@ def run_diffusion_pipeline(
             published_bundle=destination_bundle,
             message=result.message,
         )
-    except Exception:
+    except BaseException:
+        # Cancellation/interrupts must retain raw and completed-stage evidence
+        # too. This is cleanup bookkeeping only; the original exit propagates.
         retain_diagnostics = True
         raise
     finally:
@@ -298,6 +300,46 @@ def _stage_candidate(
     provenance_name = f"{stem}.diffusion.json"
     trace_name = f"{stem}.sampler-trace.json"
 
+    from dvbfixer.model.diffusion.refinement_evidence import (
+        MAX_REFINEMENT_EVIDENCE_BYTES,
+        MAX_REFINEMENT_REPORT_BYTES,
+        StagedRefinementEvidence,
+        bind_evidence,
+        evidence_reference,
+    )
+
+    extra_artifacts = []
+    reference = evidence_reference(trace)
+    if reference is not None:
+        evidence = StagedRefinementEvidence.from_json(_read_contained_artifact(
+            workspace, reference, max_bytes=MAX_REFINEMENT_EVIDENCE_BYTES).decode("utf-8"))
+        evidence.validate_request(request, seed=candidate.seed)
+        if evidence.selected != candidate.coordinate_artifact:
+            raise DiffusionPipelineError("staged evidence does not select the published candidate")
+
+        def stage_coordinate(artifact, role, suffix="pdb"):
+            if artifact is None:
+                return None
+            data = _read_contained_artifact(workspace, artifact,
+                max_bytes=MAX_REFINEMENT_REPORT_BYTES if suffix == "json" else 1_000_000_000)
+            name = f"{stem}.{role}.{suffix}"
+            _write_file_fsync(staging / name, data)
+            extra_artifacts.append(PublicationArtifact(role, name, _sha256_bytes(data)))
+            return ArtifactReference(name, _sha256_bytes(data))
+
+        evidence = replace(evidence, raw=stage_coordinate(evidence.raw, "raw"),
+            stage1=stage_coordinate(evidence.stage1, "stage1"),
+            report=stage_coordinate(evidence.report, "refinement-report", "json"),
+            selected=ArtifactReference(pdb_name, _sha256_bytes(candidate_bytes)),
+            request_sha256=_sha256_bytes(request.to_json().encode("utf-8")))
+        name = f"{stem}.refinement-evidence.json"
+        data = evidence.to_json().encode("utf-8")
+        _write_file_fsync(staging / name, data)
+        reference = ArtifactReference(name, _sha256_bytes(data))
+        extra_artifacts.append(PublicationArtifact("refinement-evidence", name, reference.sha256))
+        trace = bind_evidence(trace, reference)
+        trace_bytes = trace.to_json().encode("utf-8")
+
     pdb_path = staging / pdb_name
     _write_file_fsync(pdb_path, candidate_bytes)
     dat_record = _candidate_dat_record(
@@ -322,6 +364,7 @@ def _stage_candidate(
         PublicationArtifact("pdb", pdb_name, _sha256_bytes(candidate_bytes)),
         PublicationArtifact("dat", dat_name, _sha256_bytes(dat_bytes)),
         PublicationArtifact("sampler-trace", trace_name, _sha256_bytes(trace_bytes)),
+        *extra_artifacts,
     )
     published_candidate = replace(
         candidate,

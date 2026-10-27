@@ -340,6 +340,7 @@ def build_mosaic_diffusion_request(
     profile: str = "",
     edit_flanks: int = 1,
     context_mode: str = "auto",
+    refinement_options: tuple[BackendOption, ...] = (),
 ) -> tuple[Path, Path]:
     """Use authoritative coverage positions, never sequence re-alignment.
 
@@ -444,7 +445,7 @@ def build_mosaic_diffusion_request(
         target_sequences=tuple(targets), sequence_placements=tuple(placements), gaps=tuple(gaps),
         fixed_atoms=tuple(fixed), generated_atoms=tuple(generated_atoms), retained_explicit_links=(),
         candidate_count=len(seeds), seeds=seeds,
-        backend_options=(BackendOption("mosaic_source_sha256", hashlib.sha256(source.read_bytes()).hexdigest()),
+        backend_options=(*refinement_options, BackendOption("mosaic_source_sha256", hashlib.sha256(source.read_bytes()).hexdigest()),
                          BackendOption("mosaic_coverage_sha256", hashlib.sha256(coverage_path.read_bytes()).hexdigest()),
                          *((BackendOption("mosaic_edit_flanks", str(edit_flanks)),) if edit_flanks != 1 else ()),
                          *((BackendOption("profile", profile),) if profile else ())),

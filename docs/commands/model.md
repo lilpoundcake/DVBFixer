@@ -126,6 +126,44 @@ dvbfixer model --input-dir structures --output-dir models \
 <details>
 <summary>Experimental diffusion: installation, supported scope, and bundle validation</summary>
 
+### Geometry-gated refinement and observed anchors
+
+New diffusion requests use versioned, geometry-gated refinement. A geometrically
+acceptable raw candidate is **not minimized**. Otherwise stage 1 moves generated
+atoms only. If junction defects remain, stage 2 restarts from the **original raw
+candidate**, releasing only specifically problematic immediate observed anchors
+under source-centred positional restraints. Unselected observed records remain
+exact; observed anchors are never counted as generated atoms in `.dat`.
+
+Stage 2 is enabled by default. `--no-relax-anchors` disables it;
+`--no-anchor-bfactor-weighting` independently selects uniform restraints. Both
+options also apply to `zbs --model-backend diffusion` and
+`homology --backend diffusion`. Frozen `--diffusion-request` files retain their
+original policy; these construction flags cannot override a frozen request.
+
+For **each** released anchor, all limits must pass in the original coordinate
+frame, without alignment: N/CA/C/O backbone RMSD ≤0.5 Å, Cα displacement ≤0.5 Å,
+and every heavy-atom displacement ≤1.25 Å. These are approved engineering
+defaults, not experimentally calibrated coordinate uncertainties. Good geometry
+does not waive movement bounds; high B factors never enlarge them.
+
+For suitable X-ray/neutron B metadata, positional coefficients are
+`10000 * clip(chain backbone median B / anchor backbone mean B, 0.5, 2.0)`
+kJ mol⁻¹ nm⁻². Unknown/predicted provenance, unsuitable B values or insufficient
+chain statistics use uniform restraints with an explicit fallback reason.
+The original B metadata is preserved, not re-estimated.
+
+Modified observed anchors and their measured movements appear as warnings in
+the run log and validation/provenance report. Bundles retain digest-bound raw,
+stage-1 and selected evidence; resume rechecks those artifacts and independently
+recomputes eligibility, geometry and movement bounds. Rejected candidates are
+never handed to preparation. Historical requests without the staged policy keep
+strict observed-coordinate preservation and their original request hashes.
+See [integration verification](../research/staged-anchor-integration-v1.md).
+Isolated runner/refinement environments must contain this implementation; an
+older runner that omits the new request-bound evidence is rejected, not silently
+accepted under legacy coordinate-preservation semantics.
+
 ### Experimental diffusion scope
 
 On Linux/NVIDIA, `--diffusion-model protpardelle` selects the installed
@@ -133,15 +171,15 @@ On Linux/NVIDIA, `--diffusion-model protpardelle` selects the installed
 a canonical-protein source totaling at most **512 residues**, including surrounding
 protein chains. The default `--diffusion-context auto` applies the validated
 source-only local selector, physical source-chain positions and neutral denoiser
-phase. Generated-only CUDA refinement follows sampling; outside-gap atom records
-remain unchanged. Terminal OXT is preserved outside atom37 conditioning. Explicit
+phase. Geometry-gated CUDA refinement follows sampling; outside the generated
+and explicitly authorized anchor mask, atom records remain unchanged. Terminal OXT is preserved outside atom37 conditioning. Explicit
 `none`/`full`, nonwater heterogens, terminal gaps, and multiple gaps are rejected.
 Installation and the two isolated runtimes are described in the
 [CUDA deployment guide](../../deploy/protpardelle-1c/README.md#public-linuxnvidia-cuda-profile).
 
 New native Apple registrations use the versioned
 `protpardelle-1c-mps-local-v1` profile with the same bounded source-only local
-input policy and **separate generated-only CPU refinement**. MPS denoising never
+input policy and **separate geometry-gated CPU refinement**. MPS denoising never
 falls back to CPU. The installer requires `--refinement-python`; see the
 [Apple deployment guide](../../deploy/protpardelle-1c/README.md#apple-silicon-preparation).
 The historical `protpardelle-1c-mps` identity is retained for legacy requests;
@@ -154,7 +192,7 @@ Every gap receives its own source-only local view (at most 512 engine residues,
 up to 64 views per candidate), preserving physical positions and partner-chain
 separation. Other missing regions are excluded, not fabricated as context. Only
 observed sidechain atoms are conditioned; incomplete backbone context is rejected.
-The generated regions are merged without moving source atoms, jointly refined
+The generated regions are merged without moving source atoms, jointly assessed/refined
 on CPU, and validated as a whole complex, including inter-gap clashes. Each view's
 context and actual RoPE evidence are retained. This wider scope is experimental;
 the earlier single-gap cohort does not establish terminal/multi-gap quality.

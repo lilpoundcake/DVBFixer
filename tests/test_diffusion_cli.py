@@ -413,10 +413,12 @@ def test_request_builder_supports_gaps_across_multiple_chains(tmp_path: Path) ->
     assert assess_diffusion_scope(request, input_path.read_bytes()).supported
 
 
+@pytest.mark.parametrize("disable_anchors", [False, True])
 def test_multichain_cli_warning_distinguishes_local_context_from_joint_sampling(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
+    disable_anchors: bool,
 ) -> None:
     input_path = _multichain_gap_input(tmp_path)
     fasta = tmp_path / "target.fasta"
@@ -442,13 +444,18 @@ def test_multichain_cli_warning_distinguishes_local_context_from_joint_sampling(
             facts=RunnerPreflightFacts(),
         ),
     )
-    monkeypatch.setattr(
-        "dvbfixer.model.diffusion_cli.run_diffusion_pipeline",
-        lambda *_args, **_kwargs: SimpleNamespace(
+    def pipeline(request, *_args, **_kwargs):
+        from dvbfixer.model.diffusion.refinement_policy import read_refinement_policy
+
+        policy = read_refinement_policy(request.backend_options)
+        assert policy.relax_anchors is not disable_anchors
+        assert policy.bfactor_weighting is not disable_anchors
+        return SimpleNamespace(
             published_bundle=output,
             status=SimpleNamespace(value="success"),
-        ),
-    )
+        )
+
+    monkeypatch.setattr("dvbfixer.model.diffusion_cli.run_diffusion_pipeline", pipeline)
     args = SimpleNamespace(
         input=str(input_path),
         output=str(output),
@@ -460,6 +467,8 @@ def test_multichain_cli_warning_distinguishes_local_context_from_joint_sampling(
         keep_heterogens=True,
         no_terminal=False,
         verbose=False,
+        no_relax_anchors=disable_anchors,
+        no_anchor_bfactor_weighting=disable_anchors,
     )
 
     run_diffusion_model(args)

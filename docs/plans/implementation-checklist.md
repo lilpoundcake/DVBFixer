@@ -18,6 +18,42 @@ complete. Detailed requirements remain in these authoritative sources:
 Status is binary: `[x]` means complete and verified; `[ ]` means remaining,
 partially complete, optional but not accepted, or not yet verified.
 
+## Geometry-gated anchor relaxation
+
+Added 2026-10-27. Detailed execution requirements and evidence boundaries:
+[headless handoff](geometry-gated-anchor-relaxation-handoff.md).
+
+- [x] Record the 9CQD uniform/B-weighted positional-restraint pilot and visual-review exports.
+- [x] Record user-approved geometry-triggered stages, raw-input restart, default-enabled anchor repair and explicit notifications.
+- [x] Add initial pure B-weighting/fallback, explicit movement-bound measurement, staged-controller and scientific anchor-force helpers with narrow regression tests.
+- [x] Add an independent research audit with explicit per-anchor limits, raw-input bindings, old strict-result preservation, outer-junction and observed-record checks; verify no-op native 1UBQ controls.
+- [x] Replay all eight corrected-cc89 pilot cases with metadata/B provenance checks and shared-minimization accounting: five raw no-ops, three generated-only repairs, no observed-anchor motion.
+- [x] Add bounded typed numerical-failure recovery and independent raw-based failure auditing; reject unclassified failures and contradictory/misbound evidence in regression tests.
+- [x] Implement pure B-provenance/weighting/fallback policy and minimal problematic-anchor selection.
+- [x] Extend the scientific refiner with explicit observed-anchor mobility and source-centred positional restraints.
+- [x] Implement generated-only stage 1 and default-enabled, opt-out stage 2 restarted from raw coordinates.
+- [x] Version validation/provenance and preserve identity, nonmobile coordinates, geometry and all-L invariants.
+- [x] Thread policy, opt-out, diagnostics and resume compatibility through CLI, runners, ZBS, Homology and GUI.
+- [ ] Evaluate the new chain-normalized B formula against uniform and calibrate per-anchor movement bounds on a broader cohort.
+- [x] Complete regression and workflow verification plus native 9CQD refinement replay; update user docs and generated schemas for the experimental integrated path (not broader scientific/default promotion).
+
+The experimental software path is integrated; see
+[native replay and custody verification](../research/staged-anchor-integration-v1.md).
+The remaining broader-cohort item is scientific follow-up: numerical defaults
+are approved engineering limits, not calibrated experimental uncertainty.
+
+### Return to the real-complex findings
+
+Evidence: [pre-anchor benchmark](../research/protein-complex-pre-anchor-benchmark-v1.md).
+Execution and acceptance criteria are in the
+[follow-up work packages](geometry-gated-anchor-relaxation-handoff.md#real-complex-follow-up-work-packages).
+These are open follow-ups, not completed by merging the implementation.
+
+- [ ] **1BRS D:64–65:** run an explicitly declared independent/sparse-context test with incomplete GLN D:58; preserve absent OE1/NE2 as unobserved rather than silently repairing the experimental source. Keep the original single-gap input refusal as a distinct result.
+- [ ] **1GC1 G:397–409:** test resampling or fixed-anchor conformational search for the residual generated SER G:398 Ramachandran outlier. Retain the original failed seed; do not loosen geometry gates or release observed anchors without independent eligibility.
+- [ ] **1HE8 A:322–352 and A:528–619:** profile the 240 s generated-only timeouts, then preregister a separate resource-budget experiment. Distinguish incomplete computation from geometry failure and preserve all raw evidence.
+- [ ] **Live raw/final integration:** rerun a declared native MPS workflow after the raw-diagnostic fix, retaining complete sampler resource/probe provenance through refinement, publication and resume. Archived coordinate recovery does not close this acceptance item.
+
 ## API Phase 0: Decisions And Baseline
 
 ### Accepted Decisions

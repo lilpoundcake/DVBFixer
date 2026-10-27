@@ -208,7 +208,7 @@ def _read_trace(workspace: Path, result: RunnerResult) -> SamplerTrace:
     return SamplerTrace.from_json(path.read_text(encoding="utf-8"))
 
 
-def _verify_success_result(result: RunnerResult, workspace: Path, *, refined: bool) -> None:
+def _verify_success_result(result: RunnerResult, workspace: Path, *, refined: bool, request: DiffusionRequest | None = None) -> None:
     if result.status is not DiffusionStatus.SUCCESS:
         return
     provenance = result.backend_provenance
@@ -239,6 +239,26 @@ def _verify_success_result(result: RunnerResult, workspace: Path, *, refined: bo
     ):
         raise RuntimeError("runner trace does not prove CUDA execution with fallback disabled")
     expected_refinement = "localized-openmm-boundary-refinement" if refined else "none"
+    if refined and request is not None:
+        from dvbfixer.model.diffusion.refinement_evidence import (
+            StagedRefinementEvidence,
+            evidence_reference,
+        )
+        from dvbfixer.model.diffusion.refinement_policy import (
+            POLICY_REVISION,
+            read_refinement_policy,
+        )
+
+        if read_refinement_policy(request.backend_options) is not None:
+            reference = evidence_reference(trace)
+            if reference is None:
+                raise RuntimeError("staged refinement evidence is missing")
+            path = _verify_artifact(workspace, reference.path, reference.sha256)
+            evidence = StagedRefinementEvidence.from_json(path.read_text(encoding="utf-8"))
+            evidence.validate_request(request)
+            if evidence.selected != coordinate:
+                raise RuntimeError("staged evidence selects a different Protenix candidate")
+            expected_refinement = "none" if evidence.selected_stage == "raw" else POLICY_REVISION
     if trace.refinement_mode != expected_refinement:
         raise RuntimeError("runner trace does not prove the expected refinement state")
 
@@ -638,7 +658,8 @@ def run(
                 raw_result,
                 candidate_root / "refined",
             )
-            _verify_success_result(refined_result, Path.cwd().resolve(), refined=True)
+            _verify_success_result(refined_result, Path.cwd().resolve(), refined=True,
+                request=DiffusionRequest.from_json(candidate_request_path.read_text(encoding="utf-8")))
             candidate_results.append(refined_result)
 
         result = _merge_candidate_results(tuple(candidate_results))

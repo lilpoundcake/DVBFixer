@@ -109,7 +109,8 @@ def test_batch_scientific_rejection_and_fail_fast_report(tmp_path):
     assert report["seeds"] == [11]
 
 
-def test_zbs_selects_validated_candidate_and_dat_before_prepare(tmp_path, monkeypatch):
+@pytest.mark.parametrize("disable_anchors", [False, True])
+def test_zbs_selects_validated_candidate_and_dat_before_prepare(tmp_path, monkeypatch, disable_anchors):
     source = tmp_path / "source.pdb"
     source.write_bytes(b"END\n")
     final = tmp_path / "result.pdb"
@@ -118,6 +119,8 @@ def test_zbs_selects_validated_candidate_and_dat_before_prepare(tmp_path, monkey
     def model(args):
         assert "--backend" in args and args[args.index("--backend") + 1] == "diffusion"
         assert "--md-level" not in args
+        assert ("--no-relax-anchors" in args) is disable_anchors
+        assert ("--no-anchor-bfactor-weighting" in args) is disable_anchors
         _bundle(Path(args[args.index("-o") + 1]))
 
     def prepare(args):
@@ -129,7 +132,8 @@ def test_zbs_selects_validated_candidate_and_dat_before_prepare(tmp_path, monkey
     monkeypatch.setattr("dvbfixer.model.main", model)
     monkeypatch.setattr("dvbfixer.prepare.main", prepare)
     zbs_main([str(source), "-o", str(final), "--model-backend", "diffusion",
-              "--skip-renumber", "--skip-minimize", "--no-postflight", "--no-align-to-input", "--no-solvent"])
+              "--skip-renumber", "--skip-minimize", "--no-postflight", "--no-align-to-input", "--no-solvent",
+              *(["--no-relax-anchors", "--no-anchor-bfactor-weighting"] if disable_anchors else [])])
     assert len(calls) == 1 and final.exists()
     assert (tmp_path / "source_model_diffusion/bundle.json").exists()
 

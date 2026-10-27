@@ -636,6 +636,9 @@ def parse_args(argv=None):
                     help='Output prefix (default: FASTA stem)')
 
     backend = p.add_argument_group('Backend')
+    from dvbfixer.model.diffusion.refinement_policy import add_refinement_arguments
+
+    add_refinement_arguments(backend)
     backend.add_argument('--backend', choices=['modeller', 'diffusion'],
                          default='modeller',
                          help='Modeling backend (default: modeller; diffusion is experimental)')
@@ -700,6 +703,7 @@ def parse_args(argv=None):
     diffusion_flags = {
         '--diffusion-model', '--diffusion-seed', '--diffusion-timeout',
         '--diffusion-work-parent', '--diffusion-resume', '--diffusion-context', '--diffusion-regenerate-covered', '--diffusion-edit-flanks',
+        '--no-relax-anchors', '--no-anchor-bfactor-weighting',
     }
     modeller_flags = {'--num-models', '-n', '--md-level', '--no-loop-refine', '--salign'}
     invalid = (
@@ -784,6 +788,8 @@ def main(argv=None):
         coverage = mosaic.with_name('selected_template_mosaic.coverage.json')
         try:
             runtime = resolve_diffusion_runtime(args.diffusion_model)
+            from dvbfixer.model.diffusion.refinement_policy import RefinementPolicy
+
             mosaic_input, mosaic_request = build_mosaic_diffusion_request(
                 coverage,
                 target_chains,
@@ -793,6 +799,10 @@ def main(argv=None):
                 profile=runtime.profile,
                 edit_flanks=args.diffusion_edit_flanks,
                 context_mode=args.diffusion_context,
+                refinement_options=RefinementPolicy(
+                    relax_anchors=not args.no_relax_anchors,
+                    bfactor_weighting=not args.no_anchor_bfactor_weighting,
+                ).backend_options(),
             )
             output_bundle = f"{output_prefix}_homology_diffusion"
             run_diffusion_model(argparse.Namespace(

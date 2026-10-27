@@ -8,7 +8,8 @@
 usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--atom-naming {gromacs,standard}] [--parametrize-ligands]
                     [--extra-ff FILE] [--skip-renumber] [--skip-model]
-                    [--skip-prepare] [--skip-minimize]
+                    [--skip-prepare] [--skip-minimize] [--no-relax-anchors]
+                    [--no-anchor-bfactor-weighting]
                     [--model-backend {modeller,diffusion}]
                     [--diffusion-model {protenix,protpardelle}]
                     [--diffusion-seed DIFFUSION_SEEDS]
@@ -77,6 +78,11 @@ Pipeline skip flags:
   --skip-minimize       Skip the minimize step
 
 Model step:
+  --no-relax-anchors    Disable stage-2 observed-anchor relaxation (diffusion
+                        only; enabled by default)
+  --no-anchor-bfactor-weighting
+                        Use uniform observed-anchor restraints instead of
+                        experimental B weighting (diffusion only)
   --model-backend {modeller,diffusion}
                         Modeling backend; independent of the prepare --backend
                         (default: modeller)

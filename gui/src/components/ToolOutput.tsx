@@ -2,8 +2,10 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
+import Alert from '@mui/material/Alert'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import type { ToolReportPreview } from '../lib/tool-output'
+import { anchorRefinementNotices } from '../lib/tool-output'
 import { inlineActionSx } from '../ui/layout'
 
 type OutputStream = 'stdout' | 'stderr'
@@ -23,6 +25,7 @@ export function ToolOutput({ stdout, stderr, reports = [], outputFile, onOpenFil
   onOpenFile?: (file: string) => void
 }) {
   const reportTitle = reports.some(report => /diagnose/i.test(report.file)) ? 'Diagnostic report' : 'Output report'
+  const anchorNotices = anchorRefinementNotices(stdout, stderr)
   const streamSection = (stream: OutputStream, text: string) => text ? <Box key={stream} sx={{ p: 1 }}>
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 0.5 }}>
       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
@@ -40,6 +43,10 @@ export function ToolOutput({ stdout, stderr, reports = [], outputFile, onOpenFil
   </Box> : null
 
   return <Box sx={{ mt: 1 }}>
+    {anchorNotices.length > 0 && <Alert severity="warning" sx={{ mb: 1 }}>
+      <Typography variant="body2" sx={{ fontWeight: 700 }}>Observed-coordinate diagnostics</Typography>
+      {anchorNotices.map(notice => <Typography variant="body2" key={notice}>{notice}</Typography>)}
+    </Alert>}
     <Typography variant="caption" sx={{ fontWeight: 700 }}>Output &amp; diagnostics</Typography>
     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
       Reports and progress messages are not necessarily errors. Check the run status above.

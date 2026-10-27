@@ -113,6 +113,33 @@ def _read_published_bundle(
         if expected_digest and provenance["request_sha256"] != expected_digest:
             raise PublicationError("existing diffusion bundle does not match the current request")
         trace = SamplerTrace.from_json(payloads["sampler_trace"].decode())
+        from dvbfixer.model.diffusion.refinement_evidence import (
+            MAX_REFINEMENT_EVIDENCE_BYTES,
+            MAX_REFINEMENT_REPORT_BYTES,
+            StagedRefinementEvidence,
+            evidence_reference,
+        )
+
+        staged_payloads = {}
+        staged_reference = evidence_reference(trace)
+        if staged_reference is not None:
+            data = _read_contained_artifact(root, staged_reference, max_bytes=MAX_REFINEMENT_EVIDENCE_BYTES)
+            evidence = StagedRefinementEvidence.from_json(data.decode("utf-8"))
+            if evidence.selected != ArtifactReference(**row["pdb"]):
+                raise PublicationError("staged evidence selects a different publication")
+            if evidence.request_sha256 != provenance["request_sha256"]:
+                raise PublicationError("staged evidence request binding differs from provenance")
+            if request:
+                evidence.validate_request(request)
+            for reference in (staged_reference, evidence.raw, evidence.stage1, evidence.report):
+                if reference is None:
+                    continue
+                if reference.path in artifact_paths:
+                    raise PublicationError("staged evidence repeats an existing artifact path")
+                artifact_paths.add(reference.path)
+                staged_payloads[reference.path] = _read_contained_artifact(root, reference,
+                    max_bytes=(MAX_REFINEMENT_EVIDENCE_BYTES if reference == staged_reference else
+                        MAX_REFINEMENT_REPORT_BYTES if reference == evidence.report else 1_000_000_000))
         if request:
             validate_sampler_trace_context(trace, request, BackendProvenance(**provenance["backend_provenance"]))
         dat_path = root / row["dat"]["path"]
@@ -139,8 +166,16 @@ def _read_published_bundle(
                 source_path.write_bytes(_read_contained_artifact(source_root, request.normalized_pdb, max_bytes=1_000_000_000))
                 for label in ("pdb", "sampler_trace"):
                     destination = workspace / row[label]["path"]
+                    if destination.exists():
+                        raise PublicationError("published artifact collides with a resume input")
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     destination.write_bytes(payloads[label])
+                for relative_path, data in staged_payloads.items():
+                    destination = workspace / relative_path
+                    if destination.exists():
+                        raise PublicationError("staged evidence collides with a resume input artifact")
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(data)
                 revalidated = build_validated_result(request, result, workspace=workspace).validation_summaries[0]
             if revalidated.passed != passed or list(revalidated.hard_gate_failures) != row["hard_gate_failures"]:
                 raise PublicationError("existing diffusion bundle no longer passes the current validation policy")

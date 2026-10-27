@@ -6,7 +6,8 @@
 
 ```
 usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA]
-                      [--backend {modeller,diffusion}]
+                      [--backend {modeller,diffusion}] [--no-relax-anchors]
+                      [--no-anchor-bfactor-weighting]
                       [--diffusion-model {protpardelle,protenix}]
                       [--diffusion-request DIFFUSION_REQUEST]
                       [--diffusion-seed DIFFUSION_SEEDS]
@@ -50,6 +51,11 @@ Backend:
                         experimental)
 
 Diffusion options:
+  --no-relax-anchors    Disable stage-2 observed-anchor relaxation (diffusion
+                        only; enabled by default)
+  --no-anchor-bfactor-weighting
+                        Use uniform observed-anchor restraints instead of
+                        experimental B weighting (diffusion only)
   --diffusion-model {protpardelle,protenix}
                         Diffusion model (default: select an installed model
                         for this machine)

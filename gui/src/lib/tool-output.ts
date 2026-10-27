@@ -12,6 +12,20 @@ export interface ToolReportPreview {
 const TEXT_REPORT = /\.(txt|json|md|log|csv|tsv|fasta|fa|faa|pir|aln|dat|top|itp|mdp|ya?ml|toml|xml)$/i
 const DIAGNOSTIC_REPORT = /(?:^|[/. _-])diagnose\.(json|txt|md)$/i
 
+/** Present Python's explicit notices; do not calculate or reinterpret geometry. */
+export function anchorRefinementNotices(...streams: string[]): string[] {
+  const notices = new Set<string>()
+  for (const stream of streams) {
+    for (const raw of stream.split('\n')) {
+      const line = raw.replace(/\u001b\[[0-9;]*m/g, '')
+      const start = line.search(/Observed anchor .+ coordinates modified:|Observed-anchor B weighting uses uniform fallback:/)
+      if (start >= 0) notices.add(line.slice(start, start + 4096).trim())
+      if (notices.size >= 1000) return [...notices]
+    }
+  }
+  return [...notices]
+}
+
 export function toolReportFiles(job: ManagedJobRecord): string[] {
   const primary = job.outputFile && TEXT_REPORT.test(job.outputFile) ? [job.outputFile] : []
   const diagnostics = (job.provenance?.outputs || []).map(output => output.file)

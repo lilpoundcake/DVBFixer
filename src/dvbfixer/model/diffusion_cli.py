@@ -70,6 +70,7 @@ def build_cli_diffusion_request(
     no_terminal: bool = False,
     heterogen_smiles: dict[str, str] | None = None,
     template_ownership: tuple[TemplateOwnership, ...] = (),
+    refinement_options: tuple[BackendOption, ...] = (),
 ) -> DiffusionRequest:
     """Build a canonical-protein request with internal gaps on one or more chains."""
     source = input_path.read_bytes()
@@ -262,6 +263,7 @@ def build_cli_diffusion_request(
         seeds=seeds,
         backend_options=(
             BackendOption("profile", profile),
+            *refinement_options,
             *((ANCHOR_SEGMENT_OPTION, TERMINAL_SHELL_OPTION)
               if profile in {CUDA_CC89_PROFILE, MPS_CC89_PROFILE} else ()),
         ),
@@ -465,6 +467,7 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
 
         if frozen_request is None:
             target_sequences = _target_sequences(model_input, args.fasta)
+            from dvbfixer.model.diffusion.refinement_policy import RefinementPolicy
             try:
                 heterogen_smiles = parse_smiles_mappings(
                     getattr(args, "diffusion_heterogen_smiles", ())
@@ -479,6 +482,10 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 no_terminal=getattr(args, "no_terminal", False),
                 heterogen_smiles=heterogen_smiles,
                 template_ownership=getattr(args, "diffusion_template_ownership", ()),
+                refinement_options=RefinementPolicy(
+                    relax_anchors=not getattr(args, "no_relax_anchors", False),
+                    bfactor_weighting=not getattr(args, "no_anchor_bfactor_weighting", False),
+                ).backend_options(),
             )
         else:
             request = frozen_request

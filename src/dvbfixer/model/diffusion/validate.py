@@ -9,7 +9,7 @@ import stat
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 from openmm.app import PDBFile
@@ -136,8 +136,16 @@ def validate_runner_result(
     *,
     workspace: Path,
     thresholds: ValidationThresholds | None = None,
+    phase: Literal["raw", "final"] = "final",
 ) -> tuple[CandidateValidation, ...]:
-    """Validate every raw candidate without trusting runner-provided science."""
+    """Validate coordinates independently; only final validation can grant mobility.
+
+    Sampler adapters may request strict pre-refinement diagnostics with
+    phase='raw'. That phase neither requires future refinement evidence nor
+    grants an observed-motion exception. Publication always uses final mode.
+    """
+    if phase not in {"raw", "final"}:
+        raise ValueError("validation phase must be raw or final")
     if runner_result.status is not DiffusionStatus.SUCCESS:
         return ()
     active_thresholds = thresholds or ValidationThresholds()
@@ -169,6 +177,47 @@ def validate_runner_result(
             postprocessing_failures=candidate.postprocessing_failures,
             candidate_warnings=candidate.warnings,
         )
+        from dvbfixer.model.diffusion.refinement_evidence import (
+            MAX_REFINEMENT_EVIDENCE_BYTES,
+            MAX_REFINEMENT_REPORT_BYTES,
+            StagedRefinementEvidence,
+            evidence_reference,
+        )
+        from dvbfixer.model.diffusion.refinement_policy import read_refinement_policy
+
+        policy = read_refinement_policy(request.backend_options)
+        reference = evidence_reference(trace)
+        if phase == "raw" and (reference is not None or trace.refinement_mode != "none"):
+            raise DiffusionValidationError("raw diagnostics cannot consume a post-refinement trace")
+        if reference is not None and policy is None:
+            raise DiffusionValidationError("historical request cannot supply staged refinement evidence")
+        if phase == "final" and policy is not None and reference is None and not candidate.postprocessing_failures:
+            raise DiffusionValidationError("staged refinement evidence is required by the request")
+        if reference is not None:
+            if (set(candidate.generated_atoms) != set(request.generated_atoms)
+                    or set(candidate.generated_residues) != {r for gap in request.gaps for r in gap.generated_residues}):
+                raise DiffusionValidationError("staged candidate changed the request's generated mask")
+            from dvbfixer.model.diffusion.staged_runtime import (
+                DRIFT_GATES,
+                validate_staged_evidence,
+            )
+
+            evidence = StagedRefinementEvidence.from_json(_read_private_artifact(
+                root, reference, max_bytes=MAX_REFINEMENT_EVIDENCE_BYTES).decode("utf-8"))
+            if evidence.report is not None:
+                _read_private_artifact(root, evidence.report, max_bytes=MAX_REFINEMENT_REPORT_BYTES)
+            audit = validate_staged_evidence(request, evidence, source_text=source.text,
+                selected=candidate.coordinate_artifact, seed=candidate.seed,
+                load_text=lambda artifact: _load_structure(root, artifact.path, artifact.sha256).text)
+            waived = DRIFT_GATES if evidence.selected_stage == "generated-and-anchors" else frozenset()
+            failures = tuple(dict.fromkeys((
+                *(gate for gate in summary.hard_gate_failures if gate not in waived),
+                *audit.hard_gate_failures,
+            )))
+            summary = ValidationSummary(not failures, failures,
+                (*summary.metrics, *(metric for metric in audit.metrics
+                    if metric.name not in {item.name for item in summary.metrics})),
+                tuple(dict.fromkeys((*summary.warnings, *audit.warnings))))
         validations.append(
             CandidateValidation(
                 candidate=candidate,

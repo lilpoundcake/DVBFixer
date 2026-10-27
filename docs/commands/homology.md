@@ -45,7 +45,11 @@ zero-based half-open masks and earlier-template-wins ownership, maps logical
 target IDs such as `VH`/`VL` to distinct PDB chains, and records each covered
 residue's template owner in request and publication provenance. Covered residues
 whose amino-acid identity matches the target are fixed exactly; only uncovered
-regions admitted by the normal diffusion scope are generated. A covered
+regions admitted by the normal diffusion scope are generated. New mosaic requests
+also use [geometry-gated anchor repair](model.md#geometry-gated-refinement-and-observed-anchors):
+`--no-relax-anchors` disables observed-anchor release, and
+`--no-anchor-bfactor-weighting` selects uniform restraints. The original ownership
+and generated masks remain distinct from any released observed anchors. A covered
 substitution fails closed by default. With explicit
 `--diffusion-regenerate-covered`, substitutions and deletion boundaries regenerate
 bounded windows, expanding short windows to at least three residues and rejecting

@@ -128,6 +128,11 @@ rejection. See [minimize](minimize.md).
 ## Experimental modeling
 
 `--model-backend diffusion` requires an independently installed compatible runner.
+
+New diffusion model requests use [geometry-gated anchor repair](model.md#geometry-gated-refinement-and-observed-anchors).
+`--no-relax-anchors` keeps observed anchors fixed; `--no-anchor-bfactor-weighting`
+uses uniform anchor restraints. These independent switches are forwarded to the
+model step and are included in resume request matching.
 The full model bundle is retained even without `--keep-interim`. Only a verified,
 accepted ranked candidate is handed to prepare/minimize; rejected or corrupted
 bundles are not silently replaced by MODELLER results.

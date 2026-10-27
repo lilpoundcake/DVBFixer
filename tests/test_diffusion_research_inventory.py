@@ -711,7 +711,11 @@ def test_all_atom_hook_spikes_record_checkpoint_backed_control() -> None:
     assert boltz_gap["status"] == "passed-repeatable-with-localized-refinement"
     assert boltz_gap["atom_mapping_sha256"] == _sha256(BOLTZ_ATOM_MAPPING)
     assert boltz_gap["input_builder_sha256"] == _sha256(BOLTZ_INPUT_BUILDER)
-    assert boltz_gap["checkpoint_driver_sha256"] == _sha256(BOLTZ_CHECKPOINT_SMOKE)
+    assert boltz_gap["checkpoint_driver_current_sha256"] == _sha256(BOLTZ_CHECKPOINT_SMOKE)
+    # Preserve the executed historical driver's hash rather than relabeling old
+    # evidence after the raw/final diagnostic boundary changed.
+    assert boltz_gap["checkpoint_driver_sha256"] == "5444a97d61d0e1373827f4ace0c3db9d2a954f5a3614ce91f1cb8c199b2f8ab9"
+    assert boltz_gap["checkpoint_driver_current_sha256"] != boltz_gap["checkpoint_driver_sha256"]
     assert boltz_gap["refinement_driver_sha256"] == _sha256(BOLTZ_REFINEMENT_SMOKE)
     assert boltz_gap["callback_count"] == boltz_gap["diffusion_steps"] == 200
     assert boltz_gap["maximum_post_projection_error_angstrom"] == 0.0

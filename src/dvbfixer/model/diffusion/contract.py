@@ -1133,6 +1133,11 @@ class DiffusionRequest(_JsonContract):
         option_names = [option.name for option in self.backend_options]
         if len(option_names) != len(set(option_names)):
             raise DiffusionContractError("backend option names must be unique")
+        # Lazy import avoids a contract/policy initialization cycle. Validation
+        # does not insert defaults or mutate legacy serialized requests.
+        from dvbfixer.model.diffusion.refinement_policy import read_refinement_policy
+
+        read_refinement_policy(self.backend_options)
 
 
 @dataclass(frozen=True, slots=True)

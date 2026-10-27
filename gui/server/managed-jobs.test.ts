@@ -183,8 +183,8 @@ describe('managed DVBfixer jobs', () => {
       const out=process.argv[process.argv.indexOf('-o')+1]; fs.mkdirSync(out,{recursive:true});
       const references={};
       for(const label of ['pdb','dat','provenance','sampler_trace']) {
-        const name='ranked-first.'+label; fs.writeFileSync(path.join(out,name),label);
-        references[label]={path:name,sha256:crypto.createHash('sha256').update(label).digest('hex')};
+        const name='ranked-first.'+label, data=label==='provenance'?'{}':label; fs.writeFileSync(path.join(out,name),data);
+        references[label]={path:name,sha256:crypto.createHash('sha256').update(data).digest('hex')};
       }
       fs.writeFileSync(path.join(out,'bundle.json'),JSON.stringify({schema_version:2,status:${JSON.stringify(passed ? 'success' : 'validation_failed')},
         candidates:[{candidate_id:'ranked-first',validation_passed:${passed},...references}]}));

@@ -30,6 +30,7 @@ import { bestMatchingChainId, chainIdentityLabel, targetSequences } from '../lib
 import { residueClass, RESIDUE_CLASS_COLORS } from '../lib/residue-codes'
 import { apiFetch } from '../lib/api-client'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
+import { anchorRefinementNotices } from '../lib/tool-output'
 import {
   workflowToolbarSx as homologyToolbarSx, panelToolbarSx as projectToolbarSx,
   controlSx as toolbarControlSx, wideControlSx as targetSourceControlSx,
@@ -114,6 +115,8 @@ export function HomologyPanel() {
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [modelWarnings, setModelWarnings] = useState<string[]>([])
+  useEffect(() => { setModelWarnings([]) }, [project?.id])
   const [saved, setSaved] = useState(true)
   const [selection, setSelection] = useState<Record<string, TransientAlignmentSelection>>({})
   const [undo, setUndo] = useState<AlignmentGroup[][]>([])
@@ -596,12 +599,14 @@ export function HomologyPanel() {
     const backend = project.modelOptions['--backend'] === 'diffusion' ? 'diffusion' : 'modeller'
     setBusy(backend === 'diffusion' ? 'Running mosaic diffusion' : 'Running Modeller')
     setError('')
+    setModelWarnings([])
     setMessage('')
     try {
       const response = await apiFetch('/api/homology/model', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...project, workspaceId: activeWorkspace?.id }),
       })
-      const body = await response.json() as { error?: string; outputFile?: string; stderr?: string; modelStatus?: string }
+      const body = await response.json() as { error?: string; outputFile?: string; stdout?: string; stderr?: string; modelStatus?: string }
+      setModelWarnings(anchorRefinementNotices(body.stdout || '', body.stderr || ''))
       if (!response.ok) throw new Error(body.error || body.stderr || `HTTP ${response.status}`)
       setMessage(`${body.modelStatus && body.modelStatus !== 'success' ? 'Rejected candidate published' : 'Model complete'}: ${body.outputFile}`)
       await reloadWorkspace()
@@ -624,6 +629,8 @@ export function HomologyPanel() {
       delete options['--diffusion-context']
       delete options['--diffusion-regenerate-covered']
       delete options['--diffusion-edit-flanks']
+      delete options['--no-relax-anchors']
+      delete options['--no-anchor-bfactor-weighting']
     }
     update({ modelOptions: options })
   }
@@ -648,6 +655,9 @@ export function HomologyPanel() {
       </Tabs>
       <Box sx={{ flex: 1, overflow: 'auto', p: 1.5 }}>
         {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
+        {modelWarnings.length > 0 && <Alert severity="warning" sx={{ mb: 1 }}>
+          {modelWarnings.map(warning => <Typography variant="body2" key={warning}>{warning}</Typography>)}
+        </Alert>}
         {message && <Alert severity="success" sx={{ mb: 1 }}>{message}</Alert>}
         {busy && <Alert severity="info" icon={<CircularProgress size={16} />} sx={{ mb: 1 }}>{busy}</Alert>}
 
@@ -846,6 +856,18 @@ export function HomologyPanel() {
                 </FormControl>
                 <TextField sx={toolbarControlSx} size="small" type="number" label="Seed" value={project.modelOptions['--diffusion-seed'] ?? 7}
                   onChange={event => update({ modelOptions: { ...project.modelOptions, '--diffusion-seed': Number(event.target.value) } })} />
+                <FormControl size="small" sx={toolbarControlSx}><InputLabel>Anchor repair</InputLabel>
+                  <Select label="Anchor repair" value={project.modelOptions['--no-relax-anchors'] ? 'disabled' : 'enabled'}
+                    onChange={event => update({ modelOptions: { ...project.modelOptions, '--no-relax-anchors': event.target.value === 'disabled' } })}>
+                    <MenuItem value="enabled">Geometry-gated</MenuItem><MenuItem value="disabled">Keep anchors fixed</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl size="small" sx={toolbarControlSx}><InputLabel>Anchor restraints</InputLabel>
+                  <Select label="Anchor restraints" value={project.modelOptions['--no-anchor-bfactor-weighting'] ? 'uniform' : 'auto'}
+                    onChange={event => update({ modelOptions: { ...project.modelOptions, '--no-anchor-bfactor-weighting': event.target.value === 'uniform' } })}>
+                    <MenuItem value="auto">Experimental B / fallback</MenuItem><MenuItem value="uniform">Uniform</MenuItem>
+                  </Select>
+                </FormControl>
                 <FormControl size="small" sx={toolbarControlSx}><InputLabel>Protein context</InputLabel>
                   <Select label="Protein context" value={project.modelOptions['--diffusion-context'] ?? 'auto'}
                     onChange={event => update({ modelOptions: { ...project.modelOptions, '--diffusion-context': event.target.value } })}>
@@ -873,7 +895,7 @@ export function HomologyPanel() {
                 onClick={runModel} disabled={busy !== '' || !project.alignmentGroups.length}>Run {(project.modelOptions['--backend'] ?? 'modeller') === 'diffusion' ? 'Diffusion' : 'Modeller'}</Button>
             </Box>
             <Typography variant="caption" color="text.secondary">
-              Selected spans are assembled from the fitted structures into one coordinate-preserving mosaic template. At overlapping columns, the earlier template in the Templates tab has precedence. Diffusion keeps covered matching residues fixed and generates only admitted uncovered regions; it never falls back to Modeller. Corrected Protpardelle on CUDA or Apple MPS uses source-only local context for one CYS-free internal gap of 5–10 residues (at most 512 source residues); Apple refinement runs on CPU. Explicit full/none context is rejected, not silently changed. Existing legacy Apple profiles retain their historical behavior.
+              Selected spans form one fitted mosaic; earlier templates win overlaps. Diffusion generates only admitted regions and never falls back to Modeller. Clean geometry skips minimization. If generated-only repair fails, geometry-gated repair may release problematic immediate anchors: backbone RMSD ≤0.5 Å, Cα ≤0.5 Å and every heavy atom ≤1.25 Å. Modified anchors and measured movements appear in the run log and validation report. Experimental B factors weight restraints only; unknown provenance uses uniform fallback. Corrected Protpardelle CUDA/MPS uses source-only local context for one CYS-free internal gap of 5–10 residues (at most 512 source residues); Apple refinement runs on CPU. Explicit full/none context is rejected. Frozen legacy requests retain historical behavior.
             </Typography>
           </Box>
         )}

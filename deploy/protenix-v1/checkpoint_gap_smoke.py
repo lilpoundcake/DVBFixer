@@ -571,7 +571,7 @@ def run(
         ),
         resource_metrics=resource_metrics,
     )
-    validation = validate_runner_result(request, runner_result, workspace=workspace)[0]
+    validation = validate_runner_result(request, runner_result, workspace=workspace, phase="raw")[0]
     summary = {
         "candidate_sha256": candidate.coordinate_artifact.sha256,
         "ablation_mode": ablation_mode.value,

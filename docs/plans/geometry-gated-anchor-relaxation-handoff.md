@@ -1,0 +1,467 @@
+# Geometry-gated anchor relaxation: headless handoff
+
+Prepared: 2026-10-27. Status: experimental end-to-end software integration implemented.
+Working branch: `research/9cqd-anchor-relaxation`.
+
+Current status: approved limits are committed/pushed as `b6df92d`. Follow-on
+changes complete request policy validation, artifact evidence, geometry-gated
+runner execution, independent public validation, publication/resume and
+CLI/ZBS/Homology/GUI routing. Native 9CQD CPU replays pass public validation and
+resume with the approved bounds; see [integration verification](../research/staged-anchor-integration-v1.md).
+Earlier progress entries below are historical snapshots, not remaining software
+blockers. Wider scientific calibration and target-GPU acceptance are follow-up,
+not experimentally established claims of this integration.
+
+This is an execution handoff, not a claim that the feature is shipped. Track
+completion in the [canonical checklist](implementation-checklist.md#geometry-gated-anchor-relaxation).
+See the [B-factor study](../research/9cqd-bfactor-anchor-restraints.md) and
+[earlier factorial experiment](../research/cc89-lrd-ablation-9cqd.md) for evidence.
+
+## Real-complex follow-up work packages
+
+Recorded 2026-10-27 after the
+[15-gap pre-anchor benchmark](../research/protein-complex-pre-anchor-benchmark-v1.md).
+All items below remain open. Merging the software is not scientific acceptance
+of the unexecuted alternatives or timed-out cases. Track completion in the
+[canonical checklist](implementation-checklist.md#return-to-the-real-complex-findings).
+
+### 1BRS: incomplete context, not failed reconstruction
+
+- Explicitly test the shipped independent/sparse-context path on D:64–65 with
+  observed GLN D:58 missing OE1/NE2. Confirm its N/CA/C/O backbone is complete.
+- Do not invent conditioning coordinates for the absent atoms. A source-completed
+  control, if needed, must be separately named and provenance-bound, not substituted
+  for the unchanged experimental input.
+- Acceptance: record context admission, raw geometry and actual generated-only
+  output; all observed source records remain exact. Keep the original single-gap
+  refusal and the 2-residue length-extrapolation caveat visible.
+
+### 1GC1: residual generated-loop conformation
+
+- Investigate generated SER G:398: raw phi/psi 171.0°/−15.2°, after generated-only
+  159.7°/−80.1°. Junctions/clashes improved, but gross Ramachandran failure remains.
+- Compare a preregistered seed panel or fixed-anchor conformational search with
+  the saved original raw/failed stage-1 coordinates. Keep all outcomes, not only
+  the best result; use no unknown reference coordinates for selection.
+- Acceptance: full local geometry, all-L, clashes and exact observed-record
+  preservation, not C–N distances alone. Do not relax gates to pass this case.
+  Current problematic-anchor eligibility is empty: observed G:396/G:410 must not
+  be released solely because generated G:398 is bad.
+
+### 1HE8: long-gap resource limits
+
+- Profile A:322–352 (31 residues) and A:528–619 (92 residues): separate temporary
+  topology completion/H placement, minimization and audit time before choosing
+  a new bounded CPU/GPU budget or optimization.
+- Preserve the 240 s timeouts and the raw findings (18 and 85 clashes; the
+  92-residue case also has a bad junction). A timeout is neither a geometric
+  PASS/FAIL after refinement nor typed numerical evidence for anchor escalation.
+- Acceptance: a new declared run records terminal status, time/memory, actual
+  stage-1 coordinates if produced, geometry and source preservation. Do not
+  silently change the old budget or generalize success to all long gaps.
+
+### Live raw/final adapter acceptance
+
+- Execute a small native MPS sampling-to-publication/resume workflow after the
+  `phase="raw"` adapter fix, including a deliberately geometry-failing raw
+  diagnostic and a clean/no-op control where feasible.
+- Acceptance: raw diagnostics do not require future refinement evidence; final
+  validation still requires it. Preserve the actual returned sampler trace,
+  resource/probe result and source-position provenance without reconstruction.
+- Label this as a new protocol/run, not a replacement for the 14 completed neural
+  outputs whose post-sampling bookkeeping failed. Their archival recovery remains
+  valid geometry evidence, but does not provide this complete live-profile proof.
+
+For every work package, freeze inputs, seeds, settings and budgets before new
+outcomes; retain the original negatives. Approved anchor movement limits remain
+0.5 Å backbone RMSD / 0.5 Å Cα / 1.25 Å maximum heavy displacement. Wider B-policy
+calibration and removed-heterogen limitations remain separate research boundaries.
+
+## Execution progress
+
+Started 2026-10-27 on the research branch. Implemented initial pure
+`anchor_policy.py` (provenance/fallback, bounded chain-B weights, explicit
+per-anchor movement bounds), `refinement_stages.py`
+(typed geometry/admission outcomes and default-enabled raw-based escalation),
+and an explicit `observed_anchor_restraints` argument in the scientific refiner.
+The generated-only default of the existing low-level refiner is preserved.
+
+The staged controller uses injected independent assessment/minimization functions;
+it does not authorize publication of observed-atom movement. Its stage-2 results
+explicitly require a separate anchor acceptance contract. Production finding
+adapters, versioned acceptance, runner/CLI/GUI wiring, final movement notices and
+calibrated limits remain unfinished. Do not treat these helpers as a shipped
+default change.
+
+Pure-policy/controller, force/units, and existing runner/validator/contract/pipeline
+tests pass (108 in the updated narrow set). The full fast-lane snapshot passed
+1506 tests with two optional-dependency skips; subsequent movement-bound tests
+were covered in the updated narrow set. The lightweight CI selection passes
+391 tests with 61 expected skips while OpenMM/PDBFixer imports are deliberately
+blocked. The two new pure test files are included in that CI lane.
+The experimental minimum of eight complete chain
+backbone samples is an engineering pilot setting, not an accepted scientific
+threshold. The new formula has been replayed with uniform controls and automatic
+selection of problematic anchors using
+`scripts/run_cc89_staged_anchor_pilot.py`. All four outputs pass tested geometry
+but still fail the historical source-drift contract. Off selects W29 only;
+on selects W25/W29. X anchors and every other unselected source record remain
+unchanged. Every attempt is bound to the original raw digest. Detailed results
+are in the B-factor study. All outputs remain research-only; the new B formula
+has no consistent advantage over uniform restraints.
+
+### Independent acceptance-audit progress
+
+Core commit `31a5cdb` was pushed to `origin/research/9cqd-anchor-relaxation`.
+Subsequent work adds `anchor_acceptance.py`: a separately versioned research
+auditor that recomputes stage-1 anchor eligibility, checks raw-input bindings,
+retains the historical strict summary, checks all observed records and auxiliary
+metadata, inspects outer junctions even without topology-inferred bonds, and
+requires explicit per-anchor movement bounds. It never grants production
+publication qualification. Source-preexisting findings alone cannot authorize
+anchor movement. There are no implicit numeric acceptance defaults.
+
+On the four saved 9CQD stage-2 outputs, explicit research bounds 0.5 Å backbone /
+1.0 Å heavy maximum pass 3/4; 0.6/1.25 Å pass 4/4. These are sensitivity checks,
+not calibrated acceptance limits. The uniform reinjection-on case exceeds 1 Å
+maximum displacement. Full evidence is retained in separate `*-audit-*-v2`
+directories under `test/errors_diffusion/` and described in the research note.
+
+New regression tests cover independent eligibility, clean-raw/stage-1 escalation
+refusal, raw digest binding, unselected movement below old tolerances, B/auxiliary
+metadata, outer junctions and per-anchor bounds (120 tests in the combined narrow
+set). Two additional 1UBQ controls restore a declared synthetic gap to native
+coordinates and verify zero minimizer calls with experimental or absent method
+headers. These are no-op controls, not diffusion accuracy/calibration results.
+Production evidence schema, source-motion policy, runner/CLI/GUI wiring and
+broader numerical-bound qualification remain pending. Typed numerical-failure
+recovery has since been added in the working changes described below.
+
+Verification after the independent auditor: full fast-lane snapshot 1520 passed,
+two optional-dependency skips, 31 slow tests deselected. The two native 1UBQ
+controls added after that collection separately pass. Ruff, local documentation
+links/Markdown and agent documentation maps pass. CI currently triggers on main
+pushes or pull requests, not research-branch pushes alone.
+
+## Start here
+
+Latest progress: commit `ffcdb89` (independent auditor and 1UBQ controls) is pushed
+to the research branch. The subsequent
+[eight-case corrected replay](../research/anchor-repair-corrected-cohort-v1.md)
+finishes with 5 raw/no-op selections and 3 generated-only repairs, zero anchor
+motion and zero execution errors. It adds no anchor-drift calibration evidence.
+Normalization strips experimental headers even from the tracked protein copies;
+verified entry metadata plus observed-atom/B matching is required to recover
+provenance instead of guessing from numerical B values.
+
+Further working changes introduce `BoundaryNumericalError` (also catchable as
+the existing `BoundaryRefinementError`) and bounded raw-bound numerical-failure
+evidence. The controller may escalate after an execution failure only for this
+explicit numerical class, never a generic RuntimeError/ValueError or a matching
+error-message string. Audit revision v2 supports missing stage-1 coordinates only
+with valid numerical evidence, recomputes eligibility from raw, and retains all
+normal bounds/identity/geometry checks. Contradictory failure/coordinate evidence
+is rejected. These changes are tested independently of actual cohort outcomes;
+none of the eight replay cases had a numerical failure. Production integration
+and broader motion-bound calibration are still pending.
+
+Latest verification: 1536 fast tests pass with two optional skips and 31 slow
+tests deselected; the lightweight no-OpenMM/PDBFixer CI selection passes 394 tests
+with 61 expected skips. Ruff and documentation checks pass. Subsequent replay and
+typed-failure changes are still working-tree changes after pushed `ffcdb89`.
+
+1. Read repository `AGENTS.md`, inspect git status and current branch.
+2. Preserve existing user/research changes. This session's research scripts,
+   results and documentation may still be uncommitted. Do not assume a clean
+   checkout or replace it with main and lose this work.
+3. Continue on a dedicated branch based on main; never implement directly on main.
+4. Inspect current code and deployed profile/source hashes before editing.
+5. Implement and verify the requirements below. This document does not authorize
+   a main merge, release/version bump or publication of ignored local directories.
+
+## User-approved behavior
+
+- Geometry determines whether any repair is needed. A geometrically acceptable
+  candidate receives no coordinate-changing relaxation.
+- Stage 1 relaxes generated atoms only; observed heavy atoms remain fixed.
+- If relevant geometry remains defective, stage 2 relaxes generated atoms plus
+  explicitly selected problematic immediate observed anchors.
+- **Stage 2 starts from the original raw generation candidate, never stage-1
+  coordinates.** Only diagnostics and mask selection may flow from stage 1.
+- **Stage 2 is enabled by default.** The user can disable it; proposed CLI spelling
+  is `--no-relax-anchors`. Do not accidentally implement an opt-in default.
+- B factors, when suitable, determine positional restraint strength, not whether
+  there is a geometric defect or which observed atoms count as generated.
+- Emit visible notifications identifying every relaxed anchor and its movement.
+- Do not weaken scientific geometry gates or silently change source identities.
+
+## Relevant code and artifacts
+
+Scientific entry points to inspect:
+
+- `src/dvbfixer/model/diffusion/boundary_refinement.py`: existing v8 minimizer.
+- `src/dvbfixer/model/diffusion/contract.py`, `validate.py`, `quality.py`,
+  `scope.py`, `protein_context.py`: contracts, geometry and context identities.
+- `src/dvbfixer/model/diffusion/pipeline.py`, `runner_refinement.py`,
+  `provenance.py`, `publication.py`: orchestration, custody and publication.
+- `src/dvbfixer/model/diffusion_cli.py`, model CLI, ZBS, Homology and GUI routing.
+- `deploy/protpardelle-1c/` and other runners that delegate refinement: profile
+  revisions, pinned hashes and replay contracts must remain internally consistent.
+
+Existing research-only code, not production integration:
+
+- [Restraint experiment](../../scripts/cc89_anchor_restraints.py).
+- [Narrow tests](../../tests/test_cc89_anchor_restraints.py).
+- [Visual exporter](../../scripts/export_cc89_anchor_review.py).
+- [Candidate-bound summary](../research/9cqd-anchor-restraints-seed7-v1.tsv).
+
+Ignored local evidence, if present:
+
+```text
+test/errors_diffusion/9cqd-lrd-factorial-seed7-fixed-frame/
+test/errors_diffusion/9cqd-anchor-restraints-seed7-v1/
+test/errors_diffusion/9cqd-anchor-restraints-visual-review-v1/
+```
+
+Tracked source: `tests/fixtures/protein_context/9cqd_split.pdb`, SHA-256
+`6bcc9638c3d299ea12151c3894b7e6c3482ebd2fdfe1d8e54dcc1f6f6316a281`.
+Ordinary CI must not depend on ignored local results. Do not add generated PDBs
+to source fixtures unless explicitly needed as reviewed golden outputs.
+
+## Evidence versus assumptions
+
+9CQD is a 3.10 Å X-ray structure. Source anchor backbone B means are W25 88.725,
+W29 89.9875, X139 97.325 and X142 94.0025 Å². Medians over residue-mean backbone
+B are W 74.7925 and X 67.4175 Å².
+
+Twelve paired seed-7 minimizations were completed: reinjection off/on crossed
+with fixed, free, uniform 1000, B-weighted 1000, uniform 10000 and B-weighted
+10000. Both fixed controls failed geometry; all ten mobile-anchor candidates
+passed tested geometry but failed the existing exact-source contract.
+Uniform k=10000 yielded combined W-aligned anchor backbone RMSD 0.2379/0.2324 Å,
+maximum original-frame anchor heavy displacement 0.8240/0.8838 Å. B weighting
+showed no consistent benefit. These are not missing-loop accuracy measurements.
+
+The proposed chain-normalized B formula below is different from the experiment's
+equal-mean-over-anchor-atoms normalization. **It is untested.** One source/seed
+does not establish general B cutoffs, safe drift limits or experimental accuracy.
+
+## Required state machine
+
+Retain immutable raw bytes/digest and source bindings for every candidate.
+
+1. Classify independent findings. Identity/completeness, unsupported chemistry,
+   metadata and other nongeometric failures must not be disguised as repairable
+   geometry errors. Always retain final full validation.
+2. If no actionable generated/junction geometry error exists, preserve coordinates
+   and proceed through the normal independent publication checks.
+3. Run stage 1 from raw with generated-only mobility. Assess the resulting geometry.
+4. If stage 1 passes acceptance, select it and stop.
+5. If residual findings justify specific immediate anchors and stage 2 is enabled,
+   run stage 2 independently from RAW with the enlarged explicit mask.
+6. Publish only a candidate passing the applicable complete acceptance contract.
+   If stage 2 fails geometry or movement bounds, retain evidence and reject.
+
+For a stage-1 numerical exception, retain a typed failure. If raw diagnostics
+justify a repair mask, stage 2 may use that evidence; otherwise fail closed.
+Do not release all anchors just because stage 1 crashed. An execution failure,
+a geometry failure and a validation failure are distinct report outcomes.
+
+## Problematic anchor selection
+
+Reuse existing geometry detectors and numerical thresholds. Findings must expose
+affected atom/residue identities, including both partners of junctions/clashes.
+
+- Junction connectivity/angle/planarity defects identify the corresponding flank.
+- Relevant anchor backbone/Ramachandran defects or severe generated-to-immediate-
+  anchor overlaps can justify releasing that anchor.
+- Internal generated-only defects alone do not justify observed-atom motion.
+- Do not automatically release distant observed clash partners or both ends of
+  every gap. Inventory unrelated pre-existing source defects separately.
+- Preserve the existing chirality invariant; never relax an observed D centre as
+  a way to bypass a source-admission failure.
+- Distinguish actionable errors from warnings, preserving amide-planarity's actual
+  hard-gate semantics even if a diagnostic finding has warning severity.
+
+Use case-sensitive `(chain, resid, icode)` identities and atom names. Terminal
+gaps have only their existing flank. Deduplicate shared anchors. Explicitly resolve
+overlapping repair masks/ownership before combining coordinates; no independent
+last-writer-wins repairs of a shared anchor. Joint diffusion generation remains
+deferred and is not part of this task.
+
+## Scientific restraint API
+
+Replace research monkeypatching with an explicit minimizer API distinguishing:
+
+- original generated identities;
+- authorized mobile observed anchors/atoms;
+- restraint centres, coefficients and their source provenance.
+
+Re-resolve atom indices against the final OpenMM topology after atom/H rebuilding.
+Keep all unselected observed heavy atoms fixed. Do not silently release an entire
+residue when only particular atoms were authorized. Preserve original generated
+mask semantics in validation and provenance.
+
+The restraint is harmonic, not a hard distance constraint:
+
+`E_i = 0.5 * k_i * |x_i - x_source_i|^2`
+
+Centres are the original experimental coordinates, never a stage-1 result or an
+earlier relaxed position. OpenMM coordinates are nm; k is kJ mol⁻¹ nm⁻².
+
+### Proposed B weighting to test
+
+```text
+B_r   = mean(original observed B_N, B_CA, B_C, B_O for anchor residue r)
+B_ref = median(per-residue observed backbone mean B in the same source chain)
+k_r   = k0 * clip(B_ref / B_r, 0.5, 2.0)
+k0    = 10000 kJ mol^-1 nm^-2 as the initial candidate setting
+```
+
+Apply one residue coefficient to its authorized observed heavy atoms. Generated
+atoms have no source-coordinate restraint. Uniform fallback is k0. Calculate chain
+reference distributions before mask selection; do not renormalize only over
+released anchors, since a single released anchor would lose all B dependence.
+
+This is bounded regularization, not an ADP-derived coordinate uncertainty model.
+No universal absolute B threshold, no direct B/(8*pi²)-to-drift-radius conversion,
+and no thermodynamic force-constant estimate from diffraction temperature.
+Harmonic restraints alone do not guarantee a maximum displacement.
+
+### Provenance and fallback
+
+A numeric B column is insufficient. Distinguish experimental ADPs from pLDDT,
+other confidence scores and generated placeholders; use only original observed
+atoms in reference statistics. Do not infer provenance from numerical magnitude.
+
+Define and test deterministic handling of missing method/provenance, nonfinite
+or nonpositive values, incomplete backbone, alternate states, constant placeholder
+distributions, small chains and mixed valid/invalid anchors. Use uniform fallback
+with an explicit reason where B evidence is unusable. Exact minimum-population
+criteria are not yet approved. Provide an explicit way to disable/override B
+interpretation without conflating it with disabling anchor motion.
+
+Per-chain statistics can mix domains/TLS motion. Document that limitation rather
+than inventing domain segmentation in this first implementation.
+
+## Acceptance and default-change safety
+
+After pushed `b6df92d`, request-contract work adds `refinement_policy.py`:
+explicit `geometry_refinement.*` backend options bind revision
+`geometry-gated-anchors-v1`, the approved limits and independent anchor/B
+switches. Missing options retain legacy semantics and byte-for-byte request
+serialization. Partial, duplicate, unknown-version/key or noncanonical switch
+values fail contract construction. New CLI and Homology requests emit this policy;
+frozen requests do not acquire it implicitly.
+
+`refinement_evidence.py` adds a bounded, strict custody record binding the
+canonical `request.to_json()` digest, raw, stage-1 and selected artifacts. Both stage inputs must
+match raw; typed numerical failure may replace stage-1 coordinates, never
+accompany them. Raw no-op and generated-only records have separate invariants.
+Unknown fields, duplicate JSON keys, unsafe artifact paths, missing revision and
+oversized input fail closed. These records alone confer NO publication authority;
+`staged_runtime.py` and the public validator independently recompute acceptance.
+Bundles retain raw/stage1/evidence plus a digest-bound diagnostic report with
+effective B/restraint coefficients; resume revalidates them. Per-seed request
+digests must match a parent-derived subrequest before publication rebinds paths
+and the full parent request digest. The research auditor remains non-authorizing.
+
+User approval on 2026-10-27 establishes the engineering defaults: per-anchor
+N/CA/C/O RMSD <=0.5 Å, Cα displacement <=0.5 Å and maximum heavy displacement
+<=1.25 Å, all in the original source frame without alignment. All three must
+pass; B weighting never enlarges them. `AnchorMovementLimits` and independent
+audit revision v3 implement these defaults. Historical reports retain their
+original explicit limits. These bounds are not calibrated experimental errors.
+
+Default-enabled anchor relaxation changes coordinate-preservation semantics.
+Introduce an explicit versioned mobility policy and validation/provenance record;
+do not silently weaken the historical strict contract for every candidate.
+
+- Keep original generated atoms and selected observed anchors distinct.
+- Unselected observed records remain exact, allowing only the existing internal
+  platform tolerance before source-preserving PDB materialization.
+- Enforce per-anchor backbone RMSD, Cα and maximum heavy-displacement limits relative to
+  source coordinates. Do not dilute movement over the entire complex.
+- Numeric drift bounds are approved engineering defaults; broader scientific
+  calibration remains open. Do not derive larger limits from B.
+- Check generated regions, released anchors, outer junctions and clashes against
+  the rest of the complex; perform final cross-gap checks after merging.
+- Preserve all-L, atom identity/completeness, retained-link and metadata gates.
+- Kabsch metrics are explanatory; original-frame movement governs preservation.
+  No independent chain fits that conceal interchain movement.
+- Source B values remain inherited metadata, not newly calculated uncertainty.
+
+The choice of numerical defaults is no longer a blocker. Versioned public
+validation and workflow integration are implemented. Do not ship unbounded
+source motion or replace default-enabled repair with opt-in.
+
+## Notifications and workflow integration
+
+Thread the default-enabled policy and negative option through diffusion model,
+ZBS, batch/resume, Homology and GUI without changing unrelated MODELLER or prep
+workflows. Include settings in request digests and resume compatibility.
+
+On escalation emit a visible WARNING with the reason and exact selected anchor
+IDs. After selecting stage 2, emit a visible WARNING listing relaxed anchors,
+actual backbone RMSD/max heavy movement and effective restraint policy. Distinguish
+attempted relaxation from the selected output's actual coordinate changes.
+Preserve fd-level CLI capture/diagnostic summaries; GUI notice must not be hidden
+only in raw logs. Clean unchanged runs should not emit an empty warning banner.
+
+Structured reports must retain raw digest, selected stage, each attempt's input
+binding, trigger findings, anchor identities, B/reference/fallback, effective k,
+source bindings, movement metrics and independent gate outcomes. Keep bounded
+runner reports and historical compatibility; do not bypass profile digest checks.
+
+## Work packages
+
+1. Inspect current implementation, working changes, runner boundaries and CI.
+2. Add pure B-policy, finding-classification and identity-mask helpers/tests.
+3. Extend the scientific refiner for authorized anchor mobility/restraints.
+4. Add raw-based two-stage orchestration and independent acceptance policies.
+5. Update versioned contracts, provenance, runner/profile custody and resume.
+6. Add CLI/GUI routing, defaults, opt-out and visible notifications.
+7. Compare the NEW chain-B formula with uniform on paired raw candidates.
+8. Expand the cohort and calibrate movement bounds before production qualification.
+9. Update user docs, scientific limitations and generated help/schema artifacts.
+
+## Verification requirements
+
+Unit/integration coverage must prove:
+
+- Clean geometry means no refiner call or coordinate change.
+- Stage-1 success prevents stage 2; default/negative-option routing is correct.
+- Stage 2 gets byte/digest-identical raw input, not stage-1 coordinates.
+- Only justified immediate anchors move; terminal/shared/overlapping masks,
+  insertion codes and case-distinct chains retain correct identity.
+- B means/reference/clipping, fallback/provenance and single-anchor weighting work.
+- Correct units: k=1000 and displacement 1 Å gives 5 kJ/mol positional energy.
+- Topology rebuilds cannot shift restraint selection; centres remain original.
+- Outside-mask records are preserved, all-L holds and excessive drift or new outer
+  defects reject publication. Failure/cancellation evidence is retained.
+- Resume/digests reject incompatible mobility policies; old strict requests are
+  not silently accepted under a new source-motion exception.
+
+Start scientific replay with 9CQD off/on raw candidates, clean-geometry controls,
+fixed/free/uniform and new chain-B arms. Preserve old evidence; use new directories.
+Broaden to low-B/high-confidence, absent/invalid-B, different resolutions, terminal
+gaps and coupled repair neighborhoods. Never select seeds by reference RMSD.
+Record geometry, source motion and experimental agreement separately. If density
+is not evaluated, say so. No cross-platform bit-identical coordinate claims.
+
+Always use `--no-solvent` on dev minimize/ZBS commands. For direct refiner calls,
+create no solvent. Run narrow tests first, then the appropriate fast/full lane
+when available. Follow AGENTS.md for Ruff, strict mypy, agent docs, GUI tests,
+fixtures/provenance/checksums and scientific invariants. Lightweight CI must not
+import OpenMM merely to inspect pure policy/registry labels.
+
+Regenerate CLI reference after argparse changes; never hand-edit generated
+reference pages. Regenerate/check GUI schemas and routing outputs as required.
+
+## Completion report
+
+Tell the user what is implemented versus research-only, exact default/opt-out,
+geometry triggers, B policy/fallback, calibrated bounds, test results and blockers.
+Provide paired output/motif paths, original-frame and shared-frame aligned views,
+per-anchor metrics and failed-attempt evidence. A geometry pass is neither
+experimental accuracy nor exact source preservation.

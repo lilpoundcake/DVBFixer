@@ -1507,7 +1507,7 @@ def _run_staged(
         ),
         resource_metrics=resource_metrics,
     )
-    validation = validate_runner_result(request, result, workspace=workspace)[0]
+    validation = validate_runner_result(request, result, workspace=workspace, phase="raw")[0]
     quality_summary: dict[str, float | None] = {
         "gap_backbone_rmsd_angstrom": None,
         "gap_all_heavy_rmsd_angstrom": None,

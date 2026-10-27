@@ -123,6 +123,19 @@ describe('homology project materialization', () => {
     }
   })
 
+  it('routes independent anchor-repair and B-weighting opt-outs as booleans', () => {
+    expect(validatedModelArgs({ '--backend': 'diffusion', '--no-relax-anchors': true, '--no-anchor-bfactor-weighting': true })).toEqual([
+      '--backend', 'diffusion', '--diffusion-seed', '7', '--no-relax-anchors', '--no-anchor-bfactor-weighting',
+    ])
+    expect(validatedModelArgs({ '--backend': 'diffusion', '--no-relax-anchors': false })).toEqual([
+      '--backend', 'diffusion', '--diffusion-seed', '7',
+    ])
+    for (const flag of ['--no-relax-anchors', '--no-anchor-bfactor-weighting']) {
+      expect(() => validatedModelArgs({ '--backend': 'diffusion', [flag]: 'true' })).toThrow(/must be boolean/)
+      expect(() => validatedModelArgs({ [flag]: false })).toThrow(/require --backend diffusion/)
+    }
+  })
+
   it('extracts target sequences from PDB SEQRES and mmCIF atom_site records', () => {
     const root = temporaryDirectory()
     const pdb = path.join(root, 'target.pdb')

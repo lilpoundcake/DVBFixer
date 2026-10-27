@@ -23,6 +23,10 @@ See the [experiment plan](../plans/cc89-local-refinement-ablation.md) and
 of nearby gaps is **deferred at user request** until a suitable test structure
 is available; it is not part of this experiment.
 
+Follow-up: [B factors and restrained anchor relaxation](9cqd-bfactor-anchor-restraints.md)
+records the source B-factor distribution, literature limitations and a frozen
+paired uniform-versus-B-weighted positional-restraint experiment without LRD.
+
 ## Inputs and implementation
 
 - Original PDB SHA-256:
