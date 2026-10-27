@@ -302,7 +302,9 @@ trusting a runner-provided mobile mask. It preserves the historical strict
 validation result and applies explicit caller-supplied per-anchor bounds in a
 separate research summary. All reports retain `publication_qualified=false`.
 This is not a replacement for runner trace validation or a shipped public
-mobility contract. Typed stage-1 numerical-failure evidence remains future work.
+mobility contract. A subsequent audit revision v2 adds bounded typed stage-1
+numerical-failure evidence; those paths are unit-tested, not exercised by the
+completed-coordinate 9CQD audits recorded in this section.
 
 Checks include source SHA binding, both stage input digests matching raw, clean
 raw/stage-1 rejection of unnecessary escalation, unchanged observed stage-1 records,
@@ -348,3 +350,9 @@ The subsequent full fast-lane snapshot passed 1520 tests with two optional skips
 and 31 slow tests deselected; the two 1UBQ controls added after collection also
 pass separately. Ruff and documentation checks pass. These local results are
 not represented as a completed remote research-branch CI run.
+
+Follow-up: the [corrected eight-case replay](anchor-repair-corrected-cohort-v1.md)
+avoids minimization on five clean raw candidates and repairs three with generated-
+only mobility. No anchors move, so it adds no evidence for selecting drift limits
+or preferring B weighting. It also records the need to carry experimental method
+provenance through normalized PDBs that omit EXPDTA.

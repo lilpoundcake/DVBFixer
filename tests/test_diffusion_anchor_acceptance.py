@@ -22,6 +22,7 @@ from dvbfixer.model.diffusion.contract import (
     SequencePlacement,
     TargetSequence,
 )
+from dvbfixer.model.diffusion.refinement_stages import NumericalFailureEvidence
 from tests.test_diffusion_validate import _request, _source_and_candidate
 
 
@@ -122,6 +123,40 @@ def test_experimental_auxiliary_records_keep_exact_case_and_insertion_identity()
 def test_source_digest_is_independently_verified():
     with pytest.raises(DiffusionContractError, match="source digest mismatch"):
         audit_staged_anchor_repair(**(evidence() | {"source_text": "REMARK changed\n" + evidence()["source_text"]}))
+
+
+def test_typed_numerical_failure_uses_independent_raw_geometry_eligibility():
+    values = evidence()
+    failure = NumericalFailureEvidence(values["stage1_input_sha256"], "BoundaryNumericalError", "No finite all-L minimum")
+    audit = audit_staged_anchor_repair(**(values | {"stage1_text": None, "stage1_failure": failure}))
+    assert audit.summary.passed, audit.summary.hard_gate_failures
+    assert ResidueIdentity("C", "70") in audit.authorized_anchors
+    assert audit.stage1_sha256 is None and audit.stage1_failure == failure
+    assert not audit.publication_qualified
+
+
+def test_missing_or_misbound_failure_evidence_does_not_authorize_recovery():
+    values = evidence() | {"stage1_text": None}
+    missing = audit_staged_anchor_repair(**values)
+    assert "anchor-repair-stage1-failure-evidence-missing" in missing.summary.hard_gate_failures
+    wrong = NumericalFailureEvidence("0" * 64, "NumericalRefinementError", "No finite minimum")
+    audit = audit_staged_anchor_repair(**(values | {"stage1_failure": wrong}))
+    assert "anchor-repair-stage1-failure-input-mismatch" in audit.summary.hard_gate_failures
+
+
+def test_failure_and_stage_one_coordinates_are_mutually_exclusive():
+    values = evidence()
+    failure = NumericalFailureEvidence(values["stage1_input_sha256"], "BoundaryNumericalError", "No finite minimum")
+    with pytest.raises(DiffusionContractError, match="both coordinates and numerical failure"):
+        audit_staged_anchor_repair(**(values | {"stage1_failure": failure}))
+
+
+@pytest.mark.parametrize("kwargs", [{"error_type": "ValueError"}, {"message": "x" * 2049},
+    {"input_sha256": "x" * 64}, {"revision": 2}])
+def test_failure_evidence_is_bounded_and_rejects_unclassified_errors(kwargs):
+    defaults = {"input_sha256": "0" * 64, "error_type": "BoundaryNumericalError", "message": "No finite minimum"}
+    with pytest.raises(ValueError):
+        NumericalFailureEvidence(**(defaults | kwargs))
 
 
 def test_outer_anchor_junction_is_explicitly_checked_even_beyond_generated_region():

@@ -11,7 +11,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
 
-from dvbfixer.model.diffusion.anchor_policy import AnchorPositionRestraint, build_anchor_restraints
+from dvbfixer.model.diffusion.anchor_policy import (
+    AnchorPositionRestraint,
+    NumericalRefinementError,
+    build_anchor_restraints,
+)
 from dvbfixer.model.diffusion.contract import DiffusionRequest, ResidueIdentity
 
 
@@ -41,6 +45,28 @@ class RepairAttempt:
     assessment: RepairAssessment | None
     restraints: tuple[AnchorPositionRestraint, ...] = ()
     error: str | None = None
+    failure_kind: Literal["numerical", "unclassified"] | None = None
+    numerical_failure: NumericalFailureEvidence | None = None
+
+
+@dataclass(frozen=True)
+class NumericalFailureEvidence:
+    """Bounded stage-1 failure provenance; eligibility is still recomputed from raw."""
+
+    input_sha256: str
+    error_type: str
+    message: str
+    revision: int = 1
+
+    def __post_init__(self) -> None:
+        if type(self.revision) is not int or self.revision != 1:
+            raise ValueError("unsupported numerical failure evidence revision")
+        if not isinstance(self.input_sha256, str) or len(self.input_sha256) != 64 or any(c not in "0123456789abcdef" for c in self.input_sha256):
+            raise ValueError("numerical failure evidence needs a lowercase SHA-256")
+        if not isinstance(self.error_type, str) or self.error_type not in {"NumericalRefinementError", "BoundaryNumericalError"}:
+            raise ValueError("unclassified failures cannot authorize numerical recovery")
+        if not isinstance(self.message, str) or not self.message or len(self.message) > 2048:
+            raise ValueError("numerical failure message must be nonempty and bounded")
 
 
 @dataclass(frozen=True)
@@ -90,8 +116,9 @@ def run_refinement_stages(
     junctions and all-L, and retain all affected residue identities. The caller
     must run full independent acceptance before publishing any selected output.
     Stage 2 requires a separate anchor acceptance contract even on geometry pass.
-    RuntimeError/ValueError are retained as attempt failures; programming errors,
-    interrupts and cancellation propagate instead of silently triggering repair.
+    RuntimeError/ValueError are retained as attempt failures, but only an explicit
+    NumericalRefinementError can escalate after a failure. No message guessing.
+    Other programming errors, interrupts and cancellation propagate.
     """
     raw_digest = hashlib.sha256(raw_text.encode("ascii")).hexdigest()
     raw_assessment = assess(raw_text)
@@ -107,7 +134,13 @@ def run_refinement_stages(
             assessment = assess(text)
             result = RepairAttempt(stage, raw_digest, text, assessment, restraints)
         except (RuntimeError, ValueError) as exc:
-            result = RepairAttempt(stage, raw_digest, None, None, restraints, f"{type(exc).__name__}: {exc}")
+            kind = "numerical" if isinstance(exc, NumericalRefinementError) else "unclassified"
+            evidence = None
+            if kind == "numerical":
+                error_type = "BoundaryNumericalError" if type(exc).__name__ == "BoundaryNumericalError" else "NumericalRefinementError"
+                evidence = NumericalFailureEvidence(raw_digest, error_type, str(exc)[:2048] or "Numerical minimization failure")
+            result = RepairAttempt(stage, raw_digest, None, None, restraints,
+                                   f"{type(exc).__name__}: {exc}"[:2048], kind, evidence)
         attempts.append(result)
         return result
 
@@ -117,6 +150,8 @@ def run_refinement_stages(
             return StagedRepairResult(None, None, tuple(attempts))
         if first.assessment.geometry_passed:
             return StagedRepairResult(first.stage, first.output_text, tuple(attempts))
+    elif first.failure_kind != "numerical":
+        return StagedRepairResult(None, None, tuple(attempts))
     residual = first.assessment if first.assessment is not None else raw_assessment
     selected = problematic_anchors(request, residual)
     if not relax_anchors or not selected:

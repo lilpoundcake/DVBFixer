@@ -38,7 +38,7 @@ from dvbfixer.ffutils.geometry import (
     rebuild_missing_atoms_with_retry,
     repair_misplaced_hydrogens,
 )
-from dvbfixer.model.diffusion.anchor_policy import AnchorPositionRestraint
+from dvbfixer.model.diffusion.anchor_policy import AnchorPositionRestraint, NumericalRefinementError
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
 BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v8"
@@ -55,6 +55,10 @@ _FIXED_ATOM_INTERNAL_TOLERANCE_ANGSTROM = 1.0e-4
 
 class BoundaryRefinementError(RuntimeError):
     """Raised when localized refinement cannot preserve its hard invariants."""
+
+
+class BoundaryNumericalError(BoundaryRefinementError, NumericalRefinementError):
+    """No finite all-L minimum was found; eligible for typed numerical recovery."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -321,7 +325,7 @@ def refine_generated_region(
             if best_score == 0:
                 break
     if best_state is None:
-        raise BoundaryRefinementError("localized refinement found no finite all-L minimum after seeded retries")
+        raise BoundaryNumericalError("localized refinement found no finite all-L minimum after seeded retries")
     final_state = best_state
     refined_positions = final_state.getPositions()
     initial_energy = float(
@@ -331,7 +335,7 @@ def refine_generated_region(
         final_state.getPotentialEnergy().value_in_unit(kilojoule_per_mole)
     )
     if not math.isfinite(initial_energy) or not math.isfinite(final_energy):
-        raise BoundaryRefinementError("localized refinement produced non-finite energy")
+        raise BoundaryNumericalError("localized refinement produced non-finite energy")
     assert_all_l(modeller.topology, refined_positions)
 
     refined_coordinates = _coordinates_by_identity(

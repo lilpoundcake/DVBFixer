@@ -18,6 +18,10 @@ ANCHOR_POLICY_REVISION = "chain-backbone-b-anchor-restraints-v1"
 BACKBONE = frozenset({"N", "CA", "C", "O"})
 
 
+class NumericalRefinementError(RuntimeError):
+    """An explicitly numerical minimization failure, not invalid input/config."""
+
+
 @dataclass(frozen=True)
 class AnchorPositionRestraint:
     atom: AtomIdentity

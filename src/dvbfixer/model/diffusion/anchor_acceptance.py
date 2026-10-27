@@ -39,6 +39,7 @@ from dvbfixer.model.diffusion.contract import (
 )
 from dvbfixer.model.diffusion.quality import check_ramachandran, check_sidechain_chi12
 from dvbfixer.model.diffusion.refinement_stages import (
+    NumericalFailureEvidence,
     RepairAssessment,
     RepairIssue,
     problematic_anchors,
@@ -50,7 +51,7 @@ from dvbfixer.model.diffusion.validate import (
     _validate_candidate,
 )
 
-ANCHOR_ACCEPTANCE_REVISION = "independent-staged-anchor-audit-v1"
+ANCHOR_ACCEPTANCE_REVISION = "independent-staged-anchor-audit-v2"
 _DRIFT_GATES = frozenset({"fixed-heavy-atom-rmsd", "fixed-heavy-atom-max-displacement"})
 _GEOMETRY_GATES = frozenset({"junction-peptide-connectivity", "generated-backbone-break", "d-ca-chirality",
                             "severe-steric-overlap", "generated-or-junction-bond-length",
@@ -177,9 +178,10 @@ class AnchorRepairAudit:
     authorized_anchors: tuple[ResidueIdentity, ...]
     movements: tuple[AnchorMovement, ...]
     movement_limits: AnchorMovementLimits
+    stage1_failure: NumericalFailureEvidence | None
     source_sha256: str
     raw_sha256: str
-    stage1_sha256: str
+    stage1_sha256: str | None
     candidate_sha256: str
     request_sha256: str
     policy_revision: str = ANCHOR_ACCEPTANCE_REVISION
@@ -191,11 +193,12 @@ def audit_staged_anchor_repair(
     *,
     source_text: str,
     raw_text: str,
-    stage1_text: str,
+    stage1_text: str | None,
     candidate_text: str,
     stage1_input_sha256: str,
     stage2_input_sha256: str,
     limits: AnchorMovementLimits,
+    stage1_failure: NumericalFailureEvidence | None = None,
 ) -> AnchorRepairAudit:
     """Recompute authorization and full geometry, not runner-provided scores/masks.
 
@@ -206,14 +209,21 @@ def audit_staged_anchor_repair(
     source_digest, raw_digest = _digest(source_text), _digest(raw_text)
     if source_digest != request.normalized_pdb.sha256:
         raise DiffusionContractError("staged anchor source digest mismatch")
+    if stage1_text is not None and stage1_failure is not None:
+        raise DiffusionContractError("stage 1 cannot supply both coordinates and numerical failure evidence")
     source = _structure(source_text, "source.pdb")
     raw = _structure(raw_text, "raw.pdb")
-    stage1 = _structure(stage1_text, "stage1.pdb")
+    stage1 = _structure(stage1_text, "stage1.pdb") if stage1_text is not None else raw
     candidate = _structure(candidate_text, "candidate.pdb")
     raw_assessment, _ = _assessment(request, source, raw)
     first_assessment, _ = _assessment(request, source, stage1)
     final_assessment, strict = _assessment(request, source, candidate)
     failures = []
+    if stage1_text is None:
+        if stage1_failure is None:
+            failures.append("anchor-repair-stage1-failure-evidence-missing")
+        elif stage1_failure.input_sha256 != raw_digest:
+            failures.append("anchor-repair-stage1-failure-input-mismatch")
     if stage1_input_sha256 != raw_digest or stage2_input_sha256 != raw_digest:
         failures.append("anchor-repair-not-restarted-from-raw")
     if raw_assessment.admission_failures:
@@ -240,10 +250,11 @@ def audit_staged_anchor_repair(
                                          bfactor_source="disabled")
     allowed = {r.atom for r in restraints}
     source_lines, raw_lines = _observed_lines(source_text), _observed_lines(raw_text)
-    first_lines, final_lines = _observed_lines(stage1_text), _observed_lines(candidate_text)
+    first_text = stage1_text if stage1_text is not None else raw_text
+    first_lines, final_lines = _observed_lines(first_text), _observed_lines(candidate_text)
     observed = source.atoms.keys() - set(request.generated_atoms)
     original_auxiliary = _observed_auxiliary(source_text, observed)
-    if original_auxiliary != _observed_auxiliary(raw_text, observed) or original_auxiliary != _observed_auxiliary(stage1_text, observed):
+    if original_auxiliary != _observed_auxiliary(raw_text, observed) or original_auxiliary != _observed_auxiliary(first_text, observed):
         failures.append("anchor-repair-input-observed-auxiliary-changed")
     if original_auxiliary != _observed_auxiliary(candidate_text, observed):
         failures.append("anchor-repair-observed-auxiliary-changed")
@@ -281,6 +292,6 @@ def audit_staged_anchor_repair(
                             f"{movement.backbone_rmsd_angstrom:.4f} Å; maximum heavy displacement "
                             f"{movement.heavy_displacement_angstrom_max:.4f} Å.")
     summary = ValidationSummary(not failures, tuple(dict.fromkeys(failures)), tuple(metrics), tuple(warnings))
-    return AnchorRepairAudit(summary, strict, anchors, movements, limits, source_digest, raw_digest,
-                             _digest(stage1_text), _digest(candidate_text),
+    return AnchorRepairAudit(summary, strict, anchors, movements, limits, stage1_failure, source_digest, raw_digest,
+                             _digest(stage1_text) if stage1_text is not None else None, _digest(candidate_text),
                              hashlib.sha256(request.to_json().encode("utf-8")).hexdigest())

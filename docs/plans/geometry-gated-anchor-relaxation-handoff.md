@@ -64,8 +64,9 @@ metadata, outer junctions and per-anchor bounds (120 tests in the combined narro
 set). Two additional 1UBQ controls restore a declared synthetic gap to native
 coordinates and verify zero minimizer calls with experimental or absent method
 headers. These are no-op controls, not diffusion accuracy/calibration results.
-Production evidence schema, source-motion policy, typed numerical-failure evidence,
-runner/CLI/GUI wiring and broader numerical-bound qualification remain pending.
+Production evidence schema, source-motion policy, runner/CLI/GUI wiring and
+broader numerical-bound qualification remain pending. Typed numerical-failure
+recovery has since been added in the working changes described below.
 
 Verification after the independent auditor: full fast-lane snapshot 1520 passed,
 two optional-dependency skips, 31 slow tests deselected. The two native 1UBQ
@@ -74,6 +75,31 @@ links/Markdown and agent documentation maps pass. CI currently triggers on main
 pushes or pull requests, not research-branch pushes alone.
 
 ## Start here
+
+Latest progress: commit `ffcdb89` (independent auditor and 1UBQ controls) is pushed
+to the research branch. The subsequent
+[eight-case corrected replay](../research/anchor-repair-corrected-cohort-v1.md)
+finishes with 5 raw/no-op selections and 3 generated-only repairs, zero anchor
+motion and zero execution errors. It adds no anchor-drift calibration evidence.
+Normalization strips experimental headers even from the tracked protein copies;
+verified entry metadata plus observed-atom/B matching is required to recover
+provenance instead of guessing from numerical B values.
+
+Further working changes introduce `BoundaryNumericalError` (also catchable as
+the existing `BoundaryRefinementError`) and bounded raw-bound numerical-failure
+evidence. The controller may escalate after an execution failure only for this
+explicit numerical class, never a generic RuntimeError/ValueError or a matching
+error-message string. Audit revision v2 supports missing stage-1 coordinates only
+with valid numerical evidence, recomputes eligibility from raw, and retains all
+normal bounds/identity/geometry checks. Contradictory failure/coordinate evidence
+is rejected. These changes are tested independently of actual cohort outcomes;
+none of the eight replay cases had a numerical failure. Production integration
+and broader motion-bound calibration are still pending.
+
+Latest verification: 1536 fast tests pass with two optional skips and 31 slow
+tests deselected; the lightweight no-OpenMM/PDBFixer CI selection passes 394 tests
+with 61 expected skips. Ruff and documentation checks pass. Subsequent replay and
+typed-failure changes are still working-tree changes after pushed `ffcdb89`.
 
 1. Read repository `AGENTS.md`, inspect git status and current branch.
 2. Preserve existing user/research changes. This session's research scripts,

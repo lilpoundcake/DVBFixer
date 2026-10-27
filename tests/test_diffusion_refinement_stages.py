@@ -1,12 +1,15 @@
 """Two-stage controller invariants without importing any scientific backend."""
 
+from dataclasses import asdict
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
+from dvbfixer.model.diffusion.anchor_policy import NumericalRefinementError
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 from dvbfixer.model.diffusion.refinement_stages import (
+    NumericalFailureEvidence,
     RepairAssessment,
     RepairIssue,
     problematic_anchors,
@@ -104,11 +107,34 @@ def test_numerical_failure_uses_raw_diagnostics_but_never_raw_fallback_acceptanc
     calls = []
     def fail(text, restraints):
         calls.append(text)
-        raise RuntimeError("numerical failure")
+        raise NumericalRefinementError("numerical failure")
     result = run_refinement_stages("raw", SOURCE.read_text(), request(), assess=lambda _: bad(), minimize=fail)
     assert calls == ["raw", "raw"] and result.coordinate_text is None
-    assert result.attempts[1].error.startswith("RuntimeError:")
-    assert result.attempts[2].error.startswith("RuntimeError:")
+    assert result.attempts[1].error.startswith("NumericalRefinementError:")
+    assert result.attempts[2].error.startswith("NumericalRefinementError:")
+    assert result.attempts[1].failure_kind == "numerical"
+    failure = result.attempts[1].numerical_failure
+    assert failure is not None and failure.input_sha256 == result.attempts[0].input_sha256
+    assert asdict(failure)["error_type"] == "NumericalRefinementError"
+
+
+@pytest.mark.parametrize("error", [RuntimeError("numerical-looking message"), ValueError("invalid template")])
+def test_unclassified_failure_never_releases_anchors(error):
+    def fail(*_args):
+        raise error
+    result = run_refinement_stages("raw", SOURCE.read_text(), request(), assess=lambda _: bad(), minimize=fail)
+    assert len(result.attempts) == 2 and result.selected_stage is None
+    assert result.attempts[1].failure_kind == "unclassified"
+
+
+def test_numerical_failure_codec_is_pure_bounded_and_versioned():
+    data = {"input_sha256": "a" * 64, "error_type": "BoundaryNumericalError", "message": "No finite minimum"}
+    record = NumericalFailureEvidence(**data)
+    assert NumericalFailureEvidence(**asdict(record)) == record
+    for mutation in ({"error_type": "ValueError"}, {"revision": True}, {"message": 42},
+                     {"message": "x" * 2049}, {"input_sha256": "A" * 64}):
+        with pytest.raises(ValueError):
+            NumericalFailureEvidence(**(data | mutation))
 
 
 def test_programming_errors_and_cancellation_are_not_repair_triggers():

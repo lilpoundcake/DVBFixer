@@ -9,8 +9,9 @@ pytest.importorskip("pdbfixer")
 from openmm.app import Topology, element
 from openmm.unit import kilojoule_per_mole, nanometer
 
-from dvbfixer.model.diffusion.anchor_policy import AnchorPositionRestraint
+from dvbfixer.model.diffusion.anchor_policy import AnchorPositionRestraint, NumericalRefinementError
 from dvbfixer.model.diffusion.boundary_refinement import (
+    BoundaryNumericalError,
     BoundaryRefinementError,
     _build_anchor_position_force,
     refine_generated_region,
@@ -54,3 +55,9 @@ def test_generated_residues_cannot_be_reclassified_as_observed_anchors():
     with pytest.raises(BoundaryRefinementError, match="cannot target generated"):
         refine_generated_region("", generated_residues=(ResidueIdentity("W", "29"),), generated_atoms=(atom,),
                                 observed_anchor_restraints=(AnchorPositionRestraint(atom, (0, 0, 0), 1000),))
+
+
+def test_numerical_error_is_backward_compatible_with_existing_refiner_handlers():
+    error = BoundaryNumericalError("No finite all-L minimum")
+    assert isinstance(error, BoundaryRefinementError)
+    assert isinstance(error, NumericalRefinementError)

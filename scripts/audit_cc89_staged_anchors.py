@@ -12,6 +12,7 @@ from pathlib import Path
 from dvbfixer.model.diffusion.anchor_acceptance import audit_staged_anchor_repair
 from dvbfixer.model.diffusion.anchor_policy import AnchorMovementLimits
 from dvbfixer.model.diffusion.contract import DiffusionRequest
+from dvbfixer.model.diffusion.refinement_stages import NumericalFailureEvidence
 
 
 def checked_text(root: Path, attempt: dict) -> str:
@@ -50,12 +51,15 @@ def main() -> None:
         if set(attempts) != {"raw", "generated-only", "generated-and-anchors"}:
             raise ValueError("pilot requires all stages")
         raw = checked_text(args.pilot, attempts["raw"])
-        first = checked_text(args.pilot, attempts["generated-only"])
+        first_attempt = attempts["generated-only"]
+        first = checked_text(args.pilot, first_attempt) if "coordinate_file" in first_attempt else None
+        failure = NumericalFailureEvidence(**first_attempt["numerical_failure"]) if first_attempt.get("numerical_failure") else None
         final = checked_text(args.pilot, attempts["generated-and-anchors"])
         audit = audit_staged_anchor_repair(request, source_text=source, raw_text=raw,
             stage1_text=first, candidate_text=final,
             stage1_input_sha256=attempts["generated-only"]["input_sha256"],
-            stage2_input_sha256=attempts["generated-and-anchors"]["input_sha256"], limits=limits)
+            stage2_input_sha256=attempts["generated-and-anchors"]["input_sha256"], limits=limits,
+            stage1_failure=failure)
         result = {"arm": row["arm"], "bfactor_policy": row["bfactor_policy"], **asdict(audit)}
         report.append(result)
         (args.output / "audits.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
