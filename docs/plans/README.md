@@ -10,6 +10,7 @@ An unchecked historical box alone does not prove that code is still missing.
 
 | Plan | Implemented / completed | Remaining boundary |
 |---|---|---|
+| [Geometry-gated anchor relaxation](geometry-gated-anchor-relaxation-handoff.md) | 9CQD paired restraint pilot and visual-review exports; user-approved two-stage behavior | Production implementation, new chain-normalized B policy tests, calibrated per-anchor drift limits and broader scientific qualification; stage 2 is to be enabled by default with an opt-out |
 | [API roadmap](api-roadmap.md) | Naming service/CLI/V1 HTTP API, standalone host, auth/ACL, CORS, quotas, versioned workflows and single-host multi-process coordination | Acceptance on the operator's deployment host; external scheduling/state before multi-host operation |
 | [API/DDD continuation](api-ddd-continuation-context.md) | Historical handoff, not a second backlog | Consult the checklist and agent contexts rather than old next-session instructions |
 | [DDD documentation](ddd-documentation-roadmap.md) | Domain/artifact/pipeline/task maps and validation foundation | Demand-driven maintenance; advanced automation only if justified |

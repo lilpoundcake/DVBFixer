@@ -12,6 +12,7 @@ from typing import Any
 import numpy as np
 from openmm import (
     CustomAngleForce,
+    CustomExternalForce,
     CustomTorsionForce,
     OpenMMException,
     Platform,
@@ -37,6 +38,7 @@ from dvbfixer.ffutils.geometry import (
     rebuild_missing_atoms_with_retry,
     repair_misplaced_hydrogens,
 )
+from dvbfixer.model.diffusion.anchor_policy import AnchorPositionRestraint
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
 BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v8"
@@ -77,8 +79,16 @@ def refine_generated_region(
     platform_name: str = "Reference",
     random_seed: int = 1,
     restrain_amides: bool = True,
+    observed_anchor_restraints: tuple[AnchorPositionRestraint, ...] = (),
 ) -> BoundaryRefinementResult:
-    """Minimize generated residues while keeping every source atom exact."""
+    """Minimize generated atoms and explicitly restrained observed anchor atoms.
+
+    The default remains generated-only. Observed mobility is a separate explicit
+    scientific argument, not a reclassification of observed atoms as generated.
+    The caller must independently validate anchor eligibility, drift and geometry;
+    this low-level method grants no publication exception. Returned coordinates
+    cover generated atoms AND authorized observed anchor atoms, nothing else.
+    """
     if max_iterations <= 0:
         raise BoundaryRefinementError("refinement max_iterations must be positive")
     if restart_count < 0:
@@ -104,12 +114,21 @@ def refine_generated_region(
             "refinement generated atoms must belong to generated residues"
         )
 
+    anchor_atoms = tuple(restraint.atom for restraint in observed_anchor_restraints)
+    if len(set(anchor_atoms)) != len(anchor_atoms):
+        raise BoundaryRefinementError("duplicate observed anchor restraint")
+    if any(_atom_residue(atom) in generated_residue_set for atom in anchor_atoms):
+        raise BoundaryRefinementError("observed anchor restraints cannot target generated residues")
+    mobile_atoms_requested = (*generated_atoms, *anchor_atoms)
+    mobile_atom_set = set(mobile_atoms_requested)
+    mobile_residue_set = generated_residue_set | {_atom_residue(atom) for atom in anchor_atoms}
+
     pdb = PDBFile(StringIO(pdb_text))
     original_coordinates = _coordinates_by_identity(pdb.topology, pdb.positions)
     original_heavy = {AtomIdentity(atom.residue.chain.id, str(atom.residue.id), atom.residue.insertionCode.strip(), atom.name) for atom in pdb.topology.atoms()
         if atom.element is None or atom.element.symbol != "H"}
     original_coordinates = {atom: xyz for atom, xyz in original_coordinates.items() if atom in original_heavy}
-    missing = generated_atom_set - set(original_coordinates)
+    missing = mobile_atom_set - set(original_coordinates)
     if missing:
         raise BoundaryRefinementError(
             "refinement input is missing requested generated atoms: "
@@ -200,8 +219,10 @@ def refine_generated_region(
     # Use the force field's equilibrium bond lengths. Constraining generated
     # bonds to their raw sampled lengths freezes the very defects being repaired.
     _freeze_observed_heavy_atoms(
-        system, modeller.topology, original_coordinates, generated_atom_set,
+        system, modeller.topology, original_coordinates, mobile_atom_set,
     )
+    if observed_anchor_restraints:
+        system.addForce(_build_anchor_position_force(modeller.topology, observed_anchor_restraints))
     chirality_force, protected_centres = build_ca_chirality_force(
         modeller.topology,
         modeller.positions,
@@ -211,13 +232,13 @@ def refine_generated_region(
     if restrain_amides:
         omega_force, restrained_amides = _build_trans_amide_force(
             modeller.topology,
-            generated_residue_set,
+            mobile_residue_set,
         )
         if restrained_amides:
             system.addForce(omega_force)
     peptide_angle_force, restrained_angles = _build_peptide_angle_force(
         modeller.topology,
-        generated_residue_set,
+        mobile_residue_set,
     )
     if restrained_angles:
         system.addForce(peptide_angle_force)
@@ -247,7 +268,7 @@ def refine_generated_region(
     except OpenMMException:
         first_state = None
     best_state = first_state if _acceptable_minimum(modeller.topology, first_state) else None
-    best_score = (_local_geometry_error_count(modeller.topology, best_state.getPositions(), generated_residue_set)
+    best_score = (_local_geometry_error_count(modeller.topology, best_state.getPositions(), mobile_residue_set)
         if best_state is not None else float("inf"))
     restart_positions = np.asarray(
         (best_state.getPositions(asNumpy=True) if best_state is not None else modeller.positions).value_in_unit(nanometer),
@@ -256,7 +277,10 @@ def refine_generated_region(
     mobile_atoms = [
         atom
         for atom in modeller.topology.atoms()
-        if _topology_residue(atom.residue) in generated_residue_set
+        if (_topology_residue(atom.residue) in mobile_residue_set
+            and (atom.element is not None and atom.element.symbol == "H"
+                 or AtomIdentity(atom.residue.chain.id, str(atom.residue.id),
+                                 atom.residue.insertionCode.strip(), atom.name) in mobile_atom_set))
     ]
     if restart_count:
         for cycle in range(restart_count):
@@ -283,7 +307,7 @@ def refine_generated_region(
             score = _local_geometry_error_count(
                 modeller.topology,
                 state.getPositions(),
-                generated_residue_set,
+                mobile_residue_set,
             )
             state_energy = float(
                 state.getPotentialEnergy().value_in_unit(kilojoule_per_mole)
@@ -315,7 +339,7 @@ def refine_generated_region(
         refined_positions,
     )
     for identity, original in original_coordinates.items():
-        if _atom_residue(identity) in generated_residue_set:
+        if identity in mobile_atom_set:
             continue
         refined = refined_coordinates.get(identity)
         # CUDA's mixed-precision coordinate round-trip perturbs massless fixed
@@ -334,10 +358,10 @@ def refine_generated_region(
 
     result_coordinates = {
         identity: refined_coordinates[identity]
-        for identity in generated_atoms
+        for identity in mobile_atoms_requested
         if identity in refined_coordinates
     }
-    missing = generated_atom_set - set(result_coordinates)
+    missing = mobile_atom_set - set(result_coordinates)
     if missing:
         raise BoundaryRefinementError(
             "localized refinement lost generated atoms: " + _atom_labels(missing)
@@ -346,13 +370,41 @@ def refine_generated_region(
         coordinates_angstrom=result_coordinates,
         chirality_repairs=tuple(sorted(repairable_d)),
         pre_coordinate_sha256=_coordinate_digest(
-            {identity: original_coordinates[identity] for identity in generated_atoms}
+            {identity: original_coordinates[identity] for identity in mobile_atoms_requested}
         ),
         post_coordinate_sha256=_coordinate_digest(result_coordinates),
         initial_energy_kj_mol=initial_energy,
         final_energy_kj_mol=final_energy,
         platform=platform.getName(),
     )
+
+
+def _build_anchor_position_force(
+    topology: Any,
+    restraints: tuple[AnchorPositionRestraint, ...],
+) -> CustomExternalForce:
+    """Resolve stable identities only after final topology rebuilding; Å -> nm."""
+    expected = {restraint.atom: restraint for restraint in restraints}
+    if len(expected) != len(restraints):
+        raise BoundaryRefinementError("duplicate observed anchor restraint")
+    force = CustomExternalForce("0.5*k*((x-x0)^2+(y-y0)^2+(z-z0)^2)")
+    for name in ("k", "x0", "y0", "z0"):
+        force.addPerParticleParameter(name)
+    seen: set[AtomIdentity] = set()
+    for atom in topology.atoms():
+        identity = AtomIdentity(atom.residue.chain.id, str(atom.residue.id),
+                                atom.residue.insertionCode.strip(), atom.name)
+        if identity not in expected:
+            continue
+        if identity in seen:
+            raise BoundaryRefinementError("ambiguous observed anchor topology identity")
+        seen.add(identity)
+        restraint = expected[identity]
+        force.addParticle(atom.index, [restraint.k_kj_mol_nm2,
+                                      *(x / 10 for x in restraint.reference_angstrom)])
+    if seen != expected.keys():
+        raise BoundaryRefinementError("observed anchor missing from final topology")
+    return force
 
 
 def _freeze_observed_heavy_atoms(

@@ -18,6 +18,25 @@ complete. Detailed requirements remain in these authoritative sources:
 Status is binary: `[x]` means complete and verified; `[ ]` means remaining,
 partially complete, optional but not accepted, or not yet verified.
 
+## Geometry-gated anchor relaxation
+
+Added 2026-10-27. Detailed execution requirements and evidence boundaries:
+[headless handoff](geometry-gated-anchor-relaxation-handoff.md).
+
+- [x] Record the 9CQD uniform/B-weighted positional-restraint pilot and visual-review exports.
+- [x] Record user-approved geometry-triggered stages, raw-input restart, default-enabled anchor repair and explicit notifications.
+- [x] Add initial pure B-weighting/fallback, explicit movement-bound measurement, staged-controller and scientific anchor-force helpers with narrow regression tests.
+- [ ] Implement pure B-provenance/weighting/fallback policy and minimal problematic-anchor selection.
+- [ ] Extend the scientific refiner with explicit observed-anchor mobility and source-centred positional restraints.
+- [ ] Implement generated-only stage 1 and default-enabled, opt-out stage 2 restarted from raw coordinates.
+- [ ] Version validation/provenance and preserve identity, nonmobile coordinates, geometry and all-L invariants.
+- [ ] Thread policy, opt-out, diagnostics and resume compatibility through CLI, runners, ZBS, Homology and GUI.
+- [ ] Evaluate the new chain-normalized B formula against uniform and calibrate per-anchor movement bounds on a broader cohort.
+- [ ] Complete regression, scientific and workflow verification; update user docs and generated schemas before production qualification.
+
+The initial helpers above are not production runner/CLI/GUI integration or
+approval of numeric movement limits; see the handoff's execution-progress section.
+
 ## API Phase 0: Decisions And Baseline
 
 ### Accepted Decisions
