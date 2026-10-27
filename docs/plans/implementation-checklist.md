@@ -26,6 +26,7 @@ Added 2026-10-27. Detailed execution requirements and evidence boundaries:
 - [x] Record the 9CQD uniform/B-weighted positional-restraint pilot and visual-review exports.
 - [x] Record user-approved geometry-triggered stages, raw-input restart, default-enabled anchor repair and explicit notifications.
 - [x] Add initial pure B-weighting/fallback, explicit movement-bound measurement, staged-controller and scientific anchor-force helpers with narrow regression tests.
+- [x] Add an independent research audit with explicit per-anchor limits, raw-input bindings, old strict-result preservation, outer-junction and observed-record checks; verify no-op native 1UBQ controls.
 - [ ] Implement pure B-provenance/weighting/fallback policy and minimal problematic-anchor selection.
 - [ ] Extend the scientific refiner with explicit observed-anchor mobility and source-centred positional restraints.
 - [ ] Implement generated-only stage 1 and default-enabled, opt-out stage 2 restarted from raw coordinates.

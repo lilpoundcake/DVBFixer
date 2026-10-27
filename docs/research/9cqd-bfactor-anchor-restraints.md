@@ -293,3 +293,58 @@ launch-time code snapshots. Publication is explicitly disabled.
 | manifest.json | 4b6956ee67450dc92cdf0b80aabdef1940531414d32a604b9d4f8194e3a8fe53 |
 | comparison.json | 6c5152b14d47043675672ca3e4236e1c3c620f3304da211a6edce43f4aa57f6e |
 | completed.json | db9e1c8a383ab68a3fa43132b45597d656aade99133d3d7521e4f4fde6a4ac3d |
+
+## Independent acceptance-audit follow-up
+
+The [research auditor](../../src/dvbfixer/model/diffusion/anchor_acceptance.py)
+independently recomputes eligibility from stage-1 residual geometry rather than
+trusting a runner-provided mobile mask. It preserves the historical strict
+validation result and applies explicit caller-supplied per-anchor bounds in a
+separate research summary. All reports retain `publication_qualified=false`.
+This is not a replacement for runner trace validation or a shipped public
+mobility contract. Typed stage-1 numerical-failure evidence remains future work.
+
+Checks include source SHA binding, both stage input digests matching raw, clean
+raw/stage-1 rejection of unnecessary escalation, unchanged observed stage-1 records,
+unselected final records, selected-anchor identity/B/occupancy fields, observed
+ANISOU/SIGATM/SIGUIJ records, full geometry, and new outer junction distances even
+when topology inference omits the broken bond. Pre-existing source findings alone
+do not justify releasing an anchor. Backbone RMSD and maximum heavy displacement
+are tested per anchor in the original coordinate frame, never averaged over the
+complex or hidden by alignment. Excessive movement is not treated as a warning.
+
+Two explicit sensitivity settings were evaluated on the same four saved outputs:
+
+| Limits: per-anchor backbone RMSD / heavy maximum, Å | Off uniform | Off Chain-B | On uniform | On Chain-B |
+|---|---|---|---|---|
+| 0.5 / 1.0 | Pass | Pass | Fail: movement | Pass |
+| 0.6 / 1.25 | Pass | Pass | Pass | Pass |
+
+Neither setting is adopted as a default or experimentally justified by these
+results. The second setting is not a correction of the first to obtain a pass.
+It illustrates the importance of predeclared bounds; the cohort remains too small
+to establish general permissible motion.
+
+The [audit CLI](../../scripts/audit_cc89_staged_anchors.py) requires both limits
+explicitly, verifies saved coordinate SHA bindings and creates a new evidence
+directory without rerunning minimization. Results are retained under
+`test/errors_diffusion/9cqd-staged-anchor-audit-bb05-max10-v2/` and
+`test/errors_diffusion/9cqd-staged-anchor-audit-bb06-max125-v2/`. Audit report hashes:
+
+- 0.5/1.0: `848688421d862a0f4343d05c99ce9ceceddc19298ad228a79ef35e4d94285296`.
+- 0.6/1.25: `5c93b2e65b0f4546df25d6ec1d7356703839fbe74a266858ddef68fadebcfd17`.
+
+Regression evidence: 120 combined narrow tests pass, including twelve independent
+audit tests. Two additional [1UBQ native controls](../../tests/test_diffusion_anchor_controls.py)
+remove A6–A8 to form a source request and restore the exact experimental atoms
+as a clean raw control; no neural reconstruction or minimization is performed.
+Both the original experimental header and absent-method variant retain identical
+raw coordinates with zero minimizer calls. The tracked 1UBQ source SHA-256 is
+`d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161`.
+These controls demonstrate unnecessary-motion avoidance, not broader drift-bound
+calibration or improved missing-loop accuracy.
+
+The subsequent full fast-lane snapshot passed 1520 tests with two optional skips
+and 31 slow tests deselected; the two 1UBQ controls added after collection also
+pass separately. Ruff and documentation checks pass. These local results are
+not represented as a completed remote research-branch CI run.

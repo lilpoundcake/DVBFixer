@@ -41,6 +41,38 @@ unchanged. Every attempt is bound to the original raw digest. Detailed results
 are in the B-factor study. All outputs remain research-only; the new B formula
 has no consistent advantage over uniform restraints.
 
+### Independent acceptance-audit progress
+
+Core commit `31a5cdb` was pushed to `origin/research/9cqd-anchor-relaxation`.
+Subsequent work adds `anchor_acceptance.py`: a separately versioned research
+auditor that recomputes stage-1 anchor eligibility, checks raw-input bindings,
+retains the historical strict summary, checks all observed records and auxiliary
+metadata, inspects outer junctions even without topology-inferred bonds, and
+requires explicit per-anchor movement bounds. It never grants production
+publication qualification. Source-preexisting findings alone cannot authorize
+anchor movement. There are no implicit numeric acceptance defaults.
+
+On the four saved 9CQD stage-2 outputs, explicit research bounds 0.5 Å backbone /
+1.0 Å heavy maximum pass 3/4; 0.6/1.25 Å pass 4/4. These are sensitivity checks,
+not calibrated acceptance limits. The uniform reinjection-on case exceeds 1 Å
+maximum displacement. Full evidence is retained in separate `*-audit-*-v2`
+directories under `test/errors_diffusion/` and described in the research note.
+
+New regression tests cover independent eligibility, clean-raw/stage-1 escalation
+refusal, raw digest binding, unselected movement below old tolerances, B/auxiliary
+metadata, outer junctions and per-anchor bounds (120 tests in the combined narrow
+set). Two additional 1UBQ controls restore a declared synthetic gap to native
+coordinates and verify zero minimizer calls with experimental or absent method
+headers. These are no-op controls, not diffusion accuracy/calibration results.
+Production evidence schema, source-motion policy, typed numerical-failure evidence,
+runner/CLI/GUI wiring and broader numerical-bound qualification remain pending.
+
+Verification after the independent auditor: full fast-lane snapshot 1520 passed,
+two optional-dependency skips, 31 slow tests deselected. The two native 1UBQ
+controls added after that collection separately pass. Ruff, local documentation
+links/Markdown and agent documentation maps pass. CI currently triggers on main
+pushes or pull requests, not research-branch pushes alone.
+
 ## Start here
 
 1. Read repository `AGENTS.md`, inspect git status and current branch.
