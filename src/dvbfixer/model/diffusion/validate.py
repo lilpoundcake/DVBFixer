@@ -9,7 +9,7 @@ import stat
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 from openmm.app import PDBFile
@@ -136,8 +136,16 @@ def validate_runner_result(
     *,
     workspace: Path,
     thresholds: ValidationThresholds | None = None,
+    phase: Literal["raw", "final"] = "final",
 ) -> tuple[CandidateValidation, ...]:
-    """Validate every raw candidate without trusting runner-provided science."""
+    """Validate coordinates independently; only final validation can grant mobility.
+
+    Sampler adapters may request strict pre-refinement diagnostics with
+    phase='raw'. That phase neither requires future refinement evidence nor
+    grants an observed-motion exception. Publication always uses final mode.
+    """
+    if phase not in {"raw", "final"}:
+        raise ValueError("validation phase must be raw or final")
     if runner_result.status is not DiffusionStatus.SUCCESS:
         return ()
     active_thresholds = thresholds or ValidationThresholds()
@@ -179,9 +187,11 @@ def validate_runner_result(
 
         policy = read_refinement_policy(request.backend_options)
         reference = evidence_reference(trace)
+        if phase == "raw" and (reference is not None or trace.refinement_mode != "none"):
+            raise DiffusionValidationError("raw diagnostics cannot consume a post-refinement trace")
         if reference is not None and policy is None:
             raise DiffusionValidationError("historical request cannot supply staged refinement evidence")
-        if policy is not None and reference is None and not candidate.postprocessing_failures:
+        if phase == "final" and policy is not None and reference is None and not candidate.postprocessing_failures:
             raise DiffusionValidationError("staged refinement evidence is required by the request")
         if reference is not None:
             if (set(candidate.generated_atoms) != set(request.generated_atoms)

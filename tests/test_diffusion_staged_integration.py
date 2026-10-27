@@ -24,7 +24,11 @@ from dvbfixer.model.diffusion.refinement_evidence import (
 )
 from dvbfixer.model.diffusion.refinement_policy import RefinementPolicy
 from dvbfixer.model.diffusion.runner_refinement import refine_runner_result
-from dvbfixer.model.diffusion.validate import DiffusionValidationError, build_validated_result
+from dvbfixer.model.diffusion.validate import (
+    DiffusionValidationError,
+    build_validated_result,
+    validate_runner_result,
+)
 from tests.test_diffusion_anchor_acceptance import shift
 from tests.test_diffusion_validate import (
     _candidate,
@@ -182,6 +186,35 @@ def test_staged_runner_cannot_relabel_observed_anchors_as_generated(tmp_path, mo
         generated_atoms=(*candidate.generated_atoms, request.fixed_atoms[0])),))
     with pytest.raises(DiffusionValidationError, match="generated mask"):
         build_validated_result(request, forged, workspace=tmp_path)
+
+
+@pytest.mark.parametrize("raw_bad", [False, True])
+def test_sampler_raw_diagnostics_do_not_require_future_refinement_evidence(tmp_path, raw_bad):
+    _, request, result, _, _ = setup_run(tmp_path, raw_bad=raw_bad)
+    diagnostic = validate_runner_result(request, result, workspace=tmp_path, phase="raw")[0]
+    assert diagnostic.summary.passed is not raw_bad
+    if raw_bad:
+        assert "junction-peptide-connectivity" in diagnostic.summary.hard_gate_failures
+    # The diagnostic-only phase does not change the default publication gate.
+    with pytest.raises(DiffusionValidationError, match="required"):
+        build_validated_result(request, result, workspace=tmp_path)
+
+
+def test_raw_diagnostics_never_waive_observed_motion_or_accept_refined_traces(tmp_path, monkeypatch):
+    _, request, result, _, good = setup_run(tmp_path)
+    moved = shift(good, "70", 0.04)
+    (tmp_path / "raw.pdb").write_text(moved)
+    candidate = result.candidates[0]
+    moved_result = replace(result, candidates=(replace(candidate,
+        coordinate_artifact=replace(candidate.coordinate_artifact, sha256=hashlib.sha256(moved.encode()).hexdigest())),))
+    diagnostic = validate_runner_result(request, moved_result, workspace=tmp_path, phase="raw")[0]
+    assert not diagnostic.summary.passed
+    assert "fixed-heavy-atom-max-displacement" in diagnostic.summary.hard_gate_failures
+    request_path, request, result, _, good = setup_run(tmp_path / "second")
+    install_minimizer(monkeypatch, good, [])
+    refined = refine_runner_result(request_path, result, request_path.parent / "refined", platform_name="Reference")
+    with pytest.raises(DiffusionValidationError, match="post-refinement"):
+        validate_runner_result(request, refined, workspace=request_path.parent, phase="raw")
 
 
 def test_rehashed_runner_claim_cannot_authorize_an_unselected_observed_atom(tmp_path, monkeypatch):

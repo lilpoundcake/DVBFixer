@@ -98,3 +98,21 @@ with 61 expected skips. GUI: 403 tests pass across 57 files; TypeScript typechec
 passes. Ruff, strict mypy targets, user/agent documentation and generated
 CLI/GUI consistency checks pass. The complete external-tool/slow suite and a
 new neural GPU sampling run were not executed for this refinement integration.
+
+## Subsequent real-complex pre-anchor test
+
+The [protein-complex gap benchmark](protein-complex-pre-anchor-benchmark-v1.md)
+records 15 selected gaps: one input refusal, 13/14 sampled raw geometry failures,
+10 generated-only repairs, one raw no-op, one residual Ramachandran failure and
+two stage-1 timeouts. No observed anchors moved. In particular, 1BRS was refused
+by the selected incomplete-context policy, not by failed loop reconstruction;
+1GC1's generated-only minimization improved junctions/clashes but retained a
+generated G:398 outlier that does not authorize observed-anchor release.
+
+This test exposed a real adapter boundary bug not exercised by the archived
+9CQD replays above: post-sampling diagnostics used final validation and required
+future staged evidence. Adapters now request strict `phase="raw"` diagnostics;
+final publication still requires evidence and raw mode cannot waive observed
+drift or consume a refined trace. Existing neural outputs were recovered without
+resampling; missing runtime/probe provenance was not invented. The report
+separates coordinate-geometry results from public sampling-profile qualification.
