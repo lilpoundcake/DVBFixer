@@ -726,3 +726,11 @@ command parser merely to inspect generated labels.
   HELIX/SHEET remapping and endpoint-identity regression tests.
 - **`/test/` is ignored local experimentation.** Keep reviewed source fixtures
   in `tests/fixtures/` with provenance and checksums, not duplicate tracked inputs.
+- **The 9CQD CUDA comparison is case-specific research.** In the authors' model
+  table, the tested Protpardelle `cc89_epoch415` is monomer-only (1/0), while
+  multichain all-atom checkpoints such as cc94 also exist. Do not generalize the
+  cc89 limitation to the whole family. Protenix v1 with reinjection plus common
+  generated-only Reference refinement passed 5/5 primary seeds; cc89 passed 0/5
+  in both conditioning arms. This supports a backend × conditioning/training-domain
+  hypothesis, not weights-only causality or public terminal-gap qualification.
+  See `docs/research/9cqd-protenix-cc89-comparison.md` and its per-seed JSON.
