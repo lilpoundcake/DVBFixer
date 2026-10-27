@@ -212,3 +212,50 @@ def test_subsystem_components_preserve_atom_order_and_isolates():
     top.addBond(atoms[0], atoms[2])
     top.addBond(atoms[1], atoms[3])
     assert load_script("audit_xtb_controls").subsystem_components(top) == [[0, 2], [1, 3], [4]]
+
+
+def test_component_comparison_selects_supplemental_joint_and_checks_baseline(tmp_path, monkeypatch):
+    import hashlib
+    import json
+
+    from openmm import Vec3
+    from openmm.app import Element, PDBFile, Topology
+    from openmm.unit import nanometer
+
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "scripts"))
+    summary = load_script("summarize_probe_xtb_audit")
+    monkeypatch.setattr("dvbfixer.ffutils.build_glycam_system", lambda *a, **kw: None)
+    monkeypatch.setattr(summary, "geometry_snapshot", lambda *a: {})
+    top = Topology()
+    chain = top.addChain("a")
+    for resid in ("1", "2"):
+        top.addAtom("CA", Element.getBySymbol("C"), top.addResidue("GLY", chain, resid))
+    baseline = tmp_path / "hinge-openmm.pdb"
+    with baseline.open("w") as handle:
+        PDBFile.writeFile(top, [Vec3(0, 0, 0), Vec3(1, 0, 0)] * nanometer, handle, keepIds=True)
+    digest = hashlib.sha256(baseline.read_bytes()).hexdigest()
+    joint, left, right = [tmp_path / name for name in ("long-timeout", "left", "right")]
+    for directory, mapping, xyz in [
+        (joint, {"0": 0, "1": 1}, "2\n\nC 0 0 0\nC 10 0 0\n"),
+        (left, {"0": 0}, "1\n\nC 1 0 0\n"),
+        (right, {"1": 0}, "1\n\nC 11 0 0\n"),
+    ]:
+        work = directory / "pdb-test-default"
+        work.mkdir(parents=True)
+        (work / "xtbopt.xyz").write_text(xyz)
+        (directory / "test-extraction.json").write_text(json.dumps({
+            "input_sha256": digest, "full_to_sub_indices": mapping,
+        }))
+        (directory / "summary.json").write_text(json.dumps({"runs": [{
+            "case": "pdb-test", "engine": "default", "converged": True,
+            "returncode": 0, "frozen_indices_zero_based": [],
+        }]}))
+    result = summary.compare_components(tmp_path / "original-audit", [left, right], tmp_path, joint)
+    assert result["comparison_available"]
+    assert result["joint_run"] == str(joint)
+    assert result["joint_vs_separate_rms_angstrom"] == pytest.approx(1)
+    assert result["mobile_atoms"] == 2
+    metadata = joint / "test-extraction.json"
+    metadata.write_text(metadata.read_text().replace(digest, "wrong-baseline"))
+    with pytest.raises(ValueError, match="baseline digest mismatch"):
+        summary.compare_components(tmp_path / "original-audit", [left, right], tmp_path, joint)

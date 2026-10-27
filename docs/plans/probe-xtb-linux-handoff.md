@@ -1,7 +1,10 @@
 # Probe / xTB Linux handoff
 
 The [macOS audit](../research/probe-xtb-macos-audit.md) completed its bounded
-execution matrix and failed acceptance gates. Linux has **not** been tested.
+execution matrix and failed acceptance gates. The subsequent
+[Linux continuation](../research/probe-xtb-linux-audit.md) completed fresh
+preparation and its 46-task matrix; scientific acceptance also failed. This
+document retains the original replay protocol.
 Reproduce the failures as well as successes; do not interpret zero runner exit
 as chemical acceptance. Production fixes and packaging decisions are separate.
 
@@ -89,6 +92,8 @@ do not silently call it an unpatched baseline. A version string is insufficient.
 
 Run in the scientific environment. Set `OMP_NUM_THREADS=1`,
 `OPENBLAS_NUM_THREADS=1`, `MKL_NUM_THREADS=1`; the runner also enforces these.
+If an editable installation resolves another worktree, set
+`PYTHONPATH="$PWD/src"` and verify `dvbfixer.__file__` before running.
 
 ```bash
 python scripts/run_probe_xtb_audit.py \

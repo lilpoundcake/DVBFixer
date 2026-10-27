@@ -10,7 +10,7 @@ import numpy as np
 from audit_xtb_controls import geometry_snapshot, read_xyz
 
 
-def compare_components(audit, directories, baselines):
+def compare_components(audit, directories, baselines, joint_directory=None):
     from openmm.app import PDBFile
     from openmm.unit import nanometer
 
@@ -25,7 +25,8 @@ def compare_components(audit, directories, baselines):
     changed = set()
     joint_indices = set()
     baseline_digest = hashlib.sha256(baseline.read_bytes()).hexdigest()
-    for directory, target in [(audit / "fixed-glycan-extended", joint), *[(p, separate) for p in directories]]:
+    joint_directory = joint_directory or audit / "fixed-glycan-extended"
+    for directory, target in [(joint_directory, joint), *[(p, separate) for p in directories]]:
         metadata = json.loads(next(directory.glob("*extraction.json")).read_text())
         if metadata["input_sha256"] != baseline_digest:
             raise ValueError("Component baseline digest mismatch")
@@ -48,6 +49,7 @@ def compare_components(audit, directories, baselines):
         raise ValueError("Separate components do not cover joint mobile atoms")
     delta = np.linalg.norm(separate[sorted(changed)] - joint[sorted(changed)], axis=1)
     return {"comparison_available": True, "mobile_atoms": len(changed),
+            "joint_run": str(joint_directory), "component_runs": [str(p) for p in directories],
             "joint_vs_separate_rms_angstrom": float(np.sqrt(np.mean(delta**2))),
             "joint_vs_separate_max_angstrom": float(delta.max()),
             "combined_separate_geometry": geometry_snapshot(pdb.topology, separate),
@@ -59,6 +61,8 @@ def main():
     parser.add_argument("--audit", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--fixed-component-run", type=Path, action="append", default=[])
+    parser.add_argument("--fixed-joint-run", type=Path,
+                        help="Supplemental joint run, e.g. a longer-timeout replay; original audit remains intact")
     parser.add_argument("--baselines", type=Path, help="Baseline directory for frozen-coordinate replays")
     args = parser.parse_args()
     if args.output.exists():
@@ -87,7 +91,7 @@ def main():
         report["xtb"][path.parent.name] = rows
     if len(args.fixed_component_run) == 2:
         report["fixed_joint_vs_separate"] = compare_components(
-            args.audit, args.fixed_component_run, args.baselines or args.audit / "baselines")
+            args.audit, args.fixed_component_run, args.baselines or args.audit / "baselines", args.fixed_joint_run)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
 
 

@@ -1,5 +1,9 @@
 # Probe / xTB: macOS audit, 2026-10-28
 
+Subsequent execution: [Linux continuation](probe-xtb-linux-audit.md) reproduces
+the failed acceptance gates with fresh Linux baselines and records additional
+1VCU results. Linux deferral below describes the original macOS session.
+
 **Outcome: bounded macOS execution complete; production scientific acceptance
 failed. Linux execution is deferred by the user, not passed.** Neither production
 adapters nor installed scientific dependencies nor packaging were changed.
