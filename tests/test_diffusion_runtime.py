@@ -25,8 +25,8 @@ def test_apple_auto_selects_installed_protpardelle(
     runtime = resolve_diffusion_runtime()
 
     assert runtime.model == "protpardelle"
-    assert runtime.profile == "protpardelle-1c-mps-local-v1"
-    assert runtime.runner.endswith("dvbfixer-diffusion-protpardelle-1c-mps-local-v1")
+    assert runtime.profile == "protpardelle-1c-cc94-mps-v1"
+    assert runtime.runner.endswith("dvbfixer-diffusion-protpardelle-1c-cc94-mps-v1")
 
 
 def test_frozen_legacy_apple_profile_can_select_its_original_launcher(monkeypatch):
@@ -46,7 +46,7 @@ def test_new_apple_requests_never_downgrade_to_installed_legacy(monkeypatch, mod
         "dvbfixer.model.diffusion.runtime._installed_runner",
         lambda name: "/installed/" + name if name == "dvbfixer-diffusion-protpardelle-1c-mps" else None,
     )
-    with pytest.raises(DiffusionRuntimeError, match="protpardelle-1c-mps-local-v1"):
+    with pytest.raises(DiffusionRuntimeError, match="protpardelle-1c-cc94-mps-v1"):
         resolve_diffusion_runtime(model)
 
 

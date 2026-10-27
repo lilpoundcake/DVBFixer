@@ -177,22 +177,16 @@ checkpoints and never falls back to another profile or MODELLER.
   [`deploy/protenix-v1/README.md`](../deploy/protenix-v1/README.md). The portable
   wrapper and one public-CLI reconstruction passed on the pinned NVIDIA host;
   the frozen 231-case production-wrapper replay remains pending.
-- Linux/NVIDIA `protpardelle-1c-cuda`: follow the
-  [CUDA setup](../deploy/protpardelle-1c/README.md#public-linuxnvidia-cuda-profile).
-  Sampling and refinement use separate pinned environments. The profile provides
-  automatic local context for one internal gap in canonical proteins. The
-  validated length range is 5–10 residues; other lengths warn and are attempted
-  experimentally, subject to the remaining profile limits.
-- Native Apple Silicon `protpardelle-1c-mps-local-v1`: follow
-  [`deploy/protpardelle-1c/README.md`](../deploy/protpardelle-1c/README.md) and
-  use its pinned arm64 sampling environment and a separate core CPU-refinement
-  interpreter via `--refinement-python` (keep the venv path, not its resolved
-  symlink target). Sampling requires Torch 2.6.0; initial refinement is pinned to
-  Python 3.12, OpenMM 8.5.2 and NumPy 2.4.6. Set
-  `PYTORCH_ENABLE_MPS_FALLBACK=0` before Python starts. The bounded corrected profile
-  does not replace the historical `protpardelle-1c-mps` identity; optional legacy
-  registration uses `protpardelle-mps-legacy`. Evidence remains descriptive and
-  training membership is not independently attested.
+- Protpardelle now uses multichain **cc94_epoch3100**, with
+  `protpardelle-1c-cc94-cuda-v1` on Linux/NVIDIA and
+  `protpardelle-1c-cc94-mps-v1` on native Apple Silicon. Follow the
+  [cc94 deployment guide](../deploy/protpardelle-1c/cc94.md) for exact weights,
+  hashes, environments and registration. Both use 500 ODE updates with native
+  relative chain encoding, fixed sequence and source-only local context.
+  Linux refinement uses OpenMM Reference; Apple uses a separate CPU interpreter
+  with fallback disabled. cc94 has case-specific CUDA evidence on 9CQD; native
+  MPS acceptance remains pending. Old cc89 launchers are explicit-replay-only;
+  reinstall with the cc94 checkpoint to use new Protpardelle requests.
 
 The supported input slice and directory-bundle output are documented under
 [`dvbfixer model`](commands/model.md#experimental-diffusion-scope).

@@ -455,15 +455,18 @@ def build_mosaic_diffusion_request(
     )
     # Finalize freshly built requests BEFORE freezing them. The CLI replay path
     # must validate, never silently add missing context to a frozen request.
-    if profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"}:
+    if profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1", "protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"}:
         from dvbfixer.model.diffusion.protein_context import (
             ANCHOR_SEGMENT_OPTION,
             TERMINAL_SHELL_OPTION,
+            prepare_cc94_request,
             prepare_cuda_cc89_request,
             prepare_mps_cc89_request,
         )
 
         prepare = prepare_cuda_cc89_request if profile == "protpardelle-1c-cuda" else prepare_mps_cc89_request
+        if profile.startswith("protpardelle-1c-cc94-"):
+            prepare = prepare_cc94_request
         request = replace(request, backend_options=(*request.backend_options, ANCHOR_SEGMENT_OPTION, TERMINAL_SHELL_OPTION))
         request = prepare(request, normalized_text.encode(), context_mode)
     with input_path.open("x") as stream:

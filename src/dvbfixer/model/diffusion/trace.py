@@ -173,6 +173,25 @@ def validate_sampler_trace_context(
     )
     if expected_profile is not None and trace.profile != expected_profile:
         raise DiffusionContractError("sampler trace changed the requested profile")
+    if expected_profile in {"protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"}:
+        from dvbfixer.model.diffusion.cc94 import CHECKPOINT_SHA256
+        from dvbfixer.model.diffusion.protein_context import (
+            independent_gap_requests,
+            source_context_position_features,
+            validate_cc94_request,
+        )
+
+        validate_cc94_request(request)
+        if provenance.checkpoint_sha256 != CHECKPOINT_SHA256:
+            raise DiffusionContractError("cc94 checkpoint provenance mismatch")
+        singles = independent_gap_requests(request) if request.gap_contexts is not None else (request,)
+        for index, single in enumerate(singles):
+            positions, chains = source_context_position_features(single)
+            digest = hashlib.sha256(np.asarray((positions, chains), dtype="<i8").tobytes()).hexdigest()
+            prefix = f"gap-{index}:" if request.gap_contexts is not None else ""
+            required = ("cc94-native-relative-v1", "cc94-ode-v1", "cc94-position-calls=500", f"cc89-position-features-sha256={digest}")
+            if any(prefix + flag not in provenance.deterministic_flags for flag in required):
+                raise DiffusionContractError("cc94 native position/schedule evidence mismatch")
     if expected_profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"}:
         from dvbfixer.model.diffusion.protein_context import (
             source_context_position_features,

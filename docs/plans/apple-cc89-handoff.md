@@ -1,5 +1,10 @@
 # Apple Silicon handoff: corrected cc89 local input
 
+Historical cc89 replay document. New Protpardelle production installations use
+[cc94](../../deploy/protpardelle-1c/cc94.md), with native relative encoding and ODE
+sampling; the cc89 rotary intervention and acceptance evidence below do not apply
+to cc94. Native cc94 MPS acceptance remains pending.
+
 Originally prepared on Linux after public CUDA baseline **`cb43db6`**, branch
 `feature/dvbfixer-hardening`. Subsequent native Apple implementation and evidence
 are recorded below. The historical public MPS profile retains its native-phase/

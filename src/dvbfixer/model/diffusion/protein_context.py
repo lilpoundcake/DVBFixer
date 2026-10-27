@@ -10,6 +10,7 @@ from dataclasses import dataclass, replace
 import numpy as np
 
 from dvbfixer.domain.structure_identity import allocate_chain_ids
+from dvbfixer.model.diffusion.cc94 import PROFILES as CC94_PROFILES
 from dvbfixer.model.diffusion.contract import (
     ArtifactReference,
     AtomIdentity,
@@ -96,7 +97,35 @@ def is_mps_cc89(request: DiffusionRequest) -> bool:
 
 
 def is_corrected_cc89(request: DiffusionRequest) -> bool:
-    return is_cuda_cc89(request) or is_mps_cc89(request)
+    """Compatibility name for the shared source-only context family, not weights.
+
+    Select numerical interventions with is_cuda_cc89/is_mps_cc89/is_cc94 instead.
+    """
+    return is_cuda_cc89(request) or is_mps_cc89(request) or is_cc94(request)
+
+
+def is_cc94(request: DiffusionRequest) -> bool:
+    return any(option.name == "profile" and option.value in CC94_PROFILES for option in request.backend_options)
+
+
+def _position_options(request: DiffusionRequest) -> tuple[BackendOption, ...]:
+    if is_cc94(request):
+        return (BackendOption("cc89_chain_phase", "native"), CUDA_CC89_OPTIONS[1])
+    return CUDA_CC89_OPTIONS
+
+
+def prepare_cc94_request(request: DiffusionRequest, pdb: bytes, context_mode: str) -> DiffusionRequest:
+    """Reuse source-only local selection with native relative position encoding."""
+    if not is_cc94(request):
+        raise ProteinContextError("cc94 request must declare its versioned profile")
+    return prepare_mps_cc89_request(request, pdb, context_mode)
+
+
+def validate_cc94_request(request: DiffusionRequest) -> None:
+    if not is_cc94(request):
+        raise ProteinContextError("cc94 request must declare its versioned profile")
+    profile = next(o.value for o in request.backend_options if o.name == "profile")
+    _validate_corrected_cc89_request(request, profile, "cc94")
 
 
 def prepare_cuda_cc89_request(request: DiffusionRequest, pdb: bytes, context_mode: str) -> DiffusionRequest:
@@ -113,17 +142,17 @@ def prepare_mps_cc89_request(request: DiffusionRequest, pdb: bytes, context_mode
         if len(request.gaps) > 64:
             raise ProteinContextError("independent local execution supports at most 64 gaps per candidate")
         if context_mode not in {"auto", "local"}:
-            raise ProteinContextError("MPS independent gaps require --diffusion-context auto|local")
+            raise ProteinContextError("independent local gaps require --diffusion-context auto|local")
         if request.protein_context is not None:
             if len(request.gaps) != 1 or request.gap_contexts is not None:
                 raise ProteinContextError("independent gaps cannot reinterpret a joint context plan")
             # A frozen per-gap view is already materialized. Verify it exactly;
             # do not wrap it again in a parent execution plan or change its hash.
-            validate_mps_cc89_request(request)
+            (validate_cc94_request if is_cc94(request) else validate_mps_cc89_request)(request)
             validate_context_source(request, pdb)
             return request
         options = list(request.backend_options)
-        for option in (*CUDA_CC89_OPTIONS, INDEPENDENT_GAPS_OPTION):
+        for option in (*_position_options(request), INDEPENDENT_GAPS_OPTION):
             existing = next((item for item in options if item.name == option.name), None)
             if existing is not None and existing != option:
                 raise ProteinContextError("independent gap execution policy conflicts with the request")
@@ -137,10 +166,11 @@ def prepare_mps_cc89_request(request: DiffusionRequest, pdb: bytes, context_mode
                 assert plan is not None
                 plans.append(plan)
             request = replace(request, gap_contexts=tuple(plans))
-        validate_mps_cc89_request(request)
+        (validate_cc94_request if is_cc94(request) else validate_mps_cc89_request)(request)
         validate_context_source(request, pdb)
         return request
-    return _prepare_corrected_cc89_request(request, pdb, context_mode, MPS_CC89_PROFILE, "MPS cc89")
+    profile = next(o.value for o in request.backend_options if o.name == "profile") if is_cc94(request) else MPS_CC89_PROFILE
+    return _prepare_corrected_cc89_request(request, pdb, context_mode, profile, "cc94" if is_cc94(request) else "MPS cc89")
 
 
 def _prepare_corrected_cc89_request(
@@ -155,7 +185,7 @@ def _prepare_corrected_cc89_request(
     if request.protein_context is None:
         request = select_protein_context(request, pdb, _cc89_context_policy(request))
     options = list(request.backend_options)
-    for required in CUDA_CC89_OPTIONS:
+    for required in _position_options(request):
         existing = next((option for option in options if option.name == required.name), None)
         if existing is not None and existing != required:
             raise ProteinContextError(f"{label} numerical policy conflicts with the frozen profile")
@@ -179,7 +209,7 @@ def validate_mps_cc89_request(request: DiffusionRequest) -> None:
 def _validate_corrected_cc89_request(request: DiffusionRequest, profile: str, label: str) -> None:
     if not any(option.name == "profile" and option.value == profile for option in request.backend_options):
         raise ProteinContextError(f"{label} request must declare its profile")
-    independent = profile == MPS_CC89_PROFILE and INDEPENDENT_GAPS_OPTION in request.backend_options
+    independent = (profile == MPS_CC89_PROFILE or profile in CC94_PROFILES) and INDEPENDENT_GAPS_OPTION in request.backend_options
     if request.gap_contexts is not None:
         if not independent:
             raise ProteinContextError("independent gap contexts require their versioned execution policy")
@@ -202,8 +232,8 @@ def _validate_corrected_cc89_request(request: DiffusionRequest, profile: str, la
     if (plan is None or plan.policy != _cc89_context_policy(request) or plan.trajectory_queries is not None
             or plan.retained_conditioning or plan.previous_plan_sha256 is not None):
         raise ProteinContextError(f"{label} requires the frozen source-only local context policy")
-    if any(option not in request.backend_options for option in CUDA_CC89_OPTIONS):
-        raise ProteinContextError(f"{label} requires neutral phase and physical source positions")
+    if any(option not in request.backend_options for option in _position_options(request)):
+        raise ProteinContextError(f"{label} requires its declared chain phase and physical source positions")
     source_context_position_features(request)
     if sum(span.stop - span.start for span in plan.spans) > 512:
         raise ProteinContextError("each independent local engine axis must fit 512 residues")
@@ -652,13 +682,15 @@ def validate_context_source(request: DiffusionRequest, pdb: bytes) -> None:
 def validate_context_capability(request: DiffusionRequest, model: str) -> None:
     """Reject engine-incompatible plans before preflight or checkpoint loading."""
     if request.gap_contexts is not None:
-        if not is_mps_cc89(request) or model != "protpardelle":
-            raise ProteinContextError("independent local gap contexts require corrected MPS cc89")
+        if not (is_mps_cc89(request) or is_cc94(request)) or model != "protpardelle":
+            raise ProteinContextError("independent local gap contexts require cc94 or corrected MPS cc89")
         for single in independent_gap_requests(request):
             validate_context_capability(single, model)
         return
     if is_cuda_cc89(request):
         validate_cuda_cc89_request(request)
+    if is_cc94(request):
+        validate_cc94_request(request)
     if is_mps_cc89(request):
         validate_mps_cc89_request(request)
     if request.protein_context is None:

@@ -612,6 +612,16 @@ command parser merely to inspect generated labels.
 
 ## Current agent notes and recently established invariants
 
+- **New Protpardelle production requests use cc94, not cc89.** Profiles are
+  `protpardelle-1c-cc94-cuda-v1` / `protpardelle-1c-cc94-mps-v1`, 500 ODE
+  updates (scale 1, churn 0), native relative chains and physical positions.
+  Historical cc89 profiles are explicit frozen-request replay only. Never apply
+  cc89's rotary neutral-phase intervention to cc94 or transfer cc89 acceptance
+  claims. cc94 passed 5/5 per conditioning arm on the 9CQD M155–162 CUDA pilot;
+  MPS acceptance is pending. See `deploy/protpardelle-1c/cc94.md` and
+  `docs/research/9cqd-cc94-multichain-comparison.md`. Legacy `cc89_*` context
+  option keys persist for schema compatibility; cc94 sets chain phase `native`.
+
 - **Workspace autosaves track pending fields per workspace.** On a revision
   conflict, rebase only pending fields and tool-panel entries onto the latest
   manifest before retrying. Preserve newly registered artifacts and unrelated

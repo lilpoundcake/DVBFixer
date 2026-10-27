@@ -15,6 +15,8 @@ class GapCapability:
 
 
 ACCEPTED_INTERNAL_RANGES = MappingProxyType({
+    "protpardelle-1c-cc94-cuda-v1": (),
+    "protpardelle-1c-cc94-mps-v1": (),
     "protpardelle-1c-cuda": ((5, 10),),
     "protpardelle-1c-mps-local-v1": ((5, 10),),
     "protenix-v1-cuda": ((3, 12),),
@@ -32,7 +34,7 @@ def accepted_gap_ranges(profile: str) -> tuple[tuple[int, int], ...]:
 
 
 def accepted_gap_range_label(profile: str) -> str:
-    return ", ".join(f"{start}-{stop}" for start, stop in accepted_gap_ranges(profile))
+    return ", ".join(f"{start}-{stop}" for start, stop in accepted_gap_ranges(profile)) or "not established (cc94 case evidence only)"
 
 
 def gap_length_warning(profile: str, length: int, region: str) -> str | None:

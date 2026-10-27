@@ -7,6 +7,15 @@ production-supported backend.
 
 ## Public Linux/NVIDIA CUDA profile
 
+**Current default: cc94, not cc89.** New `--diffusion-model protpardelle`
+requests select `protpardelle-1c-cc94-cuda-v1` on Linux or
+`protpardelle-1c-cc94-mps-v1` on Apple Silicon. See the
+[cc94 deployment guide](cc94.md) for weights, checksums, ODE policy, registration
+and evidence. Old cc89 profiles below are historical and available only for
+explicit frozen-request replay. Their acceptance counts do not transfer to cc94.
+
+### Historical cc89 CUDA profile
+
 `protpardelle-1c-cuda` is available through `model`, mosaic-first `homology`,
 their existing batch/ZBS adapters, and the GUI's **Protpardelle** selection.
 Its validated slice is **one CYS-free internal gap of 5–10 residues**, a whole canonical-protein
@@ -46,7 +55,7 @@ target of a Python symlink. Register from the sampling environment:
 
 ```bash
 micromamba run -n dvbfixer-protpardelle-cuda python \
-  "$DVBFIXER_ROOT/scripts/install_diffusion_backend.py" protpardelle "$CHECKPOINT" \
+  "$DVBFIXER_ROOT/scripts/install_diffusion_backend.py" protpardelle-cuda-cc89-legacy "$CHECKPOINT" \
   --engine-root "$PROTPARDELLE_ROOT" --refinement-python "$REFINEMENT_PYTHON"
 
 dvbfixer model gapped.pdb --fasta target.fasta --backend diffusion \
@@ -108,9 +117,10 @@ see the [paired comparison](../../docs/research/cc89-input-correction-comparison
 
 ## Apple Silicon preparation
 
-New Apple runs require **`protpardelle-1c-mps-local-v1`**, the corrected public
-profile. A missing corrected launcher is an installation error, not permission
-to fall back to the historical MPS profile. It uses fixed source-only local
+**Historical cc89 setup:** new Apple installations use
+[`protpardelle-1c-cc94-mps-v1`](cc94.md). The older
+`protpardelle-1c-mps-local-v1` profile below remains explicit-replay-only.
+It uses fixed source-only local
 context, neutral denoiser chain phase and physical source positions.
 
 The qualified slice remains one CYS-free internal 5–10-residue gap and at most
@@ -254,7 +264,7 @@ Register the frozen backend once from the native Apple environment:
 
 ```bash
 python "$DVBFIXER_ROOT/scripts/install_diffusion_backend.py" \
-  protpardelle "$MODEL_PARAMS/weights/cc89_epoch415.pth" \
+  protpardelle-mps-cc89-legacy "$MODEL_PARAMS/weights/cc89_epoch415.pth" \
   --engine-root "$PROTPARDELLE_ROOT" --refinement-python "$REFINEMENT_PYTHON"
 ```
 
@@ -264,7 +274,7 @@ paths:
 
 ```bash
 dvbfixer model INPUT.pdb --fasta TARGET.fasta \
-  --backend diffusion -o OUTPUT_BUNDLE
+  --backend diffusion --diffusion-request FROZEN_CC89_REQUEST.json -o OUTPUT_BUNDLE
 ```
 
 `MODEL_PARAMS` must also contain `configs/cc89.yaml`. The wrapper derives

@@ -143,7 +143,11 @@ Protpardelle checkpoint, such as cc94, on the same case and selected context.
 That would test the training-domain explanation within the same model family.
 cc94 has different masking, encoding and conditioning semantics; its inclusion
 needs its own explicit adapter/protocol rather than relabeling it as cc89.
-No cc94 weights were downloaded or inference performed in this study.
+No cc94 weights were downloaded or inference performed in this study. A subsequent
+[cc94 versus cc89 matched-ODE pilot](9cqd-cc94-multichain-comparison.md) now tests
+that follow-up: after common generated-only refinement, cc94 passed 5/5 seeds in
+each reinjection arm, versus 1/5 and 0/5 for the new cc89 ODE controls. That result
+is separate evidence, with a new frozen protocol, not a replacement of this study.
 
 ## Provenance and operational corrections
 

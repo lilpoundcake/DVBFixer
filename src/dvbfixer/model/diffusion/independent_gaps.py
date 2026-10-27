@@ -92,7 +92,7 @@ def sample_independent_gaps(
         if fixed_seen != set(source_records):
             raise ValueError("independent gap sampler omitted immutable source atoms")
         for flag in result.backend_provenance.deterministic_flags:
-            if flag.startswith(("cc89-position-features-sha256=", "cc89-first-layer-rope-calls=")):
+            if flag.startswith(("cc89-position-features-sha256=", "cc89-first-layer-rope-calls=", "cc94-")):
                 flags.append(f"gap-{index}:{flag}")
         results.append(result)
         traces.append(trace)
@@ -129,7 +129,7 @@ def sample_independent_gaps(
     provenance = replace(first.backend_provenance,
         backend=first.backend_provenance.backend + "+independent-local-gaps-v1",
         deterministic_flags=tuple(flag for flag in first.backend_provenance.deterministic_flags
-            if not flag.startswith(("cc89-position-features-sha256=", "cc89-first-layer-rope-calls=")))
+            if not flag.startswith(("cc89-position-features-sha256=", "cc89-first-layer-rope-calls=", "cc94-")))
             + tuple(flags) + (f"independent-local-gap-invocations={len(results)}",))
     validate_sampler_trace_context(trace, request, provenance)
     return replace(first, candidates=(candidate,), backend_provenance=provenance, resource_metrics=metrics)
@@ -137,9 +137,9 @@ def sample_independent_gaps(
 
 def _read(workspace: Path, reference: ArtifactReference) -> str:
     # Reuse the core bounded/private artifact reader, including symlink and hash checks.
-    from dvbfixer.model.diffusion.runner_refinement import _read_private_artifact
+    from dvbfixer.model.diffusion.private_artifact import read_private_artifact
 
-    return _read_private_artifact(workspace, reference, label="independent gap artifact",
+    return read_private_artifact(workspace, reference, label="independent gap artifact",
         max_bytes=16_000_000, encoding="utf-8")
 
 

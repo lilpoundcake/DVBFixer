@@ -1,0 +1,878 @@
+{
+  "MPS_acceptance": "not executed; Linux host has no native MPS device",
+  "candidate_pdb": {
+    "path": "candidates/protpardelle-1c-cc94-cuda-v1/seed-7/refined/candidate.pdb",
+    "sha256": "b278c419a61bf13ce867610dc966bcb0b41189482642bbe7ea89a314a39edd38"
+  },
+  "date": "2026-10-27",
+  "denoising_updates_per_gap": 500,
+  "failure_history": [
+    {
+      "attempt": 1,
+      "cause": "artifact reader imported refinement-only PDBFixer in sampling env",
+      "resolution": "bounded artifact reader extracted into a pure shared module; no scientific rejection retried",
+      "stage": "pre-generation"
+    }
+  ],
+  "final_result_sha256": "a4dcbb3f96a496eb354d272f59955b0d6542aaa1df5375b8263f197a6f405154",
+  "fixed_atoms": 3441,
+  "gap_count": 7,
+  "gaps": [
+    {
+      "chain": "M",
+      "gap_kind": "n_terminal",
+      "generated_residues": [
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "155"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "156"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "157"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "158"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "159"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "160"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "161"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "162"
+        }
+      ],
+      "left_anchor": null,
+      "movable_junction_residues": [
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "155"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "156"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "157"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "158"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "159"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "160"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "161"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "162"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "163"
+        }
+      ],
+      "right_anchor": {
+        "chain": "M",
+        "insertion_code": "",
+        "residue_number": "163"
+      },
+      "target_interval": {
+        "start": 0,
+        "stop": 8
+      }
+    },
+    {
+      "chain": "M",
+      "gap_kind": "c_terminal",
+      "generated_residues": [
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "190"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "191"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "192"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "193"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "194"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "195"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "196"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "197"
+        }
+      ],
+      "left_anchor": {
+        "chain": "M",
+        "insertion_code": "",
+        "residue_number": "189"
+      },
+      "movable_junction_residues": [
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "189"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "190"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "191"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "192"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "193"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "194"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "195"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "196"
+        },
+        {
+          "chain": "M",
+          "insertion_code": "",
+          "residue_number": "197"
+        }
+      ],
+      "right_anchor": null,
+      "target_interval": {
+        "start": 35,
+        "stop": 43
+      }
+    },
+    {
+      "chain": "W",
+      "gap_kind": "n_terminal",
+      "generated_residues": [
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "1"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "2"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "3"
+        }
+      ],
+      "left_anchor": null,
+      "movable_junction_residues": [
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "1"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "2"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "3"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "4"
+        }
+      ],
+      "right_anchor": {
+        "chain": "W",
+        "insertion_code": "",
+        "residue_number": "4"
+      },
+      "target_interval": {
+        "start": 0,
+        "stop": 3
+      }
+    },
+    {
+      "chain": "W",
+      "gap_kind": "internal",
+      "generated_residues": [
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "26"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "27"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "28"
+        }
+      ],
+      "left_anchor": {
+        "chain": "W",
+        "insertion_code": "",
+        "residue_number": "25"
+      },
+      "movable_junction_residues": [
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "25"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "26"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "27"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "28"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "29"
+        }
+      ],
+      "right_anchor": {
+        "chain": "W",
+        "insertion_code": "",
+        "residue_number": "29"
+      },
+      "target_interval": {
+        "start": 25,
+        "stop": 28
+      }
+    },
+    {
+      "chain": "W",
+      "gap_kind": "c_terminal",
+      "generated_residues": [
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "218"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "219"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "220"
+        }
+      ],
+      "left_anchor": {
+        "chain": "W",
+        "insertion_code": "",
+        "residue_number": "217"
+      },
+      "movable_junction_residues": [
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "217"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "218"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "219"
+        },
+        {
+          "chain": "W",
+          "insertion_code": "",
+          "residue_number": "220"
+        }
+      ],
+      "right_anchor": null,
+      "target_interval": {
+        "start": 217,
+        "stop": 220
+      }
+    },
+    {
+      "chain": "X",
+      "gap_kind": "internal",
+      "generated_residues": [
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "140"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "141"
+        }
+      ],
+      "left_anchor": {
+        "chain": "X",
+        "insertion_code": "",
+        "residue_number": "139"
+      },
+      "movable_junction_residues": [
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "139"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "140"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "141"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "142"
+        }
+      ],
+      "right_anchor": {
+        "chain": "X",
+        "insertion_code": "",
+        "residue_number": "142"
+      },
+      "target_interval": {
+        "start": 139,
+        "stop": 141
+      }
+    },
+    {
+      "chain": "X",
+      "gap_kind": "c_terminal",
+      "generated_residues": [
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "222"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "223"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "224"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "225"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "226"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "227"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "228"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "229"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "230"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "231"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "232"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "233"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "234"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "235"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "236"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "237"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "238"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "239"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "240"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "241"
+        }
+      ],
+      "left_anchor": {
+        "chain": "X",
+        "insertion_code": "",
+        "residue_number": "221"
+      },
+      "movable_junction_residues": [
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "221"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "222"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "223"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "224"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "225"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "226"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "227"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "228"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "229"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "230"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "231"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "232"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "233"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "234"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "235"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "236"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "237"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "238"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "239"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "240"
+        },
+        {
+          "chain": "X",
+          "insertion_code": "",
+          "residue_number": "241"
+        }
+      ],
+      "right_anchor": null,
+      "target_interval": {
+        "start": 221,
+        "stop": 241
+      }
+    }
+  ],
+  "generated_atoms": 343,
+  "independent_gap_count": 7,
+  "integration_source_sha256_at_export": {
+    "deploy/protpardelle-1c/cc94_runner.py": "1531ce31d3ba884672cd48968846f66b2da9bf616837e732c4b8b84786aee6ae",
+    "deploy/protpardelle-1c/checkpoint_gap_smoke.py": "513bd03f3ab56c8f5cb2f266cf072abd1b71a3f8d489b0b538f5308cc89a9c2f",
+    "src/dvbfixer/model/diffusion/cc94.py": "59c78414d85f2c736f72f35a14f928674740ded0118fb7c5336dc95f2f05f20f",
+    "src/dvbfixer/model/diffusion/private_artifact.py": "b1eaf1fd9ec9e218c6d56955b4e07e54dbaaf93f6b97c175f9d6c2d034888848"
+  },
+  "local_evidence_root": ".artifacts/cc94-production-full9cqd-attempt2",
+  "post_run_label_fix": "Per-gap summary checkpoint label initially retained the cc89 constant; corrected in integration code. Saved RunnerResult and sampler checkpoint provenance correctly identify cc94. Original summary artifacts are retained.",
+  "profile": "protpardelle-1c-cc94-cuda-v1",
+  "provenance": {
+    "backend": "protpardelle-1c-cc94-local-interchain-conditioning+native-relative-ode-v1+source-physical-positions-v1+independent-local-gaps-v1+reference-boundary-refinement",
+    "checkpoint_license": "",
+    "checkpoint_sha256": "a58c009ead22b6f79ef61d44e258b432b0fada1dfd8d44cb7a137d7459038a15",
+    "container_digest": "",
+    "cuda_version": "12.4",
+    "deterministic_algorithms": false,
+    "deterministic_flags": [
+      "seed=7",
+      "fixed-sequence",
+      "mpnn-disabled",
+      "independent-chain-invocations=1",
+      "local-interchain-contexts=1",
+      "interchain-context-cutoff-angstrom=12.0",
+      "conditioned-heterogens=0",
+      "heterogen-repulsion-cutoff-angstrom=2.0",
+      "per-step-reinjection=False",
+      "mps-fallback=unset",
+      "cc89-position-features=source-physical-v1",
+      "gap-0:cc94-native-relative-v1",
+      "gap-0:cc94-ode-v1",
+      "gap-0:cc94-position-calls=500",
+      "gap-0:cc89-position-features-sha256=8247aa9d4fea5bd24915f1aacca244f9be4451db5596635377580b39259afae2",
+      "gap-1:cc94-native-relative-v1",
+      "gap-1:cc94-ode-v1",
+      "gap-1:cc94-position-calls=500",
+      "gap-1:cc89-position-features-sha256=5ec5042486b4702cb0057cf514b5250941ebb714d51072f264fb05af423715c9",
+      "gap-2:cc94-native-relative-v1",
+      "gap-2:cc94-ode-v1",
+      "gap-2:cc94-position-calls=500",
+      "gap-2:cc89-position-features-sha256=788ea434bc84489575bcc1d4e8a5fa47dc8e9c38b7d1c939b7907a51799f1684",
+      "gap-3:cc94-native-relative-v1",
+      "gap-3:cc94-ode-v1",
+      "gap-3:cc94-position-calls=500",
+      "gap-3:cc89-position-features-sha256=fa51d2173152797cefc13c34ee683d15781678f000bdd82170427fd09a1dcf3e",
+      "gap-4:cc94-native-relative-v1",
+      "gap-4:cc94-ode-v1",
+      "gap-4:cc94-position-calls=500",
+      "gap-4:cc89-position-features-sha256=83dd0dcf2dea81bcd7ef898cf5189e4d3b44d0cb816d76ba344dc4ed55937779",
+      "gap-5:cc94-native-relative-v1",
+      "gap-5:cc94-ode-v1",
+      "gap-5:cc94-position-calls=500",
+      "gap-5:cc89-position-features-sha256=320a2c9887d1b9ffe1c29ecea4f47a016c5199116fb240eeda18783a717a6e77",
+      "gap-6:cc94-native-relative-v1",
+      "gap-6:cc94-ode-v1",
+      "gap-6:cc94-position-calls=500",
+      "gap-6:cc89-position-features-sha256=04516d52d39d78e3abcb26760fcb8e29fd64b2a973668c3da16ad78fb5d21b7f",
+      "independent-local-gap-invocations=7",
+      "refinement-platform=Reference",
+      "refinement=dvbfixer-openmm-boundary-refinement-v8",
+      "refinement-restart-count=8"
+    ],
+    "device": "cuda:0",
+    "driver_version": "",
+    "engine_repository": "https://github.com/ProteinDesignLab/protpardelle-1c",
+    "engine_revision": "ee378400f25b801fa481028000f9060183d7fb4c",
+    "environment_hash": "",
+    "environment_identity": "linux-amd64;cc94-ode-v1;python=3.12;torch=2.6.0+cu124;refinement=openmm-8.6.1-reference",
+    "framework": "torch",
+    "framework_version": "2.6.0+cu124",
+    "known_nondeterministic_operations": [],
+    "precision": "float32",
+    "runner_protocol_version": 4,
+    "source_license": "MIT"
+  },
+  "raw_result_sha256": "bec5f4f95adc0c6947efff64eacf376f463bb736c9ef43d8206e022f07ad9d69",
+  "request_sha256": "5558007051a4955b6c8907ad0ec3105922eb782082faf3be1df7f19f4c560e64",
+  "sampler_trace": {
+    "path": "candidates/protpardelle-1c-cc94-cuda-v1/seed-7/refined/sampler-trace.json",
+    "sha256": "88991dd3af412008d33c2db201dafa2bc9ba06cfbf3ff6402ec5d2668e11a855"
+  },
+  "schema_version": 1,
+  "seed": 7,
+  "source_pdb_sha256": "6bcc9638c3d299ea12151c3894b7e6c3482ebd2fdfe1d8e54dcc1f6f6316a281",
+  "status": "execution-passed-scientific-candidate-rejected",
+  "trace_profile": "protpardelle-1c-cc94-cuda-v1",
+  "validation": {
+    "hard_gate_failures": [
+      "generated-or-junction-amide-planarity",
+      "generated-or-junction-ramachandran"
+    ],
+    "metrics": [
+      {
+        "name": "pdb-metadata-inconsistencies",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "outside-atom-identities-missing",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "outside-atom-identities-added",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "outside-residue-names-changed",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "fixed-heavy-atom-rmsd",
+        "unit": "angstrom",
+        "value": 0.0
+      },
+      {
+        "name": "fixed-heavy-atom-max-displacement",
+        "unit": "angstrom",
+        "value": 0.0
+      },
+      {
+        "name": "generated-residues-missing",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "generated-residue-names-wrong",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "generated-heavy-atoms-missing",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "generated-heavy-atoms-unexpected",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "junction-cn-distance-min",
+        "unit": "angstrom",
+        "value": 1.2263747388135486
+      },
+      {
+        "name": "junction-cn-distance-max",
+        "unit": "angstrom",
+        "value": 1.3839461694733697
+      },
+      {
+        "name": "generated-region-cn-distance-max",
+        "unit": "angstrom",
+        "value": 1.3839461694733697
+      },
+      {
+        "name": "retained-explicit-links-missing",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "retained-explicit-links-unexpected",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "generated-or-junction-bond-length-errors",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "generated-or-junction-bond-angle-errors",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "generated-or-junction-non-planar-amides",
+        "unit": "count",
+        "value": 1.0
+      },
+      {
+        "name": "generated-or-junction-ramachandran-outliers",
+        "unit": "count",
+        "value": 1.0
+      },
+      {
+        "name": "generated-or-junction-sidechain-chi12-outliers",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "severe-steric-overlaps",
+        "unit": "count",
+        "value": 0.0
+      },
+      {
+        "name": "detectable-d-ca",
+        "unit": "count",
+        "value": 0.0
+      }
+    ],
+    "passed": false,
+    "warnings": []
+  }
+}

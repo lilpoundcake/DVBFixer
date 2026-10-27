@@ -33,6 +33,16 @@ class _RuntimeSpec:
 
 _RUNTIME_SPECS = (
     _RuntimeSpec(
+        model="protpardelle", profile="protpardelle-1c-cc94-cuda-v1",
+        executable="dvbfixer-diffusion-protpardelle-1c-cc94-cuda-v1",
+        platforms=(("linux", "x86_64"), ("linux", "amd64")),
+    ),
+    _RuntimeSpec(
+        model="protpardelle", profile="protpardelle-1c-cc94-mps-v1",
+        executable="dvbfixer-diffusion-protpardelle-1c-cc94-mps-v1",
+        platforms=(("darwin", "arm64"),),
+    ),
+    _RuntimeSpec(
         model="protpardelle",
         profile="protpardelle-1c-cuda",
         executable="dvbfixer-diffusion-protpardelle-1c-cuda",
@@ -90,7 +100,7 @@ def resolve_diffusion_runtime(model: str | None = None, *, profile: str | None =
     if profile is None:
         # Legacy launchers exist only for explicit frozen-request replay. Their
         # installation is not permission to downgrade a new scientific request.
-        compatible = [spec for spec in compatible if spec.profile != "protpardelle-1c-mps"]
+        compatible = [spec for spec in compatible if spec.model != "protpardelle" or "-cc94-" in spec.profile]
     installed = [
         (spec, runner)
         for spec in compatible

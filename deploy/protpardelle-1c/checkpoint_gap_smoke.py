@@ -1,4 +1,4 @@
-"""Run Protpardelle-1c cc89 on one materialized DVBFixer gap request."""
+"""Shared Protpardelle-1c adapter: versioned cc94 and frozen cc89 replay."""
 
 from __future__ import annotations
 
@@ -44,9 +44,11 @@ from dvbfixer.model.diffusion.protein_context import (
     MPS_CC89_PROFILE,
     context_evidence,
     engine_context_view,
+    is_cc94,
     is_mps_cc89,
     select_legacy_partner_spans,
     source_context_position_features,
+    validate_cc94_request,
     validate_context_source,
     validate_mps_cc89_request,
 )
@@ -941,6 +943,11 @@ def _require_position_feature_policy(request, device_name, policy, chain_phase, 
     declared = next((option.value for option in request.backend_options if option.name == "cc89_position_features"), "native")
     if policy not in {"native", "source-physical-v1"} or declared != policy:
         raise ValueError("cc89 position feature policy must match the explicitly declared request")
+    if is_cc94(request):
+        validate_cc94_request(request)
+        if policy != "source-physical-v1" or chain_phase != "native":
+            raise ValueError("cc94 requires native relative encoding and physical positions")
+        return
     if corrected_mps_research:
         _require_corrected_mps_request(request, device_name)
     if is_mps_cc89(request):
@@ -1018,6 +1025,22 @@ def _rope_probe(module, probe):
         module.forward = original
 
 
+class _RelativePositionProbe:
+    """Check the actual native cc94 denoiser inputs, without changing them."""
+
+    def __init__(self, positions, chains, device):
+        import torch
+        self.positions = torch.tensor([positions], device=device)
+        self.chains = torch.tensor([chains], device=device)
+        self.calls = 0
+
+    def __call__(self, module, args, kwargs):
+        import torch
+        if not torch.equal(kwargs["residue_index"], self.positions) or not torch.equal(kwargs["chain_index"], self.chains):
+            raise RuntimeError("cc94 denoiser changed physical position/chain features")
+        self.calls += 1
+
+
 def _run_staged(
     request_path: Path,
     output_dir: Path,
@@ -1036,6 +1059,7 @@ def _run_staged(
     chain_phase_policy: str = "native",
     position_feature_policy: str = "native",
     corrected_mps_research: bool = False,
+    checkpoint_model: str = "cc89",
 ) -> tuple[RunnerResult, Path]:
     import torch
     from protpardelle.common import residue_constants
@@ -1046,11 +1070,25 @@ def _run_staged(
         raise ValueError("steps must be positive")
     if crop_strategy not in {"backbone-sidechain", "backbone", "sidechain", "sidechain-tip"}:
         raise ValueError("unsupported crop conditioning strategy")
-    if _sha256(config_path) != _CONFIG_SHA256 or _sha256(checkpoint_path) != _CHECKPOINT_SHA256:
-        raise ValueError("cc89 config or checkpoint digest mismatch")
+    from dvbfixer.model.diffusion import cc94
+
+    if checkpoint_model not in {"cc89", "cc94"}:
+        raise ValueError("unsupported Protpardelle checkpoint")
+    config_sha = cc94.CONFIG_SHA256 if checkpoint_model == "cc94" else _CONFIG_SHA256
+    checkpoint_sha = cc94.CHECKPOINT_SHA256 if checkpoint_model == "cc94" else _CHECKPOINT_SHA256
+    if _sha256(config_path) != config_sha or _sha256(checkpoint_path) != checkpoint_sha:
+        raise ValueError(f"{checkpoint_model} config or checkpoint digest mismatch")
     request_path = request_path.resolve()
     workspace = request_path.parent
     request = DiffusionRequest.from_json(request_path.read_text(encoding="utf-8"))
+    cc94_production = is_cc94(request)
+    if cc94_production != (checkpoint_model == "cc94"):
+        raise ValueError("checkpoint and request profile must select the same model")
+    if cc94_production:
+        validate_cc94_request(request)
+        if (steps != 500 or step_scale != 1.0 or s_churn != 0.0 or per_step_reinjection
+                or replacement_guidance or chain_phase_policy != "native" or context_probe):
+            raise ValueError("cc94 requires its frozen native-relative ODE schedule")
     _require_chain_phase_policy(request, device_name, chain_phase_policy, corrected_mps_research=corrected_mps_research)
     _require_position_feature_policy(request, device_name, position_feature_policy, chain_phase_policy, corrected_mps_research=corrected_mps_research)
     mps_production = is_mps_cc89(request)
@@ -1099,6 +1137,13 @@ def _run_staged(
     seed = request.seeds[0]
     model_load_start = time.perf_counter()
     model = load_model(config_path, checkpoint_path, device=str(device))
+    if cc94_production:
+        # Upstream load_model uses strict=False; production requires a complete match.
+        state = torch.load(checkpoint_path, map_location="cpu", weights_only=False)["model_state_dict"]
+        model.load_state_dict(state, strict=True)
+        del state
+        if model.task != "ai-allatom-nomask" or model.config.model.struct_model.uvit.position_embedding_type != "relative":
+            raise ValueError("cc94 task/relative encoding mismatch")
     _synchronize(torch, device)
     model_load_seconds = time.perf_counter() - model_load_start
     _assert_model_device(model, device)
@@ -1247,9 +1292,10 @@ def _run_staged(
         profile_context = torch.mps.profiler.profile() if mps_profile else nullcontext()
         probe = _DenoiserContextProbe(sampling_request) if context_probe else None
         position_probe = _SourcePositionProbe(source_indices, source_chains, device) if corrected_mps else None
+        relative_probe = _RelativePositionProbe(source_indices, source_chains, device) if cc94_production else None
         # The transformer template's .rope is unused: layers deepcopy attention.
         rope = model.struct_model.net.transformer.layers[0][0].rope if position_probe else None
-        with profile_context, _probe_hook(model.struct_model, phase_control), _probe_hook(model.struct_model, probe), _rope_probe(rope, position_probe):
+        with profile_context, _probe_hook(model.struct_model, phase_control), _probe_hook(model.struct_model, relative_probe), _probe_hook(model.struct_model, probe), _rope_probe(rope, position_probe):
             sampled = model.sample(
                 seq_mask=seq_mask,
                 residue_index=residue_index,
@@ -1279,6 +1325,10 @@ def _run_staged(
             if position_probe.result is None or position_probe.calls != 2 * steps:
                 raise RuntimeError("first-layer RoPE probe did not reach every query/key update")
             position_probes.append({**position_probe.result, "calls": position_probe.calls})
+        if relative_probe is not None and relative_probe.calls != steps:
+            raise RuntimeError("cc94 position probe did not reach every denoising update")
+        if cc94_production and not torch.equal(sampled["s"], gt_aatype):
+            raise RuntimeError("cc94 changed the fixed sequence")
         if probe:
             if probe.result is None:
                 raise RuntimeError("causal denoiser probe did not execute")
@@ -1306,6 +1356,10 @@ def _run_staged(
 
         raw = _coordinates_to_numpy(torch, sampled["x"][0])
         identities, coordinates, residue_names = _model_atoms(sampling_request, raw)
+        if cc94_production:
+            np.savez_compressed(output_dir / f"native-{invocation_index}.npz", coordinates=coordinates)
+            (output_dir / f"native-axis-{invocation_index}.json").write_text(json.dumps([
+                asdict(engine_to_source.get(atom, atom) if engine_to_source else atom) for atom in identities]))
         requested_atoms = set(sampling_request.fixed_atoms) | set(
             sampling_request.generated_atoms
         )
@@ -1395,6 +1449,8 @@ def _run_staged(
         peak_vram_bytes=memory["peak_accelerator_allocated_bytes"],
     )
     actual_profile = _sampler_profile(device.type, per_step_reinjection, cuda_production, corrected_mps_research, mps_production)
+    if cc94_production:
+        actual_profile = next(o.value for o in request.backend_options if o.name == "profile")
     callback_count = int(callback_stats["callback_count"])
     if phase_control is not None and phase_control.calls != steps * len(sampling_requests):
         raise RuntimeError("cc89 chain-phase control did not reach every denoising update")
@@ -1409,6 +1465,7 @@ def _run_staged(
             engine_repository="https://github.com/ProteinDesignLab/protpardelle-1c",
             engine_revision=_REVISION,
             patch_identity=(
+                f"cc94-native-relative-v1;cc94-ode-v1;adapter-sha256:{_sha256(Path(__file__))}" if cc94_production else
                 f"sha256:{_APPLE_PATCH_SHA256}" if phase_control is None else
                 (f"sha256:{_APPLE_PATCH_SHA256};" if corrected_mps else "")
                 + f"adapter-sha256:{_sha256(Path(__file__))};cc89-chain-phase=neutral-v1"
@@ -1442,7 +1499,7 @@ def _run_staged(
     )
 
     candidate = RunnerCandidate(
-        candidate_id=f"protpardelle-1c-cc89-seed-{seed}",
+        candidate_id=f"protpardelle-1c-{checkpoint_model}-seed-{seed}",
         seed=seed,
         coordinate_artifact=_artifact(workspace, candidate_path),
         sampler_trace_artifact=trace_artifact,
@@ -1451,7 +1508,7 @@ def _run_staged(
             residue for gap in request.gaps for residue in gap.generated_residues
         ),
         raw_backend_score=None,
-        score_provenance="protpardelle-1c-cc89:unranked",
+        score_provenance=f"protpardelle-1c-{checkpoint_model}:unranked",
     )
     backend_label = (
         "protpardelle-1c-cc89-local-interchain-conditioning"
@@ -1465,6 +1522,8 @@ def _run_staged(
     )
     if request.heterogen_contexts:
         backend_label += "+heterogen-geometric-context"
+    if cc94_production:
+        backend_label = backend_label.replace("cc89", "cc94") + "+native-relative-ode-v1"
     if phase_control is not None:
         backend_label += "+neutral-denoiser-chain-phase-v1"
     if position_evidence is not None:
@@ -1479,7 +1538,7 @@ def _run_staged(
             runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="https://github.com/ProteinDesignLab/protpardelle-1c",
             engine_revision=_REVISION,
-            checkpoint_sha256=_CHECKPOINT_SHA256,
+            checkpoint_sha256=checkpoint_sha,
             device=str(device),
             precision="float32",
             framework="torch",
@@ -1488,6 +1547,7 @@ def _run_staged(
             deterministic_algorithms=False,
             deterministic_flags=(
                 f"seed={seed}",
+                *(("cc94-native-relative-v1", "cc94-ode-v1", "cc94-position-calls=500") if cc94_production else ()),
                 *((f"research-profile={actual_profile}", f"apple-patch-sha256={_APPLE_PATCH_SHA256}") if corrected_mps_research else ()),
                 *((f"cc89-first-layer-rope-calls={sum(probe['calls'] for probe in position_probes)}",) if mps_production else ()),
                 "fixed-sequence",
@@ -1507,6 +1567,8 @@ def _run_staged(
         ),
         resource_metrics=resource_metrics,
     )
+    if cc94_production:
+        (output_dir / "runner-result.json").write_text(result.to_json())
     validation = validate_runner_result(request, result, workspace=workspace, phase="raw")[0]
     quality_summary: dict[str, float | None] = {
         "gap_backbone_rmsd_angstrom": None,
@@ -1554,7 +1616,7 @@ def _run_staged(
         **({"source_position_probes": position_probes} if position_probes else {}),
         "candidate_sha256": candidate.coordinate_artifact.sha256,
         "config_sha256": _CONFIG_SHA256,
-        "checkpoint_sha256": _CHECKPOINT_SHA256,
+        "checkpoint_sha256": checkpoint_sha,
         "diffusion_steps": steps,
         "total_denoising_updates": steps * len(sampling_requests),
         "independent_chain_invocations": len(sampling_requests),

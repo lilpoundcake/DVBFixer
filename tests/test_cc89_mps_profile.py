@@ -168,8 +168,8 @@ def test_mps_installer_requires_separate_refiner_and_preserves_venv_path(tmp_pat
     interpreter.symlink_to(sys.executable)
     monkeypatch.setattr(sys, "argv", [*arguments, "--refinement-python", str(interpreter)])
     installer.main()
-    launcher = (tmp_path / "runners/dvbfixer-diffusion-protpardelle-1c-mps-local-v1").read_text()
-    assert str(interpreter) in launcher and "mps_runner.py" in launcher
+    launcher = (tmp_path / "runners/dvbfixer-diffusion-protpardelle-1c-cc94-mps-v1").read_text()
+    assert str(interpreter) in launcher and "cc94_runner.py" in launcher
     assert "PYTORCH_ENABLE_MPS_FALLBACK=0" in launcher
 
 

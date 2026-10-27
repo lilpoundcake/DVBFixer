@@ -648,7 +648,7 @@ class SamplerTrace:
             if set(evidence.selected_atoms) & set(evidence.preserved_atoms) or set(evidence.selected_atoms) | set(evidence.preserved_atoms) != set(self.fixed_atoms):
                 raise DiffusionContractError("context evidence must partition the fixed atom mask")
         if self.gap_context_evidence is not None:
-            if self.profile != "protpardelle-1c-mps-local-v1":
+            if self.profile not in {"protpardelle-1c-mps-local-v1", "protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"}:
                 raise DiffusionContractError("independent local gap evidence requires the corrected MPS profile")
             if self.protein_context_evidence is not None or not 1 <= len(self.gap_context_evidence) <= 64:
                 raise DiffusionContractError("independent gap evidence requires 1-64 separate contexts")
@@ -852,6 +852,17 @@ class SamplerTrace:
                 raise DiffusionContractError(
                     "Apple profile requires MPS with fallback disabled"
                 )
+        if self.profile in {"protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"}:
+            cuda = self.profile == "protpardelle-1c-cc94-cuda-v1"
+            if (not self.sampler_evidence_complete or not self.fallback_disabled
+                    or self.denoising_update_count != 500 or self.callback_update_count or self.steps
+                    or self.capabilities.supports_per_step_reinjection()
+                    or not self.final_fixed_coordinate_restoration
+                    or (self.protein_context_evidence is None and self.gap_context_evidence is None)
+                    or (not self.device.startswith("cuda:") if cuda else self.device != "mps")
+                    or "cc94-native-relative-v1" not in self.patch_identity
+                    or "cc94-ode-v1" not in self.patch_identity):
+                raise DiffusionContractError("cc94 profile lacks its frozen sampler/context evidence")
         if self.profile == "protpardelle-1c-cuda":
             if (not self.sampler_evidence_complete or not self.device.startswith("cuda")
                     or not self.fallback_disabled or self.denoising_update_count != 500

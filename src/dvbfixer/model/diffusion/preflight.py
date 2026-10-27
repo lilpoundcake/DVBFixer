@@ -92,6 +92,28 @@ class DiffusionProfileMetadata:
 
 
 DIFFUSION_PROFILES = {
+    "protpardelle-1c-cc94-cuda-v1": DiffusionProfileMetadata(
+        profile="protpardelle-1c-cc94-cuda-v1", status="experimental-cc94-case-tested",
+        evidence_labels=("experimental", "cc94-9cqd-ode-5-of-5", "no-per-step-reinjection"),
+        engine="Protpardelle-1c cc94", source_revision="ee378400f25b801fa481028000f9060183d7fb4c",
+        patch_identity="cc94-native-relative-v1;source-physical-v1;callback-patch-v1",
+        expected_checkpoint_sha256="a58c009ead22b6f79ef61d44e258b432b0fada1dfd8d44cb7a137d7459038a15",
+        sampling_platform="Linux amd64 / NVIDIA CUDA 12.4", refinement_platform="OpenMM Reference",
+        runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION, contract_schema_version=DIFFUSION_SCHEMA_VERSION,
+        fallback_policy="disabled; no checkpoint, profile, device, or MODELLER fallback",
+        training_membership_status="not-independently-attested",
+    ),
+    "protpardelle-1c-cc94-mps-v1": DiffusionProfileMetadata(
+        profile="protpardelle-1c-cc94-mps-v1", status="experimental-cc94-mps-unverified",
+        evidence_labels=("experimental", "cuda-case-evidence-only", "mps-acceptance-pending", "no-per-step-reinjection"),
+        engine="Protpardelle-1c cc94", source_revision="ee378400f25b801fa481028000f9060183d7fb4c",
+        patch_identity="cc94-native-relative-v1;source-physical-v1;apple-patch-v1",
+        expected_checkpoint_sha256="a58c009ead22b6f79ef61d44e258b432b0fada1dfd8d44cb7a137d7459038a15",
+        sampling_platform="native macOS arm64 / MPS", refinement_platform="OpenMM CPU",
+        runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION, contract_schema_version=DIFFUSION_SCHEMA_VERSION,
+        fallback_policy="PYTORCH_ENABLE_MPS_FALLBACK=0; no checkpoint, profile, or device fallback",
+        training_membership_status="not-independently-attested",
+    ),
     "protpardelle-1c-mps-local-v1": DiffusionProfileMetadata(
         profile="protpardelle-1c-mps-local-v1",
         status="experimental-corrected-local-context",
@@ -175,6 +197,16 @@ class _RuntimeExpectation:
 
 
 _PROFILE_RUNTIME_EXPECTATIONS = {
+    "protpardelle-1c-cc94-cuda-v1": _RuntimeExpectation(
+        platform="linux", architectures=frozenset({"x86_64", "amd64"}),
+        python_version="3.12", framework_version="2.6.0", device_prefix="cuda:",
+        environment_identity="linux-amd64;cc94-ode-v1;python=3.12;torch=2.6.0+cu124;refinement=openmm-8.6.1-reference",
+    ),
+    "protpardelle-1c-cc94-mps-v1": _RuntimeExpectation(
+        platform="darwin", architectures=frozenset({"arm64"}),
+        python_version="3.12", framework_version="2.6.0", device_prefix="mps",
+        environment_identity="macos-arm64;cc94-ode-v1;python=3.12;torch=2.6.0;refinement=openmm-8.5.2-cpu",
+    ),
     "protpardelle-1c-mps-local-v1": _RuntimeExpectation(
         platform="darwin", architectures=frozenset({"arm64"}),
         python_version="3.12", framework_version="2.6.0", device_prefix="mps",

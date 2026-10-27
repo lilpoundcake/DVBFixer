@@ -166,35 +166,32 @@ accepted under legacy coordinate-preservation semantics.
 
 ### Experimental diffusion scope
 
-On Linux/NVIDIA, `--diffusion-model protpardelle` selects the installed
-`protpardelle-1c-cuda` profile. Its validated slice is one CYS-free internal gap of **5–10 residues** in
-a canonical-protein source totaling at most **512 residues**, including surrounding
-protein chains. The default `--diffusion-context auto` applies the validated
-source-only local selector, physical source-chain positions and neutral denoiser
-phase. Geometry-gated CUDA refinement follows sampling; outside the generated
-and explicitly authorized anchor mask, atom records remain unchanged. Terminal OXT is preserved outside atom37 conditioning. Explicit
-`none`/`full`, nonwater heterogens, terminal gaps, and multiple gaps are rejected.
-Installation and the two isolated runtimes are described in the
-[CUDA deployment guide](../../deploy/protpardelle-1c/README.md#public-linuxnvidia-cuda-profile).
+`--diffusion-model protpardelle` now selects **cc94_epoch3100**, with profile
+`protpardelle-1c-cc94-cuda-v1` on Linux/NVIDIA or
+`protpardelle-1c-cc94-mps-v1` on native Apple Silicon. Both use 500 ODE updates
+(scale 1, churn 0), fixed sequence, native relative encoding and physical source
+chain positions. `--diffusion-context auto|local` selects the source-only local
+environment. Explicit `none`/`full` and nonwater heterogens are rejected.
+Linux refinement uses isolated OpenMM Reference; Apple uses isolated CPU
+refinement with MPS fallback disabled. See the
+[cc94 deployment guide](../../deploy/protpardelle-1c/cc94.md).
 
-New native Apple registrations use the versioned
-`protpardelle-1c-mps-local-v1` profile with the same bounded source-only local
-input policy and **separate geometry-gated CPU refinement**. MPS denoising never
-falls back to CPU. The installer requires `--refinement-python`; see the
-[Apple deployment guide](../../deploy/protpardelle-1c/README.md#apple-silicon-preparation).
-The historical `protpardelle-1c-mps` identity is retained for legacy requests;
-installing the corrected version does not relabel or migrate those requests.
-New requests never automatically downgrade to that historical launcher.
+cc94's evidence is currently case-specific: the 9CQD M155–162 CUDA pilot passed
+5/5 seeds per conditioning arm after generated-only refinement. General gap
+acceptance and native MPS acceptance are not established; historical cc89
+5–10-residue cohort claims do not transfer. Old cc89 profiles remain available
+only for explicit frozen-request replay, never as an automatic fallback.
 
-Corrected Apple requests with multiple gaps, terminal regions or more than 512
+New cc94 requests with multiple gaps, terminal regions or more than 512
 whole-source residues use the explicit `independent-local-v1` execution policy.
 Every gap receives its own source-only local view (at most 512 engine residues,
 up to 64 views per candidate), preserving physical positions and partner-chain
 separation. Other missing regions are excluded, not fabricated as context. Only
 observed sidechain atoms are conditioned; incomplete backbone context is rejected.
 The generated regions are merged without moving source atoms, jointly assessed/refined
-on CPU, and validated as a whole complex, including inter-gap clashes. Each view's
-context and actual RoPE evidence are retained. This wider scope is experimental;
+in the separate refinement runtime, and validated as a whole complex, including
+inter-gap clashes. Each view's context and actual native-relative position
+evidence are retained. This wider scope is experimental;
 the earlier single-gap cohort does not establish terminal/multi-gap quality.
 No tails are silently removed; `--no-terminal` remains an explicit user choice.
 
@@ -242,7 +239,8 @@ before or after the observed PDB residue-number range. The materializer inserts
 N-terminal atoms before the first observed residue and C-terminal atoms before
 that chain's `TER`. Validation applies the single available peptide-junction gate
 plus atom completeness, geometry, clashes, chirality, and exact fixed-coordinate
-checks. Other diffusion profiles reject terminal requests before runner launch.
+checks. The current cc94 profiles also support independent terminal views as
+described above; Protenix rejects terminal requests before runner launch.
 Pass `--no-terminal` to crop each target outside its first and last observed
 anchors and reconstruct only internal gaps. Legacy MPS Protpardelle can retain complete,
 isolated, single-residue small molecules only when every retained HETATM residue

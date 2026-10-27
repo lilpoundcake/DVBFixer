@@ -30,7 +30,7 @@ def test_linux_installed_cuda_cc89_is_discovered_without_mps(monkeypatch):
     monkeypatch.setattr("dvbfixer.model.diffusion.runtime.platform.machine", lambda: "x86_64")
     monkeypatch.setattr("dvbfixer.model.diffusion.runtime._installed_runner",
                         lambda name: "/installed/cc89" if name.endswith("protpardelle-1c-cuda") else None)
-    assert resolve_diffusion_runtime("protpardelle").profile == "protpardelle-1c-cuda"
+    assert resolve_diffusion_runtime("protpardelle", profile="protpardelle-1c-cuda").profile == "protpardelle-1c-cuda"
 
 
 def test_cuda_default_context_preserves_terminal_oxt_and_replays_identically(tmp_path, cli_fixture):
@@ -90,9 +90,9 @@ def test_installer_keeps_refinement_venv_symlink(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "diffusion_runner_directory", lambda: tmp_path / "runners")
     monkeypatch.setattr(sys, "argv", [str(script), "protpardelle", str(checkpoint), "--refinement-python", str(interpreter)])
     module.main()
-    launcher = (tmp_path / "runners/dvbfixer-diffusion-protpardelle-1c-cuda").read_text()
+    launcher = (tmp_path / "runners/dvbfixer-diffusion-protpardelle-1c-cc94-cuda-v1").read_text()
     assert str(interpreter) in launcher
-    assert "cuda_runner.py" in launcher
+    assert "cc94_runner.py" in launcher
 
 
 def test_cuda_gap_admission_retains_the_studied_cys_free_boundary(tmp_path, cli_fixture):

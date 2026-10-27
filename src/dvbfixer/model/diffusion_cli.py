@@ -265,7 +265,7 @@ def build_cli_diffusion_request(
             BackendOption("profile", profile),
             *refinement_options,
             *((ANCHOR_SEGMENT_OPTION, TERMINAL_SHELL_OPTION)
-              if profile in {CUDA_CC89_PROFILE, MPS_CC89_PROFILE} else ()),
+               if profile in {CUDA_CC89_PROFILE, MPS_CC89_PROFILE, "protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"} else ()),
         ),
         heterogen_contexts=heterogen_contexts,
         template_ownership=template_ownership,
@@ -444,7 +444,7 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
 
     with ExitStack() as resources:
         model_input = input_path
-        if runtime.profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"} and (frozen_request is not None or args.keep_heterogens) and any(
+        if runtime.profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1", "protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"} and (frozen_request is not None or args.keep_heterogens) and any(
             line.startswith("HETATM") and line[17:20].strip() not in {"HOH", "WAT", "DOD"}
             for line in input_path.read_text(encoding="utf-8").splitlines()
         ):
@@ -490,11 +490,13 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
         else:
             request = frozen_request
         context_mode = getattr(args, "diffusion_context", "auto")
-        if runtime.profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"}:
+        if runtime.profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1", "protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"}:
             from dvbfixer.model.diffusion.protein_context import (
                 ProteinContextError,
+                prepare_cc94_request,
                 prepare_cuda_cc89_request,
                 prepare_mps_cc89_request,
+                validate_cc94_request,
                 validate_cuda_cc89_request,
                 validate_mps_cc89_request,
             )
@@ -502,6 +504,8 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
             try:
                 prepare_cc89 = prepare_cuda_cc89_request if runtime.profile == "protpardelle-1c-cuda" else prepare_mps_cc89_request
                 validate_cc89 = validate_cuda_cc89_request if runtime.profile == "protpardelle-1c-cuda" else validate_mps_cc89_request
+                if runtime.profile.startswith("protpardelle-1c-cc94-"):
+                    prepare_cc89, validate_cc89 = prepare_cc94_request, validate_cc94_request
                 if frozen_request is not None:
                     validate_cc89(request)
                 request = prepare_cc89(request, model_input.read_bytes(), context_mode)
@@ -548,7 +552,7 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
             )
             print(f"Reused verified diffusion bundle {output_path} ({published.status})")
             return
-        if runtime.model == "protpardelle" and runtime.profile not in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1"} and len(request.target_sequences) > 1:
+        if runtime.model == "protpardelle" and runtime.profile not in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1", "protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"} and len(request.target_sequences) > 1:
             sampled_chains = tuple(dict.fromkeys(gap.chain for gap in request.gaps))
             print(
                 "WARNING: Protpardelle will reconstruct gaps using "

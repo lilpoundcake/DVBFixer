@@ -29,13 +29,25 @@ class Backend:
 
 BACKENDS = {
     "protpardelle-cuda": Backend(
+        "deploy/protpardelle-1c/cc94_runner.py",
+        "dvbfixer-diffusion-protpardelle-1c-cc94-cuda-v1",
+        "a58c009ead22b6f79ef61d44e258b432b0fada1dfd8d44cb7a137d7459038a15",
+        "src", cuda_cc89=True,
+    ),
+    "protpardelle": Backend(
+        "deploy/protpardelle-1c/cc94_runner.py",
+        "dvbfixer-diffusion-protpardelle-1c-cc94-mps-v1",
+        "a58c009ead22b6f79ef61d44e258b432b0fada1dfd8d44cb7a137d7459038a15",
+        "src", mps=True, local_mps_cc89=True,
+    ),
+    "protpardelle-cuda-cc89-legacy": Backend(
         "deploy/protpardelle-1c/cuda_runner.py",
         "dvbfixer-diffusion-protpardelle-1c-cuda",
         "dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483",
         "src",
         cuda_cc89=True,
     ),
-    "protpardelle": Backend(
+    "protpardelle-mps-cc89-legacy": Backend(
         "deploy/protpardelle-1c/mps_runner.py",
         "dvbfixer-diffusion-protpardelle-1c-mps-local-v1",
         "dfc9895b399ec4497bf6d646502168725f01dcbd55bc0b541fc3e3cc1f2f0483",
