@@ -29,16 +29,18 @@ Added 2026-10-27. Detailed execution requirements and evidence boundaries:
 - [x] Add an independent research audit with explicit per-anchor limits, raw-input bindings, old strict-result preservation, outer-junction and observed-record checks; verify no-op native 1UBQ controls.
 - [x] Replay all eight corrected-cc89 pilot cases with metadata/B provenance checks and shared-minimization accounting: five raw no-ops, three generated-only repairs, no observed-anchor motion.
 - [x] Add bounded typed numerical-failure recovery and independent raw-based failure auditing; reject unclassified failures and contradictory/misbound evidence in regression tests.
-- [ ] Implement pure B-provenance/weighting/fallback policy and minimal problematic-anchor selection.
-- [ ] Extend the scientific refiner with explicit observed-anchor mobility and source-centred positional restraints.
-- [ ] Implement generated-only stage 1 and default-enabled, opt-out stage 2 restarted from raw coordinates.
-- [ ] Version validation/provenance and preserve identity, nonmobile coordinates, geometry and all-L invariants.
-- [ ] Thread policy, opt-out, diagnostics and resume compatibility through CLI, runners, ZBS, Homology and GUI.
+- [x] Implement pure B-provenance/weighting/fallback policy and minimal problematic-anchor selection.
+- [x] Extend the scientific refiner with explicit observed-anchor mobility and source-centred positional restraints.
+- [x] Implement generated-only stage 1 and default-enabled, opt-out stage 2 restarted from raw coordinates.
+- [x] Version validation/provenance and preserve identity, nonmobile coordinates, geometry and all-L invariants.
+- [x] Thread policy, opt-out, diagnostics and resume compatibility through CLI, runners, ZBS, Homology and GUI.
 - [ ] Evaluate the new chain-normalized B formula against uniform and calibrate per-anchor movement bounds on a broader cohort.
-- [ ] Complete regression, scientific and workflow verification; update user docs and generated schemas before production qualification.
+- [x] Complete regression and workflow verification plus native 9CQD refinement replay; update user docs and generated schemas for the experimental integrated path (not broader scientific/default promotion).
 
-The initial helpers above are not production runner/CLI/GUI integration or
-approval of numeric movement limits; see the handoff's execution-progress section.
+The experimental software path is integrated; see
+[native replay and custody verification](../research/staged-anchor-integration-v1.md).
+The remaining broader-cohort item is scientific follow-up: numerical defaults
+are approved engineering limits, not calibrated experimental uncertainty.
 
 ## API Phase 0: Decisions And Baseline
 

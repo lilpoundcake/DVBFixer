@@ -51,8 +51,9 @@ describe('Homology shared run storage', () => {
           const bundle = path.join(native, 'result'); fs.mkdirSync(bundle)
           const references: Record<string, unknown> = {}
           for (const label of ['pdb', 'dat', 'provenance', 'sampler_trace']) {
-            fs.writeFileSync(path.join(bundle, `final.${label}`), label)
-            references[label] = { path: `final.${label}`, sha256: crypto.createHash('sha256').update(label).digest('hex') }
+            const data = label === 'provenance' ? '{}' : label
+            fs.writeFileSync(path.join(bundle, `final.${label}`), data)
+            references[label] = { path: `final.${label}`, sha256: crypto.createHash('sha256').update(data).digest('hex') }
           }
           fs.writeFileSync(path.join(bundle, 'bundle.json'), JSON.stringify({ schema_version: 2, status: 'success', candidates: [
             { candidate_id: 'one', validation_passed: true, ...references },

@@ -7,6 +7,7 @@
 ```
 usage: dvbfixer homology [-h] [--template TEMPLATE]
                          [--template-plan TEMPLATE_PLAN] [-o OUTPUT]
+                         [--no-relax-anchors] [--no-anchor-bfactor-weighting]
                          [--backend {modeller,diffusion}]
                          [--diffusion-model {protpardelle,protenix}]
                          [--diffusion-seed DIFFUSION_SEEDS]
@@ -41,6 +42,11 @@ Input / output:
                         Output prefix (default: FASTA stem)
 
 Backend:
+  --no-relax-anchors    Disable stage-2 observed-anchor relaxation (diffusion
+                        only; enabled by default)
+  --no-anchor-bfactor-weighting
+                        Use uniform observed-anchor restraints instead of
+                        experimental B weighting (diffusion only)
   --backend {modeller,diffusion}
                         Modeling backend (default: modeller; diffusion is
                         experimental)

@@ -78,6 +78,9 @@ def parse_args(argv=None):
                       help="Skip the minimize step")
 
     model_grp = p.add_argument_group("Model step")
+    from dvbfixer.model.diffusion.refinement_policy import add_refinement_arguments
+
+    add_refinement_arguments(model_grp)
     model_grp.add_argument("--model-backend", choices=["modeller", "diffusion"], default="modeller",
                            help="Modeling backend; independent of the prepare --backend (default: modeller)")
     model_grp.add_argument("--diffusion-model", choices=["protenix", "protpardelle"],
@@ -235,7 +238,7 @@ def parse_args(argv=None):
     add_runtime_help(p, batch=True)
     args = p.parse_args(argv)
     provided = {token.split("=", 1)[0] for token in (sys.argv[1:] if argv is None else argv) if token.startswith("-")}
-    diffusion_flags = {"--diffusion-model", "--diffusion-seed", "--diffusion-timeout", "--diffusion-work-parent", "--diffusion-resume", "--diffusion-context"}
+    diffusion_flags = {"--no-relax-anchors", "--no-anchor-bfactor-weighting", "--diffusion-model", "--diffusion-seed", "--diffusion-timeout", "--diffusion-work-parent", "--diffusion-resume", "--diffusion-context"}
     if args.model_backend == "modeller" and provided & diffusion_flags:
         p.error("diffusion options require --model-backend diffusion")
     if args.model_backend == "diffusion":
@@ -449,6 +452,10 @@ def _run_pipeline(args, input_path):
                 model_argv.extend(["--diffusion-work-parent", args.diffusion_work_parent])
             if args.diffusion_resume:
                 model_argv.append("--diffusion-resume")
+            if args.no_relax_anchors:
+                model_argv.append("--no-relax-anchors")
+            if args.no_anchor_bfactor_weighting:
+                model_argv.append("--no-anchor-bfactor-weighting")
         else:
             model_argv = [current, "-o", out,
                           "--num-loops", str(args.num_loops),

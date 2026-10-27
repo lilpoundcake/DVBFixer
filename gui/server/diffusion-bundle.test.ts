@@ -14,8 +14,9 @@ function bundle(passed = true) {
   const candidates = ['ranked-z', 'ranked-a'].map(candidate_id => {
     const references = Object.fromEntries(['pdb', 'dat', 'provenance', 'sampler_trace'].map(label => {
       const name = `${candidate_id}.${label}`
-      fs.writeFileSync(path.join(root, name), label)
-      return [label, { path: name, sha256: crypto.createHash('sha256').update(label).digest('hex') }]
+      const data = label === 'provenance' ? '{}' : label
+      fs.writeFileSync(path.join(root, name), data)
+      return [label, { path: name, sha256: crypto.createHash('sha256').update(data).digest('hex') }]
     }))
     return { candidate_id, validation_passed: passed, ...references }
   })
@@ -37,5 +38,19 @@ it('retains rejected candidates for inspection without automatic primary output'
 it('rejects artifact corruption before workspace registration', () => {
   const { root, index } = bundle()
   fs.writeFileSync(path.join(root, 'ranked-a.dat'), 'corrupt')
+  expect(() => readDiffusionPublication(index)).toThrow(/digest mismatch/)
+})
+
+it('verifies declared staged artifacts without interpreting geometry', () => {
+  const { root, index } = bundle()
+  const data = JSON.parse(fs.readFileSync(index, 'utf8'))
+  fs.writeFileSync(path.join(root, 'raw.pdb'), 'raw coordinates')
+  const provenance = JSON.stringify({ artifacts: [{ role: 'raw', path: 'raw.pdb',
+    sha256: crypto.createHash('sha256').update('raw coordinates').digest('hex') }] })
+  fs.writeFileSync(path.join(root, data.candidates[0].provenance.path), provenance)
+  data.candidates[0].provenance.sha256 = crypto.createHash('sha256').update(provenance).digest('hex')
+  fs.writeFileSync(index, JSON.stringify(data))
+  expect(readDiffusionPublication(index).primary).toBeTruthy()
+  fs.writeFileSync(path.join(root, 'raw.pdb'), 'tampered')
   expect(() => readDiffusionPublication(index)).toThrow(/digest mismatch/)
 })

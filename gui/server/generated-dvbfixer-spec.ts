@@ -402,6 +402,30 @@ export const GENERATED_COMMANDS = [
         ]
       },
       {
+        "flag": "--no-relax-anchors",
+        "dest": "no_relax_anchors",
+        "label": "No Relax Anchors",
+        "type": "bool",
+        "group": "Diffusion options",
+        "help": "Disable stage-2 observed-anchor relaxation (diffusion only; enabled by default)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--no-anchor-bfactor-weighting",
+        "dest": "no_anchor_bfactor_weighting",
+        "label": "No Anchor Bfactor Weighting",
+        "type": "bool",
+        "group": "Diffusion options",
+        "help": "Use uniform observed-anchor restraints instead of experimental B weighting (diffusion only)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
         "flag": "--diffusion-model",
         "dest": "diffusion_model",
         "label": "Diffusion Model",
@@ -638,6 +662,8 @@ export const GENERATED_COMMANDS = [
       {
         "name": "Diffusion options",
         "fields": [
+          "--no-relax-anchors",
+          "--no-anchor-bfactor-weighting",
           "--diffusion-model",
           "--diffusion-seed",
           "--diffusion-timeout",
@@ -3646,6 +3672,30 @@ export const GENERATED_COMMANDS = [
         "multi": false
       },
       {
+        "flag": "--no-relax-anchors",
+        "dest": "no_relax_anchors",
+        "label": "No Relax Anchors",
+        "type": "bool",
+        "group": "Backend",
+        "help": "Disable stage-2 observed-anchor relaxation (diffusion only; enabled by default)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--no-anchor-bfactor-weighting",
+        "dest": "no_anchor_bfactor_weighting",
+        "label": "No Anchor Bfactor Weighting",
+        "type": "bool",
+        "group": "Backend",
+        "help": "Use uniform observed-anchor restraints instead of experimental B weighting (diffusion only)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
         "flag": "--backend",
         "dest": "backend",
         "label": "Backend",
@@ -3910,6 +3960,8 @@ export const GENERATED_COMMANDS = [
       {
         "name": "Backend",
         "fields": [
+          "--no-relax-anchors",
+          "--no-anchor-bfactor-weighting",
           "--backend",
           "--diffusion-model",
           "--diffusion-seed",
@@ -4586,6 +4638,30 @@ export const GENERATED_COMMANDS = [
         "default": false
       },
       {
+        "flag": "--no-relax-anchors",
+        "dest": "no_relax_anchors",
+        "label": "No Relax Anchors",
+        "type": "bool",
+        "group": "Model step",
+        "help": "Disable stage-2 observed-anchor relaxation (diffusion only; enabled by default)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--no-anchor-bfactor-weighting",
+        "dest": "no_anchor_bfactor_weighting",
+        "label": "No Anchor Bfactor Weighting",
+        "type": "bool",
+        "group": "Model step",
+        "help": "Use uniform observed-anchor restraints instead of experimental B weighting (diffusion only)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
         "flag": "--model-backend",
         "dest": "model_backend",
         "label": "Model Backend",
@@ -5126,6 +5202,8 @@ export const GENERATED_COMMANDS = [
       {
         "name": "Model step",
         "fields": [
+          "--no-relax-anchors",
+          "--no-anchor-bfactor-weighting",
           "--model-backend",
           "--diffusion-model",
           "--diffusion-seed",

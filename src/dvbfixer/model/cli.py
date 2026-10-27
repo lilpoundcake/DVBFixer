@@ -58,6 +58,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
 
     diffusion = p.add_argument_group("Diffusion options")
+    from dvbfixer.model.diffusion.refinement_policy import add_refinement_arguments
+
+    add_refinement_arguments(diffusion)
     diffusion.add_argument(
         "--diffusion-model",
         choices=("protpardelle", "protenix"),
@@ -197,6 +200,7 @@ def _validate_backend_options(
     argv: list[str],
 ) -> None:
     diffusion_options = {
+        "--no-relax-anchors", "--no-anchor-bfactor-weighting",
         "--diffusion-model",
         "--diffusion-request",
         "--diffusion-seed",
@@ -224,6 +228,7 @@ def _validate_backend_options(
 
     if args.diffusion_request:
         construction_options = {
+            "--no-relax-anchors", "--no-anchor-bfactor-weighting",
             "--fasta",
             "--diffusion-seed",
             "--diffusion-heterogen-smiles",

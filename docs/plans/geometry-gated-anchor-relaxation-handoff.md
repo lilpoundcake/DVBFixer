@@ -1,7 +1,16 @@
 # Geometry-gated anchor relaxation: headless handoff
 
-Prepared: 2026-10-27. Status: core implementation in progress; production integration pending.
+Prepared: 2026-10-27. Status: experimental end-to-end software integration implemented.
 Working branch: `research/9cqd-anchor-relaxation`.
+
+Current status: approved limits are committed/pushed as `b6df92d`. Follow-on
+changes complete request policy validation, artifact evidence, geometry-gated
+runner execution, independent public validation, publication/resume and
+CLI/ZBS/Homology/GUI routing. Native 9CQD CPU replays pass public validation and
+resume with the approved bounds; see [integration verification](../research/staged-anchor-integration-v1.md).
+Earlier progress entries below are historical snapshots, not remaining software
+blockers. Wider scientific calibration and target-GPU acceptance are follow-up,
+not experimentally established claims of this integration.
 
 This is an execution handoff, not a claim that the feature is shipped. Track
 completion in the [canonical checklist](implementation-checklist.md#geometry-gated-anchor-relaxation).
@@ -277,6 +286,26 @@ than inventing domain segmentation in this first implementation.
 
 ## Acceptance and default-change safety
 
+After pushed `b6df92d`, request-contract work adds `refinement_policy.py`:
+explicit `geometry_refinement.*` backend options bind revision
+`geometry-gated-anchors-v1`, the approved limits and independent anchor/B
+switches. Missing options retain legacy semantics and byte-for-byte request
+serialization. Partial, duplicate, unknown-version/key or noncanonical switch
+values fail contract construction. New CLI and Homology requests emit this policy;
+frozen requests do not acquire it implicitly.
+
+`refinement_evidence.py` adds a bounded, strict custody record binding the
+canonical `request.to_json()` digest, raw, stage-1 and selected artifacts. Both stage inputs must
+match raw; typed numerical failure may replace stage-1 coordinates, never
+accompany them. Raw no-op and generated-only records have separate invariants.
+Unknown fields, duplicate JSON keys, unsafe artifact paths, missing revision and
+oversized input fail closed. These records alone confer NO publication authority;
+`staged_runtime.py` and the public validator independently recompute acceptance.
+Bundles retain raw/stage1/evidence plus a digest-bound diagnostic report with
+effective B/restraint coefficients; resume revalidates them. Per-seed request
+digests must match a parent-derived subrequest before publication rebinds paths
+and the full parent request digest. The research auditor remains non-authorizing.
+
 User approval on 2026-10-27 establishes the engineering defaults: per-anchor
 N/CA/C/O RMSD <=0.5 Å, Cα displacement <=0.5 Å and maximum heavy displacement
 <=1.25 Å, all in the original source frame without alignment. All three must
@@ -303,8 +332,8 @@ do not silently weaken the historical strict contract for every candidate.
 - Source B values remain inherited metadata, not newly calculated uncertainty.
 
 The choice of numerical defaults is no longer a blocker. Versioned public
-validation and workflow integration remain required before publication. Do not
-ship unbounded source motion or replace default-enabled repair with opt-in.
+validation and workflow integration are implemented. Do not ship unbounded
+source motion or replace default-enabled repair with opt-in.
 
 ## Notifications and workflow integration
 

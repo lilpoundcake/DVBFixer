@@ -19,6 +19,14 @@ Inspect chain assignments and selected template regions before building a model.
 
 ## Experimental diffusion
 
+The Model toolbar exposes **Anchor repair** (geometry-gated by default, or keep
+anchors fixed) and **Anchor restraints** (experimental B / fallback, or uniform).
+These map to the same independent CLI opt-outs; they do not enlarge movement
+limits. Actual modified anchors and backbone/Cα/heavy displacements appear in a
+visible warning notice as well as the run log and validation report. Clean
+unchanged runs show no empty warning banner. See the
+[shared policy](commands/model.md#geometry-gated-refinement-and-observed-anchors).
+
 The Model tab can select either **Modeller** or experimental **diffusion**, with
 Auto, Protenix, and Protpardelle model selection. Diffusion uses the same fitted mosaic and painted ownership masks,
 keeps covered matching residues exact, and publishes a validated directory

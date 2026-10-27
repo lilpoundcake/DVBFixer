@@ -1,8 +1,19 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { ToolOutput } from './ToolOutput'
+import { anchorRefinementNotices } from '../lib/tool-output'
 
 describe('tool output presentation', () => {
+  it('prominently displays and deduplicates explicit Python anchor notices', () => {
+    const notice = 'Observed anchor H:82A coordinates modified: backbone RMSD 0.4 Å; Cα displacement 0.3 Å; maximum heavy displacement 0.8 Å.'
+    const stdout = `WARNING: ${notice}\nWARNING: ${notice}`
+    expect(anchorRefinementNotices(stdout, `1. ${notice}`)).toEqual([notice])
+    const markup = renderToStaticMarkup(<ToolOutput stdout={stdout} stderr="" />)
+    expect(markup).toContain('role="alert"')
+    expect(markup).toContain('Observed-coordinate diagnostics')
+    expect(markup.indexOf(notice)).toBeLessThan(markup.indexOf('Output &amp; diagnostics'))
+    expect(renderToStaticMarkup(<ToolOutput stdout="Clean geometry; no minimization" stderr="" />)).not.toContain('role="alert"')
+  })
   it('shows diagnostic stderr as neutral, scrollable report content', () => {
     const markup = renderToStaticMarkup(<ToolOutput stdout="Prepared structure" stderr="Diagnose: 0 errors, 2 warnings" />)
     expect(markup).toContain('Output &amp; diagnostics')
