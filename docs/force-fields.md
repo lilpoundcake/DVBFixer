@@ -189,16 +189,64 @@ Different mechanism entirely. These are **post-minimize refinement passes** that
 
 ```bash
 # After OpenMM minimize, run xtb GFN-FF only on the heterogens
-dvbfixer minimize input.pdb --xtb-refine --refine-heterogens-only -v
+dvbfixer minimize input.pdb --no-solvent --xtb-refine --refine-heterogens-only -v
 
 # OpenBabel obminimize (UFF by default; handles N-glycosidic angles correctly)
-dvbfixer minimize input.pdb --obminimize-refine --refine-heterogens-only -v
+dvbfixer minimize input.pdb --no-solvent --obminimize-refine --refine-heterogens-only -v
 ```
 
-- **When to use**: sanity-check ligand geometry when you don't want to (or can't) generate real FF parameters. Also useful for glycan systems where sugar-sugar bonds have no OpenMM template — the refinement pass fixes strain that OpenMM couldn't touch.
+- **Intended use**: optional internal-geometry cleanup after a successful OpenMM stage. Any improvement must be checked against the unrefined result; these passes do not guarantee repair of unsupported chemistry or glycan linkages.
 - Auto-switches to heterogens-only above 5000 atoms (whole-system xtb takes hours).
-- **`--refine-heterogens-only` interface caveat**: with the protein frozen, only the ligand's INTERNAL geometry is refined. Protein-side accommodation is unavailable; ligand motion may relieve some contacts but does not provide joint interface relaxation. Drop the flag for whole-system refinement when the interface matters.
-- **NOT a replacement** for `--parametrize-ligands`: universal FFs are less accurate than GAFF2, and running xtb/UFF on a ligand doesn't give you MD-ready parameters — you still need real FF templates for a production MD run.
+- **`--refine-heterogens-only` interface caveat**: the surrounding protein pocket is omitted, not held as a frozen interacting environment. This is not joint protein–ligand relaxation. Whole-system mode includes more context but is not equivalent to the parameterized OpenMM protocol; above 5000 atoms it automatically switches back to heterogens-only.
+- **NOT a replacement** for `--parametrize-ligands`: running GFN-FF/UFF does not produce validated MD-ready ligand parameters. There is no general guarantee that a post-pass improves on the preceding GAFF2/OpenMM result.
+
+#### Technical scope of the external post-passes
+
+Implementation: `src/dvbfixer/minimize/refine.py`, called after the main
+minimization in `src/dvbfixer/minimize/pipeline.py`.
+
+| Property | Current implementation |
+|---|---|
+| xTB method | `xtb input.xyz --opt --gfnff --cycles N --norestart`: classical GFN-FF geometry optimization |
+| Quantum methods | No GFN1-xTB/GFN2-xTB electronic-structure optimization is selected by this integration |
+| Open Babel method | UFF by CLI default; selectable MMFF94 variants/GAFF, with fallback to UFF on applicable setup failures |
+| Data passed to xTB | Elements and coordinates in XYZ, plus an optional fixed-atom list; no OpenMM force-field parameters or restraint force are transferred |
+| Heterogens-only selection | All non-protein, non-solvent/ion residues plus complete covalently linked anchor residues; not an independently pocket-conditioned calculation per ligand |
+| Protein context | No distance-selected shell of pocket residues, electrostatic embedding or QM/MM coupling |
+| Whole-system selection | The supplied topology/positions are optimized with the external method; OpenMM restraint tiers are not inherited |
+
+**This is real geometry optimization, but not a dedicated protein-aware or
+quantum ligand optimization protocol.** GFN-FF is a force field despite the xTB
+executable name. Its capability must not be confused with the quantum methods
+available elsewhere in xTB or with the separate PySCF/PSI4 RESP workflows.
+
+For covalent anchors, the extractor includes the entire anchor residue. For
+ASN/SER/THR families it fixes selected backbone/CB-region atoms while leaving
+the linkage-side group movable; unrecognized anchor residues are fixed in full.
+This limited context is not a complete, chemically capped model of the pocket.
+For a noncovalent ligand no protein anchor is added. Multiple extracted
+heterogens may interact with each other while the surrounding protein is absent.
+
+The post-pass changes coordinates independently of the preceding OpenMM
+objective. A lower external-method energy cannot establish better pocket fit,
+hydrogen bonding, stereochemistry or overall preparation quality. In particular,
+protein atoms omitted from the subsystem exert no steric or electrostatic
+forces, so ligand motion can introduce clashes when merged back into the protein.
+
+During merging, DVBFixer retains original coordinates for fixed anchor atoms
+and copies optimized coordinates for movable subsystem atoms. It does not
+currently measure fixed-atom drift in raw xTB output. Restoring anchors after
+optimization does not repair geometry optimized relative to a drifting anchor.
+Missing executables and some failures warn and retain pre-pass coordinates;
+successful CLI completion alone does not prove that refinement ran or converged.
+
+xTB remains under review, not scheduled for immediate removal. Compare with an
+OpenMM-only baseline and inspect internal geometry, covalent junctions, fixed
+atoms and full-complex contacts. The
+[review checklist](plans/environment-dependency-audit.md#b12-xtb-на-карандаше-проверить-до-решения-об-установочном-профиле)
+covers upstream fixes, ANC, platform checks, possible explicit GFN2-xTB support
+and the design of an actual pocket-aware protocol; these are pending work, not
+shipped capabilities.
 
 ### Which to use?
 

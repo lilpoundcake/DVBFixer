@@ -95,12 +95,28 @@ dvbfixer minimize prepared.pdb --dat prepared.dat --no-solvent \
 
 OpenBabel UFF refinement is an optional post-pass; xtb GFN-FF is available via
 `--xtb-refine`. Neither can bypass an earlier OpenMM setup rejection or guarantee
-support for arbitrary chemistry. `--refine-heterogens-only` retains fixed protein
-anchors, so the protein–ligand interface is not jointly relaxed.
+support for arbitrary chemistry. These are external classical-force-field
+geometry optimizations, **not quantum calculations or a dedicated protein-aware
+ligand refinement protocol**. In particular, DVBFixer invokes xTB with
+`--opt --gfnff`, not GFN1-xTB or GFN2-xTB.
+
+With `--refine-heterogens-only`, most of the protein is **absent from the
+calculation**, not merely frozen. The subsystem contains all heterogens and
+full covalently linked anchor residues, with selected anchor atoms fixed.
+A noncovalent ligand therefore has no surrounding protein pocket in this
+post-pass. Its internal strain may decrease while its contacts with the omitted
+protein worsen. The preceding OpenMM pocket-aware result does not constrain
+this subsequent optimization. Whole-system mode includes the protein but uses
+the external force field, not the preceding OpenMM parameters or restraint tiers.
+See the [technical scope and limitations](../force-fields.md#technical-scope-of-the-external-post-passes).
 
 UFF is the default OpenBabel force field. MMFF94 variants can mis-type N-linked
-sugar geometry. The xtb 6.7.1 build has a known frozen-atom drift issue; inspect
-linkages carefully rather than assuming a universal-force-field pass improves them.
+sugar geometry. xTB has an upstream fixed-atom drift fix in
+[PR #1429](https://github.com/grimme-lab/xtb/pull/1429), merged after the latest
+published v6.7.1 release as checked on 2026-10-27. Availability in a particular
+package build and correctness on DVBFixer inputs still require verification;
+see the [xTB review checklist](../plans/environment-dependency-audit.md#b12-xtb-на-карандаше-проверить-до-решения-об-установочном-профиле).
+Inspect linkages rather than assuming a universal-force-field pass improves them.
 For systems above 5,000 atoms, whole-system post-refinement can be switched to
 heterogens-only with an informational message. Read the run log.
 
