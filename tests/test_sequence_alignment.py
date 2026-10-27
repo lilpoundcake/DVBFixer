@@ -191,6 +191,7 @@ def test_alignment_evidence_length_must_match_observed_residues(kwargs):
 
 
 def test_5j13_renumber_and_diffusion_preserve_the_observed_cys_ser_peptide(tmp_path):
+    pytest.importorskip("openmm.app")
     from dvbfixer.model.diffusion.contract import ResidueIdentity
     from dvbfixer.model.diffusion_cli import _target_sequences, build_cli_diffusion_request
 
