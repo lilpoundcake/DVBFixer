@@ -17,6 +17,7 @@ export function anchorRefinementNotices(...streams: string[]): string[] {
   const notices = new Set<string>()
   for (const stream of streams) {
     for (const raw of stream.split('\n')) {
+      // eslint-disable-next-line no-control-regex -- ANSI color sequences intentionally begin with ESC.
       const line = raw.replace(/\u001b\[[0-9;]*m/g, '')
       const start = line.search(/Observed anchor .+ coordinates modified:|Observed-anchor B weighting uses uniform fallback:/)
       if (start >= 0) notices.add(line.slice(start, start + 4096).trim())
