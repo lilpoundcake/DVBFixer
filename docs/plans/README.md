@@ -1,6 +1,6 @@
 # Plan status and remaining work
 
-Updated 2026-10-20. This is a navigation/status summary, not a new implementation
+Updated 2026-10-27. This is a navigation/status summary, not a new implementation
 proposal. The [implementation checklist](implementation-checklist.md) is the
 canonical completion tracker; older milestone lists in individual plans may
 describe historical stages, capability requirements or optional experiments.
@@ -23,6 +23,7 @@ An unchecked historical box alone does not prove that code is still missing.
 | [Heterogen context](diffusion-heterogen-gap-reconstruction.md) | Narrow isolated-SMILES geometric context on the legacy MPS profile | Chemistry-specific studies for cofactors, metals, glycans, PTMs and covalent contexts; corrected cc89 remains protein-only |
 | [Nonprotein reconstruction](nonprotein-reconstruction-parameterization.md) | Offline Class A reconstruction, bounded CCD information and opt-in CLI | Linked/metal/redox classes, online reconstruction authority, dedicated GUI and actual MD parameterization gates |
 | [Dependency audit](environment-dependency-audit.md) | Audit proposal and existing separate ML runtimes | Optional installation-profile migration, full dependency evidence and clean-install smokes before slimming |
+| [Licensing and attribution](licensing-and-attribution.md) | Preliminary component/model/parameter audit documented with upstream sources | Compatibility review, owner-approved license for DVBFixer, complete notices/citations and release-artifact verification |
 | [Amber19SB topology](amber19sb-gromacs-topology.md) | Protein-only backend, upstream provenance and six water/ion pairs; external preprocessing tests now exercised | No mixed-chemistry or MD-trajectory acceptance is implied |
 | [Tarantino removal](remove-tarantino-mutation-cluster.md) | Complete; historical provenance remains readable | No active removal backlog |
 
