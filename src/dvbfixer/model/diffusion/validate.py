@@ -40,6 +40,7 @@ from dvbfixer.model.diffusion.contract import (
     SamplerTrace,
     ValidationSummary,
 )
+from dvbfixer.model.diffusion.pdb_metadata import reconcile_pdb_metadata
 from dvbfixer.model.diffusion.quality import check_ramachandran, check_sidechain_chi12
 from dvbfixer.model.diffusion.scope import CANONICAL_HEAVY_ATOMS
 from dvbfixer.model.diffusion.trace import validate_sampler_trace_context
@@ -118,6 +119,7 @@ class _Structure:
     atoms: dict[AtomIdentity, _AtomRecord]
     residues: dict[ResidueIdentity, str]
     explicit_links: frozenset[ExplicitLink]
+    text: str
 
 
 _ONE_TO_THREE = {
@@ -252,6 +254,10 @@ def _validate_candidate(
     metrics: list[Metric] = []
     failures.extend(postprocessing_failures)
     warnings.extend(candidate_warnings)
+    metadata = reconcile_pdb_metadata(candidate.text, request, add_missing_seqres=False, annotate=False)
+    metrics.append(Metric("pdb-metadata-inconsistencies", float(len(metadata.changes)), "count"))
+    if metadata.changes:
+        failures.append("pdb-metadata-consistency")
     generated_residues = {
         residue for gap in request.gaps for residue in gap.generated_residues
     }
@@ -707,6 +713,7 @@ def _load_structure(
         atoms=atoms,
         residues=residues,
         explicit_links=frozenset(links),
+        text=text,
     )
 
 

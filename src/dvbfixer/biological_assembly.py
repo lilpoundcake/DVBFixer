@@ -108,6 +108,38 @@ def parse_biological_assemblies(lines: list[str]) -> dict[str, BiologicalAssembl
     return assemblies
 
 
+def filter_biological_assembly_records(lines: list[str], chains: set[str]) -> list[str]:
+    """Retain complete deposited assemblies, never invent a partial assembly.
+
+    Only REMARK 350 lines are returned. Malformed descriptions are omitted;
+    callers retain the original source artifact for experimental provenance.
+    """
+    remarks = [line for line in lines if line.startswith("REMARK 350")]
+    if not remarks:
+        return []
+    try:
+        assemblies = parse_biological_assemblies(remarks)
+    except AssemblyError:
+        return []
+    allowed = {identifier for identifier, assembly in assemblies.items()
+               if all(set(group.chains) <= chains for group in assembly.groups)}
+    if not allowed:
+        return []
+    output: list[str] = []
+    keep = True  # Explanatory preamble before the first BIOMOLECULE.
+    for line in remarks:
+        match = _BIOMOLECULE.search(line)
+        if match:
+            identifiers = [item.strip() for item in match.group(1).split(",") if item.strip()]
+            retained = [item for item in identifiers if item in allowed]
+            keep = bool(retained)
+            if retained and retained != identifiers:
+                line = "REMARK 350 BIOMOLECULE: " + ", ".join(retained) + "\n"
+        if keep:
+            output.append(line)
+    return output
+
+
 def _transform_xyz(line: str, matrix: np.ndarray, offset: np.ndarray) -> str:
     xyz = np.array([float(line[30:38]), float(line[38:46]), float(line[46:54])])
     x, y, z = matrix @ xyz + offset

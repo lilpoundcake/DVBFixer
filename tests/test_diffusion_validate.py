@@ -394,6 +394,34 @@ def test_validation_parses_openmm_from_verified_text(
     assert all(isinstance(file, StringIO) for file in parsed_inputs)
 
 
+@pytest.mark.parametrize("header", [
+    "SEQRES   1 C    1  ALA\n",
+    "SEQRES   1 c    1  ALA\n",
+    "HELIX\n",
+])
+def test_validation_independently_rejects_inconsistent_metadata(tmp_path: Path, header: str) -> None:
+    workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
+    data = header.encode() + candidate_bytes
+    (workspace / "candidates/stale.pdb").write_bytes(data)
+    result = _runner_result((
+        _candidate("stale", "candidates/stale.pdb", data, generated_atoms, score=1.0),
+    ))
+    summary = validate_runner_result(request, result, workspace=workspace)[0].summary
+    assert summary.hard_gate_failures == ("pdb-metadata-consistency",)
+
+
+def test_validation_accepts_consistent_optional_sequence_metadata(tmp_path: Path) -> None:
+    from dvbfixer.model.diffusion.pdb_metadata import reconcile_pdb_metadata
+
+    workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
+    data = reconcile_pdb_metadata(candidate_bytes.decode(), request).text.encode()
+    (workspace / "candidates/consistent.pdb").write_bytes(data)
+    result = _runner_result((
+        _candidate("consistent", "candidates/consistent.pdb", data, generated_atoms, score=1.0),
+    ))
+    assert validate_runner_result(request, result, workspace=workspace)[0].summary.passed
+
+
 def test_validation_accepts_complete_fixture_candidate(tmp_path: Path) -> None:
     workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
     candidate_path = workspace / "candidates" / "passing.pdb"

@@ -12,6 +12,7 @@ from dvbfixer.model.diffusion.contract import (
     GapKind,
     ResidueIdentity,
 )
+from dvbfixer.model.diffusion.pdb_metadata import reconcile_pdb_metadata
 
 
 def materialize_candidate_pdb(
@@ -204,7 +205,7 @@ def materialize_candidate_pdb(
         raise DiffusionContractError(
             f"source PDB omits {len(request.gaps) - len(inserted)} gap insertion point(s)"
         )
-    return "".join(output)
+    return reconcile_pdb_metadata("".join(output), request).text
 
 
 def _generated_lines(

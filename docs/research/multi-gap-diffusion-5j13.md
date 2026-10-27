@@ -6,6 +6,37 @@ relaxed and no candidate was selected using reference coordinates.
 
 ## Input and confirmed failure
 
+For the source-code comparison with PATCHR TCD/LRD and the separate 9CQD
+per-step reinjection experiment, see
+[PATCHR versus dvbfixer gap reconstruction](patchr-gap-reconstruction-comparison.md).
+
+### Related 9CQD metadata regression (2026-10-23)
+
+The separate user-supplied `diagnostics.tar.gz` contains a 9CQD derivative,
+not another 5J13 run. Its refined coordinates contain the requested M/W/X
+27/214/221 residues, but inherited SEQRES declares 49/220/261. The archived
+FASTA contains 27/220/221; explicit terminal exclusion reduces W to 214 in
+the frozen request. Thus the request, not the raw FASTA, defines output SEQRES.
+Inherited foreign-chain DBREF/HELIX/SHEET/CISPEP records are also stale.
+
+Diffusion materialization now reconciles dependent metadata, preserves valid
+links and experimental headers, and records changes in a `METADATA_SYNC`
+remark. Invalid ranges are omitted rather than guessing DBREF mappings;
+relational sheets, sites and biological assemblies are retained only whole.
+The digest-bound input remains available for original deposited annotations.
+Independent validation rejects supplied inconsistent metadata via
+`pdb-metadata-consistency`; absent optional annotations are allowed.
+
+Re-auditing the archived refined candidate after metadata-only reconciliation
+removes all SEQRES/ATOM-count warnings with unchanged coordinate, ANISOU,
+CONECT and SSBOND records. It **still fails** amide planarity at W28→W29:
+ω = −132.2902°, 47.7098° from trans (30° tolerance). Metadata repair does not
+repair or qualify these coordinates. No geometry threshold was relaxed.
+Only the archived source PDB and FASTA are tracked under
+`tests/fixtures/protein_context/9cqd_split.*`, not generated coordinates.
+
+### Original 5J13 input
+
 The user supplied `test/errors_diffusion/selected.pdb`, now retained as
 `tests/fixtures/protein_context/5j13_selected.pdb` with SHA-256
 `63154130ff3de95ab1a135154370ac91e07d8b776bb16067096c0c62c91e3106`.
