@@ -8,6 +8,20 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.9.2] — 2026-10-27
+
+### Fixed
+
+- Respect explicit TER boundaries in `atom-names` terminal naming when separate
+  peptide fragments share a chain ID, including bare and consecutive TER records.
+  Preserve coordinates and all fields outside the intended naming changes.
+- Reject residue identities reused across TER-delimited segments with
+  `NAMING_COLLISION` before grouping atoms or inferring protonation, rather than
+  merging chemically distinct residues into one public identity.
+- Run the TER CLI regressions in dependency-light CI, including fork pull
+  requests where the full scientific-environment job is skipped. Add regression
+  guards for that coverage and current-version examples in user documentation.
+
 ## [0.9.1] — 2026-10-21
 
 ### Added

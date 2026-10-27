@@ -37,7 +37,7 @@ Other tools can be checked without it.
 
 ```bash
 dvbfixer --version
-# dvbfixer 0.9.1
+# dvbfixer 0.9.2
 dvbfixer doctor
 dvbfixer msa --list-engines
 ```
