@@ -47,14 +47,21 @@ def atom_residue(atom: AtomIdentity) -> ResidueIdentity:
 
 @dataclass(frozen=True)
 class AnchorMovementLimits:
-    """Explicit original-frame acceptance bounds; intentionally NO default values."""
+    """User-approved engineering bounds, per anchor and in the original frame.
 
-    backbone_rmsd_angstrom_max: float
-    heavy_displacement_angstrom_max: float
+    These are not estimates of experimental coordinate uncertainty. The third
+    field preserves positional compatibility for explicit older two-limit calls;
+    fresh audits always record all three limits under a new policy revision.
+    """
+
+    backbone_rmsd_angstrom_max: float = 0.5
+    heavy_displacement_angstrom_max: float = 1.25
+    ca_displacement_angstrom_max: float = 0.5
 
     def __post_init__(self) -> None:
         if not all(math.isfinite(x) and x > 0 for x in
-                   (self.backbone_rmsd_angstrom_max, self.heavy_displacement_angstrom_max)):
+                   (self.backbone_rmsd_angstrom_max, self.heavy_displacement_angstrom_max,
+                    self.ca_displacement_angstrom_max)):
             raise ValueError("anchor movement bounds must be finite and positive")
 
 
@@ -63,6 +70,7 @@ class AnchorMovement:
     residue: ResidueIdentity
     backbone_rmsd_angstrom: float
     heavy_displacement_angstrom_max: float
+    ca_displacement_angstrom: float
     within_limits: bool
 
 
@@ -93,8 +101,11 @@ def check_anchor_movements(
             raise ValueError("anchor movement acceptance requires complete backbone")
         rmsd = math.sqrt(mean(d * d for d in backbone))
         maximum = max(d for _name, d in atoms)
-        result.append(AnchorMovement(r, rmsd, maximum,
-                      rmsd <= limits.backbone_rmsd_angstrom_max and maximum <= limits.heavy_displacement_angstrom_max))
+        ca = next(d for name, d in atoms if name == "CA")
+        result.append(AnchorMovement(r, rmsd, maximum, ca,
+                      rmsd <= limits.backbone_rmsd_angstrom_max
+                      and ca <= limits.ca_displacement_angstrom_max
+                      and maximum <= limits.heavy_displacement_angstrom_max))
     return tuple(result)
 
 

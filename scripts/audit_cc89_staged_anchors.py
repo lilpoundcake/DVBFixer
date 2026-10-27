@@ -1,4 +1,4 @@
-"""Audit saved staged 9CQD outputs against EXPLICIT research movement bounds."""
+"""Audit saved staged 9CQD outputs against approved or explicit movement bounds."""
 
 from __future__ import annotations
 
@@ -29,10 +29,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pilot", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument("--backbone-rmsd-max", required=True, type=float)
-    parser.add_argument("--heavy-displacement-max", required=True, type=float)
+    defaults = AnchorMovementLimits()
+    parser.add_argument("--backbone-rmsd-max", default=defaults.backbone_rmsd_angstrom_max, type=float)
+    parser.add_argument("--heavy-displacement-max", default=defaults.heavy_displacement_angstrom_max, type=float)
+    parser.add_argument("--ca-displacement-max", default=defaults.ca_displacement_angstrom_max, type=float)
     args = parser.parse_args()
-    limits = AnchorMovementLimits(args.backbone_rmsd_max, args.heavy_displacement_max)
+    limits = AnchorMovementLimits(args.backbone_rmsd_max, args.heavy_displacement_max, args.ca_displacement_max)
     request = DiffusionRequest.from_json((args.pilot / "request.json").read_text())
     source = (args.pilot / "source.pdb").read_bytes().decode("ascii")
     rows = json.loads((args.pilot / "comparison.json").read_text())
@@ -41,7 +43,7 @@ def main() -> None:
     shutil.copy2(anchor_acceptance.__file__, args.output / "anchor_acceptance.py")
     shutil.copy2(__file__, args.output / Path(__file__).name)
     manifest = {"movement_limits": asdict(limits), "publication_qualified": False,
-        "purpose": "sensitivity audit with explicit research bounds, not scientific calibration",
+        "purpose": "engineering movement-bound audit, not scientific calibration",
         "pilot_report_sha256": hashlib.sha256((args.pilot / "comparison.json").read_bytes()).hexdigest(),
         "auditor_sha256": hashlib.sha256(Path(anchor_acceptance.__file__).read_bytes()).hexdigest()}
     (args.output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")

@@ -64,6 +64,17 @@ def test_explicit_per_anchor_bounds_are_enforced():
     assert "anchor-repair-per-anchor-movement-limit" in audit.summary.hard_gate_failures
 
 
+def test_default_audit_records_approved_limits_and_ca_movement():
+    values = evidence()
+    values.pop("limits")
+    audit = audit_staged_anchor_repair(**values)
+    assert audit.summary.passed
+    assert audit.movement_limits == AnchorMovementLimits()
+    assert audit.movements[0].ca_displacement_angstrom == pytest.approx(0.04)
+    assert any("Cα displacement" in warning for warning in audit.summary.warnings)
+    assert audit.policy_revision == "independent-staged-anchor-audit-v3"
+
+
 @pytest.mark.parametrize("field", ["stage1_input_sha256", "stage2_input_sha256"])
 def test_stage_inputs_must_be_bound_to_raw(field):
     audit = audit_staged_anchor_repair(**(evidence() | {field: "0" * 64}))

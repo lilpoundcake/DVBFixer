@@ -12,7 +12,7 @@ See the [B-factor study](../research/9cqd-bfactor-anchor-restraints.md) and
 
 Started 2026-10-27 on the research branch. Implemented initial pure
 `anchor_policy.py` (provenance/fallback, bounded chain-B weights, explicit
-per-anchor movement bounds with no numeric defaults), `refinement_stages.py`
+per-anchor movement bounds), `refinement_stages.py`
 (typed geometry/admission outcomes and default-enabled raw-based escalation),
 and an explicit `observed_anchor_restraints` argument in the scientific refiner.
 The generated-only default of the existing low-level refiner is preserved.
@@ -277,6 +277,13 @@ than inventing domain segmentation in this first implementation.
 
 ## Acceptance and default-change safety
 
+User approval on 2026-10-27 establishes the engineering defaults: per-anchor
+N/CA/C/O RMSD <=0.5 Å, Cα displacement <=0.5 Å and maximum heavy displacement
+<=1.25 Å, all in the original source frame without alignment. All three must
+pass; B weighting never enlarges them. `AnchorMovementLimits` and independent
+audit revision v3 implement these defaults. Historical reports retain their
+original explicit limits. These bounds are not calibrated experimental errors.
+
 Default-enabled anchor relaxation changes coordinate-preservation semantics.
 Introduce an explicit versioned mobility policy and validation/provenance record;
 do not silently weaken the historical strict contract for every candidate.
@@ -284,10 +291,10 @@ do not silently weaken the historical strict contract for every candidate.
 - Keep original generated atoms and selected observed anchors distinct.
 - Unselected observed records remain exact, allowing only the existing internal
   platform tolerance before source-preserving PDB materialization.
-- Add per-anchor backbone RMSD AND maximum heavy-displacement limits relative to
+- Enforce per-anchor backbone RMSD, Cα and maximum heavy-displacement limits relative to
   source coordinates. Do not dilute movement over the entire complex.
-- **Numeric drift bounds require calibration and are not approved yet.** Do not
-  derive them from B or the largest successful 9CQD displacement alone.
+- Numeric drift bounds are approved engineering defaults; broader scientific
+  calibration remains open. Do not derive larger limits from B.
 - Check generated regions, released anchors, outer junctions and clashes against
   the rest of the complex; perform final cross-gap checks after merging.
 - Preserve all-L, atom identity/completeness, retained-link and metadata gates.
@@ -295,9 +302,9 @@ do not silently weaken the historical strict contract for every candidate.
   No independent chain fits that conceal interchain movement.
 - Source B values remain inherited metadata, not newly calculated uncertainty.
 
-If movement bounds cannot yet be justified, report that as a production
-qualification blocker. Do not ship unbounded default source motion or silently
-replace the user's default-enabled decision with an opt-in design.
+The choice of numerical defaults is no longer a blocker. Versioned public
+validation and workflow integration remain required before publication. Do not
+ship unbounded source motion or replace default-enabled repair with opt-in.
 
 ## Notifications and workflow integration
 

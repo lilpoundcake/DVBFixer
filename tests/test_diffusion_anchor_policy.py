@@ -130,3 +130,37 @@ def test_movement_limits_require_complete_finite_measurements():
         check_anchor_movements((restraint,), {atom: (0, 0, 0)}, limits)
     with pytest.raises(ValueError):
         AnchorMovementLimits(float("inf"), 1)
+
+
+def test_approved_default_limits_and_exact_boundary():
+    limits = AnchorMovementLimits()
+    assert limits.backbone_rmsd_angstrom_max == 0.5
+    assert limits.ca_displacement_angstrom_max == 0.5
+    assert limits.heavy_displacement_angstrom_max == 1.25
+    atoms = tuple(AtomIdentity("W", "29", "", name) for name in ("N", "CA", "C", "O", "CB"))
+    restraints = tuple(AnchorPositionRestraint(atom, (0, 0, 0), 10000) for atom in atoms)
+    coordinates = {atom: (0.5, 0, 0) if atom.atom_name in {"N", "CA", "C", "O"}
+                   else (1.25, 0, 0) for atom in atoms}
+    result, = check_anchor_movements(restraints, coordinates, limits)
+    assert result.within_limits
+    assert result.ca_displacement_angstrom == 0.5
+
+
+@pytest.mark.parametrize("failure", ["ca", "backbone", "heavy"])
+def test_each_default_limit_independently_blocks_excess_motion(failure):
+    atoms = tuple(AtomIdentity("W", "29", "", name) for name in ("N", "CA", "C", "O", "CB"))
+    restraints = tuple(AnchorPositionRestraint(atom, (0, 0, 0), 10000) for atom in atoms)
+    coordinates = {atom: (0, 0, 0) for atom in atoms}
+    for atom in atoms:
+        if failure == "ca" and atom.atom_name == "CA":
+            coordinates[atom] = (0.500001, 0, 0)
+        elif failure == "backbone" and atom.atom_name in {"N", "C", "O"}:
+            coordinates[atom] = (0.6, 0, 0)
+        elif failure == "heavy" and atom.atom_name == "CB":
+            coordinates[atom] = (1.250001, 0, 0)
+    result, = check_anchor_movements(restraints, coordinates, AnchorMovementLimits())
+    assert not result.within_limits
+    if failure == "ca":
+        assert result.backbone_rmsd_angstrom < 0.5 and result.heavy_displacement_angstrom_max < 1.25
+    if failure == "backbone":
+        assert result.ca_displacement_angstrom == 0 and result.heavy_displacement_angstrom_max < 1.25

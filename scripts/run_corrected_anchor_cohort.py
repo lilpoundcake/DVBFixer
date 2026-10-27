@@ -224,10 +224,12 @@ def main():
     parser.add_argument("--pilot-root", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--entry-metadata-dir", required=True, type=Path)
-    parser.add_argument("--backbone-rmsd-max", required=True, type=float)
-    parser.add_argument("--heavy-displacement-max", required=True, type=float)
+    defaults = AnchorMovementLimits()
+    parser.add_argument("--backbone-rmsd-max", default=defaults.backbone_rmsd_angstrom_max, type=float)
+    parser.add_argument("--heavy-displacement-max", default=defaults.heavy_displacement_angstrom_max, type=float)
+    parser.add_argument("--ca-displacement-max", default=defaults.ca_displacement_angstrom_max, type=float)
     args = parser.parse_args()
-    limits = AnchorMovementLimits(args.backbone_rmsd_max, args.heavy_displacement_max)
+    limits = AnchorMovementLimits(args.backbone_rmsd_max, args.heavy_displacement_max, args.ca_displacement_max)
     # Freeze and verify ALL inputs before the first minimization.
     inputs = [load_case(args.pilot_root, spec, args.entry_metadata_dir) for spec in CASES]
     args.output.mkdir(parents=True, exist_ok=False)

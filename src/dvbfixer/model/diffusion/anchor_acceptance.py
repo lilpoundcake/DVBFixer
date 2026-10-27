@@ -51,7 +51,7 @@ from dvbfixer.model.diffusion.validate import (
     _validate_candidate,
 )
 
-ANCHOR_ACCEPTANCE_REVISION = "independent-staged-anchor-audit-v2"
+ANCHOR_ACCEPTANCE_REVISION = "independent-staged-anchor-audit-v3"
 _DRIFT_GATES = frozenset({"fixed-heavy-atom-rmsd", "fixed-heavy-atom-max-displacement"})
 _GEOMETRY_GATES = frozenset({"junction-peptide-connectivity", "generated-backbone-break", "d-ca-chirality",
                             "severe-steric-overlap", "generated-or-junction-bond-length",
@@ -197,15 +197,16 @@ def audit_staged_anchor_repair(
     candidate_text: str,
     stage1_input_sha256: str,
     stage2_input_sha256: str,
-    limits: AnchorMovementLimits,
+    limits: AnchorMovementLimits | None = None,
     stage1_failure: NumericalFailureEvidence | None = None,
 ) -> AnchorRepairAudit:
     """Recompute authorization and full geometry, not runner-provided scores/masks.
 
-    Caller-specified limits are experimental policy for this audit, not shipping
-    defaults. A passed summary remains NOT qualified for public publication.
+    Uses user-approved engineering limits unless explicitly overridden. A passed
+    summary remains NOT qualified for public publication until runner integration.
     All coordinates/metadata outside the authorized mobility mask stay exact.
     """
+    active_limits = limits if limits is not None else AnchorMovementLimits()
     source_digest, raw_digest = _digest(source_text), _digest(raw_text)
     if source_digest != request.normalized_pdb.sha256:
         raise DiffusionContractError("staged anchor source digest mismatch")
@@ -271,7 +272,7 @@ def audit_staged_anchor_repair(
             failures.append("anchor-repair-observed-metadata-changed")
     try:
         movements = check_anchor_movements(restraints,
-            {atom: tuple(record.coordinates_angstrom) for atom, record in candidate.atoms.items()}, limits)
+            {atom: tuple(record.coordinates_angstrom) for atom, record in candidate.atoms.items()}, active_limits)
         if any(not movement.within_limits for movement in movements):
             failures.append("anchor-repair-per-anchor-movement-limit")
     except ValueError:
@@ -286,12 +287,14 @@ def audit_staged_anchor_repair(
         r = movement.residue
         label = f"{r.chain}:{r.residue_number}{r.insertion_code}"
         metrics.extend((Metric(f"anchor-{label}-backbone-rmsd", movement.backbone_rmsd_angstrom, "angstrom"),
+                        Metric(f"anchor-{label}-ca-displacement", movement.ca_displacement_angstrom, "angstrom"),
                         Metric(f"anchor-{label}-max-heavy-displacement", movement.heavy_displacement_angstrom_max, "angstrom")))
         if movement.heavy_displacement_angstrom_max > 0:
             warnings.append(f"Observed anchor {label} coordinates modified: backbone RMSD "
-                            f"{movement.backbone_rmsd_angstrom:.4f} Å; maximum heavy displacement "
+                             f"{movement.backbone_rmsd_angstrom:.4f} Å; Cα displacement "
+                             f"{movement.ca_displacement_angstrom:.4f} Å; maximum heavy displacement "
                             f"{movement.heavy_displacement_angstrom_max:.4f} Å.")
     summary = ValidationSummary(not failures, tuple(dict.fromkeys(failures)), tuple(metrics), tuple(warnings))
-    return AnchorRepairAudit(summary, strict, anchors, movements, limits, stage1_failure, source_digest, raw_digest,
+    return AnchorRepairAudit(summary, strict, anchors, movements, active_limits, stage1_failure, source_digest, raw_digest,
                              _digest(stage1_text) if stage1_text is not None else None, _digest(candidate_text),
                              hashlib.sha256(request.to_json().encode("utf-8")).hexdigest())
