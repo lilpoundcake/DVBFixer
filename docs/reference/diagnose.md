@@ -10,6 +10,7 @@ usage: dvbfixer diagnose [-h] [-o OUTPUT]
                          [--severity {ERROR,WARNING,INFO}] [--include-water]
                          [--clash-mode {bioluminate,chimerax,molprobity}]
                          [--clash-cutoff WARN,ERROR]
+                         [--probe-radii {electron,nuclear}]
                          [--scope-residue CHAIN:RESID[:ICODE]]
                          [--scope-boundary LEFT,RIGHT] [--format {text,json}]
                          [-v] [--log-file PATH] [--input-dir DIR]
@@ -46,6 +47,11 @@ Check selection:
                         Explicit clash overlap cutoffs in Å (overrides
                         --clash-mode). Example: --clash-cutoff 0.35,0.45 for
                         extra-strict validation.
+  --probe-radii {electron,nuclear}
+                        Optional Probe radius convention (default: electron,
+                        Probe's default). Choose nuclear for matching nuclear-
+                        position hydrogen coordinates. Reported explicitly;
+                        has no effect on the Python fallback.
 
 Optional exact geometry scope:
   --scope-residue CHAIN:RESID[:ICODE]

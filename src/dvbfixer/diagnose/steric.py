@@ -2,19 +2,18 @@
 
 Two engines:
 
-1. **Pure Python** (default): ``scipy.spatial.cKDTree.query_pairs``
+1. **Built-in Python engine**: ``scipy.spatial.cKDTree.query_pairs``
    for O(N log N) neighbor search + vdW radii lookup. No new deps
    (scipy is already a dvbfixer dep).
 
-2. **MolProbity ``probe``** (auto-used if the binary is on ``PATH``):
-   shells out to ``probe`` for a MolProbity-quality all-atom contact
-   analysis. Falls back to the Python engine on any error.
+2. **MolProbity ``probe``** (optional, when its supported version is available):
+   validated all-atom contact analysis, including intramolecular pairs.
+   Falls back to Python with explicit per-run provenance on any failure.
 """
 
 from __future__ import annotations
 
-import re
-import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -418,123 +417,21 @@ def steric_overlap_measurements_python(
     return sorted(measurements, key=lambda item: item.atoms)
 
 
-def _run_probe(pdb_path: str | Path, binary: str) -> str | None:
-    """Invoke ``probe`` and return its stdout, or None on error."""
-    try:
-        result = subprocess.run(
-            [binary, "-unformated", "-condensed", "-Q", "-mc", "-het", "ALL", "ALL", str(pdb_path)],
-            capture_output=True,
-            text=True,
-            timeout=60,
-            check=False,
-        )
-    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
-        return None
-    if result.returncode != 0:
-        return None
-    return result.stdout
-
-
 def clashes_probe(
     pdb_path: str | Path,
     binary: str,
     clash_warn_a: float | None = None,
     clash_error_a: float | None = None,
+    *,
+    include_water: bool = False,
+    probe_radii: str = "electron",
 ) -> list[Finding] | None:
-    """MolProbity ``probe`` clash detection.
-
-    Parses probe's condensed output (one line per contact). Only "bad
-    overlaps" (bumps and clashes) are surfaced — H-bonds and wide
-    contacts are skipped since diagnose is about problems, not
-    interactions.
-
-    Returns ``None`` on any probe failure so :func:`run_all` can fall
-    back to the Python engine. Returns an empty list when probe ran
-    cleanly and found no clashes.
-    """
-    raw = _run_probe(pdb_path, binary)
-    if raw is None:
-        return None
-
+    """Return validated Probe findings, or None for a failed/unsupported run."""
+    from dvbfixer.diagnose.probe import analyze
     warn_a = _CLASH_WARNING_OVERLAP_A if clash_warn_a is None else clash_warn_a
     err_a = _CLASH_ERROR_OVERLAP_A if clash_error_a is None else clash_error_a
-
-    findings: list[Finding] = []
-    for line in raw.splitlines():
-        # Probe's condensed format is colon-separated; the first token
-        # is a contact-type label. "bo" = bad overlap; "so" = small
-        # overlap. We treat both as clashes.
-        parts = line.strip().split(":")
-        if len(parts) < 13:
-            continue
-        contact_type = parts[2].strip() if len(parts) > 2 else ""
-        if contact_type not in ("bo", "so"):
-            continue
-        # Fields: :name:type:srcAtom:trgAtom:mingap:...
-        # srcAtom / trgAtom fields include chain, resnum, resname, atomname.
-        try:
-            src_field = parts[3].strip()  # e.g. " A 123 SER  HA "
-            trg_field = parts[4].strip()
-            mingap_str = parts[5].strip()
-            overlap = -float(mingap_str)  # probe reports gap (negative on overlap)
-        except (IndexError, ValueError):
-            continue
-        if overlap < warn_a - 1e-12:
-            continue
-        severity = Severity.ERROR if overlap >= err_a - 1e-12 else Severity.WARNING
-
-        def _parse(field: str) -> tuple[str, str, str, str]:
-            # Fixed-width: cols 0=chain, 1-4=resid, 5-7=resname, 8-11=atomname
-            pad = field.ljust(20)
-            return pad[0].strip(), pad[1:5].strip(), pad[5:9].strip(), pad[10:15].strip()
-
-        chain_i, resid_i, resname_i, atom_i = _parse(src_field)
-        chain_j, resid_j, resname_j, atom_j = _parse(trg_field)
-
-        def _identity(chain: str, resid: str, atom: str) -> dict[str, str]:
-            match = re.fullmatch(r"(-?\d+)([^\d]?)", resid)
-            number, icode = match.groups() if match else (resid, "")
-            return {
-                "chain": chain or "?",
-                "resid": number or "?",
-                "icode": icode,
-                "atom": atom or "?",
-            }
-
-        loc_i = f"{chain_i or '?'}/{resname_i or '?'}{resid_i or '?'}:{atom_i or '?'}"
-        loc_j = f"{chain_j}/{resname_j}{resid_j}:{atom_j}"
-        findings.append(
-            Finding(
-                severity=severity,
-                category="clash",
-                chain=chain_i or "?",
-                resid=resid_i or "?",
-                resname=resname_i or "?",
-                atom=atom_i or "?",
-                message=f"{loc_i} clashes with partner {loc_j} — overlap {overlap:.2f} Å "
-                f"(via MolProbity probe)",
-                fix_hint="dvbfixer minimize",
-                extra={
-                    "geometry_schema": "dvbfixer.geometry.v1",
-                    "metric": "steric_probe_overlap.v1",
-                    "engine": {"name": "molprobity-probe", "version": "unreported"},
-                    "overlap_angstrom": overlap,
-                    "warning_threshold_angstrom": warn_a,
-                    "error_threshold_angstrom": err_a,
-                    "atoms": [
-                        _identity(chain_i, resid_i, atom_i),
-                        _identity(chain_j, resid_j, atom_j),
-                    ],
-                    "clash_partner": {
-                        "chain": chain_j or "?",
-                        "resid": resid_j or "?",
-                        "resname": resname_j or "?",
-                        "atom": atom_j or "?",
-                    },
-                },
-            )
-        )
-    return findings
+    return analyze(pdb_path, binary, include_water=include_water, radii=probe_radii,
+                   warn_a=warn_a, error_a=err_a).findings
 
 
 def run_all(
@@ -545,25 +442,51 @@ def run_all(
     include_water: bool = False,
     clash_warn_a: float | None = None,
     clash_error_a: float | None = None,
+    probe_radii: str = "electron",
+    provenance: dict[str, Any] | None = None,
 ) -> list[Finding]:
     """Run clash detection. Prefers ``probe`` when the binary is
     available; falls back to the Python engine otherwise.
     """
+    from dvbfixer.diagnose.probe import analyze
+
+    state: dict[str, Any] = {
+        "requested_engine": "auto" if prefer_probe else "python",
+        "actual_engine": DETERMINISTIC_STERIC_ENGINE, "status": "complete",
+        "probe_status": "not_requested", "probe_version": None,
+        "probe_radii": probe_radii, "include_water": include_water,
+        "warning_threshold_angstrom": _CLASH_WARNING_OVERLAP_A if clash_warn_a is None else clash_warn_a,
+        "error_threshold_angstrom": _CLASH_ERROR_OVERLAP_A if clash_error_a is None else clash_error_a,
+        "fallback": False, "fallback_reason": None,
+        "atom_fields_normalized": False,
+    }
     if prefer_probe:
         binary = _find_binary("probe")
         if binary is not None:
-            findings = clashes_probe(
-                pdb_path,
-                binary,
-                clash_warn_a=clash_warn_a,
-                clash_error_a=clash_error_a,
-            )
-            if findings is not None:  # None signals probe run failure
-                return findings
-    return clashes_python(
+            result = analyze(
+                pdb_path, binary, include_water=include_water, radii=probe_radii,
+                warn_a=_CLASH_WARNING_OVERLAP_A if clash_warn_a is None else clash_warn_a,
+                error_a=_CLASH_ERROR_OVERLAP_A if clash_error_a is None else clash_error_a)
+            state.update(probe_status=result.status, probe_version=result.version)
+            if result.findings is not None:
+                state["actual_engine"] = "molprobity-probe"
+                state["atom_fields_normalized"] = True
+                if provenance is not None:
+                    provenance.update(state)
+                return result.findings
+            state.update(fallback=True, fallback_reason=result.reason)
+            if result.status == "failed":
+                print(f"WARNING: Probe unavailable or failed validation ({result.reason}); using Python steric analysis.",
+                      file=sys.stderr)
+        else:
+            state.update(probe_status="unavailable", fallback=True, fallback_reason="Probe executable not found")
+    findings = clashes_python(
         topology,
         positions,
         include_water=include_water,
         clash_warn_a=clash_warn_a,
         clash_error_a=clash_error_a,
     )
+    if provenance is not None:
+        provenance.update(state)
+    return findings

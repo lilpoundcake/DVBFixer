@@ -183,22 +183,35 @@ dvbfixer minimize protein_with_ligand.pdb --parametrize-ligands -v
   generic route.
 - Forwarded by `zbs --parametrize-ligands` to the minimize step. Since 0.7.10, `minimize` also auto-attempts this (non-strict) for eligible unknown organic heterogens, even without the flag. Unknown complex cofactors raise even in non-strict mode.
 
-### Universal-FF geometry refinement — `--xtb-refine` / `--obminimize-refine`
+### Optional OpenBabel geometry refinement — `--obminimize-refine`
 
-Different mechanism entirely. These are **post-minimize refinement passes** that run AFTER OpenMM finishes. They apply a universal force field (xtb GFN-FF; OpenBabel UFF / MMFF94 / GAFF) to the whole system or just the heterogens, without OpenMM residue-template matching during the post-pass. They still require successful completion of the preceding OpenMM stage and valid input chemistry.
+This **post-minimize refinement pass** runs AFTER OpenMM finishes. It applies
+OpenBabel UFF / MMFF94 / GAFF to the whole system or selected heterogens without
+OpenMM residue-template matching during the post-pass. It still requires a
+successful preceding OpenMM stage and valid input chemistry. It is not a
+guarantee of improved complex geometry.
 
 ```bash
-# After OpenMM minimize, run xtb GFN-FF only on the heterogens
-dvbfixer minimize input.pdb --no-solvent --xtb-refine --refine-heterogens-only -v
-
 # OpenBabel obminimize (UFF by default; handles N-glycosidic angles correctly)
 dvbfixer minimize input.pdb --no-solvent --obminimize-refine --refine-heterogens-only -v
 ```
 
-- **Intended use**: optional internal-geometry cleanup after a successful OpenMM stage. Any improvement must be checked against the unrefined result; these passes do not guarantee repair of unsupported chemistry or glycan linkages.
-- Auto-switches to heterogens-only above 5000 atoms (whole-system xtb takes hours).
-- **`--refine-heterogens-only` interface caveat**: the surrounding protein pocket is omitted, not held as a frozen interacting environment. This is not joint protein–ligand relaxation. Whole-system mode includes more context but is not equivalent to the parameterized OpenMM protocol; above 5000 atoms it automatically switches back to heterogens-only.
-- **NOT a replacement** for `--parametrize-ligands`: running GFN-FF/UFF does not produce validated MD-ready ligand parameters. There is no general guarantee that a post-pass improves on the preceding GAFF2/OpenMM result.
+- This is an explicitly requested geometry experiment, not a way to bypass
+  unavailable OpenMM parameters. Independently inspect bonds, stereochemistry,
+  clashes and pocket contacts afterwards.
+- Large systems can auto-switch to heterogens-only; read the run log.
+- **`--refine-heterogens-only` interface caveat**: the anchor backbone stays
+  fixed, while its sidechain can move with the heterogen. The remaining protein
+  environment is omitted. This is not joint pocket relaxation; inspect contacts
+  independently. Whole-system refinement includes the surroundings where supported.
+- **Not a replacement** for `--parametrize-ligands`: OpenBabel refinement does
+  not produce MD-ready parameters or establish joint pocket relaxation. There is
+  no general guarantee of improvement on the preceding GAFF2/OpenMM result.
+
+xTB refinement and its managed dependency were removed. The [completed
+investigation](research/probe-xtb-followup.md) found no passing profile for the
+tested complex-polishing schemes; a package upgrade alone did not resolve the
+problem. See [ADR 0012](adr/0012-remove-xtb-refinement-and-repair-probe.md).
 
 #### Technical scope of the external post-passes
 
@@ -207,18 +220,17 @@ minimization in `src/dvbfixer/minimize/pipeline.py`.
 
 | Property | Current implementation |
 |---|---|
-| xTB method | `xtb input.xyz --opt --gfnff --cycles N --norestart`: classical GFN-FF geometry optimization |
-| Quantum methods | No GFN1-xTB/GFN2-xTB electronic-structure optimization is selected by this integration |
+| Quantum methods | No electronic-structure optimization is selected by this post-pass |
 | Open Babel method | UFF by CLI default; selectable MMFF94 variants/GAFF, with fallback to UFF on applicable setup failures |
-| Data passed to xTB | Elements and coordinates in XYZ, plus an optional fixed-atom list; no OpenMM force-field parameters or restraint force are transferred |
+| Data passed to Open Babel | Topology/coordinates through PDB or the Python API; OpenMM force-field parameters and restraint tiers are not transferred |
 | Heterogens-only selection | All non-protein, non-solvent/ion residues plus complete covalently linked anchor residues; not an independently pocket-conditioned calculation per ligand |
 | Protein context | No distance-selected shell of pocket residues, electrostatic embedding or QM/MM coupling |
 | Whole-system selection | The supplied topology/positions are optimized with the external method; OpenMM restraint tiers are not inherited |
 
 **This is real geometry optimization, but not a dedicated protein-aware or
-quantum ligand optimization protocol.** GFN-FF is a force field despite the xTB
-executable name. Its capability must not be confused with the quantum methods
-available elsewhere in xTB or with the separate PySCF/PSI4 RESP workflows.
+quantum ligand optimization protocol.** Its capability must not be confused
+with the separate PySCF/PSI4 RESP workflows. Historical xTB GFN-FF experiments
+also used a classical force field, not GFN2-xTB electronic-structure optimization.
 
 For covalent anchors, the extractor includes the entire anchor residue. For
 ASN/SER/THR families it fixes selected backbone/CB-region atoms while leaving
@@ -234,19 +246,16 @@ protein atoms omitted from the subsystem exert no steric or electrostatic
 forces, so ligand motion can introduce clashes when merged back into the protein.
 
 During merging, DVBFixer retains original coordinates for fixed anchor atoms
-and copies optimized coordinates for movable subsystem atoms. It does not
-currently measure fixed-atom drift in raw xTB output. Restoring anchors after
-optimization does not repair geometry optimized relative to a drifting anchor.
+and copies optimized coordinates for movable subsystem atoms. Restoring anchors
+after optimization does not repair geometry optimized relative to a drifting anchor.
 Missing executables and some failures warn and retain pre-pass coordinates;
 successful CLI completion alone does not prove that refinement ran or converged.
 
-xTB remains under review, not scheduled for immediate removal. Compare with an
-OpenMM-only baseline and inspect internal geometry, covalent junctions, fixed
-atoms and full-complex contacts. The
+Compare with an OpenMM-only baseline and inspect internal geometry, covalent
+junctions, fixed atoms and full-complex contacts. The historical
 [review checklist](plans/environment-dependency-audit.md#b12-xtb-на-карандаше-проверить-до-решения-об-установочном-профиле)
-covers upstream fixes, ANC, platform checks, possible explicit GFN2-xTB support
-and the design of an actual pocket-aware protocol; these are pending work, not
-shipped capabilities.
+led to the completed xTB investigation and removal decision; it is not an active
+installation-profile proposal.
 
 ### Which to use?
 
@@ -255,7 +264,7 @@ shipped capabilities.
 | Isolated ligand, want real FF params for MD               | `--parametrize-ligands`                    |
 | Heme, flavin, metal complex, or covalently attached cofactor | Validated `--extra-ff FILE`; otherwise strip explicitly |
 | Protein-ligand INTERFACE geometry matters (H-bonds, contacts) | `--parametrize-ligands` (whole system optimised together; do NOT rely on `--strip-heterogens` or `--refine-heterogens-only` which leave the interface unrelaxed) |
-| Just want the ligand's internal geometry to look sensible | `--xtb-refine` or `--obminimize-refine` (add `--refine-heterogens-only` for speed if interface geometry doesn't matter) |
+| Explicitly experiment with ligand-internal geometry | `--obminimize-refine`; independently inspect the result and the pocket |
 | Glycan tree with PDB names (NAG/BMA/MAN)                  | `dvbfixer convert --to-amber` first        |
 | Glycan tree with CHARMM-GUI names (BGLC/BMAN/…)           | `--ff charmm` (auto-detected)              |
 | Glycan tree with GLYCAM names (4YB/UYB/…)                 | `--ff amber+glycam` (auto-detected)        |

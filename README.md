@@ -4,7 +4,7 @@ Prepare structural biology files from PDB and CIF inputs: repair missing atoms,
 rebuild protein gaps, assign protonation states, minimize structures, and export
 GROMACS topologies. Use the command line or the browser-based GUI with Mol*.
 
-Current release: **0.10.0**.
+Current release: **0.10.1**.
 
 ## Install
 

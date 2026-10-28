@@ -1,20 +1,17 @@
-"""xtb and OpenBabel refinement passes for ``dvbfixer minimize``.
+"""Optional OpenBabel refinement for ``dvbfixer minimize``.
 
 Split out of the flat ``minimize.py`` in Phase 2.1 of the revision plan.
-Contains the two BioLuminate-style refinement engines that run AFTER
+Contains the optional refinement engine that runs AFTER
 OpenMM minimization to polish arbitrary heterogens without needing a
 per-ligand template:
 
-- :func:`refine_with_xtb` — invokes the ``xtb`` binary (GFN-FF universal
-  force field) on a temp XYZ file.
 - :func:`refine_with_obminimize` — invokes OpenBabel's ``obminimize`` on a
   temp PDB (via CLI when the whole system is free, via pybel when frozen
   atoms are needed since the CLI has no freeze flag).
 
-Both engines can restrict work to just the heterogen residues via
-:func:`_extract_heterogen_subsystem`; when they do, the anchor residue's
-backbone + the heterogen-side linkage atom stay frozen so the
-OpenMM-AMBER interface geometry survives.
+The engine can restrict work to heterogens and mobile anchor sidechains via
+:func:`_extract_heterogen_subsystem`. Its frozen mask keeps the anchor backbone
+stationary. Geometry and interface quality still require independent inspection.
 
 Also exports the Kabsch glycan-tracking helper
 :func:`_rigid_track_glycan_trees` — used by the strip-and-splice fallback
@@ -44,186 +41,6 @@ def _find_binary(name):
     if _os.access(candidate, _os.X_OK):
         return candidate
     return None
-
-
-def _write_xyz(path, topology, positions, comment=""):
-    """Write topology + positions to XYZ format (used by xtb)."""
-    from openmm.unit import nanometer
-    atoms = list(topology.atoms())
-    with open(path, 'w') as f:
-        f.write(f"{len(atoms)}\n{comment}\n")
-        for atom in atoms:
-            p = positions[atom.index].value_in_unit(nanometer)
-            x = float(p[0]) * 10.0  # nm → Å
-            y = float(p[1]) * 10.0
-            z = float(p[2]) * 10.0
-            sym = atom.element.symbol
-            f.write(f"{sym:<3s} {x:14.8f} {y:14.8f} {z:14.8f}\n")
-
-
-def _read_xyz_coords(path):
-    """Read coordinates from XYZ file. Returns list of Vec3 in nm."""
-    from openmm import Vec3
-    coords = []
-    with open(path) as f:
-        n = int(f.readline().strip())
-        f.readline()  # comment line
-        for _ in range(n):
-            parts = f.readline().split()
-            x, y, z = float(parts[1]), float(parts[2]), float(parts[3])
-            # Å → nm
-            coords.append(Vec3(x / 10.0, y / 10.0, z / 10.0))
-    return coords
-
-
-def _build_frozen_atom_list(topology, heterogen_only):
-    """Return list of atom indices (1-based) to freeze during xtb opt.
-
-    If heterogen_only=True, freezes protein atoms; otherwise freezes nothing.
-    """
-    if not heterogen_only:
-        return []
-    from dvbfixer.ffutils import PROTEIN_RESIDUES, SOLVENT_IONS
-    known = PROTEIN_RESIDUES | SOLVENT_IONS
-    frozen = []
-    for atom in topology.atoms():
-        if atom.residue.name in known:
-            frozen.append(atom.index + 1)  # 1-based for xtb
-    return frozen
-
-
-def refine_with_xtb(topology, positions, cycles=200, heterogens_only=False,
-                    verbose=False):
-    """Refine geometry with xtb GFN-FF universal force field.
-
-    GFN-FF auto-parametrizes any organic molecule from connectivity rules.
-    For whole-protein systems use heterogens_only=True (extract sub-system),
-    otherwise xtb tries to handle the full system which is slow.
-    """
-    from openmm import Vec3
-    from openmm.unit import Quantity, nanometer
-
-    xtb_bin = _find_binary('xtb')
-    if xtb_bin is None:
-        print("WARNING: xtb binary not found in PATH — skipping xtb refinement")
-        return positions
-
-    if heterogens_only:
-        sub_top, sub_pos, idx_map, anchor_indices = _extract_heterogen_subsystem(
-            topology, positions
-        )
-        n_sub = sum(1 for _ in sub_top.atoms())
-        if n_sub == 0:
-            return positions
-        print(f"\n=== xtb GFN-FF refinement ({cycles} cycles, "
-              f"heterogens-only — {n_sub} atoms, "
-              f"{len(anchor_indices)} protein anchors frozen) ===")
-        new_sub_pos = _run_xtb(sub_top, sub_pos, xtb_bin, cycles, verbose,
-                                frozen_indices=anchor_indices)
-        if new_sub_pos is None:
-            return positions
-        coords = []
-        for p in positions:
-            v = p.value_in_unit(nanometer)
-            coords.append(Vec3(float(v[0]), float(v[1]), float(v[2])))
-        for full_idx, sub_idx in idx_map.items():
-            if sub_idx in anchor_indices:
-                continue  # anchors didn't move; skip
-            p = new_sub_pos[sub_idx].value_in_unit(nanometer)
-            coords[full_idx] = Vec3(float(p[0]), float(p[1]), float(p[2]))
-        return Quantity(coords, nanometer)
-    else:
-        n = sum(1 for _ in topology.atoms())
-        if n > 5000:
-            print(f"\nINFO: full-system xtb on {n} atoms takes hours — "
-                  f"auto-switching to --refine-heterogens-only (use that flag "
-                  f"explicitly to silence this notice)")
-            return refine_with_xtb(
-                topology, positions, cycles=cycles,
-                heterogens_only=True, verbose=verbose,
-            )
-        print(f"\n=== xtb GFN-FF refinement ({cycles} cycles, "
-              f"whole system — {n} atoms) ===")
-        new_pos = _run_xtb(topology, positions, xtb_bin, cycles, verbose)
-        return new_pos if new_pos is not None else positions
-
-
-def _run_xtb(topology, positions, xtb_bin, cycles, verbose, frozen_indices=None):
-    """Internal: write XYZ, run xtb --opt --gfnff, return refined Quantity or None.
-
-    frozen_indices: set of sub-topology atom indices (0-based) to freeze.
-    Written to xcontrol with $fix atoms (1-based).
-    """
-    import os as _os
-    import shutil as _sh
-    import subprocess as _sp
-    import tempfile as _tf
-
-    from openmm.unit import Quantity, nanometer
-
-    workdir = _tf.mkdtemp(prefix='dvbfixer_xtb_')
-    old_cwd = _os.getcwd()
-    try:
-        input_xyz = _os.path.join(workdir, 'input.xyz')
-        _write_xyz(input_xyz, topology, positions, "dvbfixer xtb input")
-
-        cmd = [xtb_bin, 'input.xyz', '--opt', '--gfnff',
-               '--cycles', str(cycles), '--norestart']
-
-        # Freeze protein anchor atoms via xcontrol $fix block (1-based indices)
-        if frozen_indices:
-            xc_path = _os.path.join(workdir, 'xcontrol')
-            sorted_idx = sorted(i + 1 for i in frozen_indices)
-            # Group consecutive indices into ranges for compactness
-            ranges = []
-            start = prev = sorted_idx[0]
-            for i in sorted_idx[1:]:
-                if i == prev + 1:
-                    prev = i
-                else:
-                    ranges.append((start, prev))
-                    start = prev = i
-            ranges.append((start, prev))
-            range_str = ",".join(
-                f"{s}" if s == e else f"{s}-{e}" for s, e in ranges
-            )
-            with open(xc_path, 'w') as f:
-                f.write("$fix\n")
-                f.write(f"  atoms: {range_str}\n")
-                f.write("$end\n")
-            cmd.extend(['--input', 'xcontrol'])
-        _os.chdir(workdir)
-        if verbose:
-            print(f"  Running: {' '.join(cmd)}")
-        try:
-            result = _sp.run(cmd, capture_output=True, text=True, timeout=3600)
-        except _sp.TimeoutExpired:
-            print("WARNING: xtb timeout")
-            return None
-        if result.returncode != 0:
-            print(f"WARNING: xtb failed (returncode {result.returncode})")
-            if verbose:
-                print("--- stderr ---")
-                print((result.stderr or "")[-3000:])
-                print("--- stdout (last 30 lines) ---")
-                print('\n'.join(result.stdout.splitlines()[-30:]))
-            return None
-
-        opt_xyz = _os.path.join(workdir, 'xtbopt.xyz')
-        if not _os.path.exists(opt_xyz):
-            print("WARNING: xtb produced no xtbopt.xyz")
-            return None
-
-        new_coords = _read_xyz_coords(opt_xyz)
-        for line in result.stdout.splitlines():
-            if 'TOTAL ENERGY' in line:
-                print(f"  xtb {line.strip()}")
-                break
-        print(f"  xtb refined {len(new_coords)} atoms")
-        return Quantity(new_coords, nanometer)
-    finally:
-        _os.chdir(old_cwd)
-        _sh.rmtree(workdir, ignore_errors=True)
 
 
 def _rigid_track_glycan_trees(in_top, in_pos, result_array, min_pos_map,
@@ -531,10 +348,10 @@ def _rigid_track_glycan_trees(in_top, in_pos, result_array, min_pos_map,
 def _extract_heterogen_subsystem(topology, positions, padding_residues=False):
     """Build a sub-topology of heterogen residues PLUS protein anchor atoms.
 
-    For each protein-heterogen bond (e.g. ASN ND2 → NAG C1), the protein
-    atom is included as a single "anchor" atom (without its full residue).
-    This preserves the glycosidic bond constraint during refinement; downstream
-    the anchor atoms are frozen so the protein doesn't move.
+    For each protein-heterogen bond (e.g. ASN ND2 → NAG C1), the full anchor
+    residue is included. Its backbone and first sidechain carbon are fixed;
+    the remaining sidechain and heterogen linkage atom remain mobile. The rest
+    of the protein environment is omitted, so this is not joint pocket relaxation.
 
     Returns (sub_topology, sub_positions, atom_index_map, anchor_sub_indices).
     atom_index_map[full_atom_index] = sub_atom_index for all included atoms.
@@ -551,9 +368,8 @@ def _extract_heterogen_subsystem(topology, positions, padding_residues=False):
 
     # Find protein atoms bonded to heterogens, then include their ENTIRE
     # residues as anchors. Including just the single linkage atom (e.g. ASN
-    # ND2 alone) leaves xtb confused about bond chemistry — it perceives a
-    # lone N and pulls the C-N bond to ~1 Å. Including the full ASN gives
-    # xtb the proper sp3 N context.
+    # ND2 alone) loses the parent functional-group context needed for
+    # force-field atom typing. Include the full anchor residue.
     het_atom_indices = set()
     for res in topology.residues():
         if res.name not in known:
@@ -574,11 +390,8 @@ def _extract_heterogen_subsystem(topology, positions, padding_residues=False):
         if res.index in anchor_residues:
             for atom in res.atoms():
                 anchor_protein_atoms.add(atom.index)
-    # ALSO freeze the heterogen linkage atom itself (e.g. NAG C1 bonded to
-    # ASN ND2). Reason: UFF/MMFF don't have explicit amide planarity terms,
-    # so during refinement the linkage C can rotate ~15° out of the amide
-    # plane. Freezing it preserves the OpenMM-AMBER geometry of the
-    # protein-glycan interface; the rest of the sugar refines freely.
+    # The heterogen linkage atom remains mobile. The per-anchor mask below
+    # defines exactly which backbone/first-sidechain-carbon atoms stay fixed.
 
     sub_top = Topology()
     sub_pos_list = []
@@ -863,5 +676,3 @@ def _run_obminimize(topology, positions, ff, steps, verbose, frozen_indices=None
         return Quantity(coords, nanometer)
     finally:
         _sh.rmtree(workdir, ignore_errors=True)
-
-

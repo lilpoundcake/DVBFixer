@@ -8,6 +8,22 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.10.1] — 2026-10-28
+
+### Removed
+
+- Removed xTB refinement, `minimize --xtb-refine` / `--xtb-cycles`,
+  `zbs --refine xtb`, and the managed xTB dependency. The completed experiments
+  did not establish a geometry-improving complex-polishing profile, even after
+  fixing native constraints. See [ADR 0012](docs/adr/0012-remove-xtb-refinement-and-repair-probe.md).
+
+### Fixed
+
+- Repaired optional Probe contact diagnostics: valid self invocation, atom-field
+  normalization, strict supported-version/output validation, case-sensitive
+  identity mapping and contact-pair aggregation. Reports expose engine, radii
+  and fallback provenance even for clean results; `--include-water` is respected.
+
 ## [0.10.0] — 2026-10-27
 
 ### Added

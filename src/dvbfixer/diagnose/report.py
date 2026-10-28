@@ -151,6 +151,7 @@ def format_report(
     *,
     chirality_checked: bool = True,
     chirality_repairs: list[dict[str, str]] | None = None,
+    steric_provenance: dict[str, Any] | None = None,
 ) -> str:
     """Render the plain-text report."""
     lines: list[str] = []
@@ -160,6 +161,13 @@ def format_report(
     lines.append(f"dvbfixer diagnose — {input_path}")
     lines.append(bar)
     lines.append(f"Loaded: {n_atoms} atoms, {n_residues} residues, {n_chains} chains")
+    if steric_provenance is not None:
+        engine = steric_provenance.get("actual_engine", "unreported")
+        if engine == "molprobity-probe":
+            detail = f"{steric_provenance.get('probe_version')}; {steric_provenance.get('probe_radii')} radii"
+        else:
+            detail = steric_provenance.get("fallback_reason") or "explicit Python selection"
+        lines.append(f"Steric engine: {engine} ({detail})")
     d_findings = [f for f in findings if f.category == "chirality"]
     if chirality_checked:
         status = "YES" if d_findings else "NO"

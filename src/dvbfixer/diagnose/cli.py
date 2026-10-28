@@ -6,6 +6,7 @@ Argparse only — no OpenMM / PDBFixer imports at module scope.
 from __future__ import annotations
 
 import argparse
+import math
 
 from dvbfixer.diagnose.geometry import (
     BoundaryIdentity,
@@ -28,7 +29,7 @@ def _parse_clash_cutoff(s: str) -> tuple[float, float]:
         err = float(parts[1])
     except ValueError as exc:
         raise argparse.ArgumentTypeError(f"could not parse floats from {s!r}: {exc}") from exc
-    if warn <= 0 or err <= 0:
+    if not (math.isfinite(warn) and math.isfinite(err)) or warn <= 0 or err <= 0:
         raise argparse.ArgumentTypeError(f"cutoffs must be positive (got warn={warn}, err={err})")
     if warn > err:
         raise argparse.ArgumentTypeError(f"WARN cutoff ({warn}) must be ≤ ERROR cutoff ({err})")
@@ -114,6 +115,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         metavar="WARN,ERROR",
         help="Explicit clash overlap cutoffs in Å (overrides --clash-mode). "
         "Example: --clash-cutoff 0.35,0.45 for extra-strict validation.",
+    )
+    checks.add_argument(
+        "--probe-radii", choices=["electron", "nuclear"], default="electron",
+        help="Optional Probe radius convention (default: electron, Probe's default). "
+             "Choose nuclear for matching nuclear-position hydrogen coordinates. "
+             "Reported explicitly; has no effect on the Python fallback.",
     )
 
     scope = p.add_argument_group("Optional exact geometry scope")

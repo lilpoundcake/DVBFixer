@@ -34,7 +34,7 @@ PYTHON_PACKAGES = {
 EXECUTABLES = {
     "antechamber": "antechamber", "parmchk2": "parmchk2", "tleap": "tleap",
     "Reduce": "reduce", "Probe": "probe", "Open Babel": "obabel",
-    "obminimize": "obminimize", "xTB": "xtb", "GROMACS": "gmx",
+    "obminimize": "obminimize", "GROMACS": "gmx",
     "MAFFT": "mafft", "MUSCLE": "muscle", "Clustal Omega": "clustalo",
 }
 

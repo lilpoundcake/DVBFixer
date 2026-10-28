@@ -37,9 +37,8 @@ structures should be split or corrected before minimization.
 - **Chemistry / bond geometry** — valence violations, bond-length
   outliers, broad topology-backed protein backbone and peptide-angle
   outliers, cis peptides, non-planar amides, Cα chirality.
-- **Steric analysis** — all-atom clashes using OpenMM's neighbor
-  search + van der Waals radii (or MolProbity's `probe` binary if
-  it's on `PATH`).
+- **Steric analysis** — Python neighbor search + van der Waals radii,
+  or the optional validated MolProbity Probe adapter when supported.
 
 ## Usage
 
@@ -103,7 +102,8 @@ usage: dvbfixer diagnose [-h] [-o OUTPUT]
                          [--only {all,structural,chemistry,steric}]
                          [--severity {ERROR,WARNING,INFO}] [--include-water]
                          [--clash-mode {bioluminate,chimerax,molprobity}]
-                         [--clash-cutoff WARN,ERROR]
+                          [--clash-cutoff WARN,ERROR]
+                          [--probe-radii {electron,nuclear}]
                          [--scope-residue CHAIN:RESID[:ICODE]]
                          [--scope-boundary LEFT,RIGHT] [--format {text,json}]
                          [-v] [--log-file PATH] [--input-dir DIR]
@@ -151,6 +151,37 @@ unit-bearing observed/reference/deviation values. `geometry.finding_aggregates`
 contains deterministic category counts and named maxima for the findings that
 remain after check and severity filtering; existing top-level fields are
 unchanged.
+
+### Optional Probe engine
+
+Probe **2.18.211005** is supported when installed on `PATH` or in the active
+Python environment's `bin`. It adds intramolecular contact coverage. Diagnose
+normalizes atom-field alignment in a temporary copy, checks the version and
+every condensed contact record, resolves exact input identities, and aggregates
+duplicate overlap records by atom pair. The input file is never changed.
+
+Probe uppercases residue/atom names internally. Diagnose maps those spellings
+back to the original names while preserving case-sensitive chain IDs and
+insertion codes. Ambiguous atom-name aliases, missing explicit element columns,
+unresolved alternate conformations or unsupported output use the Python engine
+instead. Resolve alternate states with `dvbfixer altlocs` when appropriate.
+
+`--probe-radii electron` retains Probe's default radius convention. Choose
+`--probe-radii nuclear` when it matches the hydrogen-coordinate provenance;
+do not choose a convention merely because it yields fewer findings. This flag
+does not change the Python engine's radii. Both engines respect `--include-water`.
+
+Every steric report, including a clean report, records the actual engine. JSON
+adds a top-level `steric` object with requested/actual engine, Probe status and
+version, radius convention, thresholds, water policy and fallback reason.
+Text reports include a `Steric engine:` line. Native failure, incompatible
+version and malformed output produce a warning and validated Python fallback;
+an optional missing binary does not create a warning banner. No steric check
+requested is reported as `steric.status = "not_requested"`.
+
+Probe/Python finding counts are not comparative precision scores. Probe's `hb`
+classification, which may coexist with overlap classes for a pair, does not
+by itself validate hydrogen-bond angles. See the [completed comparison](../research/probe-xtb-followup.md).
 
 When exact scope is requested, `scope` uses schema
 `dvbfixer.diagnostic-scope.v1` and reports requested/selected residue identities,

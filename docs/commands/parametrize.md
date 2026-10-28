@@ -104,7 +104,7 @@ What happens internally:
 1. antechamber runs in `bcc` mode to assign GAFF2 atom types.
 2. PySCF builds the molecule (`gto.Mole`), runs HF/6-31G* SCF (no
    geometry optimisation — uses input coords; pre-optimise via
-   `dvbfixer minimize` or `xtb` if needed).
+   `dvbfixer minimize` if needed).
 3. dvbfixer generates a Merz-Kollman ESP grid (4 Connolly shells at
    1.4-2.0× vdW radii, ~1 point/Å² density).
 4. ESP at each grid point is evaluated via `mol.intor('int1e_grids')`

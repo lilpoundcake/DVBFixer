@@ -93,12 +93,10 @@ dvbfixer minimize prepared.pdb --dat prepared.dat --no-solvent \
   --obminimize-refine --refine-heterogens-only -o refined.pdb
 ```
 
-OpenBabel UFF refinement is an optional post-pass; xtb GFN-FF is available via
-`--xtb-refine`. Neither can bypass an earlier OpenMM setup rejection or guarantee
-support for arbitrary chemistry. These are external classical-force-field
-geometry optimizations, **not quantum calculations or a dedicated protein-aware
-ligand refinement protocol**. In particular, DVBFixer invokes xTB with
-`--opt --gfnff`, not GFN1-xTB or GFN2-xTB.
+OpenBabel UFF refinement is an optional post-pass. It cannot bypass an earlier
+OpenMM setup rejection or guarantee support for arbitrary chemistry. This is an
+external classical-force-field geometry optimization, **not a quantum calculation
+or a dedicated protein-aware ligand refinement protocol**.
 
 With `--refine-heterogens-only`, most of the protein is **absent from the
 calculation**, not merely frozen. The subsystem contains all heterogens and
@@ -111,14 +109,15 @@ the external force field, not the preceding OpenMM parameters or restraint tiers
 See the [technical scope and limitations](../force-fields.md#technical-scope-of-the-external-post-passes).
 
 UFF is the default OpenBabel force field. MMFF94 variants can mis-type N-linked
-sugar geometry. xTB has an upstream fixed-atom drift fix in
-[PR #1429](https://github.com/grimme-lab/xtb/pull/1429), merged after the latest
-published v6.7.1 release as checked on 2026-10-27. Availability in a particular
-package build and correctness on DVBFixer inputs still require verification;
-see the [xTB review checklist](../plans/environment-dependency-audit.md#b12-xtb-на-карандаше-проверить-до-решения-об-установочном-профиле).
-Inspect linkages rather than assuming a universal-force-field pass improves them.
+sugar geometry. Inspect linkages rather than assuming a universal-force-field
+pass improves them.
 For systems above 5,000 atoms, whole-system post-refinement can be switched to
 heterogens-only with an informational message. Read the run log.
+
+xTB refinement was removed after the [completed investigation](../research/probe-xtb-followup.md)
+failed to establish a passing complex-polishing profile. `--xtb-refine` and
+`--xtb-cycles` are no longer accepted; no substitute is selected automatically.
+See [ADR 0012](../adr/0012-remove-xtb-refinement-and-repair-probe.md).
 
 ## Options
 

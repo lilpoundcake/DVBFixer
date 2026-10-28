@@ -29,7 +29,6 @@ dependencies:
   - muscle >=5       # optional high-accuracy MSA alternative
   - clustalo         # optional scalable MSA alternative
   - nodejs >=22      # required by the Mol* GUI dependency
-  - xtb              # GFN-FF/GFN-xTB universal FF for --xtb-refine
   - openbabel        # obminimize CLI for --obminimize-refine
   - ambertools >=23  # tleap + pdb4amber for the deterministic
                      # prep backend (dvbfixer.prep_backend). Replaces the

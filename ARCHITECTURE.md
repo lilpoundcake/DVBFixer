@@ -41,7 +41,7 @@ bounded no-inference handshake contract exposed by the additive Doctor report.
 MODELLER remains the default and keeps its existing PDB-file output contract.
 See [ADR 0011](docs/adr/0011-experimental-diffusion-cli.md).
 
-OpenMM is the current minimizer. The optional xtb/OpenBabel passes run after it;
+OpenMM is the current minimizer. The optional OpenBabel pass runs after it;
 `legacy` and `tleap-reduce` select preparation, not minimization. There is no
 geometry-dictionary regularization backend or shared backend capability
 negotiation. See [domain model](docs/domain-model.md) for current boundaries
@@ -121,6 +121,11 @@ src/dvbfixer/
 
 This is a responsibility map, not an exhaustive file inventory. Stale per-file
 line counts have been removed; use the source and agent task map for exact symbols.
+
+`diagnose/probe.py` owns the optional Probe version/input/output/identity contract.
+`diagnose/steric.py` selects the engine and records per-run fallback provenance;
+`pipeline.py` and `report.py` expose that provenance even when there are no
+findings. See [ADR 0012](docs/adr/0012-remove-xtb-refinement-and-repair-probe.md).
 
 ## Data flow
 
@@ -421,7 +426,7 @@ Pipes the prepared PDB through RDKit:
 7. Carry over RDKit-perceived intra-sugar bonds → OpenMM topology
 
 The H-parent bond is critical: without it, `PDBFile.writeFile` doesn't
-emit CONECT for H atoms, and downstream OpenBabel/xtb proximity bonding
+emit CONECT for H atoms, and downstream OpenBabel proximity bonding
 may miss the bond (especially for H placed >1.9 Å from parent), causing
 H atoms to drift during refinement.
 
@@ -484,22 +489,24 @@ entry to rebuild a stripped ligand's H from, so this is unrecoverable;
 now scoped to `PROTEIN_RESIDUES` only, since the whole mechanism is
 about protein-side AMBER protonation variants, not heterogens.
 
-### `minimize.refine_with_obminimize` / `refine_with_xtb` — universal-FF post-pass
+### `minimize.refine_with_obminimize` — optional universal-FF post-pass
 
 After OpenMM AMBER minimization, optional refinement using:
 - **OpenBabel obminimize** (MMFF94 → UFF auto-fallback) — fast, SMARTS-rule typing
-- **xtb GFN-FF** — universal FF, GNN-derived parameters
 
-Both use `_extract_heterogen_subsystem` to build a sub-topology of
+It uses `_extract_heterogen_subsystem` to build a sub-topology of
 heterogens + their full anchor residues (e.g. entire ASN, not just ND2).
 Anchor atoms are frozen via:
 - `OBFFConstraints.AddAtomConstraint()` for obminimize (Python API only —
   CLI obminimize has no freeze flag)
-- `$fix atoms:` xcontrol block for xtb (1-based ranges)
 
 After refinement, anchor coords are NOT spliced back (they didn't move;
 keep OpenMM-minimized values). Auto-switches to heterogens-only when
-topology > 5000 atoms (UFF OOMs, xtb hours-slow).
+topology > 5000 atoms to bound OpenBabel work. Independently inspect final geometry.
+
+xTB production refinement was removed under
+[ADR 0012](docs/adr/0012-remove-xtb-refinement-and-repair-probe.md). Historical
+research tools/evidence remain separate from the supported scientific API.
 
 ### `acpype_export.prepare_for_openmm` — glycoprotein normalization
 
@@ -1249,8 +1256,9 @@ called out in each `__init__.py`.
    antechamber output under a hash of the ligand's atom set to avoid
    re-running on identical residues across a pipeline.
 
-2. **xtb v6.8+ when conda-forge ships it** — fixes the `$fix` bug that
-   causes ~0.1 Å drift on nominally-frozen anchors during `--xtb-refine`.
+2. **xTB upgrade proposal superseded** — the subsequent native-constraint fix
+   did not establish an accepted complex-polishing profile. Production refinement
+   and its managed dependency were removed; see ADR 0012 and the completed study.
 
 3. ~~**Remaining top extraction**~~ — done. `ff_data.py`, `writers.py`,
    `acpype.py`, and now `types.py` / `glycan.py` / `topology_builder.py`

@@ -1,0 +1,4217 @@
+{
+  "context": [
+    {
+      "directory": ".artifacts/probe-xtb/followup-context",
+      "completed_jobs": 9,
+      "expected_jobs": 9,
+      "execution_complete": true,
+      "runs": [
+        {
+          "name": "hinge-isolated-k0",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 25.540637588128448,
+          "atoms": 494,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": null,
+          "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": false,
+          "iterations": 500,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "gradient_max_hartree_angstrom": 0.004023868365467757,
+          "screens_pass": false,
+          "gates": {
+            "converged": false,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": true,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": true
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 33,
+          "clashes_after": 58,
+          "new_clashes": 25,
+          "lost_clashes": 0,
+          "completed_evaluations": 519,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -77.23036254652706,
+            "objective_hartree": -77.23036254652706,
+            "mobile_gradient_max_hartree_angstrom": 0.07768529069590227
+          },
+          "last_completed_evaluation": {
+            "evaluation": 518,
+            "native_energy_hartree": -77.6473598156299,
+            "objective_hartree": -77.6473598156299,
+            "mobile_gradient_max_hartree_angstrom": 0.004023868365467757
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 0,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "H",
+              "resid": "232",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 1.1929166837114002,
+              "heavy_displacement_max_angstrom": 2.312291979702229,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 12,
+              "lost_contacts": 1,
+              "new_contacts": 4
+            },
+            {
+              "chain": "H",
+              "resid": "233",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 1.513982070268774,
+              "heavy_displacement_max_angstrom": 2.0569937923284427,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "234",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.8075826752513953,
+              "heavy_displacement_max_angstrom": 2.848975402434628,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "235",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 1.4051962021982543,
+              "heavy_displacement_max_angstrom": 1.98202104953068,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "236",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 2.0699507987514263,
+              "heavy_displacement_max_angstrom": 2.575890650056431,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "237",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.1428788041350788,
+              "heavy_displacement_max_angstrom": 1.5099267285571245,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "238",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.8834351680648053,
+              "heavy_displacement_max_angstrom": 1.5820833478788978,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "239",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 1.2120709091781405,
+              "heavy_displacement_max_angstrom": 1.7426777224801833,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "240",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.9102695212876797,
+              "heavy_displacement_max_angstrom": 1.2850826440634233,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "241",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 1.1032553349443908,
+              "heavy_displacement_max_angstrom": 1.344048201218858,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "242",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 1.196248139313971,
+              "heavy_displacement_max_angstrom": 2.2952994533389477,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 12,
+              "lost_contacts": 1,
+              "new_contacts": 4
+            },
+            {
+              "chain": "K",
+              "resid": "243",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 1.5579570775775309,
+              "heavy_displacement_max_angstrom": 2.122182424235932,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "244",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.7976570902599596,
+              "heavy_displacement_max_angstrom": 2.8046005347580105,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "245",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 1.4081674871466596,
+              "heavy_displacement_max_angstrom": 2.055739355209013,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "246",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 2.17203590107987,
+              "heavy_displacement_max_angstrom": 2.4973729945398984,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "247",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.414750203497463,
+              "heavy_displacement_max_angstrom": 2.2259624990599183,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "248",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.9810709239215228,
+              "heavy_displacement_max_angstrom": 1.6179416738690768,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "249",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 1.1368327976617636,
+              "heavy_displacement_max_angstrom": 1.6911108241191906,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "250",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.7923484556288284,
+              "heavy_displacement_max_angstrom": 1.1459319202601994,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "251",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 1.0860194064655646,
+              "heavy_displacement_max_angstrom": 1.3745781595536024,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            }
+          ]
+        },
+        {
+          "name": "hinge-context-k0",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.1386086400598,
+          "atoms": 4117,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": null,
+          "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 67,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -703.6696820355763,
+            "objective_hartree": -703.6696820355763,
+            "mobile_gradient_max_hartree_angstrom": 0.0777476814417156
+          },
+          "last_completed_evaluation": {
+            "evaluation": 66,
+            "native_energy_hartree": -704.0097732742798,
+            "objective_hartree": -704.0097732742798,
+            "mobile_gradient_max_hartree_angstrom": 0.004530857370109538
+          },
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "hinge-context-k5",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.1151977088302,
+          "atoms": 4117,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": null,
+          "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 70,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -703.6696820355763,
+            "objective_hartree": -703.6696820355763,
+            "mobile_gradient_max_hartree_angstrom": 0.0777476814417156
+          },
+          "last_completed_evaluation": {
+            "evaluation": 69,
+            "native_energy_hartree": -703.9894543392313,
+            "objective_hartree": -703.9666103440587,
+            "mobile_gradient_max_hartree_angstrom": 0.022000386764567538
+          },
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "plm-isolated-k0",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 4.360140869393945,
+          "atoms": 49,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": null,
+          "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-build/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            }
+          ],
+          "converged": true,
+          "scipy_success": true,
+          "iterations": 414,
+          "optimizer_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+          "gradient_max_hartree_angstrom": 8.851390780017468e-05,
+          "screens_pass": false,
+          "gates": {
+            "converged": true,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": true,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": false
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 57,
+          "clashes_after": 66,
+          "new_clashes": 11,
+          "lost_clashes": 2,
+          "completed_evaluations": 425,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -7.383155864774508,
+            "objective_hartree": -7.383155864774508,
+            "mobile_gradient_max_hartree_angstrom": 0.06743987812392634
+          },
+          "last_completed_evaluation": {
+            "evaluation": 424,
+            "native_energy_hartree": -7.400591066841207,
+            "objective_hartree": -7.400591066841207,
+            "mobile_gradient_max_hartree_angstrom": 8.851390780017468e-05
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 0,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "A",
+              "resid": "301",
+              "icode": "",
+              "resname": "PLM",
+              "heavy_displacement_rms_angstrom": 1.0623765990324132,
+              "heavy_displacement_max_angstrom": 2.352417644585128,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 28,
+              "retained_contacts": 10,
+              "lost_contacts": 18,
+              "new_contacts": 27
+            }
+          ]
+        },
+        {
+          "name": "plm-context-k0",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.5011109225452,
+          "atoms": 11708,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": null,
+          "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "plm-context-k5",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.5527887716889,
+          "atoms": 11708,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": null,
+          "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "1vcu-isolated-k0",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 4.162494346499443,
+          "atoms": 100,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+          },
+          "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-build/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            }
+          ],
+          "converged": false,
+          "scipy_success": false,
+          "iterations": 500,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "gradient_max_hartree_angstrom": 0.0006498779305919799,
+          "screens_pass": false,
+          "gates": {
+            "converged": false,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": false,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": false
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 89,
+          "clashes_after": 114,
+          "new_clashes": 30,
+          "lost_clashes": 5,
+          "completed_evaluations": 573,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -15.5546248590475,
+            "objective_hartree": -15.5546248590475,
+            "mobile_gradient_max_hartree_angstrom": 0.05582958072696407
+          },
+          "last_completed_evaluation": {
+            "evaluation": 572,
+            "native_energy_hartree": -15.671303295079142,
+            "objective_hartree": -15.671303295079142,
+            "mobile_gradient_max_hartree_angstrom": 0.0006498779305919799
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 1,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "A",
+              "resid": "381",
+              "icode": "",
+              "resname": "DAN",
+              "heavy_displacement_rms_angstrom": 1.0973766653369428,
+              "heavy_displacement_max_angstrom": 1.8818899314321562,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 90,
+              "retained_contacts": 47,
+              "lost_contacts": 43,
+              "new_contacts": 25
+            },
+            {
+              "chain": "A",
+              "resid": "382",
+              "icode": "",
+              "resname": "EPE",
+              "heavy_displacement_rms_angstrom": 0.524672200170413,
+              "heavy_displacement_max_angstrom": 1.138011421518818,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 48,
+              "retained_contacts": 32,
+              "lost_contacts": 16,
+              "new_contacts": 7
+            },
+            {
+              "chain": "A",
+              "resid": "383",
+              "icode": "",
+              "resname": "EPE",
+              "heavy_displacement_rms_angstrom": 1.599387393578559,
+              "heavy_displacement_max_angstrom": 3.26750703005909,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 34,
+              "retained_contacts": 12,
+              "lost_contacts": 22,
+              "new_contacts": 19
+            }
+          ]
+        },
+        {
+          "name": "1vcu-context-k0",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.2573439832777,
+          "atoms": 6206,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+          },
+          "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "1vcu-context-k5",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.2358151581138,
+          "atoms": 6206,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+          },
+          "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        }
+      ]
+    },
+    {
+      "directory": ".artifacts/probe-xtb/followup-context-openblas",
+      "completed_jobs": 9,
+      "expected_jobs": 9,
+      "execution_complete": true,
+      "runs": [
+        {
+          "name": "hinge-isolated-k0",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 25.88584286533296,
+          "atoms": 494,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": null,
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": false,
+          "scipy_success": false,
+          "iterations": 500,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "gradient_max_hartree_angstrom": 0.004023868365467757,
+          "screens_pass": false,
+          "gates": {
+            "converged": false,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": true,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": true
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 33,
+          "clashes_after": 58,
+          "new_clashes": 25,
+          "lost_clashes": 0,
+          "completed_evaluations": 519,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -77.23036254652706,
+            "objective_hartree": -77.23036254652706,
+            "mobile_gradient_max_hartree_angstrom": 0.07768529069590227
+          },
+          "last_completed_evaluation": {
+            "evaluation": 518,
+            "native_energy_hartree": -77.6473598156299,
+            "objective_hartree": -77.6473598156299,
+            "mobile_gradient_max_hartree_angstrom": 0.004023868365467757
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 0,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "H",
+              "resid": "232",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 1.1929166837114002,
+              "heavy_displacement_max_angstrom": 2.312291979702229,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 12,
+              "lost_contacts": 1,
+              "new_contacts": 4
+            },
+            {
+              "chain": "H",
+              "resid": "233",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 1.513982070268774,
+              "heavy_displacement_max_angstrom": 2.0569937923284427,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "234",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.8075826752513953,
+              "heavy_displacement_max_angstrom": 2.848975402434628,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "235",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 1.4051962021982543,
+              "heavy_displacement_max_angstrom": 1.98202104953068,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "236",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 2.0699507987514263,
+              "heavy_displacement_max_angstrom": 2.575890650056431,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "237",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.1428788041350788,
+              "heavy_displacement_max_angstrom": 1.5099267285571245,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "238",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.8834351680648053,
+              "heavy_displacement_max_angstrom": 1.5820833478788978,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "239",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 1.2120709091781405,
+              "heavy_displacement_max_angstrom": 1.7426777224801833,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "240",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.9102695212876797,
+              "heavy_displacement_max_angstrom": 1.2850826440634233,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "241",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 1.1032553349443908,
+              "heavy_displacement_max_angstrom": 1.344048201218858,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "242",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 1.196248139313971,
+              "heavy_displacement_max_angstrom": 2.2952994533389477,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 12,
+              "lost_contacts": 1,
+              "new_contacts": 4
+            },
+            {
+              "chain": "K",
+              "resid": "243",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 1.5579570775775309,
+              "heavy_displacement_max_angstrom": 2.122182424235932,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "244",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.7976570902599596,
+              "heavy_displacement_max_angstrom": 2.8046005347580105,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "245",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 1.4081674871466596,
+              "heavy_displacement_max_angstrom": 2.055739355209013,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "246",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 2.17203590107987,
+              "heavy_displacement_max_angstrom": 2.4973729945398984,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "247",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.414750203497463,
+              "heavy_displacement_max_angstrom": 2.2259624990599183,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "248",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.9810709239215228,
+              "heavy_displacement_max_angstrom": 1.6179416738690768,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "249",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 1.1368327976617636,
+              "heavy_displacement_max_angstrom": 1.6911108241191906,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "250",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.7923484556288284,
+              "heavy_displacement_max_angstrom": 1.1459319202601994,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "251",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 1.0860194064655646,
+              "heavy_displacement_max_angstrom": 1.3745781595536024,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            }
+          ]
+        },
+        {
+          "name": "hinge-context-k0",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.0899946186692,
+          "atoms": 4117,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": null,
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 54,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -703.6696820355763,
+            "objective_hartree": -703.6696820355763,
+            "mobile_gradient_max_hartree_angstrom": 0.0777476814417156
+          },
+          "last_completed_evaluation": {
+            "evaluation": 53,
+            "native_energy_hartree": -704.0023241269749,
+            "objective_hartree": -704.0023241269749,
+            "mobile_gradient_max_hartree_angstrom": 0.004251370771115619
+          },
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "hinge-context-k5",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.1359016206115,
+          "atoms": 4117,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": null,
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 59,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -703.6696820355763,
+            "objective_hartree": -703.6696820355763,
+            "mobile_gradient_max_hartree_angstrom": 0.0777476814417156
+          },
+          "last_completed_evaluation": {
+            "evaluation": 58,
+            "native_energy_hartree": -703.9867009797257,
+            "objective_hartree": -703.965994997874,
+            "mobile_gradient_max_hartree_angstrom": 0.005325469210298099
+          },
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "plm-isolated-k0",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 4.944614278152585,
+          "atoms": 49,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": true,
+          "scipy_success": true,
+          "iterations": 414,
+          "optimizer_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+          "gradient_max_hartree_angstrom": 8.851390780017468e-05,
+          "screens_pass": false,
+          "gates": {
+            "converged": true,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": true,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": false
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 57,
+          "clashes_after": 66,
+          "new_clashes": 11,
+          "lost_clashes": 2,
+          "completed_evaluations": 425,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -7.383155864774508,
+            "objective_hartree": -7.383155864774508,
+            "mobile_gradient_max_hartree_angstrom": 0.06743987812392634
+          },
+          "last_completed_evaluation": {
+            "evaluation": 424,
+            "native_energy_hartree": -7.400591066841207,
+            "objective_hartree": -7.400591066841207,
+            "mobile_gradient_max_hartree_angstrom": 8.851390780017468e-05
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 0,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "A",
+              "resid": "301",
+              "icode": "",
+              "resname": "PLM",
+              "heavy_displacement_rms_angstrom": 1.0623765990324132,
+              "heavy_displacement_max_angstrom": 2.352417644585128,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 28,
+              "retained_contacts": 10,
+              "lost_contacts": 18,
+              "new_contacts": 27
+            }
+          ]
+        },
+        {
+          "name": "plm-context-k0",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.5672680269927,
+          "atoms": 11708,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "plm-context-k5",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.5807303600013,
+          "atoms": 11708,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "1vcu-isolated-k0",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 9.800908263772726,
+          "atoms": 100,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": false,
+          "scipy_success": false,
+          "iterations": 500,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "gradient_max_hartree_angstrom": 0.0006498779305919799,
+          "screens_pass": false,
+          "gates": {
+            "converged": false,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": false,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": false
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 89,
+          "clashes_after": 114,
+          "new_clashes": 30,
+          "lost_clashes": 5,
+          "completed_evaluations": 573,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -15.5546248590475,
+            "objective_hartree": -15.5546248590475,
+            "mobile_gradient_max_hartree_angstrom": 0.05582958072696407
+          },
+          "last_completed_evaluation": {
+            "evaluation": 572,
+            "native_energy_hartree": -15.671303295079142,
+            "objective_hartree": -15.671303295079142,
+            "mobile_gradient_max_hartree_angstrom": 0.0006498779305919799
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 1,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "A",
+              "resid": "381",
+              "icode": "",
+              "resname": "DAN",
+              "heavy_displacement_rms_angstrom": 1.0973766653369428,
+              "heavy_displacement_max_angstrom": 1.8818899314321562,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 90,
+              "retained_contacts": 47,
+              "lost_contacts": 43,
+              "new_contacts": 25
+            },
+            {
+              "chain": "A",
+              "resid": "382",
+              "icode": "",
+              "resname": "EPE",
+              "heavy_displacement_rms_angstrom": 0.524672200170413,
+              "heavy_displacement_max_angstrom": 1.138011421518818,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 48,
+              "retained_contacts": 32,
+              "lost_contacts": 16,
+              "new_contacts": 7
+            },
+            {
+              "chain": "A",
+              "resid": "383",
+              "icode": "",
+              "resname": "EPE",
+              "heavy_displacement_rms_angstrom": 1.599387393578559,
+              "heavy_displacement_max_angstrom": 3.26750703005909,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 34,
+              "retained_contacts": 12,
+              "lost_contacts": 22,
+              "new_contacts": 19
+            }
+          ]
+        },
+        {
+          "name": "1vcu-context-k0",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.2542677782476,
+          "atoms": 6206,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "1vcu-context-k5",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.3069311957806,
+          "atoms": 6206,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        }
+      ]
+    },
+    {
+      "directory": ".artifacts/probe-xtb/followup-context-openblas8",
+      "completed_jobs": 9,
+      "expected_jobs": 9,
+      "execution_complete": true,
+      "runs": [
+        {
+          "name": "hinge-isolated-k0",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 29.478122951462865,
+          "atoms": 494,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": false,
+          "scipy_success": false,
+          "iterations": 500,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "gradient_max_hartree_angstrom": 0.00479548556527951,
+          "screens_pass": false,
+          "gates": {
+            "converged": false,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": true,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": true
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 33,
+          "clashes_after": 58,
+          "new_clashes": 25,
+          "lost_clashes": 0,
+          "completed_evaluations": 522,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -77.23036254652709,
+            "objective_hartree": -77.23036254652709,
+            "mobile_gradient_max_hartree_angstrom": 0.0776852906959021
+          },
+          "last_completed_evaluation": {
+            "evaluation": 521,
+            "native_energy_hartree": -77.64760597122579,
+            "objective_hartree": -77.64760597122579,
+            "mobile_gradient_max_hartree_angstrom": 0.00479548556527951
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 0,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "H",
+              "resid": "232",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 1.2029925925260174,
+              "heavy_displacement_max_angstrom": 2.353895518777894,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 12,
+              "lost_contacts": 1,
+              "new_contacts": 3
+            },
+            {
+              "chain": "H",
+              "resid": "233",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 1.5341104658790758,
+              "heavy_displacement_max_angstrom": 2.081195645762437,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "234",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.7964449909060187,
+              "heavy_displacement_max_angstrom": 2.839543743210821,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "235",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 1.4256312463905219,
+              "heavy_displacement_max_angstrom": 2.0267040247295416,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "236",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 2.1231802681188134,
+              "heavy_displacement_max_angstrom": 2.632855206716348,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "237",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.1928275046966774,
+              "heavy_displacement_max_angstrom": 1.6057663652075616,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "238",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.9039550374693552,
+              "heavy_displacement_max_angstrom": 1.6093595833555585,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "239",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 1.2196169520347908,
+              "heavy_displacement_max_angstrom": 1.7642912476312753,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "240",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.9284932562746003,
+              "heavy_displacement_max_angstrom": 1.328788792664129,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "241",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 1.117463783842304,
+              "heavy_displacement_max_angstrom": 1.3789996365362156,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "242",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 1.2057595809792967,
+              "heavy_displacement_max_angstrom": 2.3381718072267548,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 12,
+              "lost_contacts": 1,
+              "new_contacts": 3
+            },
+            {
+              "chain": "K",
+              "resid": "243",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 1.5815016802038038,
+              "heavy_displacement_max_angstrom": 2.159831014053157,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "244",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.7959475473202269,
+              "heavy_displacement_max_angstrom": 2.799055136273442,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "245",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 1.427994693082143,
+              "heavy_displacement_max_angstrom": 2.1049532339355226,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "246",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 2.217766351533371,
+              "heavy_displacement_max_angstrom": 2.5111488125363253,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "247",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 1.4448932514038884,
+              "heavy_displacement_max_angstrom": 2.2671268025545044,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "248",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 1.014251081951811,
+              "heavy_displacement_max_angstrom": 1.656193007300876,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "249",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 1.140351745505622,
+              "heavy_displacement_max_angstrom": 1.6872355869944085,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "250",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.8165146882924018,
+              "heavy_displacement_max_angstrom": 1.1765713491704337,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "251",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 1.1074601545510412,
+              "heavy_displacement_max_angstrom": 1.4145319032421484,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            }
+          ]
+        },
+        {
+          "name": "hinge-context-k0",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.1116466280073,
+          "atoms": 4117,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 108,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -703.6696820355771,
+            "objective_hartree": -703.6696820355771,
+            "mobile_gradient_max_hartree_angstrom": 0.0777476814417156
+          },
+          "last_completed_evaluation": {
+            "evaluation": 107,
+            "native_energy_hartree": -704.0251359596059,
+            "objective_hartree": -704.0251359596059,
+            "mobile_gradient_max_hartree_angstrom": 0.0047027661425360955
+          },
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "hinge-context-k5",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.1794637925923,
+          "atoms": 4117,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 94,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -703.6696820355771,
+            "objective_hartree": -703.6696820355771,
+            "mobile_gradient_max_hartree_angstrom": 0.0777476814417156
+          },
+          "last_completed_evaluation": {
+            "evaluation": 93,
+            "native_energy_hartree": -703.9925020436922,
+            "objective_hartree": -703.9676439636368,
+            "mobile_gradient_max_hartree_angstrom": 0.005397868932923735
+          },
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "plm-isolated-k0",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 8.153139881789684,
+          "atoms": 49,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": true,
+          "scipy_success": true,
+          "iterations": 406,
+          "optimizer_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+          "gradient_max_hartree_angstrom": 8.589091702979579e-05,
+          "screens_pass": false,
+          "gates": {
+            "converged": true,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": true,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": false
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 57,
+          "clashes_after": 66,
+          "new_clashes": 11,
+          "lost_clashes": 2,
+          "completed_evaluations": 421,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -7.383155864774511,
+            "objective_hartree": -7.383155864774511,
+            "mobile_gradient_max_hartree_angstrom": 0.06743987812392628
+          },
+          "last_completed_evaluation": {
+            "evaluation": 420,
+            "native_energy_hartree": -7.400590139440656,
+            "objective_hartree": -7.400590139440656,
+            "mobile_gradient_max_hartree_angstrom": 8.589091702979579e-05
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 0,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "A",
+              "resid": "301",
+              "icode": "",
+              "resname": "PLM",
+              "heavy_displacement_rms_angstrom": 1.0729962381675773,
+              "heavy_displacement_max_angstrom": 2.3910901418038,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 28,
+              "retained_contacts": 10,
+              "lost_contacts": 18,
+              "new_contacts": 27
+            }
+          ]
+        },
+        {
+          "name": "plm-context-k0",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.386227780953,
+          "atoms": 11708,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "plm-context-k5",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.5062398798764,
+          "atoms": 11708,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "1vcu-isolated-k0",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 8.021315664052963,
+          "atoms": 100,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": false,
+          "scipy_success": false,
+          "iterations": 500,
+          "optimizer_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+          "gradient_max_hartree_angstrom": 0.0005381146176538105,
+          "screens_pass": false,
+          "gates": {
+            "converged": false,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": false,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": false
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 89,
+          "clashes_after": 112,
+          "new_clashes": 28,
+          "lost_clashes": 5,
+          "completed_evaluations": 549,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -15.554624859047498,
+            "objective_hartree": -15.554624859047498,
+            "mobile_gradient_max_hartree_angstrom": 0.05582958072696404
+          },
+          "last_completed_evaluation": {
+            "evaluation": 548,
+            "native_energy_hartree": -15.671320423410862,
+            "objective_hartree": -15.671320423410862,
+            "mobile_gradient_max_hartree_angstrom": 0.0005381146176538105
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 1,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "A",
+              "resid": "381",
+              "icode": "",
+              "resname": "DAN",
+              "heavy_displacement_rms_angstrom": 1.0756376993383279,
+              "heavy_displacement_max_angstrom": 1.8595459044335179,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 90,
+              "retained_contacts": 47,
+              "lost_contacts": 43,
+              "new_contacts": 25
+            },
+            {
+              "chain": "A",
+              "resid": "382",
+              "icode": "",
+              "resname": "EPE",
+              "heavy_displacement_rms_angstrom": 0.49944457467680065,
+              "heavy_displacement_max_angstrom": 1.0847647984680584,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 48,
+              "retained_contacts": 34,
+              "lost_contacts": 14,
+              "new_contacts": 7
+            },
+            {
+              "chain": "A",
+              "resid": "383",
+              "icode": "",
+              "resname": "EPE",
+              "heavy_displacement_rms_angstrom": 1.5785334108096152,
+              "heavy_displacement_max_angstrom": 3.248345110296703,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 34,
+              "retained_contacts": 12,
+              "lost_contacts": 22,
+              "new_contacts": 19
+            }
+          ]
+        },
+        {
+          "name": "1vcu-context-k0",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.2045384999365,
+          "atoms": 6206,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        },
+        {
+          "name": "1vcu-context-k5",
+          "returncode": null,
+          "timeout": true,
+          "seconds": 600.282345475629,
+          "atoms": 6206,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": null,
+          "converged": false,
+          "scipy_success": null,
+          "iterations": null,
+          "optimizer_message": null,
+          "gradient_max_hartree_angstrom": null,
+          "screens_pass": false,
+          "gates": null,
+          "raw_frozen_drift_max_angstrom": null,
+          "clashes_before": null,
+          "clashes_after": null,
+          "new_clashes": null,
+          "lost_clashes": null,
+          "completed_evaluations": 0,
+          "initial_evaluation": null,
+          "last_completed_evaluation": null,
+          "relative_geometry_changes": null,
+          "pockets": null
+        }
+      ]
+    },
+    {
+      "directory": ".artifacts/probe-xtb/followup-context-hinge-long",
+      "completed_jobs": 1,
+      "expected_jobs": 1,
+      "execution_complete": true,
+      "runs": [
+        {
+          "name": "hinge-openmm-context-k5",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 1711.5953158643097,
+          "atoms": 4117,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": true,
+          "scipy_success": true,
+          "iterations": 306,
+          "optimizer_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+          "gradient_max_hartree_angstrom": 9.576708244441568e-05,
+          "screens_pass": false,
+          "gates": {
+            "converged": true,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": true,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": true
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 33,
+          "clashes_after": 35,
+          "new_clashes": 2,
+          "lost_clashes": 0,
+          "completed_evaluations": 322,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -703.6696820355771,
+            "objective_hartree": -703.6696820355771,
+            "mobile_gradient_max_hartree_angstrom": 0.0777476814417156
+          },
+          "last_completed_evaluation": {
+            "evaluation": 321,
+            "native_energy_hartree": -703.9965717401928,
+            "objective_hartree": -703.9687922630793,
+            "mobile_gradient_max_hartree_angstrom": 9.576708244441568e-05
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 0,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "H",
+              "resid": "232",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 0.14968026453321012,
+              "heavy_displacement_max_angstrom": 0.32966875337581736,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 13,
+              "lost_contacts": 0,
+              "new_contacts": 1
+            },
+            {
+              "chain": "H",
+              "resid": "233",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 0.17263095822962451,
+              "heavy_displacement_max_angstrom": 0.3356232196791746,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 1
+            },
+            {
+              "chain": "H",
+              "resid": "234",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.17558076066166237,
+              "heavy_displacement_max_angstrom": 0.4676518421969821,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "235",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 0.12787834484886493,
+              "heavy_displacement_max_angstrom": 0.22294564934049438,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "236",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 0.1524701474821462,
+              "heavy_displacement_max_angstrom": 0.23098558142994677,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "237",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.12913393137933263,
+              "heavy_displacement_max_angstrom": 0.28504788309508927,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "238",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.23082646155464856,
+              "heavy_displacement_max_angstrom": 0.5578393765824249,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "239",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 0.1548108289767137,
+              "heavy_displacement_max_angstrom": 0.2417827123885065,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "240",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.1175044858300407,
+              "heavy_displacement_max_angstrom": 0.24064091680511726,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "241",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.20423773321885394,
+              "heavy_displacement_max_angstrom": 0.4664215656201965,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "242",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 0.15995683731058802,
+              "heavy_displacement_max_angstrom": 0.371815343913458,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 13,
+              "lost_contacts": 0,
+              "new_contacts": 1
+            },
+            {
+              "chain": "K",
+              "resid": "243",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 0.1736462517444951,
+              "heavy_displacement_max_angstrom": 0.34114311313071694,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "244",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.17899451479337866,
+              "heavy_displacement_max_angstrom": 0.4743417340611545,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "245",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 0.1282956070273957,
+              "heavy_displacement_max_angstrom": 0.22450738669576384,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "246",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 0.17519337897656617,
+              "heavy_displacement_max_angstrom": 0.2992970443631261,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "247",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.15690755830770572,
+              "heavy_displacement_max_angstrom": 0.35299078013878743,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "248",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.23166212126680255,
+              "heavy_displacement_max_angstrom": 0.5724841226724614,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "249",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 0.16404058137716773,
+              "heavy_displacement_max_angstrom": 0.25299412930218784,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "250",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.16683124492291573,
+              "heavy_displacement_max_angstrom": 0.38800543121050773,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "251",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.20811591293180953,
+              "heavy_displacement_max_angstrom": 0.4655005890184191,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "directory": ".artifacts/probe-xtb/followup-isolated-restraint",
+      "completed_jobs": 3,
+      "expected_jobs": 3,
+      "execution_complete": true,
+      "runs": [
+        {
+          "name": "hinge-isolated-k5",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 13.681565996259451,
+          "atoms": 494,
+          "mobile_atoms": 476,
+          "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_core.so.3",
+              "sha256": "02c986a95630d00eeb5fac5f0248c9b0791ac110323c689afe2fc68f6af70c67"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_def.so.3",
+              "sha256": "1dede6b040c220e42ef3178b37e26a45ef31441c05c56f3b42e970b950cf6fb9"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_gf_lp64.so.3",
+              "sha256": "abac42e4cc105b66e75c484375b54ad913f5b6c86b6a139be8d80627535cef2f"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_intel_thread.so.3",
+              "sha256": "a953011fe056b22621bb29a5235befb4460394b6c83a7e56138e5bad830268d1"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_rt.so.3",
+              "sha256": "a85532b3965b4901eced61ee6d3d5b606e2d54e8de2cb357e6b5cfcce2b1e03a"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_vml_def.so.3",
+              "sha256": "89ad2d1f81e4790d3a15739f30b9f78c5f53cfc9e947f078502384c29cf9977e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": true,
+          "scipy_success": true,
+          "iterations": 190,
+          "optimizer_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+          "gradient_max_hartree_angstrom": 9.542918428612209e-05,
+          "screens_pass": false,
+          "gates": {
+            "converged": true,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": true,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": true
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 33,
+          "clashes_after": 35,
+          "new_clashes": 2,
+          "lost_clashes": 0,
+          "completed_evaluations": 199,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -77.23036254652709,
+            "objective_hartree": -77.23036254652709,
+            "mobile_gradient_max_hartree_angstrom": 0.0776852906959021
+          },
+          "last_completed_evaluation": {
+            "evaluation": 198,
+            "native_energy_hartree": -77.55955514700092,
+            "objective_hartree": -77.53127248385066,
+            "mobile_gradient_max_hartree_angstrom": 9.542918428612209e-05
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 0,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "H",
+              "resid": "232",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 0.15728406387124802,
+              "heavy_displacement_max_angstrom": 0.3323139194180081,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 13,
+              "lost_contacts": 0,
+              "new_contacts": 1
+            },
+            {
+              "chain": "H",
+              "resid": "233",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 0.12770940458072444,
+              "heavy_displacement_max_angstrom": 0.19631481328281605,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "234",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.1750739728590454,
+              "heavy_displacement_max_angstrom": 0.46581215738609777,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "235",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 0.13051254520750932,
+              "heavy_displacement_max_angstrom": 0.22524239491998205,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "236",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 0.16360707197515945,
+              "heavy_displacement_max_angstrom": 0.24438729336811224,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "237",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.12976236224203155,
+              "heavy_displacement_max_angstrom": 0.2896293539047357,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "238",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.22774392487256975,
+              "heavy_displacement_max_angstrom": 0.5535888294790186,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "239",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 0.155294361131165,
+              "heavy_displacement_max_angstrom": 0.2412835874612801,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "240",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.143432197976231,
+              "heavy_displacement_max_angstrom": 0.33618763207166996,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "H",
+              "resid": "241",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.2296951557392313,
+              "heavy_displacement_max_angstrom": 0.5584260451930886,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "242",
+              "icode": "",
+              "resname": "UYB",
+              "heavy_displacement_rms_angstrom": 0.16697460842590706,
+              "heavy_displacement_max_angstrom": 0.37559712376200177,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 13,
+              "retained_contacts": 13,
+              "lost_contacts": 0,
+              "new_contacts": 1
+            },
+            {
+              "chain": "K",
+              "resid": "243",
+              "icode": "",
+              "resname": "0fA",
+              "heavy_displacement_rms_angstrom": 0.12876684547424447,
+              "heavy_displacement_max_angstrom": 0.19748788632625727,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 1,
+              "retained_contacts": 1,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "244",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.18058936136707085,
+              "heavy_displacement_max_angstrom": 0.4774386004402981,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "245",
+              "icode": "",
+              "resname": "VMB",
+              "heavy_displacement_rms_angstrom": 0.13191071127082243,
+              "heavy_displacement_max_angstrom": 0.23742864192079818,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "246",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 0.19001769879197394,
+              "heavy_displacement_max_angstrom": 0.3550434951158625,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "247",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.15377853120743068,
+              "heavy_displacement_max_angstrom": 0.346704684285744,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "248",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.23244492552690424,
+              "heavy_displacement_max_angstrom": 0.579616916622369,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "249",
+              "icode": "",
+              "resname": "2MA",
+              "heavy_displacement_rms_angstrom": 0.16334373134969343,
+              "heavy_displacement_max_angstrom": 0.2526079697598551,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "250",
+              "icode": "",
+              "resname": "4YB",
+              "heavy_displacement_rms_angstrom": 0.17006353609357686,
+              "heavy_displacement_max_angstrom": 0.39202708250188184,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            },
+            {
+              "chain": "K",
+              "resid": "251",
+              "icode": "",
+              "resname": "0LB",
+              "heavy_displacement_rms_angstrom": 0.2089591679278887,
+              "heavy_displacement_max_angstrom": 0.4698306242058125,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 0,
+              "retained_contacts": 0,
+              "lost_contacts": 0,
+              "new_contacts": 0
+            }
+          ]
+        },
+        {
+          "name": "plm-isolated-k5",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 6.08339256234467,
+          "atoms": 49,
+          "mobile_atoms": 49,
+          "baseline_sha256": "78c99be319dc4830738cf41c5142d340a8e99d8c831048f1c88a272622dbd34a",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_core.so.3",
+              "sha256": "02c986a95630d00eeb5fac5f0248c9b0791ac110323c689afe2fc68f6af70c67"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_def.so.3",
+              "sha256": "1dede6b040c220e42ef3178b37e26a45ef31441c05c56f3b42e970b950cf6fb9"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_gf_lp64.so.3",
+              "sha256": "abac42e4cc105b66e75c484375b54ad913f5b6c86b6a139be8d80627535cef2f"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_intel_thread.so.3",
+              "sha256": "a953011fe056b22621bb29a5235befb4460394b6c83a7e56138e5bad830268d1"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_rt.so.3",
+              "sha256": "a85532b3965b4901eced61ee6d3d5b606e2d54e8de2cb357e6b5cfcce2b1e03a"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_vml_def.so.3",
+              "sha256": "89ad2d1f81e4790d3a15739f30b9f78c5f53cfc9e947f078502384c29cf9977e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": true,
+          "scipy_success": true,
+          "iterations": 185,
+          "optimizer_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+          "gradient_max_hartree_angstrom": 7.580488081096644e-05,
+          "screens_pass": false,
+          "gates": {
+            "converged": true,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": true,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": true
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 57,
+          "clashes_after": 61,
+          "new_clashes": 4,
+          "lost_clashes": 0,
+          "completed_evaluations": 195,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -7.383155864774511,
+            "objective_hartree": -7.383155864774511,
+            "mobile_gradient_max_hartree_angstrom": 0.06743987812392628
+          },
+          "last_completed_evaluation": {
+            "evaluation": 194,
+            "native_energy_hartree": -7.3963862561286655,
+            "objective_hartree": -7.394834444524864,
+            "mobile_gradient_max_hartree_angstrom": 7.580488081096644e-05
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 0,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "A",
+              "resid": "301",
+              "icode": "",
+              "resname": "PLM",
+              "heavy_displacement_rms_angstrom": 0.14710362812551328,
+              "heavy_displacement_max_angstrom": 0.30963539092810344,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 28,
+              "retained_contacts": 26,
+              "lost_contacts": 2,
+              "new_contacts": 2
+            }
+          ]
+        },
+        {
+          "name": "1vcu-isolated-k5",
+          "returncode": 0,
+          "timeout": false,
+          "seconds": 5.337687416002154,
+          "atoms": 100,
+          "mobile_atoms": 100,
+          "baseline_sha256": "b1379478c04bdd7a397b01f0211e02a6b965001190c1bf4a6b2de026e647e23c",
+          "threads": {
+            "OMP_NUM_THREADS": "8",
+            "OPENBLAS_NUM_THREADS": "8",
+            "MKL_NUM_THREADS": "8"
+          },
+          "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4",
+          "numeric_libraries": [
+            {
+              "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+              "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_core.so.3",
+              "sha256": "02c986a95630d00eeb5fac5f0248c9b0791ac110323c689afe2fc68f6af70c67"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_def.so.3",
+              "sha256": "1dede6b040c220e42ef3178b37e26a45ef31441c05c56f3b42e970b950cf6fb9"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_gf_lp64.so.3",
+              "sha256": "abac42e4cc105b66e75c484375b54ad913f5b6c86b6a139be8d80627535cef2f"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_intel_thread.so.3",
+              "sha256": "a953011fe056b22621bb29a5235befb4460394b6c83a7e56138e5bad830268d1"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_rt.so.3",
+              "sha256": "a85532b3965b4901eced61ee6d3d5b606e2d54e8de2cb357e6b5cfcce2b1e03a"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_vml_def.so.3",
+              "sha256": "89ad2d1f81e4790d3a15739f30b9f78c5f53cfc9e947f078502384c29cf9977e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "6c089f211e4cf310c8ca2d50c587b18bb1215c96ac9e74db9dc04872d415924e"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "e9f5d80efeb9b16137a72fe50639a1c8f34f87eafe5c37645dab111a1238fe3d"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "d541d65b62303d0240979fd5087d6dcf48cdca9bd9e02f306f1d38000939d98b"
+            },
+            {
+              "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so",
+              "sha256": "936009fcca6e7976bfe066ebf05cda7991470b32739937e8c4acff75a57ee60c"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+              "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+              "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+            },
+            {
+              "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+              "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+            }
+          ],
+          "converged": true,
+          "scipy_success": true,
+          "iterations": 240,
+          "optimizer_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+          "gradient_max_hartree_angstrom": 9.39438845039407e-05,
+          "screens_pass": false,
+          "gates": {
+            "converged": true,
+            "frozen_drift": true,
+            "bond_delta": true,
+            "angle_delta": false,
+            "tetrahedral_signs": true,
+            "no_new_mobile_chemical_errors": true,
+            "clash_count": false,
+            "pocket_contacts": true
+          },
+          "raw_frozen_drift_max_angstrom": 0.0,
+          "clashes_before": 89,
+          "clashes_after": 90,
+          "new_clashes": 3,
+          "lost_clashes": 2,
+          "completed_evaluations": 249,
+          "initial_evaluation": {
+            "evaluation": 0,
+            "native_energy_hartree": -15.554624859047498,
+            "objective_hartree": -15.554624859047498,
+            "mobile_gradient_max_hartree_angstrom": 0.05582958072696404
+          },
+          "last_completed_evaluation": {
+            "evaluation": 248,
+            "native_energy_hartree": -15.625009374156194,
+            "objective_hartree": -15.619070701144382,
+            "mobile_gradient_max_hartree_angstrom": 9.39438845039407e-05
+          },
+          "relative_geometry_changes": {
+            "bonds_changed_over_0_1_angstrom": 0,
+            "angles_changed_over_10_degrees": 1,
+            "potential_stereovolume_flips": 0
+          },
+          "pockets": [
+            {
+              "chain": "A",
+              "resid": "381",
+              "icode": "",
+              "resname": "DAN",
+              "heavy_displacement_rms_angstrom": 0.2079843440489671,
+              "heavy_displacement_max_angstrom": 0.5328485683211494,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 90,
+              "retained_contacts": 80,
+              "lost_contacts": 10,
+              "new_contacts": 3
+            },
+            {
+              "chain": "A",
+              "resid": "382",
+              "icode": "",
+              "resname": "EPE",
+              "heavy_displacement_rms_angstrom": 0.09738035771699609,
+              "heavy_displacement_max_angstrom": 0.20949553439725907,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 48,
+              "retained_contacts": 46,
+              "lost_contacts": 2,
+              "new_contacts": 2
+            },
+            {
+              "chain": "A",
+              "resid": "383",
+              "icode": "",
+              "resname": "EPE",
+              "heavy_displacement_rms_angstrom": 0.17948735756479034,
+              "heavy_displacement_max_angstrom": 0.36934319901983587,
+              "contact_cutoff_angstrom": 4.0,
+              "original_contacts": 34,
+              "retained_contacts": 29,
+              "lost_contacts": 5,
+              "new_contacts": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "probe": {
+    "valid_input_runs": 60,
+    "all_complete": true,
+    "format_control": [
+      {
+        "nuclear": false,
+        "coordinates_unchanged": true,
+        "misaligned_overlap_pairs": 3465,
+        "normalized_overlap_pairs": 55,
+        "matches_baseline_pairs_and_metrics": true
+      },
+      {
+        "nuclear": true,
+        "coordinates_unchanged": true,
+        "misaligned_overlap_pairs": 3429,
+        "normalized_overlap_pairs": 28,
+        "matches_baseline_pairs_and_metrics": true
+      }
+    ],
+    "failure_controls": [
+      {
+        "case": "missing",
+        "status": "failed",
+        "actual_engine": "python",
+        "fallback_findings_count": 9,
+        "failure": "FileNotFoundError: [Errno 2] No such file or directory: '/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/followup-probe-adapter-final/failure-missing/probe'"
+      },
+      {
+        "case": "timeout",
+        "status": "failed",
+        "actual_engine": "python",
+        "fallback_findings_count": 9,
+        "failure": "TimeoutExpired: Command '['/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/followup-probe-adapter-final/failure-timeout/probe', '-unformated', '-condensed', '-Q', '-mc', '-het', '-nowaters', '-self', 'ALL', '/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-fresh/probe-electron/clashing-methanes.pdb']' timed out after 0.2 seconds"
+      },
+      {
+        "case": "nonzero",
+        "status": "failed",
+        "actual_engine": "python",
+        "fallback_findings_count": 9,
+        "failure": "ValueError: Probe returned nonzero"
+      },
+      {
+        "case": "malformed",
+        "status": "failed",
+        "actual_engine": "python",
+        "fallback_findings_count": 9,
+        "failure": "ValueError: Unsupported Probe condensed record"
+      },
+      {
+        "case": "nonfinite",
+        "status": "failed",
+        "actual_engine": "python",
+        "fallback_findings_count": 9,
+        "failure": "ValueError: Nonfinite Probe record"
+      },
+      {
+        "case": "unsupported-version",
+        "status": "failed",
+        "actual_engine": "python",
+        "fallback_findings_count": 9,
+        "failure": "ValueError: Unsupported or failed Probe version preflight"
+      },
+      {
+        "case": "mixed-malformed",
+        "status": "failed",
+        "actual_engine": "python",
+        "fallback_findings_count": 9,
+        "failure": "ValueError: Unsupported Probe condensed record"
+      },
+      {
+        "case": "ambiguous-atom-case",
+        "status": "failed",
+        "actual_engine": "python",
+        "fallback_findings_count": 9,
+        "failure": "ValueError: Probe uppercasing makes atom identities ambiguous"
+      }
+    ],
+    "runs": [
+      {
+        "input": "clean-methanes.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "clean-methanes.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "clean-methanes.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "clean-methanes.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "clashing-methanes.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "clashing-methanes.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "clashing-methanes.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "clashing-methanes.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "ASN.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "ASN.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "ASN.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "ASN.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "hinge-openmm.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 55,
+        "ambiguous_hb_overlap_pairs": 34
+      },
+      {
+        "input": "hinge-openmm.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 28,
+        "ambiguous_hb_overlap_pairs": 21
+      },
+      {
+        "input": "hinge-openmm.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 55,
+        "ambiguous_hb_overlap_pairs": 34
+      },
+      {
+        "input": "hinge-openmm.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 28,
+        "ambiguous_hb_overlap_pairs": 21
+      },
+      {
+        "input": "7x35-openmm.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 88,
+        "ambiguous_hb_overlap_pairs": 63
+      },
+      {
+        "input": "7x35-openmm.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 45,
+        "ambiguous_hb_overlap_pairs": 34
+      },
+      {
+        "input": "7x35-openmm.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 88,
+        "ambiguous_hb_overlap_pairs": 63
+      },
+      {
+        "input": "7x35-openmm.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 45,
+        "ambiguous_hb_overlap_pairs": 34
+      },
+      {
+        "input": "ubq-prepared.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 35,
+        "ambiguous_hb_overlap_pairs": 13
+      },
+      {
+        "input": "ubq-prepared.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 10,
+        "ambiguous_hb_overlap_pairs": 4
+      },
+      {
+        "input": "ubq-prepared.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 35,
+        "ambiguous_hb_overlap_pairs": 13
+      },
+      {
+        "input": "ubq-prepared.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 10,
+        "ambiguous_hb_overlap_pairs": 4
+      },
+      {
+        "input": "linear-hbond.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 1,
+        "ambiguous_hb_overlap_pairs": 1
+      },
+      {
+        "input": "linear-hbond.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "linear-hbond.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 1,
+        "ambiguous_hb_overlap_pairs": 1
+      },
+      {
+        "input": "linear-hbond.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "bent-hbond.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 3,
+        "ambiguous_hb_overlap_pairs": 2
+      },
+      {
+        "input": "bent-hbond.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 1,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "bent-hbond.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 3,
+        "ambiguous_hb_overlap_pairs": 2
+      },
+      {
+        "input": "bent-hbond.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 1,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "bonded-ethane.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "bonded-ethane.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "bonded-ethane.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "bonded-ethane.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 0,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "intramolecular-octane-clash.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 13,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "intramolecular-octane-clash.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 11,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "intramolecular-octane-clash.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 13,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "intramolecular-octane-clash.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 11,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "openmm-fresh-cache.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 130,
+        "ambiguous_hb_overlap_pairs": 85
+      },
+      {
+        "input": "openmm-fresh-cache.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 47,
+        "ambiguous_hb_overlap_pairs": 37
+      },
+      {
+        "input": "openmm-fresh-cache.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 130,
+        "ambiguous_hb_overlap_pairs": 85
+      },
+      {
+        "input": "openmm-fresh-cache.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 47,
+        "ambiguous_hb_overlap_pairs": 37
+      },
+      {
+        "input": "case-sensitive-insertion-codes.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "case-sensitive-insertion-codes.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "case-sensitive-insertion-codes.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "case-sensitive-insertion-codes.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "blank-chain-negative-resid.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "blank-chain-negative-resid.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "blank-chain-negative-resid.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "blank-chain-negative-resid.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "lowercase-atom-name.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "lowercase-atom-name.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "lowercase-atom-name.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "lowercase-atom-name.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 9,
+        "ambiguous_hb_overlap_pairs": 0
+      },
+      {
+        "input": "misaligned-hinge.pdb",
+        "aligned": false,
+        "nuclear": false,
+        "overlap_pairs": 3465,
+        "ambiguous_hb_overlap_pairs": 39
+      },
+      {
+        "input": "misaligned-hinge.pdb",
+        "aligned": false,
+        "nuclear": true,
+        "overlap_pairs": 3429,
+        "ambiguous_hb_overlap_pairs": 36
+      },
+      {
+        "input": "misaligned-hinge.pdb",
+        "aligned": true,
+        "nuclear": false,
+        "overlap_pairs": 55,
+        "ambiguous_hb_overlap_pairs": 34
+      },
+      {
+        "input": "misaligned-hinge.pdb",
+        "aligned": true,
+        "nuclear": true,
+        "overlap_pairs": 28,
+        "ambiguous_hb_overlap_pairs": 21
+      }
+    ]
+  },
+  "note": "Comparative screens and bounded failures; neither a general chemistry qualification nor an affinity estimate",
+  "api_controls": {
+    ".artifacts/probe-xtb/followup-api-host-provenance": {
+      "passed": true,
+      "api_energy_hartree": -1.209393421305158,
+      "native_energy_hartree": -1.209393421305,
+      "returncode": 0,
+      "gradient_checks": [
+        {
+          "atom": 0,
+          "axis": 0,
+          "analytic": 0.030199563803973654,
+          "finite_difference": 0.03019956384964217,
+          "absolute_error": 4.566851757870083e-11
+        },
+        {
+          "atom": 0,
+          "axis": 2,
+          "analytic": -0.008449792773324109,
+          "finite_difference": -0.008449792798792544,
+          "absolute_error": 2.546843465289772e-11
+        },
+        {
+          "atom": 2,
+          "axis": 1,
+          "analytic": -0.03342361128751862,
+          "finite_difference": -0.03342361143410244,
+          "absolute_error": 1.4658382146981452e-10
+        },
+        {
+          "atom": 3,
+          "axis": 0,
+          "analytic": -0.014268199652150669,
+          "finite_difference": -0.014268199644007494,
+          "absolute_error": 8.143175370123323e-12
+        },
+        {
+          "atom": 5,
+          "axis": 1,
+          "analytic": -0.013292390608780348,
+          "finite_difference": -0.013292390710351041,
+          "absolute_error": 1.0157069282867859e-10
+        },
+        {
+          "atom": 8,
+          "axis": 2,
+          "analytic": 0.006531101420115315,
+          "finite_difference": 0.006531101404139149,
+          "absolute_error": 1.5976165702868972e-11
+        }
+      ],
+      "numeric_libraries": [
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_core.so.3",
+          "sha256": "02c986a95630d00eeb5fac5f0248c9b0791ac110323c689afe2fc68f6af70c67"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_def.so.3",
+          "sha256": "1dede6b040c220e42ef3178b37e26a45ef31441c05c56f3b42e970b950cf6fb9"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_gf_lp64.so.3",
+          "sha256": "abac42e4cc105b66e75c484375b54ad913f5b6c86b6a139be8d80627535cef2f"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_intel_thread.so.3",
+          "sha256": "a953011fe056b22621bb29a5235befb4460394b6c83a7e56138e5bad830268d1"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_rt.so.3",
+          "sha256": "a85532b3965b4901eced61ee6d3d5b606e2d54e8de2cb357e6b5cfcce2b1e03a"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_vml_def.so.3",
+          "sha256": "89ad2d1f81e4790d3a15739f30b9f78c5f53cfc9e947f078502384c29cf9977e"
+        },
+        {
+          "path": "/tmp/opencode/probe-xtb-build/lib/libgfortran.so.5.0.0",
+          "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+        }
+      ],
+      "resolved_blas_symbols": {
+        "dgemm_": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/numpy/_core/../../../../libcblas.so.3",
+        "dsyev_": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/numpy/_core/../../../../libcblas.so.3",
+        "dsytrf_": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/numpy/_core/../../../../libcblas.so.3",
+        "dgetrf_": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/numpy/_core/../../../../libcblas.so.3",
+        "dpotrf_": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/python3.13/site-packages/numpy/_core/../../../../libcblas.so.3"
+      },
+      "library_sha256": "55db7ed0ad3dbe3325d1adce4fca9c6b56dde11a38b2b712bda325cb2fa53b32"
+    },
+    ".artifacts/probe-xtb/followup-api-openblas-provenance": {
+      "passed": true,
+      "api_energy_hartree": -1.209393421305158,
+      "native_energy_hartree": -1.209393421305,
+      "returncode": 0,
+      "gradient_checks": [
+        {
+          "atom": 0,
+          "axis": 0,
+          "analytic": 0.030199563803973654,
+          "finite_difference": 0.03019956384964217,
+          "absolute_error": 4.566851757870083e-11
+        },
+        {
+          "atom": 0,
+          "axis": 2,
+          "analytic": -0.008449792773324109,
+          "finite_difference": -0.008449792798792544,
+          "absolute_error": 2.546843465289772e-11
+        },
+        {
+          "atom": 2,
+          "axis": 1,
+          "analytic": -0.03342361128751862,
+          "finite_difference": -0.03342361143410244,
+          "absolute_error": 1.4658382146981452e-10
+        },
+        {
+          "atom": 3,
+          "axis": 0,
+          "analytic": -0.014268199652150669,
+          "finite_difference": -0.014268199644007494,
+          "absolute_error": 8.143175370123323e-12
+        },
+        {
+          "atom": 5,
+          "axis": 1,
+          "analytic": -0.013292390608780348,
+          "finite_difference": -0.013292390710351041,
+          "absolute_error": 1.0157069282867859e-10
+        },
+        {
+          "atom": 8,
+          "axis": 2,
+          "analytic": 0.006531101420115315,
+          "finite_difference": 0.006531101404139149,
+          "absolute_error": 1.5976165702868972e-11
+        }
+      ],
+      "numeric_libraries": [
+        {
+          "path": "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/libxtb.so.6.7.1",
+          "sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_core.so.3",
+          "sha256": "02c986a95630d00eeb5fac5f0248c9b0791ac110323c689afe2fc68f6af70c67"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_def.so.3",
+          "sha256": "1dede6b040c220e42ef3178b37e26a45ef31441c05c56f3b42e970b950cf6fb9"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_gf_lp64.so.3",
+          "sha256": "abac42e4cc105b66e75c484375b54ad913f5b6c86b6a139be8d80627535cef2f"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_intel_thread.so.3",
+          "sha256": "a953011fe056b22621bb29a5235befb4460394b6c83a7e56138e5bad830268d1"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_rt.so.3",
+          "sha256": "a85532b3965b4901eced61ee6d3d5b606e2d54e8de2cb357e6b5cfcce2b1e03a"
+        },
+        {
+          "path": "/data/user/skripkins/micromamba/envs/dvbfixer/lib/libmkl_vml_def.so.3",
+          "sha256": "89ad2d1f81e4790d3a15739f30b9f78c5f53cfc9e947f078502384c29cf9977e"
+        },
+        {
+          "path": "/tmp/opencode/probe-xtb-openblas/lib/libgfortran.so.5.0.0",
+          "sha256": "8b93406aef97f0f39ebac58aed3b63c58c9c26eb246595d8141dde5baeee5b33"
+        },
+        {
+          "path": "/tmp/opencode/probe-xtb-openblas/lib/libopenblasp-r0.3.34.so",
+          "sha256": "f1424288e9ac125331102c0150b66fbd244560987779552e0e97d5cfd9de572b"
+        },
+        {
+          "path": "/tmp/opencode/probe-xtb-openblas/lib/libquadmath.so.0.0.0",
+          "sha256": "9fa4807097fa47da1815765f0a43177c45e7ec7cc94e44cfa95a4c3a1a341ee6"
+        }
+      ],
+      "resolved_blas_symbols": {
+        "dgemm_": "/tmp/opencode/probe-xtb-openblas/lib/libopenblas.so.0",
+        "dsyev_": "/tmp/opencode/probe-xtb-openblas/lib/libopenblas.so.0",
+        "dsytrf_": "/tmp/opencode/probe-xtb-openblas/lib/libopenblas.so.0",
+        "dgetrf_": "/tmp/opencode/probe-xtb-openblas/lib/libopenblas.so.0",
+        "dpotrf_": "/tmp/opencode/probe-xtb-openblas/lib/libopenblas.so.0"
+      },
+      "library_sha256": "44f5aaeef343df77c5ca5c6ebf19ca778f049f1541b676da149275e9e24ad6d4"
+    }
+  },
+  "native_full_singlepoint": {
+    "command": [
+      "/data/user/skripkins/claude/DVBFixer/.artifacts/probe-xtb/linux-build/xtb-openblas/xtb",
+      "input.xyz",
+      "--gfnff",
+      "--sp",
+      "--norestart",
+      "--verbose"
+    ],
+    "threads": 8,
+    "reference_sha256": "7b3b71aabba497c8cd5f792f50cc008013d0a37427cf90893cd700cccd35f2fc",
+    "binary_sha256": "bb8d899e1bda504776793dc5f332aa10d4a2e405d17ddffab0fd7ecf9782c829",
+    "returncode": 0,
+    "seconds": 243.59533775411546,
+    "energy_hartree": -703.66968203562,
+    "warnings": [
+      "WARNING: probably wrong pi occupation for system 34. Second attempt with Nel=Nel-1!",
+      "WARNING: probably wrong pi occupation for system 86. Second attempt with Nel=Nel-1!",
+      "WARNING: probably wrong pi occupation for system 102. Second attempt with Nel=Nel-1!",
+      "WARNING: probably wrong pi occupation for system 185. Second attempt with Nel=Nel-1!",
+      "WARNING: probably wrong pi occupation for system 237. Second attempt with Nel=Nel-1!",
+      "WARNING: probably wrong pi occupation for system 253. Second attempt with Nel=Nel-1!"
+    ]
+  },
+  "matched_restraint_ablation": {
+    "comparison": "Matched converged context+k5 versus isolated+k5; no force-constant tuning",
+    "baseline_sha256": "674bf2e6231b533b2b10e50bb313c6a7aca1f1531c1ddf1b8a8fb1d23e425449",
+    "mobile_heavy_atoms": 248,
+    "between_arms_mobile_heavy_rms_angstrom": 0.031539117377948615,
+    "between_arms_mobile_heavy_max_angstrom": 0.17496422148912402,
+    "same_physical_clash_pairs": true,
+    "same_clash_findings_including_severity": true,
+    "context_only_pairs": [],
+    "isolated_only_pairs": [],
+    "coordinate_sha256": {
+      "hinge-openmm-context-k5-followup-context-hinge-long": "5f8c6a373d6361ea75ab0ff7acdb1ea7d56913ba1e85970dcbe4746d9646f63d",
+      "hinge-isolated-k5-followup-isolated-restraint": "cd28583fe79d90a4de21d4a0f462318de05fe23d7230f699d29340180c979d72"
+    }
+  }
+}
