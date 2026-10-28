@@ -53,7 +53,13 @@ def main() -> int:
     )["project"]["version"]
 
     import dvbfixer
+    from dvbfixer.installation_profiles import composition
     from dvbfixer.top.cli import FF_CHOICES, bundled_ff_root
+
+    science = composition("standard")
+    desktop_science = [package for package in composition("desktop") if package["group"] == "science"]
+    if not science or desktop_science != science:
+        raise RuntimeError("wheel is missing the installation catalog or Desktop inheritance is inconsistent")
 
     installed_version = importlib.metadata.version("dvbfixer")
     versions = {

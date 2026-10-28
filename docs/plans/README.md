@@ -1,6 +1,6 @@
 # Plan status and remaining work
 
-Updated 2026-10-27. This is a navigation/status summary, not a new implementation
+Updated 2026-10-28. This is a navigation/status summary, not a new implementation
 proposal. The [implementation checklist](implementation-checklist.md) is the
 canonical completion tracker; older milestone lists in individual plans may
 describe historical stages, capability requirements or optional experiments.
@@ -22,7 +22,8 @@ An unchecked historical box alone does not prove that code is still missing.
 | [Apple handoff](apple-cc89-handoff.md) | Corrected research 8/8 and public model/Homology 5/5, multi-seed publication and exact replay | Larger memory/latency/operational cohort; no wider acceptance or default change |
 | [Heterogen context](diffusion-heterogen-gap-reconstruction.md) | Narrow isolated-SMILES geometric context on the legacy MPS profile | Chemistry-specific studies for cofactors, metals, glycans, PTMs and covalent contexts; corrected cc89 remains protein-only |
 | [Nonprotein reconstruction](nonprotein-reconstruction-parameterization.md) | Offline Class A reconstruction, bounded CCD information and opt-in CLI | Linked/metal/redox classes, online reconstruction authority, dedicated GUI and actual MD parameterization gates |
-| [Dependency audit](environment-dependency-audit.md) | Audit proposal and existing separate ML runtimes | Optional installation-profile migration, full dependency evidence and clean-install smokes before slimming |
+| [Dependency audit](environment-dependency-audit.md) | Probe/xTB investigation completed; xTB removed and optional Probe repaired under ADR 0012 | Approved Standard/Desktop migration, dependency evidence and clean-install smokes before slimming |
+| [Installation profiles handoff](installation-profiles-handoff.md) | Standard/Desktop composition and core helper implemented; PySCF/RESP included; six Linux profile/manager installs have real scientific and licensed modeling smoke evidence | WP1/WP2 complete; WP3 separate-runtime provisioning, full WP4 and remaining WP5/WP6 gates pending; see [acceptance](../installation-profile-acceptance.md) |
 | [Licensing and attribution](licensing-and-attribution.md) | Preliminary component/model/parameter audit documented with upstream sources | Compatibility review, owner-approved license for DVBFixer, complete notices/citations and release-artifact verification |
 | [Amber19SB topology](amber19sb-gromacs-topology.md) | Protein-only backend, upstream provenance and six water/ion pairs; external preprocessing tests now exercised | No mixed-chemistry or MD-trajectory acceptance is implied |
 | [Tarantino removal](remove-tarantino-mutation-cluster.md) | Complete; historical provenance remains readable | No active removal backlog |

@@ -79,8 +79,7 @@ def collect_capabilities(
             )
             packages["Modeller"]["usable"] = probe.returncode == 0
             if probe.returncode:
-                message = (probe.stderr or probe.stdout).strip().splitlines()
-                packages["Modeller"]["error"] = message[0] if message else "import failed"
+                packages["Modeller"]["error"] = "import/license check failed; configure MODELLER in this environment"
         except (OSError, subprocess.TimeoutExpired) as exc:
             packages["Modeller"]["usable"] = False
             packages["Modeller"]["error"] = f"{type(exc).__name__}: {exc}"
@@ -159,6 +158,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--format", choices=["text", "json"], default="text",
                         help="Report format (default: text)")
+    parser.add_argument("--profile", choices=("standard", "desktop"),
+                        help="Check the selected installation profile's prerequisites")
+    parser.add_argument("--addon", action="append", default=[], choices=("msa-alternatives", "probe"),
+                        help="Include an explicitly selected installation add-on (repeatable)")
     diffusion = parser.add_argument_group("Diffusion options")
     diffusion.add_argument(
         "--diffusion-model",
@@ -175,6 +178,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     from dvbfixer.batch import add_runtime_help
     add_runtime_help(parser)
     args = parser.parse_args(argv)
+    if args.addon and not args.profile:
+        parser.error("--addon requires --profile")
     if not math.isfinite(args.diffusion_timeout) or args.diffusion_timeout <= 0:
         parser.error("--diffusion-timeout must be a positive finite number")
     return args
@@ -186,9 +191,22 @@ def main(argv: list[str] | None = None) -> None:
         diffusion_model=args.diffusion_model,
         diffusion_timeout=args.diffusion_timeout,
     )
+    readiness = None
+    if args.profile:
+        from dvbfixer.profile_readiness import collect_profile_readiness
+        readiness = collect_profile_readiness(args.profile, tuple(args.addon))
+        report["installation"] = readiness
     if args.format == "json":
         print(json.dumps(report, indent=2))
+        if readiness and readiness["state"] != "ready":
+            raise SystemExit(1 if readiness["state"] == "error" else 2)
         return
+    if readiness:
+        print(f"Installation {args.profile}: {readiness['state']}")
+        print(f"  Scope: {readiness['scope']}")
+        for check in readiness["checks"]:
+            if check["state"] != "ready":
+                print(f"  {check['state']}: {check['name']}: {check['action']}")
     print("Python packages:")
     for name, status in report["python_packages"].items():
         usable = status["available"] and status.get("usable", True)
@@ -212,6 +230,8 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Selected diffusion profile: {selected['profile']} ({state})")
         for issue in selected["issues"]:
             print(f"  {issue['code']}: {issue['message']}")
+    if readiness and readiness["state"] != "ready":
+        raise SystemExit(1 if readiness["state"] == "error" else 2)
 
 
 if __name__ == "__main__":

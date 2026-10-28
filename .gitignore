@@ -19,3 +19,6 @@ leap.log
 
 # Downloaded engines, checkpoints, environments, and benchmark workspaces.
 /.artifacts/
+
+# Operator-provided local MODELLER credential (never package or publish).
+/modeller_key.txt

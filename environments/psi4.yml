@@ -1,0 +1,8 @@
+# Generated; separate runtime, do not install dvbfixer here.
+name: dvbfixer-psi4
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - psi4
+  - psiresp

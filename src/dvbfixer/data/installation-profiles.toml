@@ -1,0 +1,237 @@
+# Canonical composition. Rendered specs and the dependency matrix derive from this file.
+schema_version = 1
+channels = ["conda-forge", "bioconda", "salilab"]
+default_conda_channel = "conda-forge"
+platforms = ["linux-64", "osx-arm64"]
+
+[profiles.standard]
+groups = ["science"]
+[profiles.desktop]
+inherits = "standard"
+groups = ["gui"]
+[addons.msa-alternatives]
+groups = ["msa-alternatives"]
+[addons.probe]
+groups = ["probe"]
+
+[[packages]]
+spec = "python >=3.11,<3.14"
+group = "science"
+consumer = "CLI interpreter; PROPKA annotation compatibility"
+check = "python-version"
+[[packages]]
+spec = "numpy <2.5"
+group = "science"
+consumer = "geometry, alignment, RESP fit; Python 3.11 typing baseline"
+module = "numpy"
+[[packages]]
+spec = "libblas=*=*openblas"
+group = "science"
+consumer = "NumPy/SciPy native linear algebra"
+check = "linalg"
+[[packages]]
+spec = "libcblas=*=*openblas"
+group = "science"
+consumer = "NumPy/SciPy native linear algebra"
+check = "linalg"
+[[packages]]
+spec = "liblapack=*=*openblas"
+group = "science"
+consumer = "NumPy/SciPy native linear algebra"
+check = "linalg"
+[[packages]]
+spec = "scipy"
+group = "science"
+consumer = "diagnose sterics, RESP and alignment"
+module = "scipy"
+[[packages]]
+spec = "threadpoolctl"
+group = "science"
+consumer = "in-process native BLAS runtime verification; MDAnalysis"
+module = "threadpoolctl"
+[[packages]]
+spec = "openmm >=8.1"
+group = "science"
+consumer = "prepare, protonate, minimize, topology"
+module = "openmm"
+[[packages]]
+spec = "pdbfixer >=1.9"
+group = "science"
+consumer = "legacy heavy-atom repair"
+module = "pdbfixer"
+[[packages]]
+spec = "openmmforcefields ==0.15.1"
+source = "pip"
+group = "science"
+consumer = "lig_params.GAFFTemplateGenerator"
+module = "openmmforcefields"
+[[packages]]
+spec = "tinydb"
+group = "science"
+consumer = "openmmforcefields GAFF template cache (undeclared by PyPI metadata)"
+module = "tinydb"
+[[packages]]
+spec = "lxml"
+group = "science"
+consumer = "openmmforcefields force-field XML processing"
+module = "lxml"
+[[packages]]
+spec = "pyyaml"
+group = "science"
+consumer = "openmmforcefields force-field configuration"
+module = "yaml"
+[[packages]]
+spec = "validators"
+group = "science"
+consumer = "openmmforcefields force-field source validation"
+module = "validators"
+[[packages]]
+spec = "openff-toolkit-base"
+group = "science"
+consumer = "lig_params OpenFF Molecule and AmberTools wrapper"
+module = "openff.toolkit"
+[[packages]]
+spec = "rdkit"
+group = "science"
+consumer = "prepare glycan/SMILES ligand chemistry"
+module = "rdkit"
+[[packages]]
+spec = "biopython"
+group = "science"
+consumer = "sequence_alignment, align, salign, homology"
+module = "Bio"
+[[packages]]
+spec = "gemmi >=0.7.5"
+group = "science"
+consumer = "structure_input loss-aware PDBx/mmCIF normalization"
+module = "gemmi"
+[[packages]]
+spec = "mdanalysis"
+group = "science"
+consumer = "cluster, align, GRO and trajectory inputs"
+module = "MDAnalysis"
+[[packages]]
+spec = "modeller"
+channel = "salilab"
+group = "science"
+consumer = "model, homology, explicit SALIGN engine"
+module = "modeller"
+manual = "Academic license: https://salilab.org/modeller/registration.html"
+[[packages]]
+spec = "parmed"
+group = "science"
+consumer = "acpype_export and AMBER/GROMACS topology conversion"
+module = "parmed"
+[[packages]]
+spec = "plotly"
+group = "science"
+consumer = "cluster --plot HTML reports"
+module = "plotly"
+[[packages]]
+spec = "hmmer"
+channel = "bioconda"
+group = "science"
+consumer = "ANARCI runtime dependency (hmmscan)"
+executables = ["hmmscan"]
+[[packages]]
+spec = "anarci"
+channel = "bioconda"
+group = "science"
+consumer = "antibody and homology numbering/CDR selection"
+module = "anarci"
+check = "anarci-data"
+[[packages]]
+spec = "mafft"
+group = "science"
+consumer = "msa auto/default, salign and Homology GUI"
+executables = ["mafft"]
+[[packages]]
+spec = "openbabel-wheel >=3.1.1.23"
+source = "pip"
+group = "science"
+consumer = "small-molecule CIF, SDF extraction, heterogen H, obminimize"
+module = "openbabel.openbabel"
+executables = ["obabel", "obminimize"]
+[[packages]]
+spec = "ambertools >=23"
+group = "science"
+consumer = "GAFF, RESP and tleap-reduce; independent of Reduce"
+executables = ["antechamber", "parmchk2", "sqm", "tleap"]
+[[packages]]
+spec = "reduce"
+channel = "bioconda"
+group = "science"
+consumer = "MolProbity tautomer/proton assignment and tleap-reduce"
+executables = ["reduce"]
+[[packages]]
+spec = "acpype"
+source = "pip"
+group = "science"
+consumer = "top --acpype and AMBER/GROMACS export"
+module = "acpype"
+executables = ["acpype"]
+[[packages]]
+spec = "pip"
+group = "science"
+consumer = "managed-environment Python package installation"
+module = "pip"
+[[packages]]
+spec = "propka >=3.5"
+source = "pip"
+group = "science"
+consumer = "prepare and protonate pKa decisions"
+module = "propka"
+[[packages]]
+spec = "pyscf"
+source = "pip"
+group = "science"
+consumer = "parametrize --charge-method resp --qm-engine pyscf"
+module = "pyscf"
+check = "resp"
+[[packages]]
+spec = "nodejs >=22"
+group = "gui"
+consumer = "GUI lockfile build and standalone host"
+executables = ["node", "npm"]
+[[packages]]
+spec = "muscle >=5"
+group = "msa-alternatives"
+consumer = "msa explicit MUSCLE 5 engine"
+executables = ["muscle"]
+[[packages]]
+spec = "clustalo"
+group = "msa-alternatives"
+consumer = "msa explicit Clustal Omega engine"
+executables = ["clustalo"]
+[[packages]]
+spec = "probe =2.18"
+channel = "bioconda"
+group = "probe"
+consumer = "optional diagnose engine; Python fallback when unavailable"
+executables = ["probe"]
+check = "probe-version"
+
+# These are separate runtimes/operator integrations, never packages in Standard.
+[external.psi4]
+kind = "separate-environment"
+channels = ["conda-forge"]
+dependencies = ["psi4", "psiresp"]
+action = "Select --psi4-env when running parametrize; do not install dvbfixer there."
+[external.gaussian]
+kind = "operator"
+action = "Provide licensed Gaussian and its output using parametrize's Gaussian workflow."
+[external.protenix-cuda]
+kind = "separate-runtime"
+platforms = ["linux-64"]
+instructions = "deploy/protenix-v1/README.md"
+action = "Prepare sampling/refinement runtimes, provide checkpoints, then register launcher."
+[external.protpardelle-cuda]
+kind = "separate-runtime"
+platforms = ["linux-64"]
+instructions = "deploy/protpardelle-1c/cc94.md"
+action = "Use cc94 for new requests; provide checkpoints and register launcher."
+[external.protpardelle-mps]
+kind = "separate-runtime"
+platforms = ["osx-arm64"]
+instructions = "deploy/protpardelle-1c/cc94.md"
+action = "Prepare cc94 runtime; MPS scientific acceptance remains pending."

@@ -4473,13 +4473,46 @@ export const GENERATED_COMMANDS = [
           "text",
           "json"
         ]
+      },
+      {
+        "flag": "--profile",
+        "dest": "profile",
+        "label": "Profile",
+        "type": "select",
+        "group": "options",
+        "help": "Check the selected installation profile's prerequisites",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "options": [
+          "standard",
+          "desktop"
+        ]
+      },
+      {
+        "flag": "--addon",
+        "dest": "addon",
+        "label": "Addon",
+        "type": "select",
+        "group": "options",
+        "help": "Include an explicitly selected installation add-on (repeatable)",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": [],
+        "options": [
+          "msa-alternatives",
+          "probe"
+        ]
       }
     ],
     "groups": [
       {
         "name": "options",
         "fields": [
-          "--format"
+          "--format",
+          "--profile",
+          "--addon"
         ]
       }
     ],

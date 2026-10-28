@@ -6,6 +6,8 @@
 
 ```
 usage: dvbfixer doctor [-h] [--format {text,json}]
+                       [--profile {standard,desktop}]
+                       [--addon {msa-alternatives,probe}]
                        [--diffusion-model {protpardelle,protenix}]
                        [--diffusion-timeout SECONDS] [--log-file PATH]
 
@@ -15,6 +17,12 @@ profiles.
 options:
   -h, --help            show this help message and exit
   --format {text,json}  Report format (default: text)
+  --profile {standard,desktop}
+                        Check the selected installation profile's
+                        prerequisites
+  --addon {msa-alternatives,probe}
+                        Include an explicitly selected installation add-on
+                        (repeatable)
 
 Diffusion options:
   --diffusion-model {protpardelle,protenix}

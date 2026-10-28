@@ -1,0 +1,42 @@
+# Generated from src/dvbfixer/data/installation-profiles.toml.
+name: dvbfixer-standard
+channels:
+  - conda-forge
+  - bioconda
+  - salilab
+  - nodefaults
+dependencies:
+  - "conda-forge::python >=3.11,<3.14"
+  - "conda-forge::numpy <2.5"
+  - "conda-forge::libblas=*=*openblas"
+  - "conda-forge::libcblas=*=*openblas"
+  - "conda-forge::liblapack=*=*openblas"
+  - "conda-forge::scipy"
+  - "conda-forge::threadpoolctl"
+  - "conda-forge::openmm >=8.1"
+  - "conda-forge::pdbfixer >=1.9"
+  - "conda-forge::tinydb"
+  - "conda-forge::lxml"
+  - "conda-forge::pyyaml"
+  - "conda-forge::validators"
+  - "conda-forge::openff-toolkit-base"
+  - "conda-forge::rdkit"
+  - "conda-forge::biopython"
+  - "conda-forge::gemmi >=0.7.5"
+  - "conda-forge::mdanalysis"
+  - "salilab::modeller"
+  - "conda-forge::parmed"
+  - "conda-forge::plotly"
+  - "bioconda::hmmer"
+  - "bioconda::anarci"
+  - "conda-forge::mafft"
+  - "conda-forge::ambertools >=23"
+  - "bioconda::reduce"
+  - "conda-forge::pip"
+  - "bioconda::probe =2.18"
+  - pip:
+      - "openmmforcefields ==0.15.1"
+      - "openbabel-wheel >=3.1.1.23"
+      - "acpype"
+      - "propka >=3.5"
+      - "pyscf"

@@ -16,11 +16,18 @@ dependencies = [
     "pdbfixer>=1.9",
     "propka>=3.5",
     "MDAnalysis",
-    "openmmforcefields",
-    "openbabel-wheel>=3.1.1.22",
+    "openmmforcefields==0.15.1",
+    "tinydb",
+    "lxml",
+    "pyyaml",
+    "validators",
+    "openbabel-wheel>=3.1.1.23",
     "parmed",
     "acpype",
     "plotly",
+    "rdkit",
+    "pyscf",
+    "threadpoolctl",
 ]
 
 [project.optional-dependencies]
@@ -33,12 +40,13 @@ dev = [
 
 [project.scripts]
 dvbfixer = "dvbfixer.cli:main"
+obminimize = "dvbfixer.openbabel_cli:obminimize"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-dvbfixer = ["data/*.xml"]
+dvbfixer = ["data/*.xml", "data/*.toml"]
 
 # Install the bundled GROMACS force fields as architecture-independent shared
 # data.  Editable/source checkouts still use the repository-level FF directory;

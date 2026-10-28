@@ -41,6 +41,7 @@ non-canonical residues.
 | Accepted architecture decisions | [`docs/adr/`](docs/adr/) |
 | Historical documentation migration stub | [`docs/DESIGN_NOTES.md`](docs/DESIGN_NOTES.md) |
 | Installation + Modeller license | [`docs/installation.md`](docs/installation.md) |
+| Approved Standard/Desktop installation-profile implementation handoff | [`docs/plans/installation-profiles-handoff.md`](docs/plans/installation-profiles-handoff.md) |
 | Implemented domain policies | [`docs/domain-model.md`](docs/domain-model.md) |
 | Agent task/contract/invariant map | [`docs/agent/README.md`](docs/agent/README.md) |
 | Relaxation research and proposed benchmarks | [`docs/research/whole-complex-relaxation.md`](docs/research/whole-complex-relaxation.md) |
@@ -611,6 +612,25 @@ command parser merely to inspect generated labels.
 - Reply in English by default. You may reply in Russian when the user explicitly permits or requests it.
 
 ## Current agent notes and recently established invariants
+
+- **Installation profiles are approved for implementation (2026-10-28).** Continue
+  on `feature/installation-profiles` from `cc0716c` using
+  `docs/plans/installation-profiles-handoff.md`. Standard includes **PySCF/RESP**,
+  MDAnalysis/Plotly and the normal scientific stack; Desktop inherits Standard
+  and adds GUI. Do not follow the superseded core/full/extras proposal or move
+  PySCF into an add-on. xTB is removed; Probe stays optional. Implementation is
+  underway: the stdlib-only TOML composition, generated specs and installer live
+  in `installation_profiles.py`, `data/installation-profiles.toml` and `install.py`.
+  Evidence and remaining gates: `docs/installation-profile-acceptance.md`.
+  Use `openff-toolkit-base` plus pip openmmforcefields/ACPYPE/openbabel-wheel:
+  the full OpenFF conda metapackage pulls NAGL/PyTorch; conda ACPYPE still declares
+  openbabel-wheel in Python metadata. Never overlay conda Open Babel on this route.
+  Both profiles have real Linux science + licensed MODELLER/Homology smokes with
+  micromamba 2.9.0, mamba 2.10.0 and conda 26.9.4. Conda run must use
+  `--no-capture-output` to forward the protected license stdin pipe. Prefixes
+  with whitespace are rejected early because actual MAFFT execution fails there.
+  WP3 separate-runtime provisioning and the full WP4–WP6 acceptance remain open;
+  do not infer plan completion from the implemented core helper.
 
 - **New Protpardelle production requests use cc94, not cc89.** Profiles are
   `protpardelle-1c-cc94-cuda-v1` / `protpardelle-1c-cc94-mps-v1`, 500 ODE

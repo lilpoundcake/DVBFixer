@@ -14,9 +14,30 @@ complete. Detailed requirements remain in these authoritative sources:
 - [Diffusion with heterogen context plan](diffusion-heterogen-gap-reconstruction.md) for class-specific research on retaining and conditioning on small molecules, cofactors, ions/metals, glycans, PTMs, and covalent ligands during protein-gap reconstruction.
 - [Diffusion runner environment plan](diffusion-runner-environments.md) for separate core, Apple MPS, and Linux/NVIDIA dependency boundaries and production protocol wrappers.
 - [Continuation context](api-ddd-continuation-context.md) for historical evidence only.
+- [Approved installation-profile handoff](installation-profiles-handoff.md) for Standard/Desktop, the conda-family helper and clean-install acceptance.
 
 Status is binary: `[x]` means complete and verified; `[ ]` means remaining,
 partially complete, optional but not accepted, or not yet verified.
+
+## Installation profiles: Standard/Desktop
+
+Added 2026-10-28. Requirements and next-session starting point:
+[implementation handoff](installation-profiles-handoff.md).
+
+- [x] Record user approval and the correction that PySCF/RESP and MDAnalysis/Plotly remain in Standard/Desktop; Desktop inherits the scientific composition.
+- [x] Merge Probe/xTB work into main at `cc0716c`, verify the merged baseline, and create `feature/installation-profiles`. This is baseline verification, not installer acceptance.
+- [x] Define the dependency/feature matrix, one composition source and profile/readiness contracts (WP1).
+- [x] Align Standard/Desktop/add-on specifications and Python metadata, including a verified single Open Babel provider (WP2).
+- [ ] Implement interactive/noninteractive helper and micromamba/mamba/conda adapters without modifying existing environments implicitly (WP3).
+- [ ] Implement protected MODELLER setup, Desktop build and separate diffusion-runtime preparation/registration (WP3).
+- [ ] Add profile-aware doctor/preflight for scientific commands, ANARCI/HMMER/data, MSA, analysis and included PySCF RESP (WP4).
+- [ ] Verify clean Standard/Desktop installs and add-ons with real functional smokes for each claimed manager/platform; retain not-tested states (WP5).
+- [ ] Synchronize manual installation, documentation, CI and agent status, then finish the proven GUI/MSA migration without removing Standard scientific capabilities (WP6).
+
+Implementation is underway. WP1/WP2 are verified; subsequent work and actual clean-install
+evidence are tracked in [profile acceptance](../installation-profile-acceptance.md).
+xTB remains removed under ADR 0012; Probe stays optional. Old core/full/extras
+proposals are not the approved installation interface.
 
 ## Geometry-gated anchor relaxation
 
