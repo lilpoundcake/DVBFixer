@@ -1,8 +1,8 @@
-"""Compare installed adapter, direct Probe and Python on identical PDB bytes.
+"""Compare the historical Probe invocation, direct Probe and Python.
 
 Optional input PDBs must already have agreed hydrogens. Synthetic methane
 controls include all hydrogens. Direct Probe uses -self ALL and excludes water
-to match the Python default; the production command is also run unchanged.
+to match the Python default; the historical broken command is retained as a control.
 """
 from __future__ import annotations
 
@@ -263,7 +263,7 @@ def main():
         findings = steric.clashes_python(pdb.topology, pdb.positions, clash_warn_a=0.4, clash_error_a=0.5)
         record["python_seconds"] = time.monotonic() - start
         record["python_findings"] = [asdict(f) for f in findings]
-        for mode, selection in [("production", ["ALL", "ALL"]), ("direct-self", ["-nowaters", "-self", "ALL"])]:
+        for mode, selection in [("historical-production", ["ALL", "ALL"]), ("direct-self", ["-nowaters", "-self", "ALL"])]:
             cmd = [binary, "-unformated", "-condensed", "-Q", "-mc", "-het", *selection, str(path.resolve())]
             if mode == "direct-self" and args.probe_nuclear:
                 cmd.insert(1, "-nuclear")
@@ -316,7 +316,7 @@ def main():
             record["bonded_control"]["python_reports_target_pair"] = control["target_pair"] in python_pairs
             record["bonded_control"]["probe_reports_target_pair"] = control["target_pair"] in probe_pairs
         (args.output / "summary.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
-        print(path.name, "python", len(findings), "production rc", record["production"]["returncode"],
+        print(path.name, "python", len(findings), "historical production rc", record["historical-production"]["returncode"],
               "direct Probe", record["direct-self"]["bad_overlap_contacts_ge_0.4"], flush=True)
     manifest = {str(path.relative_to(args.output)): hashlib.sha256(path.read_bytes()).hexdigest()
                 for path in sorted(args.output.rglob("*")) if path.is_file()}

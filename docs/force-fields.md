@@ -183,22 +183,34 @@ dvbfixer minimize protein_with_ligand.pdb --parametrize-ligands -v
   generic route.
 - Forwarded by `zbs --parametrize-ligands` to the minimize step. Since 0.7.10, `minimize` also auto-attempts this (non-strict) for eligible unknown organic heterogens, even without the flag. Unknown complex cofactors raise even in non-strict mode.
 
-### Universal-FF geometry refinement — `--xtb-refine` / `--obminimize-refine`
+### Optional OpenBabel geometry refinement — `--obminimize-refine`
 
-Different mechanism entirely. These are **post-minimize refinement passes** that run AFTER OpenMM finishes. They apply a universal force field (xtb GFN-FF; OpenBabel UFF / MMFF94 / GAFF) to the whole system or just the heterogens, without OpenMM residue-template matching during the post-pass. They still require successful completion of the preceding OpenMM stage and valid input chemistry.
+This **post-minimize refinement pass** runs AFTER OpenMM finishes. It applies
+OpenBabel UFF / MMFF94 / GAFF to the whole system or selected heterogens without
+OpenMM residue-template matching during the post-pass. It still requires a
+successful preceding OpenMM stage and valid input chemistry. It is not a
+guarantee of improved complex geometry.
 
 ```bash
-# After OpenMM minimize, run xtb GFN-FF only on the heterogens
-dvbfixer minimize input.pdb --xtb-refine --refine-heterogens-only -v
-
 # OpenBabel obminimize (UFF by default; handles N-glycosidic angles correctly)
-dvbfixer minimize input.pdb --obminimize-refine --refine-heterogens-only -v
+dvbfixer minimize input.pdb --no-solvent --obminimize-refine --refine-heterogens-only -v
 ```
 
-- **When to use**: sanity-check ligand geometry when you don't want to (or can't) generate real FF parameters. Also useful for glycan systems where sugar-sugar bonds have no OpenMM template — the refinement pass fixes strain that OpenMM couldn't touch.
-- Auto-switches to heterogens-only above 5000 atoms (whole-system xtb takes hours).
-- **`--refine-heterogens-only` interface caveat**: with the protein frozen, only the ligand's INTERNAL geometry is refined. Protein-side accommodation is unavailable; ligand motion may relieve some contacts but does not provide joint interface relaxation. Drop the flag for whole-system refinement when the interface matters.
-- **NOT a replacement** for `--parametrize-ligands`: universal FFs are less accurate than GAFF2, and running xtb/UFF on a ligand doesn't give you MD-ready parameters — you still need real FF templates for a production MD run.
+- This is an explicitly requested geometry experiment, not a way to bypass
+  unavailable OpenMM parameters. Independently inspect bonds, stereochemistry,
+  clashes and pocket contacts afterwards.
+- Large systems can auto-switch to heterogens-only; read the run log.
+- **`--refine-heterogens-only` interface caveat**: the anchor backbone stays
+  fixed, while its sidechain can move with the heterogen. The remaining protein
+  environment is omitted. This is not joint pocket relaxation; inspect contacts
+  independently. Whole-system refinement includes the surroundings where supported.
+- **Not a replacement** for `--parametrize-ligands`: OpenBabel refinement does
+  not produce MD-ready parameters or establish joint pocket relaxation.
+
+xTB refinement and its managed dependency were removed. The [completed
+investigation](research/probe-xtb-followup.md) found no passing profile for the
+tested complex-polishing schemes; a package upgrade alone did not resolve the
+problem. See [ADR 0012](adr/0012-remove-xtb-refinement-and-repair-probe.md).
 
 ### Which to use?
 
@@ -207,7 +219,7 @@ dvbfixer minimize input.pdb --obminimize-refine --refine-heterogens-only -v
 | Isolated ligand, want real FF params for MD               | `--parametrize-ligands`                    |
 | Heme, flavin, metal complex, or covalently attached cofactor | Validated `--extra-ff FILE`; otherwise strip explicitly |
 | Protein-ligand INTERFACE geometry matters (H-bonds, contacts) | `--parametrize-ligands` (whole system optimised together; do NOT rely on `--strip-heterogens` or `--refine-heterogens-only` which leave the interface unrelaxed) |
-| Just want the ligand's internal geometry to look sensible | `--xtb-refine` or `--obminimize-refine` (add `--refine-heterogens-only` for speed if interface geometry doesn't matter) |
+| Explicitly experiment with ligand-internal geometry | `--obminimize-refine`; independently inspect the result and the pocket |
 | Glycan tree with PDB names (NAG/BMA/MAN)                  | `dvbfixer convert --to-amber` first        |
 | Glycan tree with CHARMM-GUI names (BGLC/BMAN/…)           | `--ff charmm` (auto-detected)              |
 | Glycan tree with GLYCAM names (4YB/UYB/…)                 | `--ff amber+glycam` (auto-detected)        |

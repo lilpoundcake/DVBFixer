@@ -5,15 +5,15 @@ Phase 2.1 split the flat 1933-line ``minimize.py`` into a package:
 - :mod:`dvbfixer.minimize.cli` — argparse only; safe to import without
   pulling in OpenMM. Defines the ``parse_args`` function plus the shared
   module-level constants (``DEFAULT_*``, ``BACKBONE_NAMES``).
-- :mod:`dvbfixer.minimize.refine` — xtb + OpenBabel refinement passes,
+- :mod:`dvbfixer.minimize.refine` — optional OpenBabel refinement,
   the Kabsch glycan-tracking helper, and the heterogen-subsystem
   extract/splice utilities.
 - :mod:`dvbfixer.minimize.pipeline` — the ``minimize()`` and ``main()``
   entry points, restraint tiers, the .dat handoff, and the OpenMM
   Simulation wiring.
 
-The public API — ``main``, ``parse_args``, ``refine_with_xtb``,
-``refine_with_obminimize``, and the concrete pipeline helpers — is
+The public API — ``main``, ``parse_args``, ``refine_with_obminimize``,
+and the concrete pipeline helpers — is
 re-exported here so ``from dvbfixer.minimize import main`` continues to
 work from ``cli.py`` and ``zbs.py``.
 """
@@ -38,7 +38,7 @@ from dvbfixer.minimize.pipeline import (
     resolve_new_atom_indices,
     strip_solvent,
 )
-from dvbfixer.minimize.refine import refine_with_obminimize, refine_with_xtb
+from dvbfixer.minimize.refine import refine_with_obminimize
 
 __all__ = [
     "BACKBONE_NAMES",
@@ -54,7 +54,6 @@ __all__ = [
     "minimize",
     "parse_args",
     "refine_with_obminimize",
-    "refine_with_xtb",
     "resolve_new_atom_indices",
     "strip_solvent",
 ]

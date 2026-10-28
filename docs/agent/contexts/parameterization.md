@@ -112,9 +112,11 @@ Classifier precedence is `strip` before `user_template`, then
   `GAFF_CANDIDATE` implementation and does not add arbitrary ligand templates.
 - OpenMM performs final residue-template graph matching. Open Babel, OpenFF,
   AmberTools, ParmEd, and ACPYPE are external-tool adapters, not policy owners.
-- `xtb` and `obminimize` are post-OpenMM geometry refiners. They cannot replace
+- `obminimize` is an optional post-OpenMM geometry refiner. It cannot replace
   a successful preceding OpenMM parameterization or emit production MD
   parameters.
+- xTB refinement was removed after a failed scientific acceptance study; see
+  [ADR 0012](../../adr/0012-remove-xtb-refinement-and-repair-probe.md).
 
 ## Side Effects
 

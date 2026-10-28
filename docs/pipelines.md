@@ -134,7 +134,7 @@ linkage geometry; see [transplant](commands/transplant.md) for alignment options
 
 ### Optional geometry refinement
 
-OpenBabel and xtb post-passes are alternatives for particular geometry problems,
+The optional OpenBabel post-pass is an experiment for particular geometry problems,
 not substitutes for missing parameters during initial OpenMM setup. They do not
 make arbitrary inputs supported. Read the limitations and interface-relaxation
 caveats in [minimize](commands/minimize.md) before enabling them.

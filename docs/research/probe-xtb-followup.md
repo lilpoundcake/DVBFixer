@@ -1,5 +1,10 @@
 # Probe / xTB: bounded follow-up and decisions
 
+Subsequent implementation: [ADR 0012](../adr/0012-remove-xtb-refinement-and-repair-probe.md)
+authorizes removal of production xTB refinement and repairs the optional Probe
+adapter. Statements below about unchanged adapters/known failures describe the
+historical study at commit `3b4ac0b`, not the current implementation.
+
 Continuation of the [Linux audit](probe-xtb-linux-audit.md), starting at commit
 `6d84ca2`, under the [fixed decision protocol](../plans/probe-xtb-followup.md).
 

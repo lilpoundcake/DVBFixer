@@ -20,6 +20,8 @@ def test_capability_report_has_stable_sections():
     assert report["python_packages"]["Gemmi"]["available"] is True
     assert report["python_packages"]["Open Babel Python"]["available"] is True
     assert "tleap" in report["executables"]
+    assert "Probe" in report["executables"]
+    assert "xTB" not in report["executables"]
     assert "MAFFT" in report["executables"]
     assert "MUSCLE" in report["executables"]
     assert "Clustal Omega" in report["executables"]

@@ -117,8 +117,10 @@ Follow-ups documented in each package's `__init__.py` and in
   dataclasses defined there).
 - Extend `minimize --parametrize-ligands` GAFF2 path to `prepare`
   for whole-system H addition.
-- `xtb v6.8+` upgrade when conda-forge ships it (fixes the `$fix`
-  bug that causes ~0.1 Å drift on nominally-frozen anchors).
+- The historical xTB upgrade proposal was superseded by
+  [ADR 0012](../docs/adr/0012-remove-xtb-refinement-and-repair-probe.md):
+  constraint fixes did not establish a passing complex-polishing profile,
+  and the production adapter/dependency were removed.
 
 ## Test plan
 

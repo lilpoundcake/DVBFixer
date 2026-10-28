@@ -589,7 +589,7 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
         x_nm, y_nm, z_nm = pos.x / 10.0, pos.y / 10.0, pos.z / 10.0
         # RDKit AddHs(addCoords=True) sometimes leaves an H at origin if it
         # couldn't compute a 3D position. Replace with a small offset from
-        # the parent so downstream tools (xtb etc.) don't choke on (0,0,0).
+        # the parent so downstream geometry tools don't receive (0,0,0).
         if abs(pos.x) < 1e-6 and abs(pos.y) < 1e-6 and abs(pos.z) < 1e-6:
             p_parent = positions[parent_omm.index]
             v_par = p_parent.value_in_unit(nanometer)
@@ -636,7 +636,7 @@ def add_heterogen_h_via_rdkit(topology, positions, output_pdb_path,
                     # Bond new H to its parent — without this, the H has no
                     # CONECT record in output PDB; OpenBabel's proximityBonding
                     # may miss the bond if RDKit placed H >1.9 Å away, and the
-                    # H drifts free during obminimize/xtb refinement.
+                    # H drifts free during OpenBabel refinement.
                     new_top.addBond(new_atom, h_atom)
                     new_pos_list.append(Vec3(*h_pos))
 
@@ -1008,7 +1008,7 @@ def add_heterogen_h_via_openbabel(topology, positions, verbose=False,
                 for (h_res, h_name, h_pos) in h_by_parent.get(atom.index, []):
                     h_atom = new_top.addAtom(h_name, element.hydrogen, new_res)
                     # Bond new H to its parent — without this, downstream tools
-                    # (OpenBabel proximityBonding, xtb distance perception) may
+                    # (such as OpenBabel proximity bonding) may
                     # miss the bond if RDKit placed H >1.9 Å from parent, and
                     # the H drifts free during refinement.
                     new_top.addBond(new_atom, h_atom)

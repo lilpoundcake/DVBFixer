@@ -80,7 +80,8 @@ def main():
         baseline_dir.mkdir()
     env = {**os.environ, "PATH": str(Path(sys.executable).parent) + os.pathsep + os.environ.get("PATH", ""),
            "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"}
-    report = {"protocol": "probe-xtb-macos-linux-v1", "platform": platform.platform(),
+    report = {"protocol": "probe-xtb-macos-linux-v2-removed-production-xtb", "platform": platform.platform(),
+              "production_xtb_adapter": "removed; native research experiments remain independent",
               "python": sys.version, "source_sha256": sources, "tasks": [],
               "baseline_mode": "frozen coordinate replay" if args.baselines else "fresh preparation and OpenMM",
               "binary_sha256": {k: hashlib.sha256(Path(v).read_bytes()).hexdigest() for k, v in bindings.items()},

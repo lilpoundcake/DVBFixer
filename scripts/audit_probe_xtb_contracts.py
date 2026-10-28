@@ -1,7 +1,9 @@
-"""Exercise production adapters against real, bounded subprocess failure fixtures.
+"""Exercise current Probe contracts with bounded native fixtures.
 
 The executables generated here are protocol fixtures, NOT scientific engines.
 Only discovery and subprocess timeout are overridden; subprocess outputs are real.
+The deleted production xTB adapter is recorded as removed, not reimplemented.
+Historical xTB failures remain in commit 3b4ac0b and the archived audit evidence.
 """
 from __future__ import annotations
 
@@ -15,17 +17,18 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
-import numpy as np
 from openmm import Vec3
-from openmm.app import Element, Topology
+from openmm.app import Element, PDBFile, Topology
 from openmm.unit import Quantity, nanometer
 
 from dvbfixer.diagnose import steric
-from dvbfixer.minimize import refine
+from dvbfixer.diagnose.probe import SUPPORTED_VERSION
 
 
 def executable_body(engine, mode):
     body = "import sys,time\nfrom pathlib import Path\n"
+    version = "probe.9.99" if mode == "unsupported-version" else SUPPORTED_VERSION
+    body += f"if '-version' in sys.argv:\n    print({version!r})\n    sys.exit(0)\n"
     if mode == "nonzero":
         return body + "print('declared failure',file=sys.stderr)\nsys.exit(7)\n"
     if mode == "timeout":
@@ -35,20 +38,10 @@ def executable_body(engine, mode):
             "clean": "",
             "invalid-format": "unsupported successful output\n",
             "valid-clash": ":1->1:bo: A   1 LIG  C1  : a   2 LIG  C2  :11:-1.400:-0.8:0:0:0:0:0:C:C:0:0:0:0:0\n",
+            "nonfinite": ":1->1:bo: A   1 LIG  C1  : a   2 LIG  C2  :11:nan:-0.8:0:0:0:0:0:C:C:0:0:0:0:0\n",
         }.get(mode, "")
         return body + f"sys.stdout.write({output!r})\n"
-    xyz = {
-        "valid": "2\ncontrol\nC 0 0 0\nC 2 0 0\n",
-        "unconverged": "2\ncontrol\nC 0 0 0\nC 2 0 0\n",
-        "bad-count": "1\ncontrol\nC 0 0 0\n",
-        "bad-elements": "2\ncontrol\nO 0 0 0\nC 2 0 0\n",
-        "nonfinite": "2\ncontrol\nC nan 0 0\nC 2 0 0\n",
-        "truncated": "2\ncontrol\nC 0 0 0\n",
-    }.get(mode)
-    if xyz is not None:
-        body += f"Path('xtbopt.xyz').write_text({xyz!r})\n"
-    message = "FAILED TO CONVERGE" if mode == "unconverged" else "GEOMETRY OPTIMIZATION CONVERGED"
-    return body + f"print({message!r})\n"
+    raise ValueError("The production xTB adapter was removed; use archived evidence for its historical contracts")
 
 
 def main():
@@ -62,14 +55,16 @@ def main():
         residue = top.addResidue("LIG", top.addChain(chain_id), resid)
         top.addAtom(name, Element.getBySymbol("C"), residue)
     positions = Quantity([Vec3(0, 0, 0), Vec3(.2, 0, 0)], nanometer)
+    input_path = args.output / "protocol-input.pdb"
+    with input_path.open("w") as handle:
+        PDBFile.writeFile(top, positions, handle, keepIds=True)
     real_run = subprocess.run
     real_python = steric.clashes_python
     report = {"scope": "native subprocess protocol fixtures, not scientific acceptance",
-              "timeout_override_seconds_for_timeout_fixture": .5, "runs": []}
+              "timeout_override_seconds_for_timeout_fixture": .5,
+              "removed_adapters": {"xtb": {"status": "removed", "historical_commit": "3b4ac0b"}}, "runs": []}
     for engine, modes in [
-        ("probe", ["missing", "nonzero", "timeout", "invalid-format", "clean", "valid-clash"]),
-        ("xtb", ["missing", "nonzero", "timeout", "no-output", "bad-count", "bad-elements",
-                 "nonfinite", "truncated", "unconverged", "valid"]),
+        ("probe", ["missing", "nonzero", "timeout", "invalid-format", "nonfinite", "unsupported-version", "clean", "valid-clash"]),
     ]:
         for mode in modes:
             work = args.output / f"{engine}-{mode}"
@@ -94,30 +89,21 @@ def main():
                 _fallback.append(True)
                 return real_python(*a, **kw)
 
-            module = steric if engine == "probe" else refine
+            module = steric
             log = io.StringIO()
             record = {"engine": engine, "mode": mode, "native_events": events}
             with patch.object(module, "_find_binary", return_value=None if mode == "missing" else str(binary.resolve())), \
                     patch.object(subprocess, "run", bounded_run), \
-                    patch.object(steric, "clashes_python", python_engine), contextlib.redirect_stdout(log):
+                    patch.object(steric, "clashes_python", python_engine), \
+                    contextlib.redirect_stdout(log), contextlib.redirect_stderr(log):
                 try:
-                    if engine == "probe":
-                        result = steric.run_all(top, positions, "unused.pdb", clash_warn_a=.4)
-                        record.update({"python_fallback": bool(fallback), "findings": len(result)})
-                        record["requirement_met"] = (
-                            bool(fallback) if mode in ("missing", "nonzero", "timeout", "invalid-format")
-                            else not fallback and (len(result) == 0 if mode == "clean" else len(result) > 0)
-                        )
-                    else:
-                        result = refine.refine_with_xtb(top, positions, cycles=2)
-                        array = np.asarray(result.value_in_unit(nanometer))
-                        unchanged = result is positions
-                        record.update({"skipped_preserving_input": unchanged, "atom_count": len(result),
-                                       "coordinates_finite": bool(np.isfinite(array).all())})
-                        record["requirement_met"] = (
-                            len(result) == 2 and np.isfinite(array).all() and not unchanged
-                            if mode == "valid" else unchanged
-                        )
+                    provenance = {}
+                    result = steric.run_all(top, positions, input_path, clash_warn_a=.4, provenance=provenance)
+                    record.update({"python_fallback": bool(fallback), "findings": len(result), "provenance": provenance})
+                    record["requirement_met"] = (
+                        bool(fallback) if mode not in ("clean", "valid-clash")
+                        else not fallback and (len(result) == 0 if mode == "clean" else len(result) > 0)
+                    )
                 except Exception as exc:
                     record.update({"exception": type(exc).__name__, "message": str(exc), "requirement_met": False})
             (work / "adapter.stdout").write_text(log.getvalue())

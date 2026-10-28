@@ -13,8 +13,7 @@ usage: dvbfixer minimize [-h] [-o OUTPUT] [--dat DAT] [--ph PH]
                          [--restraint-k RESTRAINT_K] [--weak-k WEAK_K]
                          [--max-iter MAX_ITER] [--keep-water]
                          [--strip-heterogens] [--rebuild-h] [--rename]
-                         [--no-infer-conect] [--xtb-refine]
-                         [--xtb-cycles XTB_CYCLES] [--obminimize-refine]
+                         [--no-infer-conect] [--obminimize-refine]
                          [--obminimize-ff {MMFF94,MMFF94s,UFF,GAFF,Ghemical}]
                          [--obminimize-steps OBMINIMIZE_STEPS]
                          [--refine-heterogens-only]
@@ -90,16 +89,10 @@ Content selection:
                         minimize).
 
 Refinement (post-OpenMM):
-  --xtb-refine          After OpenMM minimization, run xtb GFN-FF universal
-                        force field as a refinement pass. Auto-parametrizes
-                        any organic molecule (sugars, ligands) without
-                        templates. Requires `xtb` binary in PATH. Slower but
-                        higher quality.
-  --xtb-cycles XTB_CYCLES
-                        Max xtb optimization cycles (default: 200)
   --obminimize-refine   After OpenMM minimization, run OpenBabel obminimize
-                        (MMFF94) as a refinement pass. Auto-typing for any
-                        organic molecule. Faster than xtb, lower quality.
+                        with the selected --obminimize-ff. Requires OpenBabel;
+                        this optional post-pass is not a guarantee of improved
+                        complex geometry.
   --obminimize-ff {MMFF94,MMFF94s,UFF,GAFF,Ghemical}
                         OpenBabel force field for --obminimize-refine
                         (default: UFF — handles N-glycosidic linkages
@@ -108,14 +101,12 @@ Refinement (post-OpenMM):
   --obminimize-steps OBMINIMIZE_STEPS
                         OpenBabel minimization steps (default: 500)
   --refine-heterogens-only
-                        Restrict xtb/obminimize refinement to heterogen
-                        residues (protein heavy atoms frozen). Refines only
-                        the ligand's INTERNAL geometry — the protein-ligand
-                        INTERFACE (contacts, H-bonds) is NOT relaxed and any
-                        pre-existing clash there will persist. Use without
-                        this flag for whole-system refinement when the
-                        interface matters (whole-system xtb auto-switches to
-                        heterogens-only above ~5000 atoms for performance).
+                        Restrict OpenBabel refinement to heterogens and mobile
+                        anchor sidechains (anchor backbone fixed). The
+                        surrounding protein is omitted, so this is not joint
+                        pocket relaxation. Without this flag the surrounding
+                        system is included where supported. Inspect interface
+                        geometry after refinement.
 
 Runtime:
   --platform {CPU,CUDA,OpenCL,Reference}

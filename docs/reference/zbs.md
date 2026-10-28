@@ -24,11 +24,11 @@ usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--mutate CHAIN:RESNUM:NEW_AA] [--rename] [--cap-termini]
                     [--cap-chain CHAIN] [--no-solvent] [--rebuild-h]
                     [--restraint-k RESTRAINT_K] [--max-iter MAX_ITER]
-                    [--refine {none,xtb,obminimize}]
-                    [--refine-heterogens-only] [--no-propka] [--no-protassign]
-                    [--his-default {HIE,HID}] [--cys-ss-pka CYS_SS_PKA]
-                    [--keep-water] [--no-infer-conect] [--keep-interim]
-                    [--dry-run] [--number-from-1] [--no-postflight]
+                    [--refine {none,obminimize}] [--refine-heterogens-only]
+                    [--no-propka] [--no-protassign] [--his-default {HIE,HID}]
+                    [--cys-ss-pka CYS_SS_PKA] [--keep-water]
+                    [--no-infer-conect] [--keep-interim] [--dry-run]
+                    [--number-from-1] [--no-postflight]
                     [--postflight-report POSTFLIGHT_REPORT]
                     [--strict-postflight]
                     [--align-to-input | --no-align-to-input]
@@ -150,10 +150,9 @@ Minimize step (OpenMM):
                         Restraint force constant for original atoms (default:
                         100)
   --max-iter MAX_ITER   Max minimization iterations per phase (default: 1000)
-  --refine {none,xtb,obminimize}
+  --refine {none,obminimize}
                         Post-minimize refinement pass in the minimize step
-                        (default: none). 'xtb' uses GFN-FF, 'obminimize' uses
-                        OpenBabel UFF.
+                        (default: none). 'obminimize' uses OpenBabel UFF.
   --refine-heterogens-only
                         Restrict --refine pass to heterogen residues (protein
                         backbone frozen). Only meaningful with --refine !=

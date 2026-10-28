@@ -1,5 +1,11 @@
 # Probe / xTB Linux handoff
 
+After this historical replay, [ADR 0012](../adr/0012-remove-xtb-refinement-and-repair-probe.md)
+removed production xTB refinement and repaired Probe. The pre-removal contract
+tests/commands below belong to commit `3b4ac0b` or the transferred source snapshot.
+Current production tests are `tests/test_probe_integration.py` and
+`tests/test_xtb_removed.py`; independent native research tools remain available.
+
 The [macOS audit](../research/probe-xtb-macos-audit.md) completed its bounded
 execution matrix and failed acceptance gates. The subsequent
 [Linux continuation](../research/probe-xtb-linux-audit.md) completed fresh

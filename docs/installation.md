@@ -37,7 +37,7 @@ Other tools can be checked without it.
 
 ```bash
 dvbfixer --version
-# dvbfixer 0.10.0
+# dvbfixer 0.10.1
 dvbfixer doctor
 dvbfixer msa --list-engines
 ```
@@ -201,6 +201,23 @@ environment handshake with `dvbfixer doctor`; see the
 [`doctor` command](commands/doctor.md). A successful handshake verifies the
 selected wrapper and checkpoint environment but does not replace hardware
 cohort acceptance or prove broader scientific support.
+
+## Optional Probe diagnostics
+
+`dvbfixer diagnose` can use MolProbity Probe **2.18.211005**, discovered on `PATH`
+or in the active Python environment's `bin`. It remains optional; unavailable or
+unsupported versions use Python diagnostics with explicit engine/fallback
+provenance. `dvbfixer doctor` reports executable availability. See
+[Probe behavior and radius conventions](commands/diagnose.md#optional-probe-engine).
+
+For a reproducible optional build, use the
+[audited upstream source](https://github.com/rlabduke/probe/tree/091d117f5bceef87389002dccfe26df78516fdda),
+run `make` with a C compiler available, and place the resulting `probe` executable
+on `PATH`. Confirm its banner with `probe -version`.
+
+xTB is no longer installed by `environment.yml` or exposed as a preparation
+refinement backend. Existing locally installed binaries are left untouched.
+The evidence and rationale are in [ADR 0012](adr/0012-remove-xtb-refinement-and-repair-probe.md).
 
 ## Optional RESP charge engines
 

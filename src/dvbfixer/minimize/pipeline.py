@@ -30,7 +30,6 @@ from dvbfixer.minimize.cli import BACKBONE_NAMES, parse_args
 from dvbfixer.minimize.refine import (
     _rigid_track_glycan_trees,
     refine_with_obminimize,
-    refine_with_xtb,
 )
 
 # ---------------------------------------------------------------------------
@@ -1396,15 +1395,7 @@ def main(argv=None):
             final_topology, final_positions, args._preserved_water_keys,
         )
 
-    # Optional refinement passes — auto-parametrize any heterogen via xtb
-    # GFN-FF or OpenBabel MMFF94. These don't need user-provided FF params.
-    if args.xtb_refine:
-        final_positions = refine_with_xtb(
-            final_topology, final_positions,
-            cycles=args.xtb_cycles,
-            heterogens_only=args.refine_heterogens_only,
-            verbose=args.verbose,
-        )
+    # Optional OpenBabel post-pass; inspect geometry independently afterwards.
     if args.obminimize_refine:
         final_positions = refine_with_obminimize(
             final_topology, final_positions,

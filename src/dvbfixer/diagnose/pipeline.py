@@ -342,6 +342,7 @@ def main(argv: list[str] | None = None) -> None:
         clash_warn_a, clash_error_a = CLASH_MODE_PRESETS[args.clash_mode]
 
     findings: list[Finding] = list(prelim)
+    steric_provenance: dict[str, Any] = {"status": "not_requested", "actual_engine": None}
     if args.only in ("all", "structural"):
         findings.extend(
             _run_family(
@@ -375,6 +376,8 @@ def main(argv: list[str] | None = None) -> None:
                     include_water=include_water,
                     clash_warn_a=clash_warn_a,
                     clash_error_a=clash_error_a,
+                    probe_radii=args.probe_radii,
+                    provenance=steric_provenance,
                 ),
                 verbose,
             )
@@ -401,6 +404,7 @@ def main(argv: list[str] | None = None) -> None:
             "n_atoms": n_atoms,
             "n_residues": n_residues,
             "n_chains": n_chains,
+            "steric": steric_provenance,
             "findings": findings_to_dict_list(findings),
             "summary": {
                 sev.value: sum(1 for f in findings if f.severity == sev) for sev in Severity
@@ -442,6 +446,7 @@ def main(argv: list[str] | None = None) -> None:
             findings,
             chirality_checked=chirality_checked,
             chirality_repairs=chirality_repairs,
+            steric_provenance=steric_provenance if args.only in ("all", "steric") else None,
         )
 
     if args.output:

@@ -98,17 +98,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                               "SS / glycosidic / glycosylation bonds before minimize).")
 
     refine = p.add_argument_group("Refinement (post-OpenMM)")
-    refine.add_argument("--xtb-refine", action="store_true",
-                        help="After OpenMM minimization, run xtb GFN-FF universal "
-                             "force field as a refinement pass. Auto-parametrizes any "
-                             "organic molecule (sugars, ligands) without templates. "
-                             "Requires `xtb` binary in PATH. Slower but higher quality.")
-    refine.add_argument("--xtb-cycles", type=positive_int, default=200,
-                        help="Max xtb optimization cycles (default: 200)")
     refine.add_argument("--obminimize-refine", action="store_true",
                         help="After OpenMM minimization, run OpenBabel obminimize "
-                             "(MMFF94) as a refinement pass. Auto-typing for any "
-                             "organic molecule. Faster than xtb, lower quality.")
+                             "with the selected --obminimize-ff. Requires OpenBabel; this optional "
+                             "post-pass is not a guarantee of improved complex geometry.")
     refine.add_argument("--obminimize-ff", default="UFF",
                         choices=["MMFF94", "MMFF94s", "UFF", "GAFF", "Ghemical"],
                         help="OpenBabel force field for --obminimize-refine (default: UFF — "
@@ -117,14 +110,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     refine.add_argument("--obminimize-steps", type=positive_int, default=500,
                         help="OpenBabel minimization steps (default: 500)")
     refine.add_argument("--refine-heterogens-only", action="store_true",
-                        help="Restrict xtb/obminimize refinement to heterogen "
-                             "residues (protein heavy atoms frozen). Refines only "
-                             "the ligand's INTERNAL geometry — the protein-ligand "
-                             "INTERFACE (contacts, H-bonds) is NOT relaxed and "
-                             "any pre-existing clash there will persist. Use "
-                             "without this flag for whole-system refinement when "
-                             "the interface matters (whole-system xtb auto-switches "
-                             "to heterogens-only above ~5000 atoms for performance).")
+                        help="Restrict OpenBabel refinement to heterogens and mobile "
+                             "anchor sidechains (anchor backbone fixed). The surrounding "
+                             "protein is omitted, so this is not joint pocket relaxation. "
+                             "Without this flag the surrounding system is included where "
+                             "supported. Inspect interface geometry after refinement.")
 
     runtime = p.add_argument_group("Runtime")
     runtime.add_argument("--platform", choices=["CPU", "CUDA", "OpenCL", "Reference"],

@@ -1388,36 +1388,12 @@ export const GENERATED_COMMANDS = [
         "default": false
       },
       {
-        "flag": "--xtb-refine",
-        "dest": "xtb_refine",
-        "label": "Xtb Refine",
-        "type": "bool",
-        "group": "Refinement (post-OpenMM)",
-        "help": "After OpenMM minimization, run xtb GFN-FF universal force field as a refinement pass. Auto-parametrizes any organic molecule (sugars, ligands) without templates. Requires `xtb` binary in PATH. Slower but higher quality.",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      },
-      {
-        "flag": "--xtb-cycles",
-        "dest": "xtb_cycles",
-        "label": "Xtb Cycles",
-        "type": "number",
-        "group": "Refinement (post-OpenMM)",
-        "help": "Max xtb optimization cycles (default: 200)",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": 200
-      },
-      {
         "flag": "--obminimize-refine",
         "dest": "obminimize_refine",
         "label": "Obminimize Refine",
         "type": "bool",
         "group": "Refinement (post-OpenMM)",
-        "help": "After OpenMM minimization, run OpenBabel obminimize (MMFF94) as a refinement pass. Auto-typing for any organic molecule. Faster than xtb, lower quality.",
+        "help": "After OpenMM minimization, run OpenBabel obminimize with the selected --obminimize-ff. Requires OpenBabel; this optional post-pass is not a guarantee of improved complex geometry.",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -1460,7 +1436,7 @@ export const GENERATED_COMMANDS = [
         "label": "Refine Heterogens Only",
         "type": "bool",
         "group": "Refinement (post-OpenMM)",
-        "help": "Restrict xtb/obminimize refinement to heterogen residues (protein heavy atoms frozen). Refines only the ligand's INTERNAL geometry — the protein-ligand INTERFACE (contacts, H-bonds) is NOT relaxed and any pre-existing clash there will persist. Use without this flag for whole-system refinement when the interface matters (whole-system xtb auto-switches to heterogens-only above ~5000 atoms for performance).",
+        "help": "Restrict OpenBabel refinement to heterogens and mobile anchor sidechains (anchor backbone fixed). The surrounding protein is omitted, so this is not joint pocket relaxation. Without this flag the surrounding system is included where supported. Inspect interface geometry after refinement.",
         "required": false,
         "repeatable": false,
         "multi": false,
@@ -1536,8 +1512,6 @@ export const GENERATED_COMMANDS = [
       {
         "name": "Refinement (post-OpenMM)",
         "fields": [
-          "--xtb-refine",
-          "--xtb-cycles",
           "--obminimize-refine",
           "--obminimize-ff",
           "--obminimize-steps",
@@ -4314,6 +4288,22 @@ export const GENERATED_COMMANDS = [
         "multi": false
       },
       {
+        "flag": "--probe-radii",
+        "dest": "probe_radii",
+        "label": "Probe Radii",
+        "type": "select",
+        "group": "Check selection",
+        "help": "Optional Probe radius convention (default: electron, Probe's default). Choose nuclear for matching nuclear-position hydrogen coordinates. Reported explicitly; has no effect on the Python fallback.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "electron",
+        "options": [
+          "electron",
+          "nuclear"
+        ]
+      },
+      {
         "flag": "--scope-residue",
         "dest": "scope_residue",
         "label": "Scope Residue",
@@ -4374,7 +4364,8 @@ export const GENERATED_COMMANDS = [
           "--severity",
           "--include-water",
           "--clash-mode",
-          "--clash-cutoff"
+          "--clash-cutoff",
+          "--probe-radii"
         ]
       },
       {
@@ -4890,14 +4881,13 @@ export const GENERATED_COMMANDS = [
         "label": "Refine",
         "type": "select",
         "group": "Minimize step (OpenMM)",
-        "help": "Post-minimize refinement pass in the minimize step (default: none). 'xtb' uses GFN-FF, 'obminimize' uses OpenBabel UFF.",
+        "help": "Post-minimize refinement pass in the minimize step (default: none). 'obminimize' uses OpenBabel UFF.",
         "required": false,
         "repeatable": false,
         "multi": false,
         "default": "none",
         "options": [
           "none",
-          "xtb",
           "obminimize"
         ]
       },

@@ -1,5 +1,7 @@
 """Package the audited source snapshot and selected evidence, never local binaries.
 
+Historical macOS packager: use the matching pre-removal checkout (3b4ac0b)
+or its source snapshot, not the current repaired/removed production adapters.
 Run only after all audit/test processes finish. Existing output is refused.
 No commits, dependency changes, or recursive collection of unrelated work.
 """
@@ -64,6 +66,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if not (ROOT / "tests/test_probe_xtb_audit.py").is_file():
+        parser.error("Historical macOS handoff requires the matching pre-removal source snapshot (commit 3b4ac0b)")
     if args.output.exists() or Path(str(args.output) + ".sha256").exists():
         parser.error("Output and digest must not exist")
     missing = [str(AUDIT / name) for name in EVIDENCE if not (AUDIT / name).exists()]

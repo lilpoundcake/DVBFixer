@@ -35,6 +35,18 @@ def read_xyz(path: Path) -> tuple[list[str], np.ndarray]:
     return [row[0] for row in rows], coords
 
 
+def write_xyz(path, topology, positions):
+    """Research-only XYZ writer; the production xTB adapter was removed."""
+    from openmm.unit import nanometer
+
+    atoms = list(topology.atoms())
+    with Path(path).open("w") as handle:
+        handle.write(f"{len(atoms)}\nResearch subsystem\n")
+        for atom in atoms:
+            xyz = positions[atom.index].value_in_unit(nanometer)
+            handle.write(f"{atom.element.symbol:<3s} " + " ".join(f"{float(x) * 10:14.8f}" for x in xyz) + "\n")
+
+
 def drift_metrics(before: np.ndarray, after: np.ndarray) -> dict:
     delta = after - before
     # Separate raw drift, translation and residual deformation after rigid fit.
@@ -264,7 +276,7 @@ def main() -> None:
     for index, pdb_path in enumerate(args.pdb):
         from openmm.app import PDBFile
 
-        from dvbfixer.minimize.refine import _extract_heterogen_subsystem, _write_xyz
+        from dvbfixer.minimize.refine import _extract_heterogen_subsystem
 
         pdb = PDBFile(str(pdb_path))
         if args.glycam_bonds:
@@ -290,7 +302,7 @@ def main() -> None:
             raise ValueError("PDB control requires a nonempty heterogen subsystem")
         case = f"pdb-{index}-{pdb_path.stem}"
         xyz_path = args.output / f"{case}-subsystem.xyz"
-        _write_xyz(xyz_path, top, pos)
+        write_xyz(xyz_path, top, pos)
         metadata = {
             "input": str(pdb_path.resolve()),
             "input_sha256": hashlib.sha256(pdb_path.read_bytes()).hexdigest(),

@@ -157,9 +157,9 @@ def parse_args(argv=None):
                       help="Restraint force constant for original atoms (default: 100)")
     minz.add_argument("--max-iter", type=nonnegative_int, default=1000,
                       help="Max minimization iterations per phase (default: 1000)")
-    minz.add_argument("--refine", choices=["none", "xtb", "obminimize"], default="none",
+    minz.add_argument("--refine", choices=["none", "obminimize"], default="none",
                       help="Post-minimize refinement pass in the minimize step "
-                           "(default: none). 'xtb' uses GFN-FF, 'obminimize' uses "
+                           "(default: none). 'obminimize' uses "
                            "OpenBabel UFF.")
     minz.add_argument("--refine-heterogens-only", action="store_true",
                       help="Restrict --refine pass to heterogen residues "
@@ -585,9 +585,7 @@ def _run_pipeline(args, input_path):
             minimize_argv.append("--parametrize-ligands")
         for extra_ff in args.extra_ff:
             minimize_argv.extend(["--extra-ff", extra_ff])
-        if args.refine == "xtb":
-            minimize_argv.append("--xtb-refine")
-        elif args.refine == "obminimize":
+        if args.refine == "obminimize":
             minimize_argv.append("--obminimize-refine")
         if args.refine != "none" and args.refine_heterogens_only:
             minimize_argv.append("--refine-heterogens-only")
