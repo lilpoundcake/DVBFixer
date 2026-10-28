@@ -1,5 +1,8 @@
 # Probe / xTB: Linux continuation, 2026-10-28
 
+Completed continuation: [Probe adapter, full-context and restraint-ablation
+study with final decisions](probe-xtb-followup.md).
+
 **The fresh Linux audit completed its 46-task execution matrix. Scientific
 acceptance still fails.** This continues the [macOS audit](probe-xtb-macos-audit.md)
 and [Linux handoff](../plans/probe-xtb-linux-handoff.md) on branch
