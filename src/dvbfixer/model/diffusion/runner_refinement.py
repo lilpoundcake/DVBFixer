@@ -98,6 +98,9 @@ def refine_runner_result(
     """Refine one runner candidate while preserving its sampling provenance."""
     request_path = request_path.resolve()
     workspace = request_path.parent
+    output_dir = output_dir.resolve()
+    if not output_dir.is_relative_to(workspace):
+        raise ValueError("refinement output directory must remain inside the request workspace")
     request = DiffusionRequest.from_json(request_path.read_text(encoding="utf-8"))
     if len(raw_result.candidates) != 1:
         raise ValueError("production refinement requires one candidate")

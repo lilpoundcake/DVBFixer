@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import replace
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -70,6 +71,25 @@ def install_minimizer(monkeypatch, good, calls, *, stage2=False, numerical=False
         return SimpleNamespace(platform="Reference", coordinates_angstrom={
             atom: selected.atoms[atom].coordinates_angstrom for atom in atoms})
     monkeypatch.setattr("dvbfixer.model.diffusion.runner_refinement.refine_generated_region", minimize)
+
+
+def test_relative_runner_output_resolves_inside_private_workspace(tmp_path, monkeypatch):
+    request_path, request, result, raw, _ = setup_run(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    refined = refine_runner_result(Path(request_path.name), result,
+                                   Path("candidates/protenix/refined"), platform_name="Reference")
+    candidate = refined.candidates[0]
+    assert candidate.coordinate_artifact.path.startswith("candidates/protenix/refined/")
+    assert (tmp_path / candidate.coordinate_artifact.path).read_text() == raw
+    assert build_validated_result(request, refined, workspace=tmp_path).validation_summaries[0].passed
+
+
+def test_refinement_rejects_output_outside_workspace_before_writing(tmp_path):
+    request_path, _, result, _, _ = setup_run(tmp_path)
+    outside = tmp_path.parent / (tmp_path.name + "-outside")
+    with pytest.raises(ValueError, match="inside the request workspace"):
+        refine_runner_result(request_path, result, outside, platform_name="Reference")
+    assert not outside.exists()
 
 
 @pytest.mark.parametrize("stage", ["raw", "generated-only", "generated-and-anchors", "numerical"])

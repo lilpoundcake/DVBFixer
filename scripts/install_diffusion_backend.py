@@ -88,6 +88,8 @@ def main() -> None:
     parser.add_argument("checkpoint", type=Path)
     parser.add_argument("--refinement-python", type=Path,
                         help="Separate refinement Python required by corrected Protpardelle CUDA/MPS (preserve venv path)")
+    parser.add_argument("--runner-directory", type=Path,
+                        help="Explicit private staging/registration directory (default: per-user runners)")
     parser.add_argument(
         "--engine-root",
         type=Path,
@@ -103,11 +105,12 @@ def main() -> None:
     repository = Path(__file__).resolve().parent.parent
     backend = BACKENDS["protpardelle-cuda" if args.model == "protpardelle" and sys.platform == "linux" else args.model]
     runner = repository / backend.runner
-    checkpoint = args.checkpoint.expanduser().resolve()
+    checkpoint = args.checkpoint.expanduser()
     if not runner.is_file():
         parser.error(f"runner is missing from this DVBFixer checkout: {runner}")
     if checkpoint.is_symlink() or not checkpoint.is_file():
         parser.error(f"checkpoint is not a regular file: {checkpoint}")
+    checkpoint = checkpoint.resolve()
     if _sha256(checkpoint) != backend.checkpoint_sha256:
         parser.error(f"checkpoint does not match the frozen {args.model} model")
 
@@ -121,6 +124,7 @@ def main() -> None:
     environment = [
         "export PYTHONNOUSERSITE=1",
         "export PYTHONDONTWRITEBYTECODE=1",
+        f"export PATH={shlex.quote(str(Path(sys.executable).parent))}:$PATH",
         f"export PYTHONPATH={shlex.quote(os.pathsep.join(map(str, python_paths)))}",
     ]
     if backend.kalign_sha256 is not None:
@@ -159,7 +163,7 @@ def main() -> None:
         )
     )
     contents = "\n".join(("#!/bin/sh", *environment, f'exec {command} "$@"', ""))
-    destination = diffusion_runner_directory() / backend.launcher
+    destination = (args.runner_directory or diffusion_runner_directory()) / backend.launcher
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_suffix(".tmp")
     temporary.write_text(contents, encoding="utf-8")

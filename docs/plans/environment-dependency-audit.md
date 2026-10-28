@@ -641,8 +641,9 @@ precision/recall-квалификация. Исторический checklist н
 Согласованное направление: единый helper для Standard/Desktop и дополнений,
 с интерактивным режимом и неинтерактивными параметрами. Реализация одобрена
 2026-10-28 после завершения исследований xTB/Probe, с PySCF в Standard/Desktop.
-Продолжать по [handoff](installation-profiles-handoff.md); базовый helper уже
-реализован, полная приёмка и отдельные runtimes ещё не завершены.
+Продолжать по [handoff](installation-profiles-handoff.md); основной helper и
+diffusion provisioning реализованы и проверены на Linux. Полный WP4 и оставшаяся
+научная/платформенная приёмка ещё не завершены.
 
 - Поддержать семейство conda/mamba: micromamba как рекомендуемый менеджер,
   conda и mamba как альтернативные маршруты. Проверять доступность, версию

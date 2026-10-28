@@ -629,8 +629,15 @@ command parser merely to inspect generated labels.
   micromamba 2.9.0, mamba 2.10.0 and conda 26.9.4. Conda run must use
   `--no-capture-output` to forward the protected license stdin pipe. Prefixes
   with whitespace are rejected early because actual MAFFT execution fails there.
-  WP3 separate-runtime provisioning and the full WP4–WP6 acceptance remain open;
-  do not infer plan completion from the implemented core helper.
+  WP3 diffusion provisioning is implemented in `runtime_install.py`: owned clones,
+  maintained patches, isolated envs, checked assets and staged/preflighted launcher
+  publication. Both CUDA routes passed clean provisioning through all three Linux
+  managers and checkpoint-backed execution via new micromamba runtimes. Native MPS
+  remains not-tested. Preserve Protenix's frozen combined backend process layout;
+  cc94 gets a separate Reference/CPU refiner. Full WP4–WP6 acceptance remains open.
+  Real Protenix sampling exposed its Click/Requests consumers and the staged
+  refiner's relative-output-path bug; preserve normalization/containment at the
+  shared refiner entry point. Do not infer whole-plan completion from provisioning.
 
 - **New Protpardelle production requests use cc94, not cc89.** Profiles are
   `protpardelle-1c-cc94-cuda-v1` / `protpardelle-1c-cc94-mps-v1`, 500 ODE

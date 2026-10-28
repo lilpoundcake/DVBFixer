@@ -70,8 +70,9 @@ is retained during this transition.
 - `--addon msa-alternatives` adds MUSCLE 5 and Clustal Omega;
   `--addon probe` selects the optional supported MolProbity Probe.
 - Diffusion, PSI4 and external Gaussian remain separate runtimes/operator
-  integrations. Automatic diffusion-runtime provisioning is still pending;
-  existing launcher registration is not an environment installer.
+  integrations. [Diffusion-runtime provisioning](installation-runtime-provisioning.md)
+  prepares isolated frozen environments and performs checked registration.
+  The lower-level launcher-registration script remains usable independently.
 
 Use Python **3.11+** to bootstrap from the repository root. An interactive
 invocation is `python3 scripts/install_dvbfixer.py`; for automation:

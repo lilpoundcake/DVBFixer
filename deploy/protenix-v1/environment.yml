@@ -1,0 +1,38 @@
+# Provisioning input for the existing frozen profile-lock.json, not a new profile.
+# The runner loads the patched source directly; upstream requirements.txt conflicts
+# with its already accepted package identities. See the installation acceptance record.
+name: dvbfixer-protenix-v1
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.13.15
+  - pytorch=2.13.0=*cuda129*
+  - cuda-version=12.9
+  - numpy=2.4.6
+  - scipy=1.18.1
+  - openmm=8.6.1
+  - pdbfixer=1.12
+  - biopython=1.88
+  - mdanalysis=2.10
+  - gemmi=0.7.5
+  - rdkit=2026.03.1
+  - pandas=2.3.1
+  - matplotlib-base=3.11.2
+  - scikit-learn=1.9.1
+  - psutil=7.2.2
+  - click=8.5.0
+  - requests=2.34.2
+  - libblas=*=*openblas
+  - libcblas=*=*openblas
+  - liblapack=*=*openblas
+  - pip
+  - pip:
+      - ml-collections==1.1.0
+      - biotite==1.4.0
+      - modelcif==1.4
+      - pdbeccdutils==1.0.0
+      - fair-esm==2.0.0
+      - optree==0.17.0
+      - protobuf==6.31.1
+      - PyYAML==6.0.2

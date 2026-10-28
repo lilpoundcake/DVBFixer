@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import getpass
 import json
+import math
 import os
 import platform
 import re
@@ -160,6 +161,16 @@ def main(argv: list[str] | None = None) -> int:
                         help="Read license from an already-open protected file descriptor")
     parser.add_argument("--skip-modeller", action="store_true")
     parser.add_argument("--dry-run", action="store_true", help="Print composition without creating files")
+    from dvbfixer.runtime_install import runtime_names
+    parser.add_argument("--runtime", choices=runtime_names(),
+                        help="Provision a separate diffusion runtime in --prefix (without --profile)")
+    parser.add_argument("--engine-source", type=Path, help="Optional local Git clone source (read-only)")
+    parser.add_argument("--checkpoint", type=Path, help="Operator-provided frozen weights; never downloaded")
+    parser.add_argument("--kalign", type=Path, help="Operator-provided digest-pinned Protenix Kalign executable")
+    parser.add_argument("--auxiliary-root", type=Path, help="Protenix data root containing frozen common/ assets")
+    parser.add_argument("--runner-directory", type=Path, help="Publish the checked launcher to this explicit directory")
+    parser.add_argument("--replace-runner", action="store_true", help="Explicitly replace an existing launcher after preflight")
+    parser.add_argument("--preflight-timeout", type=float, default=120.0)
     args = parser.parse_args(argv)
     if args.modeller_key_fd is not None and (args.skip_modeller or args.modeller_key_fd < 3):
         parser.error("Use --modeller-key-fd >=3, without --skip-modeller")
@@ -167,12 +178,59 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--configure-only requires --resume")
     interactive = not args.non_interactive and sys.stdin.isatty()
     if interactive:
-        args.profile = args.profile or input("Profile [standard/desktop]: ").strip()
+        if not args.profile and not args.runtime:
+            choice = input(f"Profile [standard/desktop] or runtime [{'/'.join(runtime_names())}]: ").strip()
+            if choice in runtime_names():
+                args.runtime = choice
+            else:
+                args.profile = choice
         args.manager = args.manager or input("Manager [micromamba/mamba/conda]: ").strip()
         args.prefix = args.prefix or Path(input("NEW environment prefix: ").strip())
-        if not args.addon:
+        if not args.addon and not args.runtime:
             selected = input("Add-ons (comma-separated msa-alternatives,probe; empty for none): ").strip()
             args.addon = [value.strip() for value in selected.split(",") if value.strip()]
+        if args.runtime:
+            if not args.checkpoint:
+                selected = input("Operator checkpoint path (empty to configure later): ").strip()
+                args.checkpoint = Path(selected) if selected else None
+            if args.runtime == "protenix-cuda":
+                if not args.kalign:
+                    selected = input("Pinned Kalign executable (empty to configure later): ").strip()
+                    args.kalign = Path(selected) if selected else None
+                if not args.auxiliary_root:
+                    selected = input("Protenix data root containing common/ (empty to configure later): ").strip()
+                    args.auxiliary_root = Path(selected) if selected else None
+    if args.manager is not None and args.manager not in ("micromamba", "mamba", "conda"):
+        parser.error("Unknown manager")
+    if not args.runtime and any((args.engine_source, args.checkpoint, args.kalign, args.auxiliary_root,
+                                 args.runner_directory, args.replace_runner)):
+        parser.error("Runtime source/checkpoint/registration options require --runtime")
+    if args.runtime:
+        if args.profile or args.addon or args.configure_only or args.modeller_key_fd is not None:
+            parser.error("Runtime provisioning uses its own --prefix, without --profile/--addon/license setup")
+        if not args.manager or not args.prefix:
+            parser.error("Runtime provisioning requires explicit --manager and --prefix")
+        if not math.isfinite(args.preflight_timeout) or args.preflight_timeout <= 0:
+            parser.error("--preflight-timeout must be positive and finite")
+        try:
+            from dvbfixer.runtime_install import provision_runtime
+            executable = shutil.which(args.manager)
+            if executable is None:
+                raise ValueError(f"Install the selected manager first: {args.manager}")
+            repository = Path(__file__).resolve().parents[2]
+            if not (repository / "scripts/install_diffusion_backend.py").is_file():
+                raise ValueError("Run runtime provisioning from a source checkout containing deploy/ and scripts/")
+            report = provision_runtime(name=args.runtime, prefix=args.prefix,
+                manager=Manager(args.manager, executable), repository=repository,
+                resume=args.resume, dry_run=args.dry_run, source=args.engine_source,
+                checkpoint=args.checkpoint, kalign=args.kalign, auxiliary=args.auxiliary_root,
+                runner_directory=args.runner_directory, replace_runner=args.replace_runner,
+                timeout=args.preflight_timeout)
+            print(json.dumps(report, indent=2))
+            return 2 if report["state"] == "action-required" else 0
+        except (OSError, ValueError, subprocess.SubprocessError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
     if not all((args.profile, args.manager, args.prefix)):
         parser.error("Explicit --profile, --manager and --prefix are required without an interactive terminal")
     if args.manager not in ("micromamba", "mamba", "conda"):

@@ -50,6 +50,9 @@ The TOML catalog is the one composition source; manager commands belong in
 adapters. The old `environment.yml` remains the compatibility manual route
 until replacement acceptance is demonstrated.
 
+Diffusion provisioning instructions and phase boundaries are in
+[separate runtime provisioning](installation-runtime-provisioning.md).
+
 ## Implemented scope and next gate
 
 - **WP1 complete:** composition/readiness contract, dependency matrix, actual
@@ -58,11 +61,12 @@ until replacement acceptance is demonstrated.
   and separate PSI4 inputs; Python metadata and bundled catalog; real Python
   3.11/3.13 installs and native solves. Existing diffusion deployment inputs are
   referenced, not redefined as scientific profiles.
-- **WP3 partial:** interactive/noninteractive helper, three manager adapters,
+- **WP3 implemented (native MPS acceptance not-tested):** interactive/noninteractive helper, three manager adapters,
   new-prefix ownership records, resume/reconciliation, protected MODELLER setup
-  and Desktop lockfile build/standalone smoke work. Automated separate diffusion
-  runtime/source/refinement provisioning is **not implemented** by this helper;
-  `install_diffusion_backend.py` remains registration-only.
+  and Desktop lockfile build/standalone smoke work. The helper now provisions
+  pinned diffusion sources and isolated runtimes through `runtime_install.py`,
+  stages registration using `install_diffusion_backend.py`, and publishes only
+  after canonical runner preflight. The lower-level script remains registration-only.
   The helper now runs the real scientific smoke script after installation and
   persists a unique evidence bundle below the target prefix. Configure-only
   completion runs the licensed modeling/Homology steps without rebuilding GUI.
@@ -209,3 +213,83 @@ Final Ruff, strict-target mypy, versions, agent/user documentation checks,
 Python-3.11 CLI/GUI generators, profile generator and `git diff --check` passed.
 CI now covers the stdlib-only composition/helper/readiness contracts and
 generated-spec drift. Full CI profile-lane migration remains a later gate.
+
+## WP3 diffusion-runtime increment (after `2ffc9fc`)
+
+The earlier Standard/Desktop implementation was committed as `2ffc9fc` before
+starting this increment. New provisioning is in `src/dvbfixer/runtime_install.py`,
+reachable from the same `scripts/install_dvbfixer.py --runtime ...` helper.
+It clones and patches an owned engine checkout, creates the isolated native/pip
+environments through the selected manager, verifies operator assets, runs
+actual CUDA/Reference kernels, captures package/build inventories, stages
+registration through the existing script, and invokes the existing bounded
+runner preflight before atomic launcher publication.
+
+| Linux manager | cc94 sampling + separate Reference refiner | Protenix frozen backend (sampling + refinement) |
+|---|---|---|
+| micromamba 2.9.0 | clean install, import/kernels, canonical preflight passed | clean install, inference-entry import/kernels, canonical preflight passed |
+| mamba 2.10.0 | clean install, import/kernels, canonical preflight passed | clean install, inference-entry import/kernels, canonical preflight passed |
+| conda 26.9.4 | clean install, import/kernels, canonical preflight passed | clean install, inference-entry import/kernels, canonical preflight passed |
+
+Both new micromamba backends completed a checkpoint-backed public `model`
+execution on the tracked 1UBQ internal-residue deletion, including refinement
+and native-filesystem bundle publication. This is an installation/execution
+smoke outside those profiles' qualified length/case evidence; it is **not**
+general gap acceptance or a transfer of historical cc89 claims.
+
+- cc94 uses the maintained sampling environment and callback patch, cc94
+  checkpoint/config digests, and a **new separate** Python 3.13/OpenMM 8.6.1
+  Reference refiner. No CUDA refiner or cc89 rotary intervention is introduced.
+- Protenix preserves Python 3.13.15, PyTorch 2.13.0/CUDA 12.9 and all existing
+  critical `profile-lock.json` identities. The new environment is self-contained,
+  unlike the historical backend venv that inherited a pre-existing Standard env.
+  Its frozen runner continues to refine in its sampling process; this increment
+  does not change that scientific execution layout.
+- A native MPS route and separate OpenMM 8.5.2 CPU-refiner input are implemented,
+  but installation/execution on macOS arm64 remains **not-tested**. Linux rejects
+  that route before creating directories. cc94 MPS scientific acceptance is
+  still pending.
+- Missing weights/data/Kalign were actually exercised: the helper returned
+  `action-required`, retained successful kernel/source/env evidence and did not
+  register a launcher. Existing local operator-owned checkpoint/data files were
+  then supplied explicitly; no weights or datasets were downloaded or altered.
+- Recipe/manager identities are saved for resume. A changed recipe requires a
+  new root; source edits/untracked modules are rejected without reset/clean.
+  Existing different launchers require explicit replacement; identical private
+  launchers resume idempotently. All test registrations used contained runner
+  directories under ignored evidence, preserving existing user registrations.
+
+Real sampling caught two issues not exposed by solve/import/preflight alone:
+
+1. Protenix's inference entrypoint additionally needs **Click/Requests**. These
+   are explicit in its recipe, and the smoke imports `runner.batch_inference`
+   rather than only the network module. The superseded incomplete prefix was
+   retained; a new clean prefix was created for the corrected recipe.
+2. The current staged refiner received a relative output path from the Protenix
+   runner, then tried to relativize it against an absolute workspace. The shared
+   refiner now normalizes the output path at entry and rejects paths outside the
+   workspace before writing. Relative-output and no-outside-write regressions
+   cover this orchestration fix; no scientific algorithm/default was changed.
+
+The first attempted bundle publication on the checkout filesystem also failed
+its existing atomic no-replace check. The succeeding public smokes used native
+`/tmp/opencode` storage; the rejected attempt and its diagnostics were retained.
+
+Local command/results evidence:
+
+- `cc94-provision-without-checkpoint-v3.log`, `cc94-provision-with-checkpoint.log`;
+- `protenix-provision-without-assets.log`, `protenix-provision-v2.log`;
+- `cc94-runtime-{mamba,conda}-install.log`;
+- `protenix-runtime-{mamba,conda}-install.log`;
+- `cc94-runtime-public-model-native-smoke.log`;
+- `protenix-runtime-public-model-native-smoke-v3.log`;
+- per-step native build/package snapshots and immutable recipe records below
+  each newly created runtime's `evidence/` and `runtime-plan.json`.
+
+Final increment verification: **1699 passed, 7 skipped, 31 deselected** in
+`runtime-final-fast-tests-v2.log`; Ruff, strict-target mypy, generated profiles,
+CLI/GUI schema checks, versions and agent/user documentation checks passed.
+`cc94-runtime-idempotent-resume.log` also verifies actual resume with an already
+published identical launcher, including its recorded SHA256. Interrupted auxiliary
+copies are staged and hash-checked before no-clobber publication, so a partial
+copy does not become a resume-visible input.
