@@ -73,6 +73,15 @@ def dependency_matrix() -> str:
         lines.append(f"| `{p['spec']}` | {p['channel']} | "
                      f"{p['group']} | {p['consumer']} | {'; '.join(checks)} |")
     lines.extend(["", "Channels, in priority order: " + ", ".join(load_catalog()["channels"]) + ".",
-                  "", "Version/build and execution evidence: [profile acceptance](installation-profile-acceptance.md).",
+                  "", "## Managed add-on platforms", "",
+                  "These restrictions apply to provisioning, not to doctor checks for an operator-provided tool.",
+                  "", "| Add-on | Managed platforms | Manual alternative |", "|---|---|---|"])
+    catalog = load_catalog()
+    for name, addon in catalog["addons"].items():
+        platforms = ", ".join(addon.get("managed_platforms", catalog["platforms"]))
+        route = addon.get("manual_route")
+        alternative = f"[Installation guide]({route.removeprefix('docs/')})" if route else "—"
+        lines.append(f"| `{name}` | {platforms} | {alternative} |")
+    lines.extend(["", "Version/build and execution evidence: [profile acceptance](installation-profile-acceptance.md).",
                   "Licenses/notices remain governed by upstream distributions and `THIRD_PARTY_NOTICES/`.", ""])
     return "\n".join(lines)

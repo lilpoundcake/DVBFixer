@@ -10,6 +10,14 @@ job. Standard extended checks, native GROMACS, MSA alternatives and separate
 PSI4/RESP passed. Corrected cc94 MPS provisioning/preflight and one public 1UBQ
 bundle also passed, with 500 MPS updates and fallback disabled. This is an
 installation case, not general cc94 MPS scientific qualification.
+After checkpoint `71f99e9`, the pinned native Probe source build also passed
+exact-version doctor and actual electron/nuclear diagnostics with a fallback
+control; see the manual alternative in the installation guide. The managed
+conda-based Probe add-on remains unavailable on arm64.
+Public native MPS follow-up also passed all five predeclared 1UBQ four-residue
+model seeds and a Homology template-plan case, including real CPU refinement
+and verified publication. These controlled installation cases do not establish
+the wider multi-chain/context research gate.
 
 Open gates: conda 26.9.4 macOS upstream package-file collisions; no declared
 bioconda Probe 2.18 osx-arm64 build; broader cc94 MPS model/Homology/context

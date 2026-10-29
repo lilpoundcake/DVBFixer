@@ -38,8 +38,10 @@ so a separately selected tools manager cannot accidentally run its own Python
 instead of the target prefix's interpreter.
 
 Conda 26.9.4 exposed upstream gettext/libintl library and tk/xorg-libx11 header
-path collisions even with a fresh package cache. Strict conflict prevention
-correctly rejects that transaction. Do not force `--clobber` to claim a clean
+path collisions even with a fresh package cache. The helper enforces integrity
+checks and conflict prevention only in child commands, without changing user
+configuration, and correctly rejects that transaction even if the caller's
+policy allows clobbering. Do not force `--clobber` to claim a clean
 install; use a verified micromamba/mamba route while this native conda gate is
 open. An older cache also contained a damaged blosc package: retain evidence and
 choose a new cache rather than deleting existing environments or disabling
@@ -48,10 +50,19 @@ safety checks.
 The declared optional `probe=2.18` package has no osx-arm64 build in bioconda.
 Omit `--addon probe` for the native managed route; the existing Python diagnostic
 fallback remains available. This does not affect Standard/Desktop or the
-independent `msa-alternatives` add-on. A source-built native Probe route has not
-been established by this acceptance increment. Do not silently substitute
+independent `msa-alternatives` add-on. A pinned native source build has now passed
+exact-version, profile doctor and real electron/nuclear-radius diagnostics;
+see [the manual Apple Probe route](installation.md#native-apple-probe-alternative).
+The managed add-on's packaging restriction remains. Do not silently substitute
 another Probe version or a Rosetta environment. Actual commands and evidence
 are in [profile acceptance](installation-profile-acceptance.md).
+
+Native `pip check` also reports upstream AmberTools auxiliary metadata conflicts:
+several auxiliaries require NumPy <2, proprep requires Biopython <1.86, and
+proprep/packmol-memgen require the uninstalled pdb2pqr package. The main DVBFixer
+scientific workflows passed their executed checks, but this is not a green
+pip-metadata check or support for every AmberTools auxiliary. Do not hide the
+conflicts with `--no-deps` or downgrade the tested main stack without validation.
 
 ## Diagnostics report errors after a completed run
 

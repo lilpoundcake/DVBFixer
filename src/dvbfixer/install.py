@@ -70,6 +70,10 @@ def child_environment() -> dict[str, str]:
     env["PYTHONNOUSERSITE"] = "1"
     env["CONDA_CHANNEL_PRIORITY"] = "strict"
     env["CONDA_ALWAYS_YES"] = "true"
+    # Conda must not report ready after a corrupted cache or conflicting package
+    # files were accepted by a permissive caller policy.
+    env["CONDA_SAFETY_CHECKS"] = "enabled"
+    env["CONDA_PATH_CONFLICT"] = "prevent"
     return env
 
 
@@ -248,8 +252,16 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("Unknown manager")
     try:
         packages = composition(args.profile, tuple(args.addon))
-        if platform_subdir() not in load_catalog()["platforms"]:
-            raise ValueError(f"Unsupported platform: {platform_subdir()}; use a supported Linux/macOS host")
+        catalog = load_catalog()
+        subdir = platform_subdir()
+        if subdir not in catalog["platforms"]:
+            raise ValueError(f"Unsupported platform: {subdir}; use a supported Linux/macOS host")
+        for addon in args.addon:
+            entry = catalog["addons"][addon]
+            if subdir not in entry.get("managed_platforms", catalog["platforms"]):
+                route = entry.get("manual_route", "docs/installation.md")
+                raise ValueError(f"Managed add-on {addon!r} is unavailable on {subdir}; "
+                                 f"see {route}. Omit this helper add-on when using the manual route.")
         prefix = args.prefix.expanduser().absolute()
         if prefix.is_symlink():
             raise ValueError("The target prefix must not be a symlink")

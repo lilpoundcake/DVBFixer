@@ -581,7 +581,7 @@ ACPYPE 2026.10.15, Open Babel wheel 3.1.1.23 and MODELLER 10.8.
 | mamba 2.10.0 Standard/Desktop | **passed**, licensed 14/14 each and 405 installed Desktop tests |
 | conda 26.9.4 profiles | **failed** Standard attempts; Desktop not-tested pending resolution |
 | MSA alternatives | **passed**, separate licensed prefix and 30/30 extended checks including explicit MUSCLE/Clustal Omega |
-| Probe add-on | **failed** native solve: no bioconda Probe 2.18 osx-arm64 package |
+| Probe | managed add-on solve **failed**; separate pinned native source build/doctor/electron+nuclear diagnostics **passed** |
 | Optional PSI4 | **passed**, separate native kernel, integration RESP and full ethanol export |
 | cc94 MPS | **passed** corrected provisioning/preflight and one public installation case; broader research qualification pending |
 
@@ -752,3 +752,165 @@ dependency-free installed-wheel environment passed `smoke_distribution.py`
 (`distribution-build.log`, `wheel-smoke.log`). No existing environments or
 artifacts were deleted to obtain these results. The native conda/Probe and
 broader MPS gates above remain unresolved; the whole plan is not complete.
+
+### Follow-up after native checkpoint commit `71f99e9`
+
+The checkpoint was committed and pushed to `origin/feature/installation-profiles`
+at the operator's request. Subsequent native Probe work did not alter the
+existing source checkout, scientific prefixes, user PATH or manager configuration.
+
+**Native Probe manual route passed.** The previously retained upstream source
+has a clean tracked tree at `091d117f5bceef87389002dccfe26df78516fdda` from
+`https://github.com/rlabduke/probe.git`. Cloned it with `--no-hardlinks` into a
+new native tools checkout and built with Apple's compiler via
+`make probe CFLAGS=-O2`. Apple clang 21.0.0 reports an arm64 target; `file`
+confirms the result is a Mach-O 64-bit arm64 executable. The exact supported
+`-version` result is **`probe.2.18.211005`**; binary SHA256 is
+`d4a195af8604276bd8bad6d0acbd38c12161e34b4e8995fe6f713d250885e007`.
+Compiler-version changes may change the binary digest; this is executed
+provenance, not a cross-toolchain bit-reproducibility claim.
+
+Placed the new binary directory on PATH only for child invocations from the
+new MSA Standard prefix. Doctor with explicit `msa-alternatives` + `probe`
+reported ready. Both electron and nuclear radius diagnostics used
+`actual_engine=molprobity-probe`, exact supported version, `probe_status=complete`
+and `fallback=false`. Each diagnostic returned 1 because actual structure
+findings were present, an accepted diagnose result—not a failed Probe process
+or a clean-geometry claim. The no-Probe control used
+`actual_engine=dvbfixer-python-steric`, `probe_status=unavailable`, `fallback=true`
+and the explicit executable-not-found reason. The engines/radii produced their
+own actual findings; they were not asserted numerically equivalent.
+
+Evidence: `native-probe-build.log`, `native-probe-build.json`,
+`native-probe-doctor.log`, `native-probe-results.json`, and
+`native-probe-v2-{electron,nuclear,fallback}.{json,log}`. The first local harness
+assertion expected the wrong status spelling (`completed` vs `complete`);
+its evidence was retained and a new run used the actual report schema.
+This establishes a documented **manual source-built** native route, not a
+successful conda-based `--addon probe` solve; that managed packaging gate remains.
+
+**Conda investigation continued without bypassing conflicts.** Reverse native
+dependency inspection identified the gettext collision: conda's gawk 5.3.0
+requires monolithic gettext >=0.21.1,<1, while libglib 2.90.1 requires libintl >=1.
+The successful micromamba solution instead uses gawk 5.4.1 and the split
+libintl 0.25.1 family. This explains one graph-dependent collision but does not
+fix the independent Tk/X11 ownership conflict. Reviewed all three available
+8.6.13 `_3` arm64 Tk builds, verifying downloaded archive SHA256 values against
+the upstream API and reading their `info/paths.json` without installing them.
+All still contain the same colliding Xlib.h/Xutil.h/cursorfont.h paths; blindly
+pinning an older Tk build is therefore not a supported fix. Retained package
+metadata and overlap evidence in `*-native-repodata.json` and
+`tk-older-build-overlap-review.json`. No compatibility pins, custom package
+repacking, header deletion, `--clobber` or safety-check weakening was introduced.
+Both solver outputs contain Tk 8.6.13 and xorg-libx11 1.8.14; conda's link-time
+ownership checks expose shared headers not rejected by the successful libmamba
+transactions. Those libmamba results establish the executed scientific routes,
+not absence of every third-party file overlap or identical transaction-safety
+semantics between managers. See `conda-native-collision-graph.json`.
+
+**Managed add-on preflight now fails early and explicitly.** The catalog records
+Probe's managed platform restriction and its manual guide link. The installer
+checks that restriction before manager discovery or prefix reservation, including
+dry runs; it does not silently omit a selected component. The generated
+dependency matrix now distinguishes managed provisioning from readiness checks
+for an operator-provided executable. Linux Probe and Apple MSA selections retain
+their existing behavior, while manual native Probe still passes source-worktree
+doctor with both explicit add-ons. A real native rejected dry run created neither
+prefix nor ownership marker (`native-probe-guard-check.log`).
+
+Follow-up focused tests: **51 passed** (`probe-followup-tests.log`), covering
+the early no-side-effect rejection, unchanged supported selections, catalog/doc
+platform rendering and retained operator-tool readiness. Ruff (after correcting
+test import formatting), strict-target mypy, generated profile/matrix drift,
+user/agent doc checks and the real source-worktree doctor passed. These follow-up
+changes are separate from the already pushed `71f99e9` checkpoint.
+
+**Public multi-seed MPS installation stress case passed 5/5.** A separate
+predeclared 1UBQ case removed ATOM records A10–A13 and all HETATM records from
+the tracked source, retaining the full target FASTA. Recorded source/input
+digests, seeds **7, 19, 42, 101, 202**, and one attempt per seed before running
+the public `model` CLI. This is not an altered retry of the unsupported partial
+9CQD requests and is not presented as that study's N0/N1 comparison.
+
+The run completed in **59.17 seconds** and publication verification accepted
+all five candidates. Each records **500 MPS updates**, fallback disabled,
+empty independent hard-gate failures and **0.0 Å** maximum fixed-heavy-atom
+displacement. Unlike the first one-residue installation example, every candidate
+required and successfully completed **generated-only refinement** in the
+separate pinned OpenMM 8.5.2 CPU worker. All raw and stage-1 artifacts and
+refinement reports remain in the verified bundle. The normal publication ranking
+selected seed 42, but all five results were retained and assessed; no scientific
+attempt was retried or discarded. Evidence:
+`cc94-ubq-gap4/{protocol,timing,verified-results}.json`, `model.log` and `bundle/`.
+This extends native public model/refiner installation evidence, not general
+terminal, interchain-context or cc94 MPS scientific qualification.
+
+**Closed-capture warning fix verified.** Native fast acceptance
+exposed `batch._Mirror` being finalized after its borrowed pytest capture target
+was closed. Its flush now skips a closed target and tolerates a target closing
+during flush, while still propagating ValueError/OSError from an open target.
+It never closes the borrowed target; captured diagnostics remain available.
+Five small lifetime/error regressions were added. Targeted batch/installer/
+composition tests passed **42 tests** (`batch-probe-followup-tests.log`), and
+the five isolated stream tests also passed with unraisable warnings promoted to
+errors in bootstrap Python. After installing the current source into the new
+Standard test prefix, the full source fast suite passed **1,739 tests, 3 skips,
+32 deselections** (`followup-fast-tests.log`). The four closed-capture warnings
+are gone; only the two upstream SWIG deprecations remain in the test summary.
+Ruff and strict-target mypy passed. The new pure stream-lifetime tests were
+added to the lightweight CI selection without importing scientific backends;
+hosted CI was not executed and local actionlint is unavailable. FD-level runtime
+teeing and diagnostic summaries are unchanged.
+
+**Public native Homology/MPS path passed.** A separate template plan masked
+the same A10–A13 interval using zero-based half-open masks `[0,9)` and `[13,76)`
+on the tracked 1UBQ template. Ran the actual `homology --template-plan --backend
+diffusion` CLI with seed 7, without a custom scientific materializer or adapter.
+It completed in **18.98 seconds** and wrote the normal
+`output_homology_diffusion` bundle. Publication API verification confirmed
+`status=success`, 500 MPS updates, fallback disabled, actual geometry-gated
+refinement, empty hard-gate failures and fixed-heavy-atom RMSD/max displacement
+of **0.0 Å**. Evidence: `cc94-homology-gap4/{template-plan,timing,verified-results}.json`,
+`homology.log` and the complete bundle. This validates the native public
+template-plan/materialization/runner/refiner/publication integration for one
+controlled case; multi-chain/context research qualification remains pending.
+
+**Conda safety policy is now enforced in child commands.** The helper sets
+`CONDA_SAFETY_CHECKS=enabled` and `CONDA_PATH_CONFLICT=prevent` only in its child
+environment, regardless of permissive caller values; the parent's configuration
+and environment are untouched. A real conda 26.9.4 attempt deliberately inherited
+`disabled`/`clobber` from the test launcher, yet stopped at transaction
+verification on the known upstream overlaps, before executing the transaction.
+This is a successful safety-guard test, not a passing conda profile installation
+(`conda-safety-guard.log`, `conda-safety-guard-results.json`).
+
+A new micromamba Standard prefix under the current helper completed in **128.29
+seconds**, with **14/14 licensed scientific/model/Homology checks passed**, from
+a separate fresh-native package cache despite the same deliberately permissive
+caller values. Evidence: `safe-standard-install.log`,
+`safe-standard-install-results.json`, `safe-standard-scientific-report.json`.
+No manual cache cleanup, old-prefix removal, package repacking or file-conflict
+repair was used to obtain this result; native manager transactions were retained
+as executed, with the manager-safety distinction noted above.
+
+Actual native `pip check` is **not green** (`native-standard-pip-check.log`):
+AmberTools auxiliary distributions proprep/ndfes/fetkutils/edgembar declare NumPy
+<2, proprep also declares Biopython <1.86, and proprep/packmol-memgen require the
+uninstalled pdb2pqr package. These parallel the documented Linux auxiliary
+metadata issues and are not hidden with `--no-deps`, ignored as a passing check
+or repaired by arbitrarily downgrading the scientifically tested main stack.
+The accepted 14-step route does not establish every auxiliary AmberTools command.
+
+Final safety-policy source fast suite: **1,740 passed, 3 skipped, 32 deselected**,
+with two upstream SWIG warnings and no unraisable capture warnings
+(`safety-followup-fast-tests-v2.log`). A preceding harness invocation omitted the
+prefix bin directory from PATH and failed six tests that spawn bare `dvbfixer`;
+its log is retained as `safety-followup-fast-tests.log`, not counted as a code
+regression or a passing run. The corrected invocation explicitly prepends the
+new Standard prefix. Strict mypy, Ruff, generated profile/matrix and Python-3.11
+CLI/GUI checks, versions, user/agent docs, source/wheel builds and a new
+dependency-free installed-wheel smoke all passed. The installed-wheel smoke
+also asserts the packaged catalog restriction and conda child safety defaults.
+CI YAML parsed locally; actionlint and hosted workflow execution remain
+not-tested on this host. An interpreter-exit SWIG swigvarlink deprecation is
+retained in the logs in addition to the two test-summary SWIG warnings.

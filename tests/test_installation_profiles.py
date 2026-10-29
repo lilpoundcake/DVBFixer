@@ -6,7 +6,12 @@ from pathlib import Path
 
 import pytest
 
-from dvbfixer.installation_profiles import composition, environment_spec, load_catalog
+from dvbfixer.installation_profiles import (
+    composition,
+    dependency_matrix,
+    environment_spec,
+    load_catalog,
+)
 
 
 def test_desktop_inherits_science_and_only_adds_gui():
@@ -49,3 +54,13 @@ def test_generated_composition_has_no_drift():
     root = Path(__file__).resolve().parents[1]
     subprocess.run([sys.executable, str(root / "scripts/gen_installation_profiles.py"), "--check"],
                    check=True, cwd=root)
+
+
+def test_managed_probe_platforms_do_not_hide_operator_tool_readiness():
+    addon = load_catalog()["addons"]["probe"]
+    assert addon["managed_platforms"] == ["linux-64"]
+    assert addon["manual_route"] == "docs/installation.md#native-apple-probe-alternative"
+    assert any(p.get("check") == "probe-version" for p in composition("standard", ("probe",)))
+    matrix = dependency_matrix()
+    assert "| `probe` | linux-64 |" in matrix
+    assert "(installation.md#native-apple-probe-alternative)" in matrix

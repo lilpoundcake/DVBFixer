@@ -42,7 +42,7 @@ jobs:
             tests/test_command_registry.py tests/test_fixture_manifest.py \
             tests/test_sequence_alignment.py tests/test_environment_policy.py tests/test_user_docs.py tests/test_altlocs.py \
             tests/test_installation_profiles.py tests/test_install_helper.py tests/test_profile_readiness.py tests/test_runtime_install.py \
-            tests/test_scientific_preflights.py tests/test_msa.py \
+            tests/test_scientific_preflights.py tests/test_msa.py tests/test_batch_mirror.py \
             tests/test_diffusion_anchor_policy.py tests/test_diffusion_refinement_stages.py
 
       - name: installation profile composition has no drift

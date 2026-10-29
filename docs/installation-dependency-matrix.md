@@ -46,5 +46,14 @@ Desktop inherits every Standard scientific dependency. `science` means both prof
 
 Channels, in priority order: conda-forge, bioconda, salilab.
 
+## Managed add-on platforms
+
+These restrictions apply to provisioning, not to doctor checks for an operator-provided tool.
+
+| Add-on | Managed platforms | Manual alternative |
+|---|---|---|
+| `msa-alternatives` | linux-64, osx-arm64 | — |
+| `probe` | linux-64 | [Installation guide](installation.md#native-apple-probe-alternative) |
+
 Version/build and execution evidence: [profile acceptance](installation-profile-acceptance.md).
 Licenses/notices remain governed by upstream distributions and `THIRD_PARTY_NOTICES/`.

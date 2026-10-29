@@ -31,7 +31,17 @@ class _Mirror(io.TextIOBase):
         return self.target.write(text)
 
     def flush(self) -> None:
-        self.target.flush()
+        # The target is borrowed (often pytest's capture stream). TextIOBase's
+        # finalizer may close this mirror after that target has already closed.
+        if self.target.closed:
+            return
+        try:
+            self.target.flush()
+        except ValueError:
+            # Account for the target closing between the check and flush, but
+            # do not hide failures on an otherwise usable stream.
+            if not self.target.closed:
+                raise
 
     def isatty(self) -> bool:
         return self.target.isatty()

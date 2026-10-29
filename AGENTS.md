@@ -655,9 +655,19 @@ command parser merely to inspect generated labels.
   workspace/import/diagnose job. Mamba 2.10.0 also passed both profiles and
   installed GUI tests. Conda 26.9.4 remains blocked by upstream native package
   path collisions; do not bypass with --clobber. Probe 2.18 has no declared
-  bioconda osx-arm64 package. The separate native PSI4 route passed kernel,
-  RESP integration and ethanol export. cc94 MPS provisioning/preflight and one
-  1UBQ public bundle passed (500 MPS updates, no fallback), but broader
+  bioconda osx-arm64 package; a manual native source build at upstream revision
+  `091d117f5bceef87389002dccfe26df78516fdda` passed exact-version doctor and
+  actual electron/nuclear diagnostics plus the absent-Probe fallback control.
+  This does not close the helper's conda add-on packaging gate. The catalog's
+  `managed_platforms` restrictions apply only to helper
+  provisioning and fail before prefix reservation; doctor still checks a
+  correctly provided native executable. Keep the generated matrix synchronized.
+  See the Apple Probe alternative in `docs/installation.md`. The separate native
+  PSI4 route passed kernel, RESP integration and ethanol export. cc94 MPS
+  provisioning/preflight and 1UBQ public bundles passed (500 MPS updates, no
+  fallback); the separate four-residue deletion passed all five predeclared
+  seeds with actual generated-only CPU refinement and unchanged fixed atoms.
+  This is installation stress evidence, not broader qualification. Broader
   multi-seed/context qualification remains pending. The archived partial 9CQD
   request is rejected by current public admission; never bypass that gate or
   count those rejected admissions as executed scientific seeds.
@@ -666,9 +676,15 @@ command parser merely to inspect generated labels.
   stalled on this host; 2.9.0 solved the native profile in 31 seconds.
   `child_environment` clears only child conda activation state, preserving the
   user's shell and selected caches; otherwise tools-Python can shadow the
-  requested conda-run interpreter. Apple sampling needs MDAnalysis reference
+  requested conda-run interpreter. It also enforces conda safety checks and
+  path-conflict prevention in children; never inherit disabled/clobber policy
+  or mutate the caller's settings to make an installation pass.
+  Apple sampling needs MDAnalysis reference
   data and psutil just like CUDA, despite separate CPU refinement. Keep those
   pip entries correctly indented and import shared validation in kernel checks.
+  Batch `_Mirror` borrows its output target: late flush/close must tolerate an
+  already-closed capture target without closing it or hiding genuine open-stream
+  I/O errors. Preserve fd-level teeing and retained diagnostic summaries.
   Linux final source and
   installed Desktop suites pass 405 tests. Keep `copyNativeRun`'s explicit
   directory merge/exclusive-file behavior: Node 26 rejects the old cpSync root

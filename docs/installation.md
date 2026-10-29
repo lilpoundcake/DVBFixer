@@ -133,6 +133,31 @@ source build as well as the helper's installed build. These specs use only
 Python metadata requires the wheel. The `obminimize` console entrypoint launches
 the wheel's bundled native tool with its plugin paths initialized.
 
+### Native Apple Probe alternative
+
+The managed `--addon probe` recipe currently has no bioconda osx-arm64 package.
+The exact supported Probe can instead be built natively from its pinned upstream
+source using Apple's Command Line Tools. Use a **new** source directory:
+
+```bash
+git clone https://github.com/rlabduke/probe.git /path/to/new-probe-source
+git -C /path/to/new-probe-source checkout --detach 091d117f5bceef87389002dccfe26df78516fdda
+make -C /path/to/new-probe-source probe CFLAGS=-O2
+/path/to/new-probe-source/probe -version
+# Expected: probe.2.18.211005
+PATH="/path/to/new-probe-source:$PATH" micromamba run -p /path/to/new-standard \
+  dvbfixer doctor --profile standard --addon probe
+```
+
+Keep the source directory/binary and put it on PATH for scientific invocations
+that should use Probe. This manual route passed native arm64 build, exact version,
+profile doctor and real electron/nuclear-radius diagnostics. Without the binary
+on PATH, diagnose retains its explicit Python fallback. Neither a different Probe
+version nor Rosetta is substituted. This does **not** mean that the managed
+`--addon probe` installation can solve on Apple; omit that helper add-on when
+using this separately built executable. See the
+[acceptance record](installation-profile-acceptance.md) for commands/results.
+
 ## Wheel installation and bundled force fields
 
 For a non-editable installation, build or install the wheel normally. Release

@@ -1,9 +1,11 @@
 """Protect existing environments and secrets; portable manager command contracts."""
 
+import os
 from pathlib import Path
 
 import pytest
 
+from dvbfixer import install
 from dvbfixer.install import (
     MODELLER_SETUP,
     Manager,
@@ -89,9 +91,40 @@ def test_child_starts_without_caller_conda_activation(monkeypatch):
     assert not set(keys) & env.keys()
     assert env["CONDA_PKGS_DIRS"] == "/chosen/package-cache"
     # Clearing the child activation must not deactivate the user's shell.
-    import os
-
     assert all(os.environ[key] == "caller-environment" for key in keys)
+
+
+def test_child_enforces_native_transaction_safety_without_changing_parent(monkeypatch):
+    monkeypatch.setenv("CONDA_SAFETY_CHECKS", "disabled")
+    monkeypatch.setenv("CONDA_PATH_CONFLICT", "clobber")
+    env = child_environment()
+    assert env["CONDA_SAFETY_CHECKS"] == "enabled"
+    assert env["CONDA_PATH_CONFLICT"] == "prevent"
+    assert os.environ["CONDA_SAFETY_CHECKS"] == "disabled"
+    assert os.environ["CONDA_PATH_CONFLICT"] == "clobber"
+
+
+def test_native_probe_managed_addon_fails_before_prefix_reservation(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(install, "platform_subdir", lambda: "osx-arm64")
+    monkeypatch.setattr(install.shutil, "which", lambda _: pytest.fail("Manager must not be invoked"))
+    prefix = tmp_path / "new-standard"
+    result = install.main(["--profile", "standard", "--manager", "micromamba", "--prefix", str(prefix),
+                           "--addon", "probe", "--non-interactive", "--skip-modeller"])
+    assert result == 1
+    message = capsys.readouterr().err
+    assert "Managed add-on 'probe' is unavailable on osx-arm64" in message
+    assert "docs/installation.md#native-apple-probe-alternative" in message
+    assert not prefix.exists()
+    assert not prefix.with_name(prefix.name + ".dvbfixer-install.json").exists()
+
+
+@pytest.mark.parametrize("subdir,addon", [("linux-64", "probe"), ("osx-arm64", "msa-alternatives")])
+def test_supported_managed_addon_dry_run_is_unchanged(tmp_path, monkeypatch, subdir, addon):
+    monkeypatch.setattr(install, "platform_subdir", lambda: subdir)
+    monkeypatch.setattr(install.shutil, "which", lambda _: "/tools/micromamba")
+    monkeypatch.setattr(Manager, "validate", lambda _: "2.9.0")
+    assert install.main(["--profile", "standard", "--manager", "micromamba", "--prefix", str(tmp_path / "new"),
+                         "--addon", addon, "--non-interactive", "--skip-modeller", "--dry-run"]) == 0
 
 
 def test_license_failure_output_is_not_disclosed(monkeypatch, capsys):

@@ -35,6 +35,8 @@ Added 2026-10-28. Requirements and next-session starting point:
 - [x] Synchronize the Linux WP6 candidate: generated Standard alias, Desktop inheritance, explicit add-ons/compatibility input, CI/manual/docs/agent metadata.
 - [x] Execute native Apple micromamba 2.9.0 Standard/Desktop licensed 14-step smokes, Standard extended 27-step acceptance, installed Desktop's 405 tests and a real Chrome workspace/scientific job.
 - [x] Extend native Apple acceptance with mamba 2.10.0 profiles/installed GUI, MSA alternatives plus PSI4 extended checks, separate PSI4 RESP, and one digest-verified public cc94 MPS installation bundle (not general scientific qualification).
+- [x] Verify a pinned manual native Probe source build, exact-version doctor, real electron/nuclear diagnostics and the absent-Probe fallback; keep the managed conda add-on packaging restriction explicit.
+- [x] Extend native cc94 MPS installation evidence with five predeclared public model seeds and a public Homology template-plan case, including actual generated-only CPU refinement and digest/geometry-verified publication; retain broader-context qualification as pending.
 - [ ] Verify clean Standard/Desktop installs and add-ons with real functional smokes for each claimed manager/platform; retain not-tested states (WP5).
 - [ ] Synchronize manual installation, documentation, CI and agent status, then finish the proven GUI/MSA migration without removing Standard scientific capabilities (WP6).
 
