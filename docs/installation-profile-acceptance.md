@@ -914,3 +914,85 @@ also asserts the packaged catalog restriction and conda child safety defaults.
 CI YAML parsed locally; actionlint and hosted workflow execution remain
 not-tested on this host. An interpreter-exit SWIG swigvarlink deprecation is
 retained in the logs in addition to the two test-summary SWIG warnings.
+
+### 1TIM source geometry and bounded input repair
+
+The tracked RCSB 1TIM dimer was used for a controlled internal interface deletion:
+only A73–A78 (target indices `[71,77)`, 44 heavy atoms) were withheld in a separate
+copy; both chains and their full 247-residue target sequences were retained. Window
+selection used native interface contacts before sampling. The fixture was not
+modified. This is case-specific execution evidence, not general reconstruction
+accuracy or a replacement for the archived 9CQD research requests.
+
+The initial unprepared `local` cohort published seeds 7, 19, 42 and 202, but not
+101. The then-current pipeline removed its private workspace on partial success;
+seed 101's precise outcome cannot be reconstructed. This is an evidence loss,
+not a justified geometric-failure classification. The planned `none` control
+was rejected before sampling because that profile requires its source-selected
+motif; it is not a 0/5 scientific arm. All remaining initial files are retained
+under `cc94-1tim-interface/`. Partial success now retains private diagnostics;
+prepared-input runs retain them even when every candidate passes. Homology also
+preserves its mosaic workdir on failure or when input-repair evidence is present.
+
+New pre-sampling validation found **29 severe clashes and 150 warnings** in the
+measured source itself. The user authorized automatic local minimization before
+diffusion. `bounded-observed-input-repair-v1` selects only observed residues
+named by exact affected-atom evidence, with a 64-residue / 25% locality ceiling.
+It uses restrained, generated-mask-independent CPU minimization without solvent
+or stochastic restarts. Residues outside the selected mask remain byte-identical.
+Per-residue movement bounds are 0.5 Å backbone RMSD, 0.5 Å Cα displacement and
+1.25 Å maximum heavy-atom displacement. Temporary force-field fragments have
+standard termini at known sequence gaps rather than a fictitious C–N spring
+across missing residues; those temporary atoms/termini never enter the source.
+Unsupported or excessive damage fails with the source and attempted repair
+retained. Frozen requests are never silently repaired or reinterpreted.
+
+The first native CPU attempt repaired **47 observed residues** in **11.08 s**:
+**zero severe findings** after independent whole-source revalidation, with
+maximum per-residue backbone RMSD **0.429 Å**, Cα displacement **0.244 Å**, and
+heavy-atom displacement **1.176 Å**. The **109 remaining warnings are retained
+and shown**, not counted as zero findings. The independent audit recomputes
+selection, movement and all outside-mask records from the original bytes.
+Evidence: `cc94-1tim-auto-repair-v1/` and the dedicated real 1TIM regression test.
+
+A separate public `model` run started from the original damaged deletion input
+and invoked preparation automatically, before motif selection. All five
+predeclared seeds **7, 19, 42, 101, 202** passed, one attempt each, in **182.64 s**
+total. Each records **500 actual MPS updates**, fallback disabled, chain-B
+conditioning and successful generated-only CPU refinement. Independent candidate
+hard-gate failures are empty; maximum fixed-heavy-atom displacement is **0.0 Å
+relative to the explicitly repaired source**, not the raw original. The normal
+publication ranking selected seed 42; no failed/unfavorable attempt was rerun
+or replaced. The input original, prepared source, movement report and final
+request snapshot are digest-bound into every candidate's publication evidence;
+the reader independently re-audits them, rather than trusting a repair-success
+flag. Original and new cohorts, preparation directories and all private runtime
+diagnostics remain retained.
+
+Evidence: `cc94-1tim-auto-repair-public-v1/{protocol,execution,verified-results}.json`,
+`model.log`, `bundle/` and `work/`. The protocol records input and implementation
+SHA256 values before execution. This establishes the executed native public
+preparation/motif/sampling/refinement/publication path for this case, not broad
+cc94 MPS scientific qualification or a causal comparison with the unsupported
+`none` arm. Upstream conda/managed-Probe/AmberTools metadata limitations remain.
+
+The exact executed implementation and inputs were copied into
+`implementation-snapshot/` and checked against the pre-run protocol hashes
+(`snapshot-integrity.json`). A public frozen `--diffusion-resume` invocation
+also passed (**11.16 s**) using the digest-verified final request copied from
+the bundle: no new preparation/runtime directories, no coordinate changes and
+no resampling (`frozen-resume.log`, `frozen-resume-check.json`). New prepared-input runs also
+retain a directly replayable `request-final.json` beside the prepared source
+and repair evidence; this is the post-context request, not the intermediate
+pre-context snapshot.
+
+Verification of the current source: **1,761 fast tests passed, 3 skipped,
+33 deselected** (`input-repair-fast-verified.log`), plus the executed slow real-1TIM
+input-repair regression and the existing boundary-refinement regression.
+GUI: **407 tests passed**, typecheck passed. Ruff, strict-target mypy,
+CLI/GUI generation checks, version and user/agent documentation checks passed.
+The final source/wheel builds and a fresh dependency-free installed-wheel smoke
+passed; local evidence and credentials are excluded from the source archive.
+The 48-test diffusion CLI subset also passed after adding an explicit assertion
+that frozen requests never call automatic preparation. No broad scientific
+qualification or hosted-CI pass is inferred from these checks.

@@ -92,6 +92,25 @@ def run_diffusion_pipeline(
         request.normalized_pdb,
         max_bytes=(limits or RunnerLimits()).max_artifact_bytes,
     )
+    from dvbfixer.model.diffusion.input_preparation import (
+        EVIDENCE_FILES,
+        audit_prepared_input,
+        preparation_options,
+    )
+
+    preparation_artifacts = None
+    try:
+        options = preparation_options(request)
+        if options is not None:
+            original = _read_source_artifact(source_root, ArtifactReference(EVIDENCE_FILES["original"], options["original_sha256"]),
+                                             max_bytes=(limits or RunnerLimits()).max_artifact_bytes)
+            report_bytes = _read_source_artifact(source_root, ArtifactReference(EVIDENCE_FILES["report"], options["report_sha256"]),
+                                                 max_bytes=10_000_000)
+            audit_prepared_input(request, original, source_bytes, json.loads(report_bytes))
+            preparation_artifacts = {"input-original": original, "input-prepared": source_bytes,
+                                     "input-repair-report": report_bytes, "input-repair-request": request.to_json().encode()}
+    except (ValueError, KeyError, TypeError, OSError) as exc:
+        raise DiffusionPipelineError(f"invalid input preparation evidence: {exc}") from exc
     try:
         admission = assess_diffusion_scope(request, source_bytes)
     except DiffusionScopeError as exc:
@@ -107,6 +126,15 @@ def run_diffusion_pipeline(
         )
 
     work_parent = _require_directory(work_parent, "work_parent")
+    from dvbfixer.model.diffusion.input_geometry import (
+        InputGeometryError,
+        require_input_geometry,
+    )
+
+    try:
+        require_input_geometry(request, source_bytes, work_parent)
+    except InputGeometryError as exc:
+        raise DiffusionPipelineError(str(exc)) from exc
     workspace = Path(
         tempfile.mkdtemp(
             prefix=".dvbfixer-diffusion-run.",
@@ -130,7 +158,15 @@ def run_diffusion_pipeline(
             workspace=workspace,
             thresholds=thresholds,
         )
-        retain_diagnostics = result.status is DiffusionStatus.FAILED
+        # SUCCESS means at least one candidate passed, not that every requested
+        # seed survived sampling/refinement/validation. Keep the private runner
+        # evidence for omitted seeds even when the accepted subset publishes.
+        published_seeds = {candidate.seed for candidate in result.candidates}
+        missing_seeds = sorted(set(request.seeds) - published_seeds)
+        retain_diagnostics = result.status is DiffusionStatus.FAILED or bool(missing_seeds) or options is not None
+        if missing_seeds:
+            print(f"WARNING: Diffusion seeds absent from publication: {missing_seeds}; "
+                  "retaining private runner evidence", flush=True)
         if result.status not in {DiffusionStatus.SUCCESS, DiffusionStatus.FAILED}:
             return DiffusionPipelineOutcome(
                 result=result,
@@ -151,6 +187,7 @@ def run_diffusion_pipeline(
             workspace=workspace,
             destination_bundle=destination_bundle,
             repository_root=repository_root,
+            input_preparation_artifacts=preparation_artifacts,
         )
         return DiffusionPipelineOutcome(
             result=result,
@@ -178,12 +215,22 @@ def publish_diffusion_bundle(
     destination_bundle: Path,
     repository_root: Path | None = None,
     before_commit: Callable[[Path], None] | None = None,
+    input_preparation_artifacts: Mapping[str, bytes] | None = None,
 ) -> Path:
     """Publish accepted or explicitly validation-failed candidates atomically."""
     if result.status not in {DiffusionStatus.SUCCESS, DiffusionStatus.FAILED}:
         raise DiffusionPipelineError("unsupported diffusion result cannot be published")
     if len(result.candidates) != len(result.validation_summaries):
         raise DiffusionPipelineError("candidate and validation counts do not match")
+    from dvbfixer.model.diffusion.input_preparation import (
+        audit_preparation_payloads,
+        preparation_options,
+    )
+
+    if (preparation_options(request) is not None) != (input_preparation_artifacts is not None):
+        raise DiffusionPipelineError("input repair evidence must accompany a prepared request")
+    if input_preparation_artifacts is not None:
+        audit_preparation_payloads(request, input_preparation_artifacts)
 
     root = _require_directory(workspace, "validation workspace")
     destination = destination_bundle.expanduser().absolute()
@@ -214,6 +261,7 @@ def publish_diffusion_bundle(
                     workspace=root,
                     staging=staging,
                     repository_root=repository_root,
+                    input_preparation_artifacts=input_preparation_artifacts,
                 )
             )
         index_path = staging / "bundle.json"
@@ -273,6 +321,7 @@ def _stage_candidate(
     workspace: Path,
     staging: Path,
     repository_root: Path | None,
+    input_preparation_artifacts: Mapping[str, bytes] | None = None,
 ) -> dict[str, object]:
     candidate_bytes = _read_workspace_artifact(
         workspace,
@@ -309,6 +358,12 @@ def _stage_candidate(
     )
 
     extra_artifacts = []
+    if input_preparation_artifacts is not None:
+        for role, data in input_preparation_artifacts.items():
+            suffix = "pdb" if role in {"input-original", "input-prepared"} else "json"
+            name = f"{stem}.{role}.{suffix}"
+            _write_file_fsync(staging / name, data)
+            extra_artifacts.append(PublicationArtifact(role, name, _sha256_bytes(data)))
     reference = evidence_reference(trace)
     if reference is not None:
         evidence = StagedRefinementEvidence.from_json(_read_contained_artifact(

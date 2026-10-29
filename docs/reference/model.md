@@ -14,7 +14,7 @@ usage: dvbfixer model [-h] [-o OUTPUT] [--fasta FASTA]
                       [--diffusion-timeout DIFFUSION_TIMEOUT]
                       [--diffusion-work-parent DIFFUSION_WORK_PARENT]
                       [--diffusion-resume]
-                      [--diffusion-context {auto,none,local,full}]
+                      [--diffusion-context {auto,local,full}]
                       [--diffusion-heterogen-smiles RESNAME=SMILES]
                       [-n NUM_MODELS] [--num-loops NUM_LOOPS]
                       [--num-output NUM_OUTPUT]
@@ -73,10 +73,12 @@ Diffusion options:
                         Parent directory for the private runner workspace
   --diffusion-resume    Reuse an existing digest-verified bundle only when its
                         scientific request matches
-  --diffusion-context {auto,none,local,full}
-                        Protein context: auto uses local for corrected
-                        Protpardelle CUDA/MPS; legacy profiles retain their
-                        prior path (default: auto)
+  --diffusion-context {auto,local,full}
+                        Protenix input: auto uses the full structure within
+                        the supported 512-residue budget, otherwise a rule-
+                        selected motif; local forces the motif, full requires
+                        the complete input. Protpardelle always uses its rule-
+                        selected motif (default: auto).
   --diffusion-heterogen-smiles RESNAME=SMILES
                         Authoritative SMILES for a retained isolated HETATM
                         residue; repeat for multiple residue names

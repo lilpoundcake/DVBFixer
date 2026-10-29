@@ -850,7 +850,11 @@ export function HomologyPanel() {
               </> : <>
                 <FormControl size="small" sx={toolbarControlSx}><InputLabel>Diffusion model</InputLabel>
                   <Select label="Diffusion model" value={project.modelOptions['--diffusion-model'] ?? ''}
-                    onChange={event => update({ modelOptions: { ...project.modelOptions, '--diffusion-model': event.target.value } })}>
+                     onChange={event => {
+                       const options: Record<string, string | number | boolean> = { ...project.modelOptions, '--diffusion-model': event.target.value }
+                       delete options['--diffusion-context']
+                       update({ modelOptions: options })
+                     }}>
                     <MenuItem value="">Auto</MenuItem><MenuItem value="protenix">Protenix</MenuItem><MenuItem value="protpardelle">Protpardelle</MenuItem>
                   </Select>
                 </FormControl>
@@ -868,13 +872,13 @@ export function HomologyPanel() {
                     <MenuItem value="auto">Experimental B / fallback</MenuItem><MenuItem value="uniform">Uniform</MenuItem>
                   </Select>
                 </FormControl>
-                <FormControl size="small" sx={toolbarControlSx}><InputLabel>Protein context</InputLabel>
-                  <Select label="Protein context" value={project.modelOptions['--diffusion-context'] ?? 'auto'}
+                 {project.modelOptions['--diffusion-model'] === 'protenix' && <FormControl size="small" sx={toolbarControlSx}><InputLabel>Protein context</InputLabel>
+                   <Select label="Protein context" value={project.modelOptions['--diffusion-context'] === 'none' ? 'auto' : project.modelOptions['--diffusion-context'] ?? 'auto'}
                     onChange={event => update({ modelOptions: { ...project.modelOptions, '--diffusion-context': event.target.value } })}>
-                    <MenuItem value="auto">Profile default</MenuItem><MenuItem value="none">Legacy / none</MenuItem><MenuItem value="local">Local (experimental)</MenuItem><MenuItem value="full">Full (experimental)</MenuItem>
+                     <MenuItem value="auto">Full if within limit, otherwise motif</MenuItem><MenuItem value="local">Motif</MenuItem><MenuItem value="full">Full structure</MenuItem>
                   </Select>
-                </FormControl>
-                <FormControl size="small" sx={toolbarControlSx}><InputLabel>Covered edits</InputLabel>
+                 </FormControl>}
+                 <FormControl size="small" sx={toolbarControlSx}><InputLabel>Covered edits</InputLabel>
                   <Select label="Covered edits" value={project.modelOptions['--diffusion-regenerate-covered'] ? 'regenerate' : 'reject'}
                     onChange={event => {
                       const options: Record<string, string | number | boolean> = { ...project.modelOptions, '--diffusion-regenerate-covered': event.target.value === 'regenerate' }

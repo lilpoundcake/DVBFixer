@@ -84,6 +84,7 @@ def refine_generated_region(
     random_seed: int = 1,
     restrain_amides: bool = True,
     observed_anchor_restraints: tuple[AnchorPositionRestraint, ...] = (),
+    mobile_position_restraints: tuple[AnchorPositionRestraint, ...] = (),
 ) -> BoundaryRefinementResult:
     """Minimize generated atoms and explicitly restrained observed anchor atoms.
 
@@ -126,6 +127,9 @@ def refine_generated_region(
     mobile_atoms_requested = (*generated_atoms, *anchor_atoms)
     mobile_atom_set = set(mobile_atoms_requested)
     mobile_residue_set = generated_residue_set | {_atom_residue(atom) for atom in anchor_atoms}
+    if (len({r.atom for r in mobile_position_restraints}) != len(mobile_position_restraints)
+            or any(r.atom not in generated_atom_set for r in mobile_position_restraints)):
+        raise BoundaryRefinementError("mobile positional restraints must uniquely target mobile atoms")
 
     pdb = PDBFile(StringIO(pdb_text))
     original_coordinates = _coordinates_by_identity(pdb.topology, pdb.positions)
@@ -225,8 +229,9 @@ def refine_generated_region(
     _freeze_observed_heavy_atoms(
         system, modeller.topology, original_coordinates, mobile_atom_set,
     )
-    if observed_anchor_restraints:
-        system.addForce(_build_anchor_position_force(modeller.topology, observed_anchor_restraints))
+    position_restraints = (*observed_anchor_restraints, *mobile_position_restraints)
+    if position_restraints:
+        system.addForce(_build_anchor_position_force(modeller.topology, position_restraints))
     chirality_force, protected_centres = build_ca_chirality_force(
         modeller.topology,
         modeller.positions,
@@ -380,6 +385,30 @@ def refine_generated_region(
         initial_energy_kj_mol=initial_energy,
         final_energy_kj_mol=final_energy,
         platform=platform.getName(),
+    )
+
+
+def refine_observed_region(
+    pdb_text: str,
+    *,
+    residues: tuple[ResidueIdentity, ...],
+    atoms: tuple[AtomIdentity, ...],
+    restraints: tuple[AnchorPositionRestraint, ...],
+    max_iterations: int = 1000,
+) -> BoundaryRefinementResult:
+    """Use the same local minimizer *before* freezing a diffusion request.
+
+    The low-level generated_* arguments describe mobility, not provenance. This
+    adapter never modifies a request, generated masks or template ownership.
+    All measured atoms outside ``atoms`` are massless/fixed; all selected heavy
+    atoms are restrained. No solvent, stochastic restarts or unrestrained repair.
+    """
+    if {restraint.atom for restraint in restraints} != set(atoms):
+        raise BoundaryRefinementError("observed repair requires restraints on every selected atom")
+    return refine_generated_region(
+        pdb_text, generated_residues=residues, generated_atoms=atoms,
+        mobile_position_restraints=restraints, max_iterations=max_iterations,
+        restart_count=0, platform_name="CPU", random_seed=1, restrain_amides=False,
     )
 
 

@@ -131,7 +131,11 @@ export function validatedModelArgs(options: Record<string, unknown> | null | und
     }
     if (values['--diffusion-context'] !== undefined) {
       if (!['auto', 'none', 'local', 'full'].includes(String(values['--diffusion-context']))) throw new Error('--diffusion-context has an unsupported value')
-      args.push('--diffusion-context', String(values['--diffusion-context']))
+      // Saved legacy panel state is not a frozen scientific request. New GUI
+      // runs use auto; Protpardelle never exposes a context override.
+      if (values['--diffusion-context'] !== 'none' && values['--diffusion-model'] !== 'protpardelle') {
+        args.push('--diffusion-context', String(values['--diffusion-context']))
+      }
     }
     if (values['--diffusion-regenerate-covered'] !== undefined) {
       if (typeof values['--diffusion-regenerate-covered'] !== 'boolean') throw new Error('--diffusion-regenerate-covered must be boolean')

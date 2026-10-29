@@ -18,6 +18,13 @@ Public native MPS follow-up also passed all five predeclared 1UBQ four-residue
 model seeds and a Homology template-plan case, including real CPU refinement
 and verified publication. These controlled installation cases do not establish
 the wider multi-chain/context research gate.
+The controlled 1TIM interface deletion also passed all five declared MPS seeds
+after automatic bounded source repair (29 severe source findings removed; 109
+warnings retained). Original/repaired input and independent movement/publication
+audits are retained. The earlier unprepared cohort lost seed-101 private evidence
+through partial-success cleanup; this is explicitly recorded, not replaced by
+the new cohort. The unsupported `none` attempt never sampled. Wider qualification
+remains open; see the detailed acceptance record.
 
 Open gates: conda 26.9.4 macOS upstream package-file collisions; no declared
 bioconda Probe 2.18 osx-arm64 build; broader cc94 MPS model/Homology/context

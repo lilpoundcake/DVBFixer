@@ -34,7 +34,7 @@ from dvbfixer.model.diffusion.masks import (
     ObservedResidue,
     build_sequence_placement,
 )
-from dvbfixer.model.diffusion.pipeline import run_diffusion_pipeline
+from dvbfixer.model.diffusion.pipeline import DiffusionPipelineError, run_diffusion_pipeline
 from dvbfixer.model.diffusion.preflight import invoke_runner_preflight
 from dvbfixer.model.diffusion.protein_context import (
     ANCHOR_SEGMENT_OPTION,
@@ -489,6 +489,17 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
             )
         else:
             request = frozen_request
+        if frozen_request is None:
+            from dvbfixer.model.diffusion.input_geometry import InputGeometryError
+            from dvbfixer.model.diffusion.input_preparation import prepare_input
+
+            try:
+                prepared_input = prepare_input(request, model_input.read_bytes(), work_parent)
+            except InputGeometryError as exc:
+                raise DiffusionCliError(str(exc)) from exc
+            if prepared_input is not None:
+                request, model_input = prepared_input
+                source_root = model_input.parent
         context_mode = getattr(args, "diffusion_context", "auto")
         if runtime.profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1", "protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"}:
             from dvbfixer.model.diffusion.protein_context import (
@@ -510,7 +521,17 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                     validate_cc89(request)
                 request = prepare_cc89(request, model_input.read_bytes(), context_mode)
             except ProteinContextError as exc:
-                raise DiffusionCliError(f"unsupported corrected cc89 input: {exc}") from exc
+                raise DiffusionCliError(f"unsupported {runtime.profile} input: {exc}") from exc
+        elif runtime.model == "protenix" and frozen_request is None:
+            from dvbfixer.model.diffusion.protein_context import (
+                ProteinContextError,
+                prepare_protenix_request,
+            )
+
+            try:
+                request = prepare_protenix_request(request, model_input.read_bytes(), context_mode)
+            except ProteinContextError as exc:
+                raise DiffusionCliError(f"unsupported Protenix input: {exc}") from exc
         elif context_mode not in {"none", "auto"}:
             from dvbfixer.model.diffusion.contract import ProteinContextPolicy
             from dvbfixer.model.diffusion.protein_context import (
@@ -542,6 +563,11 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 "diffusion input is outside the supported scope: "
                 + admission.message
             )
+        if frozen_request is None and prepared_input is not None:
+            # Keep a directly replayable FINAL request beside its prepared
+            # source and repair evidence, not just the pre-context snapshot.
+            with (model_input.parent / "request-final.json").open("x", encoding="utf-8") as stream:
+                stream.write(request.to_json())
         if resume and output_path.exists():
             for warning in admission.warnings:
                 print(f"WARNING: {warning}", flush=True)
@@ -563,6 +589,22 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 "denoiser context; the gap-bearing chains are not jointly sampled, "
                 "and distant or omitted partner regions do not condition it."
             )
+
+        # Reject a damaged source even before invoking the runtime's hardware
+        # preflight. The pipeline repeats this independently for direct callers.
+        from dvbfixer.diagnose.report import Severity
+        from dvbfixer.model.diffusion.input_geometry import (
+            InputGeometryError,
+            assess_input_geometry,
+            require_input_geometry,
+        )
+
+        try:
+            source_bytes = model_input.read_bytes()
+            if any(finding.severity is Severity.ERROR for finding in assess_input_geometry(request, source_bytes)):
+                require_input_geometry(request, source_bytes, work_parent)
+        except InputGeometryError as exc:
+            raise DiffusionCliError(str(exc)) from exc
 
         preflight = invoke_runner_preflight(
             profile=runtime.profile,
@@ -588,8 +630,8 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 destination_bundle=output_path,
                 limits=RunnerLimits(timeout_seconds=args.diffusion_timeout),
             )
-        except DiffusionRunnerError as exc:
-            if exc.diagnostics and exc.diagnostics.stderr:
+        except (DiffusionRunnerError, DiffusionPipelineError) as exc:
+            if isinstance(exc, DiffusionRunnerError) and exc.diagnostics and exc.diagnostics.stderr:
                 print(exc.diagnostics.stderr)
             raise DiffusionCliError(str(exc)) from exc
         if outcome.published_bundle is None:

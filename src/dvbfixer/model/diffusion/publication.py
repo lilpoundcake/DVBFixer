@@ -112,6 +112,30 @@ def _read_published_bundle(
             raise PublicationError("diffusion bundle validation evidence is inconsistent")
         if expected_digest and provenance["request_sha256"] != expected_digest:
             raise PublicationError("existing diffusion bundle does not match the current request")
+        from dvbfixer.model.diffusion.input_preparation import (
+            PUBLICATION_ROLES,
+            audit_preparation_payloads,
+            preparation_options,
+        )
+
+        preparation_refs = [item for item in provenance.get("artifacts", []) if item.get("role") in PUBLICATION_ROLES]
+        if preparation_refs or provenance.get("input_preparation") is not None:
+            if len(preparation_refs) != len(PUBLICATION_ROLES) or {item["role"] for item in preparation_refs} != PUBLICATION_ROLES:
+                raise PublicationError("input preparation evidence is missing or repeated")
+            preparation_payloads = {}
+            for item in preparation_refs:
+                reference = ArtifactReference(item["path"], item["sha256"])
+                if reference.path in artifact_paths:
+                    raise PublicationError("input preparation evidence repeats an artifact path")
+                artifact_paths.add(reference.path)
+                maximum = 1_000_000_000 if item["role"] in {"input-original", "input-prepared"} else 10_000_000
+                preparation_payloads[item["role"]] = _read_contained_artifact(root, reference, max_bytes=maximum)
+            snapshot = DiffusionRequest.from_json(preparation_payloads["input-repair-request"].decode())
+            if (hashlib.sha256(snapshot.to_json().encode()).hexdigest() != provenance["request_sha256"]
+                    or preparation_options(snapshot) != provenance.get("input_preparation")
+                    or snapshot.normalized_pdb != ArtifactReference(**provenance["normalized_pdb"])):
+                raise PublicationError("input preparation snapshot differs from candidate provenance")
+            audit_preparation_payloads(snapshot, preparation_payloads)
         trace = SamplerTrace.from_json(payloads["sampler_trace"].decode())
         from dvbfixer.model.diffusion.refinement_evidence import (
             MAX_REFINEMENT_EVIDENCE_BYTES,

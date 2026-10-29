@@ -50,11 +50,13 @@ def test_unrelated_modeller_error_is_not_hidden():
     ("protenix", "protenix-v1-cuda"),
     ("protpardelle", "protpardelle-1c-mps"),
 ])
+@pytest.mark.parametrize("fail", [False, True])
 def test_homology_diffusion_dispatches_materialized_mosaic_with_ownership(
     tmp_path,
     monkeypatch,
     model,
     profile,
+    fail,
 ):
     from dvbfixer.model.diffusion.runtime import DiffusionRuntime
 
@@ -74,10 +76,16 @@ def test_homology_diffusion_dispatches_materialized_mosaic_with_ownership(
         "dvbfixer.model.diffusion.runtime.resolve_diffusion_runtime", resolve_runtime,
     )
     template = tmp_path / "template.pdb"
-    template.write_text(
-        "ATOM      1  CA  ALA A   1       1.000   0.000   0.000  1.00 20.00           C  \n"
-        "ATOM      2  CA  ALA A   5       5.000   0.000   0.000  1.00 20.00           C  \n"
-    )
+    # Full-input auto selection requires complete observed heavy atoms, even
+    # though this dispatch test mocks the actual scientific runner.
+    lines = []
+    for number in (1, 5):
+        for name, (dx, y, z) in {"N": (-0.5, 1.3, 0), "CA": (0, 0, 0),
+                                  "C": (1.5, 0, 0), "O": (2.1, 1.0, 0),
+                                  "CB": (0, -0.7, -1.2)}.items():
+            lines.append(f"ATOM  {len(lines) + 1:5d} {name:>4s} ALA A{number:4d}    "
+                         f"{number * 3.8 + dx:8.3f}{y:8.3f}{z:8.3f}  1.00 20.00          {name[0]:>2s}  \n")
+    template.write_text("".join(lines))
     fasta = tmp_path / "target.fasta"
     fasta.write_text(">A\nASGGA\n")
     plan = tmp_path / "plan.json"
@@ -108,13 +116,15 @@ def test_homology_diffusion_dispatches_materialized_mosaic_with_ownership(
     def capture(args):
         from dvbfixer.model.diffusion.contract import DiffusionRequest
         captured.append((args, DiffusionRequest.from_json(Path(args.diffusion_request).read_text())))
+        if fail:
+            raise ValueError("injected diffusion failure after materialization")
 
     monkeypatch.setattr(
         "dvbfixer.model.diffusion_cli.run_diffusion_model",
         capture,
     )
 
-    main([
+    argv = [
         str(fasta),
         "--template-plan",
         str(plan),
@@ -124,7 +134,13 @@ def test_homology_diffusion_dispatches_materialized_mosaic_with_ownership(
         model,
         "-o",
         str(tmp_path / "model"),
-    ])
+    ]
+    if fail:
+        with pytest.raises(SystemExit, match="injected diffusion failure"):
+            main(argv)
+        assert Path(captured[0][0].input).parent.is_dir()
+        return
+    main(argv)
 
     assert len(captured) == 1
     assert selected_models == [model]

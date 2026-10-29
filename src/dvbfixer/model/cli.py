@@ -92,10 +92,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--diffusion-resume", action="store_true",
         help="Reuse an existing digest-verified bundle only when its scientific request matches",
     )
-    diffusion.add_argument(
-        "--diffusion-context", choices=("auto", "none", "local", "full"), default="auto",
-        help="Protein context: auto uses local for corrected Protpardelle CUDA/MPS; legacy profiles retain their prior path (default: auto)",
-    )
+    from dvbfixer.model.context_options import add_context_argument
+
+    add_context_argument(diffusion)
     diffusion.add_argument(
         "--diffusion-heterogen-smiles",
         action="append",

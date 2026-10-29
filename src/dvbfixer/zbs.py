@@ -90,8 +90,9 @@ def parse_args(argv=None):
     model_grp.add_argument("--diffusion-timeout", type=float, default=900.0,
                            help="Diffusion runner timeout in seconds (default: 900)")
     model_grp.add_argument("--diffusion-work-parent", help="Existing parent for private diffusion workspaces")
-    model_grp.add_argument("--diffusion-context", choices=["auto", "none", "local", "full"], default="auto",
-                           help="Protein context: auto uses local for corrected Protpardelle CUDA/MPS; legacy profiles retain their prior path (default: auto)")
+    from dvbfixer.model.context_options import add_context_argument
+
+    add_context_argument(model_grp)
     model_grp.add_argument("--diffusion-resume", action="store_true",
                            help="Reuse a verified model bundle matching the current scientific request")
     model_grp.add_argument("--fasta", help="FASTA file with complete sequence(s) for model step")

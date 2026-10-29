@@ -40,6 +40,31 @@ class ProteinContextError(ValueError):
     """Required context is incomplete, incompatible, or exceeds the engine budget."""
 
 
+PROTENIX_RESIDUE_BUDGET = 512
+
+
+def prepare_protenix_request(request: DiffusionRequest, pdb: bytes, context_mode: str = "auto") -> DiffusionRequest:
+    """Choose full input by token count, never fall back on chemistry errors.
+
+    This is the audited adapter budget, not an estimate of free GPU memory.
+    Historical frozen requests are replayed by the caller without this builder.
+    """
+    if context_mode == "none":
+        return request  # Historical internal callers only.
+    if context_mode not in {"auto", "local", "full"}:
+        raise ProteinContextError("unknown Protenix context selection")
+    if request.protein_context is not None:
+        validate_context_source(request, pdb)
+        return request
+    count = sum(len(target.sequence) for target in request.target_sequences)
+    selected_mode = ("full" if count <= PROTENIX_RESIDUE_BUDGET else "local") if context_mode == "auto" else context_mode
+    if selected_mode == "full" and count > PROTENIX_RESIDUE_BUDGET:
+        raise ProteinContextError(f"full Protenix input has {count} residues; supported budget is {PROTENIX_RESIDUE_BUDGET}; use auto or local")
+    policy = (ProteinContextPolicy(partner_mode="full") if selected_mode == "full" else
+              ProteinContextPolicy(target_flanks=8, same_chain_spatial=True))
+    return select_protein_context(request, pdb, policy)
+
+
 CUDA_CC89_PROFILE = "protpardelle-1c-cuda"
 MPS_CC89_PROFILE = "protpardelle-1c-mps-local-v1"
 CUDA_CC89_CONTEXT = ProteinContextPolicy(
@@ -142,7 +167,7 @@ def prepare_mps_cc89_request(request: DiffusionRequest, pdb: bytes, context_mode
         if len(request.gaps) > 64:
             raise ProteinContextError("independent local execution supports at most 64 gaps per candidate")
         if context_mode not in {"auto", "local"}:
-            raise ProteinContextError("independent local gaps require --diffusion-context auto|local")
+            raise ProteinContextError("this Protpardelle profile always uses its rule-selected motif; context overrides are not supported")
         if request.protein_context is not None:
             if len(request.gaps) != 1 or request.gap_contexts is not None:
                 raise ProteinContextError("independent gaps cannot reinterpret a joint context plan")
@@ -179,7 +204,7 @@ def _prepare_corrected_cc89_request(
     if not any(option.name == "profile" and option.value == profile for option in request.backend_options):
         raise ProteinContextError(f"{label} request must declare its profile")
     if context_mode not in {"auto", "local"}:
-        raise ProteinContextError(f"{profile} requires --diffusion-context auto|local")
+        raise ProteinContextError(f"{profile} always uses its rule-selected motif; context overrides are not supported")
     if len(request.gaps) != 1 or request.gaps[0].gap_kind is not GapKind.INTERNAL:
         raise ProteinContextError(f"{label} supports one internal gap per request")
     if request.protein_context is None:
@@ -329,6 +354,8 @@ def select_protein_context(
             raise ProteinContextError("adaptive selection requires the complete generated backbone, not reference positions")
         anchor_points = np.concatenate((anchor_points, np.asarray([query.coordinate_angstrom for query in trajectory_queries])))
     selected: set[tuple[str, int]] = set()
+    if policy.partner_mode == "full" and policy.target_flanks is None:
+        selected.update((target.chain, index) for target in request.target_sequences for index in range(len(target.sequence)))
     for gap in request.gaps:
         start = 0 if policy.target_flanks is None else max(0, gap.target_interval.start - policy.target_flanks)
         stop = len(targets[gap.chain].sequence) if policy.target_flanks is None else min(len(targets[gap.chain].sequence), gap.target_interval.stop + policy.target_flanks)
@@ -695,7 +722,7 @@ def validate_context_capability(request: DiffusionRequest, model: str) -> None:
         validate_mps_cc89_request(request)
     if request.protein_context is None:
         if model == "protenix" and (len(request.target_sequences) != 1 or len(request.gaps) != 1):
-            raise ProteinContextError("Protenix multiple chains or gaps require explicit --diffusion-context local|full")
+            raise ProteinContextError("Protenix multiple chains or gaps require a context plan; rebuild the legacy request using current auto selection")
         return
     if sum(span.stop - span.start for span in request.protein_context.spans) > 512:
         raise ProteinContextError("explicit protein context exceeds the audited 512-residue engine-axis budget")

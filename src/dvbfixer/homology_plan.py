@@ -346,7 +346,9 @@ def build_mosaic_diffusion_request(
 
     Opt-in substitutions regenerate a bounded window with observed anchors.
     Short uncovered runs may expand only under the same explicit opt-in.
-    Covered atoms outside those windows remain byte-identical and template-owned.
+    Covered atoms outside those windows remain template-owned. A separate
+    bounded input-repair stage may adjust measured geometry before freezing;
+    its exact original, movement mask and independent audit are retained.
     """
     input_path = workdir / "mosaic_diffusion_input.pdb"
     request_path = workdir / "mosaic_diffusion_request.json"
@@ -453,6 +455,12 @@ def build_mosaic_diffusion_request(
         regenerated_template_ownership=(tuple(owner for owner in ownership if owner.residue in mutable_residues)
                                        if regenerate_covered else None),
     )
+    from dvbfixer.model.diffusion.input_preparation import prepare_input
+
+    prepared_input = prepare_input(request, normalized_text.encode(), workdir)
+    if prepared_input is not None:
+        request, prepared_path = prepared_input
+        normalized_text = prepared_path.read_text()
     # Finalize freshly built requests BEFORE freezing them. The CLI replay path
     # must validate, never silently add missing context to a frozen request.
     if profile in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1", "protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"}:
@@ -469,8 +477,17 @@ def build_mosaic_diffusion_request(
             prepare = prepare_cc94_request
         request = replace(request, backend_options=(*request.backend_options, ANCHOR_SEGMENT_OPTION, TERMINAL_SHELL_OPTION))
         request = prepare(request, normalized_text.encode(), context_mode)
+    elif profile.startswith("protenix"):
+        from dvbfixer.model.diffusion.protein_context import prepare_protenix_request
+
+        request = prepare_protenix_request(request, normalized_text.encode(), context_mode)
     with input_path.open("x") as stream:
         stream.write(normalized_text)
+    if prepared_input is not None:
+        # The request and its source-bound repair evidence must share one root.
+        # Keep the ordinary mosaic artifact as well; do not overwrite/delete it.
+        input_path = prepared_path
+        request_path = prepared_path.parent / "mosaic_diffusion_request.json"
     with request_path.open("x") as stream:
         stream.write(request.to_json())
     return input_path, request_path

@@ -94,7 +94,7 @@ def test_homology_freezes_a_complete_corrected_request_before_cli_replay(tmp_pat
 def test_mps_rejects_explicit_nonlocal_context(tmp_path, cli_fixture, mode):
     source = cli_fixture._gap_input(tmp_path)
     request = build_cli_diffusion_request(source, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile=MPS_CC89_PROFILE)
-    with pytest.raises(ProteinContextError, match="auto\\|local"):
+    with pytest.raises(ProteinContextError, match="always uses its rule-selected motif"):
         prepare_mps_cc89_request(request, source.read_bytes(), mode)
 
 

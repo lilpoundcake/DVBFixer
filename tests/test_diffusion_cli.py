@@ -61,6 +61,41 @@ def _multichain_gap_input(tmp_path: Path) -> Path:
     return path
 
 
+def test_repaired_input_keeps_final_context_request_beside_its_source(tmp_path, monkeypatch):
+    from dvbfixer.model.diffusion.contract import ArtifactReference, DiffusionRequest
+
+    source = _gap_input(tmp_path)
+    original = source.read_bytes()
+    fasta = tmp_path / "target.fasta"
+    fasta.write_text(">C\nSNRFSGSKSGNTA\n")
+    prepared_root = tmp_path / "owned-preparation"
+    prepared_root.mkdir()
+    prepared_path = prepared_root / "prepared.pdb"
+    prepared_path.write_bytes(original)
+
+    def prepare(request, _source, _work):
+        return replace(request, normalized_pdb=ArtifactReference(prepared_path.name, request.normalized_pdb.sha256)), prepared_path
+
+    monkeypatch.setattr("dvbfixer.model.diffusion.input_preparation.prepare_input", prepare)
+    monkeypatch.setattr("dvbfixer.model.diffusion_cli.resolve_diffusion_runtime",
+                        lambda *_args, **_kwargs: DiffusionRuntime("protenix", "protenix-v1-cuda", "unused-runner"))
+    monkeypatch.setattr("dvbfixer.model.diffusion_cli.invoke_runner_preflight", lambda **_kwargs: SimpleNamespace(passed=True))
+    output = tmp_path / "bundle"
+
+    def pipeline(request, *_args, **kwargs):
+        saved = DiffusionRequest.from_json((prepared_root / "request-final.json").read_text())
+        assert saved == request
+        assert saved.protein_context is not None
+        assert saved.protein_context.policy.partner_mode == "full"
+        assert kwargs["source_root"] == prepared_root
+        return SimpleNamespace(published_bundle=output, status=SimpleNamespace(value="success"))
+
+    monkeypatch.setattr("dvbfixer.model.diffusion_cli.run_diffusion_pipeline", pipeline)
+    args = parse_args([str(source), "--fasta", str(fasta), "--backend", "diffusion", "-o", str(output)])
+    run_diffusion_model(args)
+    assert source.read_bytes() == original
+
+
 def test_cli_and_scope_use_the_same_profile_specific_length_policy(tmp_path, monkeypatch):
     from dvbfixer.model.diffusion import gap_capabilities
 
@@ -264,6 +299,10 @@ def test_frozen_request_uses_exact_request_and_source_root(
     monkeypatch.setattr(
         "dvbfixer.model.diffusion_cli._target_sequences",
         lambda *_args: pytest.fail("frozen request must not reconstruct placement"),
+    )
+    monkeypatch.setattr(
+        "dvbfixer.model.diffusion.input_preparation.prepare_input",
+        lambda *_args: pytest.fail("frozen request must never be automatically minimized"),
     )
 
     def fake_pipeline(observed, _command, *, source_root, **_kwargs):

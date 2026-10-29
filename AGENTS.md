@@ -732,6 +732,20 @@ command parser merely to inspect generated labels.
   banner. Preserve fd-level capture and summaries for actual warnings/errors,
   including during exception cleanup.
 
+- **Diffusion source repair precedes motif selection and freezing.**
+  `model/diffusion/input_preparation.py` repairs only new inputs with exact
+  affected-atom evidence under versioned locality and movement bounds. Preserve
+  the original, source metadata, unselected records, generated masks and template
+  ownership. Frozen requests must never be silently repaired. Prepared-source
+  fixed-coordinate guarantees are relative to the explicitly reported repaired
+  input; the publication includes original/prepared bytes, repair report and final
+  request snapshot and independently re-audits them. Retain private diagnostics
+  on partial success and on every prepared-input run; preserve Homology workdirs
+  on failure or when preparation evidence exists. Native 1TIM controlled evidence
+  removed 29 severe source findings with bounded motion, then passed all five
+  declared cc94 MPS seeds. It is case-specific evidence, not general qualification;
+  109 residual warnings remain visible. See `docs/installation-profile-acceptance.md`.
+
 - **Release metadata is synchronized, not single-file.** `pyproject.toml` is
   authoritative, but a version bump must also update
   `src/dvbfixer/__init__.py`, `gui/package.json`, both root-package version

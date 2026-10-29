@@ -31,7 +31,8 @@ def test_deletion_windows_keep_exact_flanks_and_all_other_mosaic_atoms(tmp_path,
     work, coverage = _deletion_plan(tmp_path)
     original = (work / "selected_template_mosaic.pdb").read_bytes()
     normalized, path = build_mosaic_diffusion_request(coverage, [("VH", "A" * 24)], work,
-        seeds=(7,), regenerate_covered=True, profile="protenix-v1-cuda", edit_flanks=flanks)
+        seeds=(7,), regenerate_covered=True, profile="protenix-v1-cuda", edit_flanks=flanks,
+        context_mode="none")  # CA-only mask fixture exercises legacy materialization, not motif admission.
     request = DiffusionRequest.from_json(path.read_text())
     gap, = request.gaps
     assert (gap.target_interval.start, gap.target_interval.stop) == (12 - flanks, 13 + flanks)
@@ -62,7 +63,7 @@ def test_mosaic_length_extrapolation_is_deferred_to_scope_warning(tmp_path, monk
     monkeypatch.setattr(gap_capabilities, "ACCEPTED_INTERNAL_RANGES", {"protenix-v1-cuda": ((7, 12),)})
     normalized, request_path = build_mosaic_diffusion_request(
         coverage, [("VH", "A" * 24)], work,
-        seeds=(7,), profile="protenix-v1-cuda", regenerate_covered=True,
+        seeds=(7,), profile="protenix-v1-cuda", regenerate_covered=True, context_mode="none",
     )
     request = DiffusionRequest.from_json(request_path.read_text())
     admission = assess_diffusion_scope(request, normalized.read_bytes())

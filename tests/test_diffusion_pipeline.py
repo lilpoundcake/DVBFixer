@@ -633,6 +633,43 @@ def test_publication_rejects_hard_link_and_malformed_staging_without_orphans(
     assert not list(tmp_path.glob(".malformed-output.*.tmp"))
 
 
+@pytest.mark.parametrize("partial", [False, True])
+def test_successful_subset_retains_omitted_seed_evidence(tmp_path, monkeypatch, capsys, partial):
+    source, candidate_bytes, request = _source_candidate_request()
+    if partial:
+        request = replace(request, seeds=(7, 101), candidate_count=2)
+    source_path = tmp_path / "input" / "normalized.pdb"
+    source_path.parent.mkdir()
+    source_path.write_bytes(source)
+    result = _validated_result(request, candidate_bytes)
+    workspaces = []
+
+    def runner(*_args, workspace, **_kwargs):
+        workspace.mkdir(mode=0o700)
+        (workspace / "seed-101-raw.pdb").write_bytes(candidate_bytes)
+        (workspace / "runner.stderr").write_text("seed evidence must survive partial success")
+        workspaces.append(workspace)
+        return result
+
+    published = []
+    monkeypatch.setattr(diffusion_pipeline, "run_diffusion_runner", runner)
+    monkeypatch.setattr(diffusion_pipeline, "build_validated_result", lambda *_args, **_kwargs: result)
+    monkeypatch.setattr(diffusion_pipeline, "publish_diffusion_bundle", lambda *_args, **_kwargs: published.append(result))
+    outcome = run_diffusion_pipeline(request, ("runner",), source_root=tmp_path,
+                                     work_parent=tmp_path, destination_bundle=tmp_path / "published")
+    assert outcome.status is DiffusionStatus.SUCCESS
+    assert published == [result]
+    output = capsys.readouterr().out
+    if partial:
+        assert (workspaces[0] / "seed-101-raw.pdb").read_bytes() == candidate_bytes
+        assert (workspaces[0] / "runner.stderr").read_text() == "seed evidence must survive partial success"
+        assert "seeds absent from publication: [101]" in output
+        assert f"Retained private diffusion diagnostics: {workspaces[0]}" in output
+    else:
+        assert not workspaces[0].exists()
+        assert "seeds absent" not in output
+
+
 def test_unsupported_scope_does_not_launch_runner_or_publish(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -668,6 +705,52 @@ def test_unsupported_scope_does_not_launch_runner_or_publish(
     assert outcome.published_bundle is None
     assert not destination.exists()
     assert not list(tmp_path.glob(".dvbfixer-diffusion-run.*"))
+
+
+def test_publication_carries_and_independently_checks_input_repair_evidence(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    import numpy as np
+
+    from dvbfixer.diagnose.report import Finding, Severity
+    from dvbfixer.model.diffusion import input_preparation as preparation
+    from dvbfixer.model.diffusion.publication import PublicationError, read_published_bundle
+    from dvbfixer.model.diffusion.runner_refinement import rewrite_generated_coordinates
+
+    source, candidate, request = _source_candidate_request()
+    atom = next(a for a in request.fixed_atoms if a.atom_name == "O")
+    finding = Finding(Severity.ERROR, "clash", atom.chain, atom.residue_number, "SER", "controller test clash",
+                      extra={"atoms": [{"chain": atom.chain, "resid": atom.residue_number,
+                                        "icode": atom.insertion_code, "atom": atom.atom_name}]})
+    monkeypatch.setattr(preparation, "assess_input_geometry", lambda _request, data: (finding,) if data == source else ())
+
+    def minimize(_text, *, restraints, **_kwargs):
+        coordinates = {r.atom: np.array(r.reference_angstrom) for r in restraints}
+        coordinates[atom][0] += 0.01
+        return SimpleNamespace(coordinates_angstrom=coordinates, initial_energy_kj_mol=10.0,
+                               final_energy_kj_mol=1.0, chirality_repairs=())
+
+    monkeypatch.setattr("dvbfixer.model.diffusion.boundary_refinement.refine_observed_region", minimize)
+    request, prepared_path = preparation.prepare_input(request, source, tmp_path)
+    prepared = prepared_path.read_bytes()
+    candidate = rewrite_generated_coordinates(candidate.decode(), preparation._coordinates(preparation._records(prepared))).encode()
+    result = _validated_result(request, candidate)
+    workspace = _workspace(tmp_path, candidate)
+    report = (prepared_path.parent / "input-repair.json").read_bytes()
+    payloads = {"input-original": source, "input-prepared": prepared, "input-repair-report": report,
+                "input-repair-request": request.to_json().encode()}
+    destination = tmp_path / "published-repaired"
+    publish_diffusion_bundle(request, result, workspace=workspace, destination_bundle=destination,
+                             input_preparation_artifacts=payloads)
+    published = read_published_bundle(destination)
+    assert published.status == "success"
+    assert published.selected().seed == 7
+    assert len(list(destination.glob("*.input-*.json"))) == 2
+    assert len(list(destination.glob("*.input-*.pdb"))) == 2
+    evidence_path = next(destination.glob("*.input-original.pdb"))
+    evidence_path.write_bytes(source + b"\n")
+    with pytest.raises(PublicationError):
+        read_published_bundle(destination)
 
 
 def test_internal_ter_does_not_launch_runner(

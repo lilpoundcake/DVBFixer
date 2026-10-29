@@ -469,14 +469,13 @@ export const GENERATED_COMMANDS = [
         "label": "Diffusion Context",
         "type": "select",
         "group": "Diffusion options",
-        "help": "Protein context: auto uses local for corrected Protpardelle CUDA/MPS; legacy profiles retain their prior path (default: auto)",
+        "help": "Protenix input: auto uses the full structure within the supported 512-residue budget, otherwise a rule-selected motif; local forces the motif, full requires the complete input. Protpardelle always uses its rule-selected motif (default: auto).",
         "required": false,
         "repeatable": false,
         "multi": false,
         "default": "auto",
         "options": [
           "auto",
-          "none",
           "local",
           "full"
         ]
@@ -3729,14 +3728,13 @@ export const GENERATED_COMMANDS = [
         "label": "Diffusion Context",
         "type": "select",
         "group": "Backend",
-        "help": "Protein context: auto uses local for corrected Protpardelle CUDA/MPS; legacy profiles retain their prior path (default: auto)",
+        "help": "Protenix input: auto uses the full structure within the supported 512-residue budget, otherwise a rule-selected motif; local forces the motif, full requires the complete input. Protpardelle always uses its rule-selected motif (default: auto).",
         "required": false,
         "repeatable": false,
         "multi": false,
         "default": "auto",
         "options": [
           "auto",
-          "none",
           "local",
           "full"
         ]
@@ -4745,14 +4743,13 @@ export const GENERATED_COMMANDS = [
         "label": "Diffusion Context",
         "type": "select",
         "group": "Model step",
-        "help": "Protein context: auto uses local for corrected Protpardelle CUDA/MPS; legacy profiles retain their prior path (default: auto)",
+        "help": "Protenix input: auto uses the full structure within the supported 512-residue budget, otherwise a rule-selected motif; local forces the motif, full requires the complete input. Protpardelle always uses its rule-selected motif (default: auto).",
         "required": false,
         "repeatable": false,
         "multi": false,
         "default": "auto",
         "options": [
           "auto",
-          "none",
           "local",
           "full"
         ]

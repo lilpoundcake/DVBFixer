@@ -29,6 +29,7 @@ from dvbfixer.model.diffusion.protein_context import (
     ProteinContextError,
     context_evidence,
     engine_context_view,
+    prepare_protenix_request,
     sampling_entities,
     select_protein_context,
     source_context_position_features,
@@ -91,6 +92,40 @@ def test_budget_failure_does_not_silently_drop_required_partner():
     request, pdb = context_request()
     with pytest.raises(ProteinContextError, match="no neighbors were silently dropped"):
         select_protein_context(request, pdb, ProteinContextPolicy(residue_budget=6))
+
+
+def test_protenix_auto_full_keeps_even_distant_partner_and_legacy_is_unchanged():
+    request, pdb = context_request(partner_y={1: 100, 2: 100, 3: 100})
+    before = request.to_json()
+    full = prepare_protenix_request(request, pdb)
+    assert full.protein_context.policy.partner_mode == "full"
+    assert len(full.protein_context.fixed_conditioning) == len(request.fixed_atoms)
+    assert full == prepare_protenix_request(request, pdb, "full")
+    assert prepare_protenix_request(request, pdb, "none").to_json() == before
+    assert request.to_json() == before
+
+
+def test_protenix_auto_uses_motif_only_when_full_axis_exceeds_budget():
+    request, pdb = context_request(partner_y={1: 100, 2: 100, 3: 100})
+    request = replace(request, target_sequences=(request.target_sequences[0], TargetSequence("d", "A" * 510)),
+                      sequence_placements=(request.sequence_placements[0], replace(request.sequence_placements[1], target_length=510)))
+    selected = prepare_protenix_request(request, pdb)
+    assert selected.protein_context.policy.target_flanks == 8
+    assert all(item.atom.chain == "D" for item in selected.protein_context.fixed_conditioning)
+    with pytest.raises(ProteinContextError, match="515 residues"):
+        prepare_protenix_request(request, pdb, "full")
+
+
+def test_protenix_auto_does_not_hide_invalid_full_input_by_cropping():
+    request, pdb = context_request(partner_y={1: 100, 2: 100, 3: 100})
+    atom = next(a for a in request.fixed_atoms if a.chain == "d" and a.atom_name == "CB")
+    # Keep source/request identity consistent while removing a measured atom.
+    pdb = b"".join(line for line in pdb.splitlines(keepends=True)
+                   if not (line.startswith(b"ATOM") and chr(line[21]) == "d" and line[12:16].strip() == b"CB" and line[22:26].strip().decode() == atom.residue_number))
+    request = replace(request, fixed_atoms=tuple(a for a in request.fixed_atoms if a != atom),
+                      normalized_pdb=replace(request.normalized_pdb, sha256=hashlib.sha256(pdb).hexdigest()))
+    with pytest.raises(ProteinContextError, match="heavy-atom-incomplete"):
+        prepare_protenix_request(request, pdb)
 
 
 def test_intact_policy_splits_native_breaks_without_splitting_artificial_gap():
@@ -220,7 +255,7 @@ def test_joint_gap_chains_are_one_exact_context_plan_and_fail_closed_for_protpar
     validate_context_capability(selected, "protenix")
     with pytest.raises(ProteinContextError, match="joint gap-bearing"):
         validate_context_capability(selected, "protpardelle")
-    with pytest.raises(ProteinContextError, match="require explicit"):
+    with pytest.raises(ProteinContextError, match="require a context plan"):
         validate_context_capability(request, "protenix")
 
 

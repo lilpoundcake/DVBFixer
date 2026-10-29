@@ -55,7 +55,7 @@ def test_cuda_default_context_preserves_terminal_oxt_and_replays_identically(tmp
 def test_cuda_profile_never_silently_replaces_an_explicit_context_mode(tmp_path, mode, cli_fixture):
     source = cli_fixture._gap_input(tmp_path)
     request = build_cli_diffusion_request(source, {"C": "SNRFSGSKSGNTA"}, seeds=(7,), profile="protpardelle-1c-cuda")
-    with pytest.raises(ProteinContextError, match="auto\\|local"):
+    with pytest.raises(ProteinContextError, match="always uses its rule-selected motif"):
         prepare_cuda_cc89_request(request, source.read_bytes(), mode)
 
 

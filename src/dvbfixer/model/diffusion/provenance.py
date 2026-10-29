@@ -82,6 +82,7 @@ class DiffusionProvenanceManifest:
     protein_context: ProteinContextPlan | None = None
     regenerated_template_ownership: tuple[TemplateOwnership, ...] | None = None
     gap_contexts: tuple[ProteinContextPlan, ...] | None = None
+    input_preparation: dict[str, str] | None = None
 
     def __post_init__(self) -> None:
         if self.schema_version != DIFFUSION_PROVENANCE_SCHEMA_VERSION:
@@ -125,6 +126,7 @@ class DiffusionProvenanceManifest:
             "template_ownership": _encode(self.template_ownership),
             **({"protein_context": _encode(self.protein_context)} if self.protein_context is not None else {}),
             **({"gap_contexts": _encode(self.gap_contexts)} if self.gap_contexts is not None else {}),
+            **({"input_preparation": self.input_preparation} if self.input_preparation is not None else {}),
             **({"regenerated_template_ownership": _encode(self.regenerated_template_ownership)} if self.regenerated_template_ownership is not None else {}),
             "requested_profile": self.requested_profile,
             "profile_status": self.profile_status,
@@ -168,6 +170,8 @@ def build_provenance_manifest(
         "",
     )
     profile = DIFFUSION_PROFILES.get(requested_profile)
+    from dvbfixer.model.diffusion.input_preparation import preparation_options
+
     return DiffusionProvenanceManifest(
         schema_version=DIFFUSION_PROVENANCE_SCHEMA_VERSION,
         diffusion_contract_schema_version=DIFFUSION_SCHEMA_VERSION,
@@ -183,6 +187,7 @@ def build_provenance_manifest(
         template_ownership=request.template_ownership,
         protein_context=request.protein_context,
         gap_contexts=request.gap_contexts,
+        input_preparation=preparation_options(request),
         regenerated_template_ownership=request.regenerated_template_ownership,
         requested_profile=requested_profile,
         profile_status=profile.status if profile is not None else "unregistered",

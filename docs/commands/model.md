@@ -250,18 +250,23 @@ explicitly rather than discarding selected contacts.
 New requests record `cc89_context_geometry=anchor-shell-segment-union-v1` and
 `cc89_terminal_context=eight-observed-residues-20a-union-v1`. Frozen requests
 without these options replay their original selection policies unchanged.
-Legacy MPS and Protenix selection are unchanged. The 5J13 internal-gap regression
+Frozen legacy MPS and Protenix selection are unchanged. The 5J13 internal-gap regression
 passed with the segment union; all seven requested gaps in the user's supplied
 FASTA also passed with terminal expansion. This does not establish accuracy for
 every gap or terminal reconstruction. Use an authoritative `--fasta` for the
 intended construct when deposited SEQRES includes unwanted extensions; the tool
 does not silently crop them. See the [experiments](../research/multi-gap-diffusion-5j13.md).
 
-Protenix can opt into source-only protein context with
-`--diffusion-model protenix --diffusion-context local` (eight sequence flanks and
-observed-anchor spatial/partner shells) or `--diffusion-context full` (the
-supported protein environment). For Protenix and the **legacy** MPS profile, `auto` retains the legacy
-`none` behavior. Explicit context requires
+New Protenix requests default to `--diffusion-context auto`: the complete target
+axis is used when it fits the adapter's audited **512-residue** budget; otherwise
+the source-only motif is selected. This is a supported token limit, not a promise
+that any GPU has enough free memory. `--diffusion-context local` forces the motif
+(eight sequence flanks and observed-anchor spatial/partner shells); `full` requires
+the complete input and fails if it exceeds that budget. Chemistry, incomplete
+atoms and other invalid-input errors never trigger a silent crop. The old `none`
+spelling is unadvertised compatibility behavior, not a new user-facing mode;
+frozen requests retain their recorded selection. The **legacy** MPS profile keeps
+its historical default. Explicit context requires
 complete canonical protein context and a bounded residue
 axis; unsupported selections fail before inference. Protenix also supports an
 explicit jointly sampled plan for multiple gap-bearing chains. Legacy MPS Protpardelle can
@@ -270,6 +275,28 @@ per represented source chain; discontiguous entities and joint gap-bearing chain
 are rejected before runner launch. Fixed conditioning and
 preserved-only atoms are distinguished in provenance. See the
 [bounded causal pilot and remaining acceptance](../research/protein-context-pilot.md).
+
+Before sampling, measured source geometry is checked using the shared diagnose
+bond, angle, peptide-planarity, chirality, coincident-atom and steric checks.
+Known target-sequence gaps are not treated as stretched observed peptide bonds.
+Findings are shown in the CLI/GUI job log with affected residues and a retained
+JSON report plus the exact source copy. Severe errors stop sampling; warnings are
+reported without hiding them. A clean input emits no empty warning banner.
+New requests automatically attempt a **bounded local repair** for severe clashes,
+bond-length, bond-angle and amide defects with exact affected-atom evidence. Only
+the affected observed residues may move (at most 64 and 25% of observed residues).
+All selected heavy atoms are restrained; other source records stay byte-identical.
+CPU minimization uses at most 1000 iterations, no solvent and no stochastic
+restarts. Per-residue bounds are 0.5 Å backbone RMSD, 0.5 Å Cα displacement and
+1.25 Å maximum heavy-atom displacement. Independent revalidation must find no
+remaining severe defects anywhere in the input before sampling can start.
+The original source, repaired source, movement report and final scientific
+request are retained and digest-bound into the published candidate evidence.
+Diffusion's fixed-coordinate guarantees apply to the explicitly reported repaired
+source, not an unreported modification of the original file. Warnings remain
+visible. Ambiguous, excessive or unsupported damage fails closed with retained
+diagnostics; selected residues with measured hydrogens currently require separate
+heavy-atom preparation. Frozen request replay never silently repairs its source.
 
 The legacy MPS and Protenix profiles accept canonical protein chains with unambiguous
 missing regions (validated length 3–12 residues) and target sequences from SEQRES
@@ -373,7 +400,7 @@ fatal and publish nothing.
 | `--fasta` | none | FASTA file with complete sequence(s) (alternative to SEQRES) |
 | `--backend` | `modeller` | Select `modeller` or the explicit experimental `diffusion` path |
 | `--diffusion-model` | auto | Optional model choice: `protpardelle` or `protenix`; by default DVBFixer selects an installed model compatible with the machine |
-| `--diffusion-context` | `none` | Experimental shared protein context: `local` or `full`; engine-specific capability checks |
+| `--diffusion-context` | `auto` | Protenix: full within the audited 512-residue budget, otherwise motif; `local`/`full` override. Corrected Protpardelle always uses its rule-selected motif. |
 | `--diffusion-request` | none | Existing schema-4 request with explicit sequence placement and masks; requires its exact referenced normalized PDB |
 | `--diffusion-seed` | 7 | Candidate seed; repeat for multiple candidates |
 | `--diffusion-timeout` | 900 | External runner timeout in seconds; the default covers sequential multi-chain sampling and local refinement |

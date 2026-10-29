@@ -652,8 +652,9 @@ def parse_args(argv=None):
                          help='Parent directory for the private runner workspace')
     backend.add_argument('--diffusion-resume', action='store_true',
                          help='Reuse a verified bundle matching the current mosaic request')
-    backend.add_argument('--diffusion-context', choices=['auto', 'none', 'local', 'full'], default='auto',
-                         help='Protein context: auto uses local for corrected Protpardelle CUDA/MPS; legacy profiles retain their prior path (default: auto)')
+    from dvbfixer.model.context_options import add_context_argument
+
+    add_context_argument(backend)
     backend.add_argument('--diffusion-regenerate-covered', action='store_true',
                          help='Opt in to bounded regeneration of covered substitutions and short uncovered windows')
     backend.add_argument('--diffusion-edit-flanks', type=int, choices=range(1, 6), default=1,
@@ -784,6 +785,7 @@ def main(argv=None):
 
         mosaic = Path(template_paths[0])
         coverage = mosaic.with_name('selected_template_mosaic.coverage.json')
+        diffusion_finished = False
         try:
             runtime = resolve_diffusion_runtime(args.diffusion_model)
             from dvbfixer.model.diffusion.refinement_policy import RefinementPolicy
@@ -826,11 +828,12 @@ def main(argv=None):
                     Path(output_bundle), Path(f"{output_prefix}_homology.pdb"), resume=args.diffusion_resume,
                 )
                 _postprocess_model(str(selected), args)
+            diffusion_finished = True
         except (DiffusionCliError, DiffusionRuntimeError, ValueError) as exc:
             raise SystemExit(f'ERROR: homology diffusion failed: {exc}') from exc
         finally:
-            if args.keep_workdir:
-                print(f"Homology mosaic workdir: {workdir}")
+            if args.keep_workdir or not diffusion_finished or any(Path(workdir).glob('dvbfixer-input-repair-*')):
+                print(f"WARNING: Retained Homology mosaic and diffusion preparation evidence: {workdir}")
             else:
                 shutil.rmtree(workdir, ignore_errors=True)
         return

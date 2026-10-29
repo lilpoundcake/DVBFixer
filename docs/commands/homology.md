@@ -142,7 +142,7 @@ dvbfixer homology target.fasta --template-plan template-plan.json \
 | `--diffusion-timeout SECONDS` | `900` | Positive finite runner timeout. |
 | `--diffusion-work-parent DIR` | output parent | Parent for the private isolated-runner workspace. |
 | `--diffusion-resume` | off | Reuse only a verified bundle matching the current mosaic request. |
-| `--diffusion-context` | `auto` | Local for corrected Protpardelle CUDA/MPS; legacy behavior for other profiles. Explicit `local`/`full` is checked against engine capabilities. Required for Protenix multi-chain or multi-gap plans. |
+| `--diffusion-context` | `auto` | Protenix uses the full input within the audited 512-residue budget, otherwise a rule-selected motif; `local` forces motif and `full` requires the full input. Corrected Protpardelle always selects its motif. Frozen requests preserve their recorded policy. |
 | `--diffusion-regenerate-covered` | off | Opt in to bounded covered-substitution, deletion-boundary, and short-window regeneration. |
 | `--diffusion-edit-flanks` | `1` | Explicit covered-edit flanks per side, 1–5; requires covered regeneration and retains the maximum 12-residue window. |
 | `--alignment PIR` | auto | Use a pre-built PIR alignment instead of automatic alignment. |

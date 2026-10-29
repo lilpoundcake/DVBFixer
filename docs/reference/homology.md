@@ -14,7 +14,7 @@ usage: dvbfixer homology [-h] [--template TEMPLATE]
                          [--diffusion-timeout DIFFUSION_TIMEOUT]
                          [--diffusion-work-parent DIFFUSION_WORK_PARENT]
                          [--diffusion-resume]
-                         [--diffusion-context {auto,none,local,full}]
+                         [--diffusion-context {auto,local,full}]
                          [--diffusion-regenerate-covered]
                          [--diffusion-edit-flanks {1,2,3,4,5}]
                          [--alignment ALIGNMENT] [--salign] [-n NUM_MODELS]
@@ -62,10 +62,12 @@ Backend:
                         Parent directory for the private runner workspace
   --diffusion-resume    Reuse a verified bundle matching the current mosaic
                         request
-  --diffusion-context {auto,none,local,full}
-                        Protein context: auto uses local for corrected
-                        Protpardelle CUDA/MPS; legacy profiles retain their
-                        prior path (default: auto)
+  --diffusion-context {auto,local,full}
+                        Protenix input: auto uses the full structure within
+                        the supported 512-residue budget, otherwise a rule-
+                        selected motif; local forces the motif, full requires
+                        the complete input. Protpardelle always uses its rule-
+                        selected motif (default: auto).
   --diffusion-regenerate-covered
                         Opt in to bounded regeneration of covered
                         substitutions and short uncovered windows

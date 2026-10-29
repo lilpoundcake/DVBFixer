@@ -15,7 +15,7 @@ usage: dvbfixer zbs [-h] [-o OUTPUT] [--ph PH] [--ff FF [FF ...]]
                     [--diffusion-seed DIFFUSION_SEEDS]
                     [--diffusion-timeout DIFFUSION_TIMEOUT]
                     [--diffusion-work-parent DIFFUSION_WORK_PARENT]
-                    [--diffusion-context {auto,none,local,full}]
+                    [--diffusion-context {auto,local,full}]
                     [--diffusion-resume] [--fasta FASTA] [--no-terminal]
                     [--num-loops NUM_LOOPS]
                     [--md-level {none,fast,slow,very_slow,slow_large}]
@@ -96,10 +96,12 @@ Model step:
                         Diffusion runner timeout in seconds (default: 900)
   --diffusion-work-parent DIFFUSION_WORK_PARENT
                         Existing parent for private diffusion workspaces
-  --diffusion-context {auto,none,local,full}
-                        Protein context: auto uses local for corrected
-                        Protpardelle CUDA/MPS; legacy profiles retain their
-                        prior path (default: auto)
+  --diffusion-context {auto,local,full}
+                        Protenix input: auto uses the full structure within
+                        the supported 512-residue budget, otherwise a rule-
+                        selected motif; local forces the motif, full requires
+                        the complete input. Protpardelle always uses its rule-
+                        selected motif (default: auto).
   --diffusion-resume    Reuse a verified model bundle matching the current
                         scientific request
   --fasta FASTA         FASTA file with complete sequence(s) for model step

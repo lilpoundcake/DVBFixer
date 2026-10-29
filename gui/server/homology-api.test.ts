@@ -115,12 +115,23 @@ describe('homology project materialization', () => {
     expect(() => parseFasta('>A\nAA\n>A\nGG\n')).toThrow(/unique/)
   })
 
-  it('preserves profile-default and explicit disabled context choices', () => {
-    for (const mode of ['auto', 'none']) {
+  it('uses the mandatory motif for Protpardelle even with old saved panel options', () => {
+    for (const mode of ['auto', 'none', 'local', 'full']) {
       expect(validatedModelArgs({ '--backend': 'diffusion', '--diffusion-model': 'protpardelle', '--diffusion-context': mode })).toEqual([
-        '--backend', 'diffusion', '--diffusion-seed', '7', '--diffusion-model', 'protpardelle', '--diffusion-context', mode,
+        '--backend', 'diffusion', '--diffusion-seed', '7', '--diffusion-model', 'protpardelle',
       ])
     }
+  })
+
+  it('retains Protenix full and motif overrides but migrates legacy panel none to auto', () => {
+    for (const mode of ['auto', 'local', 'full']) {
+      expect(validatedModelArgs({ '--backend': 'diffusion', '--diffusion-model': 'protenix', '--diffusion-context': mode })).toEqual([
+        '--backend', 'diffusion', '--diffusion-seed', '7', '--diffusion-model', 'protenix', '--diffusion-context', mode,
+      ])
+    }
+    expect(validatedModelArgs({ '--backend': 'diffusion', '--diffusion-model': 'protenix', '--diffusion-context': 'none' })).toEqual([
+      '--backend', 'diffusion', '--diffusion-seed', '7', '--diffusion-model', 'protenix',
+    ])
   })
 
   it('routes independent anchor-repair and B-weighting opt-outs as booleans', () => {
