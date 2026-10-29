@@ -28,6 +28,31 @@ The log captures Python and inherited child-process output. It appends a version
 UTC run header and includes a deduplicated warning/error summary when findings
 exist. A clean run has no empty warning banner. See [batch mode and logging](batch-mode.md).
 
+## Native Apple installation profiles
+
+Micromamba 2.9.0 and mamba 2.10.0 passed native arm64 Standard/Desktop acceptance.
+Micromamba 2.0.2 stalled on the same host; use a recent manager rather than
+waiting indefinitely. The helper isolates libmamba profile channels from user
+rc additions and clears inherited conda activation state only in child processes,
+so a separately selected tools manager cannot accidentally run its own Python
+instead of the target prefix's interpreter.
+
+Conda 26.9.4 exposed upstream gettext/libintl library and tk/xorg-libx11 header
+path collisions even with a fresh package cache. Strict conflict prevention
+correctly rejects that transaction. Do not force `--clobber` to claim a clean
+install; use a verified micromamba/mamba route while this native conda gate is
+open. An older cache also contained a damaged blosc package: retain evidence and
+choose a new cache rather than deleting existing environments or disabling
+safety checks.
+
+The declared optional `probe=2.18` package has no osx-arm64 build in bioconda.
+Omit `--addon probe` for the native managed route; the existing Python diagnostic
+fallback remains available. This does not affect Standard/Desktop or the
+independent `msa-alternatives` add-on. A source-built native Probe route has not
+been established by this acceptance increment. Do not silently substitute
+another Probe version or a Rosetta environment. Actual commands and evidence
+are in [profile acceptance](installation-profile-acceptance.md).
+
 ## Diagnostics report errors after a completed run
 
 ### Diffusion has no independently validated candidate

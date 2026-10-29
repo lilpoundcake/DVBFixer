@@ -2,6 +2,23 @@
 
 Date: 2026-10-29. Branch: `feature/installation-profiles`.
 
+## Executed native checkpoint
+
+Micromamba 2.9.0 and mamba 2.10.0 Standard/Desktop licensed smokes passed;
+installed Desktop passed 405 tests and a real Chrome workspace/import/diagnose
+job. Standard extended checks, native GROMACS, MSA alternatives and separate
+PSI4/RESP passed. Corrected cc94 MPS provisioning/preflight and one public 1UBQ
+bundle also passed, with 500 MPS updates and fallback disabled. This is an
+installation case, not general cc94 MPS scientific qualification.
+
+Open gates: conda 26.9.4 macOS upstream package-file collisions; no declared
+bioconda Probe 2.18 osx-arm64 build; broader cc94 MPS model/Homology/context
+qualification. The archived selected-gap 9CQD request fails current public
+coverage admission before sampling; preserve that result and do not bypass the
+gate. Exact versions, warnings, failures and local evidence locations are in
+[the acceptance record](../installation-profile-acceptance.md#native-apple-acceptance-bootstrap-2026-10-29).
+The whole plan remains incomplete. No commit/push is implied by this checkpoint.
+
 ## Why the next host must be Apple Silicon
 
 WP1–WP4 implementation and the feasible Linux WP5 acceptance are complete.

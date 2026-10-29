@@ -62,7 +62,7 @@ Diffusion provisioning instructions and phase boundaries are in
   and separate PSI4 inputs; Python metadata and bundled catalog; real Python
   3.11/3.13 installs and native solves. Existing diffusion deployment inputs are
   referenced, not redefined as scientific profiles.
-- **WP3 implemented (native MPS acceptance not-tested):** interactive/noninteractive helper, three manager adapters,
+- **WP3 implemented (native MPS provisioning/example execution passed; broader scientific acceptance pending):** interactive/noninteractive helper, three manager adapters,
   new-prefix ownership records, resume/reconciliation, protected MODELLER setup
   and Desktop lockfile build/standalone smoke work. The helper now provisions
   pinned diffusion sources and isolated runtimes through `runtime_install.py`,
@@ -76,10 +76,12 @@ Diffusion provisioning instructions and phase boundaries are in
   disabling; ANARCI/HMMER/data failures do not become negative domain findings;
   MUSCLE 5 and topology/trajectory/TPR checks are early and actionable. Included
   PySCF and separate PSI4 actual RESP paths were exercised.
-- **WP5 Linux acceptance executed:** final main-profile and CUDA/QM manager
+- **WP5 Linux acceptance executed; native Apple increment underway:** final main-profile and CUDA/QM manager
   routes, slow structural regressions, extended format/ligand/topology/analysis
-  checks and native GROMACS preprocessing passed. Native macOS Standard/Desktop,
-  optional native dependencies and cc94 MPS remain **not-tested**.
+  checks and native GROMACS preprocessing passed. Native micromamba/mamba
+  Standard/Desktop, MSA alternatives, separate PSI4 and cc94 MPS installation/
+  example execution have passed checks below. Native conda/Probe restrictions
+  and broader cc94 MPS scientific qualification remain open.
 - **WP6 Linux candidate migrated:** default/manual/generated specs, profile CI,
   GUI/MSA separation, user/agent docs and the protected-license CI readiness
   path are synchronized. Whole-plan completion and native platform claims await
@@ -430,3 +432,323 @@ the catalog and excludes the local credential and ignored evidence tree.
 Ruff, strict-target mypy, actionlint, version synchronization, agent/user docs,
 generated profiles and Python-3.11 CLI/GUI schema checks passed. None of these
 local checks is recorded as a native Mac or hosted workflow execution.
+
+## Native Apple acceptance: bootstrap (2026-10-29)
+
+Work started in a separate `feature/installation-profiles` worktree at
+`6662503c69a1b101ce5c8198e7594ca1a86ecf43`, with a clean initial Git status.
+Existing environments and the original checkout were preserved.
+
+- Host: native macOS 26.6.2 (25G83), arm64; bootstrap Python 3.12.7.
+  Explicit `PYTHONPATH="$PWD/src"` resolves DVBFixer 0.10.1 to this worktree.
+- Installed managers: micromamba 2.0.2, mamba 1.5.9, conda 24.9.2.
+  Standard helper `--dry-run` passed with micromamba and conda. Mamba was
+  rejected before prefix creation because the helper requires mamba >=2.0;
+  the existing manager was not upgraded or replaced.
+- Native bootstrap contract tests: **34 passed** using
+  `PYTHONPATH="$PWD/src" python3 -m pytest tests/test_install_helper.py
+  tests/test_installation_profiles.py tests/test_runtime_install.py -q`.
+  Generated installation profiles passed their `--check` with the same
+  explicit source import path. These are not installed scientific smokes.
+- Only approximately **11 GiB** was available on the target volume at initial
+  inspection. Installation sizing must precede creation of new scientific,
+  Desktop and MPS prefixes. No existing environments/caches were removed.
+- The native micromamba Standard `create --dry-run --json --override-channels`
+  solve completed successfully: 244 LINK packages and 179 FETCH packages
+  (392,046,727 declared download bytes at solve time). Selected native builds
+  include Python 3.13.18 `hb59dee6_100_cp313`, OpenMM 8.6.1
+  `py313h6e8b90c_0_khronos`, MODELLER 10.8 `py313h8a0c2ca_0`, AmberTools 26.0
+  `cuda_None_nompi_py313h47fe9ef_100`, plus noarch OpenFF Toolkit Base 0.19.0.
+  This is resolver evidence only, not installed/import/scientific acceptance.
+  Declared package sizes do not establish the unpacked environment footprint;
+  FETCH requirements can change after cache cleanup.
+- Local bootstrap evidence is retained under
+  `.artifacts/installation-profiles/apple/` (`host.json`,
+  `bootstrap-tests.log`, `helper-dry-runs.json`, manager dry-run logs).
+
+Standard/Desktop scientific and licensed workflows, installed Desktop/browser,
+add-ons, optional PSI4 and cc94 MPS remain **not-tested** on this host. Neither
+bootstrap tests nor helper dry runs close those platform gates. Licensed
+acceptance requires an operator-provided protected MODELLER credential source;
+no key is retrieved from an existing installation.
+
+Subsequent storage cleanup was separately authorized by the user: removal of
+the large multi-checkpoint download archive while preserving verified extracted
+cc94/cc89 assets, lossless verified recovery archives for historical gfnff files
+and handoff essentials, and `micromamba clean --tarballs --yes`. No existing
+environments or unpacked package-cache entries were removed. After tarball
+cleanup, measured free space was **23.85 GiB**. Detailed local cleanup evidence
+is in `artifact-audit/README.md` and `micromamba-clean-tarballs.log` below the
+Apple evidence directory.
+
+Native installation has now been started with micromamba in a new owned prefix,
+initially using `--skip-modeller`. The operator subsequently supplied a protected
+credential file; ownership and mode 0600 were checked without reading its value
+into reports. Licensed configure-only/model/Homology acceptance is still pending.
+The broader bootstrap readiness test selection returned **54 passed, 2 failed**:
+the existing bootstrap Python lacks Gemmi and SciPy. These are not failures of
+the new Standard prefix (installation is pending); repeat the selection there.
+The separate cc94 MPS helper dry run accepted the retained operator checkpoint
+and config identities; it did not provision or execute MPS. Evidence:
+`bootstrap-readiness-tests.log`, `micromamba-standard-install.log`, and
+`cc94-mps-plan.json` below the Apple evidence directory.
+
+### Native micromamba stalled attempt and channel isolation fix
+
+The initial helper installation made no prefix and emitted no native progress
+for over 85 minutes. A native `sample` captured an approximately 43.7 GiB
+physical footprint; symbols were unavailable, so the stack does not identify
+the underlying resolver operation. The operator's rc files add a channel not
+declared by the profile. Unlike the successful dry-run command, the helper's
+micromamba create/update commands lacked `--override-channels` and could merge
+those user channels. No credential-bearing channel URLs are recorded here.
+
+Stopped only the owned stalled micromamba child with SIGTERM, preserving its
+log and sample. The micromamba adapter now passes `--override-channels` for
+both creation and resume/update, without modifying user configuration. Manager
+argv and runtime/helper/composition tests pass (**34 passed**). This correction
+does not by itself prove the cause of the high memory use or native readiness.
+An owned-prefix resume was started with protected MODELLER fd input and a
+30-minute process-group timeout; evidence is in
+`micromamba-standard-install-v2.log`. Its result remains pending.
+
+That resume reached the 30-minute limit and was terminated (exit 124), still
+without creating the target prefix. At a 16-minute sample it used one CPU core
+and approximately 1.5 GiB RSS. Channel isolation therefore did not resolve the
+stall; it must not be reported as a proven root-cause fix. No native scientific
+or licensed smoke had run at that point.
+
+Bootstrapped native micromamba **2.9.0** in a new separate tools directory,
+without replacing the existing 2.0.2 binary or installing into an existing
+environment. The conda-forge osx-arm64 distribution was checked against the
+release API's SHA256
+`500f5074feb8d02c4296ef9921c3650ed2874171805a9fbb8fbb53896433646b`.
+Its executable version check passed. A strict-priority, profile-channel-only
+Standard dry run was started with a five-minute process-group limit; its logs
+and elapsed-time record are `micromamba-2.9-standard-solve*`. This remains
+diagnostic work, not platform acceptance. Focused helper/catalog/runtime and
+readiness checks now pass **41 tests** in bootstrap Python.
+
+Micromamba 2.9.0 completed that strict native dry run successfully in **30.76
+seconds** (245 LINK packages, 182 FETCH packages). Selected native builds retain
+Python 3.13.18, NumPy 2.4.6, OpenMM 8.6.1 and AmberTools 26.0; SciPy resolves to
+1.18.1 `py313hccac1f9_2`. This is evidence of materially different behavior with
+the newer binary on this host, not a diagnosis of the old binary's internal
+failure. A real helper resume was then started with the separate 2.9.0 tools
+directory prepended to PATH, protected MODELLER fd input and the same 30-minute
+process-group limit. Installation and science remain pending; logs/timing are
+`micromamba-standard-install-v3*`.
+
+The 2.9.0 real installation completed its native package transaction and reached
+the pip stage (including native arm64 Open Babel/ACPYPE/PySCF distributions).
+Scientific and licensed readiness are still pending that attempt's completion.
+At the user's explicit request, `~/bin/micromamba` was also atomically updated
+from 2.0.2 to the verified 2.9.0 binary, with the old executable retained in the
+separate tools directory for rollback. No existing environments or user rc files
+were modified by the binary update; `user-micromamba-update.json` records it.
+
+Native source GUI verification passed a fresh `npm ci`, typecheck, **405 tests**
+in 57 files, client/server build and standalone HTTP smoke. Evidence:
+`source-gui-{ci,typecheck,tests,build}.log` and `source-gui-results.json`. This is
+source-worktree evidence, not installed Desktop or real-browser acceptance.
+
+### Native Standard first successful installation
+
+The micromamba **2.9.0** helper resume finished successfully (exit 0) in
+**445.45 seconds**, including protected MODELLER configuration and actual
+licensed execution. All **14/14** scientific smoke steps passed: chemistry/
+OpenFF/GAFF2, real PySCF HF/6-31G* RESP, ANARCI/HMMER/data, DCD/GRO/NetCDF/
+structural fitting/Plotly, both preparation backends, native obminimize,
+protonation, diagnose, Reference minimize `--no-solvent`, topology, MAFFT,
+MODELLER gap modeling and Homology. Repaired/minimized outputs also passed
+the smoke's nonempty/all-L assertions. Native linear algebra used OpenBLAS;
+`doctor --profile standard` reported `ready`. Probe and alternative MSA are
+not selected by this baseline; their absence is not counted as a passed add-on.
+
+Evidence: `micromamba-standard-install-v3.log`, its timing JSON and copied
+`standard-licensed-report.json`. The immutable prefix-owned original report is
+under `share/dvbfixer/installation-smoke/87ee687ee9734faaa8d1c7e677af6ddf/`.
+Installed native/Python versions include Python 3.13.18, OpenMM 8.6.1,
+NumPy 2.4.6, SciPy 1.18.1, RDKit 2026.3.1, MDAnalysis 2.11.0, PySCF 2.14.0,
+ACPYPE 2026.10.15, Open Babel wheel 3.1.1.23 and MODELLER 10.8.
+
+| Native Apple route | Current executed result |
+|---|---|
+| micromamba 2.9.0 Standard | **passed**, licensed 14/14 smoke; doctor ready |
+| micromamba 2.9.0 Desktop | **passed**, licensed 14/14 smoke, fresh GUI build/HTTP smoke, 405 installed tests |
+| Source GUI | **passed**, fresh npm ci/typecheck/405 tests/build/HTTP smoke |
+| Installed Desktop/browser | **passed**, real Chrome workspace import and scientific diagnose job |
+| mamba 2.10.0 Standard/Desktop | **passed**, licensed 14/14 each and 405 installed Desktop tests |
+| conda 26.9.4 profiles | **failed** Standard attempts; Desktop not-tested pending resolution |
+| MSA alternatives | **passed**, separate licensed prefix and 30/30 extended checks including explicit MUSCLE/Clustal Omega |
+| Probe add-on | **failed** native solve: no bioconda Probe 2.18 osx-arm64 package |
+| Optional PSI4 | **passed**, separate native kernel, integration RESP and full ethanol export |
+| cc94 MPS | **passed** corrected provisioning/preflight and one public installation case; broader research qualification pending |
+
+Extended Standard acceptance was started separately with native GROMACS
+**2026.0**, whose version reports ARM_NEON_ASIMD and CPU-only execution.
+This existing operator installation is external to Standard; its presence does
+not make GROMACS a profile dependency. The extended run passed **27/27** steps
+(`standard-extended/report.json`), including real BCC/PySCF full ethanol
+parameterization, native CIF conversions, antibody numbering, trajectory formats,
+cluster/Plotly, ACPYPE, custom Amber/Amber19SB/CHARMM and strict GROMACS
+preprocessing. The application also read the generated 2026.0 TPR with its
+matching GRO (**1,231 atoms, one frame**).
+
+Native Standard fast tests: **1,728 passed, 3 skipped, 32 deselected**
+(`standard-fast-tests.log`). Skips are two optional Torch tests and one Biotite
+comparison; these remain unexecuted here, not accepted Standard capabilities.
+The run recorded two upstream SWIG deprecation warnings and four unraisable
+`batch._Mirror.flush` exceptions when a captured target stream was already
+closed. Tests passed, but those warnings are retained, not suppressed or called
+warning-free acceptance. Ruff, strict-target mypy and **41** focused source
+helper/readiness tests passed. Version, agent-doc, profile and GUI generators
+passed. CLI-reference checking under Python 3.13 reports argparse alias-format
+drift; its detailed diff is retained without rewriting generated docs. The
+bootstrap Python 3.12 cannot complete that check because it lacks OpenMM.
+A canonical Python-3.11 generator check remains outstanding.
+
+Native micromamba Desktop installed in **135.04 seconds**, with real licensed
+science, fresh lockfile install/typecheck/client/server build/HTTP smoke and
+**405 installed GUI tests** in 57 files (`micromamba-desktop-install*`,
+`installed-desktop-tests.log`). Source npm ci reported zero vulnerabilities;
+the build retained Vite's large-chunk warning.
+
+Installed Desktop real-browser acceptance used existing native Google Chrome
+**154.0.8037.98** through Playwright Core in headless mode, with its own fresh
+browser context and workspace-data directory. The installed Node server bound
+only to loopback and invoked the real installed Desktop `dvbfixer`, not the
+version-only CLI stub used by the build's HTTP smoke. Through the UI it created
+a workspace, imported tracked 1UBQ, rendered the structure, selected Analysis /
+Diagnose and ran a real managed scientific job. The persisted job finished
+`succeeded`, exit 0, and the UI displayed its report. No page errors occurred.
+Evidence: `browser-smoke-v3.log` and `browser-1793286991875/` (screenshot, server
+log, report and owned workspace/job files). Two earlier harness attempts failed
+on ambiguous/wrong selectors and are retained separately; they are not counted
+as application failures or passing browser runs.
+
+Separate native tools with mamba **2.10.0** and conda **26.9.4** were installed
+in a new tools prefix using a distinct package cache. The original mamba/conda
+executables and environments were not upgraded. Their four Standard/Desktop
+helper installations and installed Desktop tests were queued sequentially;
+results remain pending. Verified mamba 2.10 help supports channel overrides,
+so the same create/update channel-isolation fix now covers both libmamba
+adapters; conda's argv is unchanged. cc94 MPS provisioning was also started in
+its own new runtime root using the operator's verified retained checkpoint and
+a separate cache, with fallback disabled and a separate CPU refiner. Runtime
+preflight and actual MPS sampling remain unaccepted until their execution.
+
+### Additional native results and defects
+
+- Mamba **2.10.0** Standard/Desktop both finished ready, with actual licensed
+  14/14 science/model/Homology in each profile (120.56 / 141.52 seconds) and
+  **405 installed Desktop tests**. Evidence: `additional-manager-matrix.json`,
+  `mamba-{standard,desktop}-install.log`, `mamba-desktop-installed-tests.log`.
+- Conda **26.9.4** first failed at pip because inherited caller activation state
+  left tools-Python ahead of the target prefix after `conda run`. Reproduced
+  the wrong interpreter, then cleared only child `CONDA_PREFIX`, nested-prefix,
+  `CONDA_SHLVL`, default-env and prompt state: the same real conda invocation
+  then selected the intended target Python. `child_environment` now implements
+  this without modifying the user's shell; regression tests preserve the
+  selected package cache and parent activation variables.
+- The initial conda attempt also reported an existing corrupted blosc cache
+  entry and upstream package path overlaps. A second attempt used a new prefix,
+  a fresh dedicated cache, enabled safety checks and path-conflict prevention.
+  It correctly stopped on gettext/libintl dylib and tk/xorg-libx11 header
+  collisions. SHA256 comparison showed that the overlapping dylib and two
+  headers are NOT identical (one remaining header is identical). No `--clobber`
+  workaround, cache deletion or claim of conda readiness was made. Both failed
+  prefixes/logs are preserved (`conda-standard-install.log`,
+  `conda-standard-v2-install.log`, `conda-v2-matrix.json`). Desktop via conda
+  remains not-tested. This upstream transaction issue is separate from the
+  corrected child-activation bug.
+- Separate native PSI4 provisioning passed in **117.84 seconds**: actual
+  PSI4 1.9.1 / psiresp 0.4.2 / Pydantic <2 / Libint 2.9.0 installation and HF
+  kernel. The explicitly selected-runtime integration test passed (**1 passed**,
+  `psi4-integration.log`), and complete ethanol GAFF2/two-stage RESP export also
+  passed (`psi4-ethanol/command.log`). The Python 3.9 runtime contains no DVBFixer
+  install; main Python constraints and included PySCF are unchanged.
+- The combined `msa-alternatives` + `probe` clean install failed before creating
+  an environment: `probe=2.18` is unavailable from the declared channels on
+  osx-arm64. No Rosetta/x86 or different Probe version was substituted. A new
+  MSA-only Standard prefix was started separately; failed-prefix ownership
+  markers are not repurposed with different add-ons. Evidence:
+  `standard-addons-install.log` and `standard-msa-*`.
+- The first cc94 MPS runtime installed and passed real PyTorch 2.6.0 MPS tensor
+  math plus the separate OpenMM CPU-refiner kernel, but full runner preflight
+  failed: sampling imported validation, whose quality reference arrays require
+  MDAnalysis distribution data. The Apple sampling recipe lacked that dependency
+  even though CUDA already declares it. Added the same MDAnalysis 2.10.0 and
+  psutil 7.2.2 requirements; no scientific gate/default was relaxed. Sampling
+  kernel checks now import the shared validator so this class of omission is
+  caught before staging. A second attempt exposed incorrectly indented/folded
+  pip entries in the interim recipe; that was corrected and tests now assert
+  both dependencies are separate correctly indented pip list items. Both failed
+  runtimes are retained; the corrected third clean root is provisioning. No
+  launcher was published from either failed runtime and no MPS sampling or
+  candidate acceptance is claimed. Direct preflight stderr and all kernel logs
+  are retained. Focused source helper/policy tests passed **47 tests** before
+  the final indentation regression was tightened. A correctly parsed final
+  YAML was also checked with PyYAML, confirming separate dependency entries.
+- Native slow scientific regressions completed successfully in **538.34 seconds**;
+  the exact test summary is retained in `standard-slow-tests.log`. The new
+  environment used source-worktree imports, two CPU threads and the tracked
+  tests' `--no-solvent` development policy. Exact summary: **31 passed, 1
+  skipped, 1,731 deselected**. The skipped optional PSI4 integration subsequently
+  passed separately with its explicitly supplied new native runtime.
+
+### Native MSA, generator baseline and MPS execution checkpoint
+
+- A separate licensed Standard prefix with **only `msa-alternatives`** finished
+  ready, then passed **30/30 extended steps**, including MAFFT auto, actual
+  explicit MUSCLE 5/Clustal Omega alignments, optional PSI4 full parameterization
+  and GROMACS. The unprovisionable Probe add-on was not silently removed from a
+  requested composition: this is a distinct new prefix and selection.
+  Evidence: `standard-msa-results.json`, `standard-msa-extended/report.json`.
+- A new managed **Python 3.11** generator-only environment completed both
+  `gen_cli_reference.py --check` and `gen_gui_spec.py --check`. This confirms
+  the Python-3.13 drift was argparse rendering, not a changed CLI surface.
+  Generated reference files were not rewritten. Evidence:
+  `generator-py311-results.json`, `gen_cli_reference.py-py311.log`,
+  `gen_gui_spec.py-py311.log`. This environment is not represented as a full
+  scientific Standard profile acceptance route.
+- The corrected third cc94 MPS runtime provisioned in **132.57 seconds**,
+  passed native sampling/CPU-refinement kernels and the canonical runner
+  handshake, then published its contained launcher. Earlier failed roots were
+  retained, not rewritten after changing their immutable recipe identity.
+- From the new Standard CLI, the public 1UBQ internal-residue deletion ran in
+  **38.11 seconds**. `read_published_bundle(...).selected()` succeeded only
+  after its independent digest/geometry validation: bundle `status=success`,
+  one seed-7 candidate, **500** denoising updates on actual **MPS**, fallback
+  disabled, correct cc94 checkpoint/source identities and source-physical/native
+  relative features. Fixed-heavy-atom RMSD/max displacement were both **0.0 Å**
+  and hard-gate failures were empty. The candidate passed at **raw** stage;
+  refinement mode was `none`, so this case does NOT establish an actual
+  scientific minimization through the separate CPU refiner (whose native
+  kernel and preflight did pass). Profile evidence labels remain experimental/
+  MPS-acceptance-pending. Evidence: `cc94-public-model*`,
+  `cc94-public-bundle-validation.json` and the complete `cc94-public-bundle/`.
+- An attempted case-bounded five-seed replay (7, 19, 42, 101, 202) used the
+  digest-verified archived single-gap 9CQD request, changing only profile,
+  native chain phase and seed while checking 58 generated / 3,441 fixed atoms,
+  1,399 conditioning atoms and 189 tokens. **All five requests were rejected
+  before sampling** by current public admission:
+  `sequence-placement-gap-coverage-mismatch`. Thus **zero scientific seeds
+  executed**; these are unsupported admissions, not a 0/5 MPS geometry result
+  and certainly not passing scientific evidence. The old CUDA research harness
+  uses a research-only selected-gap path and is not a portable public admission
+  proof. Do not bypass scope/coverage gates or retry altered favorable inputs to
+  close the MPS gate. Requests/results remain in `cc94-9cqd-mps-n0/` and its log.
+  A separately specified valid representative model/Homology/multi-context
+  evaluation remains necessary before broader cc94 MPS scientific claims.
+
+Final source-worktree fast tests after the adapter/dependency regressions:
+**1,730 passed, 3 skipped, 32 deselected** (`final-fast-tests.log`). The same
+six SWIG/closed-capture warnings were retained. Final Ruff and strict-target
+mypy passed; Ruff additionally reports the pre-existing removed UP038 ignore.
+Wheel and source distributions built successfully. The source archive contains
+the TOML catalog and excludes `.artifacts/` and the credential filename; a new
+dependency-free installed-wheel environment passed `smoke_distribution.py`
+(`distribution-build.log`, `wheel-smoke.log`). No existing environments or
+artifacts were deleted to obtain these results. The native conda/Probe and
+broader MPS gates above remain unresolved; the whole plan is not complete.

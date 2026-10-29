@@ -27,6 +27,18 @@ def test_numpy_scipy_native_linear_algebra_smoke() -> None:
     subprocess.run([sys.executable, str(ROOT / "scripts/check_scientific_linalg.py")], check=True, timeout=30)
 
 
+def test_protpardelle_sampling_specs_include_runner_quality_dependencies() -> None:
+    # cc94_runner imports validation in the sampling process, even though the
+    # actual OpenMM refinement runs in its own environment. Quality gates need
+    # MDAnalysis reference arrays; psutil is used by the maintained runners.
+    for name in ("environment-apple-arm64.yml", "environment-cuda.yml"):
+        spec = (ROOT / "deploy/protpardelle-1c" / name).read_text()
+        assert "      - MDAnalysis==2.10.0" in spec.splitlines()
+        assert "      - psutil==7.2.2" in spec.splitlines()
+        pip_lines = spec.split("  - pip:\n", 1)[1].splitlines()
+        assert all(line.startswith("      - ") and not line.startswith("       ") for line in pip_lines)
+
+
 def test_ter_naming_regressions_run_in_fork_safe_ci() -> None:
     workflow = (ROOT / ".github/workflows/ci.yml").read_text()
     fast_job = workflow.split("\n  lint-and-fast-tests:\n", 1)[1].split("\n  package-distributions:\n", 1)[0]

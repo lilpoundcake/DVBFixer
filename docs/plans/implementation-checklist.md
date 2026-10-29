@@ -33,11 +33,15 @@ Added 2026-10-28. Requirements and next-session starting point:
 - [x] Add profile-aware doctor/preflight for scientific commands, ANARCI/HMMER/data, MSA, analysis and included PySCF RESP (WP4).
 - [x] Execute feasible Linux WP5 acceptance: final six manager/profile installs, slow structural regressions, extended formats/chemistry/topologies/analysis, GROMACS and separate QM.
 - [x] Synchronize the Linux WP6 candidate: generated Standard alias, Desktop inheritance, explicit add-ons/compatibility input, CI/manual/docs/agent metadata.
+- [x] Execute native Apple micromamba 2.9.0 Standard/Desktop licensed 14-step smokes, Standard extended 27-step acceptance, installed Desktop's 405 tests and a real Chrome workspace/scientific job.
+- [x] Extend native Apple acceptance with mamba 2.10.0 profiles/installed GUI, MSA alternatives plus PSI4 extended checks, separate PSI4 RESP, and one digest-verified public cc94 MPS installation bundle (not general scientific qualification).
 - [ ] Verify clean Standard/Desktop installs and add-ons with real functional smokes for each claimed manager/platform; retain not-tested states (WP5).
 - [ ] Synchronize manual installation, documentation, CI and agent status, then finish the proven GUI/MSA migration without removing Standard scientific capabilities (WP6).
 
 WP1–WP4 and the feasible Linux acceptance/migration are implemented. Native Apple
-Standard/Desktop/MPS acceptance remains not-tested and blocks whole-plan completion.
+micromamba/mamba Standard/Desktop, browser, MSA and optional PSI4 acceptance passed.
+Native conda package collisions, unavailable Probe packaging and broader cc94
+MPS scientific qualification remain open and block whole-plan completion.
 Continue using the [Apple acceptance handoff](installation-profiles-apple-acceptance.md).
 Actual clean-install
 evidence are tracked in [profile acceptance](../installation-profile-acceptance.md).

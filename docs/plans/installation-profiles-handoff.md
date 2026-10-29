@@ -187,6 +187,10 @@ WP1 evidence: [матрица зависимостей](../installation-dependen
 
 - [ ] Unit/contract tests composition/manager adapters/ошибок, затем чистые
   изолированные установки Standard/Desktop каждым заявленным менеджером.
+  Native Apple micromamba 2.9.0: Standard/Desktop licensed smoke 14/14,
+  extended Standard 27/27 и установленный Desktop 405 GUI-тестов прошли;
+  Chrome workspace/import/diagnose job также прошёл. Остальная Apple-матрица
+  пока не закрыта; подробности в profile acceptance.
 - [x] Linux-прогоны preparation legacy и opt-in `tleap-reduce`, protonation,
   diagnose, representative `minimize --no-solvent`, MODELLER/Homology.
 - [x] Linux-лигандная химия: RDKit/Open Babel bindings и executables, CIF/SDF,

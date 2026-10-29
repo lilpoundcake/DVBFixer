@@ -38,7 +38,10 @@ class Manager:
 
     def create(self, prefix: Path, spec: Path) -> list[str]:
         subcommand = ["create"] if self.name == "micromamba" else ["env", "create"]
-        return [self.executable, *subcommand, "--yes", "--prefix", str(prefix), "--file", str(spec)]
+        # libmamba otherwise merges channels from user rc files even when
+        # the environment spec declares its own channels and nodefaults.
+        flags = ["--override-channels"] if self.name in ("micromamba", "mamba") else []
+        return [self.executable, *subcommand, *flags, "--yes", "--prefix", str(prefix), "--file", str(spec)]
 
     def run(self, prefix: Path, command: list[str]) -> list[str]:
         # conda's default capture layer disconnects stdin, including the secret
@@ -48,7 +51,8 @@ class Manager:
 
     def update(self, prefix: Path, spec: Path) -> list[str]:
         subcommand = ["install", "--yes"] if self.name == "micromamba" else ["env", "update"]
-        return [self.executable, *subcommand, "--prefix", str(prefix), "--file", str(spec)]
+        flags = ["--override-channels"] if self.name in ("micromamba", "mamba") else []
+        return [self.executable, *subcommand, *flags, "--prefix", str(prefix), "--file", str(spec)]
 
 
 def child_environment() -> dict[str, str]:
@@ -56,6 +60,13 @@ def child_environment() -> dict[str, str]:
     env = os.environ.copy()
     for key in ("PYTHONPATH", "PYTHONHOME", "KEY_MODELLER"):
         env.pop(key, None)
+    # A caller may prepend a tools prefix to PATH while another conda env is
+    # active. Keeping that activation state makes conda run replace the old
+    # prefix in-place, leaving tools/python ahead of the requested interpreter.
+    # Start child activation from an inactive shell; never mutate the caller.
+    for key in tuple(env):
+        if key in ("CONDA_PREFIX", "CONDA_SHLVL", "CONDA_DEFAULT_ENV", "CONDA_PROMPT_MODIFIER") or key.startswith("CONDA_PREFIX_"):
+            env.pop(key, None)
     env["PYTHONNOUSERSITE"] = "1"
     env["CONDA_CHANNEL_PRIORITY"] = "strict"
     env["CONDA_ALWAYS_YES"] = "true"

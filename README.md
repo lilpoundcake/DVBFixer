@@ -29,8 +29,9 @@ PySCF/RESP and MDAnalysis/Plotly. **Desktop** inherits Standard and adds Node/GU
 MUSCLE 5/Clustal Omega and Probe are explicit add-ons. With a Python 3.11+
 bootstrap, the [managed installer](docs/installation.md#standarddesktop-source-checkout-helper)
 can create a new prefix, configure MODELLER privately and run functional smokes.
-Linux routes have executed acceptance evidence; native Apple Silicon acceptance
-is the remaining platform gate.
+Linux routes and native Apple micromamba/mamba Standard/Desktop have executed
+acceptance evidence. Remaining native conda/Probe and broader MPS gates are
+tracked in the [acceptance record](docs/installation-profile-acceptance.md).
 
 ## First structure
 

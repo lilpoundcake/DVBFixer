@@ -65,6 +65,14 @@ resolved builds and remaining Apple acceptance gates. The manual `environment.ym
 route above is the Standard alias. `environments/legacy-full.yml` retains the
 former Desktop-plus-alternative-MSA composition as an explicit compatibility input.
 
+On native Apple Silicon, use micromamba **2.9.0** or mamba **2.10.0**: both
+passed licensed Standard/Desktop workflows and installed GUI checks. Micromamba
+2.0.2 stalled in native solves on the acceptance host. Conda 26.9.4 currently
+has unresolved upstream macOS package-file collisions; the optional Probe 2.18
+conda package is unavailable for osx-arm64. Do not bypass conflicts with
+`--clobber` or substitute x86 packages. See the
+[native installation limitations](known-issues.md#native-apple-installation-profiles).
+
 - **Standard** includes scientific CLI features, MODELLER, ligand/topology and
   antibody tools, MDAnalysis/Plotly, MAFFT and **PySCF/RESP**.
 - **Desktop** inherits Standard and adds Node/npm plus a GUI built from its lockfile.
@@ -318,8 +326,9 @@ Libint versions: an import-only solve was insufficient, and unbounded Libint
 segfaulted in the real native kernel. Linux acceptance exercised HF/6-31G* and
 the public psiresp two-stage API on water and complete ethanol parameterization.
 
-Native macOS arm64 acceptance remains not-tested; prefer the included PySCF route
-until the separate PSI4 recipe has passed its Apple checks.
+The separate recipe also passed native macOS arm64 HF, two-stage RESP water
+integration and complete ethanol export through micromamba 2.9.0. PySCF remains
+the included route; PSI4 is still an explicitly selected optional runtime.
 
 ## NumPy/SciPy BLAS backend
 

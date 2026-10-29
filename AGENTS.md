@@ -648,8 +648,28 @@ command parser merely to inspect generated labels.
   and Libint 2.9.0 (newer unconstrained Libint segfaulted). Use the public
   QCSchema/AtomicResult bridge and Job-owned psiresp orientation, retaining the
   input bond graph. PySCF/RESP remains included in Standard; never move it out.
-  Native Apple is now the next required host gate; use
-  `docs/plans/installation-profiles-apple-acceptance.md`. Linux final source and
+  Native Apple acceptance is underway; use
+  `docs/plans/installation-profiles-apple-acceptance.md`. Micromamba 2.9.0 native
+  Standard/Desktop passed licensed 14-step smokes, extended Standard passed
+  27 checks, and installed Desktop passed 405 GUI tests plus a real Chrome
+  workspace/import/diagnose job. Mamba 2.10.0 also passed both profiles and
+  installed GUI tests. Conda 26.9.4 remains blocked by upstream native package
+  path collisions; do not bypass with --clobber. Probe 2.18 has no declared
+  bioconda osx-arm64 package. The separate native PSI4 route passed kernel,
+  RESP integration and ethanol export. cc94 MPS provisioning/preflight and one
+  1UBQ public bundle passed (500 MPS updates, no fallback), but broader
+  multi-seed/context qualification remains pending. The archived partial 9CQD
+  request is rejected by current public admission; never bypass that gate or
+  count those rejected admissions as executed scientific seeds.
+  Keep libmamba create/update channel isolation (`--override-channels`);
+  user rc channels must not leak into those profile solves. Micromamba 2.0.2
+  stalled on this host; 2.9.0 solved the native profile in 31 seconds.
+  `child_environment` clears only child conda activation state, preserving the
+  user's shell and selected caches; otherwise tools-Python can shadow the
+  requested conda-run interpreter. Apple sampling needs MDAnalysis reference
+  data and psutil just like CUDA, despite separate CPU refinement. Keep those
+  pip entries correctly indented and import shared validation in kernel checks.
+  Linux final source and
   installed Desktop suites pass 405 tests. Keep `copyNativeRun`'s explicit
   directory merge/exclusive-file behavior: Node 26 rejects the old cpSync root
   merge and otherwise loses failure/cancellation diagnostics.

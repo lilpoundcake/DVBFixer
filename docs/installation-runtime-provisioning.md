@@ -46,9 +46,14 @@ python3 scripts/install_dvbfixer.py --runtime protpardelle-cuda \
 
 On native Apple Silicon select `--runtime protpardelle-mps`. This uses only the
 Apple portability patch, native PyTorch 2.6.0 with MPS fallback disabled, and a
-separate OpenMM 8.5.2 CPU refiner. **Native MPS provisioning/execution has not been
-tested by this Linux implementation increment.** cc94 MPS scientific acceptance
-remains pending; CUDA or historical cc89 evidence does not transfer to it.
+separate OpenMM 8.5.2 CPU refiner. Native micromamba 2.9.0 provisioning, real
+MPS/CPU kernel probes and a public 1UBQ model execution passed on macOS arm64.
+The digest-verified bundle had one independently accepted candidate after 500
+MPS updates with fallback disabled; this case needed no refinement. This is
+installation/execution evidence, not broad cc94 MPS scientific qualification.
+Representative multi-seed/context research acceptance remains pending; CUDA or
+historical cc89 evidence does not transfer to it. See the
+[acceptance record](installation-profile-acceptance.md).
 
 Protenix requires all assets from its existing
 [frozen profile lock](../deploy/protenix-v1/profile-lock.json):
@@ -122,7 +127,7 @@ selected QM prefix (existing named environments remain supported).
 
 The verified recipe pins PSI4 1.9.1, psiresp 0.4.2, Pydantic <2 and Libint 2.9.0.
 The worker uses public QCSchema/AtomicResult and psiresp RESP APIs, carrying the
-input bond graph and computing on its Job-owned orientation. Linux acceptance
-included actual water charges and full ethanol parameterization; native Apple
-acceptance remains not-tested. PySCF/RESP is still included in both main profiles
+input bond graph and computing on its Job-owned orientation. Linux and native
+Apple micromamba acceptance included actual water charges and full ethanol
+parameterization. PySCF/RESP is still included in both main profiles
 and is the preferred ordinary free route.

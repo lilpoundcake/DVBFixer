@@ -21,7 +21,8 @@ def test_manager_argv_keeps_paths_with_spaces(name, subcommand):
     manager = Manager(name, f"/tools with spaces/{name}")
     prefix = Path("/env with spaces/standard")
     spec = Path("/tmp with spaces/spec.yml")
-    assert manager.create(prefix, spec) == [manager.executable, *subcommand, "--yes", "--prefix",
+    channel_flags = ["--override-channels"] if name in ("micromamba", "mamba") else []
+    assert manager.create(prefix, spec) == [manager.executable, *subcommand, *channel_flags, "--yes", "--prefix",
                                            str(prefix), "--file", str(spec)]
     flags = ["--no-capture-output"] if name == "conda" else []
     assert manager.run(prefix, ["python", "-m", "pip"]) == [manager.executable, "run", *flags,
@@ -52,8 +53,9 @@ def test_resume_binds_profile_and_prefix(tmp_path):
                                            ("conda", ["env", "update"])])
 def test_resume_reconciles_interrupted_native_transaction(name, subcommand):
     manager = Manager(name, name)
+    channel_flags = ["--override-channels"] if name in ("micromamba", "mamba") else []
     assert manager.update(Path("/target"), Path("/spec.yml")) == [
-        name, *subcommand, "--prefix", "/target", "--file", "/spec.yml"
+        name, *subcommand, *channel_flags, "--prefix", "/target", "--file", "/spec.yml"
     ]
 
 
@@ -76,6 +78,20 @@ def test_child_does_not_import_another_worktree_or_inherit_license(monkeypatch):
     env = child_environment()
     assert not {"PYTHONPATH", "PYTHONHOME", "KEY_MODELLER"} & env.keys()
     assert env["PYTHONNOUSERSITE"] == "1"
+
+
+def test_child_starts_without_caller_conda_activation(monkeypatch):
+    keys = ("CONDA_PREFIX", "CONDA_PREFIX_1", "CONDA_SHLVL", "CONDA_DEFAULT_ENV", "CONDA_PROMPT_MODIFIER")
+    for key in keys:
+        monkeypatch.setenv(key, "caller-environment")
+    monkeypatch.setenv("CONDA_PKGS_DIRS", "/chosen/package-cache")
+    env = child_environment()
+    assert not set(keys) & env.keys()
+    assert env["CONDA_PKGS_DIRS"] == "/chosen/package-cache"
+    # Clearing the child activation must not deactivate the user's shell.
+    import os
+
+    assert all(os.environ[key] == "caller-environment" for key in keys)
 
 
 def test_license_failure_output_is_not_disclosed(monkeypatch, capsys):

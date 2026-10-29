@@ -366,7 +366,8 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
         # Without operator assets we can verify kernels, but must defer that import.
         engine_import = f"import {entry['engine_import']}; " if not missing else ""
         report["engine_import_checked"] = False
-        code = (f"import torch; assert torch.__version__ == {entry['torch_version']!r}; "
+        code = ("from dvbfixer.model.diffusion.validate import validate_runner_result; "
+                f"import torch; assert torch.__version__ == {entry['torch_version']!r}; "
                 + engine_import +
                 f"x = torch.ones((2, 2), device={device!r}); assert float((x @ x).sum().item()) == 8; "
                 "print(torch.__version__, x.device)")
