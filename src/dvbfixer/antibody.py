@@ -27,6 +27,41 @@ positions for residues that actually align.
 
 from __future__ import annotations
 
+import importlib
+import shutil
+from pathlib import Path
+
+
+class AntibodyToolError(RuntimeError):
+    """ANARCI/HMMER could not run; this is not a negative domain finding."""
+
+
+def require_anarci():
+    """Check the Python API, HMMER executable and pressed database together."""
+    hint = "Install ANARCI and HMMER with their profile data in Standard; run dvbfixer doctor --profile standard."
+    try:
+        module = importlib.import_module("anarci.anarci")
+    except (ImportError, OSError) as exc:
+        raise AntibodyToolError(f"ANARCI is unavailable. {hint}") from exc
+    if shutil.which("hmmscan") is None:
+        raise AntibodyToolError(f"ANARCI requires the hmmscan executable on PATH. {hint}")
+    database = getattr(module, "HMM_path", None)
+    if not database or not all((Path(database) / ("ALL.hmm" + suffix)).is_file()
+                               for suffix in ("", ".h3f", ".h3i", ".h3m", ".h3p")):
+        raise AntibodyToolError(f"ANARCI pressed ALL.hmm database is missing or incomplete. {hint}")
+    return module.anarci
+
+
+def run_anarci(sequences, **kwargs):
+    number = require_anarci()
+    try:
+        return number(sequences, **kwargs)
+    except Exception as exc:
+        raise AntibodyToolError(
+            f"ANARCI/HMMER execution failed ({type(exc).__name__}: {exc}); "
+            "no antibody-domain decision was made. Run dvbfixer doctor --profile standard."
+        ) from exc
+
 # ---------------------------------------------------------------------------
 # EU-numbered reference sequences (human germline)
 # ---------------------------------------------------------------------------
@@ -176,20 +211,11 @@ def _number_v_domain(seq: str, scheme: str):
     """
     if scheme not in _ANARCI_V_SCHEMES:
         return None
-    if not _have_anarci():
-        return None
     anarci_scheme = _ANARCI_V_SCHEMES[scheme]
-    try:
-        from anarci import anarci
-    except ImportError:
-        return None
-    try:
-        numbered, alignment_details, _ = anarci(
-            [("query", seq)], scheme=anarci_scheme,
-            allow={"H", "K", "L"},
-        )
-    except Exception:
-        return None
+    numbered, alignment_details, _ = run_anarci(
+        [("query", seq)], scheme=anarci_scheme,
+        allow={"H", "K", "L"},
+    )
     if not numbered or not numbered[0]:
         return None
     placements = []

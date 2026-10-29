@@ -23,7 +23,7 @@ from dvbfixer.model.diffusion.preflight import (
     invoke_runner_preflight,
 )
 from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
-from dvbfixer.model.diffusion.runtime import resolve_diffusion_runtime
+from dvbfixer.model.diffusion.runtime import DiffusionRuntimeError, resolve_diffusion_runtime
 
 PYTHON_PACKAGES = {
     "OpenMM": "openmm", "PDBFixer": "pdbfixer", "Modeller": "modeller",
@@ -66,10 +66,14 @@ def collect_capabilities(
     diffusion_timeout: float = 30.0,
 ) -> dict[str, Any]:
     """Collect capabilities without importing heavyweight optional packages."""
+    selection_error = None
     if diffusion_model is not None:
-        runtime = resolve_diffusion_runtime(diffusion_model)
-        diffusion_profile = runtime.profile
-        diffusion_runner = runtime.runner
+        try:
+            runtime = resolve_diffusion_runtime(diffusion_model)
+            diffusion_profile = runtime.profile
+            diffusion_runner = runtime.runner
+        except DiffusionRuntimeError as exc:
+            selection_error = str(exc)
     packages = {name: _package_status(module) for name, module in PYTHON_PACKAGES.items()}
     if packages["Modeller"]["available"]:
         try:
@@ -103,6 +107,8 @@ def collect_capabilities(
         },
         "selected_profile": None,
     }
+    if selection_error:
+        diffusion["selection_error"] = selection_error
     if diffusion_profile is not None:
         issues: list[AdapterPreflightIssue] = []
         runner_path = shutil.which(diffusion_runner) if diffusion_runner else None
@@ -196,10 +202,15 @@ def main(argv: list[str] | None = None) -> None:
         from dvbfixer.profile_readiness import collect_profile_readiness
         readiness = collect_profile_readiness(args.profile, tuple(args.addon))
         report["installation"] = readiness
+    diffusion = report.get("diffusion", {})
+    selected = diffusion.get("selected_profile")
+    diffusion_failed = diffusion.get("selection_error") or (selected is not None and not selected["passed"])
+    exit_code = (1 if diffusion_failed else 1 if readiness and readiness["state"] == "error"
+                 else 2 if readiness and readiness["state"] == "action-required" else 0)
     if args.format == "json":
         print(json.dumps(report, indent=2))
-        if readiness and readiness["state"] != "ready":
-            raise SystemExit(1 if readiness["state"] == "error" else 2)
+        if exit_code:
+            raise SystemExit(exit_code)
         return
     if readiness:
         print(f"Installation {args.profile}: {readiness['state']}")
@@ -225,13 +236,15 @@ def main(argv: list[str] | None = None) -> None:
         labels = ", ".join(metadata["evidence_labels"])
         print(f"  {name}: {metadata['status']} [{labels}]")
     selected = report["diffusion"]["selected_profile"]
+    if diffusion.get("selection_error"):
+        print(f"ERROR: selected diffusion model is unavailable: {diffusion['selection_error']}")
     if selected is not None:
         state = "OK" if selected["passed"] else "BLOCKED"
         print(f"Selected diffusion profile: {selected['profile']} ({state})")
         for issue in selected["issues"]:
             print(f"  {issue['code']}: {issue['message']}")
-    if readiness and readiness["state"] != "ready":
-        raise SystemExit(1 if readiness["state"] == "error" else 2)
+    if exit_code:
+        raise SystemExit(exit_code)
 
 
 if __name__ == "__main__":

@@ -289,7 +289,7 @@ def _install_stub_pipeline(monkeypatch, pka_entries, reduce_atoms):
         Path(output_pdb).write_text(Path(input_pdb).read_text())
 
     def _fake_reduce(input_pdb, output_pdb, build=True, nuclear=True,
-                    verbose=False):
+                     verbose=False, binary=None):
         Path(output_pdb).write_text(Path(input_pdb).read_text())
 
     def _fake_run_propka(path):
@@ -302,6 +302,7 @@ def _install_stub_pipeline(monkeypatch, pka_entries, reduce_atoms):
         return dict(reduce_atoms)
 
     monkeypatch.setattr(pb, "run_tleap", _fake_tleap)
+    monkeypatch.setattr(pb, "_require_binary", lambda name, **kwargs: name)
     monkeypatch.setattr(pb, "run_reduce", _fake_reduce)
     monkeypatch.setattr(pb, "_infer_his_tautomers_from_atoms", _fake_his)
     monkeypatch.setattr(

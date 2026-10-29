@@ -23,7 +23,8 @@ micromamba activate dvbfixer
 pip install -e .
 ```
 
-The full environment includes the scientific Python stack and external tools.
+The default `environment.yml` is generated from **Standard**: the scientific
+Python stack and normal CLI external tools, including PySCF/RESP and analysis.
 Keep Python in the supported `>=3.11,<3.14` range. Editable installation uses
 the checkout directly; keep it in place while using this environment.
 
@@ -57,12 +58,12 @@ The remaining sections cover alternative installations and specific dependencies
 
 ## Standard/Desktop source-checkout helper
 
-The installation-profile migration is in progress. The helper and the two
-main profiles have Linux clean-install evidence with micromamba 2.9.0, mamba
+The helper and the two main profiles have Linux clean-install evidence with micromamba 2.9.0, mamba
 2.10.0 and conda 26.9.4. See the [dependency matrix](installation-dependency-matrix.md)
 and [acceptance record](installation-profile-acceptance.md) for implemented scope,
-resolved builds and remaining gates. The manual `environment.yml` route above
-is retained during this transition.
+resolved builds and remaining Apple acceptance gates. The manual `environment.yml`
+route above is the Standard alias. `environments/legacy-full.yml` retains the
+former Desktop-plus-alternative-MSA composition as an explicit compatibility input.
 
 - **Standard** includes scientific CLI features, MODELLER, ligand/topology and
   antibody tools, MDAnalysis/Plotly, MAFFT and **PySCF/RESP**.
@@ -114,9 +115,12 @@ micromamba run -p /path/to/new-desktop npm --prefix /path/to/new-desktop/share/d
 ```
 
 For manual profile installation without the helper, generate/check the specs
-with `python scripts/gen_installation_profiles.py --check`, create a new prefix
+with `PYTHONPATH=src python scripts/gen_installation_profiles.py --check`, create a new prefix
 from `environments/standard.yml` or `environments/desktop.yml`, then install
-DVBFixer into that prefix with `python -m pip install .`. These specs use only
+DVBFixer with `python -m pip install -e .`. For manual Desktop, run `npm ci` and
+`npm run build` in the checkout's `gui/` and start it with `npm start` while that
+environment is active. `doctor --profile desktop` recognizes this editable
+source build as well as the helper's installed build. These specs use only
 **openbabel-wheel** for Open Babel. Do not overlay conda `openbabel`; ACPYPE's
 Python metadata requires the wheel. The `obminimize` console entrypoint launches
 the wheel's bundled native tool with its plugin paths initialized.
@@ -164,8 +168,9 @@ external tool ran successfully.
 ## Multiple-sequence alignment executables
 
 `dvbfixer msa`, `dvbfixer homology --template-plan`, and the GUI Homology
-workspace run an external alignment
-program. The full `environment.yml` installs all three supported engines:
+workspace run an external alignment program. Standard and Desktop install
+MAFFT. Select `--addon msa-alternatives` for MUSCLE 5 and Clustal Omega, or use
+the explicit compatibility input `environments/legacy-full.yml` for all three:
 
 ```bash
 micromamba create -f environment.yml
@@ -179,7 +184,7 @@ from conda-forge/bioconda. MAFFT is the default and is sufficient by itself:
 ```bash
 micromamba install -n dvbfixer -c conda-forge -c bioconda mafft
 # Optional alternatives:
-micromamba install -n dvbfixer -c conda-forge -c bioconda "muscle>=5" clustalo
+micromamba install -n dvbfixer -c conda-forge -c bioconda "muscle>=5,<6" clustalo
 ```
 
 The commands must be available on `PATH` under these exact names:
@@ -232,7 +237,8 @@ separate installations, not replacements installed by the main environment.
 
 `dvbfixer model --backend diffusion` is an explicit, narrow experimental path;
 MODELLER remains the default. The core DVBFixer environment intentionally does
-not install PyTorch, CUDA/MPS packages, Protenix, Protpardelle, or checkpoints.
+not install PyTorch, diffusion-specific CUDA/MPS stacks, Protenix, Protpardelle,
+or checkpoints. OpenMM may still bring its own scientific GPU dependencies.
 Create the selected runner environment separately and register it once with its
 deployment README. The registration verifies the local checkpoint and installs
 a private launcher; normal `model --backend diffusion` calls do not accept or
@@ -292,16 +298,28 @@ dvbfixer parametrize molecule.pdb -c resp --qm-engine pyscf -v
 The default AM1-BCC charge method needs no QM engine. Select RESP when your
 parameterization protocol requires it; see [parametrize](commands/parametrize.md).
 
-**Optional: PSI4 backend for RESP (alternative to PySCF).** The `--qm-engine psi4` path is supported but requires a **separate conda env** (PSI4 ships its own BLAS/MKL stack that conflicts with OpenMM's, and PSI4 conda-forge builds pull Python 3.9 which dvbfixer doesn't accept):
+**Optional: PSI4/psiresp alternative.** Keep this in a separate environment;
+the validated recipe uses its own Python 3.9 and numerical stack, not the
+project's supported Python range. PySCF remains included in Standard/Desktop.
 
 ```bash
-# One-time setup (~5 minutes):
-micromamba create -n psi4 -c conda-forge psi4 psiresp
+python3 scripts/install_dvbfixer.py --runtime psi4 --manager micromamba \
+  --prefix /path/to/new-psi4-runtime --non-interactive
+dvbfixer parametrize molecule.sdf -c resp --qm-engine psi4 \
+  --psi4-env /path/to/new-psi4-runtime/environment
+# Manual alternative:
+micromamba create -n psi4 -f environments/psi4.yml
 ```
 
-**Do NOT pip-install dvbfixer in the psi4 env** — dvbfixer stays in its main env and shells out to the psi4 env via `micromamba run -n psi4 python …` when `--qm-engine psi4` is invoked. Override the env name via `--psi4-env <name>`.
+Do not install DVBFixer into that QM environment. The main CLI invokes the worker
+through the chosen conda-family manager; `--psi4-env` accepts either an existing
+name or an explicit prefix. The generated recipe pins compatible Pydantic and
+Libint versions: an import-only solve was insufficient, and unbounded Libint
+segfaulted in the real native kernel. Linux acceptance exercised HF/6-31G* and
+the public psiresp two-stage API on water and complete ethanol parameterization.
 
-Fragile on macOS arm64 (libint2 SONAME mismatches). On macOS, prefer `--qm-engine pyscf`.
+Native macOS arm64 acceptance remains not-tested; prefer the included PySCF route
+until the separate PSI4 recipe has passed its Apple checks.
 
 ## NumPy/SciPy BLAS backend
 

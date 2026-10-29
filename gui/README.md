@@ -132,11 +132,12 @@ not guarantee that every optional scientific backend or license is installed.
 
 ### Install and start
 
-Create the repository's DVBfixer environment and install the package:
+Use the [Desktop installer profile](../docs/installation.md#standarddesktop-source-checkout-helper)
+for a built installation, or create the Desktop environment for source development:
 
 ```bash
-micromamba create -f environment.yml
-micromamba activate dvbfixer
+micromamba create -f environments/desktop.yml
+micromamba activate dvbfixer-desktop
 pip install -e .
 ```
 
@@ -144,25 +145,18 @@ pip install -e .
 
 `model` and (indirectly) other DVBFixer commands rely on
 [Modeller](https://salilab.org/modeller/), which requires a free academic
-license. Register at <https://salilab.org/modeller/registration.html>, then:
-
-```bash
-micromamba activate dvbfixer
-MODELLER_LICENSE_KEY=YOUR_LICENSE_KEY bash gui/scripts/set-modeller-key.sh
-```
-
-The helper finds `<env>/lib/modeller-*/modlib/modeller/config.py`, updates it
-atomically, validates the license with that environment's Python, and restores
-the previous configuration if validation fails. It never prints the key or
-leaves a key-bearing backup. You can also pass an explicit prefix as the first
-argument.
+license. Follow the [protected license setup](../docs/installation.md#standarddesktop-source-checkout-helper)
+using hidden entry or a protected file descriptor. The installer configures only
+its selected target and verifies the actual import; a deferred license is
+reported as action-required. See the [manual license section](../docs/installation.md#modeller-installation-and-license)
+for a manually created environment.
 
 Start the development server directly with Vite:
 
 ```bash
 cd gui
 npm ci
-micromamba activate dvbfixer
+micromamba activate dvbfixer-desktop
 npm run dev
 ```
 

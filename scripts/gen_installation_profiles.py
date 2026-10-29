@@ -16,10 +16,13 @@ def main() -> int:
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     outputs = {
+        "environment.yml": environment_spec("standard").replace("name: dvbfixer-standard\n", "name: dvbfixer\n", 1),
         "environments/standard.yml": environment_spec("standard"),
         "environments/desktop.yml": environment_spec("desktop"),
         "environments/standard-msa-alternatives.yml": environment_spec("standard", ("msa-alternatives",)),
         "environments/standard-probe.yml": environment_spec("standard", ("probe",)),
+        "environments/legacy-full.yml": environment_spec("desktop", ("msa-alternatives",)).replace(
+            "name: dvbfixer-desktop\n", "name: dvbfixer-legacy-full\n", 1),
         "docs/installation-dependency-matrix.md": dependency_matrix(),
     }
     psi4 = load_catalog()["external"]["psi4"]

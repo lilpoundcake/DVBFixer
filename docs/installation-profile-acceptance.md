@@ -47,8 +47,9 @@ runtime readiness and scientific/hardware acceptance are separate gates.
 The [dependency matrix](installation-dependency-matrix.md) and files under
 `environments/` are generated using `scripts/gen_installation_profiles.py`.
 The TOML catalog is the one composition source; manager commands belong in
-adapters. The old `environment.yml` remains the compatibility manual route
-until replacement acceptance is demonstrated.
+adapters. After Linux replacement acceptance, `environment.yml` is the generated
+Standard alias; `environments/legacy-full.yml` preserves Desktop plus alternative
+MSA as an explicit compatibility input. Native Apple acceptance remains open.
 
 Diffusion provisioning instructions and phase boundaries are in
 [separate runtime provisioning](installation-runtime-provisioning.md).
@@ -70,17 +71,19 @@ Diffusion provisioning instructions and phase boundaries are in
   The helper now runs the real scientific smoke script after installation and
   persists a unique evidence bundle below the target prefix. Configure-only
   completion runs the licensed modeling/Homology steps without rebuilding GUI.
-- **WP4 partial groundwork:** profile-aware doctor imports required modules in
-  isolated children, checks executable presence, ANARCI pressed database,
-  Open Babel/ML isolation and native linear algebra. Full scientific-command
-  preflights (PROPKA/Reduce state classification, antibody error vs no domain,
-  topology/trajectory/TPR compatibility) remain pending.
-- **WP5 partial:** the Linux matrix below is executed evidence, not the complete
-  promised structural/format/force-field matrix. Optional runtimes and native
-  macOS/MPS remain not-tested.
-- **WP6 pending:** CI migration, final manual-path replacement and GUI/MSA moves
-  wait for the remaining gates. `environment.yml` is still the compatibility
-  input and has not been silently slimmed.
+- **WP4 implemented:** selected-profile doctor and scientific-command preflights
+  distinguish unavailable dependencies, calculation failures and explicit
+  disabling; ANARCI/HMMER/data failures do not become negative domain findings;
+  MUSCLE 5 and topology/trajectory/TPR checks are early and actionable. Included
+  PySCF and separate PSI4 actual RESP paths were exercised.
+- **WP5 Linux acceptance executed:** final main-profile and CUDA/QM manager
+  routes, slow structural regressions, extended format/ligand/topology/analysis
+  checks and native GROMACS preprocessing passed. Native macOS Standard/Desktop,
+  optional native dependencies and cc94 MPS remain **not-tested**.
+- **WP6 Linux candidate migrated:** default/manual/generated specs, profile CI,
+  GUI/MSA separation, user/agent docs and the protected-license CI readiness
+  path are synchronized. Whole-plan completion and native platform claims await
+  the [Apple acceptance handoff](plans/installation-profiles-apple-acceptance.md).
 
 ## Executed Linux matrix
 
@@ -293,3 +296,137 @@ CLI/GUI schema checks, versions and agent/user documentation checks passed.
 published identical launcher, including its recorded SHA256. Interrupted auxiliary
 copies are staged and hash-checked before no-clobber publication, so a partial
 copy does not become a resume-visible input.
+
+## WP4–WP6 Linux completion and Apple gate
+
+### Functional results
+
+- Final candidate Standard and Desktop were freshly installed below new
+  `/tmp/opencode/dvbfixer-linux-final-*` roots using micromamba, mamba and conda.
+  All six finished **ready**, with real licensed model/Homology, 14 scientific
+  smokes, and fresh Desktop lockfile build/standalone checks.
+- Final installed Desktop tests exposed Node 26's changed
+  `fs.cpSync(errorOnExist)` directory behavior. Native evidence copying now merges
+  directories explicitly with exclusive file creation, while retaining cache,
+  symlink/hardlink and no-overwrite rules. All **405 tests passed** in source
+  and in the actual fresh-lockfile installed Desktop for **each** Linux manager.
+  Source typecheck and all installed build/standalone checks also passed.
+- The first parallel matrix hit a mixed-manager package-cache `.partial` rename
+  race and two tool timeouts. Evidence was retained. Sequential owned-prefix
+  `--resume` completed the affected routes; no existing environment was removed.
+- `linux-slow-acceptance.log`: **31 passed** across the tracked slow input-class
+  and ZBS regressions, in the new Standard environment with `--no-solvent` on
+  minimize/ZBS. This includes GLYCAM, disulfides, ligand chemistry/SMILES,
+  missing atoms, insertion codes, input safety and pathological modeled inputs.
+- `linux-psi4-integration-test.log`: the additional real optional two-stage
+  separate-runtime RESP test passed with its selected prefix. The main profile
+  remains free of PSI4 and PyTorch.
+- `linux-extended-acceptance.log`: actual PDBx/mmCIF and small-molecule CIF,
+  native Open Babel, GAFF/OpenFF, BCC/PySCF/PSI4 complete ethanol parameterization,
+  ANARCI renumbering, DCD/GRO/NetCDF, structural fit, cluster/Plotly, ACPYPE and
+  CHARMM paths passed. An attempted Amber19SB `--ff-dir` combination was correctly
+  rejected by existing policy; it was corrected to the supported Amber custom-FF
+  route rather than relaxing that policy.
+- `linux-topology-acceptance.log`: supported custom FF, bundled Amber19SB,
+  native `editconf` and strict `grompp -maxwarn 0` passed. The GROMACS
+  preprocessing fixture runs zero MD steps; no solvent minimization was added.
+- `linux-glycam-acpype.log` and `linux-glycam-grompp.log`: the tracked hinge/CH3
+  glycoprotein exported **4117 atoms** through AMBER/GLYCAM, ParmEd and ACPYPE,
+  including nonuniform 1–4 scales, then passed strict native GROMACS preprocessing.
+- `linux-gromacs-forcefield-tests.log`: **56 passed**, including all six
+  previously unexecuted GROMACS water/ion preprocessing cases.
+- `linux-tpr-reader.log`: the application input loader read the GROMACS 2026.3
+  TPR and matching GRO (**1231 atoms**, one frame). Unsupported/corrupt TPR and
+  mismatched atom-count failure paths are covered separately.
+- A NumPy ABI RuntimeWarning appeared once in the long slow suite. Native imports
+  and the implicated lipid regression passed again with RuntimeWarnings as errors
+  (`linux-abi-warning-check.log`); real DCD/GRO/NetCDF roundtrips also passed. It
+  was not hidden by suppressing warnings or changing the tested main NumPy stack.
+- Both newly provisioned CUDA public-model bundles were consumed through the
+  digest-verified publication API: `status == success`, one selected candidate
+  each (`linux-runtime-bundle-validation.log`). This remains case-specific
+  installation evidence, not new general or MPS scientific qualification.
+
+### Optional components and defects found by real acceptance
+
+- `linux-standard-addons-resume.log`: a new licensed Standard prefix with
+  `probe` and `msa-alternatives` finished ready. MUSCLE 5.3 and Clustal Omega
+  1.2.4 are actually **bioconda** packages; explicit conda-forge qualifiers were
+  corrected after a failed clean solve, and the resumed install passed. Probe
+  2.18's actual engine/version path was checked; unselected Probe stays optional.
+- MSA now rejects MUSCLE 3 before launching alignment, and the recipe selects
+  `>=5,<6`. MAFFT auto preference and explicit Clustal Omega remain unchanged.
+- Legacy preparation reports `disabled`, `unavailable`, `failed` or `completed`
+  separately for PROPKA/Reduce while retaining documented fallbacks. Standalone
+  protonation requires its enabled dependencies before calculations. Tleap's
+  explicit backend checks both tools/input chemistry early, honors `--no-propka`
+  and rejects `--no-protassign` because Reduce is required for H placement.
+- ANARCI Python API, hmmscan and all pressed HMM files are checked together.
+  Engine/data failures now abort explicit antibody numbering before output;
+  a successful no-domain result remains a legitimate negative.
+- `cluster` checks requested plotting before analysis (retaining the documented
+  numeric-output fallback), validates atom counts/first frame and gives explicit
+  TPR version/matching-GRO/PDB advice. No topology is silently substituted.
+
+### PSI4 is separate; PySCF remains included
+
+The actual optional PSI4 path exposed three defects: psiresp 0.4.2 cannot import
+with Pydantic 2, unbounded Libint 2.13.1 segfaulted in the native PSI4 kernel,
+and the old worker called a nonexistent `Molecule.from_psi4` API.
+
+The generated separate recipe pins **PSI4 1.9.1 / psiresp 0.4.2 / Pydantic <2 /
+Libint 2.9.0**. Its Python 3.9 is isolated and does not change the main
+`>=3.11,<3.14` contract. `--runtime psi4` provisions this independent environment
+and checks an actual HF native kernel through all three Linux managers; receipts
+are `linux-psi4-managed-{install,mamba,conda}.log`.
+
+The worker uses the public QCSchema/AtomicResult bridge and psiresp's own grid and
+two-stage fitting API. Input connectivity/atom order is carried across the process
+boundary, and ESP is computed on the Job-owned orientation (Pydantic copies nested
+models). No new fit implementation or ligand-perception rules were introduced.
+Water RESP and complete ethanol GAFF2/RESP export passed; the optional integration
+test runs only with an explicitly supplied `DVBFIXER_TEST_PSI4_PREFIX`.
+
+Gaussian input generation also passed (`linux-gaussian-input-smoke.log`);
+licensed external Gaussian execution was not requested or claimed. This optional
+operator component is not an Apple platform blocker for Standard/Desktop.
+
+### Migration and next host
+
+`environment.yml` is generated Standard; Node is Desktop-only, alternative MSA
+is explicit, and `environments/legacy-full.yml` retains the old feature composition.
+PySCF/RESP, MDAnalysis/Plotly, ACPYPE/ParmEd and normal chemistry remain in Standard.
+No xTB route or ML metapackage is introduced there.
+
+CI now uses explicit Standard/Desktop specs, validates generated aliases, and
+executes the isolated PSI4 integration test. MODELLER is configured only from a
+protected CI secret when provided; otherwise readiness records action-required
+and licensed slow acceptance is not claimed. Environment caching is disabled for
+the licensed target; download caching does not receive the private replacement
+config. Hosted workflow execution has not been claimed from local checks alone.
+
+Further required platform acceptance now needs a **native Apple Silicon host**.
+See [the handoff](plans/installation-profiles-apple-acceptance.md); all native Mac
+and MPS rows remain not-tested until executed there. The full plan is not declared
+complete at the Linux checkpoint.
+
+Final checkpoint checks are recorded in `linux-handoff-fast-tests.log`:
+**1728 passed, 3 skipped, 32 deselected** in Standard with the native GROMACS
+test executable available. The three skips are two optional Torch checks and
+one independent Biotite comparison, consistent with excluding ML from Standard.
+The Torch cases passed separately (**2 passed**, `linux-optional-torch-tests.log`)
+and the independent Biotite aggregation agreed exactly in the isolated sampling
+runtime (`linux-optional-biotite-check.log`). They are not presented as Standard
+dependencies or as empty passing skips.
+
+Source and each installed Desktop manager route passed **405 GUI tests**; final
+typecheck/build/standalone checks passed. `linux-final-cluster-plot.log` confirms
+actual nonempty HTML output after clustering. The optional PSI4 integration
+passed separately with its supplied runtime prefix. Final wheel/source builds
+and the dependency-free installed-wheel smoke passed, including stdlib-only
+catalog/runtime bootstrap and bundled force fields. The source archive contains
+the catalog and excludes the local credential and ignored evidence tree.
+
+Ruff, strict-target mypy, actionlint, version synchronization, agent/user docs,
+generated profiles and Python-3.11 CLI/GUI schema checks passed. None of these
+local checks is recorded as a native Mac or hosted workflow execution.

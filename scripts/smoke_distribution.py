@@ -54,12 +54,15 @@ def main() -> int:
 
     import dvbfixer
     from dvbfixer.installation_profiles import composition
+    from dvbfixer.runtime_install import runtime_names
     from dvbfixer.top.cli import FF_CHOICES, bundled_ff_root
 
     science = composition("standard")
     desktop_science = [package for package in composition("desktop") if package["group"] == "science"]
     if not science or desktop_science != science:
         raise RuntimeError("wheel is missing the installation catalog or Desktop inheritance is inconsistent")
+    if "psi4" not in runtime_names() or "numpy" in sys.modules or "torch" in sys.modules:
+        raise RuntimeError("installed profile/runtime bootstrap must remain stdlib-only")
 
     installed_version = importlib.metadata.version("dvbfixer")
     versions = {

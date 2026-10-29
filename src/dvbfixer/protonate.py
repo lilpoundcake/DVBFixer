@@ -102,7 +102,8 @@ def parse_args(argv=None):
              "and detect ASN/GLN side-chain flips based on local H-bond "
              "network. **Default ON** — gives every protonate run the same "
              "higher-quality H-network without remembering a flag. Pass "
-             "--no-protassign to disable (PROPKA-only pH-driven decisions). "
+              "--no-protassign to disable on legacy (PROPKA-only decisions); "
+              "tleap-reduce requires Reduce for hydrogen placement. "
              "Requires the `reduce` binary (installed explicitly by the "
              "full dvbfixer environment)."
     )
@@ -192,6 +193,18 @@ def _sanitize_for_propka(input_path):
     return tmp_path
 
 
+class PropkaUnavailableError(ImportError):
+    """The PROPKA engine cannot be imported, rather than a failed pKa calculation."""
+
+
+def require_propka():
+    try:
+        from propka.run import single
+    except ImportError as exc:
+        raise PropkaUnavailableError("PROPKA is unavailable; install Standard or propka>=3.5 in this environment.") from exc
+    return single
+
+
 def run_propka(input_path):
     """Run PROPKA3 on the input PDB and return the MolecularContainer.
 
@@ -199,7 +212,7 @@ def run_propka(input_path):
     (NLN→ASN, OLS→SER, OLT→THR) and stripping heterogens so PROPKA3
     can process glycoprotein inputs.
     """
-    from propka.run import single
+    single = require_propka()
 
     sanitized = _sanitize_for_propka(input_path)
     try:
@@ -813,9 +826,11 @@ def _run_reduce(pdb_path, binary):
 
     Returns the path to a temp output PDB. Caller deletes it.
     """
+    import os
     import subprocess
     import tempfile
     fd, out_path = tempfile.mkstemp(suffix='.reduce.pdb', prefix='dvbfixer_')
+    os.close(fd)
     cmd = [str(binary), '-build', '-flip', '-quiet', '-noheterogens',
            str(pdb_path)]
     with open(out_path, 'w') as outf:
@@ -824,10 +839,13 @@ def _run_reduce(pdb_path, binary):
     # Reduce returns 0 on success but uses non-zero codes for some warnings;
     # check that the output file is non-empty instead.
     import os as _os
-    if _os.path.getsize(out_path) == 0:
+    if result.returncode not in (0, 1) or _os.path.getsize(out_path) == 0:
         _os.unlink(out_path)
         raise RuntimeError(
-            f"reduce produced empty output. stderr:\n{result.stderr}")
+            f"reduce failed (exit {result.returncode}) or produced empty output. stderr:\n{result.stderr}")
+    if not any(line.startswith(("ATOM  ", "HETATM")) for line in Path(out_path).read_text().splitlines()):
+        _os.unlink(out_path)
+        raise RuntimeError("reduce produced no ATOM/HETATM records")
     return out_path
 
 
@@ -1015,7 +1033,10 @@ def _main_tleap_reduce_backend(args, input_path, output_path):
     without Modeller.addHydrogens.
     """
     from dvbfixer.acpype_export import detect_ss_bonds
-    from dvbfixer.prep_backend import TleapError, run_prep
+    from dvbfixer.prep_backend import PrepBackendError, TleapError, run_prep
+    if not args.protassign:
+        raise SystemExit("ERROR: tleap-reduce requires Reduce for hydrogen placement; "
+                         "use --backend legacy to select --no-protassign.")
     try:
         ss_res = detect_ss_bonds(str(input_path))
     except Exception:
@@ -1026,13 +1047,16 @@ def _main_tleap_reduce_backend(args, input_path, output_path):
         result = run_prep(
             input_path, output_path,
             ph=args.ph, ff="leaprc.protein.ff19SB",
-            assign_variants=args.propka,
+            assign_variants=True, use_propka=args.propka,
+            reduce_binary=_find_reduce_binary(args.protassign_binary),
             ss_pairs=ss_res, verbose=args.verbose,
         )
     except TleapError as e:
         print(f"\nERROR: tleap failed. Retry with --backend legacy.\n{e}",
               file=sys.stderr)
         sys.exit(1)
+    except PrepBackendError as exc:
+        raise SystemExit(f"ERROR: {exc}") from exc
 
     # Chirality check — WARN only (see prepare's _main_tleap_reduce_backend
     # for the rationale).
@@ -1062,6 +1086,18 @@ def main(argv=None):
         sys.exit(1)
 
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prot")
+    if not args.propka and not args.protassign:
+        raise SystemExit("ERROR: both protonation engines are disabled; enable PROPKA or Reduce.")
+    reduce_binary = _find_reduce_binary(args.protassign_binary) if args.protassign else None
+    if args.protassign and reduce_binary is None:
+        raise SystemExit("ERROR: MolProbity Reduce is unavailable. Install it separately "
+                         "(conda install -c bioconda reduce), provide --protassign-binary PATH, "
+                         "or explicitly select --no-protassign for PROPKA-only legacy mode.")
+    if args.propka:
+        try:
+            require_propka()
+        except PropkaUnavailableError as exc:
+            raise SystemExit(f"ERROR: {exc}") from exc
 
     # Deterministic backend: skip the whole legacy PROPKA+Reduce+Modeller
     # dance and run the standard AmberTools recipe.
@@ -1090,24 +1126,16 @@ def main(argv=None):
         args.ff, input_path, verbose=args.verbose)
     print_ff_selection(_ff_alias, _ff_reason, args.ff)
 
-    # Both engines off is a hard error — nothing decides protonation.
-    if not args.propka and not args.protassign:
-        print(
-            "ERROR: both --no-propka and --no-protassign disable the two "
-            "protonation engines. Nothing left to decide states from. "
-            "Enable at least one, or use `dvbfixer rename` if you just want "
-            "to strip AMBER variants without predicting protonation.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
     pka_results: list = []
     renames: dict = {}
 
     if args.propka:
         print(f"Running PROPKA3 on {input_path} at pH {args.ph}...")
-        mc = run_propka(input_path)
-        pka_results = get_pka_results(mc)
+        try:
+            mc = run_propka(input_path)
+            pka_results = get_pka_results(mc)
+        except Exception as exc:
+            raise SystemExit(f"ERROR: PROPKA calculation failed ({type(exc).__name__}: {exc}).") from exc
 
         if not pka_results:
             print("No titratable residues found.", file=sys.stderr)
@@ -1155,15 +1183,6 @@ def main(argv=None):
     protassign_asn_flips = set()
     protassign_gln_flips = set()
     if args.protassign:
-        reduce_binary = _find_reduce_binary(args.protassign_binary)
-        if reduce_binary is None:
-            print("ERROR: --protassign (default ON) requires the `reduce` "
-                  "binary. Install AmberTools "
-                  "(`conda install -c conda-forge ambertools`), pass "
-                  "--protassign-binary PATH, or pass --no-protassign to "
-                  "skip the optimisation (PROPKA-only mode).",
-                  file=sys.stderr)
-            sys.exit(1)
         print(f"Running MolProbity Reduce ({reduce_binary}) for HIS tautomers "
               f"+ ASN/GLN flip optimisation...")
         import os as _os
@@ -1171,6 +1190,8 @@ def main(argv=None):
             reduce_out = _run_reduce(input_path, reduce_binary)
             his_picks, asn_flips, gln_flips = _parse_reduce_decisions(
                 reduce_out, input_path)
+        except Exception as exc:
+            raise SystemExit(f"ERROR: MolProbity Reduce calculation failed ({type(exc).__name__}: {exc}).") from exc
         finally:
             try:
                 _os.unlink(reduce_out)

@@ -109,6 +109,25 @@ describe('shared GUI run storage', () => {
     expect(runFiles(destination)).toEqual(['.dvbfixer-run/raw/candidate.pdb'])
   })
 
+  it('merges existing directories without overwriting any existing file', () => {
+    const source = root(), destination = root(), conflict = root()
+    write(source, 'nested/raw.pdb', 'new evidence')
+    write(destination, 'nested/control.json', 'keep this control')
+    copyNativeRun(source, destination)
+    expect(fs.readFileSync(path.join(destination, 'nested/raw.pdb'), 'utf8')).toBe('new evidence')
+    expect(fs.readFileSync(path.join(destination, 'nested/control.json'), 'utf8')).toBe('keep this control')
+    write(conflict, 'nested/control.json', 'replacement')
+    expect(() => copyNativeRun(conflict, destination)).toThrow()
+    expect(fs.readFileSync(path.join(destination, 'nested/control.json'), 'utf8')).toBe('keep this control')
+  })
+
+  it('rejects copying into the source tree before creating a destination', () => {
+    const source = root()
+    write(source, 'raw.pdb')
+    expect(() => copyNativeRun(source, path.join(source, 'nested'))).toThrow(/inside its source/)
+    expect(fs.existsSync(path.join(source, 'nested'))).toBe(false)
+  })
+
   it('does not overwrite an existing archive or create ambiguous manifest entries', async () => {
     const directory = root()
     write(directory, RUN_ARCHIVE, 'existing archive')

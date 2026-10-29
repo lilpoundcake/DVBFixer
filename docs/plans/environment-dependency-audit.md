@@ -642,8 +642,9 @@ precision/recall-квалификация. Исторический checklist н
 с интерактивным режимом и неинтерактивными параметрами. Реализация одобрена
 2026-10-28 после завершения исследований xTB/Probe, с PySCF в Standard/Desktop.
 Продолжать по [handoff](installation-profiles-handoff.md); основной helper и
-diffusion provisioning реализованы и проверены на Linux. Полный WP4 и оставшаяся
-научная/платформенная приёмка ещё не завершены.
+diffusion/QM provisioning и WP4 реализованы и проверены на Linux. Linux-приёмка и
+миграция кандидатных specs/CI/docs выполнены; следующая обязательная проверка
+требует [нативной Apple-машины](installation-profiles-apple-acceptance.md).
 
 - Поддержать семейство conda/mamba: micromamba как рекомендуемый менеджер,
   conda и mamba как альтернативные маршруты. Проверять доступность, версию

@@ -480,10 +480,13 @@ def main(argv=None):
 
         # Try antibody numbering when an antibody scheme is selected
         if scheme != "seqres":
-            from dvbfixer.antibody import number_chain_to_mapping
+            from dvbfixer.antibody import AntibodyToolError, number_chain_to_mapping
             if args.verbose:
                 print(f"Chain {chain}: scheme={scheme}")
-            ab_map, info = number_chain_to_mapping(atom_res, scheme, verbose=args.verbose)
+            try:
+                ab_map, info = number_chain_to_mapping(atom_res, scheme, verbose=args.verbose)
+            except AntibodyToolError as exc:
+                raise SystemExit(f"ERROR: {exc}") from exc
             if info["is_antibody"] and ab_map:
                 # Merge with SEQRES fallback for any residues not placed
                 placed_keys = set(ab_map.keys())

@@ -40,7 +40,7 @@ def test_numpy_constraint_matches_python_311_typecheck_baseline() -> None:
     environment = (root / "environment.yml").read_text()
 
     assert "numpy<2.5" in dependencies
-    assert "- numpy <2.5" in environment
+    assert '"conda-forge::numpy <2.5"' in environment
 
 
 def test_strip_solvent_can_retain_only_input_waters() -> None:

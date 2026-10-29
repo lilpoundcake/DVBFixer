@@ -33,10 +33,10 @@ exist. A clean run has no empty warning banner. See [batch mode and logging](bat
 ### Diffusion has no independently validated candidate
 
 This means the rejected candidate is not safe for downstream preparation; it is
-not permission to bypass geometry or chirality gates. Current Apple runs require
-the corrected `protpardelle-1c-mps-local-v1` launcher. An installed historical
-`protpardelle-1c-mps` launcher alone is insufficient for new requests. See the
-[Apple deployment guide](../deploy/protpardelle-1c/README.md#apple-silicon-preparation).
+not permission to bypass geometry or chirality gates. New Apple requests select
+`protpardelle-1c-cc94-mps-v1`; its native MPS acceptance remains pending.
+Historical cc89 launchers are for explicit frozen-request replay and do not
+qualify cc94. See the [cc94 deployment guide](../deploy/protpardelle-1c/cc94.md).
 
 Scientific refinement failures preserve the raw candidate with the specific
 exception in its provenance. Runner/validation failures retain a private workspace
@@ -66,6 +66,22 @@ severity meanings and [zbs](commands/zbs.md) for postflight options.
   warn and use its documented fallback, which is not evidence that Reduce ran.
 - Check [MSA engines](installation.md#multiple-sequence-alignment-executables)
   with `dvbfixer msa --list-engines`. MUSCLE must be v5.
+
+## Antibody numbering tool failed
+
+An explicitly selected antibody scheme requires the ANARCI Python API, `hmmscan`
+and its pressed HMM database. Missing data or a tool failure is an error before
+output, not "no domain found" and not permission to silently substitute SEQRES.
+The same distinction applies to Homology's antibody mode.
+
+## Trajectory/topology or TPR reader error
+
+`cluster` checks the topology/trajectory atom counts and first frame before
+clustering. Use inputs with matching atom ordering. If the installed MDAnalysis
+cannot read a TPR writer version, supply a supported matching TPR or an explicitly
+chosen matching GRO/PDB topology. This is not an automatic topology substitution.
+Requested Plotly output is checked before analysis; its documented warning and
+numerical-output fallback are retained when the optional plotting module is absent.
 
 ## Missing sequence or incorrect chain mapping
 

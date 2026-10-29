@@ -155,19 +155,17 @@ def run_antibody_analysis(target_chains, verbose=False):
 
     Returns dict with domain info per chain.
     """
-    try:
-        from anarci import anarci
-    except ImportError:
-        print("ERROR: ANARCI not installed. Install with: pip install anarci",
-              file=sys.stderr)
-        sys.exit(1)
+    from dvbfixer.antibody import AntibodyToolError, run_anarci
 
     results = {}
     sequences = [(ch_id, seq) for ch_id, seq in target_chains]
 
     for chain_id, seq in sequences:
-        numbered, alignment_details, hit_tables = anarci(
-            [("query", seq)], scheme="kabat", output=False)
+        try:
+            numbered, alignment_details, hit_tables = run_anarci(
+                [("query", seq)], scheme="kabat", output=False)
+        except AntibodyToolError as exc:
+            raise SystemExit(f"ERROR: {exc}") from exc
 
         if numbered[0] is None:
             if verbose:

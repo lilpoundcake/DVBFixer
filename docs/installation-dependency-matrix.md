@@ -40,8 +40,8 @@ Desktop inherits every Standard scientific dependency. `science` means both prof
 | `propka >=3.5` | PyPI | science | prepare and protonate pKa decisions | propka |
 | `pyscf` | PyPI | science | parametrize --charge-method resp --qm-engine pyscf | pyscf; resp |
 | `nodejs >=22` | conda-forge | gui | GUI lockfile build and standalone host | node; npm |
-| `muscle >=5` | conda-forge | msa-alternatives | msa explicit MUSCLE 5 engine | muscle |
-| `clustalo` | conda-forge | msa-alternatives | msa explicit Clustal Omega engine | clustalo |
+| `muscle >=5,<6` | bioconda | msa-alternatives | msa explicit MUSCLE 5 engine | muscle |
+| `clustalo` | bioconda | msa-alternatives | msa explicit Clustal Omega engine | clustalo |
 | `probe =2.18` | bioconda | probe | optional diagnose engine; Python fallback when unavailable | probe; probe-version |
 
 Channels, in priority order: conda-forge, bioconda, salilab.

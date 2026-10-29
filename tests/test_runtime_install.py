@@ -196,6 +196,21 @@ def test_dry_run_and_unsupported_platform_do_not_create_prefix(monkeypatch, tmp_
     assert list(tmp_path.iterdir()) == []
 
 
+def test_qm_runtime_plan_is_isolated_and_rejects_diffusion_inputs(monkeypatch, tmp_path):
+    monkeypatch.setattr(Manager, "validate", lambda self: "2.9.0")
+    monkeypatch.setattr(runtime_install, "platform_subdir", lambda: "linux-64")
+    prefix = tmp_path / "qm"
+    options = dict(name="psi4", prefix=prefix, manager=Manager("micromamba", "micromamba"), repository=ROOT)
+    report = provision_runtime(**options, dry_run=True)
+    assert report["state"] == "planned"
+    assert report["environment_prefix"] == str(prefix / "environment")
+    assert {"pydantic<2", "libint=2.9.0"} <= set(report["dependencies"])
+    assert list(tmp_path.iterdir()) == []
+    with pytest.raises(ValueError, match="no engine/checkpoint/launcher inputs"):
+        provision_runtime(**options, checkpoint=tmp_path / "missing.pth")
+    assert list(tmp_path.iterdir()) == []
+
+
 @pytest.mark.parametrize("assets,passed,expected", [
     (False, False, "action-required"), (True, False, "error"), (True, True, "ready"),
 ])

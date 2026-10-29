@@ -4,5 +4,7 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - psi4
-  - psiresp
+  - psi4=1.9.1
+  - psiresp=0.4.2
+  - pydantic<2
+  - libint=2.9.0

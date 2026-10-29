@@ -66,7 +66,9 @@ Modeller needs a free academic license from
 `<env>/lib/modeller-10.8/modlib/modeller/config.py`.
 
 The Homology workspace and `dvbfixer msa` shell out to external MSA engines.
-`environment.yml` installs MAFFT, MUSCLE 5, and Clustal Omega; their required
+`environment.yml` is the generated Standard alias and installs MAFFT. The
+`msa-alternatives` add-on (or Desktop-plus-MSA `environments/legacy-full.yml`)
+installs MUSCLE 5 and Clustal Omega; their required
 `PATH` names are `mafft`, `muscle`, and `clustalo`. Keep MUSCLE pinned to v5
 because v3 uses incompatible arguments. Diagnose the active environment with
 `dvbfixer msa --list-engines`; `auto` prefers MAFFT, then MUSCLE, then Clustal
@@ -634,10 +636,23 @@ command parser merely to inspect generated labels.
   publication. Both CUDA routes passed clean provisioning through all three Linux
   managers and checkpoint-backed execution via new micromamba runtimes. Native MPS
   remains not-tested. Preserve Protenix's frozen combined backend process layout;
-  cc94 gets a separate Reference/CPU refiner. Full WP4–WP6 acceptance remains open.
+  cc94 gets a separate Reference/CPU refiner. WP4 preflights and extended Linux
+  scientific/format/QM/topology acceptance are implemented; native Apple
+  Standard/Desktop/MPS acceptance remains the platform gate.
   Real Protenix sampling exposed its Click/Requests consumers and the staged
   refiner's relative-output-path bug; preserve normalization/containment at the
   shared refiner entry point. Do not infer whole-plan completion from provisioning.
+  Default `environment.yml` is now generated Standard (no Node/alternative MSA);
+  the old feature composition survives as `environments/legacy-full.yml`.
+  PSI4 stays separate: the verified 1.9.1/psiresp 0.4.2 route needs Pydantic <2
+  and Libint 2.9.0 (newer unconstrained Libint segfaulted). Use the public
+  QCSchema/AtomicResult bridge and Job-owned psiresp orientation, retaining the
+  input bond graph. PySCF/RESP remains included in Standard; never move it out.
+  Native Apple is now the next required host gate; use
+  `docs/plans/installation-profiles-apple-acceptance.md`. Linux final source and
+  installed Desktop suites pass 405 tests. Keep `copyNativeRun`'s explicit
+  directory merge/exclusive-file behavior: Node 26 rejects the old cpSync root
+  merge and otherwise loses failure/cancellation diagnostics.
 
 - **New Protpardelle production requests use cc94, not cc89.** Profiles are
   `protpardelle-1c-cc94-cuda-v1` / `protpardelle-1c-cc94-mps-v1`, 500 ODE

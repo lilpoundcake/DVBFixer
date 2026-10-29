@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import tomllib
@@ -12,7 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_conda_blas_and_lapack_select_one_backend() -> None:
     dependencies = {
-        line.split("#", 1)[0].strip().removeprefix("- ").strip()
+        (json.loads(line.strip().removeprefix("- ")) if line.strip().startswith('- "')
+         else line.split("#", 1)[0].strip().removeprefix("- ").strip()).split("::", 1)[-1]
         for line in (ROOT / "environment.yml").read_text().splitlines()
         if line.startswith("  - ")
     }

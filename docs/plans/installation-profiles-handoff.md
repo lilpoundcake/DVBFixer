@@ -2,7 +2,7 @@
 
 Дата: 2026-10-28.
 
-**Статус: реализация начата 2026-10-28; приёмка ещё не завершена.** Пользователь
+**Статус: WP1–WP4 и Linux-приёмка/миграция выполнены; следующая приёмка требует Apple Silicon.** Пользователь
 одобрил требования и порядок работ. Реализация и фактическая матрица проверок
 описаны в [profile acceptance](../installation-profile-acceptance.md).
 Повторное согласование уже одобренного состава не требуется.
@@ -152,7 +152,7 @@ WP1 evidence: [матрица зависимостей](../installation-dependen
   какие библиотеки уже загружены в Python-процесс.
 - [x] Сохранить совместимый ручной путь `environment.yml` до доказанной замены;
   не убирать Node/альтернативные MSA раньше готовности Desktop/дополнений.
-- [ ] Убрать из старого YAML исторические объяснения при финальной миграции, оставив необходимые ограничения
+- [x] Убрать из старого YAML исторические объяснения при миграции, оставив необходимые ограничения
   и короткие ссылки на документацию.
 
 ### WP3 — helper, адаптеры и настройка компонентов
@@ -172,26 +172,26 @@ WP1 evidence: [матрица зависимостей](../installation-dependen
 
 ### WP4 — doctor и функциональные preflight
 
-- [ ] Добавить проверки выбранной комплектации и дополнений с actionable
+- [x] Добавить проверки выбранной комплектации и дополнений с actionable
   результатом, не объявляя отсутствие невыбранного optional компонента ошибкой.
-- [ ] Проверять Reduce независимо от AmberTools; различать явное отключение,
+- [x] Проверять Reduce независимо от AmberTools; различать явное отключение,
   недоступность зависимости и реальную ошибку расчёта PROPKA/Reduce.
-- [ ] Проверять ANARCI, HMMER и профильные данные вместе. Ошибка инструмента не
+- [x] Проверять ANARCI, HMMER и профильные данные вместе. Ошибка инструмента не
   равна отсутствию антительного домена; не подменять явно выбранную схему SEQRES.
-- [ ] MAFFT — основной MSA; MUSCLE 5/Clustal Omega — явные альтернативы.
-- [ ] Сохранить все заявленные форматы, `cluster`/`align`, MDAnalysis/Plotly;
+- [x] MAFFT — основной MSA; MUSCLE 5/Clustal Omega — явные альтернативы.
+- [x] Сохранить все заявленные форматы, `cluster`/`align`, MDAnalysis/Plotly;
   рано проверять topology/trajectory compatibility и выдавать понятную ошибку TPR.
-- [ ] Проверить реальный RESP/PySCF путь как часть Standard, а не только import.
+- [x] Проверить реальный RESP/PySCF путь как часть Standard, а не только import.
 
 ### WP5 — чистые установки и приёмка
 
 - [ ] Unit/contract tests composition/manager adapters/ошибок, затем чистые
   изолированные установки Standard/Desktop каждым заявленным менеджером.
-- [ ] Прогоны preparation legacy и opt-in `tleap-reduce`, protonation,
+- [x] Linux-прогоны preparation legacy и opt-in `tleap-reduce`, protonation,
   diagnose, representative `minimize --no-solvent`, MODELLER/Homology.
-- [ ] Лигандная химия: RDKit/Open Babel bindings и executables, CIF/SDF,
+- [x] Linux-лигандная химия: RDKit/Open Babel bindings и executables, CIF/SDF,
   автоматическое восприятие и authoritative SMILES, GAFF/OpenFF и GLYCAM.
-- [ ] Topology/ACPYPE/ParmEd/GRO/user force fields/CHARMM-GUI-compatible paths,
+- [x] Linux Topology/ACPYPE/ParmEd/GRO/user force fields/CHARMM-GUI-compatible paths,
   антительная нумерация, MSA, анализ/plotting и PySCF RESP.
 - [ ] Desktop typecheck/tests/build и запуск standalone; дополнения проверять
   отдельно, включая их отсутствие и отложенную ручную настройку.
@@ -202,13 +202,13 @@ WP1 evidence: [матрица зависимостей](../installation-dependen
 
 ### WP6 — публикация документации и CI, затем завершение миграции
 
-- [ ] Обновить installation matrix, README/quick start, known issues, doctor,
+- [x] Обновить installation matrix, README/quick start, known issues, doctor,
   CI lanes и необходимые агентские контракты; сохранить ручной маршрут.
-- [ ] После доказанной замены перенести GUI-only/альтернативные MSA компоненты.
+- [x] После доказанной Linux-замены перенести GUI-only/альтернативные MSA компоненты.
   PySCF, MDAnalysis/Plotly, ACPYPE/ParmEd и химия остаются в Standard.
-- [ ] Подтвердить, что нет xTB route, ML-пакетов в Standard или зависимости
+- [x] Подтвердить, что нет xTB route, ML-пакетов в Standard или зависимости
   научного CLI от Desktop/Node.
-- [ ] Записать фактическую matrix приёмки и обновить статусы, не объявляя
+- [x] Записать фактическую matrix приёмки и обновить статусы, не объявляя
   выполненными пункты только потому, что подготовлены YAML или mocks.
 
 Общий прогресс отмечать в [каноническом checklist](implementation-checklist.md#installation-profiles-standarddesktop),
@@ -232,9 +232,15 @@ Protenix прошли чистые установки, kernels и frozen preflig
 Нативный MPS остаётся not-tested. Источники/патчи/веса/frozen identities
 проверяются без модификации старых окружений и исходников.
 
-Следующий незавершённый этап — **полный WP4**, затем оставшаяся научная/
-платформенная матрица WP5 и WP6 migration. Подробности и пути evidence находятся
-в acceptance; реализованный helper не означает завершение всего плана.
+WP4 и достижимая Linux-часть WP5/WP6 затем выполнены: шесть финальных
+Standard/Desktop установок, 31 slow regression, расширенные chemistry/format/
+topology/analysis проверки, реальные GROMACS и отдельный PSI4/psiresp. Default
+`environment.yml` — generated Standard; совместимая полная композиция сохранена
+в `environments/legacy-full.yml`. Не считать нативные Mac/MPS пункты выполненными.
+
+Следующий обязательный host gate — **native Apple Silicon acceptance** по
+[отдельному handoff](installation-profiles-apple-acceptance.md). Подробности и
+пути evidence находятся в acceptance; весь план не объявлен завершённым.
 
 Не менять научные алгоритмы/default prep backend, правила идентичности/нумерации,
 SMILES, хиральности, `.dat` или проектную лицензию ради этой миграции.

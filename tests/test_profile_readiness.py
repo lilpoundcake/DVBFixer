@@ -8,18 +8,20 @@ import pytest
 from dvbfixer import doctor, profile_readiness
 
 
-def simulated_profile(monkeypatch, *, missing=None, unlicensed=False):
+def simulated_profile(monkeypatch, *, missing=None, unlicensed=False, profile="standard", node_version="v22.0.0"):
     monkeypatch.setattr(Path, "glob", lambda *args: iter(()))
     monkeypatch.setattr(profile_readiness.importlib.util, "find_spec",
                         lambda name: None if name in {"torch", "protenix"} else object())
     monkeypatch.setattr(profile_readiness.shutil, "which", lambda name: None if name == missing else f"/env/bin/{name}")
 
     def run(argv, **kwargs):
+        if argv == ["node", "--version"]:
+            return subprocess.CompletedProcess(argv, 0, node_version, "")
         failed = unlicensed and argv[-1] == "import modeller"
         return subprocess.CompletedProcess(argv, int(failed), b"", b"private diagnostic")
 
     monkeypatch.setattr(profile_readiness.subprocess, "run", run)
-    return profile_readiness.collect_profile_readiness("standard")
+    return profile_readiness.collect_profile_readiness(profile)
 
 
 def test_unselected_optional_tools_are_not_profile_errors(monkeypatch):
@@ -38,6 +40,24 @@ def test_required_executable_failure_dominates_deferred_license(monkeypatch):
     report = simulated_profile(monkeypatch, missing="reduce", unlicensed=True)
     assert report["state"] == "error"
     assert next(entry for entry in report["checks"] if entry["name"] == "reduce")["state"] == "error"
+
+
+def test_manual_editable_desktop_build_is_a_supported_readiness_route(monkeypatch, tmp_path):
+    repository = tmp_path / "checkout"
+    for relative in ("gui/dist/index.html", "gui/dist-server/server.js"):
+        output = repository / relative
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text("built artifact")
+    monkeypatch.setattr(profile_readiness, "__file__", str(repository / "src/dvbfixer/profile_readiness.py"))
+    monkeypatch.setattr(profile_readiness.sys, "prefix", str(tmp_path / "environment"))
+    report = simulated_profile(monkeypatch, profile="desktop")
+    assert report["state"] == "ready"
+    assert next(entry for entry in report["checks"] if entry["name"] == "gui-build")["state"] == "ready"
+
+
+def test_desktop_rejects_old_node_even_if_executable_exists(monkeypatch):
+    report = simulated_profile(monkeypatch, profile="desktop", node_version="v16.0.0")
+    assert next(entry for entry in report["checks"] if entry["name"] == "node-version")["state"] == "error"
 
 
 @pytest.mark.parametrize("state,code", [("error", 1), ("action-required", 2)])

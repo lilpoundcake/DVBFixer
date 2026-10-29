@@ -31,8 +31,8 @@ module preserves the input's ``(chain, resseq, icode)`` metadata by
 matching residues by ordinal position and re-emitting the PDB with
 the original identifiers.
 
-Ships with ``ambertools>=23`` (which provides both ``tleap`` and
-``reduce``).
+Requires ``ambertools>=23`` for tleap and a separately discovered MolProbity
+``reduce`` executable. AmberTools installation alone does not prove Reduce availability.
 """
 from __future__ import annotations
 
@@ -60,21 +60,40 @@ class ReduceError(PrepBackendError):
     """reduce subprocess failed."""
 
 
+class MissingPrepToolError(PrepBackendError):
+    """A selected backend executable is unavailable, rather than a calculation failure."""
+
+
 # ---------------------------------------------------------------------------
 # Binary discovery
 # ---------------------------------------------------------------------------
 
 
-def _require_binary(name: str) -> str:
+def _require_binary(name: str, *, tool: str | None = None) -> str:
     """Return absolute path to ``name`` or raise with an install hint."""
     path = shutil.which(name)
     if not path:
-        raise PrepBackendError(
-            f"'{name}' not found on PATH. Install AmberTools >= 23 "
-            f"(conda install -c conda-forge ambertools) which ships "
-            f"both tleap and reduce."
-        )
+        hint = ("Install MolProbity Reduce separately (conda install -c bioconda reduce)."
+                if (tool or name) == "reduce" else "Install AmberTools >=23 (conda install -c conda-forge ambertools).")
+        raise MissingPrepToolError(f"'{name}' not found on PATH. {hint}")
     return path
+
+
+def preflight_protein_input(input_pdb: Path) -> None:
+    from Bio.PDB.Polypeptide import protein_letters_3to1
+
+    from dvbfixer.domain.force_field_naming import AMBER_VARIANTS
+
+    allowed = set(protein_letters_3to1) | set(AMBER_VARIANTS) | {"ACE", "NME", "NHE", "HOH", "WAT"}
+    unsupported = []
+    for line in input_pdb.read_text().splitlines():
+        if line.startswith(("ATOM  ", "HETATM")) and len(line) >= 27 and line[17:20].strip() not in allowed:
+            label = f"{line[21]}/{line[17:20].strip()}{line[22:27].strip()}"
+            if label not in unsupported:
+                unsupported.append(label)
+    if unsupported:
+        raise PrepBackendError("tleap-reduce supports canonical protein residues and caps, not "
+                               + ", ".join(unsupported[:10]) + ". Use --backend legacy for this input chemistry.")
 
 
 # ---------------------------------------------------------------------------
@@ -298,6 +317,7 @@ def run_reduce(
     build: bool = True,
     nuclear: bool = True,
     verbose: bool = False,
+    binary: str | Path | None = None,
 ) -> None:
     """Run MolProbity ``reduce`` on ``input_pdb`` and write H-complete
     PDB to ``output_pdb``.
@@ -316,7 +336,7 @@ def run_reduce(
     re-injecting chain IDs upstream (usually by calling ``run_tleap``
     with metadata restoration first).
     """
-    reduce_bin = _require_binary("reduce")
+    reduce_bin = _require_binary(str(binary) if binary is not None else "reduce", tool="reduce")
 
     args = [reduce_bin]
     if build:
@@ -866,6 +886,8 @@ def run_prep(
     assign_variants: bool = True,
     ss_pairs: set[tuple[str, int]] | None = None,
     verbose: bool = False,
+    use_propka: bool = True,
+    reduce_binary: str | Path | None = None,
 ) -> dict[str, object]:
     """Full deterministic prep pipeline. Returns a metadata dict:
 
@@ -878,6 +900,10 @@ def run_prep(
     """
     input_pdb = Path(input_pdb)
     output_pdb = Path(output_pdb)
+    preflight_protein_input(input_pdb)
+    # Check both tools before running either; Reduce is not implied by tleap.
+    _require_binary("tleap")
+    resolved_reduce = _require_binary(str(reduce_binary) if reduce_binary is not None else "reduce", tool="reduce")
 
     with tempfile.TemporaryDirectory(prefix="dvbfixer_prep_") as tmp:
         tmpdir = Path(tmp)
@@ -903,13 +929,14 @@ def run_prep(
         # HIS-variants back to HIS so Reduce actually runs its H-bond
         # network optimisation and picks the tautomer for each residue.
         _rename_all_his_variants_to_his(step3)
-        run_reduce(step3, step4, build=True, nuclear=True, verbose=verbose)
+        run_reduce(step3, step4, build=True, nuclear=True, verbose=verbose, binary=resolved_reduce)
 
         # Reduce may strip chain IDs; restore from altloc-filtered input.
         meta = _capture_residue_meta(step0)
         _restore_metadata(step4, output_pdb, meta)
 
     renames: dict[tuple[str, int, str], str] = {}
+    propka_state = "disabled"
     if assign_variants:
         from dvbfixer.protonate import (
             decide_protonation,
@@ -924,14 +951,18 @@ def run_prep(
         #    overwrote a side-chain pKa with the terminal N+/C- pKa.
         pka_results: list[dict[str, object]] = []
         n_pka = 0
-        try:
-            mc = run_propka(str(output_pdb))
-            pka_results = get_pka_results(mc)
-            n_pka = len(pka_results)
-        except Exception as e:
-            print(f"  [prep] PROPKA skipped ({e}); variant assignment "
-                  f"limited to CYX from SS bonds + HIS tautomers from "
-                  f"Reduce.")
+        if use_propka:
+            try:
+                mc = run_propka(str(output_pdb))
+                pka_results = get_pka_results(mc)
+                n_pka = len(pka_results)
+                propka_state = "completed"
+            except ImportError as e:
+                propka_state = "unavailable"
+                print(f"  [prep] WARNING: PROPKA unavailable ({e}); fallback to Reduce + SS only.")
+            except Exception as e:
+                propka_state = "failed"
+                print(f"  [prep] WARNING: PROPKA calculation failed ({e}); fallback to Reduce + SS only.")
 
         # Note: decide_protonation may over-classify HIS→HIP when a
         # neighbouring positive charge shifts the pKa; that's the intended
@@ -1025,7 +1056,9 @@ def run_prep(
             seen.add(key)
             n_res += 1
 
-    return {"renames": renames, "n_residues": n_res}
+    print(f"  [prep] engines: PROPKA={propka_state}; Reduce=completed; tleap=completed")
+    return {"renames": renames, "n_residues": n_res,
+            "engine_status": {"propka": propka_state, "reduce": "completed", "tleap": "completed"}}
 
 
 def _assign_new_hydrogen_serials(output_pdb: str | Path) -> None:

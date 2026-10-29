@@ -30,11 +30,16 @@ Added 2026-10-28. Requirements and next-session starting point:
 - [x] Align Standard/Desktop/add-on specifications and Python metadata, including a verified single Open Babel provider (WP2).
 - [x] Implement interactive/noninteractive helper and micromamba/mamba/conda adapters without modifying existing environments implicitly (WP3).
 - [x] Implement protected MODELLER setup, Desktop build and separate diffusion-runtime preparation/registration (WP3); native MPS execution remains not-tested under WP5.
-- [ ] Add profile-aware doctor/preflight for scientific commands, ANARCI/HMMER/data, MSA, analysis and included PySCF RESP (WP4).
+- [x] Add profile-aware doctor/preflight for scientific commands, ANARCI/HMMER/data, MSA, analysis and included PySCF RESP (WP4).
+- [x] Execute feasible Linux WP5 acceptance: final six manager/profile installs, slow structural regressions, extended formats/chemistry/topologies/analysis, GROMACS and separate QM.
+- [x] Synchronize the Linux WP6 candidate: generated Standard alias, Desktop inheritance, explicit add-ons/compatibility input, CI/manual/docs/agent metadata.
 - [ ] Verify clean Standard/Desktop installs and add-ons with real functional smokes for each claimed manager/platform; retain not-tested states (WP5).
 - [ ] Synchronize manual installation, documentation, CI and agent status, then finish the proven GUI/MSA migration without removing Standard scientific capabilities (WP6).
 
-Implementation is underway. WP1–WP3 are implemented with Linux evidence; subsequent work and actual clean-install
+WP1–WP4 and the feasible Linux acceptance/migration are implemented. Native Apple
+Standard/Desktop/MPS acceptance remains not-tested and blocks whole-plan completion.
+Continue using the [Apple acceptance handoff](installation-profiles-apple-acceptance.md).
+Actual clean-install
 evidence are tracked in [profile acceptance](../installation-profile-acceptance.md).
 xTB remains removed under ADR 0012; Probe stays optional. Old core/full/extras
 proposals are not the approved installation interface.

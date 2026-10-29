@@ -42,6 +42,7 @@ jobs:
             tests/test_command_registry.py tests/test_fixture_manifest.py \
             tests/test_sequence_alignment.py tests/test_environment_policy.py tests/test_user_docs.py tests/test_altlocs.py \
             tests/test_installation_profiles.py tests/test_install_helper.py tests/test_profile_readiness.py tests/test_runtime_install.py \
+            tests/test_scientific_preflights.py tests/test_msa.py \
             tests/test_diffusion_anchor_policy.py tests/test_diffusion_refinement_stages.py
 
       - name: installation profile composition has no drift
@@ -98,8 +99,9 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
-  # Slow lane: full environment.yml with Modeller/OpenMM/OpenBabel. Skipped in
-  # PRs from forks (no access to the salilab channel key). Runs on push to main
+  # Scientific Standard lane. Licensed slow checks require the operator secret;
+  # without it the readiness artifact explicitly records action-required.
+  # Skipped in PRs from forks (no access to the MODELLER license secret). Runs on push to main
   # and PRs from the same repo.
   full-env-tests:
     runs-on: ubuntu-latest
@@ -110,11 +112,12 @@ jobs:
       - name: Setup micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: environment.yml
+          environment-file: environments/standard.yml
           environment-name: dvbfixer
           # Generated argparse references use the Python 3.11 baseline.
           create-args: python=3.11
-          cache-environment: true
+          # The target config can contain a license; cache downloads, not this env.
+          cache-environment: false
           cache-downloads: true
 
       - name: Install package + dev extras
@@ -127,6 +130,37 @@ jobs:
         shell: bash -el {0}
         run: python scripts/check_scientific_linalg.py
 
+      - name: Configure protected MODELLER credential when provided
+        shell: bash -el {0}
+        env:
+          KEY_MODELLER: ${{ secrets.MODELLER_KEY }}
+        run: |
+          python - <<'PY'
+          import os, shutil, sys
+          from pathlib import Path
+          from dvbfixer.install import Manager, configure_modeller
+          key = os.environ.pop("KEY_MODELLER", "")
+          ready = False
+          if key:
+              configure_modeller(Manager("micromamba", shutil.which("micromamba")), Path(sys.prefix), key)
+              ready = True
+          del key
+          with open(os.environ["GITHUB_ENV"], "a") as stream:
+              stream.write(f"DVBFIXER_MODELLER_READY={int(ready)}\n")
+          print("MODELLER readiness:", "ready" if ready else "action-required; licensed acceptance not-tested")
+          PY
+
+      - name: Record selected Standard prerequisites
+        shell: bash -el {0}
+        run: |
+          status=0
+          dvbfixer doctor --profile standard --format json > installation-readiness.json || status=$?
+          case "$status" in 0|2) ;; *) exit "$status" ;; esac
+
+      - name: Provision isolated optional PSI4 runtime
+        shell: bash -el {0}
+        run: micromamba create --yes --prefix "$RUNNER_TEMP/psi4" --file environments/psi4.yml
+
       - name: docs reference in sync with argparse
         shell: bash -el {0}
         run: python scripts/gen_cli_reference.py --check
@@ -137,7 +171,23 @@ jobs:
 
       - name: pytest (full lane)
         shell: bash -el {0}
-        run: pytest tests/ -q
+        env:
+          DVBFIXER_TEST_PSI4_PREFIX: ${{ runner.temp }}/psi4
+        run: |
+          if [ "$DVBFIXER_MODELLER_READY" = 1 ]; then
+            pytest tests/ -q
+          else
+            pytest tests/ -m 'not slow' -q
+            pytest -q tests/test_optional_psi4.py
+          fi
+
+      - name: Preserve installation readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: standard-installation-readiness
+          path: installation-readiness.json
+          if-no-files-found: ignore
 
   gui:
     runs-on: ubuntu-latest
@@ -177,7 +227,7 @@ jobs:
       - name: Setup micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: environment.yml
+          environment-file: environments/desktop.yml
           environment-name: dvbfixer
           create-args: python=3.11
           cache-environment: true

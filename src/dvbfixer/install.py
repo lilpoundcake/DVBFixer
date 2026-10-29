@@ -163,7 +163,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dry-run", action="store_true", help="Print composition without creating files")
     from dvbfixer.runtime_install import runtime_names
     parser.add_argument("--runtime", choices=runtime_names(),
-                        help="Provision a separate diffusion runtime in --prefix (without --profile)")
+                        help="Provision a separate diffusion or PSI4 runtime in --prefix (without --profile)")
     parser.add_argument("--engine-source", type=Path, help="Optional local Git clone source (read-only)")
     parser.add_argument("--checkpoint", type=Path, help="Operator-provided frozen weights; never downloaded")
     parser.add_argument("--kalign", type=Path, help="Operator-provided digest-pinned Protenix Kalign executable")
@@ -190,7 +190,7 @@ def main(argv: list[str] | None = None) -> int:
             selected = input("Add-ons (comma-separated msa-alternatives,probe; empty for none): ").strip()
             args.addon = [value.strip() for value in selected.split(",") if value.strip()]
         if args.runtime:
-            if not args.checkpoint:
+            if args.runtime != "psi4" and not args.checkpoint:
                 selected = input("Operator checkpoint path (empty to configure later): ").strip()
                 args.checkpoint = Path(selected) if selected else None
             if args.runtime == "protenix-cuda":

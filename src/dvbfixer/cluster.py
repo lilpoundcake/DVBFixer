@@ -1061,11 +1061,17 @@ def main(argv=None):
     args = parse_args(argv)
     prefix = args.output or Path(args.trajectory).stem
 
-    # 1. Load universe
-    import MDAnalysis as mda
+    # Check explicitly requested plotting before doing trajectory work. Retain
+    # the documented numerical-analysis fallback when Plotly is absent.
+    plot_enabled = args.plot and _get_plotly()[0] is not None
+    # 1. Load and validate the topology/trajectory pair.
+    from dvbfixer.trajectory_input import TrajectoryInputError, load_universe
     if args.verbose:
         print(f"Loading {args.topology} + {args.trajectory}...")
-    u = mda.Universe(args.topology, args.trajectory)
+    try:
+        u = load_universe(args.topology, args.trajectory)
+    except TrajectoryInputError as exc:
+        raise SystemExit(f"ERROR: {exc}") from exc
     if args.verbose:
         print(f"  {len(u.atoms)} atoms, {len(u.trajectory)} frames")
 
@@ -1149,7 +1155,7 @@ def main(argv=None):
         print(f"Wrote {p}")
 
     # 7. Plots
-    if args.plot:
+    if plot_enabled:
         for p in plot_ramachandran(prefix, torsion_data, torsion_labels,
                                    cluster_ids, linkages, linkage_columns,
                                    frame_indices):

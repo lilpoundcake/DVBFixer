@@ -117,3 +117,18 @@ def test_diffusion_timeout_must_be_positive_and_finite(timeout):
 
 def test_doctor_accepts_optional_diffusion_model():
     assert parse_args(["--diffusion-model", "protpardelle"]).diffusion_model == "protpardelle"
+
+
+def test_missing_selected_diffusion_model_is_json_error_not_traceback(monkeypatch, capsys):
+    from dvbfixer.model.diffusion.runtime import DiffusionRuntimeError
+
+    def missing(model):
+        raise DiffusionRuntimeError("no compatible installed launcher; provision the selected runtime")
+
+    monkeypatch.setattr("dvbfixer.doctor.resolve_diffusion_runtime", missing)
+    with pytest.raises(SystemExit) as exc:
+        main(["--format", "json", "--diffusion-model", "protpardelle"])
+    assert exc.value.code == 1
+    report = json.loads(capsys.readouterr().out)
+    assert "provision" in report["diffusion"]["selection_error"]
+    assert report["diffusion"]["selected_profile"] is None

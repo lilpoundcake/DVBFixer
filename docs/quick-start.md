@@ -19,6 +19,10 @@ dvbfixer diagnose input.pdb
 `doctor` reports missing tools and license problems. `diagnose` reports structural
 findings without modifying the input. Its exit code `1` means ERROR-level findings
 were found, not necessarily that analysis failed. Read the report before continuing.
+For selected installation prerequisites use `doctor --profile standard` (or
+`desktop`). Exit `2` means a manual action such as MODELLER licensing is needed;
+it is distinct from a failed scientific calculation. Standard includes PySCF/RESP
+and MDAnalysis/Plotly; GUI setup uses the inheriting Desktop profile.
 
 ## 2. Choose one preparation path
 

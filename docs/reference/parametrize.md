@@ -48,8 +48,8 @@ RESP backend (only when -c resp):
                         explicitly). `pyscf` = `pip install pyscf`, pure-
                         Python, RECOMMENDED. `gaussian` = commercial license,
                         two-step --gen-gaussian / --gaussian-log workflow.
-                        `psi4` = free, separate conda env via `micromamba
-                        create -n psi4 -c conda-forge psi4 psiresp`.
+                        `psi4` = separate environment from
+                        environments/psi4.yml or installer --runtime psi4.
   --qm-method QM_METHOD
                         QM method for --qm-engine pyscf / psi4 (default:
                         HF/6-31G*, the AMBER-standard RESP recipe). Override
@@ -61,12 +61,11 @@ RESP backend (only when -c resp):
                         Memory cap for the QM job (default: 4GB). PSI4 errors
                         out if too low for the basis set; PySCF reads
                         PYSCF_MAX_MEMORY env var if set.
-  --psi4-env PSI4_ENV   Name of the conda env containing psi4 + psiresp, only
-                        used by --qm-engine psi4 (default: psi4). dvbfixer
-                        invokes that env via `micromamba run -n <name> python
-                        ...` so the BLAS/MKL conflict with OpenMM is avoided.
-                        Create it once with `micromamba create -n psi4 -c
-                        conda-forge psi4 psiresp`.
+  --psi4-env PSI4_ENV   Name or prefix of the separate conda env containing
+                        psi4 + psiresp, only used by --qm-engine psi4
+                        (default: psi4). Create it from environments/psi4.yml
+                        or installer --runtime psi4; keep DVBFixer in its main
+                        environment.
 
 Gaussian backend (only when --qm-engine gaussian):
   --gen-gaussian        Generate a Gaussian .com input file for RESP charges

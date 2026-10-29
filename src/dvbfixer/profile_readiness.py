@@ -44,10 +44,7 @@ def collect_profile_readiness(profile: str, addons: tuple[str, ...] = ()) -> dic
             record(executable, "ready" if shutil.which(executable) else "error",
                    f"Install {package['spec']} and put this environment's bin directory on PATH.")
     try:
-        result = subprocess.run([sys.executable, "-c", "from pathlib import Path; "
-                                "from anarci.anarci import HMM_path; "
-                                "assert all(Path(HMM_path, 'ALL.hmm' + suffix).is_file() "
-                                "for suffix in ('', '.h3f', '.h3i', '.h3m', '.h3p'))"],
+        result = subprocess.run([sys.executable, "-c", "from dvbfixer.antibody import require_anarci; require_anarci()"],
                                 capture_output=True, timeout=30, check=False)
         record("anarci-data", "ready" if result.returncode == 0 else "error",
                "Reinstall ANARCI with its pressed ALL.hmm database and HMMER.")
@@ -64,6 +61,16 @@ def collect_profile_readiness(profile: str, addons: tuple[str, ...] = ()) -> dic
             supported = False
         record("probe-version", "ready" if supported else "error",
                f"Install the supported MolProbity {SUPPORTED_VERSION}; diagnose otherwise uses Python fallback.")
+    if "msa-alternatives" in addons:
+        try:
+            result = subprocess.run([sys.executable, "-c", "import shutil; "
+                                    "from dvbfixer.msa import require_engine_version; "
+                                    "require_engine_version('muscle', shutil.which('muscle') or 'muscle')"],
+                                    capture_output=True, timeout=15, check=False)
+            supported = result.returncode == 0
+        except (OSError, subprocess.TimeoutExpired):
+            supported = False
+        record("muscle-version", "ready" if supported else "error", "Install MUSCLE 5 (muscle>=5,<6).")
     # The catalog alone cannot prohibit unwanted *transitive* installs.
     conda_names = {p.name.split("-")[0] for p in Path(sys.prefix, "conda-meta").glob("*.json")}
     ml = any(importlib.util.find_spec(name) is not None for name in ("torch", "protenix"))
@@ -86,10 +93,18 @@ assert np.allclose(solve(a,b), [2.,3.])
     except (OSError, subprocess.TimeoutExpired):
         record("native-linalg", "error", "NumPy/SciPy native solve failed or timed out.")
     if profile == "desktop":
-        gui = Path(sys.prefix, "share/dvbfixer/gui")
-        record("gui-build", "ready" if all((gui / p).is_file() for p in
-               ("dist/index.html", "dist-server/server.js")) else "error",
-               "Run the Desktop helper to install/build the GUI from its lockfile.")
+        try:
+            result = subprocess.run(["node", "--version"], capture_output=True, text=True,
+                                    timeout=10, check=False)
+            supported_node = result.returncode == 0 and int(result.stdout.strip().removeprefix("v").split(".")[0]) >= 22
+        except (OSError, ValueError, subprocess.TimeoutExpired):
+            supported_node = False
+        record("node-version", "ready" if supported_node else "error", "Desktop requires Node.js >=22.")
+        gui_roots = (Path(sys.prefix, "share/dvbfixer/gui"), Path(__file__).resolve().parents[2] / "gui")
+        built = any(all((gui / p).is_file() for p in ("dist/index.html", "dist-server/server.js"))
+                    for gui in gui_roots)
+        record("gui-build", "ready" if built else "error",
+               "Build Desktop using the helper or npm ci && npm run build in the editable source checkout's gui/.")
     states = {check["state"] for check in checks}
     state = "error" if "error" in states else "action-required" if "action-required" in states else "ready"
     return {"profile": profile, "addons": list(addons), "state": state,

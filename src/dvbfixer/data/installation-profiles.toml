@@ -194,12 +194,14 @@ group = "gui"
 consumer = "GUI lockfile build and standalone host"
 executables = ["node", "npm"]
 [[packages]]
-spec = "muscle >=5"
+spec = "muscle >=5,<6"
+channel = "bioconda"
 group = "msa-alternatives"
 consumer = "msa explicit MUSCLE 5 engine"
 executables = ["muscle"]
 [[packages]]
 spec = "clustalo"
+channel = "bioconda"
 group = "msa-alternatives"
 consumer = "msa explicit Clustal Omega engine"
 executables = ["clustalo"]
@@ -214,8 +216,10 @@ check = "probe-version"
 # These are separate runtimes/operator integrations, never packages in Standard.
 [external.psi4]
 kind = "separate-environment"
+platforms = ["linux-64", "osx-arm64"]
+spec = "environments/psi4.yml"
 channels = ["conda-forge"]
-dependencies = ["psi4", "psiresp"]
+dependencies = ["psi4=1.9.1", "psiresp=0.4.2", "pydantic<2", "libint=2.9.0"]
 action = "Select --psi4-env when running parametrize; do not install dvbfixer there."
 [external.gaussian]
 kind = "operator"

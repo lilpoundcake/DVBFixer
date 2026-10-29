@@ -116,6 +116,7 @@ def _run_propka_reduce_variants(
     use_propka: bool = True,
     use_reduce: bool = True,
     verbose: bool = False,
+    stage_status: dict[str, str] | None = None,
 ) -> dict:
     """Run PROPKA + MolProbity Reduce on ``pdb_path`` and return a
     variant map ``{(chain, resid, icode): variant}`` for use by
@@ -133,6 +134,7 @@ def _run_propka_reduce_variants(
     """
     from pathlib import Path
     variant_map: dict[tuple, str] = {}
+    states = {"propka": "disabled", "reduce": "disabled"}
 
     # 1. PROPKA → variant map keyed by (chain, resnum, icode).
     n_pka = 0
@@ -151,9 +153,13 @@ def _run_propka_reduce_variants(
             )
             for key, variant in propka_map.items():
                 variant_map[key] = variant
+            states["propka"] = "completed"
+        except ImportError as e:
+            states["propka"] = "unavailable"
+            print(f"  [prep] WARNING: PROPKA unavailable ({e}); fallback to Reduce + SS only.")
         except Exception as e:
-            print(f"  [prep] PROPKA skipped ({e}); variants from Reduce "
-                  f"+ SS only.")
+            states["propka"] = "failed"
+            print(f"  [prep] WARNING: PROPKA calculation failed ({e}); fallback to Reduce + SS only.")
 
     # 2. Reduce → HID/HIE tautomer per HIS residue.
     #    Run on a temp copy where all HIS variants are collapsed to HIS
@@ -163,6 +169,7 @@ def _run_propka_reduce_variants(
         import tempfile as _tf
 
         from dvbfixer.prep_backend import (
+            MissingPrepToolError,
             _infer_his_tautomers_from_atoms,
             _rename_all_his_variants_to_his,
             _strip_hydrogens,
@@ -180,9 +187,13 @@ def _run_propka_reduce_variants(
             run_reduce(_step2, _step3, build=True, nuclear=True,
                        verbose=verbose)
             reduce_his = _infer_his_tautomers_from_atoms(_step3)
+            states["reduce"] = "completed"
+        except (ImportError, MissingPrepToolError) as e:
+            states["reduce"] = "unavailable"
+            print(f"  [prep] WARNING: Reduce unavailable ({e}); fallback to input H atoms for HIS tautomers.")
         except Exception as e:
-            print(f"  [prep] Reduce skipped ({e}); HIS tautomers from "
-                  f"input H atoms only.")
+            states["reduce"] = "failed"
+            print(f"  [prep] WARNING: Reduce calculation failed ({e}); fallback to input H atoms for HIS tautomers.")
         finally:
             import shutil as _sh
             _sh.rmtree(_wd, ignore_errors=True)
@@ -230,7 +241,10 @@ def _run_propka_reduce_variants(
                    if by_kind else "none")
     print(f"  [prep] PROPKA + Reduce: {n_pka} titratable pKas scanned, "
           f"{len(variant_map)} residues renamed ({by_kind_str}); "
-          f"{len(ss)} SS-bonded CYS.")
+           f"{len(ss)} SS-bonded CYS.")
+    print(f"  [prep] engines: PROPKA={states['propka']}; Reduce={states['reduce']}")
+    if stage_status is not None:
+        stage_status.update(states)
 
     return variant_map
 
@@ -951,15 +965,13 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
     (tleap + reduce + PROPKA-driven variant renames).
 
     Handles the simple case: protein + standard AAs + no heterogens.
-    If the input has non-canonical residues tleap rejects, raises
-    ``TleapError`` with the offending residue in the message; user
-    should retry with ``--backend legacy`` or supply the missing
-    leaprc via a future ``--extra-leaprc`` flag.
+    Non-canonical residues are rejected by input preflight; select
+    ``--backend legacy`` for supported complexes and modified residues.
     """
     from dvbfixer.acpype_export import detect_ss_bonds
     from dvbfixer.ffutils.dat import DatRecord
     from dvbfixer.ffutils.geometry import find_d_residues
-    from dvbfixer.prep_backend import TleapError, apply_output_naming, run_prep
+    from dvbfixer.prep_backend import PrepBackendError, TleapError, apply_output_naming, run_prep
 
     # SS bond detection from CONECT (drives CYX assignment).
     try:
@@ -972,6 +984,9 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
               "backend. Rerun with --backend legacy for mutations.",
               file=sys.stderr)
         sys.exit(2)
+    if not getattr(args, "protassign", True):
+        raise SystemExit("ERROR: tleap-reduce requires MolProbity Reduce for hydrogen placement; "
+                         "use --backend legacy with --no-protassign to disable that engine.")
 
     original_input_path = input_path
     if getattr(args, "cap_termini", False):
@@ -993,6 +1008,7 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
             ph=args.ph, ff="leaprc.protein.ff19SB",
             assign_variants=True, ss_pairs=ss_res,
             verbose=args.verbose,
+            use_propka=getattr(args, "propka", True),
         )
     except TleapError as e:
         print(f"\nERROR: tleap failed on {input_path}. This usually means "
@@ -1001,6 +1017,8 @@ def _main_tleap_reduce_backend(args, input_path, output_path, dat_path):
               f"--backend legacy for the PDBFixer+Modeller path which "
               f"handles more edge cases.\n{e}", file=sys.stderr)
         sys.exit(1)
+    except PrepBackendError as exc:
+        raise SystemExit(f"ERROR: {exc}") from exc
 
     # Chirality check — WARN only, don't raise. Modeller upstream can
     # produce a D-Cα that tleap preserves; downstream minimize catches
@@ -1118,14 +1136,8 @@ def main(argv=None):
     output_path = Path(args.output) if args.output else input_path.with_stem(input_path.stem + "_prepared")
     dat_path = Path(args.dat) if args.dat else output_path.with_suffix(".dat")
 
-    # Deterministic backend: tleap (heavy atoms) + reduce (H). This is the
-    # default. Skips the entire legacy PDBFixer.addMissingAtoms +
-    # Modeller.addHydrogens code path — both had upstream bugs (stochastic
-    # D-Cα from PDBFixer, coincident H atoms from Modeller) that we
-    # exhausted several rounds of workarounds on. See prep_backend.py
-    # docstring for the diagnosis. Legacy backend is still selectable via
-    # --backend legacy for GLYCAM glycoproteins / exotic heterogens tleap
-    # rejects.
+    # Opt-in deterministic protein backend. Legacy remains the default and
+    # the broad-input route for glycans, ligands, PTMs and covalent HETATMs.
     if getattr(args, "backend", "legacy") == "tleap-reduce":
         return _main_tleap_reduce_backend(args, input_path, output_path,
                                            dat_path)

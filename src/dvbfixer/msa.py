@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import subprocess
 import tempfile
@@ -14,6 +15,20 @@ ENGINES = {"mafft": "mafft", "muscle": "muscle", "clustalo": "clustalo"}
 def available_engines() -> dict[str, str | None]:
     """Return executable paths for the supported MSA engines."""
     return {name: shutil.which(executable) for name, executable in ENGINES.items()}
+
+
+def require_engine_version(engine: str, executable: str) -> None:
+    if engine != "muscle":
+        return
+    try:
+        result = subprocess.run([executable, "-version"], capture_output=True, text=True,
+                                check=False, timeout=10)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError("MUSCLE 5 version preflight failed; install muscle>=5,<6 in the selected environment") from exc
+    match = re.search(r"\bmuscle\s+v?(\d+)(?:\.|\b)", result.stdout + result.stderr, re.IGNORECASE)
+    if result.returncode != 0 or match is None or int(match.group(1)) != 5:
+        raise RuntimeError("MUSCLE 5 is required for the -align/-output interface; "
+                           "install muscle>=5,<6 or explicitly choose MAFFT/Clustal Omega")
 
 
 def _read_fasta(path: Path, min_records: int = 2) -> list[tuple[str, str]]:
@@ -109,6 +124,7 @@ def run_alignment(input_path: Path, output_path: Path, engine: str = "auto",
     executable = paths.get(engine)
     if not executable:
         raise RuntimeError(f"{engine} executable is not available")
+    require_engine_version(engine, executable)
 
     with tempfile.TemporaryDirectory(prefix="dvbfixer_msa_") as workdir:
         engine_input = Path(workdir) / "input.fasta"

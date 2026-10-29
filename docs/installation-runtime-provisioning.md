@@ -1,9 +1,10 @@
-# Separate diffusion-runtime provisioning
+# Separate diffusion and QM runtime provisioning
 
 The source-checkout helper provisions the maintained **cc94 CUDA**, **cc94 MPS**
 and **Protenix v1 CUDA** routes independently of Standard/Desktop. Composition
 and deployment-input references live in `src/dvbfixer/data/installation-profiles.toml`.
 It uses the same micromamba/mamba/conda adapters as the main installer.
+The same helper also provisions the isolated optional PSI4/psiresp environment.
 
 ## Prepare a new runtime
 
@@ -104,3 +105,24 @@ micromamba runtimes. The first Protenix real sample exposed missing Click/Reques
 and a relative refinement-output path bug; these were fixed and the failed
 attempts were retained. These are installation/execution checks, not a new
 scientific cohort or a change to the accepted profile identities.
+
+## Optional PSI4/psiresp runtime
+
+```bash
+python3 scripts/install_dvbfixer.py --runtime psi4 --manager micromamba \
+  --prefix /path/to/new-psi4-runtime --non-interactive
+dvbfixer parametrize molecule.sdf -c resp --qm-engine psi4 \
+  --psi4-env /path/to/new-psi4-runtime/environment
+```
+
+This route has no engine clone, checkpoint or launcher. It creates only its own
+QM environment, records versions/builds and checks an actual native HF kernel.
+The main CLI keeps its normal Python/environment and sends a worker to the
+selected QM prefix (existing named environments remain supported).
+
+The verified recipe pins PSI4 1.9.1, psiresp 0.4.2, Pydantic <2 and Libint 2.9.0.
+The worker uses public QCSchema/AtomicResult and psiresp RESP APIs, carrying the
+input bond graph and computing on its Job-owned orientation. Linux acceptance
+included actual water charges and full ethanol parameterization; native Apple
+acceptance remains not-tested. PySCF/RESP is still included in both main profiles
+and is the preferred ordinary free route.

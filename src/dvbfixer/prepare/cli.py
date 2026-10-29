@@ -51,14 +51,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                     default=True,
                     help="Run PROPKA3 for pKa-driven AMBER variant "
                          "renames (ASH/GLH/HIP/CYM/LYN/CYX). Default ON. "
-                         "Pass --no-propka to skip; variants then come "
-                         "from --mutate + input HD1/HE2 atoms only "
-                         "(0.7.5/0.7.6 behaviour).")
+                         "Pass --no-propka to disable pKa decisions; Reduce, "
+                         "input variants/mutations and disulfide evidence still apply.")
     ff.add_argument("--protassign", action=argparse.BooleanOptionalAction,
                     default=True,
                     help="Run MolProbity Reduce for HIS tautomer "
                          "(HID vs HIE) + ASN/GLN flip detection. "
-                         "Default ON.")
+                         "Default ON. --no-protassign is supported by legacy; "
+                         "tleap-reduce requires Reduce for hydrogen placement.")
     ff.add_argument("--his-default", choices=["HIE", "HID"], default="HIE",
                     help="Default HIS tautomer when PROPKA says neutral "
                          "AND Reduce didn't place either HD1 or HE2 "

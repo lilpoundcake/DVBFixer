@@ -24,6 +24,14 @@ MODELLER requires a license for gap rebuilding and comparative modeling.
 See [installation](docs/installation.md) for the license step, dependencies,
 and environment troubleshooting.
 
+`environment.yml` is the generated **Standard** scientific profile, including
+PySCF/RESP and MDAnalysis/Plotly. **Desktop** inherits Standard and adds Node/GUI;
+MUSCLE 5/Clustal Omega and Probe are explicit add-ons. With a Python 3.11+
+bootstrap, the [managed installer](docs/installation.md#standarddesktop-source-checkout-helper)
+can create a new prefix, configure MODELLER privately and run functional smokes.
+Linux routes have executed acceptance evidence; native Apple Silicon acceptance
+is the remaining platform gate.
+
 ## First structure
 
 For a protein with no missing sequence regions, repair its atoms and hydrogens:
@@ -42,9 +50,17 @@ or choose an [end-to-end recipe](docs/pipelines.md).
 
 ## Open the GUI
 
-Keep the `dvbfixer` environment active. With Node.js 22 or newer installed:
+Use the Desktop profile for the GUI. For an installed Desktop prefix:
 
 ```bash
+micromamba run -p /path/to/desktop npm --prefix /path/to/desktop/share/dvbfixer/gui start
+```
+
+For source development, activate a Desktop environment (or Standard with an
+operator-provided Node.js 22+):
+
+```bash
+micromamba activate dvbfixer-desktop
 cd gui
 npm ci
 npm run dev
@@ -78,4 +94,6 @@ The local development server opens the browser. Follow the
 Scientific inputs are tracked in [tests/fixtures](tests/fixtures/README.md).
 After installing development extras with `pip install -e ".[dev]"`, run
 `pytest -m 'not slow' -q`. The full suite needs the external scientific tools
-declared in `environment.yml`.
+declared in the selected profile. Optional engine tests require their separate
+runtimes; keep PyTorch outside Standard. The real PSI4 test uses an explicit
+`DVBFIXER_TEST_PSI4_PREFIX`.

@@ -1,4 +1,4 @@
-"""Provision isolated frozen diffusion runtimes through the shared manager adapters.
+"""Provision isolated diffusion/QM runtimes through the shared manager adapters.
 
 Weights and Protenix data/Kalign are operator-provided. Registration is staged,
 checked by the existing runner handshake, and only then published.
@@ -21,10 +21,19 @@ from typing import Any
 from dvbfixer.install import Manager, child_environment, platform_subdir, reserve_prefix
 from dvbfixer.installation_profiles import load_catalog
 
+SNAPSHOT_CODE = (
+    "import importlib.metadata as m,json,platform,sys; from pathlib import Path; "
+    "print(json.dumps({'python':platform.python_version(),'prefix':sys.prefix,"
+    "'packages':{d.metadata['Name']:d.version for d in m.distributions()},"
+    "'conda':[ {k:r.get(k) for k in ('name','version','build','channel')} "
+    "for p in Path(sys.prefix,'conda-meta').glob('*.json') "
+    "for r in [json.loads(p.read_text())]]},sort_keys=True))"
+)
+
 
 def runtime_names() -> tuple[str, ...]:
     return tuple(name for name, entry in load_catalog()["external"].items()
-                 if entry["kind"] == "separate-runtime")
+                 if entry["kind"] in {"separate-runtime", "separate-environment"})
 
 
 def sha256(path: Path) -> str:
@@ -192,6 +201,72 @@ def copy_checked_asset(source: Path, destination: Path, digest: str) -> None:
         temporary.unlink(missing_ok=True)
 
 
+def provision_psi4(*, entry: dict[str, Any], prefix: Path, manager: Manager,
+                   repository: Path, resume: bool, dry_run: bool) -> dict[str, Any]:
+    if platform_subdir() not in entry["platforms"]:
+        raise ValueError(f"PSI4 runtime does not support {platform_subdir()}")
+    if prefix.is_symlink():
+        raise ValueError("Runtime prefix must not be a symlink")
+    prefix = prefix.expanduser().resolve()
+    if any(character.isspace() for character in str(prefix)):
+        raise ValueError("Choose a runtime prefix without whitespace for native scripts")
+    spec = repository / entry["spec"]
+    report: dict[str, Any] = {"schema_version": 1, "runtime": "psi4", "state": "planned", "manager": manager.validate(),
+        "prefix": str(prefix), "environment_prefix": str(prefix / "environment"),
+        "spec": entry["spec"], "dependencies": entry["dependencies"], "platform": platform_subdir(),
+        "spec_sha256": sha256(spec), "scientific_acceptance": "not-tested", "steps": []}
+    if dry_run:
+        return report
+    reserve_prefix(prefix, "runtime:psi4", (), resume)
+    prefix.mkdir(exist_ok=True)
+    plan = {"runtime": "psi4", "manager": manager.name, "spec_sha256": sha256(spec)}
+    plan_file = owned_child(prefix, "runtime-plan.json")
+    if plan_file.exists():
+        if json.loads(plan_file.read_text()) != plan:
+            raise ValueError("PSI4 recipe/manager changed; choose a new prefix")
+    else:
+        with plan_file.open("x") as stream:
+            json.dump(plan, stream, indent=2)
+    evidence = owned_child(prefix, "evidence")
+    evidence.mkdir(exist_ok=True)
+    environment = owned_child(prefix, "environment")
+    command = manager.update(environment, spec) if (environment / "conda-meta/history").is_file() else manager.create(environment, spec)
+    code = ("import psi4,psiresp,math,json,platform; import importlib.metadata as m; "
+            "psi4.core.be_quiet(); psi4.set_num_threads(1); psi4.set_memory('1 GB'); "
+            "mol=psi4.geometry('0 1\\nH 0 0 0\\nH 0 0 0.74\\nsymmetry c1'); "
+            "energy=psi4.energy('hf/sto-3g',molecule=mol); assert math.isfinite(energy) and energy<0; "
+            "assert hasattr(psiresp.configs,'TwoStageRESP'); "
+            "print(json.dumps({'python':platform.python_version(),'energy':energy,"
+            "'packages':{d.metadata['Name']:d.version for d in m.distributions()}},sort_keys=True))")
+
+    def save() -> None:
+        temporary = evidence / f".installation-{uuid.uuid4().hex}.json"
+        temporary.write_text(json.dumps(report, indent=2) + "\n")
+        temporary.replace(evidence / "installation.json")
+
+    try:
+        for label, argv in (("install-environment", command),
+                            ("native-qm-kernel", manager.run(environment, ["python", "-c", code])),
+                            ("versions-environment", manager.run(environment, ["python", "-c", SNAPSHOT_CODE]))):
+            log = evidence / f"{label}-{uuid.uuid4().hex}.log"
+            step: dict[str, Any] = {"name": label, "command": argv, "log": log.name, "state": "running"}
+            report["steps"].append(step)
+            save()
+            with log.open("w") as stream:
+                result = subprocess.run(argv, env=child_environment(), stdout=stream,
+                                        stderr=subprocess.STDOUT, check=False, timeout=3600)
+            step.update(state="passed" if result.returncode == 0 else "failed", returncode=result.returncode)
+            if result.returncode:
+                raise ValueError(f"{label} failed; see {log}")
+        report.update(state="ready", action=f"Select --qm-engine psi4 --psi4-env {environment}")
+        save()
+        return report
+    except BaseException as exc:
+        report.update(state="error", error=f"{type(exc).__name__}: {exc}")
+        save()
+        raise
+
+
 def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: Path,
                       resume: bool = False, dry_run: bool = False,
                       source: Path | None = None, checkpoint: Path | None = None,
@@ -199,6 +274,11 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
                       runner_directory: Path | None = None, replace_runner: bool = False,
                       timeout: float = 120.0) -> dict[str, Any]:
     entry = load_catalog()["external"][name]
+    if entry["kind"] == "separate-environment":
+        if any((source, checkpoint, kalign, auxiliary, runner_directory, replace_runner)):
+            raise ValueError("PSI4 provisioning has no engine/checkpoint/launcher inputs")
+        return provision_psi4(entry=entry, prefix=prefix, manager=manager, repository=repository,
+                              resume=resume, dry_run=dry_run)
     if platform_subdir() not in entry["platforms"]:
         raise ValueError(f"{name} requires {entry['platforms']}; actual host: {platform_subdir()}")
     if prefix.is_symlink():
@@ -303,14 +383,8 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
                 "c=openmm.Context(s,i,openmm.Platform.getPlatformByName('Reference')); "
                 "c.setPositions([[1,1,1]]); "
                 "assert c.getState(getEnergy=True).getPotentialEnergy().value_in_unit(openmm.unit.kilojoule_per_mole)==3"]))
-        snapshot = ("import importlib.metadata as m,json,platform,sys; from pathlib import Path; "
-                    "print(json.dumps({'python':platform.python_version(),'prefix':sys.prefix,"
-                    "'packages':{d.metadata['Name']:d.version for d in m.distributions()},"
-                    "'conda':[ {k:r.get(k) for k in ('name','version','build','channel')} "
-                    "for p in Path(sys.prefix,'conda-meta').glob('*.json') "
-                    "for r in [json.loads(p.read_text())]]},sort_keys=True))")
         for role in roles:
-            run(f"versions-{role}", manager.run(prefix / role, ["python", "-c", snapshot]))
+            run(f"versions-{role}", manager.run(prefix / role, ["python", "-c", SNAPSHOT_CODE]))
         if missing:
             report["state"] = "action-required"
             save()

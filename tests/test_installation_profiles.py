@@ -34,7 +34,11 @@ def test_single_openbabel_provider_and_no_ml_metapackage():
 def test_addons_are_explicit_and_external_runtimes_are_separate():
     assert "muscle >=5" not in environment_spec("standard")
     assert "muscle >=5" in environment_spec("standard", ("msa-alternatives",))
+    alternatives = environment_spec("standard", ("msa-alternatives",))
+    assert "bioconda::muscle >=5,<6" in alternatives
+    assert "bioconda::clustalo" in alternatives
     assert load_catalog()["external"]["psi4"]["kind"] == "separate-environment"
+    assert {"pydantic<2", "libint=2.9.0"} <= set(load_catalog()["external"]["psi4"]["dependencies"])
     with pytest.raises(ValueError, match="Unknown"):
         composition("standard", ("protenix-cuda",))
     with pytest.raises(ValueError, match="Unknown"):

@@ -355,7 +355,7 @@ def generate_gaussian_input(input_path, output_path, net_charge=0,
 # blob of fitted RESP charges.
 #
 # Setup (user side, one-time):
-#   micromamba create -n psi4 -c conda-forge psi4 psiresp
+#   micromamba create -n psi4 -f environments/psi4.yml
 # Then:
 #   dvbfixer parametrize input.pdb -c resp --qm-engine psi4 [--psi4-env psi4]
 # ---------------------------------------------------------------------------
@@ -373,6 +373,7 @@ net_q = int(net_q); mult = int(mult); nthreads = int(nthreads)
 with open(xyz_path) as f:
     lines = f.read().splitlines()
 n_atoms = int(lines[0].strip())
+input_metadata = json.loads(lines[1])
 xyz_body = '\n'.join(lines[2:2 + n_atoms])
 
 try:
@@ -403,11 +404,38 @@ except Exception as e:
     sys.exit(3)
 
 try:
-    pr_mol = psiresp.Molecule.from_psi4(wfn)
-    job = psiresp.Job(molecules=[pr_mol],
-                      config=psiresp.configs.TwoStageRESP())
-    job.run()
-    charges = pr_mol.charges
+    # psiresp 0.4 exposes QCSchema/AtomicResult, not Molecule.from_psi4.
+    # Keep one optimized geometry/orientation and use its public grid/RESP APIs;
+    # no QCArchive server or manually submitted orientation jobs are needed.
+    import qcelemental as qcel
+    import qcengine
+    from psiresp.conformer import Conformer
+    from psiresp.orientation import Orientation
+    from psiresp.qcutils import QCWaveFunction
+
+    schema = geom.to_schema(dtype=2)
+    schema['connectivity'] = input_metadata.get('connectivity') or None
+    qcmol = qcel.models.Molecule(**schema)
+    atomic_input = qcel.models.AtomicInput(
+        molecule=qcmol, driver='energy',
+        model={'method': family.lower(), 'basis': basis},
+        keywords={'scf_type': 'df', 'reference': 'rhf' if mult == 1 else 'uhf'},
+        protocols={'wavefunction': 'orbitals_and_eigenvalues'},
+    )
+    atomic_result = qcengine.compute(atomic_input, 'psi4', raise_error=True,
+        task_config={'ncores': nthreads, 'memory': psi4.get_memory() / 1024**3})
+    orientation = Orientation(qcmol=qcmol,
+        qc_wavefunction=QCWaveFunction.from_atomicresult(atomic_result))
+    conformer = Conformer(qcmol=qcmol, orientations=[orientation], is_optimized=True)
+    pr_mol = psiresp.Molecule(qcmol=qcmol, conformers=[conformer],
+        charge=net_q, multiplicity=mult, keep_original_orientation=True)
+    job = psiresp.configs.TwoStageRESP(molecules=[pr_mol], n_processes=1)
+    # Pydantic copies nested models; compute on the Job-owned orientation.
+    fitted_orientation = job.molecules[0].conformers[0].orientations[0]
+    fitted_orientation.compute_grid(grid_options=job.grid_options)
+    fitted_orientation.compute_esp()
+    job.compute_charges()
+    charges = job.molecules[0].charges
 except Exception as e:
     json.dump({'error': f'psiresp fit failed: {e}'}, open(out_json, 'w'))
     sys.exit(4)
@@ -432,6 +460,38 @@ def _find_env_runner():
         if path:
             return path
     return None
+
+
+def _psi4_environment_command(runner, environment, arguments):
+    """Conda-family name or explicit prefix; preserve existing named-env calls."""
+    expanded = os.path.expanduser(str(environment))
+    by_prefix = Path(expanded).is_absolute() or os.sep in expanded
+    selected = str(Path(expanded).resolve()) if by_prefix else expanded
+    return [runner, 'run', '-p' if by_prefix else '-n', selected, *arguments]
+
+
+def preflight_qm_engine(engine, *, psi4_env='psi4', gaussian_log=None):
+    if engine == 'pyscf':
+        try:
+            from pyscf import gto, scf  # noqa: F401 -- real native import preflight
+        except Exception as exc:
+            raise RuntimeError(f"PySCF RESP is unavailable ({type(exc).__name__}: {exc}); "
+                               "install/recreate Standard with PySCF and compatible NumPy/SciPy.") from exc
+    elif engine == 'psi4':
+        runner = _find_env_runner()
+        if runner is None:
+            raise RuntimeError("PSI4 requires a conda-family manager to run its separate environment.")
+        command = _psi4_environment_command(runner, psi4_env, ['python', '-c', 'import psi4, psiresp'])
+        try:
+            result = subprocess.run(command, capture_output=True, text=True, check=False, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise RuntimeError("PSI4/psiresp environment preflight failed; configure a separate env "
+                               "and select its name or prefix with --psi4-env.") from exc
+        if result.returncode:
+            raise RuntimeError("PSI4/psiresp cannot be imported in the selected separate environment. "
+                               "Create it from environments/psi4.yml and select --psi4-env NAME_OR_PREFIX.")
+    elif engine == 'gaussian' and gaussian_log and not Path(gaussian_log).is_file():
+        raise RuntimeError(f"Gaussian output log not found: {gaussian_log}. Run Gaussian externally first.")
 
 
 def _compute_resp_charges_psi4(input_path, net_charge=0, multiplicity=1,
@@ -469,6 +529,11 @@ def _compute_resp_charges_psi4(input_path, net_charge=0, multiplicity=1,
     elements = [ob.GetSymbol(a.atomicnum) for a in obmol.atoms]
     coords = [a.coords for a in obmol.atoms]
     n_atoms = len(elements)
+    connectivity = [
+        [bond.GetBeginAtomIdx() - 1, bond.GetEndAtomIdx() - 1,
+         1.5 if bond.IsAromatic() else float(bond.GetBondOrder())]
+        for bond in ob.OBMolBondIter(obmol.OBMol)
+    ]
     if verbose:
         print(f"  PSI4 input: {n_atoms} atoms, q={net_charge}, "
               f"m={multiplicity}, method={method}, env={psi4_env}")
@@ -476,7 +541,7 @@ def _compute_resp_charges_psi4(input_path, net_charge=0, multiplicity=1,
     # Write input XYZ
     fd_in, in_xyz = _tf.mkstemp(suffix='.xyz', prefix='dvbfixer_psi4_in_')
     with os.fdopen(fd_in, 'w') as f:
-        f.write(f"{n_atoms}\nrenamed by dvbfixer\n")
+        f.write(f"{n_atoms}\n{_json.dumps({'connectivity': connectivity})}\n")
         for el, (x, y, z) in zip(elements, coords):
             f.write(f"{el} {x:14.8f} {y:14.8f} {z:14.8f}\n")
 
@@ -489,9 +554,9 @@ def _compute_resp_charges_psi4(input_path, net_charge=0, multiplicity=1,
     fd_o, out_json = _tf.mkstemp(suffix='.json', prefix='dvbfixer_psi4_out_')
     os.close(fd_o)
 
-    cmd = [runner, 'run', '-n', psi4_env, 'python', worker,
+    cmd = _psi4_environment_command(runner, psi4_env, ['python', worker,
            in_xyz, str(net_charge), str(multiplicity), method,
-           str(nthreads), memory, out_json]
+           str(nthreads), memory, out_json])
     if verbose:
         print(f"  Running: {' '.join(cmd)}")
 
@@ -510,9 +575,8 @@ def _compute_resp_charges_psi4(input_path, net_charge=0, multiplicity=1,
             raise RuntimeError(
                 f"psi4 subprocess in env '{psi4_env}' failed "
                 f"(exit {result.returncode}):\n{err}\n\n"
-                f"If env '{psi4_env}' doesn't exist, create it via:\n"
-                f"  micromamba create -n {psi4_env} -c conda-forge psi4 psiresp\n"
-                f"or override the env name with --psi4-env <name>.")
+                "Create a separate environment from environments/psi4.yml "
+                "and select its name or prefix with --psi4-env.")
         with open(out_json) as f:
             data = _json.load(f)
     finally:
@@ -934,9 +998,8 @@ def parse_args(argv=None):
                          'pick explicitly). `pyscf` = `pip install pyscf`, '
                          'pure-Python, RECOMMENDED. `gaussian` = commercial '
                          'license, two-step --gen-gaussian / --gaussian-log '
-                         'workflow. `psi4` = free, separate conda env via '
-                         '`micromamba create -n psi4 -c conda-forge psi4 '
-                         'psiresp`.')
+                          'workflow. `psi4` = separate environment from '
+                          'environments/psi4.yml or installer --runtime psi4.')
     # PySCF / PSI4 shared knobs (the QM job's compute parameters).
     qm.add_argument('--qm-method',
                     dest='qm_method', default='HF/6-31G*',
@@ -953,13 +1016,10 @@ def parse_args(argv=None):
                          'PSI4 errors out if too low for the basis set; '
                          'PySCF reads PYSCF_MAX_MEMORY env var if set.')
     qm.add_argument('--psi4-env', dest='psi4_env', default='psi4',
-                    help='Name of the conda env containing psi4 + psiresp, '
+                    help='Name or prefix of the separate conda env containing psi4 + psiresp, '
                          'only used by --qm-engine psi4 (default: psi4). '
-                         'dvbfixer invokes that env via `micromamba run -n '
-                         '<name> python ...` so the BLAS/MKL conflict with '
-                         'OpenMM is avoided. Create it once with '
-                         '`micromamba create -n psi4 -c conda-forge psi4 '
-                         'psiresp`.')
+                          'Create it from environments/psi4.yml or installer '
+                          '--runtime psi4; keep DVBFixer in its main environment.')
 
     gaussian = p.add_argument_group('Gaussian backend (only when --qm-engine gaussian)')
     gaussian.add_argument('--gen-gaussian', action='store_true',
@@ -1028,7 +1088,7 @@ def main(argv=None):
                   "workflow (--gen-gaussian → user runs Gaussian → "
                   "--gaussian-log).\n"
                   "  --qm-engine psi4:     free, separate conda env via "
-                  "`micromamba create -n psi4 -c conda-forge psi4 psiresp`. "
+                  "`micromamba create -n psi4 -f environments/psi4.yml`. "
                   "Fragile on macOS; prefer pyscf there.\n"
                   "If you don't need RESP-quality charges, omit -c resp to "
                   "use AM1-BCC (default).",
@@ -1040,6 +1100,12 @@ def main(argv=None):
                   "--qm-engine psi4. The PSI4 path runs the full QM "
                   "calculation internally; no Gaussian step is needed.",
                   file=sys.stderr)
+
+    if args.charge_method == 'resp':
+        try:
+            preflight_qm_engine(args.qm_engine, psi4_env=args.psi4_env, gaussian_log=args.gaussian_log)
+        except RuntimeError as exc:
+            raise SystemExit(f"ERROR: {exc}") from exc
 
     # RESP without log file: either generate Gaussian input and exit,
     # or run PSI4 one-shot.

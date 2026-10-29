@@ -69,9 +69,10 @@ Protonation engines:
                         based on local H-bond network. **Default ON** — gives
                         every protonate run the same higher-quality H-network
                         without remembering a flag. Pass --no-protassign to
-                        disable (PROPKA-only pH-driven decisions). Requires
-                        the `reduce` binary (installed explicitly by the full
-                        dvbfixer environment).
+                        disable on legacy (PROPKA-only decisions); tleap-
+                        reduce requires Reduce for hydrogen placement.
+                        Requires the `reduce` binary (installed explicitly by
+                        the full dvbfixer environment).
   --protassign-binary PROTASSIGN_BINARY
                         Override the `reduce` binary path (default: search
                         PATH, then the dvbfixer env's bin dir).

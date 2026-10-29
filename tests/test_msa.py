@@ -49,6 +49,26 @@ def test_missing_selected_engine_is_actionable(tmp_path, monkeypatch):
         msa.run_alignment(fasta, tmp_path / "out.fasta", engine="muscle")
 
 
+def test_muscle_3_is_rejected_before_alignment_or_output(tmp_path, monkeypatch):
+    fasta = tmp_path / "input.fasta"
+    fasta.write_text(">a\nAAA\n>b\nABA\n")
+    executable = tmp_path / "muscle"
+    marker = tmp_path / "alignment-started"
+    executable.write_text(f'#!/bin/sh\nif [ "$1" = "-version" ]; then printf "MUSCLE v3.8.31\\n"; exit 0; fi\ntouch "{marker}"\nexit 1\n')
+    executable.chmod(0o755)
+    monkeypatch.setattr(msa, "available_engines", lambda: {"mafft": None, "muscle": str(executable), "clustalo": None})
+    with pytest.raises(RuntimeError, match="MUSCLE 5 is required"):
+        msa.run_alignment(fasta, tmp_path / "out.fasta", engine="muscle")
+    assert not marker.exists() and not (tmp_path / "out.fasta").exists()
+
+
+def test_muscle_5_version_preflight_accepts_native_version_output(tmp_path):
+    executable = tmp_path / "muscle"
+    executable.write_text('#!/bin/sh\nprintf "muscle 5.3.linux64\\n"\n')
+    executable.chmod(0o755)
+    msa.require_engine_version("muscle", str(executable))
+
+
 def test_template_sequence_can_supply_second_record(tmp_path, monkeypatch):
     fasta = tmp_path / "input.fasta"
     fasta.write_text(">target\nAAA\n")

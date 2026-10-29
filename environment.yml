@@ -1,59 +1,41 @@
+# Generated from src/dvbfixer/data/installation-profiles.toml.
 name: dvbfixer
 channels:
   - conda-forge
   - bioconda
   - salilab
+  - nodefaults
 dependencies:
-  - python >=3.11,<3.14
-  - numpy <2.5       # mypy targets Python 3.11; NumPy 2.5 stubs require 3.12
-  # Keep NumPy/SciPy BLAS wrappers on one backend. MKL 2026.2 Linux solves
-  # can select wrappers that require the missing libmkl_gf_lp64.so.3.
-  - libblas=*=*openblas
-  - libcblas=*=*openblas
-  - liblapack=*=*openblas
-  - scipy
-  - openmm >=8.1
-  - pdbfixer >=1.9
-  - openmmforcefields
-  - openff-toolkit
-  - rdkit
-  - biopython
-  - gemmi >=0.7.5   # loss-aware PDBx/mmCIF -> internal PDB conversion
-  - mdanalysis
-  - modeller
-  - parmed
-  - plotly
-  - hmmer
-  - anarci
-  - mafft            # default multiple-sequence alignment engine for the GUI
-  - muscle >=5       # optional high-accuracy MSA alternative
-  - clustalo         # optional scalable MSA alternative
-  - nodejs >=22      # required by the Mol* GUI dependency
-  - openbabel        # obminimize CLI for --obminimize-refine
-  - ambertools >=23  # tleap + pdb4amber for the deterministic
-                     # prep backend (dvbfixer.prep_backend). Replaces the
-                     # PDBFixer.addMissingAtoms + Modeller.addHydrogens
-                     # pair (both had upstream D-Cα / coincident-H bugs).
-  - reduce           # MolProbity hydrogen placement / ProtAssign-style decisions
-  - pip
+  - "conda-forge::python >=3.11,<3.14"
+  - "conda-forge::numpy <2.5"
+  - "conda-forge::libblas=*=*openblas"
+  - "conda-forge::libcblas=*=*openblas"
+  - "conda-forge::liblapack=*=*openblas"
+  - "conda-forge::scipy"
+  - "conda-forge::threadpoolctl"
+  - "conda-forge::openmm >=8.1"
+  - "conda-forge::pdbfixer >=1.9"
+  - "conda-forge::tinydb"
+  - "conda-forge::lxml"
+  - "conda-forge::pyyaml"
+  - "conda-forge::validators"
+  - "conda-forge::openff-toolkit-base"
+  - "conda-forge::rdkit"
+  - "conda-forge::biopython"
+  - "conda-forge::gemmi >=0.7.5"
+  - "conda-forge::mdanalysis"
+  - "salilab::modeller"
+  - "conda-forge::parmed"
+  - "conda-forge::plotly"
+  - "bioconda::hmmer"
+  - "bioconda::anarci"
+  - "conda-forge::mafft"
+  - "conda-forge::ambertools >=23"
+  - "bioconda::reduce"
+  - "conda-forge::pip"
   - pip:
-    - propka >=3.5
-    - acpype
-    - pyscf       # QM backend for `parametrize -c resp --qm-engine pyscf`
-                  # — RECOMMENDED free RESP path. Pure-Python wheels on PyPI
-                  # for macOS arm64 + Linux x86_64. dvbfixer implements the
-                  # AMBER 2-stage RESP-A1 fit in numpy on top of PySCF's
-                  # HF/6-31G* wavefunction.
-
-# Optional alternative RESP backend: psi4 + psiresp.
-# These ship their own BLAS/MKL stack that conflicts with OpenMM's, AND
-# psi4 conda-forge builds pull Python 3.9 which dvbfixer doesn't accept.
-# So they live in a SEPARATE conda env; dvbfixer shells out to it via
-# `micromamba run -n psi4 python ...`:
-#
-#   micromamba create -n psi4 -c conda-forge psi4 psiresp
-#
-# Fragile on macOS arm64 (libint2 SONAME mismatches). Prefer `--qm-engine
-# pyscf` there. Do NOT pip-install dvbfixer in the psi4 env — dvbfixer
-# stays here and invokes the psi4 env on demand. Override env name via
-# --psi4-env.
+      - "openmmforcefields ==0.15.1"
+      - "openbabel-wheel >=3.1.1.23"
+      - "acpype"
+      - "propka >=3.5"
+      - "pyscf"

@@ -40,19 +40,29 @@ export function runFiles(root: string): string[] {
 
 /** Copy native runtime evidence, not runtime caches; retain failures as well. */
 export function copyNativeRun(source: string, destination: string): void {
+  const sourceRoot = path.resolve(source), destinationRoot = path.resolve(destination)
+  if (destinationRoot === sourceRoot || destinationRoot.startsWith(path.join(sourceRoot, path.sep))) {
+    throw new Error('native run destination must not be inside its source')
+  }
   if (fs.existsSync(destination)) runFiles(destination)
-  fs.cpSync(source, destination, {
-    recursive: true, force: false, errorOnExist: true,
-    filter: file => {
-      const relative = path.relative(source, file)
-      if (relative.split(path.sep).some(part => CACHE.has(part))) return false
-      const stat = fs.lstatSync(file)
-      if (stat.isSymbolicLink() || (!stat.isDirectory() && (!stat.isFile() || stat.nlink !== 1))) {
-        throw new Error('native run contains a link or special file')
-      }
-      return true
-    },
-  })
+  // Node releases differ on cpSync(errorOnExist) for an existing directory.
+  // Merge directories explicitly, while keeping exclusive file creation and
+  // the same cache/link policy on every copied entry.
+  const copy = (file: string, target: string): void => {
+    const relative = path.relative(source, file)
+    if (relative.split(path.sep).some(part => CACHE.has(part))) return
+    const stat = fs.lstatSync(file)
+    if (stat.isSymbolicLink() || (!stat.isDirectory() && (!stat.isFile() || stat.nlink !== 1))) {
+      throw new Error('native run contains a link or special file')
+    }
+    if (stat.isDirectory()) {
+      fs.mkdirSync(target, { recursive: true })
+      for (const name of fs.readdirSync(file)) copy(path.join(file, name), path.join(target, name))
+    } else {
+      fs.copyFileSync(file, target, fs.constants.COPYFILE_EXCL)
+    }
+  }
+  copy(source, destination)
 }
 
 export function outputFiles(files: string[], declared: string | null, bundleDirectories: string[] = []): string[] {
