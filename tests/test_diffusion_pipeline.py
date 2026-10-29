@@ -1,4 +1,4 @@
-"""Tests for fail-closed diffusion orchestration and one-rename publication."""
+"""Tests for fail-closed diffusion orchestration and committed bundle publication."""
 
 from __future__ import annotations
 
@@ -419,6 +419,52 @@ def test_publish_bundle_writes_candidate_matched_dat_and_manifest(
         and artifact["sha256"] == _digest(_trace_bytes(request))
         for artifact in manifest["artifacts"]
     )
+
+
+def test_unsupported_rename_flags_publish_readable_bundle_with_index_last(tmp_path, monkeypatch):
+    import errno
+
+    from dvbfixer.model.diffusion import bundle_commit
+    from dvbfixer.model.diffusion.publication import PublicationError, read_published_bundle
+
+    _source, candidate_bytes, request = _source_candidate_request()
+    result = _validated_result(request, candidate_bytes)
+    workspace = _workspace(tmp_path, candidate_bytes)
+    destination = tmp_path / "published"
+    monkeypatch.setattr(diffusion_pipeline, "_call_rename", lambda *_args: errno.EINVAL)
+    transfer = bundle_commit._transfer
+
+    def inspect(source, name, descriptor, linked):
+        with pytest.raises(PublicationError):
+            read_published_bundle(destination)
+        transfer(source, name, descriptor, linked)
+
+    monkeypatch.setattr(bundle_commit, "_transfer", inspect)
+    publish_diffusion_bundle(request, result, workspace=workspace, destination_bundle=destination)
+    selected = read_published_bundle(destination).selected()
+    assert selected.pdb_bytes == candidate_bytes
+    assert all(path.stat().st_nlink == 1 for path in destination.iterdir())
+    assert not list(tmp_path.glob(".published.*.tmp"))
+
+
+def test_unsupported_rename_preserves_empty_destination_raced_at_commit(tmp_path, monkeypatch):
+    import errno
+
+    _source, candidate_bytes, request = _source_candidate_request()
+    result = _validated_result(request, candidate_bytes)
+    workspace = _workspace(tmp_path, candidate_bytes)
+    destination = tmp_path / "published"
+    monkeypatch.setattr(diffusion_pipeline, "_call_rename", lambda *_args: errno.EINVAL)
+
+    def race(_staging):
+        destination.mkdir()
+
+    with pytest.raises(DiffusionPipelineError, match="already exists"):
+        publish_diffusion_bundle(request, result, workspace=workspace,
+            destination_bundle=destination, before_commit=race)
+    assert destination.is_dir()
+    assert not list(destination.iterdir())
+    assert not list(tmp_path.glob(".published.*.tmp"))
 
 
 @pytest.mark.parametrize("malformed", (True, False))

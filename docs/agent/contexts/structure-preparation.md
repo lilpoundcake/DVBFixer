@@ -162,8 +162,14 @@ diffusion runner launch. Focused checks: `tests/test_altlocs.py`,
   treating backend-native scores as commensurate. The pipeline launches
   no runner for unsupported scope, publishes nothing for failed results, builds
   each candidate `.dat` through `DatRecord`, writes sanitized separate provenance,
-  fsyncs a hidden same-parent bundle, and exposes the complete set with one
-  atomic no-replace directory rename. The public single-input `model` dispatcher
+  fsyncs a hidden same-parent bundle, and commits the complete set with an
+  atomic no-replace directory rename where available. On POSIX filesystems
+  without rename flags, `model/diffusion/bundle_commit.py` exclusively reserves
+  the destination with mkdir, transfers/fsyncs payloads, and atomically links
+  `bundle.json` last without replacement. That index, not directory existence,
+  establishes readiness; crashed reservations without it are rejected and never
+  automatically adopted. Completed bundles retain schema 2 and single-linked
+  regular artifacts. The public single-input `model` dispatcher
   builds the request and requires an explicit profile, runner, and local
   checkpoint. Local adapter preflight checks executable,
   immutable image identity, checkpoint presence/digest, CUDA availability, and

@@ -376,6 +376,17 @@ contains candidate PDB/`.dat`/provenance files, a bounded digest-verified sample
 trace for each candidate, and `bundle.json`; accepted and explicitly rejected
 bundles are both published atomically with distinct status values.
 
+`bundle.json` is the completion marker; directory existence alone does not mean
+the output is ready. Where supported, publication uses an atomic no-replace
+directory rename. On POSIX filesystems without that operation (including some
+CephFS deployments), DVBFixer exclusively reserves the output directory, makes
+all payloads durable, and atomically links the index into place last, without
+overwriting any existing entry. The completed bundle has the same format and
+works with the normal reader and `--diffusion-resume`. An abrupt process or
+machine stop can leave an incomplete reserved directory without `bundle.json`;
+readers reject it and a later run will not silently adopt or overwrite it. Keep
+it for diagnosis and choose a new output path for another attempt.
+
 If sampling and materialization complete but every candidate fails scientific
 validation, DVBFixer still publishes an atomic **rejected bundle** for inspection.
 Its `bundle.json` status is `validation_failed`, each candidate lists the failed

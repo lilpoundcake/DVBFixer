@@ -690,6 +690,26 @@ command parser merely to inspect generated labels.
   directory merge/exclusive-file behavior: Node 26 rejects the old cpSync root
   merge and otherwise loses failure/cancellation diagnostics.
 
+- **Linux continuation at `3309bd8` retains evidence inside the project.** Use
+  `tmp/installation-profiles-3309bd8/summary.json` and the Linux continuation
+  section of `docs/installation-profile-acceptance.md`: new Standard passed 25
+  extended checks and 15 completed CUDA candidates passed independent private
+  validation, including Protenix full input at 152/512 targets and motif at 513.
+  Initial publication failed because project CephFS rejects
+  `renameat2(RENAME_NOREPLACE)` with EINVAL. The follow-up now uses exclusive
+  mkdir plus durable payloads and an atomic no-replace `bundle.json` commit
+  when rename flags are unsupported (`model/diffusion/bundle_commit.py`).
+  The completion index, not directory existence, establishes readiness. Never
+  adopt/overwrite a crash-left reservation. All 15 retained candidates were
+  revalidated and published in 11 bundles; a fresh public Protenix batch/resume,
+  `zbs --no-solvent` and Homology smoke also passed on project CephFS. Frozen
+  hardware-repeat acceptance is still separate from these current-input smokes.
+  Fresh full-FASTA 9CQD seed 101 was interrupted during Reference refinement by
+  the outer tool timeout; seeds 102–105 did not execute. Retain that attempt,
+  and use suitable outer orchestration limits for its separately declared
+  continuation. User-facing retained outputs belong inside the project, not
+  solely in system `/tmp`.
+
 - **New Protpardelle production requests use cc94, not cc89.** Profiles are
   `protpardelle-1c-cc94-cuda-v1` / `protpardelle-1c-cc94-mps-v1`, 500 ODE
   updates (scale 1, churn 0), native relative chains and physical positions.

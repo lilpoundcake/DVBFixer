@@ -1140,3 +1140,220 @@ protein-only derivative is a distinct future case, not a replacement for this
 record. Evidence: `old-friends/5j13_selected/` (including the original refusal,
 ordinary diagnose and exact input-class audit). All original fixtures remain
 unchanged. These case outcomes do not close broader scientific qualification.
+
+## Linux continuation after native finalization (2026-10-29/30)
+
+The initial publication failure described below is historical. The subsequent
+[publication compatibility fix](#project-filesystem-publication-compatibility-fix-2026-10-30)
+now permits publication on the same project filesystem and has fresh public
+workflow evidence. The interrupted supplied 9CQD cohort remains incomplete.
+
+Source commit: `3309bd81e979d2b165633cda8756af26ade862ae`, branch
+`feature/installation-profiles`. Execution used a separate detached source
+checkout below `.artifacts/installation-profiles/linux-continuation-3309bd8/source`.
+Host: Linux x86_64, AMD EPYC 7742, NVIDIA A100-SXM4-40GB, driver **535.104.05**
+(CUDA driver API **12.2**), micromamba **2.9.0**. Actual runtime kernels passed;
+the driver API version is not the CUDA runtime version.
+
+All outcome-bearing evidence is retained **inside the project**, as requested:
+
+- `tmp/installation-profiles-3309bd8/`: frozen protocols, controlled inputs,
+  per-command logs, complete private workspaces, independently checked candidate
+  PDBs/traces, `independent-audit.json` per case and aggregate `summary.json`;
+- `.artifacts/installation-profiles/linux-continuation-3309bd8/`: source checkout,
+  new owned Standard/ML environments, helper evidence, tests and initial Protenix
+  attempt. The initial Protenix candidate also has a convenient audited copy in
+  `tmp/installation-profiles-3309bd8/protenix-auto-initial/`.
+
+These are ordinary project directories, not the system `/tmp`; their contents
+are local evidence and intentionally excluded from Git. An initial detached
+checkout was created in `/tmp/opencode`, but no outcome-bearing run from this
+increment depends on that checkout. Old environments/checkpoints were retained.
+The existing `dvbfixer` environment imported an old editable worktree and was
+therefore not used as installed-package acceptance evidence.
+
+### New installations and installed science
+
+- New Standard imports resolve to its own `site-packages`, with `PYTHONPATH` and
+  `PYTHONHOME` unset: **Python 3.13.18**, **OpenMM 8.6.1**, **PySCF 2.14.0**.
+  Protected direct-bootstrap license configuration passed real MODELLER model
+  and Homology checks; profile doctor reported `standard: ready`.
+- Installed extended scientific smoke: **25/25 passed**, including both prepare
+  backends, protonation, `minimize --no-solvent`, GAFF/OpenFF, PySCF RESP and
+  ethanol RESP export, formats/trajectories, cluster/Plotly, topology/ACPYPE,
+  CHARMM, custom FF, MAFFT, MODELLER and Homology. Optional GROMACS, PSI4 and MSA
+  alternatives were not supplied to this new prefix; this count does not replay
+  their earlier separate acceptance or a new Desktop/manager matrix.
+- New Protenix managed runtime passed source/asset identities, **PyTorch 2.13.0 /
+  CUDA 12.9** real tensor checks, Reference kernel and canonical preflight. It
+  retains sampling/refinement in its frozen combined backend process.
+- New cc94 runtime `cc94-v2` passed real **Python 3.12 / PyTorch 2.6.0 / CUDA
+  12.4** kernels, separate **Python 3.13 / OpenMM 8.6.1 / Reference** refiner,
+  source/asset checks and canonical preflight. Checkpoint identity remains
+  `a58c009ead22b6f79ef61d44e258b432b0fada1dfd8d44cb7a137d7459038a15`.
+
+Retained setup failures are not readiness passes: the first Standard install
+was interrupted by a 120-second outer tool timeout; an owned-prefix resume
+installed the package but its outer micromamba bootstrap did not forward the
+license FD. A direct invocation of the new Python completed protected
+configuration. The first cc94 root failed cloning because the local source path
+was misspelled; `cc94-v2` used the existing `protpardelle-1c-audit` clone as a
+read-only Git source and succeeded. No old prefix was replaced.
+
+### CUDA computation and independent validation
+
+Protocols declared seeds before their runs. These are **validated private
+candidates, not successfully published bundles**:
+
+| Public workflow/control | Seeds | Independently valid private candidates |
+|---|---|---:|
+| cc94 model, 1UBQ two internal four-residue gaps | 101, 102, 103, 104, 105 | 5/5 |
+| cc94 model, 1UBQ N-terminal three residues | 101 | 1/1 |
+| cc94 model, 1UBQ C-terminal three residues | 101 | 1/1 |
+| cc94 model, 1TIM author A73–A78 deletion and bounded source repair | 101 | 1/1 |
+| cc94 multichain Homology, same 1TIM source/deletion | 101 | 1/1 |
+| Protenix model, 36hb, auto/full input | 101 | 1/1 |
+| Protenix model, 36hb, explicit local motif | 101 | 1/1 |
+| Protenix Homology, 36hb, auto/full input | 101 | 1/1 |
+| Protenix model, translated-copy size control, auto, 152 targets | 101 | 1/1 |
+| Protenix model, translated-copy size control, auto, 512 targets | 101 | 1/1 |
+| Protenix model, translated-copy size control, auto, 513 targets | 101 | 1/1 |
+
+Total: **15/15** completed candidates passed a fresh installed
+`validate_runner_result` audit, with zero detectable D-Cα, empty hard-gate
+failures and **0.0 Å fixed-heavy displacement** relative to the explicit prepared
+source where applicable. CUDA traces have fallback disabled. Protenix used
+200 updates; cc94 used 500 updates per invocation (per gap, not summed into one
+sampler count). Complete workspaces retain per-gap evidence.
+
+The translated-copy controls follow `tests/test_protenix_auto_input.py`; they are
+size/adapter controls, not biological assemblies or source-disjoint scientific
+qualification. Actual checkpoint inference used full input at **152/512** target
+residues and a **48-residue motif** at **513**. Explicit `full` at 513 and an
+otherwise identical 152-residue input missing B/20:CB refused before sampling,
+without silent chemistry-dependent cropping. This is now CUDA execution evidence,
+beyond the native Mac's earlier input-construction-only checks.
+
+Independent source-repair audits also recomputed the two 1TIM repairs: 47
+observed residues selected, all movement limits met, no remaining severe input
+findings; 109 warnings remain visible. All original tracked and controlled input
+hashes remain unchanged. The first Homology harness plan incorrectly equated
+author residue numbering with SEQRES columns and failed before sampling. Its log
+and protocol remain; a separately declared v2 plan uses the shared affine
+sequence placement for the same deleted atoms and seed. No scientific gate or
+source mask was changed to obtain the completed v2 result.
+
+The original tracked 5J13 PDB/FASTA was refused for nonwater heterogens in 0.4 s,
+with no runner workspace or sampling. This preserves the SO4 admission refusal;
+it is not a scientific seed rejection or a protein-only derivative.
+
+### Publication failure and interrupted supplied 9CQD cohort
+
+**Zero bundles were published.** Both the project root and its new `tmp/`
+subdirectory are on the same Ceph filesystem. A direct empty-directory probe
+confirmed `renameat2(..., RENAME_NOREPLACE)` returns **EINVAL (22)**. Each
+completed inference reached the unchanged fail-closed publication gate and
+retained diagnostics; a new subdirectory cannot change filesystem semantics.
+The subprocess-recorded model/Homology/refusal controls returned **1**, as
+expected. The first shell-only invocation did not retain an independently
+recorded return code; no exit-0-error claim is made from that wrapper output.
+
+Consequently public bundle consumption, batch/resume, ZBS diffusion handoff and
+the frozen **36hb seed-7 repeated-bundle hardware verifier remain blocked/not
+executed** for this increment. Private validator success is not a substitute for
+`read_published_bundle(...).selected()`. Atomic publication was not bypassed and
+no rejected/partial structure was promoted into a public output.
+
+A fresh supplied 9CQD full-PDB/full-FASTA protocol declared seeds **101–105**.
+Admission preserved targets M/W/X **27/220/221**, all four gaps and **0 input
+errors / 7 warnings**. Seed 101 produced its raw result and entered Reference
+refinement, but the **600-second outer tool timeout** terminated the controlling
+CLI. The remaining orphan sampler/refiner process group was explicitly
+terminated, with raw arrays/results and workdir retained. This is an
+**infrastructure-interrupted attempt**, not a final geometry rejection; seeds
+102–105 did not execute. The protocol and timeout evidence are retained at
+`tmp/installation-profiles-3309bd8/cc94-supplied-9cqd/` and in `summary.json`.
+The complete supplied cohort remains pending with suitable orchestration limits.
+
+### Repository checks and remaining gates
+
+- Focused tests: **186 passed**.
+- Full fast suite on the clean source: **1771 passed, 7 skipped, 33 deselected**;
+  skips are one missing Biotite and six unavailable GROMACS cases. Two SWIG
+  deprecation warnings remain, plus the interpreter-exit SWIG notice.
+- Ruff, strict-target mypy, versions and agent/user documentation checks passed.
+- Python-3.11 CLI/GUI generators and installation-profile generator passed after
+  providing OpenMM/PDBFixer to the isolated generator environment. The initial
+  missing-OpenMM generator attempt was an environment setup failure, not drift.
+- GUI source was not modified in this increment; no new installed Desktop or
+  browser acceptance is claimed.
+
+The current Linux publication filesystem gate, complete supplied cohort and
+public workflow/repeat verification remain open, alongside the previously
+recorded native conda/Probe packaging and broader scientific qualification gates.
+The cross-platform installation plan is **not complete**.
+
+## Project-filesystem publication compatibility fix (2026-10-30)
+
+Implemented on top of `3309bd8` in `model/diffusion/bundle_commit.py` and the
+pipeline's publication dispatch. Unsupported directory-rename flags
+(`EINVAL`, `ENOSYS`, `ENOTSUP`, or a missing platform rename function) now select
+an exclusive **manifest-last commit**. Other I/O/permission errors still fail.
+
+The publisher atomically reserves the output name with `mkdir`, transfers only
+private flat regular staged files via exclusive hard links, removes their
+staging links, fsyncs all payload entries, and atomically links `bundle.json`
+last without replacing an existing entry. Completed artifacts retain one link,
+schema 2 and their existing digest/provenance/scientific validation rules.
+Filesystems supporting the original whole-directory no-replace rename still
+use that path.
+
+This makes the readiness boundary explicit: a directory can be visible while
+being populated, but **no completed bundle exists without its index**. Both the
+Python reader and GUI transport reader require that index and verify linked
+payloads. A crash before commit leaves an unready reservation that is refused
+by readers and later publishers, never silently adopted. Handled failures roll
+back only owned entries, removing the index before payloads and preserving
+unrelated entries. Publication does not substitute ordinary overwrite-capable
+directory rename, disable checks, or move outputs outside the project.
+
+### Actual project CephFS evidence
+
+Evidence root: `tmp/installation-profiles-3309bd8/publication-fix/` inside the
+project. The existing new Standard prefix was refreshed with a built package,
+without changing scientific dependencies; installed checks unset `PYTHONPATH`
+and `PYTHONHOME`. Backend environments/checkpoints were unchanged.
+
+1. **Recovery, without resampling:** all **15** previously validated retained
+   candidates were independently validated again, published as **11 bundles**,
+   then read with the real `read_published_bundle` in request/source-bound resume
+   mode. This includes both source-repaired 1TIM cases and Protenix at
+   152/512/513 targets. `recovered-bundles.json` records exact paths and seeds;
+   `recovery.log` records outcomes. The earlier failed attempts remain retained.
+2. **Fresh public checkpoint execution:** `scripts/smoke_diffusion_workflows.py`
+   passed on the project filesystem with the newly installed CLI and managed
+   Protenix runtime. Two independent same-input batch runs published identical
+   selected PDBs; resume verified both existing bundles; `zbs --no-solvent`
+   completed and preserved the modeled `.dat` handoff; mosaic Homology sampled,
+   published and passed bundle validation. The source remained unchanged.
+   Evidence: `workflow-smoke/workflow-smoke.json` and all command/private logs.
+   The selected batch PDB SHA256 is
+   `60d80ca655cdffd7c9c17eadc1fc86a563871e5832ce35d6910fc34b88ec31c7`;
+   Homology is `d8e266680726294beb2aaecc963e8b6fd6b44e3d0d93442dcd0a136fd2a80ee0`.
+   These current auto/full-input controls are not the historical fixed-digest
+   36hb hardware-repeat fixture, whose verifier remains a separate gate.
+3. **GUI transport:** the unchanged real TypeScript
+   `readDiffusionPublication` reader successfully consumed the recovered and
+   fresh bundles (`gui-transport-check.json`). This verifies transport
+   compatibility, not a new browser/installed-Desktop acceptance run.
+4. **Tests:** initial publication/workflow tests **44 passed**; the full fast
+   suite passed **1786 tests, 7 skipped, 33 deselected**. New coverage includes
+   unsupported rename flags, incomplete-reader refusal, empty-destination races,
+   two competing publishers, transfer/fsync failure rollback, preservation of
+   unrelated entries, and an actual subprocess crash before index commit.
+   Ruff and strict-target mypy passed. Scientific admission/geometry thresholds
+   did not change.
+
+The project-filesystem publication blocker is resolved for these executed
+paths. The interrupted supplied 9CQD cohort, frozen hardware-repeat fixture,
+native package gates and broader scientific qualification remain open.

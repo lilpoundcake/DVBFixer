@@ -37,6 +37,9 @@ Added 2026-10-28. Requirements and next-session starting point:
 - [x] Extend native Apple acceptance with mamba 2.10.0 profiles/installed GUI, MSA alternatives plus PSI4 extended checks, separate PSI4 RESP, and one digest-verified public cc94 MPS installation bundle (not general scientific qualification).
 - [x] Verify a pinned manual native Probe source build, exact-version doctor, real electron/nuclear diagnostics and the absent-Probe fallback; keep the managed conda add-on packaging restriction explicit.
 - [x] Extend native cc94 MPS installation evidence with five predeclared public model seeds and a public Homology template-plan case, including actual generated-only CPU refinement and digest/geometry-verified publication; retain broader-context qualification as pending.
+- [x] Recheck Linux `3309bd8` with new installed Standard (25 extended checks), managed Protenix/cc94 runtimes and 15 independently validated private CUDA candidates, including Protenix 152/512/513 size controls; retain failed publication and interrupted 9CQD evidence inside the project.
+- [x] Resolve project CephFS publication with an exclusive manifest-last commit: recover 15 independently revalidated candidates into 11 readable bundles and pass fresh public Protenix batch/resume/ZBS/Homology on the project filesystem.
+- [ ] Complete frozen seed-7 hardware-repeat verification and the interrupted supplied 9CQD cohort; the current-input workflow smoke and recovered candidates do not close those separate gates.
 - [ ] Verify clean Standard/Desktop installs and add-ons with real functional smokes for each claimed manager/platform; retain not-tested states (WP5).
 - [ ] Synchronize manual installation, documentation, CI and agent status, then finish the proven GUI/MSA migration without removing Standard scientific capabilities (WP6).
 

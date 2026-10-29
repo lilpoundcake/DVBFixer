@@ -58,6 +58,10 @@ class DiffusionPipelineError(RuntimeError):
     """Raised when internal orchestration or publication fails closed."""
 
 
+class _AtomicRenameUnavailable(DiffusionPipelineError):
+    """The platform/filesystem needs the exclusive manifest-last commit route."""
+
+
 @dataclass(frozen=True, slots=True)
 class DiffusionPipelineOutcome:
     result: DiffusionResult | None
@@ -641,10 +645,18 @@ def _rename_bundle(staging: Path, destination: Path) -> None:
         raise DiffusionPipelineError(
             "atomic no-replace bundle publication is unavailable on this platform"
         )
-    if sys.platform == "darwin":
-        _rename_bundle_macos(staging, destination)
-        return
-    _rename_bundle_linux(staging, destination)
+    try:
+        if sys.platform == "darwin":
+            _rename_bundle_macos(staging, destination)
+        else:
+            _rename_bundle_linux(staging, destination)
+    except _AtomicRenameUnavailable:
+        from dvbfixer.model.diffusion.bundle_commit import commit_manifest_last
+
+        try:
+            commit_manifest_last(staging, destination)
+        except FileExistsError as exc:
+            raise DiffusionPipelineError("diffusion destination bundle already exists") from exc
 
 
 def _rename_bundle_linux(staging: Path, destination: Path) -> None:
@@ -652,7 +664,7 @@ def _rename_bundle_linux(staging: Path, destination: Path) -> None:
         libc = ctypes.CDLL(None, use_errno=True)
         renameat2 = libc.renameat2
     except (AttributeError, OSError) as exc:
-        raise DiffusionPipelineError(
+        raise _AtomicRenameUnavailable(
             "atomic no-replace bundle publication requires renameat2"
         ) from exc
     renameat2.argtypes = (
@@ -681,7 +693,7 @@ def _rename_bundle_macos(staging: Path, destination: Path) -> None:
         libc = ctypes.CDLL(None, use_errno=True)
         renamex_np = libc.renamex_np
     except (AttributeError, OSError) as exc:
-        raise DiffusionPipelineError(
+        raise _AtomicRenameUnavailable(
             "atomic no-replace bundle publication requires renamex_np"
         ) from exc
     renamex_np.argtypes = (
@@ -713,7 +725,7 @@ def _raise_rename_error(error_number: int, destination: Path) -> None:
     if error_number == errno.EEXIST:
         raise DiffusionPipelineError("diffusion destination bundle already exists")
     if error_number in {errno.ENOSYS, errno.EINVAL, errno.ENOTSUP}:
-        raise DiffusionPipelineError(
+        raise _AtomicRenameUnavailable(
             "atomic no-replace bundle publication is unavailable on this filesystem"
         )
     raise OSError(

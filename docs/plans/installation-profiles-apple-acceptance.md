@@ -4,6 +4,22 @@ Date: 2026-10-29. Branch: `feature/installation-profiles`.
 
 ## Latest native checkpoint and Linux continuation
 
+Linux follow-up at `3309bd8` (2026-10-29/30) installed a new Standard and both
+CUDA runtimes and independently validated 15 completed private candidates,
+including actual Protenix inference at 152/512 targets and a motif at 513.
+Initial public publication failed on project CephFS (`RENAME_NOREPLACE` returns
+EINVAL). The subsequent manifest-last commit fix now publishes on that same
+filesystem: all 15 retained candidates were revalidated into 11 readable bundles,
+and a fresh public Protenix batch/resume/ZBS/Homology smoke passed. The supplied
+9CQD cohort was interrupted
+during seed-101 refinement by an outer timeout; later seeds did not execute.
+Its completion and the frozen repeated-bundle hardware verifier remain open.
+All results stay inside the project, primarily
+`tmp/installation-profiles-3309bd8/`. See the
+[Linux continuation record](../installation-profile-acceptance.md#linux-continuation-after-native-finalization-2026-10-2930)
+and its publication-fix follow-up before resuming; private validation alone is
+not public workflow acceptance.
+
 The installed-package finalization passed Standard/Desktop licensed science
 (28/14 checks), 407 installed GUI tests and real Chrome acceptance. The expanded
 cc94 MPS cohort published **25/25** candidates across repaired 1TIM model/Homology,
