@@ -142,7 +142,7 @@ def run_diffusion_pipeline(
         )
     )
     shutil.rmtree(workspace)
-    retain_diagnostics = False
+    diagnostics_warning = False
     try:
         runner_result = run_diffusion_runner(
             request,
@@ -163,7 +163,7 @@ def run_diffusion_pipeline(
         # evidence for omitted seeds even when the accepted subset publishes.
         published_seeds = {candidate.seed for candidate in result.candidates}
         missing_seeds = sorted(set(request.seeds) - published_seeds)
-        retain_diagnostics = result.status is DiffusionStatus.FAILED or bool(missing_seeds) or options is not None
+        diagnostics_warning = result.status is not DiffusionStatus.SUCCESS or bool(missing_seeds)
         if missing_seeds:
             print(f"WARNING: Diffusion seeds absent from publication: {missing_seeds}; "
                   "retaining private runner evidence", flush=True)
@@ -198,13 +198,14 @@ def run_diffusion_pipeline(
     except BaseException:
         # Cancellation/interrupts must retain raw and completed-stage evidence
         # too. This is cleanup bookkeeping only; the original exit propagates.
-        retain_diagnostics = True
+        diagnostics_warning = True
         raise
     finally:
-        if retain_diagnostics and workspace.is_dir():
-            print(f"WARNING: Retained private diffusion diagnostics: {workspace}", flush=True)
-        else:
-            shutil.rmtree(workspace, ignore_errors=True)
+        if workspace.is_dir():
+            # Even complete success must retain raw arrays/per-gap traces. The
+            # publication is a validated selection, not the entire run record.
+            level = "WARNING" if diagnostics_warning else "INFO"
+            print(f"{level}: Retained private diffusion diagnostics: {workspace}", flush=True)
 
 
 def publish_diffusion_bundle(

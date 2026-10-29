@@ -126,6 +126,34 @@ def check_coincident_atoms(topology: Any, positions: Any) -> list[Finding]:
     return findings
 
 
+def check_coincident_heavy_atoms(topology: Any, positions: Any) -> list[Finding]:
+    """Report collapsed heavy atoms without excluding bonded pairs.
+
+    Shared by diagnose and diffusion input admission. Hydrogen coincidence
+    handling remains separate so its repair semantics do not change.
+    """
+    from dvbfixer.diagnose.geometry import atom_identity
+    from dvbfixer.ffutils.geometry import detect_coincident_heavy_atoms
+
+    findings = []
+    pairs = detect_coincident_heavy_atoms(topology, positions, max_pairs=1001)
+    for pair in pairs[:1000]:
+        first, second = pair.atom1, pair.atom2
+        chain, resid = _res_loc(first.residue)
+        other_chain, other_resid = _res_loc(second.residue)
+        findings.append(Finding(Severity.ERROR, "coincident_atoms", chain, resid, first.residue.name,
+                                f"heavy atoms {chain}:{resid}:{first.name} and {other_chain}:{other_resid}:{second.name} "
+                                f"are coincident ({pair.distance_nm * 10:.3f} Å apart); manual preparation is required",
+                                atom=first.name, extra={"geometry_schema": "dvbfixer.geometry.v1",
+                                    "metric": "heavy_atom_coincidence.v1",
+                                    "atoms": [atom_identity(first).to_dict(), atom_identity(second).to_dict()],
+                                    "distance_angstrom": pair.distance_nm * 10}))
+    if len(pairs) > 1000:
+        findings.append(Finding(Severity.INFO, "coincident_atoms", "", "", "",
+                                "Heavy-atom coincidence report truncated after 1000 pairs"))
+    return findings
+
+
 def check_misplaced_hydrogens(topology: Any, positions: Any) -> list[Finding]:
     """H atoms placed too far from their bonded heavy-atom parent.
 
@@ -418,6 +446,7 @@ def run_all(
         findings.extend(check_missing_atoms(fixer))
         findings.extend(check_missing_terminals(fixer))
     findings.extend(check_coincident_atoms(topology, positions))
+    findings.extend(check_coincident_heavy_atoms(topology, positions))
     findings.extend(check_misplaced_hydrogens(topology, positions))
     findings.extend(check_altloc_conflicts(pdb_path))
     findings.extend(check_chain_breaks(pdb_path, include_water=include_water))

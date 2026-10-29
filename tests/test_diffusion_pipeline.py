@@ -666,8 +666,10 @@ def test_successful_subset_retains_omitted_seed_evidence(tmp_path, monkeypatch, 
         assert "seeds absent from publication: [101]" in output
         assert f"Retained private diffusion diagnostics: {workspaces[0]}" in output
     else:
-        assert not workspaces[0].exists()
+        assert (workspaces[0] / "runner.stderr").is_file()
         assert "seeds absent" not in output
+        assert f"INFO: Retained private diffusion diagnostics: {workspaces[0]}" in output
+        assert "WARNING:" not in output
 
 
 def test_unsupported_scope_does_not_launch_runner_or_publish(

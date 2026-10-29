@@ -32,7 +32,9 @@ repairs any violations in place.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
+from itertools import product
 from typing import Any
 
 
@@ -203,6 +205,45 @@ def detect_coincident_atoms(
                         )
                     )
                     break
+    return findings
+
+
+@dataclass(frozen=True)
+class CoincidentHeavyAtoms:
+    atom1: Any
+    atom2: Any
+    distance_nm: float
+
+
+def detect_coincident_heavy_atoms(
+    topology: Any, positions: Any, tol_nm: float = _COINCIDENT_TOL_NM,
+    max_pairs: int = 1000,
+) -> list[CoincidentHeavyAtoms]:
+    """Detect collapsed heavy atoms, including bonded and cross-chain pairs.
+
+    Bond-length / steric checks exclude such pairs for different reasons. A
+    spatial grid avoids an all-pairs scan; the result cap bounds malformed-input
+    diagnostics. No jitter, atom deletion or topology mutation is performed.
+    """
+    if not math.isfinite(tol_nm) or tol_nm <= 0 or max_pairs < 1:
+        raise ValueError("coincidence tolerance and pair limit must be positive")
+    cells: dict[tuple[int, int, int], list[tuple[Any, tuple[float, float, float]]]] = {}
+    findings: list[CoincidentHeavyAtoms] = []
+    for atom in topology.atoms():
+        if atom.element is None or atom.element.symbol in {"H", "D"}:
+            continue
+        point = _pos(positions, atom)
+        if not all(math.isfinite(x) for x in point):
+            continue
+        cell = (math.floor(point[0] / tol_nm), math.floor(point[1] / tol_nm), math.floor(point[2] / tol_nm))
+        for dx, dy, dz in product((-1, 0, 1), repeat=3):
+            for other, previous in cells.get((cell[0] + dx, cell[1] + dy, cell[2] + dz), ()):
+                distance2 = _dist2(point, previous)
+                if distance2 < tol_nm * tol_nm:
+                    findings.append(CoincidentHeavyAtoms(other, atom, math.sqrt(distance2)))
+                    if len(findings) >= max_pairs:
+                        return findings
+        cells.setdefault(cell, []).append((atom, point))
     return findings
 
 

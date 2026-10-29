@@ -89,6 +89,23 @@ def test_clean_input_has_no_warning_banner_or_report_directory(tmp_path, monkeyp
     assert not list(tmp_path.glob("dvbfixer-input-geometry-*"))
 
 
+def test_collapsed_bonded_heavy_atoms_are_rejected_before_minimization(tmp_path, monkeypatch):
+    from dvbfixer.model.diffusion.input_preparation import prepare_input
+
+    path, request = _input(tmp_path)
+    lines = path.read_text().splitlines(keepends=True)
+    ca = next(line for line in lines if line.startswith("ATOM") and line[22:26].strip() == "20" and line[12:16].strip() == "CA")
+    damaged = "".join(line[:30] + ca[30:54] + line[54:] if line.startswith("ATOM") and line[22:26].strip() == "20"
+                      and line[12:16].strip() == "CB" else line for line in lines).encode()
+    request = replace(request, normalized_pdb=replace(request.normalized_pdb, sha256=hashlib.sha256(damaged).hexdigest()))
+    findings = assess_input_geometry(request, damaged)
+    assert any(f.category == "coincident_atoms" and "heavy atoms" in f.message for f in findings)
+    monkeypatch.setattr("dvbfixer.model.diffusion.boundary_refinement.refine_observed_region",
+                        lambda *_args, **_kwargs: pytest.fail("collapsed heavy atoms must not reach the optimizer"))
+    with pytest.raises(InputGeometryError, match="cannot safely handle coincident_atoms"):
+        prepare_input(request, damaged, tmp_path)
+
+
 def test_pipeline_never_launches_runner_for_bad_observed_geometry(tmp_path, monkeypatch):
     from dvbfixer.model.diffusion import pipeline
 

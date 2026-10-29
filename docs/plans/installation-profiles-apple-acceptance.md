@@ -2,6 +2,61 @@
 
 Date: 2026-10-29. Branch: `feature/installation-profiles`.
 
+## Latest native checkpoint and Linux continuation
+
+The installed-package finalization passed Standard/Desktop licensed science
+(28/14 checks), 407 installed GUI tests and real Chrome acceptance. The expanded
+cc94 MPS cohort published **25/25** candidates across repaired 1TIM model/Homology,
+two internal 1UBQ gaps and both terminal cases, with independently verified
+publications and retained private per-gap traces. Installed Protenix input
+construction passed full/motif controls at 152/512/513 target residues; this
+does not imply native Protenix inference. See
+[the finalization record](../installation-profile-acceptance.md#native-installed-package-finalization-2026-10-29)
+for exact outcomes, evidence and limitations. The instructions below retain the
+original bootstrap protocol; statements of what was initially untested are
+historical and superseded by the recorded results.
+
+On Linux:
+
+1. Fetch `feature/installation-profiles` into a separate clean checkout; record
+   the actual commit and platform/driver/device versions. Preserve this Mac's
+   environments, input originals, failed attempts and local evidence. Runtime
+   evidence under `.artifacts/` is not transferred by Git; do not assume it is
+   available on the new host or overwrite an existing Linux prefix/checkpoint.
+2. Use the approved [installation-profile handoff](installation-profiles-handoff.md)
+   and catalog-managed new prefixes/runners. Verify installed imports with
+   `PYTHONPATH`/`PYTHONHOME` unset, preflight real CUDA tensors and the prescribed
+   refinement process layout. Keep protected MODELLER license input out of argv
+   and logs. Never use clobber or disabled conda safety settings.
+3. Exercise **actual Protenix checkpoint inference** through public model and
+   Homology paths, including `auto` full input at/below the 512-residue adapter
+   budget, motif selection above it, explicit `full/local`, incomplete-input
+   refusal, and source repair before context selection. The budget is not a
+   free-VRAM estimate; invalid chemistry must never trigger silent cropping.
+4. Re-run the current cc94 CUDA model/Homology, multigap, terminal, batch/resume
+   and repair/publication paths after the latest changes. Use
+   `scripts/smoke_diffusion_workflows.py` with a suitable frozen cohort and
+   `scripts/check_protenix_hardware_acceptance.py` for its supported hardware
+   checks. Declare seeds before sampling and preserve every outcome, original,
+   prepared source, request, trace and private workspace. Independently read
+   published bundles; CLI exit 0 alone does not mean every seed passed.
+5. For the user-supplied 9CQD/5J13 cases use their tracked PDB **and FASTA** under
+   `tests/fixtures/protein_context/`. Preserve all admission/geometry refusals;
+   do not bypass the archived partial 9CQD coverage gate or call an unexecuted
+   seed a scientific rejection. New production Protpardelle requests use cc94,
+   never silently cc89. Keep `--no-solvent` on development minimize/ZBS runs.
+   Fresh native 9CQD with all FASTA tails passed 4/5 seeds (101 rejected by
+   junction/anchor geometry); accepted variants used bounded observed-anchor
+   refinement, not a zero-movement baseline. Original 5J13 was refused before
+   sampling because of SO4 B301–B303, and ordinary diagnose also found incomplete
+   heavy atoms/hydrogen defects. Preserve that original refusal. Any future
+   prepared protein-only derivative needs a separate, explicitly approved scope
+   and provenance; simply removing sulfate is not established as sufficient.
+6. Run focused and fast tests, GUI checks if affected, generation/version/docs
+   checks and installed science smokes; record actual outcomes before claiming
+   the cross-platform plan complete. Native conda package collisions and managed
+   osx-arm64 Probe packaging are upstream Mac gates, not solved by Linux success.
+
 ## Executed native checkpoint
 
 Micromamba 2.9.0 and mamba 2.10.0 Standard/Desktop licensed smokes passed;

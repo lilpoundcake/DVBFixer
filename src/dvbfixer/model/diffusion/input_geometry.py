@@ -19,7 +19,10 @@ from dvbfixer.diagnose.chemistry import (
 )
 from dvbfixer.diagnose.report import Finding, Severity
 from dvbfixer.diagnose.steric import clashes_python
-from dvbfixer.diagnose.structural import check_coincident_atoms
+from dvbfixer.diagnose.structural import (
+    check_coincident_atoms,
+    check_coincident_heavy_atoms,
+)
 from dvbfixer.model.diffusion.contract import DiffusionRequest, ResidueIdentity
 from dvbfixer.pdbutils.sequence_evidence import observed_peptide_continuity
 
@@ -61,7 +64,7 @@ def assess_input_geometry(request: DiffusionRequest, source: bytes) -> tuple[Fin
                 continue
         topology.addBond(atoms[a], atoms[b])
     findings = []
-    for check in (check_coincident_atoms, check_bond_lengths, check_backbone_bond_angles,
+    for check in (check_coincident_atoms, check_coincident_heavy_atoms, check_bond_lengths, check_backbone_bond_angles,
                   check_peptide_omegas, check_ca_chirality):
         findings.extend(check(topology, pdb.positions))
     findings.extend(clashes_python(topology, pdb.positions))

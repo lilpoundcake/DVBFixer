@@ -233,7 +233,9 @@ def test_mosaic_diffusion_rejects_covered_substitution(tmp_path):
 def test_explicit_mosaic_requests_keep_authoritative_positions_and_edit_ownership(tmp_path, scenario):
     template = tmp_path / "template.pdb"
     chains = ("D", "d") if scenario == "joint" else ("A",)
-    template.write_text("".join(_atom(index + 1 + offset * 14, "ALA", index + 1, index * 3.8)
+    # Distinct chains share a frame, not the same atom coordinates. This is an
+    # ownership/materialization fixture, not a collapsed-input admission test.
+    template.write_text("".join(_atom(index + 1 + offset * 14, "ALA", index + 1, index * 3.8 + offset * 100)
                                .replace("ALA A", f"ALA {chain}")
                                for offset, chain in enumerate(chains) for index in range(14)) + "END\n")
     target = "A" * 14

@@ -996,3 +996,147 @@ passed; local evidence and credentials are excluded from the source archive.
 The 48-test diffusion CLI subset also passed after adding an explicit assertion
 that frozen requests never call automatic preparation. No broad scientific
 qualification or hosted-CI pass is inferred from these checks.
+
+## Native installed-package finalization (2026-10-29)
+
+Evidence root: `.artifacts/installation-profiles/apple/native-finalization/`
+on the native Mac checkout. These local runtime assets are intentionally not
+Git payloads; keep the Mac checkout, environments and evidence when continuing
+on Linux. Previous package files are preserved in verified tarball backups;
+the entire previous Desktop GUI/data/dependencies tree remains at
+`share/dvbfixer/gui-before-native-finalization`. No environment or input fixture
+was deleted. Package refreshes used built wheels with `--no-deps`, no source
+overlay or dependency changes. A second Python-only refresh installed the
+heavy-atom coincidence guard; the GUI did not need another replacement.
+
+### Installed science and Desktop
+
+- Standard: **28/28** licensed extended checks, including real PySCF/RESP,
+  separate PSI4/RESP export, GAFF/ACPYPE, both prepare backends, native GROMACS,
+  formats/analysis, MODELLER and Homology; Desktop: **14/14** licensed checks.
+  Both profile doctors returned 0. `pip check` still returns 1 for the recorded
+  upstream AmberTools auxiliary metadata conflicts; passing executed science
+  does not make that package-metadata gate green.
+- Installed Desktop: **407 GUI tests**, typecheck, client/server build and
+  standalone smoke passed. Actual Chrome **154.0.8037.98** passed workspace
+  import/diagnose, public Protenix context choices `auto/local/full`, and hidden
+  Protpardelle context overrides. Browser attempts v1/v2 were harness selector
+  failures and remain retained, not scientific failures.
+- Browser v3 exposed a diagnostic gap: collapsed bonded CA/CB reached the input
+  optimizer, which refused with NaN before sampling. The shared geometry layer
+  now detects heavy-heavy coincidences (including bonded/cross-chain pairs)
+  with the existing 0.5 Å coincidence tolerance, a spatial grid and a bounded
+  report. Ordinary `diagnose` and diffusion both call the shared formatter;
+  hydrogen repair behavior is unchanged. **Browser v4 passed** with the explicit
+  `cannot safely handle coincident_atoms` refusal and `Sampling was not started`,
+  without optimizer NaN. Installed ordinary diagnose independently reported
+  `heavy_atom_coincidence.v1`. All browser attempts/evidence are preserved.
+- Installed Protenix production template construction passed at **152/512**
+  target residues using full input, and **513** using a **48-residue motif**.
+  Explicit oversized `full` rejects; incomplete full input does not silently
+  crop. This is input/transport evidence, **not checkpoint inference**.
+  Native doctor correctly reports no maintained Protenix profile for darwin/arm64.
+- After the coincidence-guard refresh, both installed scientific smokes passed
+  again (**28/28** Standard, **14/14** Desktop). The current CLI also executed
+  MAFFT auto, MUSCLE 5 and Clustal Omega against existing alternative-engine
+  executables, plus exact-version manual Probe electron/nuclear diagnostics
+  and the no-Probe fallback control (`final-msa-report.json`,
+  `final-probe-report.json`). Probe reported `complete`, not a substituted
+  engine; the absent-executable control explicitly reported Python fallback.
+
+### Installed cc94 MPS cohort
+
+The protocol in `installed-mps/protocol.json` declared seeds **7, 19, 42, 101,
+202**, one attempt per case/seed, before execution. All **25/25** candidates
+published and passed independent bundle reading:
+
+| Public workflow/input | Accepted seeds | Total seconds |
+|---|---:|---:|
+| Model, 1TIM A73–A78 deletion with bounded input repair | 5/5 | 197.85 |
+| Model, 1UBQ two internal four-residue gaps | 5/5 | 115.71 |
+| Model, 1UBQ N-terminal three residues | 5/5 | 67.43 |
+| Model, 1UBQ C-terminal three residues | 5/5 | 67.72 |
+| Multichain Homology, 1TIM with bounded input repair | 5/5 | 189.01 |
+
+Each actual invocation records **500 MPS updates**, fallback disabled. The
+two-gap case retains separate `raw/gap-0/` and `raw/gap-1/` 500-update traces
+for every seed: the merged 500 count is **per invocation**, not their sum.
+Twenty candidates selected generated-only CPU refinement; five terminal
+candidates selected raw coordinates. All have empty hard-gate failures and
+**0.0 Å fixed-heavy displacement**, relative to the explicitly prepared source
+where repair was needed. Whole-source warnings remain visible. All private
+runner workspaces now remain retained even on complete, clean success (`INFO`
+rather than a spurious warning); failures/partial success retain warning-level
+notifications. This extends case-specific installation stress evidence, not
+source-disjoint scientific qualification.
+
+### Still open
+
+Conda 26.9.4 again rejected the native upstream package path collisions in
+**10.48 s**, before transaction execution, despite deliberately unsafe inherited
+settings in the control. Child safety settings were enforced, not bypassed.
+The public bioconda API still declares **zero osx-arm64 Probe packages**; the
+working manual native build is not managed add-on packaging acceptance.
+Actual Protenix checkpoint execution and current CUDA end-to-end acceptance
+belong on Linux. Broader cc94 MPS/context scientific qualification and hosted
+CI acceptance remain unclaimed.
+
+The first final fast-suite attempt exposed a synthetic Homology ownership
+fixture whose case-sensitive `D`/`d` chains had identical coordinates. The new
+shared guard correctly refused that collapsed input. The ownership fixture now
+places the chains separately without changing its sequence/mask assertions;
+dedicated coincidence tests retain bonded/cross-chain collapse coverage. The
+original failed test log remains preserved (`final-fast-tests.log`), rather
+than weakening production admission. The focused final set passed **66 tests**.
+The corrected complete fast run passed **1,773 tests, 3 skipped, 33 deselected**
+(`final-fast-tests-v2.log`); two additional detector argument-validation cases
+were then included in the passing focused set. Skips require Torch/Biotite in
+the separate scientific backend environments; they are not claimed as passes.
+The real restrained 1TIM repair regression, strict-target mypy, Ruff, version,
+CLI/GUI/profile generators, user/agent documentation and installed-distribution
+smokes passed. The source archive excludes local evidence, credentials and Node
+dependencies; protein-context fixture checksums remain unchanged.
+
+### Fresh supplied 9CQD and 5J13 requests
+
+`old-friends/protocol.json` declared the original tracked PDB/FASTA pairs,
+seeds **7, 19, 42, 101, 202**, default terminal inclusion and one attempt per
+case/seed before execution. No archived request was edited, no source overlay
+used, and input SHA256 values were verified unchanged afterward.
+
+**9CQD:** the new public request was admitted with target lengths **M/W/X =
+27/220/221**. It requested four gaps: W `[0,3)`, `[25,28)`, `[217,220)` and
+X `[139,141)` (11 residues total). These are not the archived partial-gap
+research request or the terminal-excluded W214 request. Source assessment
+reported **0 errors, 7 warnings** and did not repair the input. The run took
+**569.37 s**; all five seeds actually sampled, with four retained gap traces
+per seed showing **500 MPS updates each**, fallback disabled. Independent
+bundle reading accepted **4/5 seeds: 7, 19, 42, 202**; normal ranking selected
+**42**. Seed **101** was rejected after completed sampling/refinement with
+`geometry-gated-refinement-failed`, `generated-or-junction-bond-angle`, and
+`anchor-repair-expanded-geometry`; its raw/refined coordinates, result and
+traces remain available. Exit 0 reflects a successful accepted subset, not 5/5.
+
+Unlike the preceding controlled 25-candidate cohort, **all four accepted 9CQD
+variants selected generated-and-anchors refinement**. Published maximum
+observed-heavy displacement was **1.082 Å** (seed 42); only explicitly
+authorized anchor movement is allowed by independent publication validation.
+Recorded per-anchor Cα displacement remained below 0.5 Å and heavy displacement
+below 1.25 Å. This is not a 0.0 Å fixed-coordinate claim for these anchors.
+Warnings and the experimental terminal/CYS qualification notices remain visible.
+Evidence: `old-friends/9cqd_split/{bundle,work,independent-audit.json,command.log}`.
+
+**5J13:** the unchanged supplied file was refused at public admission in
+**0.24 s**: corrected Protpardelle requires canonical protein without nonwater
+heterogens. The actual nonwater residues are **SO4 B301/B302/B303** (15 atoms);
+they were not silently stripped. No seed sampled, so this is **not a 0/5
+scientific result**. An additional ordinary installed `diagnose` run retained
+the source report: 255 errors, 24 warnings and 3 informational findings,
+including 20 missing-heavy-atom residue findings and 219 hydrogen-position
+findings. This uses ordinary diagnose semantics, not gap-aware diffusion input
+admission; it does not establish that removing sulfate alone would produce a
+safe/admissible structure. A separately authorized and clearly labeled prepared
+protein-only derivative is a distinct future case, not a replacement for this
+record. Evidence: `old-friends/5j13_selected/` (including the original refusal,
+ordinary diagnose and exact input-class audit). All original fixtures remain
+unchanged. These case outcomes do not close broader scientific qualification.
