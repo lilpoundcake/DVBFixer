@@ -36,6 +36,57 @@
 - [ ] Preserve fail-closed admission, independent validation, atomic bundle
   publication, exact identities, and zero D-C-alpha output throughout.
 
+## Future scope: diffusion completion of partial residues (2026-10-29)
+
+**Status: planned, not implemented or scientifically qualified.** The user
+requested that diffusion also reconstruct missing heavy atoms within otherwise
+observed protein residues. This is distinct from missing whole residues, bounded
+relaxation of existing source atoms, hydrogen placement, or template-based
+PDBFixer repair. It is not a prerequisite for starting the existing Linux/CUDA
+acceptance work and must not silently widen current admission.
+
+The supplied 5J13 case motivates this work: besides its separate SO4 admission
+issue, ordinary diagnose reports residues with incomplete heavy-atom sets.
+Removing nonprotein molecules alone does not implement partial-residue diffusion.
+
+- [ ] Define backend-neutral **atom-level** completion requests: exact observed
+  and missing atom identities, expected residue chemistry and separate masks
+  for whole-residue gaps versus partial-residue completion. Preserve chain case,
+  residue numbers and insertion codes. Do not mark an entire observed residue
+  as generated merely because one side-chain atom is absent.
+- [ ] Audit each backend/checkpoint's ability to condition on partial residues
+  and generate the requested heavy atoms, including side-chain-only defects,
+  backbone defects and mixed defects adjacent to sequence gaps. Add maintained
+  adapters only for demonstrated capabilities; retain explicit refusals for
+  unsupported chemistry or missing conditioning atoms. Do not disguise
+  template-built atoms as diffusion-generated output.
+- [ ] Keep source assessment before motif selection, but distinguish absent
+  atoms from invalid existing geometry. Never invent missing source atoms just
+  to satisfy context construction or a force-field preflight. Define how motif
+  selection and optional refinement operate with incomplete conditioning.
+- [ ] Keep known atoms fixed by default. Any necessary movement must use an
+  explicit, bounded, independently audited relaxation policy, with original
+  coordinates, atom provenance, masks and all attempts preserved. Frozen
+  requests must not be silently repaired or reclassified.
+- [ ] Validate output completeness, exact names/identities, bond connectivity,
+  junction geometry, clashes, chirality and observed-atom preservation using
+  shared diagnose/domain primitives. Publish generated-atom ownership and
+  `.dat` evidence through the canonical schema; accept no unrequested atoms or
+  duplicate identities. Handle hydrogens separately from heavy-atom completion.
+- [ ] Add CLI/model and mosaic Homology tests, then batch/resume and GUI coverage,
+  for partial residues alone and combined with multiple whole-residue gaps.
+  Include case-sensitive chains, insertion codes, disulfides, unsupported inputs
+  and failure-evidence retention; keep heterogen support a separate capability.
+- [ ] Freeze checkpoint-backed multi-seed CUDA/MPS benchmarks before execution:
+  artificial heavy-atom deletions from complete held-out sources plus authentic
+  incomplete inputs such as 5J13. Preserve originals and label any protein-only
+  derivative separately. Report admission refusals, executed failures and
+  accepted candidates separately; never relax gates or select seeds by reference
+  fit. Record backend-specific qualification before exposing broader support.
+
+See the [current Linux continuation handoff](installation-profiles-apple-acceptance.md#latest-native-checkpoint-and-linux-continuation)
+for work that can start now, without claiming this future capability.
+
 ## Current Expansion Baseline
 
 **Public cc89 CUDA slice:** `protpardelle-1c-cuda` is now exposed through installed

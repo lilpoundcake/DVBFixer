@@ -57,6 +57,15 @@ On Linux:
    the cross-platform plan complete. Native conda package collisions and managed
    osx-arm64 Probe packaging are upstream Mac gates, not solved by Linux success.
 
+Future scientific scope is tracked separately in
+[diffusion completion of partial residues](linux-diffusion-expansion.md#future-scope-diffusion-completion-of-partial-residues-2026-10-29):
+generating missing heavy atoms inside observed residues is not yet a supported
+general capability. It does not block starting the existing Linux acceptance
+matrix; keep current incomplete-input refusals until atom-level conditioning,
+ownership and independent validation are implemented and qualified. Do not count
+ordinary template-based preparation as evidence that diffusion completed those
+atoms.
+
 ## Executed native checkpoint
 
 Micromamba 2.9.0 and mamba 2.10.0 Standard/Desktop licensed smokes passed;
