@@ -2,7 +2,92 @@
 
 Date: 2026-10-29. Branch: `feature/installation-profiles`.
 
+## Resume on the Mac after Linux finalization (2026-10-30)
+
+The current Linux installation/science/workflow matrix has executed; see the
+[final Linux record](../installation-profile-acceptance.md#final-linux-acceptance-before-return-to-mac-2026-10-30)
+and [portable results](../research/linux-installation-finalization-2026-10-30.json).
+New installed Desktop passed 407 GUI tests, a real Chrome workspace/job/viewport
+check and 30 extended science checks. The final installed Python suite passed
+1831 tests including all 33 slow cases; its two Torch skips passed separately.
+Both CUDA backends have real public batch/resume/ZBS/Homology evidence, and
+Protenix model/Homology source repair precedes full 494-residue context selection.
+The supplied 9CQD five-seed cohort is complete (3 accepted, 2 rejected).
+
+The historical hardware PDB-hash gate remains **failed**, even after two
+independent replays of the exact verifier-introduction source `05c16c9`. Do not
+change its expected hash, mark it green or try to close a CUDA historical byte
+identity gate with an MPS run. It is a retained Linux forensic issue; it does
+not prevent proceeding with the native platform checks below. Upstream
+AmberTools auxiliary `pip check` conflicts also remain documented, not fixed.
+
+### Native continuation order
+
+1. Pull `feature/installation-profiles` with `--ff-only`; record actual HEAD,
+   `git status --short`, native architecture/macOS/manager versions. Keep the
+   existing Mac checkout, prefixes, weights, credentials and previous evidence.
+   Linux `tmp/`/`.artifacts/` directories are **not in Git**. The portable JSON
+   and tracked acceptance narrative are the transfer record; do not assume Linux
+   environments or private outputs exist on the Mac. Put new evidence under a
+   new **project-local** directory, not solely under system `/tmp`.
+2. Refresh/test the current package using newly owned native prefixes as needed,
+   following the protected license path below. Standard/Desktop composition is
+   unchanged: PySCF/RESP stays included, PSI4 separate, xTB absent. Verify
+   installed imports with `PYTHONPATH`/`PYTHONHOME` unset, actual profile doctor,
+   licensed model/Homology and installed science. Avoid reinstalling old prefixes
+   merely to manufacture a clean-install claim; record which route was executed.
+3. Exercise the Linux fixes natively: focused runner/publication/provenance tests
+   (`test_diffusion_runner.py`, `test_diffusion_bundle_commit.py`,
+   `test_diffusion_pipeline.py`, `test_diffusion_workflows.py`,
+   `test_diffusion_provenance.py`), then the fast suite. Publication must preserve
+   the normal Darwin exclusive rename and the forced unsupported-rename
+   manifest-last route. Quota scans tolerate vanished child temp entries only;
+   root/I/O/quota failures still fail closed. A reservation without `bundle.json`
+   is never an automatically resumable complete bundle.
+4. Run the installed Desktop typecheck/tests/build/standalone smoke and a real
+   native browser workspace/import/scientific job. Confirm project path isolation
+   and retained failure evidence. Current source GUI has 407 tests; Linux browser
+   success is not a native Mac pass.
+5. Recheck the current cc94 **MPS** kernel/CPU-refiner split and public model/
+   Homology/batch-resume/ZBS paths with frozen, predeclared native fixtures/seeds.
+   `scripts/smoke_diffusion_workflows.py` now accepts
+   `--diffusion-model protpardelle --case CASE --seed SEED` on an existing local
+   one-chain/one-gap cohort with input, FASTA and request metadata. It records the
+   actual profile rather than assuming CUDA. Never reuse Linux launchers or infer
+   native Protenix inference support from its input-construction checks.
+   Keep `--no-solvent`, fallback disabled, separate CPU refinement, independent
+   bundle validation and every accepted/rejected/private outcome. Wider MPS
+   scientific qualification requires its own source-disjoint predeclared cohort;
+   the previous 25 native controls and Linux 9CQD outcomes do not close it.
+6. Revisit actual upstream native conda package-file collisions and managed
+   Probe osx-arm64 availability. If still blocked, retain precise evidence and
+   status; **no `--clobber`, disabled safety checks or undeclared package builds**.
+   The prior pinned manual Probe electron/nuclear/fallback success remains a
+   distinct alternative, not managed add-on packaging acceptance. Preserve the
+   original 5J13 refusal and incomplete-input scope; no sulfate stripping or
+   partial-residue scientific expansion is implied by this handoff.
+7. Update the tracked matrix/checklist only from executed evidence, run docs/
+   version/generator checks and publish the native increment when requested.
+   Preserve the failed historical CUDA hash and upstream pip metadata states
+   separately; do not declare whole-plan completion while any required gate is
+   failed/not-tested.
+
+The sections below retain executed checkpoints and the original bootstrap
+protocol. Their older platform “not-tested” statements are historical wherever
+superseded by the acceptance record above.
+
 ## Latest native checkpoint and Linux continuation
+
+Latest Linux continuation after `0405d81` completed all five declared supplied
+9CQD seeds: **101/103/104 accepted; 102/105 rejected**, with independently read
+bundles and all failures retained under `tmp/installation-profiles-0405d81/`.
+Seed 101 reused its unchanged saved raw result and reran only refinement.
+Current-v8 36hb repeats are deterministic and independently valid, but the
+unchanged historical-v6 fixed-hash hardware verifier remains **not passed**;
+do not replace its expected hash with observed output. A disappearing-temp-file
+workspace-accounting race was hardened without raising quotas or changing
+scientific gates. See the
+[continuation and replay audit](../installation-profile-acceptance.md#supplied-case-continuation-and-hardware-replay-audit-2026-10-30).
 
 Linux follow-up at `3309bd8` (2026-10-29/30) installed a new Standard and both
 CUDA runtimes and independently validated 15 completed private candidates,
@@ -13,7 +98,8 @@ filesystem: all 15 retained candidates were revalidated into 11 readable bundles
 and a fresh public Protenix batch/resume/ZBS/Homology smoke passed. The supplied
 9CQD cohort was interrupted
 during seed-101 refinement by an outer timeout; later seeds did not execute.
-Its completion and the frozen repeated-bundle hardware verifier remain open.
+That initial timeout is historical; the continuation above completes the five
+seeds. Exact frozen repeated-bundle hardware acceptance remains open.
 All results stay inside the project, primarily
 `tmp/installation-profiles-3309bd8/`. See the
 [Linux continuation record](../installation-profile-acceptance.md#linux-continuation-after-native-finalization-2026-10-2930)

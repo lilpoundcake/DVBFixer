@@ -638,6 +638,13 @@ def _workspace_size_exceeds(root: Path, limit: int) -> bool:
         directory = pending.pop()
         try:
             entries = tuple(os.scandir(directory))
+        except FileNotFoundError:
+            # Runners create/remove temporary cache trees while we poll. A
+            # vanished child contains no remaining bytes to charge; losing the
+            # workspace root itself is still an integrity failure.
+            if directory == root:
+                return True
+            continue
         except OSError:
             return True
         for entry in entries:
@@ -648,6 +655,10 @@ def _workspace_size_exceeds(root: Path, limit: int) -> bool:
                     total += entry.stat(follow_symlinks=False).st_size
                     if total > limit:
                         return True
+            except FileNotFoundError:
+                # The entry may disappear between scandir/type lookup/stat.
+                # Continue checking the rest, including genuinely large files.
+                continue
             except OSError:
                 return True
     return False

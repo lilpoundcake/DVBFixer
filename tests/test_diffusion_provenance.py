@@ -113,7 +113,9 @@ def test_manifest_records_auditable_evidence_without_raw_diagnostics(
             PublicationArtifact("pdb", "candidate.pdb", "b" * 64),
             PublicationArtifact("dat", "candidate.dat", "c" * 64),
         ),
-        repository_root=tmp_path,
+        # A pytest base directory may itself live inside the checkout. Use a
+        # genuinely unavailable path so Git cannot discover the parent repo.
+        repository_root=tmp_path / "unavailable-repository",
     )
 
     payload = json.loads(manifest.to_json())

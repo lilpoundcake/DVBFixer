@@ -39,7 +39,9 @@ Added 2026-10-28. Requirements and next-session starting point:
 - [x] Extend native cc94 MPS installation evidence with five predeclared public model seeds and a public Homology template-plan case, including actual generated-only CPU refinement and digest/geometry-verified publication; retain broader-context qualification as pending.
 - [x] Recheck Linux `3309bd8` with new installed Standard (25 extended checks), managed Protenix/cc94 runtimes and 15 independently validated private CUDA candidates, including Protenix 152/512/513 size controls; retain failed publication and interrupted 9CQD evidence inside the project.
 - [x] Resolve project CephFS publication with an exclusive manifest-last commit: recover 15 independently revalidated candidates into 11 readable bundles and pass fresh public Protenix batch/resume/ZBS/Homology on the project filesystem.
-- [ ] Complete frozen seed-7 hardware-repeat verification and the interrupted supplied 9CQD cohort; the current-input workflow smoke and recovered candidates do not close those separate gates.
+- [x] Complete the supplied full-FASTA 9CQD seeds 101–105 with retained raw continuation for seed 101, three accepted and two explicitly rejected bundles, independent movement/geometry/trace audits and unchanged originals.
+- [x] Final Linux installed regression: new Desktop with 407 GUI tests and real Chrome workflow/viewport, 30 extended scientific checks (MSA/Probe/GROMACS/PSI4 included via explicit tooling), all 33 slow tests and a complete installed suite (1831 passed; two Torch skips passed separately). Execute cc94 batch/resume/ZBS/Homology and Protenix repair-before-full-context model/Homology.
+- [ ] Resolve exact frozen seed-7 hardware-repeat provenance: current v8 repeats are deterministic/valid, but the unchanged historical v6 expected PDB hash is not reproduced; neither current-version repeats nor an arbitrary v6-label checkout closes that gate.
 - [ ] Verify clean Standard/Desktop installs and add-ons with real functional smokes for each claimed manager/platform; retain not-tested states (WP5).
 - [ ] Synchronize manual installation, documentation, CI and agent status, then finish the proven GUI/MSA migration without removing Standard scientific capabilities (WP6).
 
@@ -47,6 +49,11 @@ WP1–WP4 and the feasible Linux acceptance/migration are implemented. Native Ap
 micromamba/mamba Standard/Desktop, browser, MSA and optional PSI4 acceptance passed.
 Native conda package collisions, unavailable Probe packaging and broader cc94
 MPS scientific qualification remain open and block whole-plan completion.
+The exact `05c16c9` historical hardware source was also replayed twice on Linux:
+both valid results are identical, but still differ from the old expected hash.
+Keep that failed Linux forensic gate and upstream AmberTools auxiliary `pip check`
+metadata distinct from the available native Mac work; do not regenerate a
+favorable historical baseline after execution.
 Continue using the [Apple acceptance handoff](installation-profiles-apple-acceptance.md).
 Actual clean-install
 evidence are tracked in [profile acceptance](../installation-profile-acceptance.md).

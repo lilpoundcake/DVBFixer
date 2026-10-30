@@ -840,6 +840,80 @@ def test_runner_kills_process_group_when_workspace_limit_is_exceeded(
     assert error.value.diagnostics.timed_out is False
 
 
+@pytest.mark.parametrize("bytes_remaining,exceeded", [(10, False), (100, True)])
+def test_workspace_size_scan_tolerates_removed_entry_but_keeps_counting(
+    tmp_path, monkeypatch, bytes_remaining, exceeded,
+):
+    from dvbfixer.model.diffusion import runner
+
+    root = tmp_path / "workspace"
+    root.mkdir()
+    (root / "remaining.bin").write_bytes(b"x" * bytes_remaining)
+    scan = runner.os.scandir
+
+    class RemovedEntry:
+        def is_dir(self, **_kwargs):
+            return False
+
+        def is_file(self, **_kwargs):
+            return True
+
+        def stat(self, **_kwargs):
+            raise FileNotFoundError("temporary cache entry disappeared")
+
+    def changing_scan(path):
+        return (RemovedEntry(), *tuple(scan(path)))
+
+    monkeypatch.setattr(runner.os, "scandir", changing_scan)
+    assert runner._workspace_size_exceeds(root, 50) is exceeded
+
+
+def test_workspace_size_scan_tolerates_removed_child_directory(tmp_path, monkeypatch):
+    from dvbfixer.model.diffusion import runner
+
+    root = tmp_path / "workspace"
+    child = root / "temporary-cache"
+    child.mkdir(parents=True)
+    scan = runner.os.scandir
+
+    def changing_scan(path):
+        if path == child:
+            child.rmdir()
+            raise FileNotFoundError("temporary directory disappeared")
+        return scan(path)
+
+    monkeypatch.setattr(runner.os, "scandir", changing_scan)
+    assert not runner._workspace_size_exceeds(root, 50)
+
+
+@pytest.mark.parametrize("error", [FileNotFoundError, PermissionError, OSError])
+def test_workspace_size_scan_still_fails_closed_on_unreadable_root(tmp_path, monkeypatch, error):
+    from dvbfixer.model.diffusion import runner
+
+    def failed_scan(_path):
+        raise error("workspace cannot be inspected")
+
+    monkeypatch.setattr(runner.os, "scandir", failed_scan)
+    assert runner._workspace_size_exceeds(tmp_path, 50)
+
+
+def test_workspace_size_scan_still_fails_closed_on_unreadable_child(tmp_path, monkeypatch):
+    from dvbfixer.model.diffusion import runner
+
+    root = tmp_path / "workspace"
+    child = root / "private-cache"
+    child.mkdir(parents=True)
+    scan = runner.os.scandir
+
+    def failed_scan(path):
+        if path == child:
+            raise PermissionError("directory is not readable")
+        return scan(path)
+
+    monkeypatch.setattr(runner.os, "scandir", failed_scan)
+    assert runner._workspace_size_exceeds(root, 50)
+
+
 @pytest.mark.parametrize("timeout", [0.0, -1.0, float("nan"), float("inf")])
 def test_runner_limits_require_positive_finite_timeout(timeout: float) -> None:
     with pytest.raises(ValueError, match="positive finite"):

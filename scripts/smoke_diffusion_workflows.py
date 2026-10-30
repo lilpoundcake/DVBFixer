@@ -11,13 +11,22 @@ import subprocess
 from pathlib import Path
 
 from dvbfixer.ffutils.dat import DatRecord
+from dvbfixer.model.diffusion.contract import SamplerTrace
 from dvbfixer.model.diffusion.publication import read_published_bundle
 
 
-def smoke(cohort: Path, work: Path, executable: Path) -> dict:
+def smoke(cohort: Path, work: Path, executable: Path, *, model: str = "protenix",
+          case_id: str = "36hb", seed: int = 7) -> dict:
     if work.exists():
         raise ValueError("workflow smoke requires a new native work directory")
-    source = cohort / "cases/36hb/workspace"
+    if model not in {"protenix", "protpardelle"} or seed < 0:
+        raise ValueError("workflow smoke requires a supported model and non-negative seed")
+    if Path(case_id).name != case_id or case_id in {".", ".."}:
+        raise ValueError("workflow smoke case must be a single directory name")
+    source = cohort / "cases" / case_id / "workspace"
+    raw_request = json.loads((source / "request.json").read_text())
+    if len(raw_request["target_sequences"]) != 1 or len(raw_request["gaps"]) != 1:
+        raise ValueError("workflow smoke requires one target chain and one gap")
     source_bytes = (source / "input/normalized.pdb").read_bytes()
     work.mkdir()
     inputs = work / "inputs"
@@ -33,11 +42,14 @@ def smoke(cohort: Path, work: Path, executable: Path) -> dict:
             subprocess.run([str(executable), *arguments], stdout=log, stderr=subprocess.STDOUT, check=True)
 
     batch = ["model", "--input-dir", str(inputs), "--output-dir", str(outputs),
-             "--backend", "diffusion", "--diffusion-model", "protenix",
+             "--backend", "diffusion", "--diffusion-model", model, "--diffusion-seed", str(seed),
              "--fasta", str(fasta), "--diffusion-work-parent", str(work), "--diffusion-timeout", "3600"]
     run("batch", batch)
     first = read_published_bundle(outputs / "first_model_diffusion").selected()
     second = read_published_bundle(outputs / "second_model_diffusion").selected()
+    index = json.loads((outputs / "first_model_diffusion/bundle.json").read_text())
+    selected_row = next(row for row in index["candidates"] if row["candidate_id"] == first.candidate_id)
+    trace = SamplerTrace.from_json((outputs / "first_model_diffusion" / selected_row["sampler_trace"]["path"]).read_text())
     if first.pdb_bytes != second.pdb_bytes:
         raise ValueError("same-input batch candidates changed between independent runs")
     run("resume", [*batch, "--diffusion-resume"])
@@ -46,7 +58,7 @@ def smoke(cohort: Path, work: Path, executable: Path) -> dict:
         raise ValueError("batch resume did not reuse both validated bundles")
     run("zbs", [
         "zbs", str(inputs / "first.pdb"), "-o", str(outputs / "first_zbs.pdb"),
-        "--model-backend", "diffusion", "--diffusion-model", "protenix", "--diffusion-resume",
+        "--model-backend", "diffusion", "--diffusion-model", model, "--diffusion-resume", "--diffusion-seed", str(seed),
         "--skip-renumber", "--fasta", str(fasta), "--no-solvent", "--keep-interim",
         "--no-align-to-input", "--no-propka", "--no-protassign", "--ff", "amber",
         "--atom-naming", "standard", "--max-iter", "100", "--platform", "Reference",
@@ -55,7 +67,6 @@ def smoke(cohort: Path, work: Path, executable: Path) -> dict:
     if not first.dat_record.added_keys() <= prepared.added_keys():
         raise ValueError("ZBS preparation lost modeled-atom restraint identities")
 
-    raw_request = json.loads((source / "request.json").read_text())
     target = raw_request["target_sequences"][0]
     gap = raw_request["gaps"][0]["target_interval"]
     template_sequence = target["sequence"][:gap["start"]] + "-" * (gap["stop"] - gap["start"]) + target["sequence"][gap["stop"]:]
@@ -68,12 +79,13 @@ def smoke(cohort: Path, work: Path, executable: Path) -> dict:
         ], "masks": {}, "maskModes": {"source": "all"}}],
     }))
     run("homology", ["homology", str(fasta), "--template-plan", str(plan), "-o", str(outputs / "mosaic"),
-                     "--backend", "diffusion", "--diffusion-model", "protenix", "--diffusion-work-parent", str(work), "--diffusion-timeout", "3600"])
+                     "--backend", "diffusion", "--diffusion-model", model, "--diffusion-seed", str(seed),
+                     "--diffusion-work-parent", str(work), "--diffusion-timeout", "3600"])
     mosaic = read_published_bundle(outputs / "mosaic_homology_diffusion").selected()
     if (source / "input/normalized.pdb").read_bytes() != source_bytes:
         raise ValueError("workflow modified the source structure")
     result = {
-        "schema_version": 1, "profile": "protenix-v1-cuda", "case_id": "36hb",
+        "schema_version": 1, "profile": trace.profile, "case_id": case_id, "seed": seed,
         "batch_success_count": 2, "resume_verified_count": 2,
         "zbs_completed": (outputs / "first_zbs.pdb").is_file(),
         "modeled_dat_handoff_preserved": True, "homology_validated": True,
@@ -89,6 +101,9 @@ def main():
     parser.add_argument("--cohort", required=True, type=Path)
     parser.add_argument("--work", required=True, type=Path)
     parser.add_argument("--dvbfixer", required=True, type=Path)
+    parser.add_argument("--diffusion-model", choices=("protenix", "protpardelle"), default="protenix")
+    parser.add_argument("--case", default="36hb")
+    parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--archive-root", type=Path)
     parser.add_argument("--archive-existing", action="store_true", help="Verify and archive a completed smoke without inference")
     args = parser.parse_args()
@@ -100,7 +115,8 @@ def main():
         if not (work / "results/first_zbs.pdb").is_file():
             raise ValueError("completed ZBS output is missing")
     else:
-        result = smoke(args.cohort.resolve(), work, args.dvbfixer.absolute())
+        result = smoke(args.cohort.resolve(), work, args.dvbfixer.absolute(),
+                       model=args.diffusion_model, case_id=args.case, seed=args.seed)
     if args.archive_root:
         shutil.copytree(work, args.archive_root)
     print(json.dumps(result, indent=2))

@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "branch": "feature/installation-profiles",
+  "source_baseline": "0405d81",
+  "includes_working_tree_changes": [
+    "runner disappearing-child workspace accounting",
+    "workflow smoke explicit backend/case/seed selection",
+    "provenance fixture compatible with project-local pytest directories"
+  ],
+  "local_evidence_root": "tmp/installation-profiles-linux-final/",
+  "platform": "linux-x86_64",
+  "accelerator": "NVIDIA A100-SXM4-40GB",
+  "driver": "535.104.05",
+  "manager": "micromamba 2.9.0",
+  "desktop": {
+    "installation": "passed-new-prefix",
+    "licensed_science_smoke": {"passed": 14, "total": 14},
+    "extended_science": {"passed": 30, "total": 30},
+    "gui_tests": {"passed": 407, "test_files": 57},
+    "typecheck": "passed",
+    "client_server_build": "passed",
+    "standalone_http_smoke": "passed",
+    "browser": {
+      "version": "156.0.8078.4",
+      "workspace_created_through_ui": true,
+      "import_and_real_installed_diagnose_through_browser_api": true,
+      "structure_loaded_into_molstar_through_ui": true,
+      "browser_runtime_errors": 0
+    },
+    "installed_package_imports": true,
+    "source_package_overlay": false,
+    "pip_check": "failed-upstream-AmberTools-auxiliary-metadata"
+  },
+  "python_suite": {
+    "installed_full_suite": {"passed": 1831, "failed": 0, "skipped": 2, "warnings": 12},
+    "skip_reason": "Torch intentionally absent from Standard/Desktop",
+    "skipped_torch_controls_executed_separately": {"passed": 2, "failed": 0},
+    "separate_psi4_resp_test": "passed",
+    "all_33_slow_tests_completed": true,
+    "fixture_checksums": "unchanged"
+  },
+  "optional_executables": {
+    "gromacs": "2026.3-conda_forge",
+    "grompp": "passed",
+    "application_tpr_with_matching_coordinates": {"status": "passed", "atoms": 1231},
+    "muscle5": "executed-passed",
+    "clustal_omega": "executed-passed",
+    "probe": "probe.2.18.211005",
+    "probe_electron": "complete",
+    "probe_nuclear": "complete",
+    "absent_probe_control": "explicit-python-fallback",
+    "psi4": "1.9.1",
+    "psiresp": "0.4.2"
+  },
+  "cc94_cuda_workflows": {
+    "case": "controlled 1UBQ A10-A13 deletion",
+    "seed": 101,
+    "batch_published": 2,
+    "resume_verified": 2,
+    "zbs_no_solvent": "passed",
+    "modeled_dat_handoff": "preserved",
+    "homology": "independently-validated",
+    "batch_pdb_sha256": "f0fb1724598676ae1bd25cba1a931181a0ddc95558c1e8cdf5aea22692c2a36c",
+    "homology_pdb_sha256": "10a60c705fcc98039c55675f3321959fc8853e91310a54e3c0a7e3befcce9e88"
+  },
+  "protenix_input_repair": {
+    "case": "controlled 1TIM author A73-A78 deletion",
+    "seed": 101,
+    "model": "published-and-independently-validated",
+    "homology": "published-and-independently-validated",
+    "full_context_axis": 494,
+    "preparation_evidence_bound_to_request": true,
+    "fixed_heavy_displacement_from_prepared_source_angstrom": 0.0,
+    "scientific_scope_generalized": false
+  },
+  "supplied_9cqd": {
+    "declared_seeds": [101, 102, 103, 104, 105],
+    "accepted_seeds": [101, 103, 104],
+    "rejected_seeds": [102, 105],
+    "all_outcomes_retained": true,
+    "seed101_continued_from_unchanged_saved_raw": true,
+    "outside_authorized_refinement_atoms_fixed": true,
+    "evidence": "tmp/installation-profiles-0405d81/summary.json"
+  },
+  "historical_hardware_verifier": {
+    "status": "failed-not-waived",
+    "exact_source_replayed": "05c16c9",
+    "case": "36hb gap [39,44)",
+    "seed": 7,
+    "independent_valid_repeats": 2,
+    "repeat_pdb_identical": true,
+    "expected_sha256_unchanged": "664e65f90a9a7ec6abdd762008b6f28fe20d2e47eaab576bdf1830a246b61ea4",
+    "actual_historical_replay_sha256": "bea7eeaa0ae72f06ecab536bb8c5bbdf79ae85afb15f840a42c653be6049e501",
+    "actual_current_v8_repeat_sha256": "6348985007d25877e5ce3e5a0e518a7c28e9ff6715da0b66c013a58869414106",
+    "baseline_replaced_after_sampling": false,
+    "production_refinement_downgraded": false
+  },
+  "remaining": [
+    "exact historical hardware identity forensic gate; not solved by moving to Mac",
+    "native macOS conda package-file collisions",
+    "managed osx-arm64 Probe package availability",
+    "native installed refresh and MPS regression acceptance of Linux fixes",
+    "broader source-disjoint MPS scientific qualification",
+    "upstream AmberTools auxiliary pip metadata conflicts"
+  ],
+  "whole_cross_platform_plan_complete": false
+}

@@ -1357,3 +1357,258 @@ and `PYTHONHOME`. Backend environments/checkpoints were unchanged.
 The project-filesystem publication blocker is resolved for these executed
 paths. The interrupted supplied 9CQD cohort, frozen hardware-repeat fixture,
 native package gates and broader scientific qualification remain open.
+
+## Supplied-case continuation and hardware replay audit (2026-10-30)
+
+Source baseline: `0405d81`. Evidence is retained inside the project at
+`tmp/installation-profiles-0405d81/`; `protocol.json`, per-job `execution.json`,
+command logs, complete private workspaces, published bundles, independent audits
+and `summary.json` are available there. New runs use the installed Standard and
+the managed runtimes from the preceding Linux acceptance, with no source overlay
+in Standard and no change to scientific thresholds or the Reference refiner.
+
+### Completion of the five declared 9CQD seeds
+
+The previous seed-101 attempt remains untouched. Its complete private workspace
+was copied to `seed-101-continuation/workspace/`; the saved raw result, four gap
+sampling traces and single-seed request were digest-checked before and after
+continuation. Only refinement was rerun, into a new `refined-continuation/`
+directory. No second neural sample was generated for seed 101. Seeds 102–105
+then executed their first public single-seed `model` requests with the original
+tracked PDB and full companion FASTA. They retain targets M/W/X **27/220/221**,
+four gaps and all terminal tails, without an archived partial-request bypass.
+
+The supervisor used a **10,800-second runner limit** and **11,100-second job
+limit**, detached from individual terminal-tool timeouts. GPU sampling was
+sequential, with at most three live single-thread Reference refiners; temporary
+scheduler pauses allowed hardware replay to use the GPU independently while
+already-running CPU refiners continued. Every job and both supervisors finished;
+there are no remaining acceptance jobs from this cohort.
+
+| Seed | Workflow | Outcome | Observed-heavy max displacement | Job seconds |
+|---:|---|---|---:|---:|
+| 101 | Saved raw-result refinement continuation | accepted | 0.994 Å | 993.18 |
+| 102 | Fresh public model | validation_failed | 1.056 Å | 1278.87 |
+| 103 | Fresh public model | accepted | 0.901 Å | 737.64 |
+| 104 | Fresh public model | accepted | 1.028 Å | 786.17 |
+| 105 | Fresh public model | validation_failed | 1.155 Å | 806.59 |
+
+All **five** completed bundles passed digest/request-bound consumption and fresh
+independent validation of their recorded status. **3/5** candidates are accepted
+(101, 103, 104); rejected bundles 102 and 105 are not selectable. Actual GUI
+transport verification likewise returned no primary structure for the two
+rejections (`gui-transport-check.json`). No failed seed was omitted or rerun to
+obtain a favorable structure.
+
+All five retain four per-gap CUDA traces with **500 updates per invocation**,
+fallback disabled and zero detectable D-Cα. All selected the
+`generated-and-anchors` stage, so this is **not a zero-observed-motion result**:
+movement within the authorized anchor mask is independently audited. Every
+observed atom outside the reported refinement residues stayed exactly fixed.
+The original PDB/FASTA hashes and seed-101 original raw artifacts remain unchanged.
+
+Seed 102 failed `geometry-gated-refinement-failed`,
+`generated-or-junction-ramachandran` and `anchor-repair-expanded-geometry`.
+Seed 105 additionally failed `anchor-repair-per-anchor-movement-limit`.
+Complete raw/processed coordinates, reports and traces remain retained in their
+explicitly rejected bundles/workspaces. These Linux outcomes do not replace the
+different native-MPS seed cohort or establish broader scientific qualification.
+
+### Hardware replay outcomes: current repeatability is not the old frozen hash
+
+The original strict `scripts/check_protenix_hardware_acceptance.py` and its
+expected PDB SHA256 `664e65f90a9a7ec6abdd762008b6f28fe20d2e47eaab576bdf1830a246b61ea4`
+were **not changed**. Its historical frozen gate remains **not passed**:
+
+1. The first harness incorrectly selected the early 36hb materialization
+   (gap `[38,43)`). Both runs completed with identical PDBs and passed geometry,
+   but this was the wrong input for the frozen hash. Logs/protocol remain as
+   an explicit harness failure, not a frozen scientific comparison.
+2. Corrected input selection used cohort-500-v5, gap `[39,44)`, normalized-input
+   SHA256 `8aa3012f6cfd18ba142ef1086a0c857baa7248fc8045c5edfd77808b427dd9e7`.
+   Two independent current-backend runs produced identical accepted PDBs with
+   SHA256 `6348985007d25877e5ce3e5a0e518a7c28e9ff6715da0b66c013a58869414106`.
+   Their request hashes match the archived baseline, CUDA/callback evidence is
+   complete (200 updates, zero projection error), and fixed displacement/D-Cα
+   counts are zero. The strict frozen verifier correctly failed the old file
+   identity comparison.
+3. An offline audit established that all **896 raw atom coordinates** match
+   the archived raw output exactly. The historic final baseline used refinement
+   **v6**, while the current runtime uses **v8**; final coordinates differ for
+   48 generated atoms, up to **0.325 Å**, and current output also carries updated
+   sequence metadata. This is not merely a file-header difference or a sampling
+   repeatability failure. See `hardware-independent-audit.json`.
+4. A separately declared isolated historical-source replay at
+   `1b49bc57696e45ef4a47b06bbf35ee1fcc57b6b9` (v6) also did not establish the
+   frozen gate: its first candidate passed geometry but had another PDB digest;
+   the second attempt was stopped by the workspace monitor before a result.
+   The v6 label alone does not prove the full historical shared-source identity.
+   The isolated checkout/private launcher and all failed evidence remain; no
+   current production source, launcher, model, threshold or checkpoint was
+   downgraded. Further replay requires the exact frozen execution source chain,
+   or an explicitly versioned current-v8 acceptance protocol; substituting an
+   observed digest into the old checker is not an acceptable resolution.
+
+### Runtime guard hardening exposed by acceptance
+
+The aborted historical repeat reported “workspace size limit” although its
+retained regular files total only **202,275 bytes**. The monitor previously
+treated *every* `OSError` during a live directory scan as exceeding the byte
+limit, including ordinary `FileNotFoundError` when a runner removes a temporary
+file/directory between `scandir` and `stat`. The original abort did not retain
+the underlying OS exception, so its precise transient cause is not claimed as
+proven from the postmortem size alone.
+
+`runner.py::_workspace_size_exceeds` now tolerates only disappearing **child**
+entries/directories and continues counting the rest. Missing/unreadable roots,
+permission/other I/O errors and actual oversized workspaces still fail closed.
+The byte limit is unchanged. Regression tests exercise disappeared entries,
+disappeared child directories, continued counting of oversized files and root/
+child access failures; the existing real oversized-runner termination test
+still passes.
+
+The updated package was installed into the acceptance Standard without changing
+dependencies. A fresh public current-v8 run then published, passed the real
+bundle reader and reproduced both preceding current-v8 PDBs exactly
+(`monitor-fixed-current-v8/verification.json`). It is diagnostic current-version
+repeat evidence, not a replacement frozen-v6 baseline.
+
+Verification: **78 focused tests passed**; full fast suite **1793 passed,
+7 skipped, 33 deselected** (Biotite/GROMACS availability skips), Ruff and strict
+mypy passed. The new source change affects operational workspace accounting,
+not geometry, sampling, refinement or publication policy. Native macOS package
+collisions/Probe packaging, broader scientific qualification and exact frozen
+historical hardware replay remain open.
+
+## Final Linux acceptance before return to Mac (2026-10-30)
+
+Portable aggregate: [Linux finalization JSON](research/linux-installation-finalization-2026-10-30.json).
+Full evidence remains under **`tmp/installation-profiles-linux-final/` inside the
+project**; previous `3309bd8`/`0405d81` attempts, original inputs, environments
+and failed logs are preserved. This finalization uses the preceding `0405d81`
+baseline plus the workspace scan fix and acceptance-tool/fixture changes
+recorded here. The next published commit carries those changes; it is not a
+release-version bump or a redefinition of scientific qualification.
+
+### New installed Desktop and executable/add-on matrix
+
+- A **new micromamba 2.9.0 Desktop prefix** completed protected MODELLER setup,
+  all **14/14** licensed scientific smokes, profile doctor, fresh GUI lockfile
+  installation, typecheck, client/server build and standalone HTTP smoke.
+- Its installed GUI passed **407 tests in 57 files**. A real Chrome Headless
+  Shell **156.0.8078.4** session created a workspace through the UI, imported the
+  tracked 1UBQ structure through the browser API, completed an actual installed
+  `diagnose` job and loaded the structure into the Mol* viewport through the UI.
+  No browser runtime errors occurred. Evidence:
+  `browser-attempt-v4/browser-acceptance.json` and screenshot/workspace records.
+- The first browser attempt could not load host shared libraries. An isolated
+  project-local browser-libraries prefix supplied them without modifying system
+  packages. Browser v2 passed workspace/job transport; v3 used an incorrect
+  filename selector; v4 selected the actual displayed basename and verified
+  viewport loading. All attempts remain retained. This is a Linux browser pass,
+  not native macOS proof.
+- Installed extended science passed **30/30** checks with actual optional
+  executables: GROMACS **2026.3**, MUSCLE **5**, Clustal Omega and a new separate
+  managed **PSI4 1.9.1 / psiresp 0.4.2** runtime (Pydantic <2, Libint 2.9.0).
+  The separate PSI4 RESP integration test passed too. Normal PySCF/RESP remains
+  included and executed in Desktop, as in Standard.
+- GROMACS generated the boxed coordinates and TPR with `grompp`; the application
+  reader loaded that **TPR with matching coordinates, 1231 atoms**, successfully.
+  This route did not replace an unsupported TPR silently with another topology.
+- Exact **Probe 2.18** actually executed electron and nuclear diagnostics, both
+  reporting `complete`/`molprobity-probe`. A PATH-isolated absent-Probe control
+  explicitly selected the Python fallback. `doctor --profile desktop --addon
+  msa-alternatives --addon probe` passed using these external executables. The
+  optional executable prefix is separate acceptance tooling, not a claim that
+  this Desktop install automatically included unselected add-ons.
+
+Installed imports were independently checked in `site-packages`; no checkout
+`src` overlay was supplied to scientific runs. `pip check` **still fails** for
+the already documented upstream AmberTools auxiliary metadata (proprep/
+packmol-memgen missing pdb2pqr, auxiliary NumPy <2 and Biopython <1.86 declarations).
+Executed science passing does not turn this metadata issue green or justify
+loosening the project's NumPy/Python constraints.
+
+### Remaining CUDA workflow paths executed
+
+`scripts/smoke_diffusion_workflows.py` now accepts explicit
+`--diffusion-model`, `--case` and `--seed`. Its defaults preserve the existing
+Protenix/36hb/seed-7 smoke; the reported profile is read from the actual selected
+sampler trace rather than hard-coded. It validates its one-chain/one-gap input
+before creating the work directory. Scientific dispatch remains in the normal
+public CLI.
+
+A declared **cc94 1UBQ A10–A13 deletion / seed 101** control passed two independent
+batch publications with identical PDBs, verified resume, `zbs --no-solvent` with
+preserved modeled `.dat` identities, and independently validated mosaic Homology.
+Evidence: `cc94-workflows/workflow-smoke.json`; batch PDB SHA256
+`f0fb1724598676ae1bd25cba1a931181a0ddc95558c1e8cdf5aea22692c2a36c`,
+Homology `10a60c705fcc98039c55675f3321959fc8853e91310a54e3c0a7e3befcce9e88`.
+This complements the earlier completed Protenix batch/resume/ZBS/Homology run.
+
+Protenix **model and Homology** also executed the controlled **1TIM A73–A78 /
+seed 101** source-repair case. Both repaired the observed source before selecting
+the **494-residue full-input axis**, completed actual CUDA inference, published
+accepted bundles and passed fresh independent candidate/bundle reading.
+Source-repair evidence is bound to the final request. Fixed-heavy displacement
+is **0.0 Å relative to the explicitly prepared source**, not the unrepaired
+original. The original and local repair reports/warnings remain available.
+Evidence: `protenix-repair-results.json` and both complete private workspaces.
+
+### Exact historical hardware source replay: retained failure, not a Mac task
+
+Git history identified **`05c16c9`**, the actual commit introducing the strict
+hardware verifier and expected PDB digest. A new detached read-only checkout and
+contained launcher replayed that historical source using the frozen 36hb
+cohort-500-v5 gap `[39,44)`, seed 7, unchanged engine/checkpoint/profile lock and
+the frozen combined backend process layout. Only this explicitly declared
+historical replay used the old source; current production runtimes remain v8.
+
+Both historical runs finished, published and passed current independent
+request-bound reading; their PDBs match each other at SHA256
+`bea7eeaa0ae72f06ecab536bb8c5bbdf79ae85afb15f840a42c653be6049e501`,
+but **not** the unchanged archived expected
+`664e65f90a9a7ec6abdd762008b6f28fe20d2e47eaab576bdf1830a246b61ea4`.
+The strict verifier therefore still **fails**. This eliminates selection of an
+arbitrary v6-label source as the sole explanation; a historical source commit
+and available package lock do not reconstruct every unrecorded shared/native
+runtime detail. No expected hash was edited after execution, no production
+algorithm was downgraded, and old evidence was not replaced. The current-v8
+repeatability/geometry passes remain separate.
+
+Exact historical byte identity remains an explicitly open **Linux forensic
+gate**, not something the Mac can demonstrate or an excuse to repeat CUDA on
+macOS. Its resolution requires recovering the missing historical execution
+identity/evidence or a separately approved, preregistered versioned baseline;
+the observed hashes here do not retroactively become such a baseline.
+
+### Final verification and retained attempts
+
+- Complete **installed** Python suite, including all **33 slow tests**:
+  **1831 passed, 2 skipped, 12 warnings** (`installed-full-suite-v3.log` and
+  JUnit XML). The two skips require Torch, intentionally absent from Standard/
+  Desktop; both exact controls separately passed in the ML-capable test env.
+  PSI4/RESP, Biotite reference metrics and GROMACS checks executed in this matrix.
+- The first sequential complete suite hit a **2400-second external timeout**
+  near the slow ZBS tail, without a summary; it is not a complete pass. A
+  detached, bounded 3-worker supervisor retained per-test outcomes. Its first
+  completed run had **1829 passed, 3 skipped, 1 failed**: a provenance fixture
+  incorrectly assumed pytest temp paths were outside Git. Production correctly
+  found the parent checkout commit. The fixture now supplies a nonexistent
+  repository path; its focused recheck and the final complete run passed.
+  No production provenance rule was changed to satisfy that assertion.
+- Warnings retained: SWIG deprecations, deposited CONECT-to-TER notices and two
+  NumPy-extension size warnings during slow structural tests. They were not
+  suppressed or reclassified as errors. All structural assertions completed.
+- Ruff, strict-target mypy, Python-3.11 CLI/GUI/profile generators, version/
+  user/agent docs checks and `git diff --check` passed. Tracked structural
+  fixture checksums remain unchanged. Wheel and sdist built successfully and
+  were inspected to exclude local evidence, credentials, node_modules and
+  temporary/environment trees; the new publication helper is included.
+
+The available Linux installation/science/workflow regression matrix is now
+executed. **The whole cross-platform plan is not complete**: the old strict
+hardware digest remains failed, upstream auxiliary pip metadata remains
+inconsistent, and native conda/Probe packaging plus broader MPS qualification
+remain open. Continue on the Mac using the current handoff rather than treating
+historical bootstrap “not-tested” paragraphs as the latest outcome.

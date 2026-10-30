@@ -709,6 +709,26 @@ command parser merely to inspect generated labels.
   and use suitable outer orchestration limits for its separately declared
   continuation. User-facing retained outputs belong inside the project, not
   solely in system `/tmp`.
+  Follow-up evidence is in `tmp/installation-profiles-0405d81/`: all five 9CQD
+  seeds completed (101/103/104 accepted; 102/105 rejected). Seed 101 continued
+  from unchanged saved raw artifacts; accepted candidates used bounded anchor
+  refinement, not zero observed motion. Current-v8 36hb repeats are identical
+  and valid, but the old strict v6 fixed-hash hardware verifier still fails;
+  preserve that distinction and never replace its expected hash after sampling.
+  Workspace quota scans tolerate disappearing child temp entries only; root
+  disappearance, other I/O errors and real quota excess remain fail-closed.
+  Linux finalization is retained in `tmp/installation-profiles-linux-final/`
+  and `docs/research/linux-installation-finalization-2026-10-30.json`: new Desktop
+  passed 407 GUI tests, actual Chrome viewport/scientific-job acceptance, 30
+  extended science checks and the complete installed suite (1831 passed, two
+  Torch skips separately passed), including all 33 slow tests. cc94 public
+  batch/resume/ZBS/Homology and Protenix repaired 494-residue model/Homology passed.
+  Exact original `05c16c9` historical-source repeats are valid and identical but
+  still fail the unchanged old PDB-hash gate; retain that Linux forensic failure.
+  Upstream AmberTools auxiliary pip metadata conflicts also remain visible.
+  For the next Mac session start with the native continuation order at the top
+  of `docs/plans/installation-profiles-apple-acceptance.md`; local runtime trees
+  do not transfer through Git.
 
 - **New Protpardelle production requests use cc94, not cc89.** Profiles are
   `protpardelle-1c-cc94-cuda-v1` / `protpardelle-1c-cc94-mps-v1`, 500 ODE
