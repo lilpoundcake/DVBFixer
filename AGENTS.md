@@ -736,7 +736,19 @@ command parser merely to inspect generated labels.
   Historical cc89 profiles are explicit frozen-request replay only. Never apply
   cc89's rotary neutral-phase intervention to cc94 or transfer cc89 acceptance
   claims. cc94 passed 5/5 per conditioning arm on the 9CQD M155–162 CUDA pilot;
-  MPS acceptance is pending. See `deploy/protpardelle-1c/cc94.md` and
+  Native MPS workflow/case evidence has since executed; its metadata is
+  experimental case-tested, with broader qualification still pending. The
+  native follow-up ran all 33 slow cases (PSI4 separately configured), three
+  isolated Torch/Biotite controls, a prepared protein-only 5J13 cohort (1/5,
+  four retained geometry rejections), and 1FR2/1A3N/altloc-selected 1DQJ (5/5
+  each). Do not label the 63 template-built 5J13 heavy atoms diffusion-generated.
+  `ambertools-compat` is an explicit new-prefix add-on, not a default downgrade:
+  it intersects Python <3.13, NumPy >=1.26,<2 and Biopython >=1.83,<1.86 and adds
+  pdb2pqr to satisfy actual AmberTools auxiliary metadata. It preserves all
+  Standard science including PySCF. Native helper/doctor/pip-check and extended
+  scientific checks pass; Linux acceptance is not inferred. Preserve the
+  default-profile metadata conflicts and upstream conda/Probe limitations as
+  separate states. See `deploy/protpardelle-1c/cc94.md` and
   `docs/research/9cqd-cc94-multichain-comparison.md`. Legacy `cc89_*` context
   option keys persist for schema compatibility; cc94 sets chain phase `native`.
 

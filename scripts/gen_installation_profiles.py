@@ -21,6 +21,7 @@ def main() -> int:
         "environments/desktop.yml": environment_spec("desktop"),
         "environments/standard-msa-alternatives.yml": environment_spec("standard", ("msa-alternatives",)),
         "environments/standard-probe.yml": environment_spec("standard", ("probe",)),
+        "environments/standard-ambertools-compat.yml": environment_spec("standard", ("ambertools-compat",)),
         "environments/legacy-full.yml": environment_spec("desktop", ("msa-alternatives",)).replace(
             "name: dvbfixer-desktop\n", "name: dvbfixer-legacy-full\n", 1),
         "docs/installation-dependency-matrix.md": dependency_matrix(),

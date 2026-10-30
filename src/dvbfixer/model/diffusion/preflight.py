@@ -104,8 +104,8 @@ DIFFUSION_PROFILES = {
         training_membership_status="not-independently-attested",
     ),
     "protpardelle-1c-cc94-mps-v1": DiffusionProfileMetadata(
-        profile="protpardelle-1c-cc94-mps-v1", status="experimental-cc94-mps-unverified",
-        evidence_labels=("experimental", "cuda-case-evidence-only", "mps-acceptance-pending", "no-per-step-reinjection"),
+        profile="protpardelle-1c-cc94-mps-v1", status="experimental-cc94-mps-case-tested",
+        evidence_labels=("experimental", "native-mps-workflow-and-case-evidence", "broader-qualification-pending", "no-per-step-reinjection"),
         engine="Protpardelle-1c cc94", source_revision="ee378400f25b801fa481028000f9060183d7fb4c",
         patch_identity="cc94-native-relative-v1;source-physical-v1;apple-patch-v1",
         expected_checkpoint_sha256="a58c009ead22b6f79ef61d44e258b432b0fada1dfd8d44cb7a137d7459038a15",

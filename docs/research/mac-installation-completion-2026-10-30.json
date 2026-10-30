@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "base_commit": "daaf850",
+  "branch": "feature/installation-profiles",
+  "local_evidence": "tmp/installation-profiles-completion-daaf850/",
+  "scope": "Native completion follow-up; no broad production qualification claim",
+  "tests": {
+    "native_slow": {"passed_together": 32, "optional_psi4_passed_separately": 1, "selection_seconds": 532.09},
+    "isolated_previously_skipped_controls": {"torch_passed": 2, "biotite_passed": 1},
+    "compatibility_source_fast": {"passed": 1801, "skipped": 3, "slow_deselected": 33},
+    "compatibility_installed_fast": {"passed": 1801, "skipped": 3, "slow_deselected": 33, "seconds": 193.01},
+    "final_source_fast": {"passed": 1802, "skipped": 3, "slow_deselected": 33, "seconds": 180.47},
+    "final_installed_metadata_controls_passed": 2,
+    "fixture_checksums_unchanged": 46
+  },
+  "prepared_5j13": {
+    "input_policy": "separate protein-only derivative; original refusal retained",
+    "legacy_template_built_heavy_atoms": 63,
+    "preserved_original_protein_heavy_atoms": 3987,
+    "original_heavy_max_displacement_angstrom": 0.0,
+    "first_projection": "refused temporary nonterminal OXT before sampling; retained",
+    "second_projection": "removed only prepare-created OXT inconsistent with authoritative target terminus",
+    "target_lengths": {"A": 134, "B": 213, "C": 226},
+    "gap_count": 7,
+    "missing_target_residues": 42,
+    "declared_and_executed_seeds": [7, 19, 42, 101, 202],
+    "accepted_seeds": [101],
+    "rejected_seeds": [7, 19, 42, 202],
+    "rejection": ["geometry-gated-refinement-failed", "staged-expanded-geometry"],
+    "accepted_refinement": "generated-only",
+    "accepted_fixed_heavy_max_displacement_angstrom": 0.0,
+    "partial_residue_diffusion_implemented": false
+  },
+  "additional_mps_cases": {
+    "seeds_per_case": [7, 19, 42, 101, 202],
+    "protocol": "prospective-mps/protocol.json, frozen before execution",
+    "window_rule": "longest-chain observed-sequence midpoint, four-residue deletion",
+    "cases": [
+      {"source": "1FR2", "accepted": 5, "executed": 5},
+      {"source": "1A3N", "accepted": 5, "executed": 5, "limitation": "protein-only; heme excluded"},
+      {"source": "1DQJ original projection", "executed": 0, "status": "refused altlocs before sampling"},
+      {"source": "1DQJ distinct altloc-selected derivative", "accepted": 5, "executed": 5}
+    ],
+    "independently_validated_accepted_candidates": 15,
+    "fixed_heavy_max_displacement_angstrom": 0.0,
+    "device": "mps",
+    "updates_per_invocation": 500,
+    "fallback_disabled": true,
+    "training_disjoint_attestation": false,
+    "general_scientific_qualification": false
+  },
+  "ambertools_compat": {
+    "selection": "explicit --addon ambertools-compat; defaults and separate runtimes unchanged",
+    "constraints": ["python >=3.11,<3.13", "numpy >=1.26,<2", "biopython >=1.83,<1.86", "pdb2pqr"],
+    "tested_python": "3.12.16",
+    "tested_numpy": "1.26.4",
+    "tested_biopython": "1.85",
+    "all_standard_science_preserved": true,
+    "pyscf_resp_included": true,
+    "native_manual_candidate_extended_checks_passed": 28,
+    "native_standard_helper": {"licensed_install": "passed", "doctor": "ready", "pip_check": "passed", "extended_science_passed": 28},
+    "native_desktop_helper": {"licensed_install": "passed", "licensed_science_passed": 14, "doctor": "ready", "pip_check": "passed", "gui_typecheck": "passed", "gui_tests_passed": 407, "chrome": "154.0.8037.98 passed, no page errors"},
+    "linux_matrix": "not tested for this new optional add-on"
+  },
+  "current_mps_profile_metadata": {"status": "experimental-cc94-mps-case-tested", "broader_qualification": "pending", "training_membership": "not-independently-attested", "scientific_thresholds_changed": false},
+  "unresolved": [
+    "Native conda upstream gettext/libintl and Tk/X11 path ownership collisions; no safety bypass",
+    "No declared bioconda osx-arm64 Probe package; manual source route remains separate",
+    "Historical Linux CUDA expected PDB hash still failed and unchanged",
+    "Default NumPy-2 profile auxiliary pip metadata conflicts; explicit compatibility add-on is the green alternative",
+    "Diffusion completion of missing heavy atoms inside observed residues requires new atom-level integration",
+    "Broader source-disjoint and context scientific qualification remains separate from these case results"
+  ],
+  "preservation": "All original inputs, both prepared projections, admission refusals, executed seed failures, private diagnostics and previous environments retained",
+  "whole_plan_complete": false
+}

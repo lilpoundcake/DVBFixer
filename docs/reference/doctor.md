@@ -7,7 +7,7 @@
 ```
 usage: dvbfixer doctor [-h] [--format {text,json}]
                        [--profile {standard,desktop}]
-                       [--addon {msa-alternatives,probe}]
+                       [--addon {msa-alternatives,ambertools-compat,probe}]
                        [--diffusion-model {protpardelle,protenix}]
                        [--diffusion-timeout SECONDS] [--log-file PATH]
 
@@ -20,7 +20,7 @@ options:
   --profile {standard,desktop}
                         Check the selected installation profile's
                         prerequisites
-  --addon {msa-alternatives,probe}
+  --addon {msa-alternatives,ambertools-compat,probe}
                         Include an explicitly selected installation add-on
                         (repeatable)
 

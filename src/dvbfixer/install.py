@@ -202,7 +202,7 @@ def main(argv: list[str] | None = None) -> int:
         args.manager = args.manager or input("Manager [micromamba/mamba/conda]: ").strip()
         args.prefix = args.prefix or Path(input("NEW environment prefix: ").strip())
         if not args.addon and not args.runtime:
-            selected = input("Add-ons (comma-separated msa-alternatives,probe; empty for none): ").strip()
+            selected = input("Add-ons (comma-separated " + ",".join(load_catalog()["addons"]) + "; empty for none): ").strip()
             args.addon = [value.strip() for value in selected.split(",") if value.strip()]
         if args.runtime:
             if args.runtime != "psi4" and not args.checkpoint:

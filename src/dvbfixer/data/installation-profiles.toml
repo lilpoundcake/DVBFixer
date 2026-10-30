@@ -11,6 +11,9 @@ inherits = "standard"
 groups = ["gui"]
 [addons.msa-alternatives]
 groups = ["msa-alternatives"]
+[addons.ambertools-compat]
+groups = ["ambertools-compat"]
+manual_route = "docs/installation.md#ambertools-auxiliary-metadata-compatibility"
 [addons.probe]
 groups = ["probe"]
 managed_platforms = ["linux-64"]
@@ -26,6 +29,25 @@ spec = "numpy <2.5"
 group = "science"
 consumer = "geometry, alignment, RESP fit; Python 3.11 typing baseline"
 module = "numpy"
+[[packages]]
+spec = "python <3.13"
+group = "ambertools-compat"
+consumer = "NumPy 1.26 wheels require Python <=3.12; intersect Standard's existing Python bounds"
+[[packages]]
+spec = "numpy >=1.26,<2"
+group = "ambertools-compat"
+consumer = "AmberTools proprep, ndfes, fetkutils and edgembar declared Python dependencies"
+[[packages]]
+spec = "biopython >=1.83,<1.86"
+group = "ambertools-compat"
+consumer = "AmberTools proprep declared Python dependency"
+[[packages]]
+spec = "pdb2pqr"
+source = "pip"
+group = "ambertools-compat"
+module = "pdb2pqr"
+consumer = "AmberTools proprep and packmol-memgen declared Python dependency"
+
 [[packages]]
 spec = "libblas=*=*openblas"
 group = "science"

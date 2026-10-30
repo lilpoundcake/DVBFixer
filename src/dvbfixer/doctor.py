@@ -166,7 +166,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help="Report format (default: text)")
     parser.add_argument("--profile", choices=("standard", "desktop"),
                         help="Check the selected installation profile's prerequisites")
-    parser.add_argument("--addon", action="append", default=[], choices=("msa-alternatives", "probe"),
+    from dvbfixer.installation_profiles import load_catalog
+
+    parser.add_argument("--addon", action="append", default=[], choices=tuple(load_catalog()["addons"]),
                         help="Include an explicitly selected installation add-on (repeatable)")
     diffusion = parser.add_argument_group("Diffusion options")
     diffusion.add_argument(

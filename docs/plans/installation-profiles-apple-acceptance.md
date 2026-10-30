@@ -4,6 +4,18 @@ Date: 2026-10-29. Branch: `feature/installation-profiles`.
 
 ## Resume on the Mac after Linux finalization (2026-10-30)
 
+**Completion follow-up after `daaf850`:** all 33 slow cases and the three
+Torch/Biotite fast skips have executed (separate isolated controls where needed).
+The prepared protein-only 5J13 baseline sampled all five seeds and accepted only
+101; all four geometry rejections remain retained. Additional native MPS cases
+1FR2/1A3N/altloc-selected 1DQJ passed five seeds each, within their explicitly
+restricted protein-only/observed-target scope. The new explicit
+`ambertools-compat` add-on has a real native helper/doctor/28-check/pip-check
+pass without changing default profiles. Details and limitations:
+[completion evidence](../installation-profile-acceptance.md#native-completion-follow-up-after-daaf850-2026-10-30).
+Do not confuse this tested template-prepared 5J13 case with the future atom-level
+diffusion-completion capability.
+
 **Native continuation executed at `8f0cd33`:** new micromamba Standard/Desktop
 passed licensed installation smokes and file-presence audits. Standard passed
 1,797 fast tests (3 skips) and 28 extended science checks; Desktop passed 407

@@ -56,6 +56,18 @@ def test_generated_composition_has_no_drift():
                    check=True, cwd=root)
 
 
+@pytest.mark.parametrize("profile", ["standard", "desktop"])
+def test_ambertools_compat_is_explicit_and_keeps_all_science(profile):
+    base = composition(profile)
+    combined = composition(profile, ("ambertools-compat",))
+    assert all(package in combined for package in base)
+    specs = {p["spec"] for p in combined if p["group"] == "ambertools-compat"}
+    assert specs == {"python <3.13", "numpy >=1.26,<2", "biopython >=1.83,<1.86", "pdb2pqr"}
+    assert not any(p["group"] == "ambertools-compat" for p in base)
+    assert "python >=3.11,<3.14" in environment_spec(profile, ("ambertools-compat",))
+    assert any(p["spec"] == "pyscf" for p in combined)
+
+
 def test_managed_probe_platforms_do_not_hide_operator_tool_readiness():
     addon = load_catalog()["addons"]["probe"]
     assert addon["managed_platforms"] == ["linux-64"]

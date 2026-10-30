@@ -133,6 +133,35 @@ source build as well as the helper's installed build. These specs use only
 Python metadata requires the wheel. The `obminimize` console entrypoint launches
 the wheel's bundled native tool with its plugin paths initialized.
 
+### AmberTools auxiliary metadata compatibility
+
+The normal Standard/Desktop scientific paths work with the recorded NumPy 2.x
+environments, but AmberTools auxiliary distributions (`proprep`, `ndfes`,
+`fetkutils`, `edgembar`, `packmol-memgen`) declare narrower Python dependencies.
+For a **new** environment that also satisfies those metadata requirements, use:
+
+```bash
+python3 scripts/install_dvbfixer.py --profile standard --manager micromamba \
+  --addon ambertools-compat --prefix /path/to/new-compatible-standard \
+  --non-interactive --modeller-key-fd 3 3< "$KEY_FILE"
+```
+
+The explicit add-on intersects the normal Python bounds with `<3.13`, selects
+NumPy `>=1.26,<2` and Biopython `>=1.83,<1.86`, and installs `pdb2pqr`. These
+constraints come from the auxiliary distributions, not a disabled dependency
+check. It keeps **every Standard scientific capability, including PySCF/RESP**;
+Desktop may select the same add-on. Do not downgrade an existing environment in
+place. The default composition and separate diffusion/PSI4 runtimes are unchanged.
+
+The native Apple candidate and a real helper-created Standard passed `pip check`
+and 28 extended licensed scientific checks. A helper-created Desktop also passed
+`pip check`, 14 licensed science checks, GUI407/typecheck/build and Chrome.
+This is not yet a new Linux manager-matrix acceptance or a fix for
+native conda's unrelated gettext/Tk path collisions. The catalog-generated
+manual input is `environments/standard-ambertools-compat.yml`; normal `environment.yml`
+remains the Standard alias. Verify the selected environment with
+`dvbfixer doctor --profile standard --addon ambertools-compat` and `python -m pip check`.
+
 ### Native Apple Probe alternative
 
 The managed `--addon probe` recipe currently has no bioconda osx-arm64 package.

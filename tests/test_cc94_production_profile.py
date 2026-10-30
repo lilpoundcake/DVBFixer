@@ -88,7 +88,8 @@ def test_cc94_evidence_does_not_inherit_cc89_mps_or_cohort_acceptance():
         assert metadata.expected_checkpoint_sha256 == cc94.CHECKPOINT_SHA256
         assert "source-disjoint-24-of-24" not in metadata.evidence_labels
         assert "apple-portability-8-of-8" not in metadata.evidence_labels
-    assert "unverified" in DIFFUSION_PROFILES[cc94.MPS_PROFILE].status
+    assert "experimental" in DIFFUSION_PROFILES[cc94.MPS_PROFILE].status
+    assert "broader-qualification-pending" in DIFFUSION_PROFILES[cc94.MPS_PROFILE].evidence_labels
 
 
 def test_independent_artifact_reader_does_not_import_scientific_refinement(tmp_path):
@@ -122,6 +123,15 @@ def test_cc94_denoiser_probe_checks_without_neutralizing_chains():
     assert probe.calls == 1
     with pytest.raises(RuntimeError, match="physical position"):
         probe(None, (), {**features, "chain_index": torch.zeros_like(before)})
+
+
+def test_native_mps_evidence_is_case_tested_not_general_qualification():
+    metadata = DIFFUSION_PROFILES[cc94.MPS_PROFILE]
+    assert metadata.status == "experimental-cc94-mps-case-tested"
+    assert "native-mps-workflow-and-case-evidence" in metadata.evidence_labels
+    assert "broader-qualification-pending" in metadata.evidence_labels
+    assert metadata.training_membership_status == "not-independently-attested"
+    assert "cuda-case-evidence-only" not in metadata.evidence_labels
 
 
 def test_new_runner_rejects_cc89_weights_before_loading_model(tmp_path, monkeypatch):

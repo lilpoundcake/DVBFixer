@@ -69,3 +69,23 @@ def test_profile_doctor_exit_code_and_json_state(monkeypatch, capsys, state, cod
         doctor.main(["--profile", "standard", "--format", "json"])
     assert exc.value.code == code
     assert f'"state": "{state}"' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("compatible", [True, False])
+def test_compatibility_readiness_checks_actual_catalog_versions(monkeypatch, compatible):
+    simulated_profile(monkeypatch)
+    previous = profile_readiness.subprocess.run
+    captured = []
+
+    def run(argv, **kwargs):
+        if len(argv) > 3 and "packaging.requirements" in argv[2]:
+            captured.append(argv[-1])
+            return subprocess.CompletedProcess(argv, 0 if compatible else 1, b"", b"private details")
+        return previous(argv, **kwargs)
+
+    monkeypatch.setattr(profile_readiness.subprocess, "run", run)
+    report = profile_readiness.collect_profile_readiness("standard", ("ambertools-compat",))
+    check = next(item for item in report["checks"] if item["name"] == "ambertools-compat-versions")
+    assert check["state"] == ("ready" if compatible else "error")
+    assert "numpy >=1.26,<2" in captured[0]
+    assert "private details" not in str(report)

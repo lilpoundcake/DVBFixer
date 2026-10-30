@@ -1719,3 +1719,135 @@ runtime environments are included in Git. The historical Linux PDB-hash gate
 remains failed, auxiliary pip metadata remains inconsistent, native conda and
 managed Probe remain blocked, and wider source-disjoint MPS qualification is
 still pending. **Whole-plan completion is not claimed.**
+
+## Native completion follow-up after daaf850 (2026-10-30)
+
+Project-local evidence: `tmp/installation-profiles-completion-daaf850/`. Previous
+prefixes, source fixtures, rejected admissions and failed attempts remain intact.
+
+### Remaining tests executed
+
+The full native slow selection finished in **532.09 s** with **32 passed** and
+one optional PSI4 skip. Supplying the existing separate PSI4 prefix then passed
+that exact test (**4.47 s**): all **33 slow cases** are now executed, without
+turning missing runtime configuration into a pass. Warnings include deposited
+CONECT-to-TER records and retained SWIG deprecations.
+
+The three fast-suite skips also executed independently: two Torch-dependent
+tests passed in a new test-only venv inheriting the frozen sampling environment,
+and the Biotite reference aggregation test passed in a separate test-only venv.
+No Torch was installed into Standard and no production sampler packages were
+replaced. An initial broader Torch-file attempt also ran tests requiring absent
+RDKit and had three unrelated dependency failures; that log is retained. Only
+the exact two previously skipped tests are counted as the separate Torch pass.
+After compatibility-add-on changes, the source fast selection passed **1,801
+tests, 3 skipped, 33 deselected**; those three skips are covered by the isolated
+controls above, not relabeled inside the original pytest summary.
+
+### Prepared protein-only 5J13 baseline
+
+The user authorized continuing beyond the original unchanged-input refusal.
+A separate `prepare --strip-heterogens --atom-naming standard` derivative added
+**63 protein heavy atoms** with the legacy template-based route. All **3,987
+originally observed protein heavy atoms** remain present with **0.0 Å** coordinate
+change in the final heavy-only, canonical-parent projection. Water/SO4 removal,
+hydrogen removal, variant-parent projection and the `.dat` evidence are retained.
+This is **not diffusion reconstruction of partial-residue heavy atoms**.
+
+The first prepared projection was refused before sampling because preparation
+had added a temporary fragment OXT that was not terminal in the authoritative
+target. A separate target-aware projection removed only that preparation-created
+nonterminal OXT; the original projection and refusal remain intact. It retained
+the full supplied FASTA lengths **A134/B213/C226**, **seven gaps / 42 residues**,
+not source SEQRES or terminal-excluded targets. No original observed heavy atom
+was removed by this target-aware step.
+
+Seeds **7, 19, 42, 101, 202** were declared before each distinct input attempt.
+All five v2 seeds sampled; **only 101 passed** independent publication validation,
+using **generated-only** refinement with **0.0 Å** fixed-heavy displacement.
+Seeds 7/19/42/202 failed `geometry-gated-refinement-failed` and
+`staged-expanded-geometry`; raw/refined evidence for every seed is retained.
+The successful subset is **1/5**, not 5/5 or evidence that partial-residue
+diffusion is implemented. Evidence: `5j13-protocol{,-v2}.json`,
+`5j13-source-and-seed-audit.json`, `5j13-audit-v2.json`, both logs and workspaces.
+
+### Additional predeclared cc94 MPS source cases
+
+`prospective-mps/protocol.json` froze sources **1FR2, 1DQJ, 1A3N**, their input
+digests and seeds **7/19/42/101/202** before sampling. A deterministic rule deletes
+four midpoint residues from the longest observed protein chain, retaining all
+other observed protein chains. Targets are the observed source sequences, not
+full deposited SEQRES. Nonprotein records are explicitly excluded; in particular
+the 1A3N projection excludes heme and is **not full-complex chemistry support**.
+
+1FR2 and 1A3N each passed **5/5**. The initial 1DQJ input was refused due to
+altlocs before any seed sampled. A separately declared derivative selected
+altlocs with the public command's default occupancy policy, then passed **5/5**.
+This does not replace or relabel the original refused five-seed admission.
+Independent bundle audits cover all **15 accepted sampled candidates**: actual
+MPS, **500 updates per invocation**, fallback disabled, empty hard-gate failures,
+**0.0 Å** fixed-heavy displacement. All private outcomes remain retained.
+
+These are three additional sources relative to the preceding cc94 MPS controls,
+not independently attested training-disjoint targets. Source families may
+overlap older cc89 research. This broadens native case evidence; it does not
+qualify arbitrary contexts, native missing regions, or production defaults.
+
+### Explicit metadata-compatible AmberTools route
+
+A new candidate solve demonstrated that the auxiliary metadata conflicts can
+be satisfied without editing metadata or disabling checks: Python **3.12.16**,
+NumPy **1.26.4**, Biopython **1.85**, plus `pdb2pqr`. Its **28 extended licensed
+science checks** and **`pip check` passed**. The bounds come directly from the
+installed AmberTools auxiliary distributions; NumPy 1.26 does not support
+Python 3.13, which explains the additional interpreter intersection.
+
+The explicit **`ambertools-compat` add-on** now composes these constraints from
+the single catalog for either Standard or Desktop, preserving every scientific
+capability including PySCF/RESP. Default profiles and separate diffusion/PSI4
+runtimes are unchanged; existing environments are not downgraded. Doctor checks
+the actual add-on versions, not merely imports. The generated manual spec and
+[installation instructions](installation.md#ambertools-auxiliary-metadata-compatibility)
+describe the supported new-prefix route and its scope.
+
+A separate **real helper-created Standard** with this add-on passed protected
+MODELLER configuration, licensed installation smoke, all **28 extended science
+checks**, selected-profile doctor and **`pip check`**. This is executed native
+acceptance, not a claim that the default NumPy-2 auxiliary metadata or the Linux
+manager matrix was silently fixed. The native conda path collisions, absent
+managed osx-arm64 Probe package and historical CUDA expected hash remain separate
+unresolved gates. Missing-heavy-atom diffusion inside observed residues still
+requires its own atom-level contract, adapters, refinement and independent
+qualification; the template-built 5J13 baseline does not satisfy that feature.
+
+The installed compatibility Standard fast lane also passed **1,801 tests,
+3 skipped, 33 deselected** in **193.01 s**. The distinct compatibility Desktop
+helper passed all **14 licensed scientific checks**, selected-addon doctor,
+`pip check`, installed GUI **407 tests**, typecheck and a new real Chrome
+workspace/import/diagnose/visible-input-refusal protocol with no page errors.
+Both compatible profiles received the final wheel without dependency changes,
+with verified prior-package backups. This confirms the new route through the
+actual helper, not just a manually constrained solve. Linux verification of
+this optional route remains unexecuted on this native host.
+
+MPS profile metadata now says **`experimental-cc94-mps-case-tested`**, with
+`native-mps-workflow-and-case-evidence` and `broader-qualification-pending`
+labels instead of the stale CUDA-only/unverified labels. This records executed
+native evidence without transferring cc89/CUDA qualification or changing any
+checkpoint, source/position policy, sampling schedule or geometry threshold.
+Training membership remains `not-independently-attested`. The old test expecting
+the obsolete `unverified` description was updated to require experimental status
+and the explicit pending broader-qualification label; its initial assertion
+failure is retained in `final-focused.log`.
+
+Portable transfer summary:
+[native completion results](research/mac-installation-completion-2026-10-30.json).
+
+Final current-source fast verification passed **1,802 tests, 3 skipped,
+33 deselected** in **180.47 s** (`final-fast.log`), including the added native
+metadata regression. The two relevant metadata tests also passed against the
+final installed compatibility wheel. Ruff, strict-target mypy, GUI407/typecheck,
+profile/CLI/GUI generation, version/docs checks and source/wheel content
+inspection passed. Local evidence, package caches, runtime trees and MODELLER
+credentials are excluded from distributions and commits. No geometry gate was
+weakened to make these checks pass.

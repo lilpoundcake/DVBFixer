@@ -21,6 +21,25 @@ def collect_profile_readiness(profile: str, addons: tuple[str, ...] = ()) -> dic
 
     record("python-version", "ready" if (3, 11) <= sys.version_info[:2] < (3, 14) else "error",
            "Use Python >=3.11,<3.14.")
+    if "ambertools-compat" in addons:
+        specs = [package["spec"] for package in composition(profile, addons)
+                 if package["group"] == "ambertools-compat"]
+        script = '''import importlib.metadata,json,sys
+from packaging.requirements import Requirement
+for spec in json.loads(sys.argv[1]):
+    requirement = Requirement(spec)
+    installed = sys.version.split()[0] if requirement.name == "python" else importlib.metadata.version(requirement.name)
+    if installed not in requirement.specifier:
+        raise SystemExit(1)
+'''
+        try:
+            result = subprocess.run([sys.executable, "-c", script, json.dumps(specs)],
+                                    capture_output=True, timeout=30, check=False)
+            compatible = result.returncode == 0
+        except (OSError, subprocess.TimeoutExpired):
+            compatible = False
+        record("ambertools-compat-versions", "ready" if compatible else "error",
+               "Create a new prefix with --addon ambertools-compat; do not downgrade an existing environment in place.")
     for package in composition(profile, addons):
         module = package.get("module")
         if module:

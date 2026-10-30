@@ -4500,6 +4500,7 @@ export const GENERATED_COMMANDS = [
         "default": [],
         "options": [
           "msa-alternatives",
+          "ambertools-compat",
           "probe"
         ]
       }

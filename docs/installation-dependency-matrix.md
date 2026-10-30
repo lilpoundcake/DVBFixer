@@ -9,6 +9,10 @@ Desktop inherits every Standard scientific dependency. `science` means both prof
 |---|---|---|---|---|
 | `python >=3.11,<3.14` | conda-forge | science | CLI interpreter; PROPKA annotation compatibility | python-version |
 | `numpy <2.5` | conda-forge | science | geometry, alignment, RESP fit; Python 3.11 typing baseline | numpy |
+| `python <3.13` | conda-forge | ambertools-compat | NumPy 1.26 wheels require Python <=3.12; intersect Standard's existing Python bounds |  |
+| `numpy >=1.26,<2` | conda-forge | ambertools-compat | AmberTools proprep, ndfes, fetkutils and edgembar declared Python dependencies |  |
+| `biopython >=1.83,<1.86` | conda-forge | ambertools-compat | AmberTools proprep declared Python dependency |  |
+| `pdb2pqr` | PyPI | ambertools-compat | AmberTools proprep and packmol-memgen declared Python dependency | pdb2pqr |
 | `libblas=*=*openblas` | conda-forge | science | NumPy/SciPy native linear algebra | linalg |
 | `libcblas=*=*openblas` | conda-forge | science | NumPy/SciPy native linear algebra | linalg |
 | `liblapack=*=*openblas` | conda-forge | science | NumPy/SciPy native linear algebra | linalg |
@@ -53,6 +57,7 @@ These restrictions apply to provisioning, not to doctor checks for an operator-p
 | Add-on | Managed platforms | Manual alternative |
 |---|---|---|
 | `msa-alternatives` | linux-64, osx-arm64 | — |
+| `ambertools-compat` | linux-64, osx-arm64 | [Installation guide](installation.md#ambertools-auxiliary-metadata-compatibility) |
 | `probe` | linux-64 | [Installation guide](installation.md#native-apple-probe-alternative) |
 
 Version/build and execution evidence: [profile acceptance](installation-profile-acceptance.md).
