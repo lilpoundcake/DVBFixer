@@ -816,7 +816,17 @@ command parser merely to inspect generated labels.
   observed sidechain. Three seed-7 Reference controls (partial LYS, perturbed NZ,
   mixed A10–A13 gap) passed using reference-derived coordinates, NOT diffusion
   sampling. Runner/context transport, trace/.dat/publication integration and
-  checkpoint/scientific qualification remain open. Capabilities deny by
+  checkpoint/scientific qualification remain distinct: a separate private
+  `atom_completion_sampling.py` view/admission and
+  `deploy/protpardelle-1c/atom_completion_research.py` now executed two seed-7
+  500-update cc94 MPS pilots (partial LYS and mixed four-residue gap). Original
+  1UBQ partial occupancy remains refused; use the explicitly labelled 1–72 subset,
+  never rewritten occupancies. Both native raw proposals failed geometry; private
+  generated-only CPU refinement passed with 3.92/1.58 Å generated-atom RMS movement
+  and byte-identical observations. Raw/native/refined artifacts and independent
+  native-materialization audits are retained. This is not good native sampling
+  or broader qualification. Production trace/.dat/bundle integration and public
+  capabilities remain open/disabled. Capabilities deny by
   default; schema-4 and frozen requests remain unchanged. Probe privately normalizes known four-character
   CHARMM GLUP/ASPP via the shared variant map to avoid two-character emitted
   chain IDs, preserving original report names and all observations. A native

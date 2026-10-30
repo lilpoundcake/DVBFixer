@@ -39,8 +39,8 @@
 ## Future scope: diffusion completion of partial residues (2026-10-29)
 
 **Status: private masks/contracts, insertion, validation and generated-only
-refinement implemented; public sampling and scientific qualification are not
-implemented.** The user
+refinement implemented; narrow private cc94 sampling executed. Public integration
+and broader scientific qualification remain open.** The user
 requested that diffusion also reconstruct missing heavy atoms within otherwise
 observed protein residues. This is distinct from missing whole residues, bounded
 relaxation of existing source atoms, hydrogen placement, or template-based
@@ -183,6 +183,66 @@ versions; earlier controls remain retained); see the
 Verification: **165 focused / 1,889 fast tests passed**, 3 explicit runtime skips,
 33 slow deselected; Ruff, targeted mypy and documentation checks passed. The
 fast lane completed in 165.29 s. No checkpoint-sampling claim is inferred.
+
+### Private cc94 checkpoint pilot (2026-10-31, after `eacd0d5`)
+
+`atom_completion_sampling.py` adds a separate full-monomer engine view and narrow
+source admission: one <=128-residue heavy-atom chain, up to four partial
+sidechains, and optionally one internal 3–12-residue gap. Backbone defects,
+heterogens, explicit covalent context, partial occupancy, terminal gaps and
+unsupported resource/context requests are denied before weights load. The view
+keeps exact source identities (including chain case and insertion codes), uses
+native relative target positions and transports actual observed/absent atom37
+masks. Only declared, spatially disconnected gap-bridge bonds inferred by PDBFile
+are excluded from the temporary diagnostic topology; original findings and exact
+exclusions remain in evidence. A bonded observed peptide cannot be reclassified
+as a gap.
+
+The standalone **private** adapter
+`deploy/protpardelle-1c/atom_completion_research.py` requires explicit experimental
+acknowledgement. It reuses pinned cc94 preflights, strict weights/config identity,
+native 500-update ODE conditioning, actual-device checks and the relative-position
+probe. It writes no production `RunnerResult` or bundle and never registers a
+public profile. Original inputs, native atom37 arrays, reader masks, engine/source
+maps, trace, raw/rejected proposals and refinement diagnostics are retained in
+exclusive output reservations, never adopted or overwritten.
+
+Two predeclared seed-7 MPS cases **actually sampled 500 updates each**: partial
+LYS A27 (4 missing atoms) and that partial residue plus A10–A13 (32 missing atoms).
+The original 76-residue protein projection was refused for occupancies 0.45/0.25
+at residues 73–76. An explicitly labelled **1–72 protein subset** was used instead;
+occupancies and original fixture bytes were not rewritten. Missing coordinates
+were withheld from the sampler. An initial adapter import-order failure is
+retained separately; it sampled zero updates and was not a scientific rejection.
+
+**Both raw diffusion proposals failed geometry.** Separate generated-only CPU
+refinement produced passing candidates, independently revalidated from source
+bytes in another process. The missing atoms' raw coordinates were independently
+recomputed from saved native output and the declared rigid fit/rounding. No
+canonical atoms were missing before refinement; temporary OXT A72 completion was
+not published. Known observations were byte-identical in raw and refined outputs.
+Generated-atom refinement RMSD was **3.92 Å** (partial) and **1.58 Å** (mixed), so
+this demonstrates a diffusion-proposal-plus-refinement path, **not good native
+sampling quality or broader qualification**. Training membership is unknown.
+
+Evidence: `tmp/atom-completion-eacd0d5/pilot-v2/` and its separate independent
+audit; [portable pilot record](../research/partial-residue-cc94-pilot-2026-10-31.json).
+The new 11 tests cover scope refusal before weights, native transport, exact
+identity mapping, occupancy refusal and preservation of known peptide evidence.
+
+- [x] Narrow private source admission, engine transport and checkpoint-backed
+  partial/mixed MPS pilots, with source/native/refinement evidence retained.
+- [ ] Production runner/result/trace integration, canonical `.dat` ownership and
+  independently audited atomic publication; no public profile is enabled.
+- [ ] Prospective multi-seed/multi-structure qualification and non-monomer context;
+  the two pilot passes do not close these gates.
+- [ ] Compare against template-only atom rebuilding before claiming a scientific
+  benefit: the substantial refinement required here establishes neither superiority
+  nor good native proposal quality.
+
+Final implementation verification: **1,900 fast tests passed**, 3 explicit
+Torch/Biotite skips, 33 slow deselected, 171.33 s; Ruff, targeted mypy,
+documentation and Python 3.11 CLI-reference checks passed.
 - [ ] Audit each backend/checkpoint's ability to condition on partial residues
   and generate the requested heavy atoms, including side-chain-only defects,
   backbone defects and mixed defects adjacent to sequence gaps. Add maintained

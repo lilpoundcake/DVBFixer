@@ -60,6 +60,7 @@ diffusion runner launch. Focused checks: `tests/test_altlocs.py`,
 | Partial-residue mask inventory (planning only; no sampling capability) | `src/dvbfixer/model/diffusion/atom_completion.py::plan_atom_completion`, `plan_request_atom_completion`, `audit_atom_completion_masks` |
 | Private partial-residue protocol/insertion (not runner-enabled) | `src/dvbfixer/model/diffusion/atom_completion_contract.py::AtomCompletionRequest`, `require_completion_capability`; `src/dvbfixer/model/diffusion/atom_completion_materialize.py::materialize_atom_completion` |
 | Private completion validation/refinement (not checkpoint qualification) | `src/dvbfixer/model/diffusion/atom_completion_validation.py::audit_completion_candidate`, `validate_completion_candidate`; `src/dvbfixer/model/diffusion/atom_completion_refinement.py::refine_completion_candidate` |
+| Private cc94 completion sampling (not a public profile) | `src/dvbfixer/model/diffusion/atom_completion_sampling.py::assess_completion_sampling`, `completion_engine_view`; `deploy/protpardelle-1c/atom_completion_research.py` |
 | Diffusion scope boundary | `src/dvbfixer/model/diffusion/scope.py::assess_diffusion_scope` |
 | Diffusion pipeline | `src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline` |
 | Diffusion adapter preflight | `src/dvbfixer/model/diffusion/preflight.py::assess_adapter_preflight` |

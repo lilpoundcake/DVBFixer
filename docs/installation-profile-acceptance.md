@@ -2003,3 +2003,57 @@ Final verification: **1,889 fast tests passed, 3 skipped, 33 slow deselected** i
 checkpoint tests were newly claimed by this continuation. Logs are retained in
 `tmp/atom-completion-e2904a9/{focused-audited,fast-audited,mypy-audited}.log`.
 User/agent documentation and whitespace checks passed as well.
+
+### Private cc94 atom-completion pilot (2026-10-31)
+
+After `eacd0d5`, narrow source admission and a source/engine view were added in
+`atom_completion_sampling.py`, with a separate opt-in research script at
+`deploy/protpardelle-1c/atom_completion_research.py`. The production schema-4
+runner/profile catalog is unchanged. The private route is limited to one short
+heavy-atom protein chain, partial sidechains and at most one bounded internal
+gap. It refuses partial backbone defects, heterogens, explicit covalent context,
+partial occupancy and unsupported contexts/resources before loading weights.
+
+The original 1UBQ protein projection is **refused** by this new scope: residues
+73–74 have occupancy 0.45 and residues 75–76 occupancy 0.25. Those occupancies
+were not normalized away. The original fixture/projection/refusal remain retained;
+sampling used an explicitly labelled **protein residues 1–72 subset**, with LYS27
+CG/CD/CE/NZ removed, plus A10–A13 removed in the separate mixed case. No missing
+reference coordinates were supplied to the sampler. This does not change the
+existing production gap runner's separate admission policy.
+
+Both predeclared seed-7 cases actually ran **500 MPS updates** with pinned cc94
+weights/config, native relative positions and chain phase, no MPS fallback,
+reinjection or cc89 neutral-phase intervention. The actual pinned reader retained
+partial masks with a maximum coordinate decode error of **2.485e-6 Å**. Native
+atom37 arrays, maps, source bytes, requests, traces, rejected raw outputs and
+separate CPU refinement diagnostics remain in
+`tmp/atom-completion-eacd0d5/pilot-v2/`. Initial attempts sampled zero updates due
+to upstream's import-time model-asset resolution; the import ordering was fixed
+without changing requests, seeds, schedules, engine patches or acceptance gates.
+
+**Raw proposals failed geometry in both cases** (bond/coincidence defects; the
+mixed case also had clash/connectivity failures). Generated-only CPU refinement
+then passed final geometry. The new atoms moved substantially: **3.92 Å RMSD /
+5.07 Å max** for partial LYS and **1.58 Å RMSD / 4.71 Å max** for the mixed case.
+All known observations remained byte-identical. Independent recomputation in a
+separate Standard process proved that raw missing-atom coordinates came from the
+saved native sample plus the declared rigid fit/PDB rounding, and independently
+rechecked the final geometry. PDBFixer's separate inventory found **zero missing
+canonical atoms before refinement**, only temporary terminal OXT A72 (not
+published). This is a **diffusion-proposal-plus-refinement pilot**, not proof of
+good native sampling, held-out accuracy or general qualification.
+
+Portable evidence: [cc94 atom-completion pilot](research/partial-residue-cc94-pilot-2026-10-31.json).
+Only one seed per case on one cropped protein has executed. Public profile/CLI,
+Homology/GUI, production sampler traces, `.dat` sidecars and atomic publication
+are still disabled/not integrated. Broader qualification and unknown training
+membership remain explicit. The new 11 tests pass; no source fixture was changed.
+
+Final fast lane: **1,900 passed, 3 skipped, 33 slow deselected** in **171.33 s**.
+Ruff, targeted mypy, user/agent docs and the Python 3.11 CLI reference check passed.
+The initial CLI-reference check under Python 3.13 reported version-dependent help
+format drift; the repository's Python 3.11 generator baseline is in sync, and no
+generated reference pages were overwritten. Logs remain under
+`tmp/atom-completion-eacd0d5/`. Comparative benefit over ordinary template-based
+rebuilding was **not** established by this pilot and remains a qualification task.
