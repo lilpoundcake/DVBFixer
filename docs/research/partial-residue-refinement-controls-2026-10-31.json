@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-31",
+  "base_commit": "e2904a9",
+  "scope": "Private independent validation and generated-only refinement controls, not diffusion sampling",
+  "validation_revision": "atom-completion-validation-v1",
+  "refinement_revision": "atom-completion-generated-only-refinement-v1",
+  "shared_kernel_revision": "dvbfixer-openmm-boundary-refinement-v8",
+  "local_evidence": "tmp/atom-completion-e2904a9/audited-controls/",
+  "reference_fixture": "tests/fixtures/protein_context/1UBQ.pdb",
+  "reference_fixture_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+  "runtime_versions": {"python": "3.13.18", "openmm": "8.6.1", "pdbfixer": "1.12.0", "numpy": "2.4.6", "biopython": "1.88"},
+  "coordinate_origin": "Reference-derived controls; not checkpoint-generated coordinates",
+  "protocol": {
+    "cases_declared_before_execution": ["partial-reference", "partial-perturbed-nz", "mixed-reference"],
+    "seeds": [7],
+    "platform": "Reference",
+    "max_iterations": 250,
+    "restart_count": 0,
+    "partial_residue": "A/LYS27",
+    "partial_atoms": ["CG", "CD", "CE", "NZ"],
+    "perturbation": "partial-perturbed-nz adds +0.75 angstrom to NZ x only",
+    "mixed_missing_residues": ["A/10", "A/11", "A/12", "A/13"],
+    "source_projection": "ATOM records only; original fixture retained unchanged"
+  },
+  "cases": [
+    {
+      "case": "partial-reference",
+      "generated_mask_atoms": 4,
+      "raw_validation_passed": true,
+      "refined_validation_passed": true,
+      "source_findings_retained": 1,
+      "source_sha256": "e656124fef5beca67d80a2876607740822dddb22b47e9fd8bd0534859fff3692",
+      "refined_sha256": "b5d69fa141d4798b992c5d0ea3ae950ff84e6523430078e8bbe84ea2b9a95b5e",
+      "source_observations_byte_identical": true
+    },
+    {
+      "case": "partial-perturbed-nz",
+      "generated_mask_atoms": 4,
+      "raw_validation_passed": true,
+      "refined_validation_passed": true,
+      "source_findings_retained": 1,
+      "source_sha256": "e656124fef5beca67d80a2876607740822dddb22b47e9fd8bd0534859fff3692",
+      "refined_sha256": "81651d03832ac1ed91829f21afbab922bb573ca6b3b098923955d5339c9d0d71",
+      "source_observations_byte_identical": true
+    },
+    {
+      "case": "mixed-reference",
+      "generated_mask_atoms": 32,
+      "raw_validation_passed": true,
+      "refined_validation_passed": true,
+      "source_findings_retained": 6,
+      "source_sha256": "7a26f0fd87d3fc137a34e331007adfdc3fb869769f4c812ef58ad08f0000e3a8",
+      "refined_sha256": "8b71d5c4b7dddc065c2394ee176b54043288c42178ce16fed4295506d3c6ffd6",
+      "source_observations_byte_identical": true
+    }
+  ],
+  "independent_audits": [
+    "Source digest and recomputed source-bound partial masks",
+    "Exact source-plus-generated identity set, including preserved source hydrogen observations",
+    "Verbatim ordered source ATOM/HETATM/ANISOU and explicit link records",
+    "Canonical generated atom names, residue chemistry and elements",
+    "Shared diagnose bond lengths/angles, peptide omegas, chirality, Ramachandran, chi12, coincidences and sterics",
+    "Explicit target-neighbour C-N checks independent of inferred topology bonds",
+    "Global zero D-C-alpha invariant; no observed sidechain reflection",
+    "Source missing atoms/gaps and all source geometry findings retained",
+    "Failed kernels retain raw candidate bytes and raw diagnostics; refined geometry rejection is not hidden"
+  ],
+  "limitations": [
+    "No checkpoint sampling occurred",
+    "No profile advertises atom completion support and no public option is enabled",
+    "Refinement adapter is currently protein-only and refuses raw D-C-alpha candidates",
+    "Private geometry pass checks the changed residue/neighbour cohort and global chirality, not general input suitability",
+    "Outside-source findings remain visible and are not evidence of scientific qualification",
+    "Runner/context/engine transport, trace/provenance/.dat publication and scientific qualification remain open"
+  ],
+  "focused_tests_passed": 165,
+  "new_validation_refinement_tests": 18,
+  "fast_tests_passed": 1889,
+  "fast_skipped": 3,
+  "slow_deselected": 33,
+  "fast_seconds": 165.29,
+  "checks": ["Ruff", "targeted mypy --follow-imports=silent", "user documentation", "agent documentation", "git diff --check"],
+  "checkpoint_sampling_executed": false,
+  "public_atom_completion_enabled": false
+}

@@ -1958,3 +1958,48 @@ targeted mypy, user/agent documentation checks and whitespace checks passed.
 All 91 existing package re-exports resolve, and a separate Python 3.11 `-S`
 capability JSON roundtrip passed. Retained final logs are
 `tmp/atom-completion-931f977/{focused-contract-materialize-final,fast-contract-materialize-final,mypy-contract-materialize-final}.log`.
+
+### Private completion validation/refinement controls (2026-10-31)
+
+Continuation after `e2904a9` adds an independent byte/identity/chemistry audit and
+private geometry validation in `atom_completion_validation.py`. Source observations,
+hydrogens, ANISOU and explicit links cannot be changed; only exact requested heavy
+atoms may be added. Shared diagnose checks gate the changed residue/junction and
+neighbour cohort; chirality is checked globally. Source missing atoms/gaps and
+all source findings remain visible, including unrelated defects. This is **not**
+a claim that every outside-source defect is acceptable for a future public run.
+
+`atom_completion_refinement.py` reuses the shared v8 OpenMM kernel with exactly
+the generated atom mask and no observed-anchor mobility. It reconstructs output
+from original bytes and independently rechecks it. This first adapter is
+protein-only and refuses raw D-Cα to avoid reflecting observed sidechain atoms.
+Failure exceptions retain raw bytes and validation; returned refined geometry
+rejections retain both candidates/reports rather than silently reporting success.
+
+Actual seed-7 Reference controls (250 iterations, no restarts) passed for:
+
+- LYS A27 CG/CD/CE/NZ reference-coordinate restoration, four missing-mask atoms.
+- The same partial residue with a predeclared +0.75 Å NZ x perturbation.
+- Mixed A10–A13 whole-gap and partial-LYS restoration, 32 missing-mask atoms.
+
+All three passed both raw and refined geometry checks with source observations
+byte-identical. The perturbed raw control also passed; it is not presented as
+repair of a failed candidate. Source findings remain retained (1/1/6 respectively).
+Evidence and original/final artifacts live in
+`tmp/atom-completion-e2904a9/audited-controls/`, with module digests and runtime
+versions; earlier controls remain alongside them. The [portable record](research/partial-residue-refinement-controls-2026-10-31.json)
+records masks, digests, protocol, limitations and control provenance.
+
+**No checkpoint sampling occurred**: coordinates came from the reference fixture,
+not diffusion. Public runner/context integration, sampler trace/provenance,
+`.dat` ownership, bundle publication and scientific qualification remain open.
+The new 18 tests include real Reference partial/mixed kernels and negative
+identity/chemistry/fixed-coordinate/D-Cα/failure-retention controls. The focused
+continuation set passed **165 tests**; Ruff and targeted mypy passed. Truncated
+coincidence diagnostics fail closed rather than granting an incomplete audit pass.
+
+Final verification: **1,889 fast tests passed, 3 skipped, 33 slow deselected** in
+**165.29 s**. Skips remain the explicit Torch/Biotite runtime controls; no slow or
+checkpoint tests were newly claimed by this continuation. Logs are retained in
+`tmp/atom-completion-e2904a9/{focused-audited,fast-audited,mypy-audited}.log`.
+User/agent documentation and whitespace checks passed as well.

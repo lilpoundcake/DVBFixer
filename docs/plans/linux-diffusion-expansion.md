@@ -38,8 +38,9 @@
 
 ## Future scope: diffusion completion of partial residues (2026-10-29)
 
-**Status: source-bound mask planning implemented; public sampling and scientific
-qualification are not implemented.** The user
+**Status: private masks/contracts, insertion, validation and generated-only
+refinement implemented; public sampling and scientific qualification are not
+implemented.** The user
 requested that diffusion also reconstruct missing heavy atoms within otherwise
 observed protein residues. This is distinct from missing whole residues, bounded
 relaxation of existing source atoms, hydrogen placement, or template-based
@@ -99,8 +100,8 @@ the complete fast lane passed 1,840 tests. The portable evidence record is
   missing atoms while retaining known atoms. Private insertion is implemented;
   engine/context integration remains open. The legacy materializer remains
   whole-gap-only; the new adapter never supplies it fixed-coordinate updates.
-- [ ] Add generated-atom-only refinement, source-bound independent publication
-  validation and `.dat` ownership for these mixed observed/generated residues.
+- [ ] Integrate private generated-only refinement/validation with source-bound
+  independent publication and `.dat` ownership for mixed observed/generated residues.
 - [ ] Run predeclared checkpoint-backed tests before advertising capability or
   enabling CLI/model/Homology/batch/resume/GUI integration.
 
@@ -138,6 +139,50 @@ Torch/Biotite skips, 33 slow deselected) in 162.72 s. All 91 existing package
 re-exports resolve; separate Python 3.11 stdlib-only contract roundtrip, Ruff,
 targeted mypy and documentation checks passed. No new scientific sampling claim
 is inferred from these implementation tests.
+
+### Private validation and refinement slice (2026-10-31)
+
+`atom_completion_validation.py` independently audits candidate bytes against the
+source and request, without trusting runner or materializer declarations. It
+requires the exact source-plus-generated atom set; source observations (including
+hydrogens), ANISOU and explicit links remain verbatim and ordered. Generated names,
+elements and residue chemistry are checked. Shared diagnose routines cover bond
+lengths/angles, amide planarity, chirality, Ramachandran, chi12, coincidences and
+sterics; explicit target-neighbour C-N checks catch disconnected bonds even if a
+parser omits them. The changed-residue/junction/neighbour cohort is gated, and
+D-Cα is rejected globally. All source missing atoms/gaps and geometry findings
+remain in the report, including outside the changed cohort. A private pass does
+not certify unrelated source geometry or grant publication.
+
+`atom_completion_refinement.py` delegates exactly the generated atom mask to the
+existing v8 OpenMM kernel and reconstructs the output from unchanged source bytes.
+It never grants observed mobility or marks entire partial residues as generated.
+This first adapter is **protein-only** and refuses raw D-Cα instead of reflecting
+observed side chains. Kernel failures retain raw bytes and diagnostics; both raw
+and refined reports survive, and refined rejection is not silently treated as
+acceptance or hidden behind a raw fallback.
+
+Three predeclared, actual Reference controls passed: LYS A27 four-atom completion
+from 1UBQ reference coordinates, the same control with a +0.75 Å NZ x perturbation,
+and a mixed control with A10–A13 deleted (32 missing-mask atoms total). Seed 7,
+250 iterations, zero restarts, unchanged observed records. Both initial and final
+geometry passed for all three; the mild perturbation was not claimed as a raw
+failure. **These are reference-derived controls, not diffusion output.** All
+artifacts and full source diagnostics remain under
+`tmp/atom-completion-e2904a9/audited-controls/` (including module digests and runtime
+versions; earlier controls remain retained); see the
+[portable control record](../research/partial-residue-refinement-controls-2026-10-31.json).
+
+- [x] Private generated-only refinement and independent source/candidate integrity
+  plus geometry validation, including partial-only and mixed reference controls.
+- [ ] Runner/context/engine transport, sampler trace/provenance, canonical `.dat`
+  ownership and independent atomic bundle publication for completion candidates.
+- [ ] Checkpoint-backed atom completion and predeclared scientific qualification;
+  keep public options disabled until those gates pass.
+
+Verification: **165 focused / 1,889 fast tests passed**, 3 explicit runtime skips,
+33 slow deselected; Ruff, targeted mypy and documentation checks passed. The
+fast lane completed in 165.29 s. No checkpoint-sampling claim is inferred.
 - [ ] Audit each backend/checkpoint's ability to condition on partial residues
   and generate the requested heavy atoms, including side-chain-only defects,
   backbone defects and mixed defects adjacent to sequence gaps. Add maintained

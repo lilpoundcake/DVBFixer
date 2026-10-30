@@ -808,8 +808,15 @@ command parser merely to inspect generated labels.
   sampling. Keep runner-contract, materialization/refinement/publication and
   qualification gates distinct: separate schema-1 requests/capabilities and a
   private generated-only materializer now exist in `atom_completion_contract.py`
-  and `atom_completion_materialize.py`, but runner/context integration, refinement,
-  publication and scientific qualification remain open. Capabilities deny by
+  and `atom_completion_materialize.py`. Private independent validation and
+  generated-only refinement now live in `atom_completion_validation.py` and
+  `atom_completion_refinement.py`: source records/links are immutable, raw failures
+  and both validation reports remain retained, and global D-Cα is rejected.
+  The adapter is protein-only and refuses raw D rather than reflecting an
+  observed sidechain. Three seed-7 Reference controls (partial LYS, perturbed NZ,
+  mixed A10–A13 gap) passed using reference-derived coordinates, NOT diffusion
+  sampling. Runner/context transport, trace/.dat/publication integration and
+  checkpoint/scientific qualification remain open. Capabilities deny by
   default; schema-4 and frozen requests remain unchanged. Probe privately normalizes known four-character
   CHARMM GLUP/ASPP via the shared variant map to avoid two-character emitted
   chain IDs, preserving original report names and all observations. A native
