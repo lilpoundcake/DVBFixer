@@ -4,6 +4,21 @@ Date: 2026-10-29. Branch: `feature/installation-profiles`.
 
 ## Resume on the Mac after Linux finalization (2026-10-30)
 
+**Native continuation executed at `8f0cd33`:** new micromamba Standard/Desktop
+passed licensed installation smokes and file-presence audits. Standard passed
+1,797 fast tests (3 skips) and 28 extended science checks; Desktop passed 407
+GUI tests, build/typecheck/standalone and a real Chrome workspace/scientific job.
+Native runner/publication regressions passed 87 focused tests; public cc94 MPS
+batch/resume/ZBS/Homology passed with independently verified bundles. Prior Mac
+prefixes were found incomplete and their failed attempts remain preserved;
+they were not silently repaired or counted as accepted. See
+[the native return record](../installation-profile-acceptance.md#native-mac-return-after-linux-finalization-2026-10-30)
+and [portable results](../research/mac-installation-return-2026-10-30.json).
+The continuation order below is the executed protocol, not an assertion that
+its checks are still all untested. Upstream conda/managed-Probe packaging and
+the historical CUDA hash remain failed/open; broader MPS qualification is a
+separate future cohort, not implied by these native installation regressions.
+
 The current Linux installation/science/workflow matrix has executed; see the
 [final Linux record](../installation-profile-acceptance.md#final-linux-acceptance-before-return-to-mac-2026-10-30)
 and [portable results](../research/linux-installation-finalization-2026-10-30.json).

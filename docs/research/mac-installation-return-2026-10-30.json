@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "branch": "feature/installation-profiles",
+  "executed_commit": "8f0cd33b400c59f8fd7f9cdd0f64e77dd7ef11a2",
+  "platform": {"architecture": "arm64", "macOS": "26.6.2", "micromamba": "2.9.0", "conda": "26.9.4"},
+  "local_evidence": "tmp/installation-profiles-mac-return-8f0cd33/",
+  "scope": "Native installed-package and workflow regression after Linux finalization, not broad scientific qualification",
+  "focused_tests": {"source_passed": 87, "installed_exit": 0},
+  "new_standard": {
+    "prefix_basename": "dvbfixer-apple-return-standard-8f0cd33",
+    "route": "new micromamba prefix, protected-fd licensed configuration",
+    "missing_conda_owned_files": 0,
+    "licensed_installer_smoke": "passed",
+    "extended_science": {"passed": 28, "failed": 0},
+    "installed_fast_suite": {"passed": 1797, "skipped": 3, "slow_deselected": 33, "seconds": 184.56},
+    "skipped_modules": ["torch", "biotite.structure"],
+    "real_1tim_repair_slow_regression": "passed",
+    "other_slow_tests": "not rerun in this increment",
+    "doctor": "ready",
+    "distribution_smoke": "passed",
+    "pip_check": "failed, upstream auxiliary metadata conflicts retained"
+  },
+  "new_desktop": {
+    "prefix_basename": "dvbfixer-apple-return-desktop-8f0cd33",
+    "route": "new licensed micromamba Desktop prefix",
+    "missing_conda_owned_files": 0,
+    "licensed_installer_smoke": "passed",
+    "doctor": "ready",
+    "licensed_science_checks_passed": 14,
+    "gui_tests": {"passed": 407, "files": 57},
+    "typecheck_build_standalone": "passed",
+    "browser": {"version": "154.0.8037.98", "state": "passed", "workspace_import_diagnose": true, "input_failure_visible": true, "page_errors": []}
+  },
+  "mps_workflow": {
+    "profile": "protpardelle-1c-cc94-mps-v1",
+    "case": "1UBQ C-terminal three-residue deletion",
+    "seed": 7,
+    "protocol": "mps-protocol.json",
+    "batch_validated": 2,
+    "batch_same_input_bytes_identical": true,
+    "resume_verified": 2,
+    "zbs_no_solvent": "passed",
+    "modeled_dat_handoff": "preserved",
+    "homology": "passed",
+    "independently_read_bundles": 3,
+    "updates_per_invocation": 500,
+    "device": "mps",
+    "fallback_disabled": true,
+    "refinement": "separate OpenMM CPU runtime"
+  },
+  "retained_failed_attempts": {
+    "old_prefixes": "Each lacked 3030 conda-owned files across 45 packages; cause unestablished; preserved",
+    "old_prefix_fast_suite": {"passed": 1787, "failed": 10, "skipped": 3, "slow_deselected": 33},
+    "old_suite_caveat": "Missing scientific package data and an outside-checkout harness cwd; no test rules weakened",
+    "first_mps_workflow": "Batch/resume passed; ZBS failed on missing pdbfixer/soft.xml; Homology not executed",
+    "first_conda_attempt": "Old cache verification failed; not counted as clean upstream retest"
+  },
+  "upstream_gates": {
+    "conda_fresh_cache": "Blocked before transaction execution by gettext/libintl and Tk/X11 path collisions; no clobber",
+    "probe_osx_arm64_declared_packages": 0,
+    "manual_probe_electron_nuclear_fallback_controls": "passed on new Standard; distinct from managed packaging",
+    "historical_linux_cuda_pdb_hash": "failed, unchanged; not retested with MPS",
+    "broader_source_disjoint_mps_qualification": "pending"
+  },
+  "preservation": "Prior prefixes, originals, attempted runs and private diagnostics retained; local runtime evidence does not transfer through Git",
+  "whole_plan_complete": false
+}

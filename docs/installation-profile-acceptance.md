@@ -1612,3 +1612,110 @@ hardware digest remains failed, upstream auxiliary pip metadata remains
 inconsistent, and native conda/Probe packaging plus broader MPS qualification
 remain open. Continue on the Mac using the current handoff rather than treating
 historical bootstrap “not-tested” paragraphs as the latest outcome.
+
+## Native Mac return after Linux finalization (2026-10-30)
+
+Pulled `feature/installation-profiles` fast-forward to **`8f0cd33`** on native
+arm64 / macOS **26.6.2**, initially clean. Evidence is project-local at
+`tmp/installation-profiles-mac-return-8f0cd33/`; Linux runtime trees were not
+assumed available. Micromamba **2.9.0** and conda **26.9.4** were rechecked.
+The shell's mamba resolves to an older **1.5.9** executable; this continuation
+does not claim a new mamba 2.10.0 acceptance run.
+
+### Publication/runner regression and existing-prefix findings
+
+The five focused runner/bundle-commit/pipeline/workflow/provenance files passed
+**87 tests** against source and again against wheel-installed Python modules.
+These native checks include normal Darwin exclusive publication, forced
+unsupported-rename manifest-last commit, competing publishers, interruption,
+incomplete reservations and quota-scan failure semantics. Version, generated
+CLI/GUI/profile specs, user/agent docs and Ruff checks passed.
+
+Existing Standard/Desktop Python packages were refreshed from the new wheel
+without dependencies; verified prior-package tarballs are retained. Their
+scientific rechecks exposed missing environment data, **not a successful
+installation acceptance**: each old prefix lacks **3,030 conda-owned files in
+45 packages**, including ANARCI's pressed HMM indices, `hmmpress`, and
+`pdbfixer/soft.xml`. The cause is unestablished. A proposed native `hmmpress`
+repair stopped before execution because that executable itself was absent;
+the original HMM was backed up and was not modified. No broad repair, deletion,
+clobber policy or silent environment substitution was applied.
+
+The old-prefix fast attempt retained **1,787 passed / 10 failed / 3 skipped**
+with 33 slow tests deselected. Missing package data caused scientific failures;
+the outside-checkout harness working directory also broke a relative-path test.
+Keep this failure record separate from the new-prefix run, rather than weaken
+tests or count it as a pass. Existing installed Desktop independently passed
+typecheck, tests, build/standalone smoke and the retained Chrome import/diagnose/
+visible-failure protocol. These GUI passes do not establish old scientific
+environment integrity.
+
+### Fresh native Standard and MPS workflows
+
+A new owned micromamba Standard prefix, sibling
+`dvbfixer-apple-return-standard-8f0cd33`, passed conda-file presence audit
+(**zero missing owned files**), protected-fd MODELLER configuration and the
+installer's licensed smoke. Its independent extended science run passed
+**28/28** checks, including PySCF/RESP, separate PSI4/RESP, GROMACS,
+MODELLER/Homology and both prepare backends. Profile doctor reports **ready**;
+actual cc94 MPS preflight passed with Torch **2.6.0**, fallback disabled and
+separate OpenMM CPU refinement. Installed distribution smoke and the real
+restrained 1TIM repair regression passed. Upstream auxiliary `pip check`
+conflicts still return 1 and are not fixed by this clean installation.
+
+`mps-protocol.json` froze the existing 1UBQ C-terminal-three-residue case and
+seed **7**, retaining historical originals and their digests. The first MPS
+workflow attempt passed two identical independent batch outputs and resume,
+then failed ZBS on the old prefix's missing `soft.xml`; Homology did not execute
+in that attempt. The distinct new-prefix **v2 passed public batch, resume,
+`zbs --no-solvent` and mosaic Homology**, with preserved modeled-atom `.dat`
+handoff. All three bundles were independently read; each trace records the
+actual `protpardelle-1c-cc94-mps-v1` profile, **500 MPS updates**, fallback
+disabled. Original input, both workflow attempts, private diagnostics and
+selected results remain retained. This is a native workflow regression, not
+source-disjoint qualification or a replay of the failed historical CUDA hash.
+
+### Upstream gates rechecked
+
+Conda's first attempt hit missing files in its historical cache and is not a
+clean upstream retest. A second attempt with a **new project-local package
+cache and new prefix** reached transaction verification and failed closed on
+the existing gettext/libintl dylib and Tk/X11 header ownership collisions.
+No transaction execution or `--clobber` bypass is claimed. The public bioconda
+API still declares **zero osx-arm64 Probe files**. These packaging gates remain
+open; historical manual native Probe evidence remains a separate alternative.
+
+### Completed fresh-prefix continuation
+
+The new installed Standard fast suite passed **1,797 tests, 3 skipped,
+33 deselected** (`new-installed-fast.log`, **184.56 s**). The missing Torch and
+Biotite modules are confined to the explicitly recorded skips, not passes;
+the separate MPS runtime executed real inference. This run used the checkout
+as working directory with `PYTHONPATH`/`PYTHONHOME` unset and installed DVBFixer
+imports, resolving the earlier harness-relative-path issue without changing a
+test. The real 1TIM bounded-input-repair slow regression also passed; the other
+32 slow cases were not rerun in this native increment.
+
+A distinct new micromamba **Desktop** prefix,
+`dvbfixer-apple-return-desktop-8f0cd33`, also passed the protected-license
+installer smoke and conda-file presence audit (**zero missing files**). Its
+installed GUI passed **407 tests in 57 files**, typecheck, client/server build
+and standalone smoke. A fresh **Chrome 154.0.8037.98** run against this new
+Desktop passed real workspace creation/import/diagnose, Protenix context-choice
+visibility, hidden Protpardelle context override, and the explicit collapsed-input
+refusal before sampling; no page errors occurred. Profile doctor returned 0.
+The earlier existing-Desktop browser/build checks and all failed science attempts
+remain separate evidence, not overwritten by this result.
+
+The existing pinned manual **Probe 2.18** binary was also exercised from the
+new Standard: electron and nuclear modes reported `molprobity-probe`, complete,
+without fallback. The absent-executable control explicitly reported the Python
+steric fallback. This does not close the missing native managed-package gate.
+
+Portable summary:
+[native return results](research/mac-installation-return-2026-10-30.json).
+All evidence and original inputs remain retained locally; no credentials or
+runtime environments are included in Git. The historical Linux PDB-hash gate
+remains failed, auxiliary pip metadata remains inconsistent, native conda and
+managed Probe remain blocked, and wider source-disjoint MPS qualification is
+still pending. **Whole-plan completion is not claimed.**
