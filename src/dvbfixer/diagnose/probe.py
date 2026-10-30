@@ -19,6 +19,7 @@ CONTACT_TYPES = frozenset({"wc", "cc", "so", "bo", "hb"})
 class ProbeAtom:
     identity: AtomIdentity
     resname: str
+    emitted_resname: str | None = None
 
 
 @dataclass
@@ -49,6 +50,8 @@ def normalize_input(text: str, include_water: bool) -> tuple[str, dict[AtomIdent
     Alternate conformations and repeated identities need explicit selection
     before Probe can analyse the same state as the caller's topology.
     """
+    from dvbfixer.ffutils.variants import VARIANT_TO_PARENT
+
     lines = text.splitlines(keepends=True)
     if sum(line.startswith("MODEL ") for line in lines) > 1:
         raise ValueError("select one MODEL before using Probe")
@@ -84,7 +87,19 @@ def normalize_input(text: str, include_water: bool) -> tuple[str, dict[AtomIdent
         if identity in inventory or emitted in aliases:
             raise ValueError("Probe atom-name uppercasing makes input identities ambiguous")
         aliases.add(emitted)
-        inventory[identity] = ProbeAtom(identity, resname)
+        emitted_resname = None
+        if line[20].strip():
+            # CHARMM ASPP/GLUP occupy the PDB separator column. Probe interprets
+            # that fourth letter as part of a two-character chain ID. Normalize
+            # only known variants in this private input, preserving all atoms,
+            # coordinates, protonation hydrogens and the original display name.
+            original_resname = line[17:21].strip()
+            emitted_resname = VARIANT_TO_PARENT.get(original_resname)
+            if emitted_resname is None or len(emitted_resname) > 3:
+                raise ValueError("unsupported residue/chain separator for Probe; unknown four-character residue")
+            resname = original_resname
+            line = line[:17] + f"{emitted_resname:3s} " + line[21:]
+        inventory[identity] = ProbeAtom(identity, resname, emitted_resname)
         atom_field = f" {name:<3}" if len(element) == 1 and len(name) < 4 and not name[0].isdigit() else f"{name:<4}"
         normalized.append(line[:12] + atom_field + line[16:])
     if not inventory:
@@ -134,7 +149,7 @@ def parse_contacts(
             emitted = AtomIdentity(atom_field[:2].strip() or " ", str(int(atom_field[2:6])),
                                    atom_field[6].strip(), atom_field[11:15].strip())
             atom = aliases.get(emitted)
-            if atom is None or atom.resname.upper() != atom_field[7:10].strip():
+            if atom is None or (atom.emitted_resname or atom.resname).upper() != atom_field[7:10].strip():
                 raise ValueError(f"unresolved Probe atom identifier: {atom_field!r}")
             identities.append(atom.identity)
         if identities[0] == identities[1]:

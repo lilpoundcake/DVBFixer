@@ -100,12 +100,41 @@ def test_native_failures_fall_back(monkeypatch, structure, failure):
     assert metadata["probe_status"] == "failed" and metadata["fallback"]
 
 
-def test_unknown_version_falls_back(monkeypatch, structure):
-    calls = native(monkeypatch, version="probe.9.99")
+@pytest.mark.parametrize("version", ["probe.9.99", "probe.2.26.021123"])
+def test_unknown_version_falls_back(monkeypatch, structure, version):
+    calls = native(monkeypatch, version=version)
     metadata = {}
     steric.run_all(*structure, provenance=metadata)
     assert not calls and metadata["fallback"]
-    assert metadata["probe_version"] == "probe.9.99"
+    assert metadata["probe_version"] == version
+
+
+@pytest.mark.parametrize("variant,parent", [("GLUP", "GLU"), ("ASPP", "ASP")])
+def test_charmm_four_character_variants_do_not_become_two_character_chains(structure, variant, parent):
+    _, _, path = structure
+    original = "".join(line[:17] + variant + line[21:]
+                       if line.startswith(("ATOM  ", "HETATM")) and line[21] == "H" else line
+                       for line in path.read_text().splitlines(keepends=True))
+    normalized, inventory = probe.normalize_input(original, include_water=False)
+    source_line = next(line for line in original.splitlines() if line.startswith(("ATOM  ", "HETATM")) and line[21] == "H")
+    emitted = next(line for line in normalized.splitlines() if line.startswith(("ATOM  ", "HETATM")) and line[21] == "H")
+    assert emitted[17:21] == parent + " "
+    assert emitted[21:] == source_line[21:]  # Exact chain, insertion code and coordinates.
+    known = inventory[AtomIdentity("H", "82", "a", "c1")]
+    assert known.resname == variant and known.emitted_resname == parent
+    findings = probe.parse_contacts(record(source=f" H  82a{parent}  C1  "), inventory,
+                                    probe.SUPPORTED_VERSION, "electron", .4, .5)
+    assert findings[0].resname == variant
+    assert findings[0].chain == "H"
+    assert findings[0].extra["atoms"][1]["chain"] == "h"
+
+
+def test_probe_rejects_unknown_four_character_residue_instead_of_truncating_chain(structure):
+    _, _, path = structure
+    text = "".join(line[:17] + "ALAX" + line[21:] if line.startswith(("ATOM  ", "HETATM")) else line
+                   for line in path.read_text().splitlines(keepends=True))
+    with pytest.raises(ValueError, match="unknown four-character residue"):
+        probe.normalize_input(text, include_water=False)
 
 
 def test_clean_result_keeps_engine_metadata_without_warning(monkeypatch, structure, capsys):
