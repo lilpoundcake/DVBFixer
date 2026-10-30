@@ -1851,3 +1851,110 @@ profile/CLI/GUI generation, version/docs checks and source/wheel content
 inspection passed. Local evidence, package caches, runtime trees and MODELLER
 credentials are excluded from distributions and commits. No geometry gate was
 weakened to make these checks pass.
+
+## Partial-residue masks and native Probe candidate (2026-10-30)
+
+Work started after `931f977`; new local evidence is
+`tmp/atom-completion-931f977/`. This is **not** a completed public atom-completion
+backend. The [implementation plan](plans/linux-diffusion-expansion.md#future-scope-diffusion-completion-of-partial-residues-2026-10-29)
+now separates the implemented source-bound inventory from the remaining runner,
+materialization, refinement and publication work.
+
+The immutable atom-mask service preserves every observed heavy atom and keeps
+partial-residue ownership disjoint from whole-residue gaps. Independent audit
+recomputes masks from source bytes, exact chain/residue/insertion-code identity
+and sequence placement. No request, source or generated coordinates are changed.
+The original 5J13 has **62 missing canonical heavy atoms in 20 sidechains**,
+matching PDBFixer's independent missing-atom inventory exactly. To clarify the
+earlier preparation count: raw legacy prepare had **4,052** protein heavy atoms;
+the target-aware projection had **4,050**, versus **3,987** originally observed.
+The 63 newly present atoms in the retained projection include **one terminal
+OXT** in addition to the 62 canonical missing atoms. They were template-built,
+not diffusion-generated. The typed inventory neither strips the source sulfate
+nor grants it public sampling admission.
+
+The production motif writer and actual pinned cc94 reader were exercised with
+a distinct 1UBQ whole-gap-plus-partial-LYS input. LYS A27 N/CA/CB/C/O mask values
+remain 1; CG/CD/CE/NZ remain 0. The maximum observed-coordinate decode error was
+**1.603e-6 Å**, consistent with reader floating-point precision. The source,
+request, writer and reader digests plus arrays remain retained. **No checkpoint
+sampling occurred in this probe**, and no partial-residue output was published.
+Initial harness attempts (heterogen occupancy rejected by the public builder,
+missing engine import path, insertion-code whitespace in the independent
+inventory) remain distinct from the successful inventory/reader controls.
+
+A separate packaging investigation located a native **Probe 2.26** package in
+`phenix-project`, not the pinned bioconda Probe 2.18 route. The downloaded package
+SHA256 was verified; its binary reports `probe.2.26.021123`. It was extracted only
+into an owned candidate directory, not installed into a profile or substituted
+on the production PATH. The tk/X11 ownership issue is also independently
+documented upstream ([tk-feedstock #55](https://github.com/conda-forge/tk-feedstock/issues/55));
+no clobber workaround or dependency/manager policy was changed.
+
+Candidate testing exposed an existing adapter bug affecting **both** Probe
+versions: CHARMM `GLUP`/`ASPP` fourth letters became a second Probe chain character.
+Private input normalization now uses the shared `VARIANT_TO_PARENT` mapping for
+known four-character variants while preserving original display names, chain
+case, atoms, protonation hydrogens and coordinates. Unknown four-character
+residues fail closed instead of being silently truncated. The public pinned
+Probe 2.18 diagnose path now completes on the CHARMM glycan fixture without
+fallback: electron **255 findings** (23 errors/232 warnings), nuclear **145**
+(21 errors/124 warnings). Exit 1 reflects those real findings, not engine failure.
+
+The corrected comparison matrix executed **12 native processes**: two versions,
+three inputs (prepared 1UBQ, ASN and CHARMM glycan), and both radius conventions.
+All parsed; all **six paired finding lists are equal except the declared engine
+version**. The initial matrix's suffix-based filename handling collided across
+radius artifacts; its result table remains, but it is not complete per-radius
+raw evidence. The distinct v2 matrix retains separate raw files for every run.
+An initial production harness used the nonexistent `--checks` spelling and was
+retained; its v2 uses the real `--only steric` CLI. These are harness failures,
+not scientific candidate rejections.
+
+**Probe 2.26 remains unsupported by production preflight**: exact-version refusal
+is retained and tested. Parser feasibility is not permission for a silent version
+or channel substitution, nor full managed-addon qualification. The original
+bioconda osx-arm64 packaging gate and historical CUDA hash remain unresolved.
+
+Verification: **100 focused tests passed** (34 new atom-inventory tests plus
+mask/contract/scope/Probe regressions); **1,840 fast tests passed, 3 skipped,
+33 deselected** in **164.63 s**. The unchanged optional scientific-runtime skips
+remain explicit. Ruff and mypy for both touched production modules passed.
+Portable record: [mask/reader and Probe evidence](research/partial-residue-mask-foundation-2026-10-30.json).
+
+### Separate atom-completion protocol and insertion continuation
+
+The next implementation slice adds `atom_completion_contract.py` and
+`atom_completion_materialize.py`. A separate **schema-1** request/capability
+protocol leaves the existing schema-4 wire format unchanged. It validates exact
+partial/whole-gap ownership, canonical target chemistry, adjacent gap anchors,
+complete coverage, template placement, source digests and bounded unique seeds.
+Runner features and resource ceilings are explicit and **deny by default**.
+The canonical catalog extraction matches the previous tables and ordering
+exactly. Contract import is checked with `python -S`; package re-exports now
+load scientific dependencies lazily without removing existing public names.
+
+Private insertion takes generated coordinates only, rejecting even unchanged
+fixed-coordinate replacements. It inserts missing atoms into observed residues
+and delegates only legitimate whole-gap atoms to the old materializer. Source
+ATOM/HETATM/ANISOU bytes and order, chain case, insertion codes, CRLF and valid
+CONECT survive. It rejects duplicate serials, split residues, ambiguous MODEL
+layout, orphan ANISOU, dangling CONECT, nonfinite/overflow coordinates and records
+after END; stale MASTER counts are removed. The **31 new tests** check wire/data
+integrity with synthetic coordinates, not scientific reconstruction success.
+
+This is still **not runner-enabled**: context/engine transport, generated-only
+refinement, independent scientific validation/publication and checkpoint-backed
+qualification remain open. There is no public CLI option or advertised backend
+capability. The earlier reader feasibility probe is not checkpoint sampling.
+Targeted mypy with `--follow-imports=silent` passes for all five touched/new
+production modules. Unrestricted traversal additionally reports errors in
+unrelated existing modules; it is not recorded as a repository-wide mypy pass.
+
+Final continuation verification: **147 focused tests passed** and **1,871 fast
+tests passed, 3 skipped, 33 slow deselected** in **162.72 s**. Torch/Biotite skips
+remain explicit; this continuation did not rerun slow/checkpoint cases. Ruff,
+targeted mypy, user/agent documentation checks and whitespace checks passed.
+All 91 existing package re-exports resolve, and a separate Python 3.11 `-S`
+capability JSON roundtrip passed. Retained final logs are
+`tmp/atom-completion-931f977/{focused-contract-materialize-final,fast-contract-materialize-final,mypy-contract-materialize-final}.log`.

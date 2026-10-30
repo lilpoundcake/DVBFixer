@@ -38,7 +38,8 @@
 
 ## Future scope: diffusion completion of partial residues (2026-10-29)
 
-**Status: planned, not implemented or scientifically qualified.** The user
+**Status: source-bound mask planning implemented; public sampling and scientific
+qualification are not implemented.** The user
 requested that diffusion also reconstruct missing heavy atoms within otherwise
 observed protein residues. This is distinct from missing whole residues, bounded
 relaxation of existing source atoms, hydrogen placement, or template-based
@@ -49,11 +50,94 @@ The supplied 5J13 case motivates this work: besides its separate SO4 admission
 issue, ordinary diagnose reports residues with incomplete heavy-atom sets.
 Removing nonprotein molecules alone does not implement partial-residue diffusion.
 
-- [ ] Define backend-neutral **atom-level** completion requests: exact observed
+### First implementation slice (2026-10-30, after `931f977`)
+
+`model/diffusion/atom_completion.py` now inventories exact canonical missing atom
+identities without modifying source bytes or an existing frozen request. Its
+immutable masks keep observed atoms, whole-residue-gap atoms and partial-residue
+atoms separately owned; chain case, insertion codes and target positions remain
+exact. Independent audit recomputes the inventory from the digest-bound source.
+Backbone defects are classified, not granted sampling capability. Unknown atoms,
+nonterminal OXT, substitutions, alternate locations and contradictory ownership
+fail rather than being silently normalized. Chemical atom names come from the
+existing canonical catalog and sequence placement remains in the shared service.
+
+The original supplied 5J13 contains **20 partial sidechains / 62 missing canonical
+heavy atoms**. The inventory matches PDBFixer's independent missing-atom set
+exactly after insertion-code whitespace normalization. The earlier prepared
+protein-only projection retained **63 newly present heavy atoms**, including one
+terminal OXT: raw prepare had 4,052 heavy atoms and the target-aware projection
+4,050, versus 3,987 originally observed protein heavy atoms. Those preparation
+counts must not be confused with 62 canonical atoms eligible for future
+diffusion completion. The original sulfate-containing input is still not
+admitted for sampling by this planning service.
+
+The actual pinned cc94 engine reader at
+`ee378400f25b801fa481028000f9060183d7fb4c` was exercised with the production motif
+writer and a separate 1UBQ input containing both a whole-residue gap and a partial
+LYS A27. Reader atom37 masks retained N/CA/CB/C/O as present and CG/CD/CE/NZ as
+absent. Input/request/writer/reader digests and arrays are retained under
+`tmp/atom-completion-931f977/`. This proves **input-mask transport only**: weights
+were not sampled, and no structure was published as atom-completion output.
+
+Verification: 34 atom-inventory regressions and a 100-test focused set passed;
+the complete fast lane passed 1,840 tests. The portable evidence record is
+[partial-residue masks and reader probe](../research/partial-residue-mask-foundation-2026-10-30.json).
+
+- [x] Implement typed source-bound partial-residue mask inventory, exact ownership
+  audit, gapless planning and real 5J13/PDBFixer inventory regression.
+- [x] Verify missing-versus-observed atom37 masks through the pinned actual
+  cc94 reader without altering the engine or runtime.
+- [x] Define separate atom-completion v1 wire requests/capabilities, with strict
+  JSON decoding, source/target/mask binding and explicit resource ceilings.
+  Existing schema-4 `DiffusionRequest` and frozen semantics remain unchanged.
+- [x] Implement private generated-only materialization for partial residues and
+  mixed whole gaps, preserving original ATOM/HETATM/ANISOU bytes and valid links.
+- [ ] Integrate the separate protocol with runner execution; capabilities deny
+  all execution by default. No existing profile advertises completion support.
+- [ ] Teach context selection, engine views and PDB materialization to insert only
+  missing atoms while retaining known atoms. Private insertion is implemented;
+  engine/context integration remains open. The legacy materializer remains
+  whole-gap-only; the new adapter never supplies it fixed-coordinate updates.
+- [ ] Add generated-atom-only refinement, source-bound independent publication
+  validation and `.dat` ownership for these mixed observed/generated residues.
+- [ ] Run predeclared checkpoint-backed tests before advertising capability or
+  enabling CLI/model/Homology/batch/resume/GUI integration.
+
+- [x] Define backend-neutral **atom-level** completion requests: exact observed
   and missing atom identities, expected residue chemistry and separate masks
   for whole-residue gaps versus partial-residue completion. Preserve chain case,
   residue numbers and insertion codes. Do not mark an entire observed residue
   as generated merely because one side-chain atom is absent.
+
+### Separate contract and private materialization slice
+
+`atom_completion_contract.py` adds a schema-1 `AtomCompletionRequest` and
+`AtomCompletionCapabilities`, reusing strict JSON encoding without changing
+schema-4. Requests bind source SHA, canonical partial masks, exact placements,
+complete gap atom sets, unique bounded seeds, template ownership and an explicit
+profile. Capability defaults deny execution; feature checks and runner resource
+ceilings are separate from scientific admission. Contract import works with
+`python -S`: scientific package re-exports are now lazy while retaining the
+existing public names. Canonical atom tables and their ordering were independently
+compared against `931f977` and are unchanged.
+
+`atom_completion_materialize.py` accepts **generated atoms only**. It derives names
+and elements from the request, validates finite/fixed-column coordinates, allocates
+unused serials and inserts missing atoms after their observed residue/ANISOU block.
+Mixed gaps reuse a legitimate gap-only adapter, not fake gaps for observed residues.
+Original coordinate and ANISOU records must remain byte-identical and in order.
+Ambiguous MODEL records, split residue blocks, duplicate serials, orphan ANISOU and
+dangling CONECT are refused; stale MASTER counts are dropped and records after END
+are rejected. CRLF and valid source links are retained. The 31 new
+contract/materialization tests use synthetic coordinates to check data integrity,
+**not scientific geometry or successful diffusion reconstruction**.
+
+The continuation passed **147 focused tests** and **1,871 fast tests** (3 explicit
+Torch/Biotite skips, 33 slow deselected) in 162.72 s. All 91 existing package
+re-exports resolve; separate Python 3.11 stdlib-only contract roundtrip, Ruff,
+targeted mypy and documentation checks passed. No new scientific sampling claim
+is inferred from these implementation tests.
 - [ ] Audit each backend/checkpoint's ability to condition on partial residues
   and generate the requested heavy atoms, including side-chain-only defects,
   backbone defects and mixed defects adjacent to sequence gaps. Add maintained

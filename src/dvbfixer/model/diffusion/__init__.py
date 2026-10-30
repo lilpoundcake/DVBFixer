@@ -3,23 +3,6 @@
 from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
-from dvbfixer.model.diffusion.benchmark import (
-    REPEATABILITY_RMSD_MAX_ANGSTROM,
-    BenchmarkOutcome,
-    CandidateQuality,
-    DiffusionBenchmarkError,
-    EnsembleSummary,
-    ModellerComparison,
-    RepeatabilityAssessment,
-    StratumRun,
-    StratumSummary,
-    assess_same_seed_repeatability,
-    candidate_quality,
-    load_pdb_coordinates,
-    pairwise_gap_backbone_rmsds,
-    summarize_ensemble,
-    summarize_strata,
-)
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     ArtifactReference,
@@ -46,65 +29,82 @@ from dvbfixer.model.diffusion.contract import (
     TargetSequence,
     ValidationSummary,
 )
-from dvbfixer.model.diffusion.geometry import (
-    DiffusionGeometryError,
-    RigidTransform,
-    synchronize_and_reinject,
-    weighted_kabsch,
-)
-from dvbfixer.model.diffusion.masks import (
-    DiffusionMaskError,
-    DiffusionMasks,
-    ObservedResidue,
-    build_diffusion_masks,
-    build_sequence_placement,
-)
-from dvbfixer.model.diffusion.preflight import (
-    DIFFUSION_PREFLIGHT_SCHEMA_VERSION,
-    DIFFUSION_PROFILES,
-    AdapterAvailability,
-    AdapterPreflightCode,
-    AdapterPreflightIssue,
-    AdapterPreflightReport,
-    AdapterPreflightSpec,
-    DiffusionProfileMetadata,
-    LocalCheckpoint,
-    RunnerPreflightFacts,
-    RunnerPreflightReport,
-    assess_adapter_preflight,
-    invoke_runner_preflight,
-    runtime_preflight_facts,
-)
-from dvbfixer.model.diffusion.provenance import (
-    DIFFUSION_PROVENANCE_SCHEMA_VERSION,
-    DiagnosticSummary,
-    DiffusionProvenanceManifest,
-    PublicationArtifact,
-    build_provenance_manifest,
-)
-from dvbfixer.model.diffusion.runner import (
-    DIFFUSION_RUNNER_PROTOCOL_VERSION,
-    DiffusionRunnerError,
-    PreparedDiffusionRun,
-    RunnerLimits,
-    prepare_diffusion_workspace,
-    run_diffusion_runner,
-    run_prepared_diffusion_runner,
-)
-from dvbfixer.model.diffusion.sampler import (
-    SamplerCapabilities,
-    SamplerConformance,
-    SamplingAblationMode,
-    assess_sampler_conformance,
-)
 
 if TYPE_CHECKING:
+    from dvbfixer.model.diffusion.benchmark import (
+        REPEATABILITY_RMSD_MAX_ANGSTROM,
+        BenchmarkOutcome,
+        CandidateQuality,
+        DiffusionBenchmarkError,
+        EnsembleSummary,
+        ModellerComparison,
+        RepeatabilityAssessment,
+        StratumRun,
+        StratumSummary,
+        assess_same_seed_repeatability,
+        candidate_quality,
+        load_pdb_coordinates,
+        pairwise_gap_backbone_rmsds,
+        summarize_ensemble,
+        summarize_strata,
+    )
+    from dvbfixer.model.diffusion.geometry import (
+        DiffusionGeometryError,
+        RigidTransform,
+        synchronize_and_reinject,
+        weighted_kabsch,
+    )
+    from dvbfixer.model.diffusion.masks import (
+        DiffusionMaskError,
+        DiffusionMasks,
+        ObservedResidue,
+        build_diffusion_masks,
+        build_sequence_placement,
+    )
     from dvbfixer.model.diffusion.pipeline import (
         BUNDLE_INDEX_SCHEMA_VERSION,
         DiffusionPipelineError,
         DiffusionPipelineOutcome,
         publish_diffusion_bundle,
         run_diffusion_pipeline,
+    )
+    from dvbfixer.model.diffusion.preflight import (
+        DIFFUSION_PREFLIGHT_SCHEMA_VERSION,
+        DIFFUSION_PROFILES,
+        AdapterAvailability,
+        AdapterPreflightCode,
+        AdapterPreflightIssue,
+        AdapterPreflightReport,
+        AdapterPreflightSpec,
+        DiffusionProfileMetadata,
+        LocalCheckpoint,
+        RunnerPreflightFacts,
+        RunnerPreflightReport,
+        assess_adapter_preflight,
+        invoke_runner_preflight,
+        runtime_preflight_facts,
+    )
+    from dvbfixer.model.diffusion.provenance import (
+        DIFFUSION_PROVENANCE_SCHEMA_VERSION,
+        DiagnosticSummary,
+        DiffusionProvenanceManifest,
+        PublicationArtifact,
+        build_provenance_manifest,
+    )
+    from dvbfixer.model.diffusion.runner import (
+        DIFFUSION_RUNNER_PROTOCOL_VERSION,
+        DiffusionRunnerError,
+        PreparedDiffusionRun,
+        RunnerLimits,
+        prepare_diffusion_workspace,
+        run_diffusion_runner,
+        run_prepared_diffusion_runner,
+    )
+    from dvbfixer.model.diffusion.sampler import (
+        SamplerCapabilities,
+        SamplerConformance,
+        SamplingAblationMode,
+        assess_sampler_conformance,
     )
     from dvbfixer.model.diffusion.scope import (
         DiffusionScopeError,
@@ -120,8 +120,32 @@ if TYPE_CHECKING:
     )
 
 # Importing contracts or Doctor must not require an installed scientific stack.
-# Preserve the public re-exports, but load OpenMM-backed execution on demand.
+# Preserve public re-exports, loading all scientific dependencies on demand.
 _LAZY_EXPORTS = {
+    "preflight": (
+        "DIFFUSION_PREFLIGHT_SCHEMA_VERSION", "DIFFUSION_PROFILES", "AdapterAvailability",
+        "AdapterPreflightCode", "AdapterPreflightIssue", "AdapterPreflightReport", "AdapterPreflightSpec",
+        "DiffusionProfileMetadata", "LocalCheckpoint", "RunnerPreflightFacts", "RunnerPreflightReport",
+        "assess_adapter_preflight", "invoke_runner_preflight", "runtime_preflight_facts",
+    ),
+    "provenance": (
+        "DIFFUSION_PROVENANCE_SCHEMA_VERSION", "DiagnosticSummary", "DiffusionProvenanceManifest",
+        "PublicationArtifact", "build_provenance_manifest",
+    ),
+    "runner": (
+        "DIFFUSION_RUNNER_PROTOCOL_VERSION", "DiffusionRunnerError", "PreparedDiffusionRun", "RunnerLimits",
+        "prepare_diffusion_workspace", "run_diffusion_runner", "run_prepared_diffusion_runner",
+    ),
+    "sampler": ("SamplerCapabilities", "SamplerConformance", "SamplingAblationMode", "assess_sampler_conformance"),
+    "benchmark": (
+        "REPEATABILITY_RMSD_MAX_ANGSTROM", "BenchmarkOutcome", "CandidateQuality",
+        "DiffusionBenchmarkError", "EnsembleSummary", "ModellerComparison",
+        "RepeatabilityAssessment", "StratumRun", "StratumSummary",
+        "assess_same_seed_repeatability", "candidate_quality", "load_pdb_coordinates",
+        "pairwise_gap_backbone_rmsds", "summarize_ensemble", "summarize_strata",
+    ),
+    "geometry": ("DiffusionGeometryError", "RigidTransform", "synchronize_and_reinject", "weighted_kabsch"),
+    "masks": ("DiffusionMaskError", "DiffusionMasks", "ObservedResidue", "build_diffusion_masks", "build_sequence_placement"),
     "pipeline": (
         "BUNDLE_INDEX_SCHEMA_VERSION", "DiffusionPipelineError",
         "DiffusionPipelineOutcome", "publish_diffusion_bundle", "run_diffusion_pipeline",

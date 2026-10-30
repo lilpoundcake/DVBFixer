@@ -798,6 +798,24 @@ command parser merely to inspect generated labels.
   declared cc94 MPS seeds. It is case-specific evidence, not general qualification;
   109 residual warnings remain visible. See `docs/installation-profile-acceptance.md`.
 
+- **Partial-residue atom-completion masks are planning only.**
+  `model/diffusion/atom_completion.py` inventories source-bound canonical missing
+  atoms while keeping fixed observations and whole-gap generated ownership
+  separate. It does not rewrite `DiffusionRequest`, expose a CLI capability or
+  generate coordinates. Original 5J13 has 62 missing canonical atoms in 20
+  sidechains; 63 newly present atoms in the prepared projection include one OXT.
+  Pinned cc94 reader transport of partial atom37 masks passed, not checkpoint
+  sampling. Keep runner-contract, materialization/refinement/publication and
+  qualification gates distinct: separate schema-1 requests/capabilities and a
+  private generated-only materializer now exist in `atom_completion_contract.py`
+  and `atom_completion_materialize.py`, but runner/context integration, refinement,
+  publication and scientific qualification remain open. Capabilities deny by
+  default; schema-4 and frozen requests remain unchanged. Probe privately normalizes known four-character
+  CHARMM GLUP/ASPP via the shared variant map to avoid two-character emitted
+  chain IDs, preserving original report names and all observations. A native
+  phenix-project Probe 2.26 candidate passed limited parser comparisons but is
+  still rejected by production's pinned 2.18 preflight; no silent substitution.
+
 - **Release metadata is synchronized, not single-file.** `pyproject.toml` is
   authoritative, but a version bump must also update
   `src/dvbfixer/__init__.py`, `gui/package.json`, both root-package version
