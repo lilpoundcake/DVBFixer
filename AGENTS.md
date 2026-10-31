@@ -825,8 +825,16 @@ command parser merely to inspect generated labels.
   generated-only CPU refinement passed with 3.92/1.58 Å generated-atom RMS movement
   and byte-identical observations. Raw/native/refined artifacts and independent
   native-materialization audits are retained. This is not good native sampling
-  or broader qualification. Production trace/.dat/bundle integration and public
-  capabilities remain open/disabled. Capabilities deny by
+  or broader qualification. Separate strict completion traces, bounded native/raw
+  audits, canonical generated-only `.dat` and manifest-last experimental bundles
+  now exist in `atom_completion_trace.py`, `atom_completion_evidence.py` and
+  `atom_completion_publication.py`. Existing public gap-bundle readers reject this
+  experimental kind. Two retained pilots were published without resampling; a
+  prospective five-seed/two-case MPS cohort executed all ten 500-update samples,
+  with 0/10 raw and 10/10 refined geometry passes and independent bundle readback.
+  Known atoms remain byte-identical and excluded from `.dat`. This remains one
+  cropped protein, not broad qualification or template superiority. Public
+  schema/API/CLI/Homology/GUI capability stays disabled. Capabilities deny by
   default; schema-4 and frozen requests remain unchanged. Probe privately normalizes known four-character
   CHARMM GLUP/ASPP via the shared variant map to avoid two-character emitted
   chain IDs, preserving original report names and all observations. A native

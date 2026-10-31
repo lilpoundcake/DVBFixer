@@ -7,6 +7,12 @@ from __future__ import annotations
 
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
+ATOM37_ORDER = (
+    "N", "CA", "C", "CB", "O", "CG", "CG1", "CG2", "OG", "OG1", "SG", "CD", "CD1", "CD2",
+    "ND1", "ND2", "OD1", "OD2", "SD", "CE", "CE1", "CE2", "CE3", "NE", "NE1", "NE2",
+    "OE1", "OE2", "CH2", "NH1", "NH2", "OH", "CZ", "CZ2", "CZ3", "NZ", "OXT",
+)
+
 _CANONICAL_ONE_TO_THREE = {
     "A": "ALA", "C": "CYS", "D": "ASP", "E": "GLU", "F": "PHE",
     "G": "GLY", "H": "HIS", "I": "ILE", "K": "LYS", "L": "LEU",

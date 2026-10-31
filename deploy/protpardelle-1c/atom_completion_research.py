@@ -19,6 +19,7 @@ from pathlib import Path
 
 from dvbfixer.model.diffusion import cc94
 from dvbfixer.model.diffusion.atom_completion_contract import AtomCompletionRequest
+from dvbfixer.model.diffusion.atom_completion_trace import completion_conditioning
 from dvbfixer.model.diffusion.private_artifact import read_private_artifact
 
 
@@ -43,16 +44,7 @@ def _digest(path):
 
 def conditioning_config(fixed_positions):
     """Frozen cc94 native conditioning, no cc89 phase or reinjection changes."""
-    return {
-        "enabled": True,
-        "discontiguous_motif_assignment": {"enabled": True, "strategy": "fixed", "fixed_motif_pos": list(fixed_positions)},
-        "num_recurrence_steps": 1,
-        "crop_conditional_guidance": {"enabled": True, "start": 0.0, "end": 2.0, "freq": 1,
-                                      "freq_start": 0.0, "freq_end": 0.0, "strategy": "backbone-sidechain"},
-        "reconstruction_guidance": {"enabled": False, "start": 0.0, "end": 2.0, "schedule": "custom",
-                                    "max_scale": 10.0, "loss_weights": {"motif": 1.0}},
-        "replacement_guidance": {"enabled": False, "start": 0.0, "end": 0.92},
-    }
+    return completion_conditioning(tuple(fixed_positions))
 
 
 def refine_worker(directory, profile):
@@ -235,6 +227,10 @@ def run(args):
             trace.update(ode_updates=probe.calls, checkpoint_sampling_executed=probe.calls > 0)
         trace["wall_seconds"] = time.monotonic() - started
         _json(directory / "trace.json", trace)
+    if trace["status"] == "accepted-private":
+        from dvbfixer.model.diffusion.atom_completion_evidence import attest_completion_run
+
+        attest_completion_run(directory, Path(__file__).read_bytes())
 
 
 def main():

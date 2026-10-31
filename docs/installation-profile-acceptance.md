@@ -2057,3 +2057,62 @@ format drift; the repository's Python 3.11 generator baseline is in sync, and no
 generated reference pages were overwritten. Logs remain under
 `tmp/atom-completion-eacd0d5/`. Comparative benefit over ordinary template-based
 rebuilding was **not** established by this pilot and remains a qualification task.
+
+### Experimental completion trace and publication continuation
+
+After `661a8b2`, separate completion trace v1 and experimental publication are
+implemented in `atom_completion_trace.py`, `atom_completion_evidence.py` and
+`atom_completion_publication.py`. Existing public schema-4 requests/traces and
+schema-2 gap bundles remain unchanged. The trace imports without scientific
+packages; it binds the request, source, native/reader arrays, motif, mapping,
+raw/refined candidates, preflight/refinement/progress and actual adapter snapshot.
+
+The offline audit recomputes source admission and transport, reader masks/known
+coordinates, native-to-raw fit/rounding and final geometry. It checks bounded
+single-linked regular files, rejects symlinks/digest substitutions, and validates
+NPZ members and NPY shape/dtype/byte headers **before allocation**. It does not
+pretend that self-reported runtime facts provide cryptographic proof of execution.
+Raw findings remain retained; a final private pass does not waive source defects
+or certify comparative scientific value.
+
+The canonical `DatRecord` contains exactly the request's newly generated heavy
+atoms, preserving chain case and insertion codes. It excludes every known atom,
+temporary terminal OXT and force-field hydrogen. A flat private staging snapshot
+is independently read back before the existing manifest-last no-replace commit.
+The manifest is the readiness marker, never the directory's existence. Existing
+and crash-left destinations are not adopted; failed staging and original runs
+remain retained. Ordinary public gap-bundle readers reject the different
+`experimental-atom-completion-bundle` kind.
+
+Both original seed-7 pilots were supplemented with the exact adapter source from
+commit `661a8b2`, re-audited and published **without resampling**. Their `.dat`
+files contain **4/32 missing atoms and zero known observations**; both retain
+failed raw geometry and passing refined geometry. Publication evidence is under
+`tmp/atom-completion-661a8b2/`; see the
+[portable publication record](research/partial-residue-publication-2026-10-31.json).
+The new 22 tests include corruption/policy forgery, NPZ bombs/object rejection,
+case/insertion ownership, crash-left refusal and public-bundle incompatibility.
+Public capability and broader scientific qualification remain disabled/open.
+
+A subsequent prospective cohort fixed **five seeds (7/19/42/101/202) for both
+cases before execution**. All ten actually sampled **500 MPS updates each** and
+automatically produced independently readable experimental bundles. A separate
+final Standard-process readback recomputed every source/native/raw/refined link,
+geometry report and `.dat` ownership. **0/10 raw proposals passed geometry; 10/10
+refined candidates passed.** Generated-atom refinement RMSD ranged **1.21–3.92 Å**;
+known observations stayed byte-identical and none entered `.dat` as generated.
+All arrays, attempts, diagnostics, traces, bundle hashes and readback results are
+retained in `tmp/atom-completion-661a8b2/prospective/`. This is one cropped-protein
+operational cohort, not broader scientific or template-comparison qualification.
+
+During this cohort only attestation-file durability was tightened with explicit
+flush/fsync; no sampling, conditioning, source, seed, refinement or acceptance
+policy changed. The declared module-hash snapshot remains retained and all ten
+bundles passed the final reader afterward. This is not presented as a frozen-source
+hardware repeat, and it does not resolve the historical CUDA hash gate.
+
+Verification: **82 focused tests passed**; **1,922 fast tests passed, 3 explicit
+Torch/Biotite skips, 33 slow deselected** in **192.47 s**. Ruff, targeted mypy,
+user/agent docs, Python 3.11 CLI reference and whitespace checks passed. The new
+cohort executed in the separate pinned Torch/MPS and CPU refinement runtimes;
+the lightweight suite's optional-runtime skips are not hidden by those results.

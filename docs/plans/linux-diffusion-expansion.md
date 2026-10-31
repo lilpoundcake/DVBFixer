@@ -243,6 +243,66 @@ identity mapping, occupancy refusal and preservation of known peptide evidence.
 Final implementation verification: **1,900 fast tests passed**, 3 explicit
 Torch/Biotite skips, 33 slow deselected, 171.33 s; Ruff, targeted mypy,
 documentation and Python 3.11 CLI-reference checks passed.
+
+### Separate trace, `.dat` and experimental publication
+
+`atom_completion_trace.py` defines a strict stdlib-only completion trace v1;
+existing schema-4 `SamplerTrace` and public gap requests are untouched. Native
+cc94 conditioning is shared by execution and auditing. The research adapter
+automatically supplements successful attempts with a bound trace and the exact
+adapter source snapshot after its progress file is finalized. Historical/private
+attempts can be supplemented only with source bytes matching their recorded
+executed digest, without rewriting the original requests, native arrays or
+progress. Existing attestations are never adopted/overwritten.
+
+`atom_completion_evidence.py` independently audits all digest-bound artifacts,
+preflight/policy, source admission, engine mapping, motif and reader masks. It
+reconstructs raw generated coordinates from native atom37 plus the declared fit
+and PDB rounding, then independently rechecks raw/refined observations and final
+geometry. NPZ member sets, expanded byte counts and NPY shape/dtype headers are
+bounded before allocation; objects/pickle and nonfinite tensors are rejected.
+This is chain-of-custody/integrity evidence, not a cryptographic proof of
+execution on an adversarial host.
+
+`atom_completion_publication.py` builds a canonical `DatRecord` containing exactly
+the requested missing atoms, never existing observations or temporary OXT/H.
+Chain case and insertion codes are preserved in ownership. It publishes only
+independently passing candidates to a distinct
+`experimental-atom-completion-bundle`, with original source/native/raw evidence
+and both independent reports. Payloads are durable before an exclusive manifest-last
+commit via the existing CephFS-compatible helper. Missing index, corrupted files,
+undeclared entries and stale/crash-left destinations fail closed. Failed staging
+is retained; original run artifacts are not modified or deleted. The ordinary
+public gap-bundle reader explicitly rejects this different experimental kind.
+
+Both retained pilot candidates were independently re-audited and published in
+`tmp/atom-completion-661a8b2/published/`, without resampling: **4 and 32 `.dat`
+atoms**, zero known observations marked as new. Their original raw failures and
+large refinement movement remain visible; publication is not scientific
+qualification. See the [portable publication record](../research/partial-residue-publication-2026-10-31.json).
+
+- [x] Separate typed completion trace, native/raw linkage audit, exact canonical
+  `.dat` ownership and manifest-last experimental publication/readback.
+- [ ] Production schema/API/CLI/model/Homology/GUI integration after qualification;
+  no public profile is enabled by experimental bundle readiness.
+
+A fresh **prospectively declared** 2-case × 5-seed cohort (7/19/42/101/202)
+executed all **10 × 500 MPS updates**, with unchanged source/conditioning/refinement
+policy and no fallback. Automatic trace → audit → `.dat` → manifest-last publication
+and a separate final readback passed for all ten bundles. **Raw geometry passed
+0/10; refined geometry passed 10/10.** Generated-atom refinement RMSD ranged
+1.21–3.92 Å. These are operational/case-specific results on the same cropped
+protein, not broad qualification or superiority over template-only reconstruction.
+The cohort and all raw/native/refined diagnostics are retained under
+`tmp/atom-completion-661a8b2/prospective/`. A durability-only flush/fsync addition
+to attestation writing occurred during the cohort; the original declared module
+hash snapshot remains retained, scientific policies were unchanged, and every
+bundle was independently re-audited with the final reader. Do not treat this as
+a frozen-source hardware-repeat acceptance.
+
+Verification: 22 new publication tests; **82 focused / 1,922 fast tests passed**,
+3 explicit Torch/Biotite skips and 33 slow deselected, 192.47 s. Ruff, targeted
+mypy, user/agent docs and Python 3.11 CLI-reference checks passed.
 - [ ] Audit each backend/checkpoint's ability to condition on partial residues
   and generate the requested heavy atoms, including side-chain-only defects,
   backbone defects and mixed defects adjacent to sequence gaps. Add maintained

@@ -35,3 +35,35 @@ def read_private_artifact(workspace: Path, artifact: ArtifactReference, *, label
         return data.decode(encoding)
     except UnicodeDecodeError as exc:
         raise ValueError(f"raw {label} is not valid {encoding}") from exc
+
+
+def read_private_artifact_bytes(workspace: Path, artifact: ArtifactReference, *, max_bytes: int) -> bytes:
+    """Bounded digest-checked binary evidence; never follow artifact symlinks."""
+    data = read_private_file_bytes(workspace, artifact.path, max_bytes=max_bytes)
+    if hashlib.sha256(data).hexdigest() != artifact.sha256.lower():
+        raise ValueError("private evidence digest mismatch")
+    return data
+
+
+def read_private_file_bytes(workspace: Path, relative_path: str, *, max_bytes: int) -> bytes:
+    """Bounded private-file reading for an index whose digest is not yet known."""
+    ArtifactReference(relative_path, "0" * 64)
+    current = workspace
+    for part in Path(relative_path).parts:
+        current /= part
+        if current.is_symlink():
+            raise ValueError("private evidence path contains a symlink")
+    if not current.resolve(strict=True).is_relative_to(workspace.resolve(strict=True)):
+        raise ValueError("private evidence escapes workspace")
+    descriptor = os.open(current, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1 or metadata.st_size > max_bytes:
+            raise ValueError("private evidence must be a bounded single-linked regular file")
+        with os.fdopen(descriptor, "rb", closefd=False) as stream:
+            data = stream.read(max_bytes + 1)
+        if len(data) > max_bytes:
+            raise ValueError("private evidence exceeds byte bound")
+        return data
+    finally:
+        os.close(descriptor)

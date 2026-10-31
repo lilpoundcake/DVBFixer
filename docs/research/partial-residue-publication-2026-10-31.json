@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-31",
+  "base_commit": "661a8b2",
+  "scope": "Separate experimental completion trace, generated-only DatRecord and manifest-last publication",
+  "trace_schema_version": 1,
+  "bundle_kind": "experimental-atom-completion-bundle",
+  "existing_schema4_runner_and_schema2_public_bundle_unchanged": true,
+  "public_profile_enabled": false,
+  "scientific_qualification": false,
+  "local_evidence": "tmp/atom-completion-661a8b2/",
+  "previous_pilot_publications": [
+    {
+      "case": "partial-lys27-seed7",
+      "bundle": "tmp/atom-completion-661a8b2/published/partial-lys27-seed7",
+      "added_atoms_in_dat": 4,
+      "known_observations_in_dat": 0,
+      "bundle_sha256": "f19f5f02010812c30cca5fc330da28d0feda2fc47dd1f7a1f3dc253b985a0b4a",
+      "raw_geometry_passed": false,
+      "refined_geometry_passed": true,
+      "new_sampling_required_for_this_publication": false
+    },
+    {
+      "case": "mixed-gap10-13-lys27-seed7",
+      "bundle": "tmp/atom-completion-661a8b2/published/mixed-gap10-13-lys27-seed7",
+      "added_atoms_in_dat": 32,
+      "known_observations_in_dat": 0,
+      "bundle_sha256": "233b83fa44b562bfece23ce00ee87b4c293b70572349ec4cd6789a7e1d067d30",
+      "raw_geometry_passed": false,
+      "refined_geometry_passed": true,
+      "new_sampling_required_for_this_publication": false
+    }
+  ],
+  "audit_invariants": [
+    "Strict stdlib-only trace codec, pinned cc94 seed/device/checkpoint/config/schedule/refinement declarations",
+    "Bounded single-linked regular evidence files; artifact symlinks and digest substitutions rejected",
+    "Bounded NPZ members and NPY headers before allocation; no pickle/object arrays or nonfinite tensors",
+    "Recomputed source admission, engine view, motif, actual reader masks and observed coordinates",
+    "Raw generated coordinates independently reconstructed from native atom37, rigid fit and PDB rounding",
+    "Raw failure findings retained and refined geometry independently recomputed",
+    "Canonical DatRecord contains exactly missing atoms, with case/insertion identity intact",
+    "Manifest-last no-replace commit; failed/crash-left destinations never adopted",
+    "Experimental bundles rejected by the existing public gap-bundle reader"
+  ],
+  "limitations": [
+    "A digest-bound trace is not cryptographic proof of computation on a hostile host",
+    "Publication readiness is artifact integrity and final geometry, not broader scientific qualification",
+    "Original raw failures and large generated-atom refinement remain visible",
+    "No new public CLI/model/Homology/GUI profile is enabled"
+  ],
+  "publication_tests": 22,
+  "focused_tests_passed": 82,
+  "fast_tests_passed": 1922,
+  "fast_skipped": 3,
+  "slow_deselected": 33,
+  "fast_seconds": 192.47,
+  "checks": ["Ruff", "targeted mypy --follow-imports=silent", "user/agent docs", "Python 3.11 CLI reference", "git diff --check"],
+  "prospective_cohort": {
+    "evidence": "tmp/atom-completion-661a8b2/prospective/",
+    "cases": ["partial-lys27", "mixed-gap10-13-lys27"],
+    "seeds_declared_before_execution": [7, 19, 42, 101, 202],
+    "executed": 10,
+    "updates_each": 500,
+    "sampling_device": "MPS",
+    "fallback": false,
+    "raw_geometry_passes": 0,
+    "refined_geometry_passes": 10,
+    "independently_read_back_experimental_bundles": 10,
+    "dat_added_atoms_per_case": [4, 32],
+    "known_observations_in_dat": 0,
+    "source_records_byte_identical": true,
+    "generated_refinement_rmsd_range_angstrom": [1.213077851994669, 3.9165752577985793],
+    "scientific_sampling_policy_changed_during_cohort": false,
+    "durability_only_update_during_cohort": "The attestation writer gained explicit file flush/fsync calls; sampling, conditioning, source, seed, refinement and acceptance policies were unchanged. The declared module hash snapshot is retained, and all 10 bundles were re-audited with the final reader.",
+    "broader_scientific_qualification": false,
+    "template_only_baseline_superiority": false
+  }
+}
