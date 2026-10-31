@@ -303,6 +303,61 @@ a frozen-source hardware-repeat acceptance.
 Verification: 22 new publication tests; **82 focused / 1,922 fast tests passed**,
 3 explicit Torch/Biotite skips and 33 slow deselected, 192.47 s. Ruff, targeted
 mypy, user/agent docs and Python 3.11 CLI-reference checks passed.
+
+### Template comparison and additional structures (after `460cce9`)
+
+`atom_completion_benchmark.py` adds a **separate template baseline**, not a fake
+checkpoint trace. It calls the existing seeded PDBFixer rebuild helper, maps any
+whole-gap insertion from the already-bound target placement and preserves known
+coordinates. It never receives held-out coordinates. The same generated-only
+CPU refinement, seeds and geometry gates are used in both arms. One deterministic
+template heavy-atom proposal is reused across five refinement seeds; those are
+not five independent template proposals. Exact-name held-out RMSD is measured
+without fitting in the unchanged source frame, with all failures retained.
+
+The old 1UBQ diffusion cohort was evaluated **retrospectively**. Before new
+sampling, two additional cases and seeds 7/19/42/101/202 were fixed: 1FR2's 83
+observed chain-A residues, deleting ASN24 CG/OD1/ND2; and an explicit protein-only
+1A3N A1–59 subset, deleting GLN54 CG/CD/OE1/NE2. Partners/heme are excluded in these
+labelled projections; original structures and occupancies are not rewritten.
+All ten new cases actually sampled 500 MPS updates. Reference coordinates went
+only to the independent scoring process, not either proposal/refinement arm.
+
+| Partial sidechain | cc94 final geometry | Template final geometry | cc94 median held-out RMSD | Template median |
+|---|---:|---:|---:|---:|
+| 1UBQ subset / LYS27 | 5/5 | 5/5 | 1.458 Å | 1.235 Å |
+| 1FR2 chain A / ASN24 | 5/5 | 5/5 | 1.766 Å | 0.992 Å |
+| 1A3N A1–59 / GLN54 | 4/5 | 5/5 | 2.988 Å | 2.243 Å |
+
+Medians include all five exported refined candidates, not a best-seed subset.
+The rejected GLN54 seed 19 has chi12/clash failures and 5.944 Å RMSD; the accepted
+four's median is still 2.984 Å. **No comparative advantage is demonstrated**:
+the template baseline is closer to the withheld deposited coordinates at each
+tested site. This supports retaining the partial-completion route as private
+research, not enabling a public default. It is not a general checkpoint-family,
+training-domain or physical-ground-truth conclusion.
+
+The mixed 1UBQ restricted PDBFixer baseline failed one shared proposal after five
+internal seeds with D-Cα at residues 11–13, so none of its five planned outer
+refinements executed. That is **not a comparison against full legacy Modeller
+loop reconstruction or its downstream chirality safeguards**. Keep the refusal
+and the missing stronger comparator explicit rather than calling all template
+methods inferior for gaps.
+
+Evidence: `tmp/atom-completion-460cce9/comparison/` and the
+[portable comparison record](../research/partial-residue-template-comparison-2026-10-31.json).
+The first baseline controls also uncovered missing conda-owned PDBFixer assets
+in three inspected general prefixes (15 files each, including `soft.xml`), while
+the isolated CPU runtime has its complete PDBFixer package. No prefix was patched
+or deleted. Doctor now reports this resource failure and selected-profile readiness
+fails closed instead of equating package importability with working rebuilding.
+
+- [x] Limited sidechain template comparison and two additional projected-structure
+  cohorts, with negative results and all rejections retained.
+- [ ] Demonstrate benefit on a prospectively defined broader cohort and compare
+  whole gaps against a representative full legacy/Modeller baseline before public
+  partial-completion qualification. Current sidechain evidence does not justify
+  public enablement.
 - [ ] Audit each backend/checkpoint's ability to condition on partial residues
   and generate the requested heavy atoms, including side-chain-only defects,
   backbone defects and mixed defects adjacent to sequence gaps. Add maintained

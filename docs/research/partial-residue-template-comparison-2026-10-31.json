@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-31",
+  "base_commit": "460cce9",
+  "evidence": "tmp/atom-completion-460cce9/comparison/",
+  "conclusion": "No comparative advantage demonstrated: the restricted template baseline has lower median held-out RMSD at all three tested partial-sidechain sites.",
+  "public_profile_enabled": false,
+  "broader_scientific_qualification": false,
+  "seeds": [7, 19, 42, 101, 202],
+  "metric": "Exact atom-name missing-atom RMSD in the unchanged source frame; no fitting or symmetry claim",
+  "refinement_both_arms": {"platform": "CPU", "openmm": "8.5.2", "max_iterations": 250, "restart_count": 8, "observed_mobility": false},
+  "baseline": {
+    "proposal": "PDBFixer through existing seeded rebuild helper, seed attempts 1..5",
+    "proposal_count_per_case": 1,
+    "outer_seed_role": "refinement only; five outer seeds are not five independent template proposals",
+    "reference_coordinates_supplied_to_proposal_or_refinement": false
+  },
+  "cases": [
+    {
+      "case": "1ubq-1-72-partial-lys27",
+      "provenance": "Explicit protein residues 1-72 subset, missing CG/CD/CE/NZ; prior diffusion cohort evaluated retrospectively",
+      "diffusion_geometry_passes": 5,
+      "template_geometry_passes": 5,
+      "refinement_calls_per_arm": 5,
+      "diffusion_refined_rmsd_median_angstrom": 1.457956275064517,
+      "template_refined_rmsd_median_angstrom": 1.235234188322199,
+      "diffusion_raw_rmsd_median_angstrom": 3.0884739354574458,
+      "template_raw_rmsd_angstrom": 1.0280170232053556
+    },
+    {
+      "case": "1fr2-chainA-asn24",
+      "provenance": "All 83 observed chain-A residues only; partner chain excluded, no coordinate/occupancy rewrite; missing CG/OD1/ND2",
+      "prospectively_declared_before_sampling": true,
+      "new_diffusion_executions": 5,
+      "diffusion_geometry_passes": 5,
+      "template_geometry_passes": 5,
+      "diffusion_refined_rmsd_median_angstrom": 1.7659954699828646,
+      "template_refined_rmsd_median_angstrom": 0.9919245603035208,
+      "diffusion_raw_rmsd_median_angstrom": 4.289941374890804,
+      "template_raw_rmsd_angstrom": 0.7989831037011976
+    },
+    {
+      "case": "1a3n-chainA1-59-gln54",
+      "provenance": "Explicit protein chain-A residues 1-59 subset; heme/partners excluded, no occupancy rewrite; missing CG/CD/OE1/NE2",
+      "prospectively_declared_before_sampling": true,
+      "new_diffusion_executions": 5,
+      "diffusion_geometry_passes": 4,
+      "template_geometry_passes": 5,
+      "diffusion_refined_rmsd_median_all_five_angstrom": 2.987537447464047,
+      "diffusion_refined_rmsd_median_accepted_four_angstrom": 2.9836500528988803,
+      "template_refined_rmsd_median_angstrom": 2.243459605163418,
+      "diffusion_raw_rmsd_median_angstrom": 6.456012836883148,
+      "template_raw_rmsd_angstrom": 2.5429226295740888,
+      "retained_rejection": {"seed": 19, "gates": ["completion-sidechain_chi12_outlier", "completion-clash"], "refined_rmsd_angstrom": 5.944258364169578}
+    }
+  ],
+  "mixed_gap_control": {
+    "case": "1ubq-1-72-mixed-gap10-13-lys27",
+    "diffusion_retrospective_geometry_passes": 5,
+    "diffusion_refined_rmsd_median_angstrom": 1.2643290340136937,
+    "restricted_template_proposals": 1,
+    "internal_seed_attempts": 5,
+    "template_outer_refinement_calls": 0,
+    "template_refusal": "D-C-alpha on LYS11/THR12/ILE13 after all five seeded attempts",
+    "not_a_full_legacy_modeller_comparator": true,
+    "interpretation": "Do not generalize this restricted raw-PDBFixer refusal to the production legacy pipeline, which has Modeller and downstream chirality safeguards."
+  },
+  "limitations": [
+    "Three artificial masks in projected protein contexts, not full-complex or general qualification",
+    "Deposited atom labels/coordinates are a held-out structural reference, not proof of a unique physical microspecies",
+    "Training membership unknown; no p-value or weights-only causal claim",
+    "No best-seed selection; raw failures and the rejected refined candidate remain retained",
+    "The 1UBQ diffusion arm was retrospective; only 1FR2/1A3N new cases were declared before sampling"
+  ],
+  "fresh_standard_regression": {
+    "prefix": "dvbfixer-apple-standard-460cce9",
+    "manager": "micromamba 2.9.0",
+    "licensed_functional_smokes_passed": 14,
+    "doctor_profile_state": "ready",
+    "pdbfixer_owned_files_present": 72,
+    "installed_fast_suite": {"passed": 1931, "skipped": 3, "slow_deselected": 33},
+    "skips": "Optional Torch/Biotite controls only; all new benchmark/resource tests executed",
+    "evidence": "tmp/atom-completion-460cce9/fresh-standard-installed-fast-v2.log",
+    "old_prefix_fast_suite": {"failed_missing_soft_xml": 9, "passed": 1920, "skipped": 5, "slow_deselected": 33},
+    "damaged_prefixes_modified": false,
+    "scientific_comparison_runtime_changed": false
+  },
+  "environment_resource_discovery": {
+    "evidence": "tmp/atom-completion-460cce9/pdbfixer-resource-audit.json",
+    "inspected_general_prefixes_missing_conda_owned_pdbfixer_files": 3,
+    "missing_files_each": 15,
+    "critical_missing_resource": "pdbfixer/soft.xml",
+    "cpu_refinement_runtime_missing_pdbfixer_files": 0,
+    "comparison_runtime": "existing intact separate CPU runtime, not patched general prefixes",
+    "root_cause": "not established",
+    "repair_performed": false,
+    "doctor_now_checks_resources_not_just_import": true
+  }
+}

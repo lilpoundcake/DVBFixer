@@ -2116,3 +2116,85 @@ Torch/Biotite skips, 33 slow deselected** in **192.47 s**. Ruff, targeted mypy,
 user/agent docs, Python 3.11 CLI reference and whitespace checks passed. The new
 cohort executed in the separate pinned Torch/MPS and CPU refinement runtimes;
 the lightweight suite's optional-runtime skips are not hidden by those results.
+
+### Template comparison and PDBFixer resource health (after `460cce9`)
+
+The separate benchmark service uses the seeded PDBFixer helper and exact target
+placement, then the same **OpenMM 8.5.2 CPU, 250-iteration / 8-restart generated-only
+refinement** as the diffusion arm. Reference coordinates are used only for held-out
+scoring, never supplied to either generator/refiner. One template proposal per case
+is reused across five outer refinement seeds, not mislabelled as five independent
+template proposals. The 1UBQ diffusion comparison is retrospective; the two new
+case/seed sets were declared before sampling.
+
+New explicit projections were 1FR2's observed chain A (83 residues, missing ASN24
+CG/OD1/ND2) and 1A3N protein A1–59 (missing GLN54 CG/CD/OE1/NE2; partners/heme
+excluded). Original bytes/occupancies are retained and no source repair was made.
+All ten new cc94 attempts executed 500 MPS updates. Final geometry passed 5/5 for
+ASN24 and 4/5 for GLN54 versus 5/5 for both template baselines. GLN54 seed 19's
+chi12/clash rejection remains retained, not auto-published or counted as a pass.
+
+Exact-name held-out median RMSD after refinement favours the template baseline
+at all three partial sites: **1UBQ 1.235 vs cc94 1.458 Å; 1FR2 0.992 vs 1.766 Å;
+1A3N 2.243 vs 2.988 Å**. The last cc94 median includes all five outputs; its accepted
+four's median is 2.984 Å. These small projected-context cases demonstrate **no
+comparative benefit** and do not justify public partial-completion enablement.
+They are not statistical significance, full-complex accuracy, unique physical
+ground truth or a general model-family conclusion. Training membership remains
+unknown. The [portable comparison record](research/partial-residue-template-comparison-2026-10-31.json)
+and all per-seed inputs, metrics, raw/refined failures are retained under
+`tmp/atom-completion-460cce9/comparison/`.
+
+The restricted mixed-gap PDBFixer proposal exhausted five internal seeds with
+D-Cα at LYS11/THR12/ILE13 and was refused before export: zero outer refinements
+executed. It is not the full legacy Modeller pipeline and does not disprove that
+pipeline's established chirality safeguards. A stronger whole-gap comparator
+remains open.
+
+The first new baseline controls exposed **15 missing conda-owned PDBFixer files**
+in each of three inspected general prefixes: return Standard/Desktop `8f0cd33`
+and compatibility helper `daaf850`. They include critical `soft.xml`; import/version
+alone still succeeds. The existing isolated CPU runtime has all 72 inspected
+PDBFixer package files and was used for the comparison. No damaged prefix was
+repaired piecemeal or removed; cause of the missing files is not established.
+This is a new current-prefix health failure, not a rewrite of historical acceptance
+evidence or a whole-prefix inventory claim.
+
+Doctor now separately probes `soft.xml` parsing and canonical template files in
+an isolated subprocess. Plain reports distinguish availability from usability;
+selected-profile readiness includes a failing `pdbfixer-resources` check. Child
+diagnostics remain sanitized. The general dev prefix explicitly skips the two
+new real-rebuild tests for missing resources, while **all five benchmark tests
+execute in the intact CPU runtime** (including real partial rebuilding and the
+real mixed-gap D refusal). Pytest is borrowed as pure test tooling after the CPU
+runtime's own package paths; no scientific package is overlaid or installed.
+
+The full fast suite in the damaged old Standard prefix reported **9 failed,
+1,920 passed, 5 skipped, 33 deselected**; all nine failures require the missing
+`pdbfixer/soft.xml`. Existing regression tests were not changed to skip these
+failures. The two additional resource-dependent benchmark skips are reported
+separately from their intact-runtime execution above.
+
+A fresh `dvbfixer-apple-standard-460cce9` prefix was then created with the supported
+installer, micromamba 2.9.0 and the protected MODELLER license pipe. All **14 licensed
+functional smokes** passed, including model/Homology and PySCF/RESP, and selected
+Standard Doctor reported ready. An independent inventory found all 72 conda-owned
+PDBFixer files present and the resource probe passed. Installed benchmark/Doctor/
+readiness source hashes match the checkout. This new solve uses Python 3.13.18,
+NumPy 2.4.6 and OpenMM 8.6.1; the scientific comparison above remains pinned to
+the separate OpenMM 8.5.2 CPU runtime, not silently rerun with changed dependencies.
+Installer and integrity evidence is retained in `tmp/atom-completion-460cce9/`
+(`fresh-standard-install.log`, `fresh-standard-integrity.json`); the complete
+smoke report is in the prefix's
+`share/dvbfixer/installation-smoke/3815bc283ca14e0191d7d78ba7b6595a/report.json`.
+
+The fresh **installed-package** fast suite then passed: **1,931 passed, 3 skipped,
+33 slow deselected**, in 178.47 seconds. All new benchmark/resource tests executed;
+the three skips are the optional Torch/Biotite controls, not resource failures.
+The harness cleared `PYTHONPATH`, asserted imports came from the fresh prefix,
+disabled pytest plugin autoload and exposed only pure pytest tooling via a
+dedicated overlay. The initial harness failed before collection because its
+`py.py` shim was missing; that log is retained separately, and only the tooling
+overlay was corrected. Final evidence: `fresh-standard-installed-fast-v2.log`.
+Neither this fast suite nor the installer smokes imply all slow tests or broader
+diffusion scientific qualification passed.

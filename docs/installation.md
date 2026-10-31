@@ -122,6 +122,13 @@ activation using:
 micromamba run -p /path/to/new-desktop npm --prefix /path/to/new-desktop/share/dvbfixer/gui start
 ```
 
+Doctor also checks PDBFixer's `soft.xml` and canonical template resources in an
+isolated subprocess. An importable package can still be unusable if those files
+are missing/corrupt; `doctor --profile` reports `pdbfixer-resources` as an error.
+Preserve the affected prefix and create a fresh complete installation rather
+than copying individual assets into it. This resource probe is not a full conda
+ownership/integrity audit or a substitute for scientific acceptance.
+
 For manual profile installation without the helper, generate/check the specs
 with `PYTHONPATH=src python scripts/gen_installation_profiles.py --check`, create a new prefix
 from `environments/standard.yml` or `environments/desktop.yml`, then install

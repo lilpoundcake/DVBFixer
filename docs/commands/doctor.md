@@ -7,6 +7,9 @@ OpenMM platforms, and static experimental diffusion profile metadata without
 starting a structure-processing job.
 Modeller is probed in an isolated subprocess, so an installed package with an
 invalid or missing license is reported as unavailable without crashing Doctor.
+PDBFixer's rebuild resources (`soft.xml` and canonical templates) are also probed
+in an isolated subprocess: an importable but incomplete package is marked unusable.
+With `--profile`, a failed `pdbfixer-resources` check is an installation error.
 
 ## Quick start
 

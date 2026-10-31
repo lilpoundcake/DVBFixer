@@ -75,6 +75,12 @@ def collect_capabilities(
         except DiffusionRuntimeError as exc:
             selection_error = str(exc)
     packages = {name: _package_status(module) for name, module in PYTHON_PACKAGES.items()}
+    if packages["PDBFixer"]["available"]:
+        from dvbfixer.profile_readiness import pdbfixer_resources_ready
+
+        packages["PDBFixer"]["usable"] = pdbfixer_resources_ready()
+        if not packages["PDBFixer"]["usable"]:
+            packages["PDBFixer"]["error"] = "resource check failed; reinstall the complete environment (soft.xml/templates may be missing or corrupt)"
     if packages["Modeller"]["available"]:
         try:
             probe = subprocess.run(

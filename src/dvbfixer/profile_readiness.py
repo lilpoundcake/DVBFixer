@@ -13,6 +13,30 @@ from typing import Any
 from dvbfixer.installation_profiles import composition
 
 
+def pdbfixer_resources_ready(python: str | None = None) -> bool:
+    """Importability alone does not prove that heavy-atom rebuild assets exist."""
+    from dvbfixer.model.diffusion.protein_atoms import CANONICAL_HEAVY_ATOMS
+
+    code = """import json,sys
+from pathlib import Path
+import pdbfixer
+from openmm.app import ForceField
+root = Path(pdbfixer.__file__).parent
+soft = root / 'soft.xml'
+assert soft.is_file() and soft.stat().st_size > 0
+ForceField(str(soft))
+for name in json.loads(sys.argv[1]):
+    template = root / 'templates' / (name + '.pdb')
+    assert template.is_file() and template.stat().st_size > 0
+"""
+    try:
+        result = subprocess.run([python or sys.executable, "-c", code, json.dumps(sorted(CANONICAL_HEAVY_ATOMS))],
+                                capture_output=True, timeout=30, check=False)
+        return result.returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
 def collect_profile_readiness(profile: str, addons: tuple[str, ...] = ()) -> dict[str, Any]:
     checks: list[dict[str, str]] = []
 
@@ -59,6 +83,9 @@ for spec in json.loads(sys.argv[1]):
                 if installed:
                     state = "action-required"
             record(module, state, package.get("manual", f"Reinstall {package['spec']} in the selected environment."))
+            if module == "pdbfixer":
+                record("pdbfixer-resources", "ready" if state == "ready" and pdbfixer_resources_ready() else "error",
+                       "Recreate/reinstall the environment with complete PDBFixer soft.xml and canonical templates; do not patch missing assets piecemeal.")
         for executable in package.get("executables", []):
             record(executable, "ready" if shutil.which(executable) else "error",
                    f"Install {package['spec']} and put this environment's bin directory on PATH.")
@@ -73,9 +100,9 @@ for spec in json.loads(sys.argv[1]):
         from dvbfixer.diagnose.probe import SUPPORTED_VERSION
 
         try:
-            result = subprocess.run(["probe", "-version"], capture_output=True,
-                                    text=True, timeout=10, check=False)
-            supported = result.returncode == 0 and result.stdout.strip() == SUPPORTED_VERSION
+            probe_result = subprocess.run(["probe", "-version"], capture_output=True,
+                                     text=True, timeout=10, check=False)
+            supported = probe_result.returncode == 0 and probe_result.stdout.strip() == SUPPORTED_VERSION
         except (OSError, subprocess.TimeoutExpired):
             supported = False
         record("probe-version", "ready" if supported else "error",
@@ -113,9 +140,9 @@ assert np.allclose(solve(a,b), [2.,3.])
         record("native-linalg", "error", "NumPy/SciPy native solve failed or timed out.")
     if profile == "desktop":
         try:
-            result = subprocess.run(["node", "--version"], capture_output=True, text=True,
+            node_result = subprocess.run(["node", "--version"], capture_output=True, text=True,
                                     timeout=10, check=False)
-            supported_node = result.returncode == 0 and int(result.stdout.strip().removeprefix("v").split(".")[0]) >= 22
+            supported_node = node_result.returncode == 0 and int(node_result.stdout.strip().removeprefix("v").split(".")[0]) >= 22
         except (OSError, ValueError, subprocess.TimeoutExpired):
             supported_node = False
         record("node-version", "ready" if supported_node else "error", "Desktop requires Node.js >=22.")

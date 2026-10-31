@@ -29,6 +29,16 @@ def test_capability_report_has_stable_sections():
     assert report["diffusion"]["selected_profile"] is None
 
 
+def test_importable_pdbfixer_is_not_reported_usable_without_resources(monkeypatch):
+    from dvbfixer import profile_readiness
+
+    monkeypatch.setattr(profile_readiness, "pdbfixer_resources_ready", lambda *args: False)
+    report = collect_capabilities()
+    assert report["python_packages"]["PDBFixer"]["available"]
+    assert report["python_packages"]["PDBFixer"]["usable"] is False
+    assert "resource" in report["python_packages"]["PDBFixer"]["error"]
+
+
 def test_static_diffusion_profiles_publish_required_labels_and_metadata():
     profiles = collect_capabilities()["diffusion"]["profiles"]
     assert profiles["protenix-v1-cuda"]["evidence_labels"] == [

@@ -841,6 +841,32 @@ command parser merely to inspect generated labels.
   phenix-project Probe 2.26 candidate passed limited parser comparisons but is
   still rejected by production's pinned 2.18 preflight; no silent substitution.
 
+- **Partial-sidechain template comparison is negative so far.** After `460cce9`,
+  `atom_completion_benchmark.py` provides a separate seeded-PDBFixer baseline and
+  exact-name held-out RMSD scoring, with no reference coordinates given to either
+  proposal/refinement arm. One deterministic template proposal is reused across
+  five refinement seeds; do not call these independent template rebuilds. On
+  1UBQ LYS27, 1FR2 chain-A ASN24 and an explicit 1A3N A1–59 GLN54 projection,
+  template median refined RMSD is 1.235/0.992/2.243 Å vs cc94
+  1.458/1.766/2.988 Å. The GLN54 cc94 seed 19 failed chi12/clashes (4/5 final
+  passes vs template 5/5). The 1UBQ diffusion evaluation is retrospective; the
+  two new cases/seeds were declared before sampling. Do not enable a public
+  partial-completion profile based on these results. The mixed-gap bare-PDBFixer
+  proposal refused D-Cα after five internal seeds; it is not the full legacy
+  Modeller/chirality-safe comparator. Evidence is under
+  `tmp/atom-completion-460cce9/comparison/` and the dated comparison record.
+  Three inspected general prefixes are now missing 15 conda-owned PDBFixer
+  assets each, including `soft.xml`; preserve them and do not patch resources
+  piecemeal. The isolated CPU runtime is intact and ran the comparison.
+  Doctor now distinguishes importability from resource usability and selected
+  readiness checks `pdbfixer-resources`. Missing-asset regression failures are
+  environmental blockers, not passes; never hide them with added broad skips.
+  A new supported-install Standard prefix `dvbfixer-apple-standard-460cce9`
+  has all 72 PDBFixer assets, passed 14 licensed functional smokes and Doctor,
+  and passed the installed fast suite (1,931 passed, three optional Torch/Biotite
+  skips, 33 slow deselected). Old damaged prefixes remain preserved; this does
+  not qualify the experimental completion route or establish the damage cause.
+
 - **Release metadata is synchronized, not single-file.** `pyproject.toml` is
   authoritative, but a version bump must also update
   `src/dvbfixer/__init__.py`, `gui/package.json`, both root-package version

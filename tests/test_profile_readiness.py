@@ -89,3 +89,36 @@ def test_compatibility_readiness_checks_actual_catalog_versions(monkeypatch, com
     assert check["state"] == ("ready" if compatible else "error")
     assert "numpy >=1.26,<2" in captured[0]
     assert "private details" not in str(report)
+
+
+def test_importable_pdbfixer_with_missing_resources_is_profile_error(monkeypatch):
+    simulated_profile(monkeypatch)
+    monkeypatch.setattr(profile_readiness, "pdbfixer_resources_ready", lambda *args: False)
+    report = profile_readiness.collect_profile_readiness("standard")
+    assert report["state"] == "error"
+    assert next(check for check in report["checks"] if check["name"] == "pdbfixer")["state"] == "ready"
+    check = next(check for check in report["checks"] if check["name"] == "pdbfixer-resources")
+    assert check["state"] == "error" and "soft.xml" in check["action"]
+
+
+def test_pdbfixer_resource_probe_isolated_and_sanitized(monkeypatch):
+    calls = []
+
+    def run(argv, **kwargs):
+        calls.append((argv, kwargs))
+        return subprocess.CompletedProcess(argv, 1, b"", b"private child diagnostic")
+
+    monkeypatch.setattr(profile_readiness.subprocess, "run", run)
+    assert not profile_readiness.pdbfixer_resources_ready("/chosen/python")
+    assert calls[0][0][0] == "/chosen/python"
+    assert "soft.xml" in calls[0][0][2]
+    assert "ALA" in calls[0][0][3]
+    assert calls[0][1]["timeout"] == 30
+
+
+def test_pdbfixer_resource_probe_timeout_fails_closed(monkeypatch):
+    def timeout(argv, **kwargs):
+        raise subprocess.TimeoutExpired(argv, 30)
+
+    monkeypatch.setattr(profile_readiness.subprocess, "run", timeout)
+    assert not profile_readiness.pdbfixer_resources_ready()
