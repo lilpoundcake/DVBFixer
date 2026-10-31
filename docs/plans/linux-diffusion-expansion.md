@@ -36,6 +36,50 @@
 - [ ] Preserve fail-closed admission, independent validation, atomic bundle
   publication, exact identities, and zero D-C-alpha output throughout.
 
+## Future research: causal PDBFixer chirality investigation (2026-10-31)
+
+**Status: requested future work; not executed or causally resolved.** Dissect
+PDBFixer's heavy-atom reconstruction to determine exactly why some incomplete
+residues or reconstructed gaps acquire D-Cα. This is separate from implementing
+pre-diffusion template completion, and from the existing seeded retry and
+downstream chirality safety net. A successful retry or reflection is mitigation,
+not a root-cause explanation. PDBFixer is not a Rosetta-like rotamer packing
+method; do not conflate these algorithms or their guarantees.
+
+- [ ] Pin upstream PDBFixer/OpenMM source revisions, package resources, platform,
+  force-field/template assets and all random seeds. Start from retained failures
+  and tracked structural fixtures; preserve source bytes and every failed attempt.
+- [ ] Map `addMissingAtoms` and its internal call graph: template matching and
+  alignment, initial coordinate construction, topology/bond creation, temporary
+  force-field construction, local energy minimization and clash-triggered
+  Langevin fallback. Record exact upstream symbols/line ranges for pinned sources.
+- [ ] Instrument snapshots before/after each stage. Measure signed N–CA–C–CB
+  volume, bond lengths/angles, clashes, observed-atom movement and energy/force
+  contributions; find the **first** L-to-D transition rather than inspecting
+  only the final PDB. Treat glycine and incomplete chiral centres separately.
+- [ ] Distinguish faulty template orientation or reflection in superposition
+  from force-field/constraint omissions, a planar crossing during minimization,
+  stochastic fallback and existing source defects. These are hypotheses, not
+  established causes. Separate within-residue sidechain rebuilding from whole-gap
+  insertion and genuine later full-system minimization failures.
+- [ ] Construct minimal reproductions and controlled ablations: original vs
+  truncated residues, isolated vs neighbouring context, minimization vs fallback,
+  explicit seeds and chirality protection. Use Reference controls and production
+  backend checks; do not claim bit-identical CPU/GPU coordinates from a seed.
+- [ ] Study hydrogen-placement defects as a **separate** path, distinguishing
+  PDBFixer heavy-atom reconstruction from OpenMM `Modeller.addHydrogens` and
+  existing hydrogen-repair code. Keep heavy-atom chirality and hydrogen geometry
+  outcomes separately reported.
+- [ ] Deliver source-level causal findings, retained stage traces, minimal
+  regression fixtures/tests and an evidence-backed prevention proposal, plus an
+  upstream reproducer/report if justified. Compare prevention with retry-only
+  mitigation without weakening the zero-D output invariant.
+
+Acceptance requires a reproducible first-failing stage and a controlled causal
+intervention, or an explicit unresolved result with retained evidence. No removal
+of seeded rebuilding, `assert_all_l`, guarded refinement or final chirality
+checks is authorized by this research plan.
+
 ## Future scope: diffusion completion of partial residues (2026-10-29)
 
 **Status: private masks/contracts, insertion, validation and generated-only

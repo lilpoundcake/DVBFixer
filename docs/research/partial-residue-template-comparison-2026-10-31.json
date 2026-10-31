@@ -72,6 +72,25 @@
     "No best-seed selection; raw failures and the rejected refined candidate remain retained",
     "The 1UBQ diffusion arm was retrospective; only 1FR2/1A3N new cases were declared before sampling"
   ],
+  "posthoc_kabsch_control": {
+    "date": "2026-10-31",
+    "base_commit": "3009a96",
+    "method": "Proper-rotation Kabsch on fixed observed N/CA/C/O only; generated atoms excluded from fit",
+    "resampling_or_refinement_executed": false,
+    "candidate_stage_pairs_checked": 70,
+    "paired_raw_refined_outputs": 35,
+    "all_fixed_record_audits_passed": true,
+    "backbone_anchor_counts": {"1ubq_partial": 288, "1ubq_mixed": 272, "1fr2": 332, "1a3n": 236},
+    "maximum_backbone_rmsd_before_angstrom": 0.0,
+    "maximum_backbone_rmsd_after_angstrom": 2.425442369624622e-14,
+    "maximum_rotation_entry_difference_from_identity": 2.157382104232654e-15,
+    "maximum_translation_norm_angstrom": 2.1093068779688048e-14,
+    "maximum_generated_rmsd_absolute_change_angstrom": 1.021405182655144e-14,
+    "synthetic_rotated_translated_control_rmsd_angstrom": 8.308148362110449e-16,
+    "conclusion": "No hidden rigid motion: backbone-based alignment changes generated-atom RMSD only at floating-point roundoff; comparison unchanged",
+    "script": "tmp/atom-completion-460cce9/kabsch_check.py",
+    "per_candidate_evidence": "tmp/atom-completion-460cce9/comparison/kabsch-backbone-check.json"
+  },
   "fresh_standard_regression": {
     "prefix": "dvbfixer-apple-standard-460cce9",
     "manager": "micromamba 2.9.0",

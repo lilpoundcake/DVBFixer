@@ -2198,3 +2198,95 @@ dedicated overlay. The initial harness failed before collection because its
 overlay was corrected. Final evidence: `fresh-standard-installed-fast-v2.log`.
 Neither this fast suite nor the installer smokes imply all slow tests or broader
 diffusion scientific qualification passed.
+
+A subsequent user-requested **Kabsch control** checked all 35 available paired
+raw/refined outputs (70 candidate-stage evaluations), including rejected outputs.
+Fits used only fixed observed backbone N/CA/C/O: 288 anchors for 1UBQ partial,
+272 for its mixed gap, 332 for 1FR2 and 236 for 1A3N. Independent fixed-record
+audits all passed. Backbone RMSD before fitting was exactly zero; maximum fitted
+translation was 2.109307e-14 Å and maximum rotation-entry deviation from identity
+was 2.157382e-15. The largest generated-atom RMSD change was **1.021405e-14 Å**,
+solely floating-point roundoff. A nontrivially rotated/translated synthetic control
+verified fit direction (residual 8.308148e-16 Å). No sampling or refinement was
+rerun, and the negative comparison is unchanged. Per-candidate hashes and metrics:
+`tmp/atom-completion-460cce9/comparison/kabsch-backbone-check.json`; reproducible
+local script: `tmp/atom-completion-460cce9/kabsch_check.py`. Summary values are in
+the portable comparison record above.
+
+### Prospective one/two-atom masks (after `3009a96`)
+
+Four new masks were declared before sampling in the same previously tested protein
+contexts: 1UBQ A1–72 LYS27 NZ or CE/NZ, 1FR2 observed chain-A ASN24 ND2, and 1A3N
+A1–59 GLN54 OE1/NE2. These are new masks, not independent source structures or
+full-complex qualification. All 20 seeds (7/19/42/101/202 per case) executed 500
+cc94 MPS updates without fallback. Both arms used the same generated-only CPU
+OpenMM 8.5.2 refinement (250 iterations, eight restarts). A single template
+proposal per mask was reused across five refinement seeds. No hidden reference
+coordinates reached generators/refiners; frozen scientific code hashes matched.
+
+| Deleted atoms | Template refined median RMSD | cc94 refined median RMSD |
+|---|---:|---:|
+| 1UBQ LYS27 NZ | 0.275136 Å | 2.331230 Å |
+| 1UBQ LYS27 CE/NZ | 0.257293 Å | 1.252518 Å |
+| 1FR2 ASN24 ND2 | 0.090554 Å | 0.100693 Å |
+| 1A3N GLN54 OE1/NE2 | 0.259365 Å | 2.081803 Å |
+
+Raw geometry passed **0/20 cc94 vs 15/20 template**; both refined arms passed
+20/20. Raw template CE/NZ failed and all failures remain retained. Template
+refined medians are lower for all four masks, but ASN24's small difference is not
+a significance claim. Raw cc94 median RMSD was 7.801096/6.551395/10.161596/6.661221 Å
+respectively; refinement success must not be called good native sampling.
+The public partial-completion profile stays disabled. Protocol, inputs, all seeds,
+raw/refined audits and exact metrics are in
+`tmp/atom-completion-3009a96/small-masks/`; the
+[portable record](research/partial-residue-small-masks-2026-10-31.json) captures
+the scope and numerical results. All 92 visual PDB copies were hash-verified and
+exported to the user's main project under
+`visual-analysis/atom-completion-small-masks-3009a96/`.
+
+### Template completion before public gap sampling (after `3009a96`)
+
+The shared CLI/Homology `prepare_input` hook now inventories canonical missing
+heavy atoms in observed residues before context selection and request freezing.
+`observed_completion.py` uses seeded PDBFixer with **whole-gap insertion disabled**.
+If the raw template proposal fails geometry, only its newly added atoms may be
+refined on CPU (250 iterations, eight restarts, seed 1); raw D-Cα is refused.
+All original records remain byte-identical except dropping a stale MASTER count.
+Independent inventory/layout, full-input geometry and global L-chirality checks
+must pass. Added atoms join fixed conditioning, never the diffusion-generated
+mask. Frozen replay, schema-4 requests and existing complete-input bounded repair
+remain unchanged; public partial-atom diffusion sampling is still disabled.
+Original/prepared bytes, exact additions, raw findings and final frozen request
+use a separate versioned preparation report through the existing manifest-last
+publication and independent reader. Unsupported context and unrepaired severe
+defects stop before sampling, retaining attempts instead of silently relaxing
+observations or dropping chemistry.
+
+A prospective public CLI smoke used the explicit **1UBQ A1–72 projection**, with
+A10–13 deleted and A27 NZ missing, seed 7 and observed-anchor relaxation disabled.
+PDBFixer plus added-only CPU refinement completed NZ first; then cc94 performed
+**500 MPS denoising updates without fallback** and the public gap candidate passed
+validation. Independent bundle readback re-audited the preparation evidence:
+all original observations and prepared NZ stayed byte-identical in the final
+candidate, NZ belonged to fixed conditioning, and `.dat` contained exactly **28
+gap atoms at A10–13**, not template-built NZ. This is one workflow smoke, not
+broader structural or hardware qualification. Evidence:
+`tmp/atom-completion-3009a96/public-completion-smoke-v4/independent-audit-v2.json`.
+Visual copies and the complete bundle are also in the user's main project under
+`visual-analysis/public-template-before-diffusion-3009a96/`.
+
+Earlier development attempts are retained separately: an invalid `python -m`
+harness, an unsupported `--keep-workdir` flag, and a context-source-binding bug in
+the new independent preparation audit, fixed before sampling and covered by a
+freeze/readback regression. The initial source suite also exposed 11 mask-only
+Homology unit fixtures that contain nonphysical CA-only chains. Those tests now
+explicitly isolate scientific preparation to retain their mask/ownership purpose;
+a separate Homology forwarding/refusal test and real one/two-atom reconstruction
+tests exercise the actual controller. No scientific failures were converted to
+skips or invalid CA-only inputs admitted into production.
+
+Final source fast regression on the intact fresh Standard stack passed **1,942
+tests**, with three optional Torch/Biotite skips and 33 slow cases deselected,
+in 180.44 seconds (`tmp/atom-completion-3009a96/source-fast-v2.log`). This is a
+source-checkout run, not a claim that the newly changed package was reinstalled.
+Ruff, targeted mypy, CLI-reference and user/agent documentation checks also pass.

@@ -12,6 +12,17 @@ from dvbfixer.homology_plan import (
 from dvbfixer.model.diffusion.contract import DiffusionRequest
 
 
+@pytest.fixture
+def planning_only_preparation(monkeypatch):
+    """These CA-only linear fixtures test masks, not physical atom rebuilding.
+
+    Isolate that service explicitly; real completion/admission is exercised by
+    test_diffusion_observed_completion; the separate forwarding/refusal control
+    below exercises the real preparation controller rather than this fixture.
+    """
+    monkeypatch.setattr("dvbfixer.model.diffusion.input_preparation.prepare_input", lambda *_args: None)
+
+
 def _deletion_plan(tmp_path):
     template = tmp_path / "template.pdb"
     template.write_text("".join(_atom(index + 1, "ALA", index + 1, index * 3.8) for index in range(25)))
@@ -26,8 +37,29 @@ def _deletion_plan(tmp_path):
     return work, work / "selected_template_mosaic.coverage.json"
 
 
+def test_mosaic_does_not_bypass_incomplete_observed_atom_preparation(tmp_path, monkeypatch):
+    from dvbfixer.model.diffusion.input_geometry import InputGeometryError
+
+    work, coverage = _deletion_plan(tmp_path)
+    calls = []
+
+    def refused_rebuild(request, source, missing):
+        calls.append(missing)
+        assert missing and all(atom.atom_name != "CA" for atom in missing)
+        raise InputGeometryError("controlled reconstruction refusal for nonphysical CA-only fixture")
+
+    monkeypatch.setattr("dvbfixer.model.diffusion.observed_completion._rebuild", refused_rebuild)
+    with pytest.raises(InputGeometryError, match="controlled reconstruction refusal"):
+        build_mosaic_diffusion_request(coverage, [("VH", "A" * 24)], work,
+            seeds=(7,), regenerate_covered=True, profile="protenix-v1-cuda", context_mode="none")
+    assert len(calls) == 1
+    assert not (work / "mosaic_diffusion_request.json").exists()
+    report = next(work.glob("dvbfixer-input-completion-*/input-repair.json"))
+    assert json.loads(report.read_text())["status"] == "failed"
+
+
 @pytest.mark.parametrize("flanks", range(1, 6))
-def test_deletion_windows_keep_exact_flanks_and_all_other_mosaic_atoms(tmp_path, flanks):
+def test_deletion_windows_keep_exact_flanks_and_all_other_mosaic_atoms(tmp_path, flanks, planning_only_preparation):
     work, coverage = _deletion_plan(tmp_path)
     original = (work / "selected_template_mosaic.pdb").read_bytes()
     normalized, path = build_mosaic_diffusion_request(coverage, [("VH", "A" * 24)], work,
@@ -55,7 +87,7 @@ def test_invalid_mosaic_request_never_leaves_a_normalized_input(tmp_path, option
     assert not (work / "mosaic_diffusion_request.json").exists()
 
 
-def test_mosaic_length_extrapolation_is_deferred_to_scope_warning(tmp_path, monkeypatch):
+def test_mosaic_length_extrapolation_is_deferred_to_scope_warning(tmp_path, monkeypatch, planning_only_preparation):
     from dvbfixer.model.diffusion import gap_capabilities
     from dvbfixer.model.diffusion.scope import assess_diffusion_scope
 
@@ -230,7 +262,7 @@ def test_mosaic_diffusion_rejects_covered_substitution(tmp_path):
 
 
 @pytest.mark.parametrize("scenario", ["multiple", "substitution", "deletion", "joint"])
-def test_explicit_mosaic_requests_keep_authoritative_positions_and_edit_ownership(tmp_path, scenario):
+def test_explicit_mosaic_requests_keep_authoritative_positions_and_edit_ownership(tmp_path, scenario, planning_only_preparation):
     template = tmp_path / "template.pdb"
     chains = ("D", "d") if scenario == "joint" else ("A",)
     # Distinct chains share a frame, not the same atom coordinates. This is an
@@ -284,7 +316,7 @@ def test_explicit_mosaic_requests_keep_authoritative_positions_and_edit_ownershi
 
 
 @pytest.mark.parametrize("distance, linked", [(2.05, True), (12.0, False)])
-def test_covered_regeneration_cannot_erase_an_existing_disulfide(tmp_path, distance, linked):
+def test_covered_regeneration_cannot_erase_an_existing_disulfide(tmp_path, distance, linked, planning_only_preparation):
     template = tmp_path / "template.pdb"
     sequence = "AACAAAACAAA"
     lines = []

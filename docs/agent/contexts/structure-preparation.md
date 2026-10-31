@@ -63,6 +63,7 @@ diffusion runner launch. Focused checks: `tests/test_altlocs.py`,
 | Private cc94 completion sampling (not a public profile) | `src/dvbfixer/model/diffusion/atom_completion_sampling.py::assess_completion_sampling`, `completion_engine_view`; `deploy/protpardelle-1c/atom_completion_research.py` |
 | Experimental completion trace / `.dat` / publication | `src/dvbfixer/model/diffusion/atom_completion_trace.py::CompletionSamplerTrace`; `atom_completion_evidence.py::audit_completion_evidence`; `atom_completion_publication.py::publish_completion_bundle`, `read_completion_bundle` |
 | Private template comparison / held-out scoring | `src/dvbfixer/model/diffusion/atom_completion_benchmark.py::template_completion_proposal`, `heldout_completion_metrics` |
+| Pre-diffusion observed-heavy preparation | `src/dvbfixer/model/diffusion/observed_completion.py::missing_observed_atoms`, `prepare_observed_completion`, `audit_completion_preparation` |
 | Diffusion scope boundary | `src/dvbfixer/model/diffusion/scope.py::assess_diffusion_scope` |
 | Diffusion pipeline | `src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline` |
 | Diffusion adapter preflight | `src/dvbfixer/model/diffusion/preflight.py::assess_adapter_preflight` |

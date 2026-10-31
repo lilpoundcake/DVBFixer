@@ -298,6 +298,22 @@ visible. Ambiguous, excessive or unsupported damage fails closed with retained
 diagnostics; selected residues with measured hydrogens currently require separate
 heavy-atom preparation. Frozen request replay never silently repairs its source.
 
+For newly built requests, missing canonical heavy atoms in **existing residues**
+are first completed with seeded PDBFixer, before context selection and freezing.
+Whole missing residues are not built by this step: they remain diffusion's task.
+Only the new atoms may undergo bounded CPU refinement if the template proposal
+fails geometry; original observations stay byte-identical. The prepared input
+must pass independent full-input geometry and L-chirality checks before sampling.
+Added atoms become **template-built fixed conditioning**, not diffusion-generated
+atoms or a public partial-residue diffusion capability. Original/prepared bytes,
+added-atom identities, raw findings and the final request are digest-bound into
+the existing preparation publication evidence. Refusals retain their diagnostics.
+This route currently requires canonical protein without nonwater heterogens;
+incomplete residues with partial occupancy, observed hydrogens or explicit
+covalent links require separate preparation. Remaining defects that require
+moving observed atoms fail closed rather than silently combining repair policies.
+Existing complete-input bounded repair and frozen replay semantics are unchanged.
+
 The legacy MPS and Protenix profiles accept canonical protein chains with unambiguous
 missing regions (validated length 3–12 residues) and target sequences from SEQRES
 or `--fasta`. Other positive lengths warn and are attempted without a quality claim.

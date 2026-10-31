@@ -867,6 +867,25 @@ command parser merely to inspect generated labels.
   skips, 33 slow deselected). Old damaged prefixes remain preserved; this does
   not qualify the experimental completion route or establish the damage cause.
 
+- **Complete observed heavy atoms before new diffusion requests are frozen.**
+  `model/diffusion/observed_completion.py` is input preparation, not partial-atom
+  diffusion sampling. The shared `prepare_input` hook covers CLI and Homology.
+  Seeded PDBFixer builds only missing canonical atoms in existing residues;
+  whole gaps remain diffusion-owned. If required, CPU refinement moves only new
+  atoms, followed by independent geometry and global L-chirality checks. Preserve
+  observations byte-for-byte and bind original/prepared bytes, exact additions,
+  raw findings and final request into publication evidence. New atoms are fixed
+  conditioning, not diffusion-generated; frozen replay is never silently changed.
+  Unsupported chemistry/partial occupancy/measured H in selected residues and
+  remaining severe defects fail closed with retained evidence. One public 1UBQ
+  A1–72 gap10–13 + missing NZ workflow passed 500 MPS updates and independent
+  bundle readback; it is a workflow smoke, not broader qualification.
+  The additional prospective 1–2-atom cohort passed final geometry in both arms
+  (20/20 each), but raw cc94 passed 0/20 and template refined medians were lower
+  for all four masks. Evidence: `tmp/atom-completion-3009a96/` and the dated small-
+  mask comparison record. PDBFixer causal D-Cα research is future work in
+  `docs/plans/linux-diffusion-expansion.md`, not an established root cause.
+
 - **Release metadata is synchronized, not single-file.** `pyproject.toml` is
   authoritative, but a version bump must also update
   `src/dvbfixer/__init__.py`, `gui/package.json`, both root-package version

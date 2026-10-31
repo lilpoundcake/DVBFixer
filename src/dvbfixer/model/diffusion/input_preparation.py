@@ -1,6 +1,7 @@
-"""Bounded observed-input repair, before motif selection and request freezing.
+"""Observed-heavy completion or bounded repair, before selection and freezing.
 
-No diffusion-generated masks are changed. Original bytes, failed attempts and
+No diffusion-generated masks are changed; template completions join fixed atoms.
+Original bytes, failed attempts and
 the independent before/after audit are retained even if sampling never starts.
 """
 
@@ -48,11 +49,14 @@ def _digest(data):
 
 
 def preparation_options(request):
+    from dvbfixer.model.diffusion.observed_completion import REVISION as COMPLETION_REVISION
+
     options = [option for option in request.backend_options if option.name.startswith(PREFIX)]
     if not options:
         return None
     values = {option.name.removeprefix(PREFIX): option.value for option in options}
-    if len(values) != len(options) or set(values) != {"revision", "original_sha256", "report_sha256"} or values["revision"] != REVISION:
+    if (len(values) != len(options) or set(values) != {"revision", "original_sha256", "report_sha256"}
+            or values["revision"] not in {REVISION, COMPLETION_REVISION}):
         raise InputGeometryError("incomplete or unsupported input preparation binding")
     for key in ("original_sha256", "report_sha256"):
         ArtifactReference("input-evidence", values[key])
@@ -139,6 +143,11 @@ def _fragmented_forcefield_input(request, source):
 
 def audit_prepared_input(request, original, prepared, report):
     """Recompute mask, movement, source identity and geometry, not report claims."""
+    from dvbfixer.model.diffusion.observed_completion import REVISION as COMPLETION_REVISION
+    from dvbfixer.model.diffusion.observed_completion import audit_completion_preparation
+
+    if report.get("revision") == COMPLETION_REVISION:
+        return audit_completion_preparation(request, original, prepared, report)
     if report.get("revision") != REVISION or report.get("status") != "accepted":
         raise InputGeometryError("unsupported or unsuccessful input repair evidence")
     if (_digest(original) != report["original_sha256"] or _digest(prepared) != report["prepared_sha256"]
@@ -200,6 +209,14 @@ def audit_preparation_payloads(request, payloads):
 
 def prepare_input(request: DiffusionRequest, source: bytes, work_parent: Path):
     """Return (prepared request, prepared path), or None if no repair is needed."""
+    from dvbfixer.model.diffusion.observed_completion import (
+        missing_observed_atoms,
+        prepare_observed_completion,
+    )
+
+    missing = missing_observed_atoms(request, source)
+    if missing:
+        return prepare_observed_completion(request, source, missing, work_parent)
     findings = assess_input_geometry(request, source)
     if not any(f.severity is Severity.ERROR for f in findings):
         return None
