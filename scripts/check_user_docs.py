@@ -21,6 +21,7 @@ PAGES = (
     "docs/quick-start.md", "docs/installation.md", "docs/pipelines.md",
     "docs/gui.md", "docs/gui-homology.md", "docs/known-issues.md",
     "docs/force-fields.md", "docs/cif-input.md", "docs/batch-mode.md",
+    "docs/licensing-status.md", "THIRD_PARTY_NOTICES/README.md", "THIRD_PARTY_NOTICES/FORCE-FIELDS.md",
 )
 HEADING = re.compile(r"^(#{1,6}) (.+?)(?: +#+)?$")
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")

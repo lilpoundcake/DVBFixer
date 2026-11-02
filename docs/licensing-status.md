@@ -1,66 +1,78 @@
-# Licensing: practical publication status
+# Licensing and distribution policy
 
-Updated 2026-11-02. This is an engineering release checklist, not a legal opinion.
-**The audit is paused at the practical release boundary, not complete.**
+Updated 2026-11-02. **The agreed licensing/documentation task is complete.**
+This records the project's distribution choice, not a legal opinion or blanket
+third-party license clearance.
 
-## Short answer
+## What DVBFixer distributes
 
-Original DVBFixer code has an owner-approved **BSD-3-Clause** license. That grant
-permits commercial use, modification and redistribution, including proprietary
-derivatives, subject to its terms. It does not grant rights to third-party code,
-force fields, model weights or restricted scientific software.
+- **Original code:** BSD-3-Clause, copyright 2026 Stanislav Skripkin.
+  Commercial use and proprietary derivatives are permitted under that grant.
+- **Primary delivery:** the source repository and existing Standard/Desktop
+  installer. The installer obtains dependencies from their respective sources
+  into the user's environment; it does not grant licenses to those dependencies.
+- **Force fields:** the existing tracked sets remain included. Upstream headers,
+  citations and notices are preserved; known local changes are identified in
+  [bundled-data attribution](../THIRD_PARTY_NOTICES/FORCE-FIELDS.md).
+  They are **not relicensed under the project's BSD grant**.
+- **Wheel:** supported as a Python packaging mechanism, not a separate end-user
+  installation solution or an additional publication target for this task.
+  Existing wheel support and data inclusion are unchanged.
+- **No prebuilt scientific environment or container is published as part of
+  this task.** The Desktop profile means local installation/build, not delivery
+  of a pre-populated environment. No new Docker/container pipeline is introduced.
+- **MODELLER and model weights:** not copied into project release artifacts.
+  Installation/provisioning and use remain subject to the selected component's
+  own terms. Users obtain any required licenses themselves.
 
-There is no evidence here that the entire current distribution is cleared for
-all commercial/proprietary uses. Equally, unresolved questions are **not findings
-of infringement** and do not make original DVBFixer code non-commercial.
+## What users need to know
 
-## What can be published, and what needs attention?
+| Component | Practical rule |
+|---|---|
+| DVBFixer original code | Retain the BSD copyright, license and disclaimer. No author notification is required for ordinary commercial use. |
+| MODELLER | Obtain a license appropriate to academic/commercial/service use. A configured key is not permission to redistribute MODELLER. |
+| Open Babel / ACPYPE | GPL obligations remain relevant to distributing combined applications. Installing dependencies separately is not an automatic legal exemption, and mere co-installation is not proof of incompatibility. Do not promise a BSD-only or freely closable complete stack. |
+| Force fields and other data | Preserve their attribution and applicable terms. Widespread use in GROMACS/OpenMM supports normal scientific practice, but does not itself establish a license for every modified file. Unknown permission is not a finding of a prohibition. |
+| Reduce | Preserve selected notices and the UCSF acknowledgement. Its custom condition for modified versions is not replaced by a generic BSD/Apache label. |
+| Diffusion models | Use the [exact code/weight terms](model-licenses.md), not the project's BSD license or another model version's terms. |
 
-| Material / action | Practical status | What to do |
-|---|---|---|
-| Original code contributed by the owner | **BSD grant in place** | Retain LICENSE, copyright and disclaimer. Contributor/copied-code rights remain their own question. |
-| Entire Git repository or source archive | **Some bundled data needs clarification** | The repository includes force fields. Do not describe the whole tree as BSD-only or fully cleared merely because external program binaries are absent. |
-| Current Python wheel | **Packaging checked; rights review incomplete** | It includes three FF trees and notices, but not external Python/native dependencies. Resolve bundled FF permissions and the GPL integration/distribution question before making blanket proprietary-distribution claims. |
-| Installation instructions / dependency manifests | **Different from shipping a prebuilt environment** | Users obtain dependencies under their respective terms. This reduces what DVBFixer itself delivers; it does not automatically resolve direct GPL API integration or operator eligibility. |
-| Complete environment, container or bundled desktop installer | **Not cleared by this audit** | Do not add a new prebuilt distribution on the strength of the root BSD license. Restricted software permission and relevant notices/source delivery must be resolved for that artifact. |
-| Commercial calculations / hosted service | **No blanket prohibition from BSD or GPL alone** | GPLv2/v3 are not AGPL; ordinary server use alone does not impose AGPL-style server-source publication. MODELLER and other restricted software still need applicable use rights; distributing clients/binaries is a separate action. |
+GPLv2/v3 permit commercial use and are not AGPL. Ordinary server use alone does
+not create an AGPL-style server-source publication obligation. Local container
+construction and redistribution of a ready-made image are different actions;
+containers are not categorically forbidden by GPL. Restricted software and
+data terms still apply in the selected use/distribution context.
 
-## Only the substantial open questions
+## Completion and limits
 
-| Component | What is known | Needed decision / clarification |
-|---|---|---|
-| **Open Babel / ACPYPE** | Direct Python API integrations; inspected core Open Babel grants name GPLv2 without or-later wording, ACPYPE declares GPLv3+. Mere co-installation does not establish an incompatibility. | One focused legal/upstream review of the actual combined distribution and the desired proprietary-derivative policy. Do not change backends or relicense the owner's code as a speculative workaround. |
-| **MODELLER** | Separate academic/commercial terms; no redistribution agreement has been assumed. | Users need appropriate licenses. **Do not bundle it without applicable permission.** A DVBFixer license key setup is not redistribution permission. |
-| **Bundled force fields** | Amber19SB has recorded GROMACS provenance/notices. CHARMM's official reference and local BUF edit history are identified; original acquisition remains unknown. | Clarify redistribution/modification rights for CHARMM and the AMBER99SB-ILDN/Lipid21 mixture, caps and BUF additions. Do not require the owner to remember the old download. |
-| **Reduce** | Exact selected source/build identified; full notices and UCSF acknowledgement included. | Clarify the custom modified-versions-free condition if distributing a modified build; keep separate provenance for its transformed dictionary. This is not an established blanket commercial-use ban. |
-| **Model weights** | Source-code and weight licenses differ; runtime pins matter. | Consult [model terms](model-licenses.md) for the exact backend. Do not ship checkpoints under the project BSD license or infer a later model version's rights. |
+The owner has selected the license, attribution and source-plus-installer route;
+no further owner decision or recovery of old download history is needed for this
+task. License metadata, contributor terms, notices, model terms, provenance,
+inventory maintenance and packaging checks are in place. Scientific code,
+dependencies, force-field bytes and installer behavior were not changed to
+work around a license question.
 
-## Recommended next actions — not yet performed
+Unresolved historical FF permissions and GPL combined-work interpretation remain
+recorded in the [evidence review](research/dependency-license-review-2026-11-02.md).
+Completion does **not** mean those third-party rights have been adjudicated.
+No upstream permission, legal opinion, completed exhaustive SBOM or source offer
+is invented. No emails were sent. Further forensic research is not an active
+deliverable or a request for action from the owner.
 
-1. **Finish the existing BSD source/wheel release review first.** Do not expand
-   the task into certifying a complete container or scientific environment.
-2. Send one concise request to the CHARMM/port maintainers: may the identified
-   July-2022 files be redistributed in an open-source package and its commercial
-   derivatives, and modified with attribution? Record the applicable terms.
-3. Obtain a focused opinion on the Open Babel/ACPYPE combined-distribution
-   boundary. The project owner's BSD choice alone cannot settle that question.
-4. Keep MODELLER operator-licensed unless explicit bundling permission is obtained.
-5. If a prebuilt environment is actually planned, resume per-library notices and
-   corresponding-source work **for that selected artifact**, not every possible
-   platform/build in advance.
+If the project later distributes a prebuilt environment, restricted binaries,
+checkpoints or a proprietary combined application, assess that concrete artifact
+and its notice/source/permission requirements before publishing it. Reassess
+changed dependency/model/data versions; do not inherit clearance from old hashes.
 
-No email has been sent, no upstream permission obtained, and no scientific
-dependency, force-field content or distribution architecture changed by this
-checklist. Excluding or downloading data separately would be a future approved
-packaging decision, not an action already taken or an automatic legal solution.
+## Maintenance checklist
 
-## Evidence, if needed
+For a dependency, FF, model or asset update: preserve upstream notices, record
+the actual version/source and known modifications, update model/data terms where
+needed, regenerate `scripts/gen_license_inventory.py`, and run its `--check`
+plus the license tests. Never label a scanner result as legal approval. A future
+release artifact must carry its declared notices; an optional wheel is not an
+exception to attribution requirements. No PyPI/GitHub release is made by closing
+this task, and no merge into `main` is implied.
 
-- [Project license](../LICENSE) and [partial notices](../THIRD_PARTY_NOTICES/README.md).
-- [Detailed dependency findings](research/dependency-license-review-2026-11-02.md)
-  and [CHARMM provenance](provenance/charmm36-jul2022.md).
-- Four selected dependency wheels inspected; selected Apple native-byte matches
-  verified. Source correspondence/rights clearance is not inferred from hashes.
-- All seven notice files checked in a freshly built bounded-snapshot sdist,
-  wheel and isolated no-dependency install. This is packaging evidence, not
-  certification of a full-repository source release or combined environment.
+See [LICENSE](../LICENSE), [notices](../THIRD_PARTY_NOTICES/README.md),
+[installation](installation.md) and the
+[completion record](research/licensing-completion-2026-11-02.json).

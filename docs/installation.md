@@ -4,6 +4,14 @@
 
 ## 1. Get the source
 
+DVBFixer's primary delivery is **source plus local installation**, using the
+Standard/Desktop helper or the manual environment route below. Desktop builds
+the GUI locally; it is not a pre-populated scientific environment or container.
+Dependencies are obtained from their sources and retain their own terms; this
+does not bypass restricted-tool licenses or copyleft obligations for combined
+redistribution. Obtain an appropriate MODELLER license before using its workflows.
+See the [licensing and distribution policy](licensing-status.md).
+
 Install [micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)
 and Git first. The commands below assume a terminal on macOS or Linux; on
 Windows use WSL. Check backend availability with `doctor` after installation.

@@ -103,7 +103,8 @@ runtimes; keep PyTorch outside Standard. The real PSI4 test uses an explicit
 
 ## License
 
-For a short publication checklist, see [practical licensing status](docs/licensing-status.md).
+For the completed task's scope and delivery rules, see
+[licensing and distribution policy](docs/licensing-status.md).
 
 DVBFixer's original code is available under [BSD-3-Clause](LICENSE).
 Copyright (c) 2026, Stanislav Skripkin. Commercial use, modification and
@@ -114,6 +115,12 @@ Third-party libraries, bundled force fields, datasets and model weights retain
 their own terms and are not relicensed by this grant. See
 [third-party notices](THIRD_PARTY_NOTICES/README.md),
 [model terms](docs/model-licenses.md) and the
-[ongoing dependency audit](docs/research/third-party-license-audit.md).
+[recorded dependency review](docs/research/third-party-license-audit.md).
 The project license does not establish permission for every combined
 distribution or restricted scientific backend.
+
+The primary delivery route is source plus the existing Standard/Desktop installer,
+which obtains dependencies into the user's environment under their own terms.
+This licensing work does not publish a prebuilt scientific environment/container.
+Bundled FF sets remain included with upstream attribution; wheel support remains
+available but is not a complete scientific-stack installer.

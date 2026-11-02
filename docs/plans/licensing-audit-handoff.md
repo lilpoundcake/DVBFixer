@@ -1,5 +1,20 @@
 # Licensing audit implementation handoff
 
+**Closed for the agreed source-plus-installer scope (2026-11-02).** Start with
+[the final distribution policy](../licensing-status.md) and
+[completion record](../research/licensing-completion-2026-11-02.json), not the
+historical full-environment audit sequence below. No further owner decisions
+are required for this task. Keep force fields, dependencies and installation
+behavior unchanged; no prebuilt environment/container is a publication target.
+Remaining third-party legal uncertainties are retained, not marked resolved.
+Final checks: 63 narrow tests passed; 42 user-documentation pages and agent maps
+validated, version metadata remains 0.10.1. Eight notices match fresh bounded
+snapshot sdist/wheel and isolated no-deps install; archive screens contain no
+native candidates or screened sensitive names. Artifact/input hashes and logs
+are retained in `notice-final-readback/` below the existing audit evidence root,
+with report identity in the completion record. This does not publish a release
+or assert scientific/whole-environment/legal qualification.
+
 Date: **2026-10-31**. Starting point: **main `4a328a6`, 0.10.1**.
 Working branch: **`feature/licensing-audit`**.
 

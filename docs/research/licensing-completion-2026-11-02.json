@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "kind": "agreed-licensing-task-completion-not-third-party-legal-clearance",
+  "baseline": "ad30b55",
+  "task_status": "complete-for-agreed-scope",
+  "owner_action_required_for_this_task": false,
+  "original_code": {"license": "BSD-3-Clause", "copyright": "2026 Stanislav Skripkin"},
+  "delivery": {
+    "primary": "source-plus-existing-standard-desktop-installer",
+    "dependencies": "obtained-from-component-sources-during-user-installation",
+    "bundled_force_fields": "retain-with-attribution-and-known-modification-notices",
+    "wheel": "supported-packaging-mechanism-not-separate-publication-target",
+    "prebuilt_environment_container_publication_in_scope": false,
+    "restricted_binary_or_weight_redistribution_authorized": false
+  },
+  "completed": [
+    "owner-approved-own-code-license-and-synchronized-python-gui-metadata",
+    "contributor-terms-and-project-citation",
+    "bundled-data-attribution-and-preserved-upstream-notices",
+    "scoped-external-dependency-and-model-terms",
+    "reproducible-declaration-inventory-and-drift-tests",
+    "retained-source-installed-and-packaging-evidence",
+    "source-plus-installer-policy-in-readme-and-installation-guide"
+  ],
+  "unchanged": ["scientific-code", "dependency-composition", "force-field-bytes", "installer-behavior"],
+  "not_claimed": [
+    "blanket-third-party-legal-clearance",
+    "complete-transitive-installed-sbom-on-every-platform",
+    "resolved-gpl-combined-work-interpretation",
+    "confirmed-redistribution-grant-for-every-historical-ff-modification",
+    "upstream-permission-or-legal-opinion",
+    "a-source-offer-or-emails-sent-on-behalf-of-the-owner"
+  ],
+  "reopen_when": [
+    "a-prebuilt-environment-or-container-is-actually-planned",
+    "restricted-software-or-model-weights-are-to-be-redistributed",
+    "a-proprietary-combined-application-is-to-be-distributed",
+    "dependencies-models-or-bundled-data-change"
+  ],
+  "verification": {
+    "tests": "63 passed: license inventory, evidence, installation profiles and user docs; PYTHONPATH=src",
+    "user_documentation_pages": 42,
+    "version_metadata": "synchronized at 0.10.1; no release bump",
+    "artifact_scope": "bounded tracked-current-source snapshot; not a new release or full-repository source archive",
+    "notice_files_checked_in_sdist_wheel_and_isolated_target": 8,
+    "new_build_tools_or_scientific_dependencies_installed": false,
+    "wheel_sha256": "075b5651efcb6743412437b7995279cda78feac896137952bd5138673c7df1c7",
+    "sdist_sha256": "3e4fdd266e48d4be949e4556f94028f4bb2c76c2b9b6ff61c95d02b77fdf2c24",
+    "retained_report": "tmp/licensing-audit-2026-10-31/dependency-review-2026-11-02/notice-final-readback/report.json",
+    "retained_report_sha256": "614238644de235c0a5672156fbfa4e0ddc8c00f6f38e3a49087c9ee9e3a387c5",
+    "native_magic_candidates_in_built_archives": 0,
+    "screened_sensitive_filename_findings_in_built_archives": [],
+    "limitations": "not a full secret scan, scientific suite, legal opinion or combined-environment clearance"
+  },
+  "historical_evidence": "dependency-license-review-2026-11-02.json",
+  "overall_third_party_clearance": false
+}

@@ -1,12 +1,11 @@
 # Licensing and third-party attribution plan
 
 Updated: **2026-11-02**, repository baseline **`4a328a6` / 0.10.1**.
-Status: **scope narrowed to practical source/wheel release decisions at the
-owner's request; further exhaustive native-component research deferred;
-preliminary audit refreshed for implemented installation profiles;
-declaration inventory, native installed evidence and preliminary artifact checks
-implemented; BSD-3-Clause and Stanislav Skripkin attribution implemented on
-2026-11-02; full third-party clearance pending**.
+Status: **completed for the owner-approved source-plus-installer scope on
+2026-11-02**. BSD-3-Clause, attribution, notices, maintenance checks and delivery
+policy are implemented. This is task completion, **not full third-party legal
+clearance**. The broad original audit checklist below is historical; unchecked
+items are not further tasks or owner-action gates for this agreed delivery.
 
 [Audit findings and sources](../research/third-party-license-audit.md) ·
 [Implementation handoff](licensing-audit-handoff.md) ·
@@ -15,6 +14,21 @@ implemented; BSD-3-Clause and Stanislav Skripkin attribution implemented on
 [Existing notices](../../THIRD_PARTY_NOTICES/README.md)
 
 ## Goal and boundaries
+
+### Final disposition
+
+- [x] BSD-3-Clause for original code, Stanislav Skripkin attribution and synchronized metadata.
+- [x] Contribution terms, project citation, model terms and partial third-party notices.
+- [x] Keep existing FF sets and scientific behavior; preserve upstream attribution and identify known local changes.
+- [x] Source plus existing Standard/Desktop installer as primary delivery; wheel support unchanged, not a separate publication target.
+- [x] No prebuilt scientific environment/container publication or permission to redistribute restricted programs/weights in this task.
+- [x] Declaration drift and notice-preservation tests, documentation checks and recorded package-artifact verification.
+- [x] Record remaining rights uncertainties without treating them as permissions, bans, or a new request for owner decisions.
+
+See [the completion record](../research/licensing-completion-2026-11-02.json).
+No emails, legal opinion or new upstream permission are claimed. Exhaustive
+transitive SBOMs and native source-delivery packages belong to a later concrete
+binary/environment export, not this task. Reopening triggers are in the policy.
 
 Start with the [practical publication checklist](../licensing-status.md).
 The owner asked to stop over-investigating transitive binary details. Retain

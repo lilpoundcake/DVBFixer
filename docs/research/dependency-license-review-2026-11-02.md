@@ -1,5 +1,11 @@
 # Dependency licensing: exact sources and distribution boundaries
 
+**Historical supporting evidence; the agreed task is now complete.** The
+[final distribution policy](../licensing-status.md) supersedes this document's
+earlier next-work recommendations for current task planning. Retained unknowns
+are not permissions or findings of illegality. Further full-environment forensic
+work is outside the agreed source-plus-installer scope.
+
 Date: **2026-11-02**. Baseline: `6dae875`, branch `feature/licensing-audit`.
 Status: **engineering evidence review, not a legal opinion or release clearance**.
 

@@ -1,5 +1,11 @@
 # Third-Party Notices
 
+The selected delivery model is **source plus local Standard/Desktop installation**,
+not a prebuilt scientific environment/container. See the
+[distribution policy](../docs/licensing-status.md). Bundled force-field authors,
+adaptations and known changes are recorded in [FORCE-FIELDS.md](FORCE-FIELDS.md).
+These records preserve third-party scope; they do not grant missing permissions.
+
 This notice set is not yet a complete component inventory or release license
 clearance. See the [preliminary audit](../docs/research/third-party-license-audit.md)
 and [licensing plan](../docs/plans/licensing-and-attribution.md) for additional

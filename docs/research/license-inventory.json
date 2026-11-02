@@ -55,7 +55,7 @@
     "text": "BSD-3-Clause"
   },
   "project_version": "0.10.1",
-  "record_count": 809,
+  "record_count": 810,
   "records": [
     {
       "addons": [],
@@ -2131,6 +2131,17 @@
       "compatibility_review": "unknown",
       "destination": "share/dvbfixer/notices",
       "distribution_inclusion": "declared",
+      "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/FORCE-FIELDS.md",
+      "license_review": "unknown",
+      "path": "THIRD_PARTY_NOTICES/FORCE-FIELDS.md",
+      "sha256": "5379948a8277cae49800ffa20ec4b16a1fed7f237ae2f7ff3f8dd4f36c66e4bc",
+      "source": "pyproject.toml"
+    },
+    {
+      "boundary": "python:shared-data",
+      "compatibility_review": "unknown",
+      "destination": "share/dvbfixer/notices",
+      "distribution_inclusion": "declared",
       "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/GROMACS-LGPL-2.1.txt",
       "license_review": "unknown",
       "path": "THIRD_PARTY_NOTICES/GROMACS-LGPL-2.1.txt",
@@ -2145,7 +2156,7 @@
       "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/README.md",
       "license_review": "unknown",
       "path": "THIRD_PARTY_NOTICES/README.md",
-      "sha256": "bd0efeb87e3d3b096aed87f853dc118b8c276e15f07ba0236cdfd90ffd947003",
+      "sha256": "2165e4bc1cd2ae9570bac15d11658bb5ba226ee7562eb55f6872ea8b2e8cbf07",
       "source": "pyproject.toml"
     },
     {

@@ -171,3 +171,28 @@ def test_original_code_license_metadata_and_gui_texts_are_synchronized():
     assert (ROOT / "gui/LICENSE").read_bytes() == text
     assert (ROOT / "gui/public/LICENSE").read_bytes() == text
     assert "include LICENSE CONTRIBUTING.md" in (ROOT / "MANIFEST.in").read_text()
+
+
+def test_licensing_completion_is_scoped_and_does_not_claim_third_party_clearance():
+    record = json.loads((ROOT / "docs/research/licensing-completion-2026-11-02.json").read_text())
+    assert record["task_status"] == "complete-for-agreed-scope"
+    assert record["owner_action_required_for_this_task"] is False
+    assert record["original_code"]["license"] == "BSD-3-Clause"
+    assert record["delivery"]["primary"] == "source-plus-existing-standard-desktop-installer"
+    assert record["delivery"]["prebuilt_environment_container_publication_in_scope"] is False
+    assert record["delivery"]["restricted_binary_or_weight_redistribution_authorized"] is False
+    assert record["overall_third_party_clearance"] is False
+    assert "resolved-gpl-combined-work-interpretation" in record["not_claimed"]
+
+
+def test_bundled_force_fields_keep_data_and_notice_packaging():
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text())
+    data = project["tool"]["setuptools"]["data-files"]
+    for name in ("amber19sb.ff", "amber99sb-ildn-lipid21.ff", "charmm36_ljpme-jul2022.ff"):
+        assert data[f"share/dvbfixer/FF/{name}"] == [f"FF/{name}/*"]
+        assert (ROOT / "FF" / name / "forcefield.doc").is_file()
+    assert data["share/dvbfixer/notices"] == ["THIRD_PARTY_NOTICES/*"]
+    notice = (ROOT / "THIRD_PARTY_NOTICES/FORCE-FIELDS.md").read_text()
+    assert "charmm-terminal-caps.xml" in notice
+    assert "1bbd3bf" in notice
+    assert "not relicense" in notice
