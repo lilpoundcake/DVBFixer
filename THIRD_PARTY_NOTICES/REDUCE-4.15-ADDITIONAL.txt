@@ -1,0 +1,47 @@
+Reduce 4.15 source-specific notices supplementing the directory LICENSE files.
+These blocks are copied from the identified source release. They do not replace
+the full source files or establish complete binary redistribution compliance.
+
+Source: reduce_src/main.cpp and reduce_src/reduce.cpp
+
+// **************************************************************
+// NOTICE: This is free software and the source code is freely
+// available. You are free to redistribute or modify under the
+// conditions that (1) this notice is not removed or modified
+// in any way and (2) any modified versions of the program are
+// also available for free.
+//               ** Absolutely no Warranty **
+// Copyright (C) 1999-2016 J. Michael Word
+// Copyright (C) 2020-2021 Richardson Lab at Duke University
+// **************************************************************
+
+Source: reduce_src/Rot.cpp (also Rot.h, Rot3Fold.cpp/.h, RotDonor.cpp/.h)
+
+// **************************************************************
+// NOTICE: This is free software and the source code is freely
+// available. You are free to redistribute or modify under the
+// conditions that (1) this notice is not removed or modified
+// in any way and (2) any modified versions of the program are
+// also available for free.
+//               ** Absolutely no Warranty **
+// Copyright (C) 1999 J. Michael Word
+// Copyright (C) 2021 ReliaSolve LLC
+// **************************************************************
+
+Source: reduce_src/hybrid_36_c.c
+
+/*! C port of the hy36encode() and hy36decode() functions in the
+    hybrid_36.py Python prototype/reference implementation.
+    See the Python script for more information.
+
+    This file has no external dependencies, NOT even standard C headers.
+    Optionally, use hybrid_36_c.h, or simply copy the declarations
+    into your code.
+
+    This file is unrestricted Open Source (cctbx.sf.net).
+    Please send corrections and enhancements to cctbx@cci.lbl.gov .
+
+    See also: http://cci.lbl.gov/hybrid_36/
+
+    Ralf W. Grosse-Kunstleve, Feb 2007.
+ */

@@ -55,7 +55,7 @@
     "text": "BSD-3-Clause"
   },
   "project_version": "0.10.1",
-  "record_count": 804,
+  "record_count": 809,
   "records": [
     {
       "addons": [],
@@ -2145,7 +2145,62 @@
       "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/README.md",
       "license_review": "unknown",
       "path": "THIRD_PARTY_NOTICES/README.md",
-      "sha256": "4a148ff53ae6b913efd02fdabc1ee1c4a6908df06a153a6d345ced6a6bfa2c03",
+      "sha256": "20decf41eef854c6f5db88c248a059b9d22bcad4cf0a0ef2bf25811b9a71a2fb",
+      "source": "pyproject.toml"
+    },
+    {
+      "boundary": "python:shared-data",
+      "compatibility_review": "unknown",
+      "destination": "share/dvbfixer/notices",
+      "distribution_inclusion": "declared",
+      "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/REDUCE-4.15-ADDITIONAL.txt",
+      "license_review": "unknown",
+      "path": "THIRD_PARTY_NOTICES/REDUCE-4.15-ADDITIONAL.txt",
+      "sha256": "73ee89eda14af0aefb75af654d0adfb5211e648af8b970c0d6770eaad0680483",
+      "source": "pyproject.toml"
+    },
+    {
+      "boundary": "python:shared-data",
+      "compatibility_review": "unknown",
+      "destination": "share/dvbfixer/notices",
+      "distribution_inclusion": "declared",
+      "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/REDUCE-4.15-LIBPDB.txt",
+      "license_review": "unknown",
+      "path": "THIRD_PARTY_NOTICES/REDUCE-4.15-LIBPDB.txt",
+      "sha256": "5238ed241c26fb41235654778c95950762a8bc85e64b2c6fa312f160540c7396",
+      "source": "pyproject.toml"
+    },
+    {
+      "boundary": "python:shared-data",
+      "compatibility_review": "unknown",
+      "destination": "share/dvbfixer/notices",
+      "distribution_inclusion": "declared",
+      "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/REDUCE-4.15-ROOT.txt",
+      "license_review": "unknown",
+      "path": "THIRD_PARTY_NOTICES/REDUCE-4.15-ROOT.txt",
+      "sha256": "58a20b1b978b7ed9c1da349520e5c1d86c3e39ad33d847a7d6e76a12de793c50",
+      "source": "pyproject.toml"
+    },
+    {
+      "boundary": "python:shared-data",
+      "compatibility_review": "unknown",
+      "destination": "share/dvbfixer/notices",
+      "distribution_inclusion": "declared",
+      "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/REDUCE-4.15-SOURCE.txt",
+      "license_review": "unknown",
+      "path": "THIRD_PARTY_NOTICES/REDUCE-4.15-SOURCE.txt",
+      "sha256": "341afa073a61a7710b9191cf4023ca079ff835baee3771b770577b8a5d7043d1",
+      "source": "pyproject.toml"
+    },
+    {
+      "boundary": "python:shared-data",
+      "compatibility_review": "unknown",
+      "destination": "share/dvbfixer/notices",
+      "distribution_inclusion": "declared",
+      "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/REDUCE-4.15-TOOLCLASSES.txt",
+      "license_review": "unknown",
+      "path": "THIRD_PARTY_NOTICES/REDUCE-4.15-TOOLCLASSES.txt",
+      "sha256": "34da1a55cd6a71a80a1e125dad76ecd5a27b10c94e9d76dcff77ab36505f541e",
       "source": "pyproject.toml"
     },
     {

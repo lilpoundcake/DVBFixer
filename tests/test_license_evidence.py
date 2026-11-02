@@ -351,6 +351,34 @@ def test_inchi_source_header_identity_uses_explicit_paths_not_same_basename():
     assert item["primary_license_source_id"] in sources
 
 
+def test_reduce_notices_preserve_selected_source_text_without_generic_relicensing():
+    import hashlib
+
+    report = json.loads((ROOT / "docs/research/dependency-license-review-2026-11-02.json").read_text())
+    item = report["reduce_exact_build_followup"]
+    assert len(item["notice_files"]) == 4
+    for notice in item["notice_files"]:
+        data = (ROOT / notice["local_path"]).read_bytes()
+        assert data.endswith(b"\n")
+        assert hashlib.sha256(data[:-1]).hexdigest() == notice["source_sha256"]
+    additional = (ROOT / item["source_specific_notice_file"]).read_text()
+    for author in ("Richardson Lab at Duke University", "ReliaSolve LLC", "Ralf W. Grosse-Kunstleve"):
+        assert author in additional
+    assert item["redistribution_clearance"] == "unknown"
+    assert item["binary_source_rebuild_performed"] is False
+
+
+def test_reduce_relocation_is_not_misrepresented_as_binary_equality():
+    report = json.loads((ROOT / "docs/research/dependency-license-review-2026-11-02.json").read_text())
+    item = report["reduce_exact_build_followup"]
+    binary = item["installed_binary"]
+    assert binary["package_member_sha256"] != binary["installed_sha256"]
+    assert binary["byte_identical"] is False
+    assert binary["prefix_relocation_declared"] is True
+    assert binary["difference_explained_by_relocation_proven"] is False
+    assert item["dictionary"]["all_three_byte_identical"] is True
+
+
 def test_evidence_index_refuses_incomplete_or_corrupt_captures(tmp_path, monkeypatch):
     monkeypatch.syspath_prepend(str(ROOT / "scripts"))
     import summarize_license_evidence

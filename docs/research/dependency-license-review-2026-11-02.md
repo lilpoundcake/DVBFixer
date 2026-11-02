@@ -294,6 +294,52 @@ redistribution consent or license key has been supplied or assumed by this revie
 
 ## Next work
 
+### Reduce selected-source/build continuation (baseline `c6cb14f`)
+
+The exact cached `reduce-4.15-hbdacb55_1` osx-arm64 archive was retained and
+verified against its conda SHA-256 identity, not just imported package metadata.
+Its embedded recipe names source archive digest
+`f2f993e3f86ded38135d6433e0a7c2ed10fbe5da37f232c04d7316702582ed06`.
+The retrieved 13,281,653-byte `v4.15` source archive matches it. The annotated
+tag resolves through `32b67379` to commit `e7485302`; no verified signature is
+claimed. Historical bioconda commit `098d2ea5` supplies a template and build
+script identical to the two embedded package files. Current recipe revisions
+are not substituted for this selected build.
+
+The build links Reduce, libpdb and toolclasses. Their four root/directory license
+texts were inspected, along with source headers. The root metadata label
+`BSD-4-Clause-UC` is incomplete as a description: `reduce_src` preserves the
+custom condition that modified versions also be available for free. Source
+notices additionally name Richardson Lab at Duke University and ReliaSolve LLC;
+the compiled `hybrid_36_c.c` credits Ralf W. Grosse-Kunstleve and describes itself
+as "unrestricted Open Source". That description is not silently converted into
+an SPDX grant for all of Reduce.
+
+The notice set now reproduces all four directory/root license texts, preserving
+the text with only a terminal LF added, and supplemental inspected source
+notice blocks. The README gives the requested UCSF acknowledgement. These are
+real attribution additions, not a complete distribution clearance or replacement
+for notices in source files. No Reduce software or dictionary was added to the
+project distribution. The exact meaning of "available for free" for an intended
+modified build still requires upstream/specialist clarification; this audit does
+not declare it ordinary BSD, Apache, or a blanket commercial-use prohibition.
+
+`reduce_wwPDB_het_dict.txt` is identical in source archive, conda package and
+selected installed prefix (66,390,773 bytes; hash in the register). Its underlying
+dictionary/data provenance is a separate scope, not cleared by the software
+license or by equality. The installed executable is **not** byte-identical to
+the package member (775,904 vs 763,312 bytes). `info/has_prefix` and paths metadata
+declare binary prefix relocation. That is an identified possible explanation,
+not proof accounting for every changed byte. Installed relocation/signing checks
+and independent build correspondence remain open; no binary was executed,
+reinstalled, signed or patched during this review.
+
+Eight pinned notices/build-source items plus selected package recipe/paths
+metadata were retained. Three report hashes bind this evidence. The source
+archive and selected conda package remain local research artifacts, not newly
+redistributed program payloads. Full legal clearance and Linux selected-build
+verification remain separate.
+
 1. Review CHARMM parameter/port terms and BUF-value derivation independently of
    the unknown acquisition; recover Lipid21 port archive/history as well.
 2. Review the binary wheel/native/data closure and actual corresponding-source
@@ -304,6 +350,16 @@ redistribution consent or license key has been supplied or assumed by this revie
    notices/source delivery. Do not publish a generic all-dependencies-BSD claim.
 
 ## Verification
+
+Reduce continuation: **53 narrow tests passed**, including source-notice hash
+preservation and explicit non-equality/relocation guards. All three retained
+reports and their captured blobs were hash-verified, nine supplemental notice
+blocks were checked against source, and 14 changed-document local links resolve.
+User documentation, declaration drift and diff checks passed. The declaration
+inventory now includes the five new notice-only files. A new wheel build was
+not performed: the base interpreter lacks the `build` module, and no environment
+was altered to install it. Existing package-data globs include the new notice
+files, but installed-wheel readback for this notice expansion remains pending.
 
 Component/source continuation: **51 narrow tests passed**. New guards keep
 container/header matches separate from binary/source and redistribution

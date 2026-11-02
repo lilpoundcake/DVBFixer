@@ -249,3 +249,25 @@ comparison remain preserved as partial evidence; use the v2 comparison reports.
 Validation for this continuation: 51 narrow tests and user documentation checks
 passed; notice inventory regenerated. No complete corresponding-source delivery,
 closed-combination permission, scientific execution or legal clearance is claimed.
+
+### Reduce continuation after `c6cb14f`
+
+Selected osx-arm64 build `hbdacb55_1` archive and its embedded recipe are retained.
+The source archive matches the recipe digest; tag v4.15 resolves to `e7485302`.
+Historical bioconda `098d2ea5` template/build script match the package bytes.
+Four directory/root notices plus additional inspected source blocks now ship as
+notice-only files; preserve their text, source hashes and appended-final-LF
+convention. UCSF acknowledgement is included, but the modified-versions-free
+condition is not resolved by a generic BSD label. Dictionary equality across
+source/package/installed copies does not clear underlying data rights.
+
+Installed Reduce differs from the package executable. Binary prefix relocation
+is declared, but not proven to account for all changes; do not claim equality
+or silently patch/reinstall to make it match. Eight pinned sources and three
+retained report hashes are recorded. No independent rebuild, scientific execution,
+Linux selected-build mapping or full distribution clearance is inferred.
+Validation: 53 narrow tests, user docs, declaration drift and diff checks pass;
+three retained report hashes, captured blobs and nine supplemental source notice
+blocks checked. New notice files are included in the regenerated declaration
+inventory. Fresh wheel/readback is pending because base Python lacks `build`;
+no package was installed into the user's environment to bypass this limitation.

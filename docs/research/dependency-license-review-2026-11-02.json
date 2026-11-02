@@ -315,5 +315,51 @@
       "inchi-wheel-source-header-comparison-v2.json": "63a74f78ab28de7b131585724afd6eae31813bf71b70fc4ab6a6c88910ce2c74"
     }
   },
+  "reduce_exact_build_followup": {
+    "baseline": "c6cb14f",
+    "selected_build": "reduce-4.15-hbdacb55_1, osx-arm64",
+    "package_archive_sha256": "a8a1f358a37feda8b8cdb2ea4cfc13128d84dd92c452697b3d9035e46c363368",
+    "package_archive_bytes": 7658205,
+    "source_tag": "v4.15",
+    "source_tag_object": "32b67379c5bb79d1a1994302ee88bb3078f8cd31",
+    "source_commit": "e748530212b104d2e3328bcb98d6f6972ff2997b",
+    "source_archive_url": "https://codeload.github.com/rlabduke/reduce/tar.gz/refs/tags/v4.15",
+    "source_archive_sha256": "f2f993e3f86ded38135d6433e0a7c2ed10fbe5da37f232c04d7316702582ed06",
+    "source_archive_bytes": 13281653,
+    "source_hash_matches_packaged_recipe": true,
+    "bioconda_reference_commit": "098d2ea51fbcb406cfaf01eca3e66ff89a8b85cd",
+    "packaged_template_and_build_script_match_reference": true,
+    "binary_source_rebuild_performed": false,
+    "installed_binary": {
+      "package_member_sha256": "ee1eb721f50548aa1fa00c5b112835bfd5acc01b7ec5b60fe3fba9d7b32d1be5",
+      "package_member_bytes": 763312,
+      "installed_sha256": "618162274a9aa8bf525455a09db5224668cb81ca287f0995fb465995e7805911",
+      "installed_bytes": 775904,
+      "byte_identical": false,
+      "prefix_relocation_declared": true,
+      "difference_explained_by_relocation_proven": false
+    },
+    "dictionary": {
+      "path": "reduce_wwPDB_het_dict.txt",
+      "bytes": 66390773,
+      "source_package_installed_sha256": "0da5ec87a909bb0eb8df480c42ce74bef92e710ff939764f960a62b0d9b38ab9",
+      "all_three_byte_identical": true,
+      "underlying_data_rights": "separate; not assigned by software-license metadata"
+    },
+    "notice_files": [
+      {"source_path": "LICENSE.txt", "source_sha256": "d7627f8c839a7496f79d7ea50f3ce252317f0510501517c64330e7619b446159", "local_path": "THIRD_PARTY_NOTICES/REDUCE-4.15-ROOT.txt"},
+      {"source_path": "libpdb/LICENSE.txt", "source_sha256": "df9e26191afe064aee58d8a9cc956535a87c7e6ba3c143610783562129a5483a", "local_path": "THIRD_PARTY_NOTICES/REDUCE-4.15-LIBPDB.txt"},
+      {"source_path": "reduce_src/LICENSE.txt", "source_sha256": "a7560ec1a4bd83138719a970c0597601924453306e7e6be2da3fd80a672b9db1", "local_path": "THIRD_PARTY_NOTICES/REDUCE-4.15-SOURCE.txt"},
+      {"source_path": "toolclasses/LICENSE.txt", "source_sha256": "ac6157afdab7c2a5a471554fb6c8a05b70a2a9ae443f43dd2241dc44546ca8c6", "local_path": "THIRD_PARTY_NOTICES/REDUCE-4.15-TOOLCLASSES.txt"}
+    ],
+    "notice_formatting": "one terminal LF appended; original source files lack final LF; notice wording unchanged",
+    "source_specific_notice_file": "THIRD_PARTY_NOTICES/REDUCE-4.15-ADDITIONAL.txt",
+    "retained_reports_sha256": {
+      "reduce-exact-build/inventory.json": "1c3cce23d6ade9c53ea7d74e319d7a96f6c07a3f07553fe2719c2d7bc4aced60",
+      "reduce-pinned-sources/inventory.json": "a8e9ecf5aefc78ac9decf2dc4dedfc3c19f9c79ed3ffc5a8b8ada1f3a616f4d4",
+      "reduce-recipe-comparison.json": "71fcb58d8818452d034e81edcdf1bc735c2b7cb16ee42671f477f2a02dd07cd4"
+    },
+    "redistribution_clearance": "unknown"
+  },
   "overall_clearance": false
 }
