@@ -1538,7 +1538,11 @@ def _run_staged(
             runner_protocol_version=DIFFUSION_RUNNER_PROTOCOL_VERSION,
             engine_repository="https://github.com/ProteinDesignLab/protpardelle-1c",
             engine_revision=_REVISION,
+            # Pinned source and the official Zenodo checkpoint archive have
+            # separate terms; both supported checkpoint digests are checked above.
+            source_license="MIT",
             checkpoint_sha256=checkpoint_sha,
+            checkpoint_license="CC-BY-4.0",
             device=str(device),
             precision="float32",
             framework="torch",

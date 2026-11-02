@@ -87,6 +87,8 @@ The local development server opens the browser. Follow the
 
 ## Developers and administrators
 
+- [Contributing](CONTRIBUTING.md)
+- [Software citation](CITATION.cff)
 - [GUI setup and server configuration](gui/README.md)
 - [API](docs/api.md) and [public deployment](docs/deployment.md)
 - [Architecture](ARCHITECTURE.md) and [domain policies](docs/domain-model.md)
@@ -98,3 +100,18 @@ After installing development extras with `pip install -e ".[dev]"`, run
 declared in the selected profile. Optional engine tests require their separate
 runtimes; keep PyTorch outside Standard. The real PSI4 test uses an explicit
 `DVBFIXER_TEST_PSI4_PREFIX`.
+
+## License
+
+DVBFixer's original code is available under [BSD-3-Clause](LICENSE).
+Copyright (c) 2026, Stanislav Skripkin. Commercial use, modification and
+redistribution are permitted under that license; author notification is not
+required.
+
+Third-party libraries, bundled force fields, datasets and model weights retain
+their own terms and are not relicensed by this grant. See
+[third-party notices](THIRD_PARTY_NOTICES/README.md),
+[model terms](docs/model-licenses.md) and the
+[ongoing dependency audit](docs/research/third-party-license-audit.md).
+The project license does not establish permission for every combined
+distribution or restricted scientific backend.

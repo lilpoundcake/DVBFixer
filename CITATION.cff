@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use dvbfixer, please cite this software and the relevant third-party tools and parameter sets."
+type: software
+title: dvbfixer
+authors:
+  - family-names: Skripkin
+    given-names: Stanislav
+repository-code: "https://github.com/lilpoundcake/DVBFixer"
+license: BSD-3-Clause

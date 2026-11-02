@@ -62,3 +62,5 @@ The [third-party licensing audit](research/third-party-license-audit.md) records
 component/model-weight findings and unresolved terms; the
 [licensing plan](plans/licensing-and-attribution.md) tracks project-license
 selection, notices and release verification. Neither is a release clearance.
+See also [model source/weight terms](model-licenses.md) and the
+[current evidence and owner decision gate](research/licensing-decisions-2026-10-31.md).

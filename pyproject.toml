@@ -7,6 +7,7 @@ name = "dvbfixer"
 version = "0.10.1"
 description = "PDB structure preparation tools: chain splitting, renumbering, loop modeling, fixing, minimization, protonation, topology generation, molecule transplanting"
 requires-python = ">=3.11,<3.14"
+license = {text = "BSD-3-Clause"}
 dependencies = [
     "numpy<2.5",
     "scipy",
@@ -41,6 +42,10 @@ dev = [
 [project.scripts]
 dvbfixer = "dvbfixer.cli:main"
 obminimize = "dvbfixer.openbabel_cli:obminimize"
+
+# Keep license metadata compatible with the supported setuptools>=64 baseline.
+[tool.setuptools]
+license-files = ["LICENSE"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

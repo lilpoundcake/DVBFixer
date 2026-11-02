@@ -1,1 +1,2 @@
 exclude modeller_key.txt
+include LICENSE CONTRIBUTING.md CITATION.cff

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "purpose": "Explicit small upstream legal/provenance sources; capture is not clearance",
+  "sources": [
+    {"id": "openbabel-3.1.1-license", "url": "https://raw.githubusercontent.com/openbabel/openbabel/cbd4db43f8908b874864280fdc03bf92569eebc1/COPYING", "scope": "source-license"},
+    {"id": "openbabel-3.1.1-readme", "url": "https://raw.githubusercontent.com/openbabel/openbabel/cbd4db43f8908b874864280fdc03bf92569eebc1/README.md", "scope": "source-grant"},
+    {"id": "openbabel-3.1.1-mol-cpp", "url": "https://raw.githubusercontent.com/openbabel/openbabel/cbd4db43f8908b874864280fdc03bf92569eebc1/src/mol.cpp", "scope": "file-level-grant"},
+    {"id": "openbabel-3.1.1-mol-h", "url": "https://raw.githubusercontent.com/openbabel/openbabel/cbd4db43f8908b874864280fdc03bf92569eebc1/include/openbabel/mol.h", "scope": "file-level-grant"},
+    {"id": "acpype-2026.10.15-metadata", "url": "https://pypi.org/pypi/acpype/2026.10.15/json", "scope": "release-metadata-not-source-text"},
+    {"id": "parmed-4.3.1-setup", "url": "https://raw.githubusercontent.com/ParmEd/ParmEd/9fa8b08b760f57d45a271854ffa4a17f3f2647c0/setup.py", "scope": "source-metadata-only-no-root-license-at-this-commit"},
+    {"id": "modeller-academic-eula", "url": "https://salilab.org/modeller/registration.html", "scope": "public-current-terms-not-individual-agreement"},
+    {"id": "modeller-nonacademic", "url": "https://salilab.org/modeller/nonacademic.html", "scope": "public-current-policy"},
+    {"id": "protpardelle-source-license", "url": "https://raw.githubusercontent.com/ProteinDesignLab/protpardelle-1c/ee378400f25b801fa481028000f9060183d7fb4c/LICENSE", "scope": "source-license"},
+    {"id": "protpardelle-weight-record", "url": "https://zenodo.org/api/records/16817230", "scope": "weight-license-record"},
+    {"id": "protenix-v1-license", "url": "https://raw.githubusercontent.com/bytedance/Protenix/85767b811c40ed46e73a9b39519cf6bfca8701ba/LICENSE", "scope": "source-license"},
+    {"id": "protenix-v1-readme", "url": "https://raw.githubusercontent.com/bytedance/Protenix/85767b811c40ed46e73a9b39519cf6bfca8701ba/README.md", "scope": "weight-grant"},
+    {"id": "rfdiffusion-weight-clarification", "url": "https://raw.githubusercontent.com/RosettaCommons/RFdiffusion/820bfdfaded8c260b962dc40a3171eae316b6ce0/LICENSE", "scope": "later-immutable-weight-clarification-not-pinned-runner-source"},
+    {"id": "charmm-parameter-download-policy", "url": "https://mackerell.umaryland.edu/charmm_ff.shtml", "scope": "archive-source-not-blanket-redistribution-grant"},
+    {"id": "rcsb-data-policy", "url": "https://www.rcsb.org/pages/policies", "scope": "deposited-data-policy-not-all-derived-fixtures"},
+    {"id": "gnu-gpl-compatibility-faq", "url": "https://www.gnu.org/licenses/gpl-faq.html", "scope": "licensor-guidance-not-project-specific-legal-opinion"}
+  ]
+}

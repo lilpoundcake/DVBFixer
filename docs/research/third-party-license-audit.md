@@ -1,9 +1,14 @@
 # Third-party components and licensing audit
 
-Audit date: **2026-10-27**. Status: **preliminary inventory, not release clearance
-or legal advice**. No project license has been selected by this audit.
+Initial audit: **2026-10-27**. Repository/metadata refresh: **2026-10-31**,
+baseline **`4a328a6` / 0.10.1**. Status: **preliminary inventory, not release
+clearance or legal advice**. The initial audit did not select a project license;
+the owner subsequently chose BSD-3-Clause and confirmed Stanislav Skripkin.
+Original-code LICENSE/metadata were implemented on 2026-11-02; third-party
+clearance remains open.
 
 [Implementation plan](../plans/licensing-and-attribution.md) ·
+[Execution handoff](../plans/licensing-audit-handoff.md) ·
 [Existing notices](../../THIRD_PARTY_NOTICES/README.md) ·
 [Dependency/environment audit](../plans/environment-dependency-audit.md)
 
@@ -15,6 +20,32 @@ test-data provenance. Evidence comes from `pyproject.toml`, `environment.yml`,
 `gui/package.json`, `gui/package-lock.json`, `src/dvbfixer/`, `deploy/`, and
 upstream license files/model records inspected during the audit.
 
+The 2026-10-31 refresh additionally checked the canonical
+`src/dvbfixer/data/installation-profiles.toml`, runtime provisioning, packaging
+declarations and current GUI lockfile. Original upstream findings below are not
+all reverified by this refresh; new PyPI observations are explicitly metadata
+only. No full environment export, binary inspection or transitive SBOM was made.
+
+The subsequent implementation collected eight installed Apple metadata/legal
+inventories and inspected actual wheel/sdist snapshots. See the
+[continuation findings and owner gate](licensing-decisions-2026-10-31.md) and
+[portable evidence index](licensing-evidence-2026-10-31.json). Earlier evidence
+limits below describe initial discovery unless explicitly superseded there;
+cross-platform closure and complete compatibility review remain open.
+
+The [generated declaration inventory](license-inventory.json) is the first WP1
+implementation slice. Run `python3 scripts/gen_license_inventory.py --check`
+to detect changes to declarations, selected tracked data and review-input hashes.
+It currently contains 804 records (uses/assets/lock entries, not unique software
+projects): 20 Python runtime requirements, five build/dev requirements, 40
+catalog entries, five external integrations, 32 direct GUI declarations, 558
+npm lock entries, 120 declared packaged files and 24 pending review inputs.
+Untracked material is excluded from this register, not guaranteed absent from a
+local build: setuptools globs and actual archives still need inspection. All
+compatibility decisions remain `unknown`; npm license fields are `declared`
+metadata only. Existing upstream observations in this prose have not been
+promoted automatically into exact-version, artifact-verified evidence records.
+
 An upstream license observation is not proof that every permitted dependency
 version, binary wheel, container or auxiliary dataset has identical terms.
 Unpinned packages need release-specific verification. This is not a complete
@@ -24,8 +55,9 @@ operator-provided artifacts; they have different distribution boundaries.
 
 ## Priority findings
 
-1. No root project license was found among tracked files, and `pyproject.toml`
-   does not declare one. Public availability alone is not an open-source grant.
+1. At the audited baseline, no root project license or Python declaration existed.
+   This original-code declaration gap was addressed on 2026-11-02 with the
+   owner-approved BSD-3-Clause grant. It does not settle third-party rights.
 2. Protpardelle-1c source is **MIT**, but its official weights archive is
    **CC-BY-4.0**. Do not label both MIT.
 3. Open Babel and ACPYPE are directly imported GPL components, not exclusively
@@ -36,6 +68,32 @@ operator-provided artifacts; they have different distribution boundaries.
    permission to redistribute it or operate every commercial/service deployment.
 5. Existing third-party notices cover Amber19SB/GROMACS only, while packaging
    also distributes two other force-field trees with incomplete license evidence.
+
+## Implemented installation boundaries (2026-10-31)
+
+Standard and Desktop are implemented, not future dependency-slimming proposals.
+Standard includes PySCF/RESP, MDAnalysis/Plotly, MODELLER, AmberTools, Reduce,
+MAFFT and ANARCI/HMMER. Desktop inherits Standard and adds Node/npm and GUI.
+`openff-toolkit-base` is the conda route; openmmforcefields, ACPYPE and
+openbabel-wheel are pip packages. Inspect their actual installed distributions,
+not the license of a similarly named conda metapackage.
+
+The `msa-alternatives` add-on adds MUSCLE 5 and Clustal Omega. Probe 2.18 is an
+optional add-on (managed Linux provisioning; native Apple can be operator
+provided). Its experimental 2.26 candidate is not the production dependency.
+`ambertools-compat` changes Python/NumPy/Biopython bounds and adds `pdb2pqr`;
+it needs its own resolved inventory. PSI4/psiresp is separate; Gaussian is
+operator-provided. xTB is removed from supported profiles.
+
+The helper provisions pinned, locally patched Protenix v1 and cc94 CUDA/MPS
+sources and their runtime environments. Review fetched source/data terms and
+modification notices as well as any future redistributed image or archive.
+Installation or checkpoint-backed scientific acceptance is not license clearance.
+Historical cc89 and research Boltz/RFdiffusion paths remain separate audit scopes.
+
+The source/wheel, resolved installed environments, browser assets, standalone
+server, helper-fetched artifacts, research/build tools and operator-provided
+software must not be collapsed into one undifferentiated dependency list.
 
 ## Model source, weights and auxiliary artifacts
 
@@ -60,9 +118,10 @@ operator-provided artifacts; they have different distribution boundaries.
 - No tracked `.pt`, `.pth`, `.ckpt`, `.onnx` or `.safetensors` weights were found.
   Operator-provided weights still need documented terms; embedding them in an
   image is a separate distribution decision.
-- The Protpardelle runners record MIT source provenance, but the separate
-  checkpoint license is not populated in the inspected paths. Add CC-BY-4.0
-  checkpoint provenance without changing scientific behavior.
+- The initial inspected Protpardelle paths omitted checkpoint-license provenance.
+  The 2026-10-31 continuation corrects the shared adapter to populate MIT source
+  and CC-BY-4.0 checkpoint fields separately, without changing sampling. Existing
+  frozen requests/results are not rewritten.
 - The pinned Protenix README explicitly excludes **v2 weights** from open-source
   licensing. Do not generalize the v1 finding to v2 or future weights.
 - Boltz's deployment guide also records `boltz2_aff.ckpt` and `mols.tar`.
@@ -100,6 +159,29 @@ bundled code and binary-library obligations remain part of release validation.
 | [ACPYPE](https://github.com/alanwilter/acpype) | GROMACS export | Current package metadata declares GPL-3.0-or-later; verify the release actually distributed |
 | [Plotly.py](https://github.com/plotly/plotly.py) | Plots | MIT |
 | [ANARCI](https://github.com/oxpig/ANARCI/blob/master/LICENCE) | Antibody numbering | BSD-3-Clause code; inventory HMM profiles and their underlying data separately |
+| [PySCF](https://github.com/pyscf/pyscf) | Standard, required Python dependency for RESP QM | Apache-2.0 core; PyPI `2.14.0` metadata rechecked on 2026-10-31; inspect bundled/native libraries separately |
+| [TinyDB](https://pypi.org/pypi/tinydb/4.9.0/json) | Force-field template cache | MIT in checked PyPI metadata |
+| [lxml](https://pypi.org/pypi/lxml/6.1.3/json) | Force-field XML | BSD-3-Clause in checked PyPI metadata; inspect libxml2/libxslt and wheel notices separately |
+| [PyYAML](https://pypi.org/pypi/pyyaml/6.0.3/json) | Force-field configuration | MIT in checked PyPI metadata; inspect bundled LibYAML if present |
+| [validators](https://pypi.org/pypi/validators/0.36.0/json) | Force-field source validation | MIT in checked PyPI metadata |
+| [threadpoolctl](https://pypi.org/pypi/threadpoolctl/3.7.0/json) | BLAS runtime verification | BSD-3-Clause in checked PyPI metadata; does not determine the loaded BLAS license |
+
+These tables now name all **20** direct requirements in `pyproject.toml`, plus
+selected catalog/external components; this is enumeration, not 20 completed
+license reviews. The added versioned PyPI records were read on 2026-10-31 and
+are not installed-version evidence or archived/hash-bound legal texts. ParmEd
+`4.3.1` PyPI metadata still reports only `LGPL`; the subsequently captured conda
+build declares LGPL-2.1-or-later and includes LGPL 2.1 text. That exact-build
+finding does not clear every version/file or the combined distribution.
+
+The supported catalog additionally installs Python, pip, OpenBLAS-selected
+BLAS/CBLAS/LAPACK and (Desktop) Node/npm. Review the selected builds, native
+runtime/compiler libraries and bundled dependencies. The
+[`pdb2pqr` 3.8.0 metadata](https://pypi.org/pypi/pdb2pqr/3.8.0/json) contains
+BSD-style three-clause terms, but this does not clear all data or transitive
+dependencies of the compatibility add-on. Build requirements (setuptools),
+Python dev extras and the test stack also require a separate build/source
+inventory; they are not automatically shipped runtime components.
 
 Open Babel imports occur in chemistry/preparation/parameterization paths;
 `src/dvbfixer/acpype_export.py` imports `acpype.topol.MolTopol`. Do not claim that
@@ -111,17 +193,16 @@ review the actual combined work and distribution, including GPL-version issues.
 
 | Tool | Role | Observed terms / remaining check |
 |---|---|---|
-| [MODELLER](https://salilab.org/modeller/registration.html) | Default gap/comparative modeling, optional SALIGN engine | Custom restrictive terms; verify academic/commercial/service use and redistribution from the actual license. Registration-page retrieval timed out during this audit, so this is not a full verified-text review |
+| [MODELLER](https://salilab.org/modeller/registration.html) | Default gap/comparative modeling, optional SALIGN engine | Public EULA captured in continuation: internal non-commercial use, non-transferable grant, written permission required for distribution; owner-specific agreement/deployment rights remain open |
 | [AmberTools](https://ambermd.org/AmberTools.php) | `tleap`, `antechamber`, `parmchk2`, associated calculations | Mixed suite, predominantly GPL; identify the actual release's component licenses, including indirect executables |
 | [Reduce](https://github.com/rlabduke/reduce/blob/master/LICENSE) | Hydrogen placement and tautomer/orientation decisions | Apache-2.0 in inspected upstream |
 | [Probe](https://github.com/rlabduke/probe/blob/master/LICENSE.txt) | Contact diagnostics | Apache-2.0 in inspected upstream |
-| [xTB](https://github.com/grimme-lab/xtb) | Optional geometry refinement | LGPL-3.0 family; check release notices |
+| [xTB](https://github.com/grimme-lab/xtb) | Historical research only; removed from current installation profiles | LGPL-3.0 family; audit only if a historical/research artifact actually includes it |
 | [MAFFT](https://mafft.cbrc.jp/alignment/software/) | MSA | Standard source without extensions is BSD; Windows/extensions packages can have different terms |
 | [MUSCLE 5](https://github.com/rcedgar/muscle) | MSA | GPL-3.0 family; use v5, not v3 |
 | [Clustal Omega](http://www.clustal.org/omega/) | MSA | GPL-2.0-or-later in package recipe |
 | [HMMER](https://github.com/EddyRivasLab/hmmer) | ANARCI support | BSD; include Easel/component notices where distributed |
 | [Kalign 3.6.0](https://github.com/TimoLassmann/kalign/blob/v3.6.0/COPYING) | Protenix environment | Apache-2.0 |
-| [PySCF](https://github.com/pyscf/pyscf) | Optional RESP QM backend | Apache-2.0 core plus binary/component notices |
 | [Psi4](https://github.com/psi4/psi4) / [psiresp](https://pypi.org/project/psiresp/) | Alternative isolated RESP backend | LGPL-3.0 / LGPLv3 metadata; inspect actual releases |
 | [Gaussian](https://gaussian.com/) | Input preparation and supplied-log consumption | Proprietary external program, not distributed by this path |
 
@@ -164,12 +245,18 @@ including development dependencies and platform variants. All declared a
 license: 499 MIT, 21 Apache-2.0, 21 ISC, six BSD-2-Clause, six BSD-3-Clause, and
 one each BlueOak-1.0.0, Python-2.0, CC-BY-4.0, 0BSD and `(MIT OR CC0-1.0)`.
 This is a lockfile observation, not a count of packages shipped in the browser.
+The count and license histogram were recomputed unchanged on 2026-10-31;
+the root GUI package still has no declared license. `private: true` prevents
+accidental npm publication but does not grant usage or redistribution rights.
 
 Direct components include [React](https://github.com/facebook/react),
 [Mol*](https://github.com/molstar/molstar), [MUI](https://github.com/mui/material-ui),
 Emotion, Zustand, TypeBox, openapi-fetch, Connect, serve-static, Sass and Rollup
 WASM (MIT), and [FlexLayout](https://github.com/caplin/FlexLayout) (ISC).
 Inspect embedded assets and component notices as well as npm metadata.
+`build:server` uses esbuild with `--packages=external`: inspect installed server
+dependencies as well as `dist-server/server.js`. Browser and server inventories
+must be separate, and source maps/assets must be included when distributed.
 `caniuse-lite` is CC-BY-4.0; assess actual build/distribution inclusion rather
 than assuming every development dependency ships to users.
 
@@ -196,7 +283,7 @@ In particular, upstream Protpardelle requests both
 citations already present in `forcefield.doc`; complete and validate the
 bibliography rather than treating these examples as exhaustive.
 
-Release gates remain open for project-license compatibility, MODELLER terms,
+Release gates remain open for combined-distribution compatibility, MODELLER terms,
 the two older bundled FF trees, auxiliary model/HMM data, contributed fixture
 rights and exact transitive/binary notices. The linked implementation plan
 tracks deliverables and owner decisions; this report records findings only.

@@ -74,6 +74,17 @@ def main() -> int:
         details = ", ".join(f"{name}={value!r}" for name, value in mismatches.items())
         raise RuntimeError(f"installed version does not match {expected_version!r}: {details}")
 
+    distribution = importlib.metadata.distribution("dvbfixer")
+    license_id = distribution.metadata.get("License-Expression") or distribution.metadata.get("License")
+    if license_id != "BSD-3-Clause":
+        raise RuntimeError("installed distribution does not declare BSD-3-Clause")
+    license_files = [file for file in distribution.files or ()
+                     if file.name == "LICENSE" and any(part.endswith(".dist-info") for part in file.parts)]
+    expected_license = (args.project_root / "LICENSE").read_bytes()
+    if not license_files or not any(distribution.locate_file(file).read_bytes() == expected_license
+                                    for file in license_files):
+        raise RuntimeError("installed wheel is missing the matching original-code LICENSE")
+
     version_output = _run_cli("--version").strip()
     if version_output != f"dvbfixer {expected_version}":
         raise RuntimeError(f"unexpected --version output: {version_output!r}")

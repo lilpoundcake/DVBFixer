@@ -22,3 +22,6 @@ leap.log
 
 # Operator-provided local MODELLER credential (never package or publish).
 /modeller_key.txt
+
+# Retained local licensing evidence is not an approved redistribution bundle.
+/tmp/licensing-audit-2026-10-31/
