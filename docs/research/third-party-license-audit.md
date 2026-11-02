@@ -11,8 +11,8 @@ The [2026-11-02 exact-source continuation](dependency-license-review-2026-11-02.
 supersedes generic observations where actual selected artifacts differ: the
 Open Babel wheel recipe pins a fork, ACPYPE includes a native Amber payload,
 Reduce 4.15 has custom notices, and the CHARMM content reference now has a
-byte-level comparison. The owner reports CHARMM acquisition from GROMACS;
-its exact package/release is still needed to establish that acquisition chain.
+byte-level comparison. The owner withdrew the GROMACS acquisition hypothesis;
+acquisition is unknown. Independent content and repository history remain useful.
 
 [Implementation plan](../plans/licensing-and-attribution.md) ·
 [Execution handoff](../plans/licensing-audit-handoff.md) ·
@@ -225,7 +225,7 @@ itself are different boundaries.
 |---|---|---|
 | `FF/amber19sb.ff/` | [Pinned GROMACS source/provenance and checksums](../provenance/amber19sb-gromacs.md); LGPL-2.1 text and attribution already shipped | Preserve and validate notices in built artifacts |
 | `FF/amber99sb-ildn-lipid21.ff/` | `forcefield.doc` cites AMBER99SB-ILDN/Lipid21; `forcefield.itp` credits the Sorin ffamber port | Recover exact upstream archive/version, Lipid21 port origin, modifications and applicable permissions for all portions |
-| `FF/charmm36_ljpme-jul2022.ff/` | Owner reports GROMACS acquisition; [official-archive content comparison](../provenance/charmm36-jul2022.md) finds 59 identical files, three BUF-modified files and omitted `watermodels.dat` | Identify actual GROMACS package/release, BUF modification provenance and parameter/port redistribution terms |
+| `FF/charmm36_ljpme-jul2022.ff/` | Acquisition unknown; [content comparison and history](../provenance/charmm36-jul2022.md) identify 62 initial matches, 59 current matches, three BUF edits and omitted `watermodels.dat` | Review BUF-value derivation and parameter/port rights separately from BSD-licensed converter code |
 | `src/dvbfixer/data/charmm-terminal-caps.xml` | Explicit-residue equivalents of CHARMM36 ACE/CT3 patches | Document parameter source and applicable attribution/terms |
 
 Do not infer that a CHARMM parameter archive is LGPL merely because it uses a

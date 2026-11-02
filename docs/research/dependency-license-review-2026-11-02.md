@@ -106,16 +106,18 @@ Reduce is invoked via subprocess, which is a different boundary from the
 Open Babel/ACPYPE Python APIs. Aggregation and each component's own notices still
 need review for prebuilt environments.
 
-## 4. CHARMM: owner-reported GROMACS source, independent content comparison
+## 4. CHARMM: acquisition unknown, content and edit history identified
 
-The owner confirmed acquisition from **GROMACS**. The comparison with an official
-MacKerell archive establishes a content reference, not a different acquisition
-history. It identifies 59 identical files, three BUF-modified files and an
-untracked/omitted reference `watermodels.dat`. The exact original GROMACS
-package/release and permission for modifications remain open. The checked
-GROMACS v2026.3 source lists charmm27, not this Jul-2022 tree; that single check
-does not disprove acquisition through another GROMACS package or collection.
-See the separate provenance note and machine-readable manifests.
+The owner withdrew the GROMACS hypothesis: acquisition is **unknown**. Independent
+comparison identifies 59 current matches, three BUF-modified files and omitted
+`watermodels.dat`. All 62 initial-import files at `c7714fc` match the official
+reference; BUF changes are in `8bb94b4` and `1bbd3bf`. This identifies an edit
+timeline, not original derivation/permission for the values.
+
+The quoted 2021/`077b6a1` converter header differs from the tracked nonempty
+2022/`7b82040` file. Both resolved converter revisions have BSD-3-Clause LICENSE
+texts, copyright 2021 András Wacha. That license does not automatically cover
+input parameters or every output. See the provenance note and evidence register.
 
 ## Distribution decisions remain separate
 
@@ -141,8 +143,8 @@ redistribution consent or license key has been supplied or assumed by this revie
 
 ## Next work
 
-1. Identify the owner's exact GROMACS source/package for CHARMM and BUF changes;
-   recover the corresponding Lipid21 port archive/history independently.
+1. Review CHARMM parameter/port terms and BUF-value derivation independently of
+   the unknown acquisition; recover Lipid21 port archive/history as well.
 2. Review the binary wheel/native/data closure and actual corresponding-source
    route for Open Babel and ACPYPE's bundled Amber, not just sdists/metadata.
 3. Resolve Reduce 4.15's source-specific notices; do not transfer a different
@@ -151,6 +153,14 @@ redistribution consent or license key has been supplied or assumed by this revie
    notices/source delivery. Do not publish a generic all-dependencies-BSD claim.
 
 ## Verification
+
+Follow-up provenance correction: both historical converter LICENSE captures
+were retained under `converter-licenses/` and independently hash-verified; both
+contain the same 1,513-byte BSD text. The 62 initial-import files were re-read
+from Git and their hashes retained in `initial-import-verification.json` below
+the evidence root. The same 34-test narrow suite and user documentation checks
+passed again. This correction does not resolve parameter redistribution rights
+or the remaining native/source/compatibility audit.
 
 The narrow inventory/evidence/profile suite passed **34 tests**. Declaration
 drift checking, user documentation checks, agent maps and `git diff --check`

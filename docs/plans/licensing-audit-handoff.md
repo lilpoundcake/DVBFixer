@@ -180,13 +180,14 @@ constructor bypasses its chirality/Open Babel call, so co-installation alone is
 not a proof of combined-work incompatibility. Selected Reduce 4.15 is not simply
 Apache-2.0. The collector now reads RECORD-owned package-internal legal files.
 
-The owner says CHARMM Jul-2022 came from GROMACS. Preserve that as the reported
-immediate source. The official MacKerell comparison is a reference, not an
-assertion of direct owner download: 59 identical files, three BUF changes,
-omitted `watermodels.dat`. One inspected GROMACS v2026.3 tree contains charmm27,
-not Jul-2022; it does not disprove another GROMACS distribution/source. Ask for
-the exact release/package/archive/path when needed for that chain, and continue
-independent work on binary/source closure and other licenses meanwhile.
+The owner withdrew the GROMACS acquisition hypothesis: original source is
+unknown; do not keep requesting a remembered package/archive. Independent
+comparison finds 59 current matches, three BUF changes and omitted
+`watermodels.dat`. All 62 initial-import files at `c7714fc` match the official
+reference; BUF edits are in `8bb94b4` and `1bbd3bf`, without established original
+value derivation. The quoted 2021 converter header differs from the tracked
+2022 header. Both resolved converter revisions have BSD-3-Clause LICENSE texts;
+parameter/port rights remain separate. Continue authoritative upstream research.
 
 No scientific pipeline, dependency composition or force-field bytes were changed
 in this slice. Review outcomes still do not establish redistribution clearance.

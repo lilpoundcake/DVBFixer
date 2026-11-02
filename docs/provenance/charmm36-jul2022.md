@@ -8,10 +8,10 @@ Updated **2026-11-02**, review baseline `6dae875`.
 
 ## Acquisition versus content reference
 
-The owner reports that `FF/charmm36_ljpme-jul2022.ff/` was obtained **from
-GROMACS**. Its exact GROMACS release, package, archive or installed source path
-has not yet been identified. Preserve that report: this investigation does not
-claim the owner downloaded the files directly from MacKerell.
+The original acquisition source is **unknown**. The owner withdrew the earlier
+GROMACS hypothesis as uncertain on 2026-11-02. Neither GROMACS acquisition nor
+direct MacKerell download is confirmed. Continue independent research without
+requiring the owner to remember an archive or release.
 
 An independent **content reference** was retrieved from the official MacKerell
 [force-field page](https://mackerell.umaryland.edu/charmm_ff.shtml):
@@ -46,6 +46,33 @@ or a finding about scientific correctness. No parameters were changed, replaced
 or added during this review. In particular, the original author/source and
 permission for the BUF additions remain unverified.
 
+## Recovered history and converter headers
+
+At initial import `c7714fc61c1dfeb0fa16514764bf909cc0fde6a8` (2026-03-10),
+all 62 imported files match the corresponding official reference bytes.
+`watermodels.dat` was already absent. Commit
+`8bb94b4f6e7514a31de74b458e7086da66393982` (2026-03-12) introduces dummy BUF
+definitions; `1bbd3bffd75d85eb9a7070b57bcfdfc85f32253a` later that day replaces
+them and adds the current BUF atom/pair values. Both have author signature
+`lilpoundcake`. The latter message calls the values the user's parameters, but
+does not establish their original derivation or rights.
+
+The quoted header names `0.6.dev1+g077b6a1`, dated 2021-10-05, and an empty
+missing-dihedral file. The tracked `ffmissingdihedrals.itp` instead names
+`0.7.dev45+g7b82040.d20221208`, dated 2022-12-08, and is nonempty. It matches the
+reference archive. These are different versions, not interchangeable evidence.
+
+Converter revisions resolve to `077b6a13ae3233d5ad08c9910a3f33d1ea1bdf05` and
+`7b820405b929f1bd7d1e749ffa742061f87213a9`. Both historical LICENSE texts are
+BSD-3-Clause, copyright 2021 András Wacha. The
+[converter documentation](https://awacha.gitlab.io/charmm2gmx/) identifies the
+tool as producing the canonical GROMACS CHARMM port since July 2021; the
+Wacha/Lemkul paper (DOI `10.1021/acs.jcim.3c00860`) describes the conversion.
+**Converter licensing does not automatically license the input parameters or
+all generated output.** Parameter/port permissions remain a separate review.
+
+## Reproducing the current comparison
+
 Reproduce without extraction or modification (use a fresh output path):
 
 ```bash
@@ -67,8 +94,8 @@ was captured from an immutable commit reference in the upstream source register.
 This is **one checked release**, not a statement that no GROMACS package,
 third-party force-field collection, custom build or installation can contain
 the tree. An installed `share/top` location establishes where the files were
-found, but not necessarily who assembled or licensed every file. Do not reject
-the owner's report or silently transfer the checked release's LGPL to a
+found, but not necessarily who assembled or licensed every file. The owner's
+GROMACS hypothesis is withdrawn; do not transfer that release's LGPL to a
 different bundle.
 
 ## Remaining permission evidence
@@ -79,8 +106,8 @@ Its `forcefield.doc` supplies converter, parameter-version and citation details,
 not a complete grant for every portion. This search is not a legal determination
 that no permission exists elsewhere.
 
-Next evidence needed: the owner's actual GROMACS package/archive/version or
-source path, its associated notices, and the provenance of BUF modifications.
-Then evaluate the upstream parameters, conversion and local changes separately.
+Continue reviewing upstream parameter/port permissions and BUF-value derivation
+using the identified content and edit history. Unknown acquisition does not
+prevent this independent review.
 Until then redistribution clearance is **unknown**, not BSD-3-Clause by virtue
 of the project license and not LGPL merely because the data are in GROMACS format.

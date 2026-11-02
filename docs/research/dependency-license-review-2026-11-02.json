@@ -101,7 +101,33 @@
     "redistribution_clearance": "unknown"
   },
   "charmm": {
-    "owner_reported_acquisition": "GROMACS; exact release/package/path not yet supplied",
+    "owner_reported_acquisition": "unknown; earlier GROMACS hypothesis explicitly withdrawn",
+    "initial_import": {
+      "commit": "c7714fc61c1dfeb0fa16514764bf909cc0fde6a8",
+      "date": "2026-03-10",
+      "files": 62,
+      "reference_matches": 62,
+      "retained_verification": "tmp/licensing-audit-2026-10-31/dependency-review-2026-11-02/initial-import-verification.json",
+      "hash_reference": "docs/provenance/charmm36-jul2022-comparison.json#upstream_manifest, restricted to local_manifest paths",
+      "omitted_from_initial_import": ["watermodels.dat"]
+    },
+    "buf_edit_commits": [
+      "8bb94b4f6e7514a31de74b458e7086da66393982",
+      "1bbd3bffd75d85eb9a7070b57bcfdfc85f32253a"
+    ],
+    "buf_original_value_derivation": "unknown; repository edits do not establish original ownership",
+    "converter_licenses": {
+      "revisions": [
+        "077b6a13ae3233d5ad08c9910a3f33d1ea1bdf05",
+        "7b820405b929f1bd7d1e749ffa742061f87213a9"
+      ],
+      "license": "BSD-3-Clause",
+      "copyright": "2021 András Wacha",
+      "both_license_texts_sha256": "68fffc49b7c396a365025d8bffe5d09052c38a7d20fcd4783efb9033816fdf0d",
+      "both_license_texts_bytes": 1513,
+      "retained_capture": "tmp/licensing-audit-2026-10-31/dependency-review-2026-11-02/converter-licenses/inventory.json",
+      "scope": "converter code; not blanket input-parameter or output permission"
+    },
     "reference_archive_sha256": "87f95a03b83d57e6b1965eb4ab798136bc7b78270f8fb85a77f82596d496c15c",
     "matching_files": 59,
     "modified_files": [

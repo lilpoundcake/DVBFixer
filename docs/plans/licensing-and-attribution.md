@@ -145,7 +145,7 @@ unknown entries remain visible rather than receiving guessed SPDX identifiers.
   bundled trees, CHARMM caps and relevant parameter datasets.
 - [x] Compare the tracked CHARMM tree to a hash-bound official content reference:
   59 identical, three BUF-modified files, one omitted reference file. Preserve
-  the owner's GROMACS acquisition report separately; exact package and rights
+  the owner's withdrawn GROMACS hypothesis separately; acquisition and rights
   remain open in [the provenance note](../provenance/charmm36-jul2022.md).
 - [ ] Make an explicit ship/exclude/permission-required decision for each
   unresolved FF tree: all three trees are currently wheel data, not merely

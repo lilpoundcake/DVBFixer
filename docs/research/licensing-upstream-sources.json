@@ -26,6 +26,8 @@
     {"id": "openbabel-wheel-fork-mol-h", "url": "https://raw.githubusercontent.com/njzjz/openbabel/77993b9a3b96fb9bd86249098beb97ab0fcbafc6/include/openbabel/mol.h", "scope": "actual-wheel-recipe-engine-file-grant"},
     {"id": "openbabel-wheel-fork-mol-cpp", "url": "https://raw.githubusercontent.com/njzjz/openbabel/77993b9a3b96fb9bd86249098beb97ab0fcbafc6/src/mol.cpp", "scope": "actual-wheel-recipe-engine-file-grant"},
     {"id": "charmm36-ljpme-jul2022-archive", "url": "https://mackerell.umaryland.edu/download.php?filename=CHARMM_ff_params_files/charmm36_ljpme-jul2022.ff.tgz", "expected_sha256": "87f95a03b83d57e6b1965eb4ab798136bc7b78270f8fb85a77f82596d496c15c", "scope": "official-parameter-archive-identity-not-redistribution-grant"},
-    {"id": "gromacs-v2026.3-top-directory", "url": "https://api.github.com/repos/gromacs/gromacs/contents/share/top?ref=121090014570a53a17ea391bcddae45e5ea05eb4", "scope": "one-pinned-release-directory-not-all-gromacs-distributions"}
+    {"id": "gromacs-v2026.3-top-directory", "url": "https://api.github.com/repos/gromacs/gromacs/contents/share/top?ref=121090014570a53a17ea391bcddae45e5ea05eb4", "scope": "one-pinned-release-directory-not-all-gromacs-distributions"},
+    {"id": "charmm2gmx-2021-license", "url": "https://gitlab.com/api/v4/projects/26241833/repository/files/LICENSE/raw?ref=077b6a13ae3233d5ad08c9910a3f33d1ea1bdf05", "scope": "historical-converter-license-not-input-parameter-grant"},
+    {"id": "charmm2gmx-2022-license", "url": "https://gitlab.com/api/v4/projects/26241833/repository/files/LICENSE/raw?ref=7b820405b929f1bd7d1e749ffa742061f87213a9", "scope": "historical-converter-license-not-input-parameter-grant"}
   ]
 }
