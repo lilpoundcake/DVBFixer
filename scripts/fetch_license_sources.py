@@ -7,8 +7,10 @@ import argparse
 import concurrent.futures
 import hashlib
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import parse_qsl, urlsplit
 from urllib.request import Request, urlopen
 
 from collect_license_evidence import EvidenceStore, public_url, write_report
@@ -20,7 +22,11 @@ MAX_BYTES = 4 * 1024 * 1024
 
 def fetch_source(source: dict) -> tuple[dict, bytes | None]:
     url = source["url"]
-    if public_url(url) != url:
+    parts = urlsplit(url)
+    sensitive_query = any(re.search(r"token|secret|password|credential|signature|api.?key|^auth$|^key$", key, re.I)
+                          for key, _ in parse_qsl(parts.query))
+    if (parts.scheme not in {"http", "https"} or parts.username or parts.password or parts.fragment
+            or re.search(r"/t/[^/]+", parts.path) or sensitive_query):
         raise ValueError("Sources must use public HTTP(S) URLs without credentials or tokens")
     request = Request(url, headers={"User-Agent": "dvbfixer-license-evidence/1"})
     try:
@@ -28,6 +34,8 @@ def fetch_source(source: dict) -> tuple[dict, bytes | None]:
             data = response.read(MAX_BYTES + 1)
             if len(data) > MAX_BYTES:
                 raise ValueError("Legal evidence exceeds the bounded download size")
+            if source.get("expected_sha256") and hashlib.sha256(data).hexdigest() != source["expected_sha256"]:
+                raise ValueError("Registered upstream artifact digest mismatch")
             return ({**source, "status": "captured-not-reviewed",
                      "final_url": public_url(response.url),
                      "content_type": response.headers.get("Content-Type"),
@@ -40,10 +48,18 @@ def fetch_source(source: dict) -> tuple[dict, bytes | None]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--source", action="append", dest="source_ids",
+                        help="Capture only this registered source ID; repeat to select several")
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError("Use a new output directory; never overwrite retained evidence")
     sources = json.loads(REGISTER.read_text())["sources"]
+    if args.source_ids:
+        requested = set(args.source_ids)
+        unknown = requested - {source["id"] for source in sources}
+        if unknown:
+            parser.error(f"Unknown registered source IDs: {', '.join(sorted(unknown))}")
+        sources = [source for source in sources if source["id"] in requested]
     store = EvidenceStore(args.output)
     entries = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:

@@ -63,6 +63,8 @@ def test_authors_modules_and_bytecode_are_not_license_texts():
     assert evidence.legal_name(Path("COPYING.LESSER"))
     assert not evidence.legal_name(Path("authors.py"))
     assert not evidence.legal_name(Path("authors.cpython-313.pyc"))
+    assert not evidence.legal_name(Path("license_key.txt"))
+    assert evidence.legal_name(Path("GNU_LGPL_v3"))
 
 
 def test_evidence_conflicts_are_not_overwritten(tmp_path):
@@ -148,6 +150,111 @@ def test_source_fetch_failures_remain_explicit(monkeypatch):
     assert data is None
     with pytest.raises(ValueError, match="public"):
         fetch_license_sources.fetch_source({"id": "bad", "url": "https://user:secret@example.org/LICENSE"})
+
+
+def test_registered_source_digest_is_checked(monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    import fetch_license_sources
+
+    class Response:
+        url = "https://example.org/source.tar.gz"
+        headers = {"Content-Type": "application/gzip"}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self, limit):
+            return b"bounded source"
+
+    monkeypatch.setattr(fetch_license_sources, "urlopen", lambda *a, **kw: Response())
+    source = {"id": "test", "url": Response.url, "expected_sha256": evidence.digest(b"bounded source")}
+    record, data = fetch_license_sources.fetch_source(source)
+    assert record["status"] == "captured-not-reviewed" and data == b"bounded source"
+    record, data = fetch_license_sources.fetch_source({**source, "url": Response.url + "?filename=source.tar.gz"})
+    assert record["status"] == "captured-not-reviewed"
+    with pytest.raises(ValueError, match="public"):
+        fetch_license_sources.fetch_source({**source, "url": Response.url + "?token=secret"})
+    record, data = fetch_license_sources.fetch_source({**source, "expected_sha256": "0" * 64})
+    assert record["status"] == "unavailable" and data is None
+
+
+def test_python_record_owned_bundled_licenses_are_not_missed(tmp_path):
+    prefix = tmp_path / "prefix"
+    (prefix / "conda-meta").mkdir(parents=True)
+    site = prefix / "lib/python3.12/site-packages"
+    info = site / "example-1.dist-info"
+    info.mkdir(parents=True)
+    (info / "METADATA").write_text("Name: example\nVersion: 1\n\n")
+    owned = site / "example/bundled"
+    owned.mkdir(parents=True)
+    (owned / "LICENSE").write_text("separate bundled-component terms")
+    (owned / "license_key.txt").write_text("must not be captured")
+    (info / "RECORD").write_text("example/bundled/LICENSE,,\nexample/bundled/license_key.txt,,\nexample/native.dylib,,\n")
+    result = evidence.collect_prefix(prefix, evidence.EvidenceStore(tmp_path / "out"))
+    package = result["python"][0]
+    assert len(package["legal_evidence"]) == 1
+    assert package["legal_evidence"][0]["origin"].endswith("example/bundled/LICENSE")
+    assert package["native_file_candidates"] == ["lib/python3.12/site-packages/example/native.dylib"]
+
+
+def test_forcefield_comparison_is_content_evidence_not_clearance(monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    import compare_forcefield_archive
+
+    result = compare_forcefield_archive.compare_manifests(
+        {"same": "a", "changed": "b", "local": "c"},
+        {"same": "a", "changed": "x", "upstream": "d"},
+    )
+    assert result["matching"] == ["same"]
+    assert result["modified"] == [{"path": "changed", "local_sha256": "b", "upstream_sha256": "x"}]
+    assert result["only_local"] == ["local"]
+    assert result["only_upstream"] == ["upstream"]
+    with pytest.raises(ValueError, match="Both"):
+        compare_forcefield_archive.compare_manifests({}, {"a": "b"})
+
+
+def test_forcefield_archive_prefix_and_identity_are_explicit(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    import compare_forcefield_archive
+
+    local = tmp_path / "FF/example.ff"
+    local.mkdir(parents=True)
+    (local / "a.itp").write_bytes(b"parameter")
+    (local / "untracked.itp").write_bytes(b"user work")
+    archive = tmp_path / "reference.zip"
+    with zipfile.ZipFile(archive, "w") as stream:
+        stream.writestr("example.ff/a.itp", b"parameter")
+        stream.writestr("LICENSE", "reference-only terms")
+
+    class GitFiles:
+        stdout = b"FF/example.ff/a.itp\0"
+
+    monkeypatch.setattr(compare_forcefield_archive.subprocess, "run", lambda *a, **kw: GitFiles())
+    sha = evidence.digest(archive.read_bytes())
+    result = compare_forcefield_archive.build_report(tmp_path, archive, local, "example.ff", sha)
+    assert result["matching"] == ["a.itp"]
+    assert result["outside_archive_prefix"] == ["LICENSE"]
+    assert result["only_local"] == []
+    assert result["redistribution_clearance"] == "unknown"
+    with pytest.raises(ValueError, match="predeclared"):
+        compare_forcefield_archive.build_report(tmp_path, archive, local, "example.ff", "0" * 64)
+    with pytest.raises(ValueError, match="safe"):
+        compare_forcefield_archive.build_report(tmp_path, archive, local, "../escape", sha)
+
+
+def test_charmm_comparison_binds_current_tracked_files():
+    import hashlib
+
+    report = json.loads((ROOT / "docs/provenance/charmm36-jul2022-comparison.json").read_text())
+    assert report["redistribution_clearance"] == "unknown"
+    assert len(report["matching"]) == 59
+    assert {e["path"] for e in report["modified"]} == {"atomtypes.atp", "ffnonbonded.itp", "ions.itp"}
+    assert report["only_upstream"] == ["watermodels.dat"]
+    for relative, expected in report["local_manifest"].items():
+        assert hashlib.sha256((ROOT / report["local_tree"] / relative).read_bytes()).hexdigest() == expected
 
 
 def test_evidence_index_refuses_incomplete_or_corrupt_captures(tmp_path, monkeypatch):

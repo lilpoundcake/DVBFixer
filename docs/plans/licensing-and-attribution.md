@@ -137,8 +137,16 @@ unknown entries remain visible rather than receiving guessed SPDX identifiers.
 - [x] Inspect/capture the public MODELLER EULA and non-academic policy; record
   its internal/non-commercial and written-permission restrictions. Individual
   agreements and intended deployment rights still require owner evidence.
+- [x] Inspect exact Open Babel wheel wrapper/fork sources and ACPYPE release
+  source, distinguishing the optional amb2gmx route from other Open Babel calls.
+  Record ACPYPE's bundled Amber payload and correct selected Reduce 4.15 terms;
+  this source/terms evidence does not close the compatibility tasks above.
 - [ ] Establish provenance and terms for the AMBER99SB-ILDN/Lipid21 and CHARMM
   bundled trees, CHARMM caps and relevant parameter datasets.
+- [x] Compare the tracked CHARMM tree to a hash-bound official content reference:
+  59 identical, three BUF-modified files, one omitted reference file. Preserve
+  the owner's GROMACS acquisition report separately; exact package and rights
+  remain open in [the provenance note](../provenance/charmm36-jul2022.md).
 - [ ] Make an explicit ship/exclude/permission-required decision for each
   unresolved FF tree: all three trees are currently wheel data, not merely
   optional dependencies downloaded by the user. Do not remove them without a

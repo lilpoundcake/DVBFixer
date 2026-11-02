@@ -17,6 +17,15 @@
     {"id": "rfdiffusion-weight-clarification", "url": "https://raw.githubusercontent.com/RosettaCommons/RFdiffusion/820bfdfaded8c260b962dc40a3171eae316b6ce0/LICENSE", "scope": "later-immutable-weight-clarification-not-pinned-runner-source"},
     {"id": "charmm-parameter-download-policy", "url": "https://mackerell.umaryland.edu/charmm_ff.shtml", "scope": "archive-source-not-blanket-redistribution-grant"},
     {"id": "rcsb-data-policy", "url": "https://www.rcsb.org/pages/policies", "scope": "deposited-data-policy-not-all-derived-fixtures"},
-    {"id": "gnu-gpl-compatibility-faq", "url": "https://www.gnu.org/licenses/gpl-faq.html", "scope": "licensor-guidance-not-project-specific-legal-opinion"}
+    {"id": "gnu-gpl-compatibility-faq", "url": "https://www.gnu.org/licenses/gpl-faq.html", "scope": "licensor-guidance-not-project-specific-legal-opinion"},
+    {"id": "openbabel-wheel-3.1.1.23-sdist", "url": "https://files.pythonhosted.org/packages/63/2d/720579ccff6247aa8fd2d397a7bd592dae72ef0f0133fe6cce2323ea13a2/openbabel_wheel-3.1.1.23.tar.gz", "expected_sha256": "68fd86540ff0895d36b26f25721187399fb6073f874f6ae474a574e6acf8759d", "scope": "wrapper-release-source-not-complete-openbabel-source"},
+    {"id": "acpype-2026.10.15-sdist", "url": "https://files.pythonhosted.org/packages/89/4c/ebb1ac23b0795d0acf25bcc1b2cd0341e608b2d21b7f20766303c76c4ab6/acpype-2026.10.15.tar.gz", "expected_sha256": "58fab1ab715cfd81e942c1c61fd386526af9d179735ec9e17101de33dc1a7e6b", "scope": "exact-release-source"},
+    {"id": "openbabel-wheel-3.1.1.23-build-config", "url": "https://raw.githubusercontent.com/njzjz/openbabel-wheel/c6b2731dbd0a559ee56b8084b6d9997df1beb16f/pyproject.toml", "scope": "pinned-wrapper-build-config"},
+    {"id": "openbabel-wheel-3.1.1.23-cmake", "url": "https://raw.githubusercontent.com/njzjz/openbabel-wheel/c6b2731dbd0a559ee56b8084b6d9997df1beb16f/CMakeLists.txt", "scope": "pinned-wrapper-source-fetch-recipe"},
+    {"id": "openbabel-wheel-fork-readme", "url": "https://raw.githubusercontent.com/njzjz/openbabel/77993b9a3b96fb9bd86249098beb97ab0fcbafc6/README.md", "scope": "actual-wheel-recipe-engine-source-grant"},
+    {"id": "openbabel-wheel-fork-mol-h", "url": "https://raw.githubusercontent.com/njzjz/openbabel/77993b9a3b96fb9bd86249098beb97ab0fcbafc6/include/openbabel/mol.h", "scope": "actual-wheel-recipe-engine-file-grant"},
+    {"id": "openbabel-wheel-fork-mol-cpp", "url": "https://raw.githubusercontent.com/njzjz/openbabel/77993b9a3b96fb9bd86249098beb97ab0fcbafc6/src/mol.cpp", "scope": "actual-wheel-recipe-engine-file-grant"},
+    {"id": "charmm36-ljpme-jul2022-archive", "url": "https://mackerell.umaryland.edu/download.php?filename=CHARMM_ff_params_files/charmm36_ljpme-jul2022.ff.tgz", "expected_sha256": "87f95a03b83d57e6b1965eb4ab798136bc7b78270f8fb85a77f82596d496c15c", "scope": "official-parameter-archive-identity-not-redistribution-grant"},
+    {"id": "gromacs-v2026.3-top-directory", "url": "https://api.github.com/repos/gromacs/gromacs/contents/share/top?ref=121090014570a53a17ea391bcddae45e5ea05eb4", "scope": "one-pinned-release-directory-not-all-gromacs-distributions"}
   ]
 }

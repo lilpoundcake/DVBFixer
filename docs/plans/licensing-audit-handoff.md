@@ -163,3 +163,34 @@ three-entry bibliography. Final test results and artifact limitations are in the
 continuation report. The only runtime-code change is two provenance license
 fields; sampling settings and coordinates are unchanged. Legal clearance remains
 unperformed. The full scientific suite and checkpoint sampling were not rerun.
+
+### Exact-source dependency continuation (2026-11-02)
+
+Foundation commit **`6dae875`** was pushed to `origin/feature/licensing-audit` at
+the owner's request. The next source-review slice is documented in
+[dependency review](../research/dependency-license-review-2026-11-02.md) and
+[CHARMM provenance](../provenance/charmm36-jul2022.md). Full captures are retained
+under the original ignored evidence root, with a new
+`dependency-review-2026-11-02/` subtree. Do not overwrite historical snapshots.
+
+Key corrections: inspect the actual Open Babel wheel recipe's fork, not only
+the official upstream tag; ACPYPE's platform wheel contains additional Amber
+native/data material absent from its small sdist; the default `amb2gmx=True`
+constructor bypasses its chirality/Open Babel call, so co-installation alone is
+not a proof of combined-work incompatibility. Selected Reduce 4.15 is not simply
+Apache-2.0. The collector now reads RECORD-owned package-internal legal files.
+
+The owner says CHARMM Jul-2022 came from GROMACS. Preserve that as the reported
+immediate source. The official MacKerell comparison is a reference, not an
+assertion of direct owner download: 59 identical files, three BUF changes,
+omitted `watermodels.dat`. One inspected GROMACS v2026.3 tree contains charmm27,
+not Jul-2022; it does not disprove another GROMACS distribution/source. Ask for
+the exact release/package/archive/path when needed for that chain, and continue
+independent work on binary/source closure and other licenses meanwhile.
+
+No scientific pipeline, dependency composition or force-field bytes were changed
+in this slice. Review outcomes still do not establish redistribution clearance.
+Validation for this slice: 34 narrow tests passed; declaration drift, user docs,
+agent maps, changed-document local links and diff checks passed. Supplemental
+source blobs were independently hash-verified. No scientific suite/sampling
+acceptance is inferred from these checks.

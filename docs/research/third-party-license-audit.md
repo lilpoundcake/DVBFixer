@@ -7,6 +7,13 @@ the owner subsequently chose BSD-3-Clause and confirmed Stanislav Skripkin.
 Original-code LICENSE/metadata were implemented on 2026-11-02; third-party
 clearance remains open.
 
+The [2026-11-02 exact-source continuation](dependency-license-review-2026-11-02.md)
+supersedes generic observations where actual selected artifacts differ: the
+Open Babel wheel recipe pins a fork, ACPYPE includes a native Amber payload,
+Reduce 4.15 has custom notices, and the CHARMM content reference now has a
+byte-level comparison. The owner reports CHARMM acquisition from GROMACS;
+its exact package/release is still needed to establish that acquisition chain.
+
 [Implementation plan](../plans/licensing-and-attribution.md) ·
 [Execution handoff](../plans/licensing-audit-handoff.md) ·
 [Existing notices](../../THIRD_PARTY_NOTICES/README.md) ·
@@ -195,7 +202,7 @@ review the actual combined work and distribution, including GPL-version issues.
 |---|---|---|
 | [MODELLER](https://salilab.org/modeller/registration.html) | Default gap/comparative modeling, optional SALIGN engine | Public EULA captured in continuation: internal non-commercial use, non-transferable grant, written permission required for distribution; owner-specific agreement/deployment rights remain open |
 | [AmberTools](https://ambermd.org/AmberTools.php) | `tleap`, `antechamber`, `parmchk2`, associated calculations | Mixed suite, predominantly GPL; identify the actual release's component licenses, including indirect executables |
-| [Reduce](https://github.com/rlabduke/reduce/blob/master/LICENSE) | Hydrogen placement and tautomer/orientation decisions | Apache-2.0 in inspected upstream |
+| [Reduce](https://github.com/rlabduke/reduce) | Hydrogen placement and tautomer/orientation decisions | Selected bioconda 4.15 build has UCSF/Word/ReliaSolve terms; metadata says BSD-4-Clause-UC. Earlier generic Apache-2.0 observation must not be applied to this artifact; see exact-source continuation |
 | [Probe](https://github.com/rlabduke/probe/blob/master/LICENSE.txt) | Contact diagnostics | Apache-2.0 in inspected upstream |
 | [xTB](https://github.com/grimme-lab/xtb) | Historical research only; removed from current installation profiles | LGPL-3.0 family; audit only if a historical/research artifact actually includes it |
 | [MAFFT](https://mafft.cbrc.jp/alignment/software/) | MSA | Standard source without extensions is BSD; Windows/extensions packages can have different terms |
@@ -218,7 +225,7 @@ itself are different boundaries.
 |---|---|---|
 | `FF/amber19sb.ff/` | [Pinned GROMACS source/provenance and checksums](../provenance/amber19sb-gromacs.md); LGPL-2.1 text and attribution already shipped | Preserve and validate notices in built artifacts |
 | `FF/amber99sb-ildn-lipid21.ff/` | `forcefield.doc` cites AMBER99SB-ILDN/Lipid21; `forcefield.itp` credits the Sorin ffamber port | Recover exact upstream archive/version, Lipid21 port origin, modifications and applicable permissions for all portions |
-| `FF/charmm36_ljpme-jul2022.ff/` | `forcefield.doc` identifies CHARMM36/CGenFF 4.6, authors and `charmm2gmx` version | Recover archive provenance and parameter/port redistribution terms |
+| `FF/charmm36_ljpme-jul2022.ff/` | Owner reports GROMACS acquisition; [official-archive content comparison](../provenance/charmm36-jul2022.md) finds 59 identical files, three BUF-modified files and omitted `watermodels.dat` | Identify actual GROMACS package/release, BUF modification provenance and parameter/port redistribution terms |
 | `src/dvbfixer/data/charmm-terminal-caps.xml` | Explicit-residue equivalents of CHARMM36 ACE/CT3 patches | Document parameter source and applicable attribution/terms |
 
 Do not infer that a CHARMM parameter archive is LGPL merely because it uses a

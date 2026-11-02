@@ -8,6 +8,7 @@ Never inspect activation scripts, MODELLER config or registration keys.
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import re
@@ -23,7 +24,10 @@ NONLEGAL_SUFFIXES = {".py", ".pyc", ".pyo", ".js", ".ts", ".c", ".h", ".cpp",
 
 
 def legal_name(path: Path) -> bool:
-    return bool(LEGAL_NAME.match(path.name)) and path.suffix.lower() not in NONLEGAL_SUFFIXES
+    if re.search(r"(^|[._-])(key|token|secret)([._-]|$)", path.name, re.I):
+        return False
+    named_license = LEGAL_NAME.match(path.name) or re.match(r"^(GNU_)?L?GPL([._-].*)?$", path.name, re.I)
+    return bool(named_license) and path.suffix.lower() not in NONLEGAL_SUFFIXES
 
 
 def digest(data: bytes) -> str:
@@ -139,8 +143,27 @@ def collect_prefix(prefix: Path, store: EvidenceStore) -> dict:
                 "compatibility_review": "unknown",
             }
             record = info / "RECORD"
+            entry["native_file_candidates"] = []
+            entry["missing_owned_legal_files"] = []
             if record.is_file():
                 entry["record"] = store.capture(record, f"prefix:{record.relative_to(prefix)}")
+                captured = {p.resolve() for p in legal_files(info)}
+                with record.open(encoding="utf-8", newline="") as stream:
+                    for row in csv.reader(stream):
+                        if not row:
+                            continue
+                        candidate = (site / row[0]).resolve()
+                        if not candidate.is_relative_to(prefix):
+                            raise ValueError("Python RECORD path escapes inspected prefix")
+                        relative = candidate.relative_to(prefix).as_posix()
+                        if candidate.suffix in {".so", ".dylib", ".dll", ".a"} or ".so." in candidate.name:
+                            entry["native_file_candidates"].append(relative)
+                        if legal_name(candidate) and candidate not in captured:
+                            if candidate.is_file():
+                                entry["legal_evidence"].append(store.capture(candidate, f"prefix:{relative}"))
+                                captured.add(candidate)
+                            else:
+                                entry["missing_owned_legal_files"].append(relative)
             direct = info / "direct_url.json"
             if direct.is_file():
                 value = json.loads(direct.read_text())
@@ -159,6 +182,7 @@ def collect_prefix(prefix: Path, store: EvidenceStore) -> dict:
             "RECORD hashes are supplied metadata, not independently verified installed-file hashes.",
             "Captured legal texts are not automatically reviewed or redistribution-cleared.",
             "Python egg-info, unmanaged executables and operating-system frameworks need separate review.",
+            "RECORD-owned legal files/native candidates are included; data rights and binary source correspondence remain unverified.",
         ],
         "conda": conda, "python": python,
     }

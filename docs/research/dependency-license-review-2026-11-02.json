@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "baseline": "6dae875",
+  "kind": "engineering-license-evidence-review-not-legal-clearance",
+  "retained_evidence_root": "tmp/licensing-audit-2026-10-31/dependency-review-2026-11-02",
+  "source_captures": [
+    {
+      "id": "openbabel-wheel-3.1.1.23-sdist",
+      "url": "https://files.pythonhosted.org/packages/63/2d/720579ccff6247aa8fd2d397a7bd592dae72ef0f0133fe6cce2323ea13a2/openbabel_wheel-3.1.1.23.tar.gz",
+      "sha256": "68fd86540ff0895d36b26f25721187399fb6073f874f6ae474a574e6acf8759d",
+      "bytes": 13256
+    },
+    {
+      "id": "acpype-2026.10.15-sdist",
+      "url": "https://files.pythonhosted.org/packages/89/4c/ebb1ac23b0795d0acf25bcc1b2cd0341e608b2d21b7f20766303c76c4ab6/acpype-2026.10.15.tar.gz",
+      "sha256": "58fab1ab715cfd81e942c1c61fd386526af9d179735ec9e17101de33dc1a7e6b",
+      "bytes": 94513
+    },
+    {
+      "id": "openbabel-wheel-3.1.1.23-build-config",
+      "url": "https://raw.githubusercontent.com/njzjz/openbabel-wheel/c6b2731dbd0a559ee56b8084b6d9997df1beb16f/pyproject.toml",
+      "sha256": "4f9ec4c3715573fce37452fc4563461585f38769475c8307502e826221759690",
+      "bytes": 4322
+    },
+    {
+      "id": "openbabel-wheel-3.1.1.23-cmake",
+      "url": "https://raw.githubusercontent.com/njzjz/openbabel-wheel/c6b2731dbd0a559ee56b8084b6d9997df1beb16f/CMakeLists.txt",
+      "sha256": "00abe873cbd2e023db8d24b206eaae4f6b195ab34d0fd976e7f4857a0d206b6f",
+      "bytes": 906
+    },
+    {
+      "id": "openbabel-wheel-fork-readme",
+      "url": "https://raw.githubusercontent.com/njzjz/openbabel/77993b9a3b96fb9bd86249098beb97ab0fcbafc6/README.md",
+      "sha256": "c88d6db82eade064c9775efb407ae1e4415e94cde3b50f972ae3f38bd7d3ce27",
+      "bytes": 1989
+    },
+    {
+      "id": "openbabel-wheel-fork-mol-h",
+      "url": "https://raw.githubusercontent.com/njzjz/openbabel/77993b9a3b96fb9bd86249098beb97ab0fcbafc6/include/openbabel/mol.h",
+      "sha256": "ae951bdcaf601bdcc124adb3c2904b6c257752bcac9b72d6d255d49e1095a3f8",
+      "bytes": 38362
+    },
+    {
+      "id": "openbabel-wheel-fork-mol-cpp",
+      "url": "https://raw.githubusercontent.com/njzjz/openbabel/77993b9a3b96fb9bd86249098beb97ab0fcbafc6/src/mol.cpp",
+      "sha256": "0447e4cc054675e54791da880d77720549b9d063219c40c6b358c9ac132582ea",
+      "bytes": 139370
+    }
+  ],
+  "capture_report_sha256": "6d75aec528e58cef5fbb29b0f307f884ddade1bd4f4bf30421271068d59646d6",
+  "installed_supplement_sha256": "fdbdf297a6bdd4e68c537301ae47fba54f65a167f93d78cf04a0285a1857a48a",
+  "openbabel_wheel": {
+    "version": "3.1.1.23",
+    "wrapper_revision": "c6b2731dbd0a559ee56b8084b6d9997df1beb16f",
+    "recipe_engine_repository": "https://github.com/njzjz/openbabel",
+    "recipe_engine_revision": "77993b9a3b96fb9bd86249098beb97ab0fcbafc6",
+    "inspected_grant": "GPL version 2 without or-later wording in README/mol.h/mol.cpp",
+    "binary_build_provenance": "not-established-by-sdist-recipe-alone",
+    "compatibility_clearance": "unknown"
+  },
+  "acpype": {
+    "version": "2026.10.15",
+    "declared_license": "GPL-3.0-or-later",
+    "requires_dist": [
+      "openbabel-wheel>=3.1.1.23",
+      "rich>=14.2.0",
+      "typer>=0.20.0"
+    ],
+    "sdist_and_installed_topol_sha256": "81470baacde3e6c8868f381c40beb8f2d9c5a9d268db336c28d8475537579a10",
+    "bundled_amber_native_candidates": 69,
+    "legal_evidence": [
+      {
+        "origin": "prefix:lib/python3.13/site-packages/acpype-2026.10.15.dist-info/licenses/LICENSE",
+        "sha256": "589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2"
+      },
+      {
+        "origin": "prefix:lib/python3.13/site-packages/acpype/amber_macos/GNU_LGPL_v3",
+        "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+      },
+      {
+        "origin": "prefix:lib/python3.13/site-packages/acpype/amber_macos/LICENSE",
+        "sha256": "f1bf780f315ba25c524c2e2f579695efa64ca4786bba9d95367419481bf70969"
+      }
+    ],
+    "compatibility_clearance": "unknown"
+  },
+  "reduce": {
+    "version": "4.15",
+    "build": "hbdacb55_1",
+    "url": "https://conda.anaconda.org/bioconda/osx-arm64/reduce-4.15-hbdacb55_1.tar.bz2",
+    "sha256": "a8a1f358a37feda8b8cdb2ea4cfc13128d84dd92c452697b3d9035e46c363368",
+    "metadata_license": "BSD-4-Clause-UC",
+    "inspected_terms": "UCSF acknowledgement/non-endorsement and Word/ReliaSolve modified-versions-free notice; not Apache-2.0-only",
+    "legal_evidence": [
+      {
+        "origin": "package-cache:info/licenses/LICENSE.txt",
+        "sha256": "d7627f8c839a7496f79d7ea50f3ce252317f0510501517c64330e7619b446159"
+      }
+    ],
+    "redistribution_clearance": "unknown"
+  },
+  "charmm": {
+    "owner_reported_acquisition": "GROMACS; exact release/package/path not yet supplied",
+    "reference_archive_sha256": "87f95a03b83d57e6b1965eb4ab798136bc7b78270f8fb85a77f82596d496c15c",
+    "matching_files": 59,
+    "modified_files": [
+      {
+        "local_sha256": "ae24708966e3e48bfb4aec74325b64399ca48100f9b1c98d6cabfdb94db5e192",
+        "path": "atomtypes.atp",
+        "upstream_sha256": "56630239da6e4c52bfa23e057363463ba425da7c6153b9f8f8dcb4944689ab50"
+      },
+      {
+        "local_sha256": "ccc85498b870ba8755093c7dbaacba48c88bec6cd97cfebcdcc64d3b2e76c884",
+        "path": "ffnonbonded.itp",
+        "upstream_sha256": "6338e95d86564f135ad9733e1c0bcf202d2a44ed4249937f49e2a40b434e2040"
+      },
+      {
+        "local_sha256": "c91ba3d4103c52f7bc0677545353fe4b65900ce22a9a6d21b24b3bf4b33718d6",
+        "path": "ions.itp",
+        "upstream_sha256": "035a9f0a1a2e3d0675b5f6e8f83487bd3302b2feed065e899fea874a0838b5d5"
+      }
+    ],
+    "omitted_reference_files": [
+      "watermodels.dat"
+    ],
+    "comparison_report_sha256": "09a3a211f4eac5b1960969804188490130e9a58fb31a9a8ea13d86165dedd326",
+    "redistribution_clearance": "unknown"
+  },
+  "gromacs_reference": {
+    "commit": "121090014570a53a17ea391bcddae45e5ea05eb4",
+    "directory_listing_sha256": "0dfc5902340e30f8cf81c9f17b57342bb27d680bbce425e885b3590eabefea17",
+    "forcefield_directories": [
+      "amber03.ff",
+      "amber14sb.ff",
+      "amber19sb.ff",
+      "amber94.ff",
+      "amber96.ff",
+      "amber99.ff",
+      "amber99sb-ildn.ff",
+      "amber99sb.ff",
+      "amberGS.ff",
+      "charmm27.ff",
+      "gromos43a1.ff",
+      "gromos43a2.ff",
+      "gromos45a3.ff",
+      "gromos53a5.ff",
+      "gromos53a6.ff",
+      "gromos54a7.ff",
+      "oplsaa.ff"
+    ],
+    "limitation": "One checked release; does not disprove acquisition from a different GROMACS package or force-field collection."
+  },
+  "integration_source_sha256": {
+    "src/dvbfixer/acpype_export.py": "76765f74f68b809644dc6b7814e3f3b6e218a11f2b75303fee763b64f1d9ed2f",
+    "src/dvbfixer/top/acpype.py": "a0ccb10ce58fbca50edde1c29d399c8b467b848a6e5b71ccec7c516a73d0cc39",
+    "src/dvbfixer/transplant.py": "433fff5b8fd27fd11e24f6fb1e7cdae3768a1867d86aff6fb74a94ffdd12d9dc",
+    "src/dvbfixer/lig_params.py": "f608d42f8d81631c8c86f98b760d483de3a022f02bf78d8ab61acaf71436a015",
+    "src/dvbfixer/prep_backend.py": "12024e8e97f1db26f65155ffc1105d1e4254265bed9b51f1482325afd071af1a"
+  },
+  "overall_clearance": false
+}
