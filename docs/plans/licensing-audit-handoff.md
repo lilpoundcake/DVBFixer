@@ -223,3 +223,29 @@ bounded-search limitations and no inferred grant.
 Final narrow suite: 49 passed after predeclared archive-digest and unlisted
 RECORD regression controls. Declaration inventory was regenerated for the
 changed notice README; no dependency or scientific behavior changed.
+
+### Component/source continuation after `311e596`
+
+Pinned ACPYPE charmmgen containers match both wheel binaries. A build script and
+September 2026 rebuild commits supersede the suggestion of necessarily unchanged
+2016-era binaries; the component is legacy, but these builds were refreshed.
+The script shallow-clones unpinned AmberClassic and applies an environment-name
+patch, so exact source revision/closure and grant applicability remain open.
+Do not claim the historical GPLv2-or-later root-license candidate proves a
+particular wheel's rights or inherit ACPYPE's wrapper grant automatically.
+
+Both Open Babel wheel InChI headers identify 1.04/custom Licence No. 1.0 or later.
+The correct source path is `include/inchi_api.h`, not the different
+`include/inchi/inchi_api.h`; explicit matching path evidence is retained. The
+primary five-page license PDF was read: preserve sections 1/4/6 notice/source/
+linking requirements, section 3's unexercised GPL-conversion option and section
+15's modified-output naming condition. No binary/source proof or relicensing is
+inferred. Cairo's Linux recipe-named 1.15.14 archive supplies implementation
+LGPL2.1-or-MPL1.1 terms; auxiliary GPL files are separate and Apple provenance
+remains open. Ten pinned source/history captures, the InChI PDF and the Cairo
+archive/legal texts are retained; five report hashes are in the existing JSON.
+The first charmmgen extraction assumption and the nonmatching InChI header
+comparison remain preserved as partial evidence; use the v2 comparison reports.
+Validation for this continuation: 51 narrow tests and user documentation checks
+passed; notice inventory regenerated. No complete corresponding-source delivery,
+closed-combination permission, scientific execution or legal clearance is claimed.

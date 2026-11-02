@@ -327,6 +327,30 @@ def test_charmm_comparison_binds_current_tracked_files():
         assert hashlib.sha256((ROOT / report["local_tree"] / relative).read_bytes()).hexdigest() == expected
 
 
+def test_component_evidence_does_not_promote_matches_to_build_or_legal_clearance():
+    report = json.loads((ROOT / "docs/research/dependency-license-review-2026-11-02.json").read_text())
+    followup = report["component_source_followup"]
+    assert report["overall_clearance"] is False
+    assert followup["binary_build_proof"] is False
+    assert followup["charmmgen"]["both_container_binaries_match_wheels"] is True
+    for component in ("charmmgen", "inchi", "cairo"):
+        assert followup[component]["redistribution_clearance"] == "unknown"
+    assert followup["inchi"]["gpl_conversion_exercised_by_this_audit"] is False
+
+
+def test_inchi_source_header_identity_uses_explicit_paths_not_same_basename():
+    report = json.loads((ROOT / "docs/research/dependency-license-review-2026-11-02.json").read_text())
+    item = report["component_source_followup"]["inchi"]
+    assert item["source_header_path"] == "include/inchi_api.h"
+    assert item["wheel_header_path"] == "openbabel/include/inchi/inchi_api.h"
+    assert item["different_source_header_path"] == "include/inchi/inchi_api.h"
+    assert item["matching_header_sha256_both_wheels"] != item["different_source_header_sha256"]
+    register = json.loads((ROOT / "docs/research/licensing-upstream-sources.json").read_text())
+    sources = {source["id"]: source for source in register["sources"]}
+    assert sources["openbabel-fork-installed-inchi-header-source"]["url"].endswith("/" + item["source_header_path"])
+    assert item["primary_license_source_id"] in sources
+
+
 def test_evidence_index_refuses_incomplete_or_corrupt_captures(tmp_path, monkeypatch):
     monkeypatch.syspath_prepend(str(ROOT / "scripts"))
     import summarize_license_evidence

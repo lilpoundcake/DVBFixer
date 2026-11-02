@@ -199,7 +199,7 @@
       "named_legal_files": 3,
       "tag_commit": "8c6626a0b1a1c71205f0784f800d4611e32b92bc",
       "source_delivery": "unverified; slim sdist does not supply bundled AmberTools/library source",
-      "legacy_charmmgen": "separate old archive per update recipe; binary has x86_64 and arm64 slices; exact source/build unresolved"
+      "legacy_charmmgen": "separate archive for legacy component; September 2026 rebuild history and recipe identified; exact AmberClassic build revision unresolved"
     },
     "openbabel": {
       "filename": "openbabel_wheel-3.1.1.23-cp313-cp313-macosx_14_0_arm64.whl",
@@ -254,6 +254,66 @@
       "Named notice search is not a complete content-level license audit.",
       "otool samples read load commands without executing package binaries; full runtime closure remains open."
     ]
+  },
+  "component_source_followup": {
+    "baseline": "311e596",
+    "binary_build_proof": false,
+    "charmmgen": {
+      "acpype_source_revision": "8c6626a0b1a1c71205f0784f800d4611e32b92bc",
+      "recipe_source_id": "acpype-charmmgen-build",
+      "recipe_sha256": "a11965738a3e449bf01790039b7bbd9ac5f47607fa49296da37a905078a7bae4",
+      "macos_archive_sha256": "67057e988d7b620f9460fa816000fa5a560d2bc8e5607b2ce38b3d012c442c01",
+      "macos_binary_sha256": "1824e5d88381f017956bebcad4f13a7b730677b5f72a6a373f04596a25b96638",
+      "linux_archive_sha256": "851408fa0e42fe53e283acda6bd1675e47835284a4134b1250e01a4c1299c93a",
+      "linux_binary_sha256": "29ae73ecc5921355a18966e717ab744e0f9ac0c82a2780bace8681e884698709",
+      "both_container_binaries_match_wheels": true,
+      "upstream_rebuild_history": {
+        "macos_2026_09_01": "3cf7f2ea91bdb7ce28bc8f07b530754e39190b5d",
+        "linux_2026_09_02": "9227c08e7dbde6557a7c2efd62b77a2d9e24f9f2"
+      },
+      "build_source_revision": "unknown; recipe shallow-clones AmberClassic without a ref",
+      "source_modification": "AMBERHOME first, AMBERCLASSICHOME fallback; recipe patch inspected, not applied",
+      "source_candidate_revision": "0cca8600a1cf98a34ada4d5a18880acbab634189",
+      "source_candidate_license_scope": "repository LICENSE names msander GPL-2.0-or-later; applicability and included-source closure require review, not automatic ACPYPE GPLv3 attribution",
+      "source_candidate_copyright": "charmmgen.c names Victor E. Bazterra, University of Utah, June 2004",
+      "redistribution_clearance": "unknown"
+    },
+    "inchi": {
+      "source_revision": "77993b9a3b96fb9bd86249098beb97ab0fcbafc6",
+      "software_version_in_header": "1.04, September 2011",
+      "source_header_path": "include/inchi_api.h",
+      "wheel_header_path": "openbabel/include/inchi/inchi_api.h",
+      "matching_header_sha256_both_wheels": "c521a0fd39b4bf56b3be76e09d107f4191c4d42d1a79d37770495c62c1142982",
+      "different_source_header_path": "include/inchi/inchi_api.h",
+      "different_source_header_sha256": "70dbb39ac3ac1c509e7773bb17aadddefd96cfa53c2679d122002699b17279de",
+      "license": "IUPAC/InChI-Trust InChI Licence No. 1.0 or later, not inferred MIT",
+      "primary_license_source_id": "inchi-1.04-license-pdf",
+      "primary_license_pdf_sha256": "507786b66a180b0e97af7fecf4340ac22609baa446e095eda9560b17535c77a1",
+      "primary_license_pdf_bytes": 175053,
+      "sections_reviewed": ["1 notices/license", "3 optional GPL conversion", "4 library binary source", "6 linked-work alternatives", "15 modified-output naming"],
+      "gpl_conversion_exercised_by_this_audit": false,
+      "redistribution_clearance": "unknown"
+    },
+    "cairo": {
+      "platform_scope": "Linux recipe-named 1.15.14 source; not Apple Homebrew binary provenance",
+      "source_archive_url": "https://www.cairographics.org/snapshots/cairo-1.15.14.tar.xz",
+      "source_archive_sha256": "16566b6c015a761bb0b7595cf879b77f8de85f90b443119083c4c2769b93298d",
+      "source_archive_bytes": 41996528,
+      "observed_library_grant": "LGPL version 2.1 OR MPL version 1.1; per-file review remains",
+      "scope": "src implementation; auxiliary test/util/perf GPL files are not automatically libcairo licensing",
+      "copying_sha256": "67228a9f7c5f9b67c58f556f1be178f62da4d9e2e6285318d8c74d567255abdf",
+      "lgpl_text_sha256": "9e9e8608c4cdda51a78cc3a385f4ec9a2e4c96d5ecad74ac8bca5fca3e563b7d",
+      "mpl_text_sha256": "53692a2ed6c6a2c6ec9b32dd0b820dfae91e0a1fcdf625ca9ed0bdf8705fcc4f",
+      "wheel_source_correspondence": "unverified; recipe reference and filename version are not a reproduced build",
+      "redistribution_clearance": "unknown"
+    },
+    "retained_reports_sha256": {
+      "component-source-capture/inventory.json": "1757077f0169e3210a3a57865b313608a2067434d9d18e025ca754127d5f48b9",
+      "component-reference-inspection-v2/inventory.json": "bbe50a08e9517bcb5de6610c942a8f2d8fe4f30f15e7651b96d58ce761805728",
+      "component-header-and-history/inventory.json": "c3f79b1ed2fdbeb47cc0af647280cea86435e38c2506a08860e63e39ddd390ae",
+      "inchi-historical-license/inventory.json": "94b8d9d76a1d5d203f9a3ed146ddb0408d6ee1b5f59618b3175d16f47f7ac2b2",
+      "inchi-wheel-source-header-comparison-v2.json": "63a74f78ab28de7b131585724afd6eae31813bf71b70fc4ab6a6c88910ce2c74"
+    }
   },
   "overall_clearance": false
 }

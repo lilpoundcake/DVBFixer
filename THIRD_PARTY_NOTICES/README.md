@@ -29,6 +29,20 @@ or corresponding-source set needed for such an export.
 | Reduce 4.15, selected bioconda build | UCSF acknowledgement/non-endorsement and Word/ReliaSolve notices; not generic Apache-2.0 | Preserve full selected notices and assess modified/binary distribution requirements |
 | MODELLER | Separately licensed; project BSD does not grant MODELLER use or redistribution rights | Operator eligibility and any necessary commercial/service/redistribution permission |
 
+Identified subcomponents of those external wheels (not additional software
+bundled into dvbfixer's own wheel):
+
+- **InChI 1.04:** the reviewed Open Babel wheel headers name IUPAC/InChI-Trust
+  InChI Licence No. 1.0 or later, not an assumed current MIT grant. The historical
+  text has notice/source/linking and modified-output naming requirements.
+- **Cairo 1.15.14 source reference:** the Linux recipe names this release; its
+  implementation offers LGPL 2.1 or MPL 1.1. Auxiliary tools have separate terms.
+  Exact wheel build/source correspondence and Apple's Cairo version remain open.
+- **ACPYPE charmmgen:** separate legacy component with September 2026 rebuild
+  history and a patched AmberClassic build recipe. Matching binary containers
+  have been identified; exact source revision and applicable source closure are
+  not established. Do not infer the component's terms from ACPYPE's wrapper alone.
+
 Exact artifact identities, retained full-text hashes and unresolved questions:
 [dependency review](../docs/research/dependency-license-review-2026-11-02.md).
 Versions/builds selected on another platform or Python version require their own

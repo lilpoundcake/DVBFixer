@@ -157,7 +157,7 @@ They explain concrete remaining source/notice gaps:
 - The macOS update defaults to AmberTools 26, without an exact conda package/build
   lock. It can use an existing prefix. This does not identify every wheel binary's
   exact upstream revision, build scripts or patches.
-- An old `charmmgen_macos.tgz` supplies legacy charmmgen outside the normal
+- A separate `charmmgen_macos.tgz` supplies legacy charmmgen outside the normal
   vendoring closure. `otool` shows both x86_64 and arm64 slices in this binary.
   Source/build provenance needs its own record, not attribution to modern AT26.
 - The distribution builder deliberately strips both Amber trees from the sdist
@@ -195,6 +195,83 @@ different boundary and can require copyleft terms, notices and source delivery.
 This does not clear MODELLER, parameter/data rights, or any particular combined
 work. No source offer on behalf of dvbfixer has been made by this audit.
 
+### Component/source follow-up (baseline `311e596`)
+
+The next slice captures ten additional pinned source/history items plus the
+historical InChI license PDF, and the Cairo source archive named by the Linux
+recipe. Full bytes remain below the existing evidence root; the component
+register binds five additional report hashes. No build recipe was executed and
+no source, environment or binary was patched.
+
+**Legacy charmmgen is not necessarily an old binary.** Both charmmgen archives
+at ACPYPE's pinned release contain a binary identical to the corresponding
+platform wheel. Each also contains an AppleDouble `._charmmgen` metadata member;
+the comparison records it rather than silently assuming a one-member archive.
+Upstream commits `3cf7f2e` (2026-09-01) and `9227c08e` (2026-09-02) describe
+macOS universal and Linux rebuilds. This supersedes any suggestion that the
+selected wheels necessarily contain an unchanged 2016–2017 executable.
+
+The captured `scripts/build_charmmgen.sh` clones **Amber-MD/AmberClassic**,
+patches the environment lookup to prefer `AMBERHOME` with `AMBERCLASSICHOME`
+fallback, and compiles charmmgen plus eprintf (and textually included C files).
+However, it shallow-clones without a commit/tag; a script and matching binary
+container do not establish the exact source revision or reproducible build.
+Historical source candidate `0cca8600` has a root GPLv2-or-later grant naming
+"msander", while charmmgen's header names Victor E. Bazterra/University of Utah
+(June 2004). The header's copyright reservation alone does not establish a
+proprietary license, nor does the wrapper's GPLv3 grant automatically establish
+rights for every included source. Source closure, root-grant applicability and
+the exact build revision remain open. Do not silently use this candidate as the
+known source of either wheel binary.
+
+**InChI is an identified historical-license component, not an assumed MIT
+dependency.** Both wheel headers identify software 1.04 (September 2011) and
+IUPAC/InChI-Trust InChI Licence No. 1.0 or later. Their bytes match the fork's
+`include/inchi_api.h`, installed as `openbabel/include/inchi/inchi_api.h`.
+The fork also has `include/inchi/inchi_api.h`, but its bytes differ. The initial
+nonmatching comparison is retained, followed by the correct explicit path map;
+matching a basename is not source identification. Header correspondence and the
+recipe's libinchi 0.4.1 version are still not binary-source proof.
+
+The primary [InChI 1.04 license PDF](https://www.inchi-trust.org/download/104/LICENCE.pdf)
+was retrieved and read in full (five pages, SHA-256 in the register):
+
+- Section 1 requires preservation of notices/disclaimer and a license copy.
+- Section 4 addresses distributing the library binary with corresponding source;
+  section 6 gives linked-work alternatives, including suitable replaceable shared
+  linking and source/source-offer routes. Select the applicable distribution
+  boundary; do not treat any dynamic library as automatically compliant.
+- Section 3 permits a deliberate conversion to ordinary GPLv2 or a newer GPL
+  through changed notices. This audit has **not** exercised that option or found
+  that the shipped library's notices already exercise it.
+- Section 15 forbids referring to output from a modified library as "InChI" or a
+  similar name. This is not a non-commercial-use clause, but it matters before
+  modifying the library. No such modification was made here.
+
+Only the wheel's generic GPLv2 license file is named in the earlier legal-file
+inventory. A bounded search of non-NUL members up to 1 MB did not find the exact
+section-15 phrase; this is evidence to finish the notice review, not exhaustive
+proof that no alternative notice/offer exists. Do not transfer current InChI
+release licensing to these historical bytes or claim incompatibility merely
+because the license has a different name.
+
+**Cairo's implementation and auxiliary tools have distinct scopes.** The Linux
+recipe explicitly downloads Cairo 1.15.14. Its official 41,996,528-byte source
+archive was captured (SHA-256 `16566b6c...b93298d` in full in the register), and
+11 named legal/author texts were retained. Root `COPYING` and inspected
+`src/cairo.c`/`src/cairo.h` grant the implementation under **LGPL 2.1 OR MPL 1.1**.
+Root `COPYING` says `test`, `util` and `perf` do not contribute to libcairo;
+their separate GPL notices therefore do not automatically make libcairo GPLv3.
+The source archive is an identified recipe reference, not independent proof of
+the Linux wheel's patches/build provenance. It also does not establish the
+version or rights closure of Apple's Homebrew-sourced Cairo binary.
+
+The next concrete evidence gaps are the exact AmberClassic build revision and
+included-source closure, each native dependency's build/notice mapping, InChI's
+applicable shipped notice/source route, and the full platform-specific Cairo
+build/source route. Preserve those gaps instead of treating a matching header,
+root license or upstream URL as clearance.
+
 | Boundary | What is established | Still required |
 |---|---|---|
 | Original dvbfixer code | Owner-approved BSD-3-Clause declaration | Existing contribution/copy provenance; not a relicense of dependencies |
@@ -227,6 +304,14 @@ redistribution consent or license key has been supplied or assumed by this revie
    notices/source delivery. Do not publish a generic all-dependencies-BSD claim.
 
 ## Verification
+
+Component/source continuation: **51 narrow tests passed**. New guards keep
+container/header matches separate from binary/source and redistribution
+clearance, and bind the explicit InChI source-to-installed header path. User
+documentation checks passed; the declaration inventory was regenerated for the
+expanded partial notice index. Both charmmgen container members and the two
+InChI wheel headers were checked without executing them. No scientific suite
+or independent binary rebuild is implied.
 
 Native follow-up final validation: **49 narrow tests passed**. Actual wheel
 RECORD checks passed for all four archived wheels, and all 245 selected Apple
