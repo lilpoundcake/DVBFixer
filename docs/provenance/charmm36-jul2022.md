@@ -100,6 +100,21 @@ different bundle.
 
 ## Remaining permission evidence
 
+The **original CHARMM-format** `toppar_c36_jul22.tgz` was also retrieved from
+the same official download page on 2026-11-02, separately from the GROMACS port.
+It is 11,998,126 bytes, SHA-256
+`dcb5c266bc35b1b17829a48b1fb8e058822262916b6d28bde603c2067b1b38c4`, retained
+under `dependency-review-2026-11-02/toppar_c36_jul22-original.tgz` below the audit
+evidence root. A bounded text search of regular members up to 4 MB did not locate
+a general redistribution grant; copyright matches in example outputs/binaries
+are not such a grant. Nested archives and complete file-level permissions still
+need review; do not present this search as exhaustive clearance or a prohibition.
+The official page links the upstream
+[original parameter repository](https://github.com/Lemkul-Lab/toppar_c36_releases),
+whose currently inspected root has no LICENSE and whose README identifies
+maintainers but supplies no general grant. That current repository observation
+is not a retroactive license assignment to July 2022.
+
 No file named LICENSE/COPYING/README/copyright was found in the reference tar,
 and a bounded text search found no explicit license/redistribution grant there.
 Its `forcefield.doc` supplies converter, parameter-version and citation details,

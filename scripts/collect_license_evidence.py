@@ -8,8 +8,10 @@ Never inspect activation scripts, MODELLER config or registration keys.
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
 import hashlib
+import io
 import json
 import re
 import tarfile
@@ -224,9 +226,56 @@ def collect_npm(root: Path, store: EvidenceStore) -> dict:
                             "Package version equality does not verify npm archive integrity or all files."]}
 
 
-def inspect_archive(path: Path) -> dict:
+def binary_format(data: bytes) -> str | None:
+    """Identify candidates by bytes, including extensionless bundled tools."""
+    if data.startswith(b"\x7fELF"):
+        return "ELF"
+    if data[:4] in {b"\xfe\xed\xfa\xce", b"\xce\xfa\xed\xfe",
+                    b"\xfe\xed\xfa\xcf", b"\xcf\xfa\xed\xfe"}:
+        return "Mach-O"
+    if data[:4] in {b"\xca\xfe\xba\xbe", b"\xbe\xba\xfe\xca",
+                    b"\xca\xfe\xba\xbf", b"\xbf\xba\xfe\xca"}:
+        return "fat-binary-candidate"  # CAFEBABE is also Java's class magic.
+    if data.startswith(b"MZ"):
+        return "PE-candidate"
+    if data.startswith(b"!<arch>\n"):
+        return "ar-archive"
+    return None
+
+
+def verify_wheel_record(entries: list[dict], record: bytes) -> dict:
+    """Verify internal SHA-256 claims, not authenticity or build provenance."""
+    files = {entry["path"]: entry for entry in entries}
+    seen, verified, unhashed = set(), [], []
+    for row in csv.reader(io.StringIO(record.decode("utf-8"))):
+        if len(row) != 3 or row[0] in seen:
+            raise ValueError("Malformed or duplicate wheel RECORD row")
+        name, claimed_hash, size = row
+        seen.add(name)
+        if name not in files:
+            raise ValueError("Wheel RECORD references a missing archive member")
+        item = files[name]
+        if size and (not size.isdecimal() or int(size) != item["bytes"]):
+            raise ValueError("Wheel RECORD size mismatch")
+        if not claimed_hash:
+            unhashed.append(name)
+            continue
+        expected = "sha256=" + base64.urlsafe_b64encode(bytes.fromhex(item["sha256"])).decode().rstrip("=")
+        if claimed_hash != expected:
+            raise ValueError("Wheel RECORD hash mismatch or unsupported hash algorithm")
+        verified.append(name)
+    return {"verified_sha256_files": len(verified), "unhashed_files": sorted(unhashed),
+            "unlisted_files": sorted(files.keys() - seen),
+            "scope": "internal consistency only; not signature, source correspondence or legal clearance"}
+
+
+def inspect_archive(path: Path, store: EvidenceStore | None = None,
+                    expected_sha256: str | None = None) -> dict:
     """Hash small project release archives without extracting or executing them."""
-    entries, names = [], set()
+    archive_sha256 = digest(path.read_bytes())
+    if expected_sha256 is not None and archive_sha256 != expected_sha256:
+        raise ValueError("Archive digest does not match the predeclared identity")
+    entries, names, legal_evidence, records = [], set(), [], []
 
     def entry(name: str, data: bytes) -> None:
         parts = PurePosixPath(name)
@@ -236,6 +285,22 @@ def inspect_archive(path: Path) -> dict:
             raise ValueError("Duplicate archive member path")
         names.add(name)
         entries.append({"path": name, "sha256": digest(data), "bytes": len(data)})
+        kind = binary_format(data)
+        if kind:
+            entries[-1]["binary_format_candidate"] = kind
+        if name.endswith(".dist-info/RECORD"):
+            records.append(data)
+        if store and legal_name(PurePosixPath(name)):
+            sha = digest(data)
+            target = store.output / "blobs" / sha
+            if target.exists():
+                if target.read_bytes() != data:
+                    raise ValueError("Conflicting retained archive legal text")
+            else:
+                with target.open("xb") as stream:
+                    stream.write(data)
+            legal_evidence.append({"origin": f"archive:{name}", "sha256": sha,
+                                   "bytes": len(data), "blob": f"blobs/{sha}"})
 
     total = 0
     if path.suffix == ".whl" or zipfile.is_zipfile(path):
@@ -264,15 +329,23 @@ def inspect_archive(path: Path) -> dict:
     sensitive = [name for name in sorted(names) if PurePosixPath(name).name in
                  {"modeller_key.txt", ".env", "config.py"}
                  or PurePosixPath(name).suffix.lower() in {".pt", ".pth", ".ckpt", ".onnx", ".safetensors"}]
+    wheel_record = None
+    if path.suffix == ".whl":
+        if len(records) != 1:
+            raise ValueError("Expected exactly one wheel RECORD")
+        wheel_record = verify_wheel_record(entries, records[0])
     return {"schema_version": 1, "kind": "project-release-archive-inspection",
-            "archive_name": path.name, "archive_sha256": digest(path.read_bytes()),
-            "entries": sorted(entries, key=lambda e: e["path"]),
+             "archive_name": path.name, "archive_sha256": archive_sha256,
+             "entries": sorted(entries, key=lambda e: e["path"]),
+             "native_candidate_paths": sorted(e["path"] for e in entries if "binary_format_candidate" in e),
+             "legal_evidence": legal_evidence, "wheel_record_verification": wheel_record,
             "legal_paths": [name for name in sorted(names) if legal_name(PurePosixPath(name))
                             or any(part.lower() in {"notices", "third_party_notices", "licenses"}
                                    for part in PurePosixPath(name).parts)],
             "restricted_or_sensitive_name_findings": sensitive,
             "compatibility_review": "unknown",
-            "limitations": ["Filename screening is not a secret-content scan or full legal clearance.",
+             "limitations": ["Filename screening is not a secret-content scan or full legal clearance.",
+                             "Binary magic identifies candidates, not versions, linkage, source correspondence or licenses.",
                             "Archive contents do not establish rights to bundled third-party data."]}
 
 
@@ -291,8 +364,11 @@ def main() -> int:
     source.add_argument("--prefix", type=Path)
     source.add_argument("--npm-root", type=Path)
     source.add_argument("--archive", type=Path)
+    parser.add_argument("--expected-sha256", help="Require this archive identity before inspecting members")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if args.expected_sha256 is not None and args.archive is None:
+        parser.error("--expected-sha256 requires --archive")
     if args.output.exists():
         raise FileExistsError("Evidence output must be a new directory")
     source_root = args.prefix or args.npm_root
@@ -304,7 +380,7 @@ def main() -> int:
     elif args.npm_root:
         report = collect_npm(args.npm_root, store)
     else:
-        report = inspect_archive(args.archive)
+        report = inspect_archive(args.archive, store, args.expected_sha256)
     report["collector_sha256"] = digest(Path(__file__).read_bytes())
     report["collector_source"] = store.capture(Path(__file__), "collector-source")
     write_report(args.output, report)

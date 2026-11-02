@@ -28,6 +28,10 @@
     {"id": "charmm36-ljpme-jul2022-archive", "url": "https://mackerell.umaryland.edu/download.php?filename=CHARMM_ff_params_files/charmm36_ljpme-jul2022.ff.tgz", "expected_sha256": "87f95a03b83d57e6b1965eb4ab798136bc7b78270f8fb85a77f82596d496c15c", "scope": "official-parameter-archive-identity-not-redistribution-grant"},
     {"id": "gromacs-v2026.3-top-directory", "url": "https://api.github.com/repos/gromacs/gromacs/contents/share/top?ref=121090014570a53a17ea391bcddae45e5ea05eb4", "scope": "one-pinned-release-directory-not-all-gromacs-distributions"},
     {"id": "charmm2gmx-2021-license", "url": "https://gitlab.com/api/v4/projects/26241833/repository/files/LICENSE/raw?ref=077b6a13ae3233d5ad08c9910a3f33d1ea1bdf05", "scope": "historical-converter-license-not-input-parameter-grant"},
-    {"id": "charmm2gmx-2022-license", "url": "https://gitlab.com/api/v4/projects/26241833/repository/files/LICENSE/raw?ref=7b820405b929f1bd7d1e749ffa742061f87213a9", "scope": "historical-converter-license-not-input-parameter-grant"}
+    {"id": "charmm2gmx-2022-license", "url": "https://gitlab.com/api/v4/projects/26241833/repository/files/LICENSE/raw?ref=7b820405b929f1bd7d1e749ffa742061f87213a9", "scope": "historical-converter-license-not-input-parameter-grant"},
+    {"id": "acpype-2026.10.15-vendor-recipe", "url": "https://raw.githubusercontent.com/alanwilter/acpype/8c6626a0b1a1c71205f0784f800d4611e32b92bc/scripts/vendor_amber.py", "scope": "native-vendoring-recipe-not-complete-corresponding-source"},
+    {"id": "acpype-2026.10.15-build-dists", "url": "https://raw.githubusercontent.com/alanwilter/acpype/8c6626a0b1a1c71205f0784f800d4611e32b92bc/scripts/build_dists.py", "scope": "wheel-versus-sdist-packaging-recipe"},
+    {"id": "acpype-2026.10.15-update-macos", "url": "https://raw.githubusercontent.com/alanwilter/acpype/8c6626a0b1a1c71205f0784f800d4611e32b92bc/update_macos_bins.sh", "scope": "bundled-native-acquisition-recipe"},
+    {"id": "acpype-2026.10.15-workflow", "url": "https://raw.githubusercontent.com/alanwilter/acpype/8c6626a0b1a1c71205f0784f800d4611e32b92bc/.github/workflows/check_acpype.yml", "scope": "release-workflow-not-binary-reproduction-proof"}
   ]
 }

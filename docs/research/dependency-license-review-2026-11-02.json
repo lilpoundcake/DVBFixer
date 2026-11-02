@@ -184,5 +184,76 @@
     "src/dvbfixer/lig_params.py": "f608d42f8d81631c8c86f98b760d483de3a022f02bf78d8ab61acaf71436a015",
     "src/dvbfixer/prep_backend.py": "12024e8e97f1db26f65155ffc1105d1e4254265bed9b51f1482325afd071af1a"
   },
+  "native_wheel_followup": {
+    "baseline": "2aa74fa",
+    "scope": "four exact macOS arm64/Linux x86_64 wheels; installed-byte comparison on Apple only; not every resolver-selected version",
+    "acpype": {
+      "filename": "acpype-2026.10.15-py3-none-macosx_11_0_arm64.whl",
+      "pypi_sha256": "92d4b49ec2976edade4dc530a02df1beb64f8c2becb553e5babad384decea0eb",
+      "bytes": 69100612,
+      "files": 625,
+      "record_sha256_verified_files": 624,
+      "unhashed": "RECORD itself only; no unlisted files",
+      "native_magic_candidates": 77,
+      "native_matches_selected_installed_prefix": 77,
+      "named_legal_files": 3,
+      "tag_commit": "8c6626a0b1a1c71205f0784f800d4611e32b92bc",
+      "source_delivery": "unverified; slim sdist does not supply bundled AmberTools/library source",
+      "legacy_charmmgen": "separate old archive per update recipe; binary has x86_64 and arm64 slices; exact source/build unresolved"
+    },
+    "openbabel": {
+      "filename": "openbabel_wheel-3.1.1.23-cp313-cp313-macosx_14_0_arm64.whl",
+      "pypi_sha256": "26652b12f5eefdcf2399b9305b4fc4d588af0af64ef089237074d81f59a5a73b",
+      "bytes": 11607808,
+      "files": 348,
+      "record_sha256_verified_files": 347,
+      "unhashed": "RECORD itself only; no unlisted files",
+      "native_magic_candidates": 168,
+      "native_matches_selected_installed_prefix": 168,
+      "named_legal_files": 1,
+      "sampled_linkage": "_openbabel.so links directly to bundled libopenbabel.7.dylib",
+      "source_delivery": "unverified; wrapper sdist alone is not complete engine/vendored-library source"
+    },
+    "linux_acpype": {
+      "filename": "acpype-2026.10.15-py3-none-manylinux_2_35_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/10/ee/c98a6746357a62305b13b73afc696020be1b334c88f8c07eb737cee2c4e2/acpype-2026.10.15-py3-none-manylinux_2_35_x86_64.whl",
+      "pypi_sha256": "c07111fba6601c9680db2bf32d9bbf1c980955fbb97d2f40b2670ca61df378f9",
+      "bytes": 48754748,
+      "files": 601,
+      "record_sha256_verified_files": 600,
+      "unhashed": "RECORD itself only; no unlisted files",
+      "native_magic_candidates": 53,
+      "named_legal_files": 3,
+      "selected_installed_comparison": "not performed; archive inspection on Mac without running Linux code",
+      "source_delivery": "unverified; same mixed root license texts as the macOS wheel, not complete per-library source/notices"
+    },
+    "linux_openbabel": {
+      "filename": "openbabel_wheel-3.1.1.23-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/22/40/a885b253b15f95460d272a11be9aa039badbdc507dcd7f73256dca8cc339/openbabel_wheel-3.1.1.23-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "pypi_sha256": "b20aae66b907da10489bdee3912571d50b85986cfce8845d4f53f9c855bc2494",
+      "bytes": 16084796,
+      "files": 346,
+      "record_sha256_verified_files": 345,
+      "unhashed": "RECORD itself only; no unlisted files",
+      "native_magic_candidates": 165,
+      "named_legal_files": 1,
+      "selected_installed_comparison": "not performed; archive inspection on Mac without running Linux code",
+      "source_delivery": "unverified; wheel includes native engine/plugins and auditwheel-style .libs copies beyond wrapper source"
+    },
+    "retained_reports_sha256": {
+      "acpype-linux-wheel-inspection/inventory.json": "d33ab15b8ff33c38cf5e3b2924df6136f92de46d6cc1652e0cfcd937e3706330",
+      "openbabel-linux-wheel-inspection/inventory.json": "95a44059ca398b2f80e0479fe3804a1a5e5acdd6ce72969ed9fc33beb7c4b322",
+      "acpype-wheel-inspection/inventory.json": "50ae64948c3a56cf5dbd681c3b68177f6da4f4060ecd3a298275174538a60f76",
+      "openbabel-wheel-inspection/inventory.json": "5b37111f2869e7eff6025b32a6ea5dcc87ddc75b1dd8cc9ae04ec2c711aedb85",
+      "native-installed-comparison.json": "b4d661005d6a650425443aa640b8f92e9319d60ce0c2b608701c1d25bb54ada6",
+      "native-recipes/inventory.json": "985c1e077a4d3b0541de3d23eee04d43be6150f05f5d2847bd4959911986b548"
+    },
+    "limitations": [
+      "RECORD consistency and PyPI digest equality are not corresponding-source proof.",
+      "Native file counts include duplicate/versioned library copies; not unique component counts.",
+      "Named notice search is not a complete content-level license audit.",
+      "otool samples read load commands without executing package binaries; full runtime closure remains open."
+    ]
+  },
   "overall_clearance": false
 }

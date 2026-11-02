@@ -195,3 +195,31 @@ Validation for this slice: 34 narrow tests passed; declaration drift, user docs,
 agent maps, changed-document local links and diff checks passed. Supplemental
 source blobs were independently hash-verified. No scientific suite/sampling
 acceptance is inferred from these checks.
+
+### Native wheel follow-up
+
+Exact ACPYPE 2026.10.15/macOS arm64 and Open Babel wheel 3.1.1.23/CPython 3.13
+macOS arm64 archives now have PyPI-digest and internal RECORD verification.
+All 77/168 native candidates match the selected installed Apple prefix. The
+collector retains named archive legal texts and detects extensionless binaries
+by magic; 47 narrow tests passed. Full reports/recipe captures are retained in
+the existing dependency-review evidence root and bound by the review JSON.
+
+ACPYPE's pinned vendoring recipe omits per-package conda legal/source metadata,
+uses a non-build-locked AmberTools prefix and separately adds old charmmgen.
+Its slim sdist deliberately omits the native payload. This establishes concrete
+follow-up targets, not upstream noncompliance or legal clearance. The notices
+README now contains a scoped external-dependency index, not a complete export
+notice/source package. Continue per-binary source/build/notice mapping, the
+GPL combined-work question and Linux evidence; do not infer resolution from
+the 245 installed-byte matches or four sampled otool load-command reports.
+
+Linux follow-up now includes archive-only inspection of the exact x86_64 wheels:
+ACPYPE 601 files/53 native candidates, Open Babel CPython 3.13 346/165; all hashed
+RECORD members and PyPI identities verified. No Linux installation/execution or
+installed-prefix correspondence is implied. Original CHARMM-format July-2022
+archive search is also recorded separately in the provenance note, with its
+bounded-search limitations and no inferred grant.
+Final narrow suite: 49 passed after predeclared archive-digest and unlisted
+RECORD regression controls. Declaration inventory was regenerated for the
+changed notice README; no dependency or scientific behavior changed.

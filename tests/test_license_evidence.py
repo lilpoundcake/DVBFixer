@@ -103,7 +103,7 @@ def test_npm_mismatch_and_missing_packages_stay_visible(tmp_path):
 
 
 def test_archive_hashes_payload_without_extracting(tmp_path):
-    path = tmp_path / "example.whl"
+    path = tmp_path / "example.zip"
     with zipfile.ZipFile(path, "w") as archive:
         archive.writestr("example/__init__.py", "# code")
         archive.writestr("share/notices/LICENSE.txt", "notice")
@@ -114,6 +114,76 @@ def test_archive_hashes_payload_without_extracting(tmp_path):
     assert result["restricted_or_sensitive_name_findings"] == ["weights.ckpt"]
     assert result["compatibility_review"] == "unknown"
     assert not (tmp_path / "example").exists()
+
+
+@pytest.mark.parametrize("magic,kind", [
+    (b"\x7fELF", "ELF"), (b"\xcf\xfa\xed\xfe", "Mach-O"),
+    (b"MZ", "PE-candidate"), (b"!<arch>\n", "ar-archive"),
+    (b"\xca\xfe\xba\xbe", "fat-binary-candidate"), (b"#!/bin/sh", None),
+])
+def test_binary_detection_does_not_require_a_filename_suffix(magic, kind):
+    assert evidence.binary_format(magic) == kind
+
+
+def test_wheel_record_and_extensionless_native_and_legal_capture(tmp_path):
+    import base64
+
+    payload = b"\xcf\xfa\xed\xfe" + b"not executed"
+    sha = base64.urlsafe_b64encode(bytes.fromhex(evidence.digest(payload))).decode().rstrip("=")
+    record = f"pkg/bin/tool,sha256={sha},{len(payload)}\npkg/LICENSE,,\npkg-1.dist-info/RECORD,,\n"
+    path = tmp_path / "example.whl"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("pkg/bin/tool", payload)
+        archive.writestr("pkg/LICENSE", "component notice")
+        archive.writestr("pkg-1.dist-info/RECORD", record)
+    store = evidence.EvidenceStore(tmp_path / "evidence")
+    result = evidence.inspect_archive(path, store)
+    assert result["native_candidate_paths"] == ["pkg/bin/tool"]
+    assert result["wheel_record_verification"]["verified_sha256_files"] == 1
+    assert result["wheel_record_verification"]["unlisted_files"] == []
+    notice = result["legal_evidence"][0]
+    assert (store.output / notice["blob"]).read_text() == "component notice"
+    assert not (tmp_path / "pkg").exists()
+
+
+@pytest.mark.parametrize("record,error", [
+    (b"a,sha256=invalid,1\n", "hash mismatch"),
+    (b"a,,2\n", "size mismatch"), (b"missing,,\n", "missing"),
+    (b"a,,\na,,\n", "duplicate"), (b"a\n", "Malformed"),
+])
+def test_invalid_wheel_record_fails_closed(record, error):
+    with pytest.raises(ValueError, match=error):
+        evidence.verify_wheel_record([{"path": "a", "bytes": 1, "sha256": evidence.digest(b"a")}], record)
+
+
+def test_missing_wheel_record_is_not_silently_accepted(tmp_path):
+    path = tmp_path / "example.whl"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("pkg/data", "value")
+    with pytest.raises(ValueError, match="exactly one"):
+        evidence.inspect_archive(path)
+
+
+def test_archive_identity_is_checked_before_processing_or_capturing_members(tmp_path):
+    path = tmp_path / "example.zip"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("LICENSE", "notice")
+    store = evidence.EvidenceStore(tmp_path / "evidence")
+    with pytest.raises(ValueError, match="predeclared identity"):
+        evidence.inspect_archive(path, store, "0" * 64)
+    assert list((store.output / "blobs").iterdir()) == []
+    result = evidence.inspect_archive(path, store, evidence.digest(path.read_bytes()))
+    assert len(result["legal_evidence"]) == 1
+
+
+def test_wheel_unlisted_members_remain_explicit_unknowns():
+    result = evidence.verify_wheel_record([
+        {"path": "listed", "bytes": 1, "sha256": evidence.digest(b"a")},
+        {"path": "unlisted", "bytes": 1, "sha256": evidence.digest(b"b")},
+    ], b"listed,,\n")
+    assert result["unhashed_files"] == ["listed"]
+    assert result["unlisted_files"] == ["unlisted"]
+    assert result["verified_sha256_files"] == 0
 
 
 def test_archive_rejects_traversal(tmp_path):

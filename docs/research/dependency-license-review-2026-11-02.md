@@ -121,6 +121,80 @@ input parameters or every output. See the provenance note and evidence register.
 
 ## Distribution decisions remain separate
 
+### Exact macOS wheel/native follow-up (baseline `2aa74fa`)
+
+Two actual PyPI wheels were downloaded without installation, checked against
+PyPI SHA-256 identities and inspected without extraction or package execution:
+
+| Wheel | Archive files | SHA-256 RECORD checks | Native magic candidates | Selected installed native matches |
+|---|---:|---:|---:|---:|
+| ACPYPE 2026.10.15, macOS 11 arm64 | 625 | 624 | 77 | 77 |
+| Open Babel wheel 3.1.1.23, CPython 3.13/macOS 14 arm64 | 348 | 347 | 168 | 168 |
+
+Only each RECORD itself is unhashed; neither wheel has unlisted files. Native
+counts include versioned/duplicate copies, not distinct projects. Previous
+suffix-only candidates missed extensionless executables: the collector now
+recognizes binary magic as well and retains full named legal texts from archives.
+It rejects missing/duplicate RECORDs, hash/size mismatches and malformed rows.
+The generic zip-inspection fixture is now explicitly `.zip`, with separate real
+wheel-contract tests; missing RECORDs are not silently tolerated.
+
+The selected installed prefix is `dvbfixer-apple-standard-460cce9` from the
+earlier Apple evidence. All 245 native candidates match their wheel bytes.
+`otool -L` samples confirm `_openbabel.so` directly links bundled
+`libopenbabel.7.dylib`, and ACPYPE's teLeap links bundled netCDF. This reads load
+commands, not application execution; it is not a full dependency-resolution or
+source-correspondence proof.
+
+ACPYPE tag `2026.10.15` resolves to
+`8c6626a0b1a1c71205f0784f800d4611e32b92bc`. Four pinned recipes were captured:
+vendor script, macOS update script, distribution builder and release workflow.
+They explain concrete remaining source/notice gaps:
+
+- `vendor_amber.py` copies selected programs, transitive libraries and declared
+  data from a conda prefix. Its legal-file list includes root `LICENSE` and
+  `GNU_LGPL_v3`, but not the per-package conda license/build/source metadata.
+- The macOS update defaults to AmberTools 26, without an exact conda package/build
+  lock. It can use an existing prefix. This does not identify every wheel binary's
+  exact upstream revision, build scripts or patches.
+- An old `charmmgen_macos.tgz` supplies legacy charmmgen outside the normal
+  vendoring closure. `otool` shows both x86_64 and arm64 slices in this binary.
+  Source/build provenance needs its own record, not attribution to modern AT26.
+- The distribution builder deliberately strips both Amber trees from the sdist
+  and keeps one in each platform wheel. The small sdist therefore cannot by
+  itself supply corresponding source for the vendored native payload.
+
+ACPYPE has three named legal files; Open Babel has one. Open Babel also contains
+InChI and a `.dylibs` tree with Cairo, font/X11 and gettext-related library names;
+ACPYPE carries numerous native libraries. These names identify additional review
+targets, not a verified license/version assignment for each. Neither a root GPL
+text nor a generic upstream repository URL substitutes for all required notices
+and a suitable source-delivery route. This is an evidence gap, not a finding that
+upstream has violated a license; other source offers may exist.
+
+Full manifests, legal-text blobs, recipe captures and the installed comparison
+remain in the existing evidence root. Their hashes and artifact identities are
+in the linked JSON register. The notice README now distinguishes these external
+requirements from files bundled in dvbfixer's own wheel. No dependency has been
+removed, relicensed or approved for a closed combined distribution.
+
+Two Linux x86_64 PyPI wheels were subsequently inspected on this Mac without
+installing or executing them. ACPYPE has **601 files / 53 native candidates**;
+Open Babel CPython 3.13 has **346 / 165**. PyPI digests and all 600/345 hashed
+RECORD entries pass; only RECORD itself is unhashed, and no files are unlisted.
+The same three/one named legal texts are present. Open Babel's Linux `.libs`
+payload differs from Apple's `.dylibs`; the individual component/source review
+must remain platform-specific. These archive inspections do **not** establish
+the contents of a selected installed Linux prefix or Linux runtime acceptance.
+
+For the intended commercial/service policy, distinguish obligations from
+prohibitions: GPLv2 and GPLv3 permit commercial use and are not AGPL. Ordinary
+server use without distributing copies is not, by itself, an AGPL-style duty to
+publish server source. Distributing a combined application or environment is a
+different boundary and can require copyleft terms, notices and source delivery.
+This does not clear MODELLER, parameter/data rights, or any particular combined
+work. No source offer on behalf of dvbfixer has been made by this audit.
+
 | Boundary | What is established | Still required |
 |---|---|---|
 | Original dvbfixer code | Owner-approved BSD-3-Clause declaration | Existing contribution/copy provenance; not a relicense of dependencies |
@@ -153,6 +227,13 @@ redistribution consent or license key has been supplied or assumed by this revie
    notices/source delivery. Do not publish a generic all-dependencies-BSD claim.
 
 ## Verification
+
+Native follow-up final validation: **49 narrow tests passed**. Actual wheel
+RECORD checks passed for all four archived wheels, and all 245 selected Apple
+installed native files matched. The collector now also accepts
+`--archive ... --expected-sha256 ...` to reject a wrong artifact before reading
+members or capturing legal texts; unlisted/unhashed RECORD entries stay explicit.
+These checks do not imply complete native source or legal clearance.
 
 Follow-up provenance correction: both historical converter LICENSE captures
 were retained under `converter-licenses/` and independently hash-verified; both
