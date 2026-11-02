@@ -51,6 +51,9 @@
     {"id": "reduce-v4.15-cmake", "url": "https://raw.githubusercontent.com/rlabduke/reduce/e748530212b104d2e3328bcb98d6f6972ff2997b/CMakeLists.txt", "scope": "source-build-component-selection"},
     {"id": "reduce-v4.15-program-cmake", "url": "https://raw.githubusercontent.com/rlabduke/reduce/e748530212b104d2e3328bcb98d6f6972ff2997b/reduce_src/CMakeLists.txt", "scope": "binary-link-components-and-dictionary-installation"},
     {"id": "reduce-build1-bioconda-meta", "url": "https://raw.githubusercontent.com/bioconda/bioconda-recipes/098d2ea51fbcb406cfaf01eca3e66ff89a8b85cd/recipes/reduce/meta.yaml", "scope": "historical-build1-recipe-not-current-recipe"},
-    {"id": "reduce-build1-bioconda-build", "url": "https://raw.githubusercontent.com/bioconda/bioconda-recipes/098d2ea51fbcb406cfaf01eca3e66ff89a8b85cd/recipes/reduce/build.sh", "scope": "historical-build1-configuration-not-binary-reproduction"}
+    {"id": "reduce-build1-bioconda-build", "url": "https://raw.githubusercontent.com/bioconda/bioconda-recipes/098d2ea51fbcb406cfaf01eca3e66ff89a8b85cd/recipes/reduce/build.sh", "scope": "historical-build1-configuration-not-binary-reproduction"},
+    {"id": "reduce-v4.15-dictionary-update", "url": "https://raw.githubusercontent.com/rlabduke/reduce/e748530212b104d2e3328bcb98d6f6972ff2997b/update_het_dict.py", "scope": "declared-dictionary-source-and-transformations-not-exact-historical-regeneration"},
+    {"id": "wwpdb-usage-policy", "url": "https://www.wwpdb.org/about/usage-policies", "scope": "current-primary-PDB-archive-CC0-policy-not-all-derived-software-or-data"},
+    {"id": "wwpdb-ccd-description", "url": "https://www.wwpdb.org/data/ccd", "scope": "primary-description-linking-legacy-HET-dictionary-to-PDB-monomer-data"}
   ]
 }

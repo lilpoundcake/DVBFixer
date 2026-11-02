@@ -351,6 +351,49 @@ verification remain separate.
 
 ## Verification
 
+### Dictionary/data-layer and actual notice-artifact follow-up (`78192ad`)
+
+Three primary sources were captured: Reduce's pinned dictionary updater,
+wwPDB's current usage policy and its Chemical Component Dictionary description.
+The latter explicitly identifies the legacy `het_dictionary.txt` at the same
+URL used by the updater; this is a stronger link than inferring provenance from
+the filename. The policy places PDB archive data under **CC0 1.0** and encourages
+author attribution. It is a current primary-policy observation, not a license
+assignment to all third-party software or all modifications of that data.
+
+The updater reformats atom columns, comments out phosphate-OH H records,
+adjusts SPD/SPM/PAR protonation and writes CRLF. The selected dictionary has
+39,488 residue records, 9,431 `xxCONECT` records and 2,139,516 CRLFs (all LF
+occurrences); its inspected SPD record includes updater-style charge edits.
+These observations support a modified-data provenance chain. No exact historical
+download snapshot was identified, no updater was executed and the full output
+was not regenerated. In particular, the audit does not dedicate Reduce-specific
+dictionary edits or code to CC0. Those remaining scopes are explicit unknowns.
+
+The previous missing-`build` frontend limitation was resolved without installing
+anything: the existing **setuptools 75.1.0 `build_meta` hooks** build sdist and
+wheel directly. A new snapshot copies only tracked packaging roots, `src`,
+tracked FF and notices using current file bytes, preserving all input hashes.
+It excludes untracked user FF trees and does not modify the main checkout or
+scientific prefixes. This is a bounded packaging snapshot, **not a full-repository
+release sdist** or full release acceptance.
+
+All **seven notice files** were checked byte-for-byte in the resulting sdist,
+wheel and an isolated `pip --no-deps --no-index --target` install directory.
+The wheel is 2,058,504 bytes and the sdist 1,842,656 bytes; full identities and
+input hashes are retained and registered. Archive inspection found no native
+magic candidates or screened sensitive filenames. This is not a full secret scan,
+data-rights clearance or proof that a combined environment can be closed-source.
+No Reduce program/dictionary was added to either artifact. No scientific command
+ran; no dependency, base environment or scientific prefix was installed into.
+
+The retained build helper is
+`tmp/licensing-audit-2026-10-31/dependency-review-2026-11-02/build-notice-readback.py`;
+the exclusive run output is `notice-artifact-readback/`. It uses existing build
+tooling, writes only fresh local staging/artifact/install directories and
+preserves the build/install logs. The earlier statement that fresh notice
+readback was pending describes the previous slice, not this completed check.
+
 Reduce continuation: **53 narrow tests passed**, including source-notice hash
 preservation and explicit non-equality/relocation guards. All three retained
 reports and their captured blobs were hash-verified, nine supplemental notice

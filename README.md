@@ -103,6 +103,8 @@ runtimes; keep PyTorch outside Standard. The real PSI4 test uses an explicit
 
 ## License
 
+For a short publication checklist, see [practical licensing status](docs/licensing-status.md).
+
 DVBFixer's original code is available under [BSD-3-Clause](LICENSE).
 Copyright (c) 2026, Stanislav Skripkin. Commercial use, modification and
 redistribution are permitted under that license; author notification is not

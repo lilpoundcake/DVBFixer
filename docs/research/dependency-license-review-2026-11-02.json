@@ -361,5 +361,46 @@
     },
     "redistribution_clearance": "unknown"
   },
+  "dictionary_and_notice_artifact_followup": {
+    "baseline": "78192ad",
+    "dictionary": {
+      "source_sha256": "0da5ec87a909bb0eb8df480c42ce74bef92e710ff939764f960a62b0d9b38ab9",
+      "updater_source_id": "reduce-v4.15-dictionary-update",
+      "updater_sha256": "7f32f13d5e13bd8bc548050f29ff93ebd2c63a783b1fee94f2e2f800689b76e1",
+      "declared_upstream_url": "https://files.wwpdb.org/pub/pdb/data/monomers/het_dictionary.txt",
+      "upstream_policy": "current wwPDB PDB archive usage policy: CC0 1.0",
+      "policy_source_id": "wwpdb-usage-policy",
+      "legacy_format_description_source_id": "wwpdb-ccd-description",
+      "declared_transformations": ["PDB-style atom-column alignment", "phosphate-OH hydrogen comments", "SPD/SPM/PAR protonation edits", "CRLF line endings"],
+      "observed_residue_records": 39488,
+      "observed_commented_conect_records": 9431,
+      "observed_crlf_count": 2139516,
+      "observed_lf_count": 2139516,
+      "historical_upstream_snapshot": "unknown",
+      "exact_regeneration_performed": false,
+      "modified_dictionary_assigned_cc0_by_this_audit": false,
+      "redistribution_clearance": "unknown"
+    },
+    "notice_artifacts": {
+      "backend": "existing setuptools 75.1.0 build_meta hooks; no build frontend installed",
+      "input_scope": "bounded tracked-current-byte snapshot of packaging roots, src, tracked FF and notices; not a complete repository sdist",
+      "wheel": {"filename": "dvbfixer-0.10.1-py3-none-any.whl", "bytes": 2058504, "sha256": "a27bdb91ab67cf2c57135c519a5e746494485947ba87c0829227c906d2082d02"},
+      "sdist": {"filename": "dvbfixer-0.10.1.tar.gz", "bytes": 1842656, "sha256": "1119c85b5c146659d458d87f9f79213d636b106e8bc715de1630183c0e8900d5"},
+      "notice_files_verified": 7,
+      "verified_locations": ["snapshot sdist", "wheel", "isolated pip --target installation"],
+      "dependency_installation": false,
+      "scientific_commands_executed": false,
+      "native_magic_candidates_in_both_archives": 0,
+      "sensitive_filename_findings_in_both_archives": [],
+      "scope_warning": "payload checks and filename screening are not combined-work or data-license clearance",
+      "script_sha256": "878bb2bc320f754d20f1efcb5b7a9930db16f9e03429303003307b558fb96da4"
+    },
+    "retained_reports_sha256": {
+      "dictionary-primary-sources/inventory.json": "ed2ab9a49e6a4d56b5ecbd211e3d340d529ece6dbf1e2763c15ca654c88e8233",
+      "dictionary-transformation-observations.json": "53fdbcb3e7c23fcd0e184b2cc8f0600c643135b4437537964cc0bc66aa29829c",
+      "notice-artifact-readback/report.json": "1b9a8842f953d8310a9dede0041cdec3505519d85dcb984fe932815b2339873e"
+    },
+    "redistribution_clearance": "unknown"
+  },
   "overall_clearance": false
 }

@@ -1,7 +1,9 @@
 # Licensing and third-party attribution plan
 
 Updated: **2026-11-02**, repository baseline **`4a328a6` / 0.10.1**.
-Status: **preliminary audit refreshed for implemented installation profiles;
+Status: **scope narrowed to practical source/wheel release decisions at the
+owner's request; further exhaustive native-component research deferred;
+preliminary audit refreshed for implemented installation profiles;
 declaration inventory, native installed evidence and preliminary artifact checks
 implemented; BSD-3-Clause and Stanislav Skripkin attribution implemented on
 2026-11-02; full third-party clearance pending**.
@@ -13,6 +15,12 @@ implemented; BSD-3-Clause and Stanislav Skripkin attribution implemented on
 [Existing notices](../../THIRD_PARTY_NOTICES/README.md)
 
 ## Goal and boundaries
+
+Start with the [practical publication checklist](../licensing-status.md).
+The owner asked to stop over-investigating transitive binary details. Retain
+existing evidence, but prioritize the few source/wheel rights questions and
+explicit permission requests. Resume full native/source closure only for an
+actually intended prebuilt artifact; do not infer legal clearance from deferral.
 
 Give DVBFixer's own code an explicit, owner-approved license and prepare accurate
 attribution for dependencies, copied/modified material, force fields, model
@@ -43,7 +51,8 @@ notices or relabel upstream material as DVBFixer-owned.
 At baseline `4a328a6` there was no root project license or Python/GUI license
 declaration. On 2026-11-02 the owner selected BSD-3-Clause and confirmed the name
 Stanislav Skripkin; LICENSE, synchronized metadata, contribution terms and project
-citation were added. Third-party notices still cover only Amber19SB/GROMACS.
+citation were added. The partial notices now cover Amber19SB/GROMACS and selected
+Reduce texts, with an index of other unresolved external dependency terms.
 Do not describe the complete 0.10.1 distribution as license-cleared or infer
 third-party rights from passing installation/scientific tests.
 

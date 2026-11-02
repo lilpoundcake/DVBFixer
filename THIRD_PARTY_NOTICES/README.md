@@ -53,6 +53,16 @@ for free" condition or a source offer. Exact condition interpretation, any
 intended modified build, complete copyright closure and separately derived
 dictionary-data rights remain under review.
 
+The Reduce HET dictionary is a **modified derivative**, not an unaltered wwPDB
+download. The pinned updater identifies the legacy wwPDB HET dictionary as its
+input, reformats atom columns, changes selected protonation entries and writes
+CRLF line endings. wwPDB's [current usage policy](https://www.wwpdb.org/about/usage-policies)
+places PDB archive data under CC0 1.0, and its
+[CCD description](https://www.wwpdb.org/data/ccd) identifies the legacy HET data.
+This supports the upstream-data layer; it does not automatically dedicate
+Reduce-specific edits or program code to CC0. The exact historical input
+snapshot and complete rights for the modified dictionary remain under review.
+
 Identified subcomponents of those external wheels (not additional software
 bundled into dvbfixer's own wheel):
 

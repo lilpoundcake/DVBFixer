@@ -271,3 +271,38 @@ three retained report hashes, captured blobs and nine supplemental source notice
 blocks checked. New notice files are included in the regenerated declaration
 inventory. Fresh wheel/readback is pending because base Python lacks `build`;
 no package was installed into the user's environment to bypass this limitation.
+
+### Dictionary and notice packaging after `78192ad`
+
+Reduce's pinned updater and wwPDB primary usage/CCD pages now establish the
+declared legacy-HET input and explicit transformation steps. Current PDB archive
+policy is CC0; this is positive upstream-data evidence, not a blanket grant for
+Reduce edits/software. Observed dictionary: 39,488 residues, 9,431 xxCONECT and
+2,139,516 CRLF records. Historical source snapshot and exact regeneration remain
+unestablished; the updater was not executed.
+
+Fresh notice readback is no longer blocked by the missing `build` frontend:
+existing setuptools.build_meta built a bounded tracked-source snapshot without
+tool installation. Seven notice files match sdist, wheel and isolated no-deps
+pip target. Source snapshot/input hashes, artifacts and logs are retained under
+`notice-artifact-readback/`, helper in `build-notice-readback.py`, below the audit
+root. This is not a full-repository release sdist or scientific smoke. No native
+payload/screened sensitive filename found. Do not infer environment export or
+legal clearance from this packaging check; source-data/combined-work gates remain.
+
+### Owner steering: practical scope, not exhaustive forensics
+
+The owner explicitly said the audit was going too deep. The primary continuation
+is now [practical publication status](../licensing-status.md): own BSD grant,
+source/wheel force-field rights, one focused Open Babel/ACPYPE combined-work
+review, and operator-licensed MODELLER. Do not keep downloading or mapping every
+native library merely to improve a research inventory. Preserve existing work;
+resume per-library export compliance only when a concrete prebuilt artifact is
+actually planned. No architecture, dependency, data-exclusion or relicensing
+change is authorized by this scope reduction. Upstream questions are proposed,
+not sent or answered. Unknowns remain explicit rather than called violations.
+Practical-scope validation: 53 narrow tests, user/agent documentation checks,
+64 changed/new local links, JSON and diff checks pass. Dictionary/build evidence
+already gathered is retained and indexed, not expanded into a new full-platform
+qualification. Three retained reports and seven current installed notice texts
+were independently read back; publication checklist is not legal approval.

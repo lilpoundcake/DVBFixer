@@ -2145,7 +2145,7 @@
       "id": "data:share/dvbfixer/notices:THIRD_PARTY_NOTICES/README.md",
       "license_review": "unknown",
       "path": "THIRD_PARTY_NOTICES/README.md",
-      "sha256": "20decf41eef854c6f5db88c248a059b9d22bcad4cf0a0ef2bf25811b9a71a2fb",
+      "sha256": "bd0efeb87e3d3b096aed87f853dc118b8c276e15f07ba0236cdfd90ffd947003",
       "source": "pyproject.toml"
     },
     {
