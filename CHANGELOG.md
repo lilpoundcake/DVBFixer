@@ -8,6 +8,24 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.10.2] — 2026-11-02
+
+### Added
+
+- BSD-3-Clause licensing for original DVBFixer code, synchronized Python/GUI
+  license metadata, contribution terms and project citation.
+- Third-party notices, bundled force-field attribution, separate model-weight
+  terms and a practical source-plus-installer distribution policy. This does not
+  relicense upstream material or claim blanket third-party legal clearance.
+- Reproducible dependency declaration inventories, bounded license/provenance
+  evidence tools and maintenance checks, with retained packaging verification.
+
+### Changed
+
+- Recorded the source-plus-existing-Standard/Desktop-installer delivery scope;
+  prebuilt scientific environment/container publication is not part of this work.
+  Scientific algorithms, dependency composition and force-field bytes are unchanged.
+
 ## [0.10.1] — 2026-10-28
 
 ### Removed
