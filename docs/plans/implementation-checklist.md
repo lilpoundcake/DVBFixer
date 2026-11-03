@@ -89,6 +89,48 @@ The experimental software path is integrated; see
 The remaining broader-cohort item is scientific follow-up: numerical defaults
 are approved engineering limits, not calibrated experimental uncertainty.
 
+### Actionable diffusion rejection output
+
+Added 2026-11-03 following GUI review of the 9CQD cc94 seeds 7, 42 and
+101. This is a reporting improvement, not a change to scientific acceptance
+criteria. Currently the CLI prints hard-gate identifiers while concrete
+residue-level findings remain in the refinement JSON report.
+
+- [ ] Print human-readable final rejection findings in standard output, in
+  English, without requiring `--verbose` or manual JSON inspection. Include
+  the case-sensitive chain/residue identity, relevant atoms or metric,
+  measured value, units and allowed range/limit. Example output:
+
+  ```text
+  Diffusion candidate REJECTED.
+  W/ASP28: N–CA–C bond angle = 79.1°; allowed range: 95–125°.
+  W/VAL29: backbone RMSD = 0.6001 Å; maximum allowed: 0.5000 Å.
+  ```
+
+  These illustrate separate retained candidates; do not combine measurements
+  from different seeds or stages into one candidate's report.
+- [ ] Carry authoritative Python-owned findings from refinement/independent
+  validation to the CLI; do not duplicate geometry calculations in Node or
+  substitute hard-gate identifiers for concrete findings. Preserve identifiers
+  for machine-readable reports and provide an explicit fallback for failures
+  without a residue-level finding.
+- [ ] Separate remaining final rejection causes from intermediate findings
+  already resolved by refinement. Identify candidate/seed and selected stage;
+  keep raw and stage-1 details available in the full report.
+- [ ] Print an actionable retained report path and explicitly state that a
+  rejected structure is saved for inspection, not accepted. Avoid pointing
+  users only to a temporary path removed during GUI run-storage compaction.
+- [ ] Ensure GUI run output and captured logs show the same concrete English
+  findings through the shared CLI/fd-level diagnostic capture. Clearly
+  distinguish process completion from scientific candidate rejection; any
+  exit-code/job-status compatibility change requires an explicit decision.
+- [ ] Add regression coverage for bond angles, peptide planarity,
+  Ramachandran outliers and per-anchor movement limits, including multiple
+  candidates/stages, insertion codes and case-sensitive chain IDs. Verify
+  standard output without `--verbose`, retained log/GUI delivery, no resolved
+  intermediate findings presented as final failures, and no empty rejection
+  banner for accepted candidates. Keep validation thresholds unchanged.
+
 ### Return to the real-complex findings
 
 Evidence: [pre-anchor benchmark](../research/protein-complex-pre-anchor-benchmark-v1.md).
@@ -282,6 +324,113 @@ configuration validation, and cleanup on subsequent successful execution.
 - [x] Expose `conect`.
 - [x] Expose `renumber`.
 - [x] Version or migrate managed `prepare`, `minimize`, `model`, and `zbs`.
+
+## GUI tool navigation and grouping polish
+
+Added 2026-11-03. User-requested navigation changes; scientific command
+behavior stays unchanged.
+
+- [ ] Move the **Altloc** tab immediately before **Model** in tool navigation.
+- [ ] Move **Pull** to **Utilities**, with adjacent order **Conect → Puppet → Pull**.
+- [ ] Move **Cluster** from **Analysis** to the current **Glycoprotein
+  Preparation** group, with order **Convert → Transplant → Cluster**.
+  Choose a broader, descriptive name for the destination
+  group that fits its complete tool inventory, including Cluster; confirm the
+  final name before implementation rather than silently selecting one.
+- [ ] Move **Diagnose** to the first position in **Utilities**, and remove the
+  now-obsolete **Analysis** group. Preserve tool identities, saved tool-panel
+  state and existing workspace/job references while changing presentation.
+- [ ] Add cascading tool submenus to the utility-group dropdown: hovering a
+  group reveals its tools and selecting a tool opens it directly. Support
+  keyboard navigation/focus and click/touch activation as equivalent routes;
+  keep submenus reachable across pointer transitions and within viewport
+  bounds, with clear active-tool/group indication.
+- [ ] Keep group names, ordering and tool membership consistent across the
+  navigation registry and other generated/shared views; do not hand-edit
+  generated specifications. Follow the shared GUI design system.
+- [ ] Add navigation regressions for exact ordering/membership, removal of
+  Analysis, retained panel state, submenu selection, pointer transitions,
+  keyboard and touch/click operation. Run GUI typecheck/tests and inspect the
+  resulting navigation at desktop and narrow viewport sizes.
+
+## GUI diffusion multi-seed input
+
+Added 2026-11-03. The CLI supports repeated integer options such as
+`--diffusion-seed 1 --diffusion-seed 17 --diffusion-seed 148`, but the GUI does
+not make entering multiple seeds clear. Fix usability and end-to-end transport,
+not just the field label.
+
+- [ ] Provide an explicitly labelled **Seeds** control for diffusion, with
+  visible help and examples. Accept comma-separated and whitespace-separated
+  integers (`1, 17, 148` or `1 17 148`, including mixed separators) and normalize
+  them to an ordered integer list. Show the default seed 7 when unspecified.
+- [ ] Validate entries before submission: reject negative, fractional,
+  malformed, duplicate and non-safely-representable values with actionable
+  feedback; preserve input order and match Python's unique non-negative seed
+  contract. Never silently discard invalid entries or pass a whole list as
+  one integer argument.
+- [ ] Trace all GUI diffusion entry points, including Model and Homology where
+  applicable, through client/API schemas, CLI argument construction and saved
+  panel state. Serialize the normalized list as repeated `--diffusion-seed`
+  arguments and preserve it in job provenance and reload/resume behavior.
+  Keep single-seed inputs and existing persisted values compatible; do not
+  edit generated GUI specifications by hand.
+- [ ] Explain that each seed requests a candidate, not necessarily a separate
+  concurrently scheduled job. Show requested seeds and per-candidate
+  completion/validation outcomes; integrate with Job Monitor without implying
+  that seed count guarantees parallel execution. Keep existing whole-run
+  timeout semantics visible for multi-seed requests.
+- [ ] Add parser, UI and API/argv regression tests for both separator styles,
+  mixed separators, empty/default and single-seed inputs, invalid/duplicate
+  values, persistence and exact repeated-option transport. Verify a real
+  multi-seed GUI workflow retains a separately identified result/outcome for
+  every requested seed, including rejected candidates; run GUI typecheck/tests
+  and relevant backend tests before marking complete.
+
+## GUI Job Monitor
+
+Added 2026-11-03. Planned dedicated **Job Monitor** tab for tracking task
+execution, with a design that supports multiple simultaneous jobs rather than
+one global active-task indicator. This is planned work, not a claim that all
+workflow types currently permit concurrent execution in the same workspace.
+
+- [ ] Add a Job Monitor tab next to **Info** in the same docking tabset,
+  listing queued, running and recently finished jobs.
+  Show job identity, tool/workflow, owning workspace, start time, elapsed time,
+  current execution stage and terminal outcome. Keep process completion and
+  scientific acceptance/rejection distinct.
+- [ ] Show per-job stage progression and progress using authoritative runtime
+  events. Display completed/total work and percentages only when measurable;
+  otherwise show an indeterminate indicator, stage name and elapsed time.
+  Distinguish sampling, refinement, validation and publication where supported;
+  do not invent progress or expose a partial output as ready.
+- [ ] Define a shared, versioned job-stage/progress event contract and connect
+  supported Python workflows and external runners to the existing managed-job
+  transport. Reuse persisted job state and event delivery rather than adding
+  a separate GUI-owned scheduler or inferring scientific stages from fragile
+  free-text matching. Keep logs available for detailed inspection.
+- [ ] Support independent selection, progress and cancellation controls for
+  multiple jobs. Review existing workspace locks, concurrency limits and
+  CPU/GPU/memory admission before enabling parallel execution; queue conflicting
+  jobs and explain why they are waiting. Preserve workspace/artifact isolation
+  and do not remove safety locks simply to permit concurrency.
+- [ ] Provide an accessible per-job **Stop** action through the existing
+  cancellation API. Show cancellation requested/stopping until termination is
+  confirmed; terminate tracked subprocesses, handle completion/cancellation
+  races, retain failure/cancellation diagnostics and never publish incomplete
+  results as accepted. Stopping one job must not stop unrelated jobs.
+- [ ] Restore monitor state after tab changes, reloads and event reconnects
+  from authoritative persisted records. Define cross-workspace visibility with
+  ownership/ACL enforcement; switching workspaces must not misattribute running
+  jobs or leak another principal's job data.
+- [ ] Link each job to its logs, actionable validation findings, retained run
+  reports and completed outputs. Follow the shared GUI design system and keep
+  monitoring usable while a different task or workspace is open.
+- [ ] Test concurrent jobs, queued/resource-blocked jobs, stage/progress events,
+  indeterminate work, reload/reconnect, authorization, cancellation of one job
+  without affecting others, process cleanup and rejection versus completion.
+  Run GUI typecheck/tests plus backend contract tests and a real multi-job
+  start/monitor/stop smoke before marking this feature complete.
 
 ## API-Wide Quality Gates
 

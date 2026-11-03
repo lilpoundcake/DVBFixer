@@ -12,6 +12,31 @@ export interface ToolReportPreview {
 const TEXT_REPORT = /\.(txt|json|md|log|csv|tsv|fasta|fa|faa|pir|aln|dat|top|itp|mdp|ya?ml|toml|xml)$/i
 const DIAGNOSTIC_REPORT = /(?:^|[/. _-])diagnose\.(json|txt|md)$/i
 
+export function diagnosticLine(raw: string): { text: string; severity?: 'error' | 'warning' } {
+  // eslint-disable-next-line no-control-regex -- Render terminal text without ANSI codes.
+  const text = raw.replace(/\u001b\[[0-9;]*m/g, '')
+  const normalized = text.trim().replace(/^!!! (?:ERROR|WARNING) !!!\s*/, '').replace(/^\[(?:ERROR|WARNING)\]\s*/, '')
+  if (/^ERROR\b/.test(normalized) && !/^ERROR:\s*0\b/.test(normalized)) return { text, severity: 'error' }
+  // Historical runs already declare scientific rejection, but labelled it WARNING.
+  if (/^(?:WARNING:\s*)?Diffusion candidate (?:REJECTED:|was published but failed independent DVBFixer validation)/.test(normalized)) return { text, severity: 'error' }
+  if (/^WARNING\b/.test(normalized)) return { text, severity: 'warning' }
+  return { text }
+}
+
+/** Presentation only: surface explicit Python errors, never infer geometry. */
+export function outputErrors(...streams: string[]): string[] {
+  const errors = new Set<string>()
+  for (const stream of streams) {
+    for (const raw of stream.split('\n')) {
+      const line = diagnosticLine(raw)
+      if (line.severity !== 'error') continue
+      errors.add(line.text.trim().replace(/^!!! ERROR !!!\s*/, '').replace(/^\[ERROR\]\s*/, '').slice(0, 4096))
+      if (errors.size >= 100) return [...errors]
+    }
+  }
+  return [...errors]
+}
+
 /** Present Python's explicit notices; do not calculate or reinterpret geometry. */
 export function anchorRefinementNotices(...streams: string[]): string[] {
   const notices = new Set<string>()

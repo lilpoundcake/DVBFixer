@@ -354,6 +354,150 @@ export const GENERATED_COMMANDS = [
     "specialized": false
   },
   {
+    "name": "altlocs",
+    "label": "Altlocs",
+    "description": "Select one alternate state per residue",
+    "category": "Structure preparation",
+    "inputs": [
+      {
+        "flag": "input",
+        "dest": "input",
+        "label": "Input",
+        "type": "artifact",
+        "group": "Input / output",
+        "help": "PDB, ENT, CIF or mmCIF structure",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "input",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--selection-plan",
+        "dest": "selection_plan",
+        "label": "Selection Plan",
+        "type": "text",
+        "group": "Input / output",
+        "help": "Version-1 JSON plan bound to source SHA-256",
+        "required": false,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--policy",
+        "dest": "policy",
+        "label": "Policy",
+        "type": "select",
+        "group": "Selection",
+        "help": "Residue-coherent automatic or manual state selection",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "occupancy",
+        "options": [
+          "manual",
+          "occupancy",
+          "first",
+          "prefer"
+        ]
+      },
+      {
+        "flag": "--prefer",
+        "dest": "prefer",
+        "label": "Prefer",
+        "type": "text",
+        "group": "Selection",
+        "help": "Preferred altloc label (case-sensitive)",
+        "required": false,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--fallback",
+        "dest": "fallback",
+        "label": "Fallback",
+        "type": "select",
+        "group": "Selection",
+        "help": "Fallback when preferred label is absent",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "error",
+        "options": [
+          "error",
+          "occupancy",
+          "first"
+        ]
+      },
+      {
+        "flag": "--select",
+        "dest": "select",
+        "label": "Select",
+        "type": "text",
+        "group": "Selection",
+        "help": "Manual override (repeatable); insertion codes supported, _ means blank chain; ambiguous MODEL/occurrence requires JSON plan",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
+        "flag": "--dry-run",
+        "dest": "dry_run",
+        "label": "Dry Run",
+        "type": "bool",
+        "group": "Selection",
+        "help": "Analyze without publishing a structure",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--include-structure",
+        "dest": "include_structure",
+        "label": "Include Structure",
+        "type": "bool",
+        "group": "Selection",
+        "help": "Include normalized PDB text in analysis JSON for graphical preview",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      }
+    ],
+    "groups": [
+      {
+        "name": "Input / output",
+        "fields": [
+          "--selection-plan"
+        ]
+      },
+      {
+        "name": "Selection",
+        "fields": [
+          "--policy",
+          "--prefer",
+          "--fallback",
+          "--select",
+          "--dry-run",
+          "--include-structure"
+        ]
+      }
+    ],
+    "outputExtension": ".pdb",
+    "outputMode": "file",
+    "hasOutput": true,
+    "outputKind": "artifact",
+    "batch": false,
+    "successCodes": [
+      0
+    ],
+    "specialized": false
+  },
+  {
     "name": "model",
     "label": "Model",
     "description": "Rebuild missing loops/gaps (default: Modeller)",
@@ -703,168 +847,6 @@ export const GENERATED_COMMANDS = [
     "backendOutputModes": {
       "diffusion": "directory"
     },
-    "hasOutput": true,
-    "outputKind": "artifact",
-    "batch": true,
-    "successCodes": [
-      0
-    ],
-    "specialized": false
-  },
-  {
-    "name": "pull",
-    "label": "Pull",
-    "description": "Pull atoms together to form a bond (geometry-only)",
-    "category": "Refinement",
-    "inputs": [
-      {
-        "flag": "input",
-        "dest": "input",
-        "label": "Input",
-        "type": "artifact",
-        "group": "Input / output",
-        "help": "Input PDB, PDBx/mmCIF, or crystallographic CIF file",
-        "required": true,
-        "repeatable": false,
-        "multi": false,
-        "name": "input",
-        "nargs": null
-      }
-    ],
-    "flags": [
-      {
-        "flag": "--bond",
-        "dest": "bond",
-        "label": "Bond",
-        "type": "text",
-        "group": "Bond specification",
-        "help": "Two atom specs: chain:resnum:atomname (e.g. --bond H:239:SG K:239:SG). Can be specified multiple times for multiple bonds.",
-        "required": true,
-        "repeatable": true,
-        "multi": true
-      },
-      {
-        "flag": "--target-distance",
-        "dest": "target_distance",
-        "label": "Target Distance",
-        "type": "number",
-        "group": "Bond specification",
-        "help": "Target bond distance in angstroms (default: auto by bond type)",
-        "required": false,
-        "repeatable": false,
-        "multi": false
-      },
-      {
-        "flag": "--anchor",
-        "dest": "anchor",
-        "label": "Anchor",
-        "type": "text",
-        "group": "Bond specification",
-        "help": "Anchor one endpoint (freeze its side, only move the other)",
-        "required": false,
-        "repeatable": false,
-        "multi": false
-      },
-      {
-        "flag": "--radius",
-        "dest": "radius",
-        "label": "Radius",
-        "type": "number",
-        "group": "Physics / restraints",
-        "help": "Radius of free region around bond endpoints in angstroms (default: 10.0)",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": 10.0
-      },
-      {
-        "flag": "--max-iter",
-        "dest": "max_iter",
-        "label": "Max Iter",
-        "type": "number",
-        "group": "Physics / restraints",
-        "help": "Max minimization iterations (default: 1000)",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": 1000
-      },
-      {
-        "flag": "--ff",
-        "dest": "ff",
-        "label": "FF",
-        "type": "text",
-        "group": "Force field",
-        "help": "Force field selection. Accepts a short name (auto, amber, amber+glycam, charmm, ...) or an explicit list of OpenMM XML paths. Default: 'auto' — detect from residue names in the input. See docs/force-fields.md.",
-        "required": false,
-        "repeatable": false,
-        "multi": true,
-        "default": [
-          "auto"
-        ]
-      },
-      {
-        "flag": "--rename",
-        "dest": "rename",
-        "label": "Rename",
-        "type": "bool",
-        "group": "Content selection",
-        "help": "Rename non-canonical residues (AMBER/CHARMM) to standard names before processing",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      },
-      {
-        "flag": "--verbose",
-        "dest": "verbose",
-        "label": "Verbose",
-        "type": "bool",
-        "group": "Diagnostics",
-        "help": "Print detailed progress",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      }
-    ],
-    "groups": [
-      {
-        "name": "Bond specification",
-        "fields": [
-          "--bond",
-          "--target-distance",
-          "--anchor"
-        ]
-      },
-      {
-        "name": "Physics / restraints",
-        "fields": [
-          "--radius",
-          "--max-iter"
-        ]
-      },
-      {
-        "name": "Force field",
-        "fields": [
-          "--ff"
-        ]
-      },
-      {
-        "name": "Content selection",
-        "fields": [
-          "--rename"
-        ]
-      },
-      {
-        "name": "Diagnostics",
-        "fields": [
-          "--verbose"
-        ]
-      }
-    ],
-    "outputExtension": ".pdb",
-    "outputMode": "file",
     "hasOutput": true,
     "outputKind": "artifact",
     "batch": true,
@@ -1810,6 +1792,214 @@ export const GENERATED_COMMANDS = [
     "specialized": false
   },
   {
+    "name": "diagnose",
+    "label": "Diagnose",
+    "description": "Report structure-quality issues (missing atoms, clashes, valence, ...)",
+    "category": "Utilities",
+    "inputs": [
+      {
+        "flag": "input",
+        "dest": "input",
+        "label": "Input",
+        "type": "artifact",
+        "group": "Input / output",
+        "help": "Input PDB, PDBx/mmCIF, or crystallographic CIF file",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "input",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--only",
+        "dest": "only",
+        "label": "Only",
+        "type": "select",
+        "group": "Check selection",
+        "help": "Restrict to one category of checks (default: all).",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "all",
+        "options": [
+          "all",
+          "structural",
+          "chemistry",
+          "steric"
+        ]
+      },
+      {
+        "flag": "--severity",
+        "dest": "severity",
+        "label": "Severity",
+        "type": "select",
+        "group": "Check selection",
+        "help": "Minimum severity to include in the report (default: INFO). Set to ERROR for pre-commit / CI usage.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "INFO",
+        "options": [
+          "ERROR",
+          "WARNING",
+          "INFO"
+        ]
+      },
+      {
+        "flag": "--include-water",
+        "dest": "include_water",
+        "label": "Include Water",
+        "type": "bool",
+        "group": "Check selection",
+        "help": "Include water residues (HOH/WAT/TIP3/SOL) in checks. Off by default — crystallographic waters generate massive chain-break and steric noise.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--clash-mode",
+        "dest": "clash_mode",
+        "label": "Clash Mode",
+        "type": "select",
+        "group": "Check selection",
+        "help": "Preset clash overlap thresholds (WARN / ERROR in Å). Default: chimerax. Available: molprobity (0.4/0.5 Å), chimerax (0.6/0.9 Å), bioluminate (0.75/1.0 Å).",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "chimerax",
+        "options": [
+          "bioluminate",
+          "chimerax",
+          "molprobity"
+        ]
+      },
+      {
+        "flag": "--clash-cutoff",
+        "dest": "clash_cutoff",
+        "label": "Clash Cutoff",
+        "type": "text",
+        "group": "Check selection",
+        "help": "Explicit clash overlap cutoffs in Å (overrides --clash-mode). Example: --clash-cutoff 0.35,0.45 for extra-strict validation.",
+        "required": false,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--probe-radii",
+        "dest": "probe_radii",
+        "label": "Probe Radii",
+        "type": "select",
+        "group": "Check selection",
+        "help": "Optional Probe radius convention (default: electron, Probe's default). Choose nuclear for matching nuclear-position hydrogen coordinates. Reported explicitly; has no effect on the Python fallback.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "electron",
+        "options": [
+          "electron",
+          "nuclear"
+        ]
+      },
+      {
+        "flag": "--scope-residue",
+        "dest": "scope_residue",
+        "label": "Scope Residue",
+        "type": "text",
+        "group": "Optional exact geometry scope",
+        "help": "Add an exact, case-sensitive residue to JSON geometry summaries. Repeat for multiple residues; numeric ranges are not inferred.",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
+        "flag": "--scope-boundary",
+        "dest": "scope_boundary",
+        "label": "Scope Boundary",
+        "type": "text",
+        "group": "Optional exact geometry scope",
+        "help": "Measure an explicit ordered C(left)-N(right) boundary, where each selector is CHAIN:RESID[:ICODE]. Repeat as needed. Does not infer gaps.",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      },
+      {
+        "flag": "--format",
+        "dest": "output_format",
+        "label": "Output Format",
+        "type": "select",
+        "group": "Output format",
+        "help": "Output format. `text` is the plain-text report; `json` emits a machine-readable list of findings (usable for CI).",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": "text",
+        "options": [
+          "text",
+          "json"
+        ]
+      },
+      {
+        "flag": "--verbose",
+        "dest": "verbose",
+        "label": "Verbose",
+        "type": "bool",
+        "group": "Diagnostics",
+        "help": "Include per-check timing on stderr.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      }
+    ],
+    "groups": [
+      {
+        "name": "Check selection",
+        "fields": [
+          "--only",
+          "--severity",
+          "--include-water",
+          "--clash-mode",
+          "--clash-cutoff",
+          "--probe-radii"
+        ]
+      },
+      {
+        "name": "Optional exact geometry scope",
+        "fields": [
+          "--scope-residue",
+          "--scope-boundary"
+        ]
+      },
+      {
+        "name": "Output format",
+        "fields": [
+          "--format"
+        ]
+      },
+      {
+        "name": "Diagnostics",
+        "fields": [
+          "--verbose"
+        ]
+      }
+    ],
+    "outputExtension": ".txt",
+    "outputMode": "file",
+    "hasOutput": true,
+    "outputKind": "report",
+    "batch": true,
+    "successCodes": [
+      0,
+      1
+    ],
+    "specialized": false
+  },
+  {
     "name": "rename",
     "label": "Rename",
     "description": "Rename non-canonical residues (AMBER/CHARMM) to standard names",
@@ -1982,150 +2172,6 @@ export const GENERATED_COMMANDS = [
         "name": "Diagnostics",
         "fields": [
           "--verbose"
-        ]
-      }
-    ],
-    "outputExtension": ".pdb",
-    "outputMode": "file",
-    "hasOutput": true,
-    "outputKind": "artifact",
-    "batch": false,
-    "successCodes": [
-      0
-    ],
-    "specialized": false
-  },
-  {
-    "name": "altlocs",
-    "label": "Altlocs",
-    "description": "Select one alternate state per residue",
-    "category": "Structure preparation",
-    "inputs": [
-      {
-        "flag": "input",
-        "dest": "input",
-        "label": "Input",
-        "type": "artifact",
-        "group": "Input / output",
-        "help": "PDB, ENT, CIF or mmCIF structure",
-        "required": true,
-        "repeatable": false,
-        "multi": false,
-        "name": "input",
-        "nargs": null
-      }
-    ],
-    "flags": [
-      {
-        "flag": "--selection-plan",
-        "dest": "selection_plan",
-        "label": "Selection Plan",
-        "type": "text",
-        "group": "Input / output",
-        "help": "Version-1 JSON plan bound to source SHA-256",
-        "required": false,
-        "repeatable": false,
-        "multi": false
-      },
-      {
-        "flag": "--policy",
-        "dest": "policy",
-        "label": "Policy",
-        "type": "select",
-        "group": "Selection",
-        "help": "Residue-coherent automatic or manual state selection",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": "occupancy",
-        "options": [
-          "manual",
-          "occupancy",
-          "first",
-          "prefer"
-        ]
-      },
-      {
-        "flag": "--prefer",
-        "dest": "prefer",
-        "label": "Prefer",
-        "type": "text",
-        "group": "Selection",
-        "help": "Preferred altloc label (case-sensitive)",
-        "required": false,
-        "repeatable": false,
-        "multi": false
-      },
-      {
-        "flag": "--fallback",
-        "dest": "fallback",
-        "label": "Fallback",
-        "type": "select",
-        "group": "Selection",
-        "help": "Fallback when preferred label is absent",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": "error",
-        "options": [
-          "error",
-          "occupancy",
-          "first"
-        ]
-      },
-      {
-        "flag": "--select",
-        "dest": "select",
-        "label": "Select",
-        "type": "text",
-        "group": "Selection",
-        "help": "Manual override (repeatable); insertion codes supported, _ means blank chain; ambiguous MODEL/occurrence requires JSON plan",
-        "required": false,
-        "repeatable": true,
-        "multi": false,
-        "default": []
-      },
-      {
-        "flag": "--dry-run",
-        "dest": "dry_run",
-        "label": "Dry Run",
-        "type": "bool",
-        "group": "Selection",
-        "help": "Analyze without publishing a structure",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      },
-      {
-        "flag": "--include-structure",
-        "dest": "include_structure",
-        "label": "Include Structure",
-        "type": "bool",
-        "group": "Selection",
-        "help": "Include normalized PDB text in analysis JSON for graphical preview",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      }
-    ],
-    "groups": [
-      {
-        "name": "Input / output",
-        "fields": [
-          "--selection-plan"
-        ]
-      },
-      {
-        "name": "Selection",
-        "fields": [
-          "--policy",
-          "--prefer",
-          "--fallback",
-          "--select",
-          "--dry-run",
-          "--include-structure"
         ]
       }
     ],
@@ -2412,6 +2458,424 @@ export const GENERATED_COMMANDS = [
     "specialized": false
   },
   {
+    "name": "conect",
+    "label": "Conect",
+    "description": "Add inferred CONECT records (SS bonds, glycosidic links, glycosylation)",
+    "category": "Utilities",
+    "inputs": [
+      {
+        "flag": "input",
+        "dest": "input",
+        "label": "Input",
+        "type": "artifact",
+        "group": "Input / output",
+        "help": "Input PDB, PDBx/mmCIF, or crystallographic CIF file",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "input",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--force",
+        "dest": "force",
+        "label": "Force",
+        "type": "bool",
+        "group": "Input / output",
+        "help": "Allow in-place overwrite (when --output equals input)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--include-protein-backbone",
+        "dest": "include_protein_backbone",
+        "label": "Include Protein Backbone",
+        "type": "bool",
+        "group": "Content selection",
+        "help": "Also emit CONECT for standard amino-acid backbone bonds. Off by default (FF templates own those).",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--verbose",
+        "dest": "verbose",
+        "label": "Verbose",
+        "type": "bool",
+        "group": "Diagnostics",
+        "help": "Print bond counts and source breakdown",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      }
+    ],
+    "groups": [
+      {
+        "name": "Input / output",
+        "fields": [
+          "--force"
+        ]
+      },
+      {
+        "name": "Content selection",
+        "fields": [
+          "--include-protein-backbone"
+        ]
+      },
+      {
+        "name": "Diagnostics",
+        "fields": [
+          "--verbose"
+        ]
+      }
+    ],
+    "outputExtension": ".pdb",
+    "outputMode": "file",
+    "hasOutput": true,
+    "outputKind": "artifact",
+    "batch": true,
+    "successCodes": [
+      0
+    ],
+    "specialized": false
+  },
+  {
+    "name": "puppet",
+    "label": "Puppet",
+    "description": "Strip a structure to a backbone-only polyglycine model",
+    "category": "Utilities",
+    "inputs": [
+      {
+        "flag": "input",
+        "dest": "input",
+        "label": "Input",
+        "type": "artifact",
+        "group": "Input / output",
+        "help": "Input PDB or PDBx/mmCIF file",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "input",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--keep",
+        "dest": "keep",
+        "label": "Keep",
+        "type": "text",
+        "group": "Content selection",
+        "help": "Keep residue(s) intact (all atoms, original name). Format: CHAIN:NUM, CHAIN:START-END, or CHAIN:NUM1,NUM2,START-END (repeatable)",
+        "required": false,
+        "repeatable": true,
+        "multi": false,
+        "default": []
+      }
+    ],
+    "groups": [
+      {
+        "name": "Content selection",
+        "fields": [
+          "--keep"
+        ]
+      }
+    ],
+    "outputExtension": ".pdb",
+    "outputMode": "file",
+    "hasOutput": true,
+    "outputKind": "artifact",
+    "batch": true,
+    "successCodes": [
+      0
+    ],
+    "specialized": false
+  },
+  {
+    "name": "pull",
+    "label": "Pull",
+    "description": "Pull atoms together to form a bond (geometry-only)",
+    "category": "Utilities",
+    "inputs": [
+      {
+        "flag": "input",
+        "dest": "input",
+        "label": "Input",
+        "type": "artifact",
+        "group": "Input / output",
+        "help": "Input PDB, PDBx/mmCIF, or crystallographic CIF file",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "input",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--bond",
+        "dest": "bond",
+        "label": "Bond",
+        "type": "text",
+        "group": "Bond specification",
+        "help": "Two atom specs: chain:resnum:atomname (e.g. --bond H:239:SG K:239:SG). Can be specified multiple times for multiple bonds.",
+        "required": true,
+        "repeatable": true,
+        "multi": true
+      },
+      {
+        "flag": "--target-distance",
+        "dest": "target_distance",
+        "label": "Target Distance",
+        "type": "number",
+        "group": "Bond specification",
+        "help": "Target bond distance in angstroms (default: auto by bond type)",
+        "required": false,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--anchor",
+        "dest": "anchor",
+        "label": "Anchor",
+        "type": "text",
+        "group": "Bond specification",
+        "help": "Anchor one endpoint (freeze its side, only move the other)",
+        "required": false,
+        "repeatable": false,
+        "multi": false
+      },
+      {
+        "flag": "--radius",
+        "dest": "radius",
+        "label": "Radius",
+        "type": "number",
+        "group": "Physics / restraints",
+        "help": "Radius of free region around bond endpoints in angstroms (default: 10.0)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": 10.0
+      },
+      {
+        "flag": "--max-iter",
+        "dest": "max_iter",
+        "label": "Max Iter",
+        "type": "number",
+        "group": "Physics / restraints",
+        "help": "Max minimization iterations (default: 1000)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": 1000
+      },
+      {
+        "flag": "--ff",
+        "dest": "ff",
+        "label": "FF",
+        "type": "text",
+        "group": "Force field",
+        "help": "Force field selection. Accepts a short name (auto, amber, amber+glycam, charmm, ...) or an explicit list of OpenMM XML paths. Default: 'auto' — detect from residue names in the input. See docs/force-fields.md.",
+        "required": false,
+        "repeatable": false,
+        "multi": true,
+        "default": [
+          "auto"
+        ]
+      },
+      {
+        "flag": "--rename",
+        "dest": "rename",
+        "label": "Rename",
+        "type": "bool",
+        "group": "Content selection",
+        "help": "Rename non-canonical residues (AMBER/CHARMM) to standard names before processing",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--verbose",
+        "dest": "verbose",
+        "label": "Verbose",
+        "type": "bool",
+        "group": "Diagnostics",
+        "help": "Print detailed progress",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      }
+    ],
+    "groups": [
+      {
+        "name": "Bond specification",
+        "fields": [
+          "--bond",
+          "--target-distance",
+          "--anchor"
+        ]
+      },
+      {
+        "name": "Physics / restraints",
+        "fields": [
+          "--radius",
+          "--max-iter"
+        ]
+      },
+      {
+        "name": "Force field",
+        "fields": [
+          "--ff"
+        ]
+      },
+      {
+        "name": "Content selection",
+        "fields": [
+          "--rename"
+        ]
+      },
+      {
+        "name": "Diagnostics",
+        "fields": [
+          "--verbose"
+        ]
+      }
+    ],
+    "outputExtension": ".pdb",
+    "outputMode": "file",
+    "hasOutput": true,
+    "outputKind": "artifact",
+    "batch": true,
+    "successCodes": [
+      0
+    ],
+    "specialized": false
+  },
+  {
+    "name": "convert",
+    "label": "Convert",
+    "description": "Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants)",
+    "category": "Glycoprotein preparation",
+    "inputs": [
+      {
+        "flag": "input",
+        "dest": "input",
+        "label": "Input",
+        "type": "artifact",
+        "group": "Input / output",
+        "help": "Input PDB, PDBx/mmCIF, or crystallographic CIF file",
+        "required": true,
+        "repeatable": false,
+        "multi": false,
+        "name": "input",
+        "nargs": null
+      }
+    ],
+    "flags": [
+      {
+        "flag": "--to-amber",
+        "dest": "to_amber",
+        "label": "To Amber",
+        "type": "bool",
+        "group": "Conversion direction",
+        "help": "PDB/CHARMM → GLYCAM (sugars) + AMBER (protonation variants HID/HIE/HIP/ASH/GLH/LYN/CYX/CYM). This is the default if no direction flag is given.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "exclusiveGroup": "convert:exclusive:0",
+        "default": false
+      },
+      {
+        "flag": "--to-charmm",
+        "dest": "to_charmm",
+        "label": "To Charmm",
+        "type": "bool",
+        "group": "Conversion direction",
+        "help": "Reverse direction: convert GLYCAM/AMBER-named input to CHARMM-compatible naming (BGLCNA/BMAN/AMAN/ANE5AC/... sugars, HSD/HSE/HSP/ASPP/GLUP/LSN protonation variants). Glycoprotein residues NLN/OLS/OLT revert to ASN/SER/THR; ROH/OME caps are dropped. Linkage info preserved via CONECT records.",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "exclusiveGroup": "convert:exclusive:0",
+        "default": false
+      },
+      {
+        "flag": "--no-roh",
+        "dest": "no_roh",
+        "label": "No Roh",
+        "type": "bool",
+        "group": "Content selection",
+        "help": "Do not add ROH cap at the reducing end (forward / --to-amber direction only)",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--no-infer-conect",
+        "dest": "no_infer_conect",
+        "label": "No Infer Conect",
+        "type": "bool",
+        "group": "Content selection",
+        "help": "Skip automatic CONECT inference (default: infer missing glycosidic / glycosylation bonds so linkage detection works on CONECT-less inputs).",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      },
+      {
+        "flag": "--verbose",
+        "dest": "verbose",
+        "label": "Verbose",
+        "type": "bool",
+        "group": "Diagnostics",
+        "help": "Print conversion details",
+        "required": false,
+        "repeatable": false,
+        "multi": false,
+        "default": false
+      }
+    ],
+    "groups": [
+      {
+        "name": "Conversion direction",
+        "fields": [
+          "--to-amber",
+          "--to-charmm"
+        ]
+      },
+      {
+        "name": "Content selection",
+        "fields": [
+          "--no-roh",
+          "--no-infer-conect"
+        ]
+      },
+      {
+        "name": "Diagnostics",
+        "fields": [
+          "--verbose"
+        ]
+      }
+    ],
+    "outputExtension": ".pdb",
+    "outputMode": "file",
+    "hasOutput": true,
+    "outputKind": "artifact",
+    "batch": true,
+    "successCodes": [
+      0
+    ],
+    "specialized": false
+  },
+  {
     "name": "transplant",
     "label": "Transplant",
     "description": "Transplant molecules between donor and acceptor structures",
@@ -2607,266 +3071,10 @@ export const GENERATED_COMMANDS = [
     "specialized": false
   },
   {
-    "name": "puppet",
-    "label": "Puppet",
-    "description": "Strip a structure to a backbone-only polyglycine model",
-    "category": "Utilities",
-    "inputs": [
-      {
-        "flag": "input",
-        "dest": "input",
-        "label": "Input",
-        "type": "artifact",
-        "group": "Input / output",
-        "help": "Input PDB or PDBx/mmCIF file",
-        "required": true,
-        "repeatable": false,
-        "multi": false,
-        "name": "input",
-        "nargs": null
-      }
-    ],
-    "flags": [
-      {
-        "flag": "--keep",
-        "dest": "keep",
-        "label": "Keep",
-        "type": "text",
-        "group": "Content selection",
-        "help": "Keep residue(s) intact (all atoms, original name). Format: CHAIN:NUM, CHAIN:START-END, or CHAIN:NUM1,NUM2,START-END (repeatable)",
-        "required": false,
-        "repeatable": true,
-        "multi": false,
-        "default": []
-      }
-    ],
-    "groups": [
-      {
-        "name": "Content selection",
-        "fields": [
-          "--keep"
-        ]
-      }
-    ],
-    "outputExtension": ".pdb",
-    "outputMode": "file",
-    "hasOutput": true,
-    "outputKind": "artifact",
-    "batch": true,
-    "successCodes": [
-      0
-    ],
-    "specialized": false
-  },
-  {
-    "name": "convert",
-    "label": "Convert",
-    "description": "Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants)",
-    "category": "Glycoprotein preparation",
-    "inputs": [
-      {
-        "flag": "input",
-        "dest": "input",
-        "label": "Input",
-        "type": "artifact",
-        "group": "Input / output",
-        "help": "Input PDB, PDBx/mmCIF, or crystallographic CIF file",
-        "required": true,
-        "repeatable": false,
-        "multi": false,
-        "name": "input",
-        "nargs": null
-      }
-    ],
-    "flags": [
-      {
-        "flag": "--to-amber",
-        "dest": "to_amber",
-        "label": "To Amber",
-        "type": "bool",
-        "group": "Conversion direction",
-        "help": "PDB/CHARMM → GLYCAM (sugars) + AMBER (protonation variants HID/HIE/HIP/ASH/GLH/LYN/CYX/CYM). This is the default if no direction flag is given.",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "exclusiveGroup": "convert:exclusive:0",
-        "default": false
-      },
-      {
-        "flag": "--to-charmm",
-        "dest": "to_charmm",
-        "label": "To Charmm",
-        "type": "bool",
-        "group": "Conversion direction",
-        "help": "Reverse direction: convert GLYCAM/AMBER-named input to CHARMM-compatible naming (BGLCNA/BMAN/AMAN/ANE5AC/... sugars, HSD/HSE/HSP/ASPP/GLUP/LSN protonation variants). Glycoprotein residues NLN/OLS/OLT revert to ASN/SER/THR; ROH/OME caps are dropped. Linkage info preserved via CONECT records.",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "exclusiveGroup": "convert:exclusive:0",
-        "default": false
-      },
-      {
-        "flag": "--no-roh",
-        "dest": "no_roh",
-        "label": "No Roh",
-        "type": "bool",
-        "group": "Content selection",
-        "help": "Do not add ROH cap at the reducing end (forward / --to-amber direction only)",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      },
-      {
-        "flag": "--no-infer-conect",
-        "dest": "no_infer_conect",
-        "label": "No Infer Conect",
-        "type": "bool",
-        "group": "Content selection",
-        "help": "Skip automatic CONECT inference (default: infer missing glycosidic / glycosylation bonds so linkage detection works on CONECT-less inputs).",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      },
-      {
-        "flag": "--verbose",
-        "dest": "verbose",
-        "label": "Verbose",
-        "type": "bool",
-        "group": "Diagnostics",
-        "help": "Print conversion details",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      }
-    ],
-    "groups": [
-      {
-        "name": "Conversion direction",
-        "fields": [
-          "--to-amber",
-          "--to-charmm"
-        ]
-      },
-      {
-        "name": "Content selection",
-        "fields": [
-          "--no-roh",
-          "--no-infer-conect"
-        ]
-      },
-      {
-        "name": "Diagnostics",
-        "fields": [
-          "--verbose"
-        ]
-      }
-    ],
-    "outputExtension": ".pdb",
-    "outputMode": "file",
-    "hasOutput": true,
-    "outputKind": "artifact",
-    "batch": true,
-    "successCodes": [
-      0
-    ],
-    "specialized": false
-  },
-  {
-    "name": "conect",
-    "label": "Conect",
-    "description": "Add inferred CONECT records (SS bonds, glycosidic links, glycosylation)",
-    "category": "Utilities",
-    "inputs": [
-      {
-        "flag": "input",
-        "dest": "input",
-        "label": "Input",
-        "type": "artifact",
-        "group": "Input / output",
-        "help": "Input PDB, PDBx/mmCIF, or crystallographic CIF file",
-        "required": true,
-        "repeatable": false,
-        "multi": false,
-        "name": "input",
-        "nargs": null
-      }
-    ],
-    "flags": [
-      {
-        "flag": "--force",
-        "dest": "force",
-        "label": "Force",
-        "type": "bool",
-        "group": "Input / output",
-        "help": "Allow in-place overwrite (when --output equals input)",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      },
-      {
-        "flag": "--include-protein-backbone",
-        "dest": "include_protein_backbone",
-        "label": "Include Protein Backbone",
-        "type": "bool",
-        "group": "Content selection",
-        "help": "Also emit CONECT for standard amino-acid backbone bonds. Off by default (FF templates own those).",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      },
-      {
-        "flag": "--verbose",
-        "dest": "verbose",
-        "label": "Verbose",
-        "type": "bool",
-        "group": "Diagnostics",
-        "help": "Print bond counts and source breakdown",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      }
-    ],
-    "groups": [
-      {
-        "name": "Input / output",
-        "fields": [
-          "--force"
-        ]
-      },
-      {
-        "name": "Content selection",
-        "fields": [
-          "--include-protein-backbone"
-        ]
-      },
-      {
-        "name": "Diagnostics",
-        "fields": [
-          "--verbose"
-        ]
-      }
-    ],
-    "outputExtension": ".pdb",
-    "outputMode": "file",
-    "hasOutput": true,
-    "outputKind": "artifact",
-    "batch": true,
-    "successCodes": [
-      0
-    ],
-    "specialized": false
-  },
-  {
     "name": "cluster",
     "label": "Cluster",
     "description": "Cluster glycan conformations from MD trajectory",
-    "category": "Analysis",
+    "category": "Glycoprotein preparation",
     "inputs": [
       {
         "flag": "topology",
@@ -4238,214 +4446,6 @@ export const GENERATED_COMMANDS = [
     "batch": false,
     "successCodes": [
       0
-    ],
-    "specialized": false
-  },
-  {
-    "name": "diagnose",
-    "label": "Diagnose",
-    "description": "Report structure-quality issues (missing atoms, clashes, valence, ...)",
-    "category": "Analysis",
-    "inputs": [
-      {
-        "flag": "input",
-        "dest": "input",
-        "label": "Input",
-        "type": "artifact",
-        "group": "Input / output",
-        "help": "Input PDB, PDBx/mmCIF, or crystallographic CIF file",
-        "required": true,
-        "repeatable": false,
-        "multi": false,
-        "name": "input",
-        "nargs": null
-      }
-    ],
-    "flags": [
-      {
-        "flag": "--only",
-        "dest": "only",
-        "label": "Only",
-        "type": "select",
-        "group": "Check selection",
-        "help": "Restrict to one category of checks (default: all).",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": "all",
-        "options": [
-          "all",
-          "structural",
-          "chemistry",
-          "steric"
-        ]
-      },
-      {
-        "flag": "--severity",
-        "dest": "severity",
-        "label": "Severity",
-        "type": "select",
-        "group": "Check selection",
-        "help": "Minimum severity to include in the report (default: INFO). Set to ERROR for pre-commit / CI usage.",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": "INFO",
-        "options": [
-          "ERROR",
-          "WARNING",
-          "INFO"
-        ]
-      },
-      {
-        "flag": "--include-water",
-        "dest": "include_water",
-        "label": "Include Water",
-        "type": "bool",
-        "group": "Check selection",
-        "help": "Include water residues (HOH/WAT/TIP3/SOL) in checks. Off by default — crystallographic waters generate massive chain-break and steric noise.",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      },
-      {
-        "flag": "--clash-mode",
-        "dest": "clash_mode",
-        "label": "Clash Mode",
-        "type": "select",
-        "group": "Check selection",
-        "help": "Preset clash overlap thresholds (WARN / ERROR in Å). Default: chimerax. Available: molprobity (0.4/0.5 Å), chimerax (0.6/0.9 Å), bioluminate (0.75/1.0 Å).",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": "chimerax",
-        "options": [
-          "bioluminate",
-          "chimerax",
-          "molprobity"
-        ]
-      },
-      {
-        "flag": "--clash-cutoff",
-        "dest": "clash_cutoff",
-        "label": "Clash Cutoff",
-        "type": "text",
-        "group": "Check selection",
-        "help": "Explicit clash overlap cutoffs in Å (overrides --clash-mode). Example: --clash-cutoff 0.35,0.45 for extra-strict validation.",
-        "required": false,
-        "repeatable": false,
-        "multi": false
-      },
-      {
-        "flag": "--probe-radii",
-        "dest": "probe_radii",
-        "label": "Probe Radii",
-        "type": "select",
-        "group": "Check selection",
-        "help": "Optional Probe radius convention (default: electron, Probe's default). Choose nuclear for matching nuclear-position hydrogen coordinates. Reported explicitly; has no effect on the Python fallback.",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": "electron",
-        "options": [
-          "electron",
-          "nuclear"
-        ]
-      },
-      {
-        "flag": "--scope-residue",
-        "dest": "scope_residue",
-        "label": "Scope Residue",
-        "type": "text",
-        "group": "Optional exact geometry scope",
-        "help": "Add an exact, case-sensitive residue to JSON geometry summaries. Repeat for multiple residues; numeric ranges are not inferred.",
-        "required": false,
-        "repeatable": true,
-        "multi": false,
-        "default": []
-      },
-      {
-        "flag": "--scope-boundary",
-        "dest": "scope_boundary",
-        "label": "Scope Boundary",
-        "type": "text",
-        "group": "Optional exact geometry scope",
-        "help": "Measure an explicit ordered C(left)-N(right) boundary, where each selector is CHAIN:RESID[:ICODE]. Repeat as needed. Does not infer gaps.",
-        "required": false,
-        "repeatable": true,
-        "multi": false,
-        "default": []
-      },
-      {
-        "flag": "--format",
-        "dest": "output_format",
-        "label": "Output Format",
-        "type": "select",
-        "group": "Output format",
-        "help": "Output format. `text` is the plain-text report; `json` emits a machine-readable list of findings (usable for CI).",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": "text",
-        "options": [
-          "text",
-          "json"
-        ]
-      },
-      {
-        "flag": "--verbose",
-        "dest": "verbose",
-        "label": "Verbose",
-        "type": "bool",
-        "group": "Diagnostics",
-        "help": "Include per-check timing on stderr.",
-        "required": false,
-        "repeatable": false,
-        "multi": false,
-        "default": false
-      }
-    ],
-    "groups": [
-      {
-        "name": "Check selection",
-        "fields": [
-          "--only",
-          "--severity",
-          "--include-water",
-          "--clash-mode",
-          "--clash-cutoff",
-          "--probe-radii"
-        ]
-      },
-      {
-        "name": "Optional exact geometry scope",
-        "fields": [
-          "--scope-residue",
-          "--scope-boundary"
-        ]
-      },
-      {
-        "name": "Output format",
-        "fields": [
-          "--format"
-        ]
-      },
-      {
-        "name": "Diagnostics",
-        "fields": [
-          "--verbose"
-        ]
-      }
-    ],
-    "outputExtension": ".txt",
-    "outputMode": "file",
-    "hasOutput": true,
-    "outputKind": "report",
-    "batch": true,
-    "successCodes": [
-      0,
-      1
     ],
     "specialized": false
   },

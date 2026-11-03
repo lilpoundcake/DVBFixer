@@ -17,6 +17,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List active jobs and a newest-first page of completed jobs in readable workspaces */
+        get: operations["listJobMonitorPage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspaces/{workspaceId}/jobs": {
         parameters: {
             query?: never;
@@ -357,6 +374,54 @@ export interface operations {
             };
             /** @description Naming conversion timed out */
             504: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    listJobMonitorPage: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description Opaque cursor from the preceding page */
+                before?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Active jobs and a bounded history page, ordered by completion time then identity */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Currently readable workspaces; prune cached history outside this set */
+                        workspaceIds: string[];
+                        activeJobs: components["schemas"]["ManagedJobRecord"][];
+                        jobs: components["schemas"]["ManagedJobRecord"][];
+                        nextCursor: string | null;
+                    };
+                };
+            };
+            /** @description Invalid page size or cursor */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Missing or invalid bearer credential */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

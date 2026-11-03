@@ -34,6 +34,7 @@ import { FileLoader } from './components/FileLoader'
 import { WorkspaceFileDrop } from './components/WorkspaceFileDrop'
 import { ProjectLibrary, WorkspacePanel } from './components/ProjectLibrary'
 import { StructureInfo } from './components/StructureInfo'
+import { JobMonitor } from './components/JobMonitor'
 import { ElementsTable } from './components/ElementsTable'
 import { InteractionsPanel } from './components/InteractionsPanel'
 import { ClashesPanel } from './components/ClashesPanel'
@@ -60,7 +61,7 @@ const PANEL_ICONS = {
   'text-viewer': TextSnippetIcon, elements: ListAltIcon, interactions: HubIcon,
   clashes: WarningIcon, alignment: CompareArrowsIcon, dvbfixer: BuildIcon,
   homology: BiotechIcon, library: FolderIcon, workspace: FolderOpenIcon,
-  info: InfoIcon, settings: SettingsIcon, altlocs: ListAltIcon,
+  info: InfoIcon, 'job-monitor': ListAltIcon, settings: SettingsIcon, altlocs: ListAltIcon,
 }
 
 const PANEL_TYPES = PANEL_DEFINITIONS.map(panel => {
@@ -99,7 +100,8 @@ const layoutJson: IJsonModel = {
             type: 'tabset',
             weight: 45,
             children: [
-              { type: 'tab', name: 'Info', component: 'info' },
+                  { type: 'tab', name: 'Info', component: 'info' },
+                  { type: 'tab', name: 'Job Monitor', component: 'job-monitor' },
               { type: 'tab', name: 'Settings', component: 'settings' },
             ],
           },
@@ -218,6 +220,7 @@ function App() { // @dsp obj-a1000002
       case 'library': return <ProjectLibrary />
       case 'workspace': return <WorkspacePanel />
       case 'info': return <StructureInfo />
+      case 'job-monitor': return <JobMonitor />
       case 'elements': return <ElementsTable />
       case 'altlocs': return <AltlocTable />
       case 'interactions': return <InteractionsPanel />
@@ -237,6 +240,18 @@ function App() { // @dsp obj-a1000002
       setMenuAnchor(null)
       setMenuTabSetId(null)
       return
+    }
+    if (component === 'job-monitor') {
+      let existing: string | undefined
+      modelRef.current.visitNodes(node => {
+        if (node instanceof TabNode && node.getComponent() === 'job-monitor') existing = node.getId()
+      })
+      if (existing) {
+        modelRef.current.doAction(Actions.selectTab(existing))
+        setMenuAnchor(null)
+        setMenuTabSetId(null)
+        return
+      }
     }
     tabCounter++
     modelRef.current.doAction(

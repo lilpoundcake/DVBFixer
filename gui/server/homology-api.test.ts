@@ -32,6 +32,14 @@ function project(id: string, name = id): HomologyProject {
 }
 
 describe('homology project materialization', () => {
+  it('transports comma/space-separated diffusion seeds as repeated flags', () => {
+    for (const seeds of ['1, 17, 148', '1 17 148', [1, 17, 148]]) {
+      expect(validatedModelArgs({ '--backend': 'diffusion', '--diffusion-seed': seeds })).toEqual([
+        '--backend', 'diffusion', '--diffusion-seed', '1', '--diffusion-seed', '17', '--diffusion-seed', '148',
+      ])
+    }
+    expect(() => validatedModelArgs({ '--backend': 'diffusion', '--diffusion-seed': '1 1' })).toThrow(/unique/)
+  })
   it('migrates alternate per-workspace layouts into canonical homology storage idempotently', () => {
     const root = temporaryDirectory()
     const alternate = path.join(root, 'homology_projects', 'legacy')

@@ -7,9 +7,18 @@ import Box from '@mui/material/Box'
 import AddIcon from '@mui/icons-material/Add'
 import { describe, expect, it } from 'vitest'
 import { theme } from '../theme'
-import { UI, actionGroupSx, compactIconButtonSx, formActionRowSx, inspectionTableSx, panelToolbarSx, primaryActionSx, workflowToolbarSx } from './layout'
+import { UI, actionGroupSx, compactIconButtonSx, formActionRowSx, inspectionTableSx, panelToolbarSx, primaryActionSx, workflowToolbarSx, workspaceRunColors, workspaceRowColors } from './layout'
 
 describe('shared GUI control geometry', () => {
+  it('separates run headers from nested file stripes without borrowing selection colors', () => {
+    expect(workspaceRunColors[0].header).not.toBe(workspaceRunColors[1].header)
+    for (const band of workspaceRunColors) {
+      expect(band.files[0]).not.toBe(band.files[1])
+      expect(band.files).not.toContain(band.header)
+      expect(band.header).not.toBe(workspaceRowColors.selected)
+      expect(band.files).not.toContain(workspaceRowColors.selected)
+    }
+  })
   it('shares Interactions row density, alternating backgrounds and distinct selection styling', () => {
     expect(inspectionTableSx['& > thead > tr > th, & > tbody > tr > td']).toMatchObject({ py: 0.75, lineHeight: '18px' })
     const row = inspectionTableSx['& > tbody > tr']

@@ -13,6 +13,7 @@ export const PANEL_DEFINITIONS = [
   { component: 'library', name: 'Library' },
   { component: 'workspace', name: 'Workspace' },
   { component: 'info', name: 'Info' },
+  { component: 'job-monitor', name: 'Job Monitor' },
   { component: 'settings', name: 'Settings' },
 ] as const
 

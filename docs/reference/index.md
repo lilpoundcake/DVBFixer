@@ -8,19 +8,20 @@
 |---|---|
 | `dvbfixer split` | [`split.md`](split.md) |
 | `dvbfixer renumber` | [`renumber.md`](renumber.md) |
+| `dvbfixer altlocs` | [`altlocs.md`](altlocs.md) |
 | `dvbfixer model` | [`model.md`](model.md) |
-| `dvbfixer pull` | [`pull.md`](pull.md) |
 | `dvbfixer prepare` | [`prepare.md`](prepare.md) |
 | `dvbfixer minimize` | [`minimize.md`](minimize.md) |
 | `dvbfixer protonate` | [`protonate.md`](protonate.md) |
+| `dvbfixer diagnose` | [`diagnose.md`](diagnose.md) |
 | `dvbfixer rename` | [`rename.md`](rename.md) |
 | `dvbfixer atom-names` | [`atom-names.md`](atom-names.md) |
-| `dvbfixer altlocs` | [`altlocs.md`](altlocs.md) |
 | `dvbfixer top` | [`top.md`](top.md) |
-| `dvbfixer transplant` | [`transplant.md`](transplant.md) |
-| `dvbfixer puppet` | [`puppet.md`](puppet.md) |
-| `dvbfixer convert` | [`convert.md`](convert.md) |
 | `dvbfixer conect` | [`conect.md`](conect.md) |
+| `dvbfixer puppet` | [`puppet.md`](puppet.md) |
+| `dvbfixer pull` | [`pull.md`](pull.md) |
+| `dvbfixer convert` | [`convert.md`](convert.md) |
+| `dvbfixer transplant` | [`transplant.md`](transplant.md) |
 | `dvbfixer cluster` | [`cluster.md`](cluster.md) |
 | `dvbfixer parametrize` | [`parametrize.md`](parametrize.md) |
 | `dvbfixer component-info` | [`component-info.md`](component-info.md) |
@@ -28,6 +29,5 @@
 | `dvbfixer homology` | [`homology.md`](homology.md) |
 | `dvbfixer msa` | [`msa.md`](msa.md) |
 | `dvbfixer salign` | [`salign.md`](salign.md) |
-| `dvbfixer diagnose` | [`diagnose.md`](diagnose.md) |
 | `dvbfixer doctor` | [`doctor.md`](doctor.md) |
 | `dvbfixer zbs` | [`zbs.md`](zbs.md) |

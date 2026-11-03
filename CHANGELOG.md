@@ -8,6 +8,37 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.10.3] — 2026-11-03
+
+### Added
+
+- Job Monitor next to Info, with active tasks, paginated newest-first completed
+  history across readable workspaces, per-job cancellation and log access.
+  Runtime progress remains indeterminate until runners provide work counts;
+  detailed scientific-stage instrumentation is still planned.
+- Cascading tool-group menus with explicit dropdown controls and keyboard/click
+  navigation, plus a scoped implementation handoff for further GUI improvements.
+
+### Changed
+
+- Reordered tool navigation: Altloc before Model; Diagnose first in Utilities;
+  Conect → Puppet → Pull in Utilities; Convert → Transplant → Cluster in the
+  glycoprotein group. Removed the empty Analysis group.
+- Distinguished run headers and nested file stripes in Workspace, separated
+  Job Monitor headers/tasks, displayed local job times and wrapped Text Files
+  content to the docking-panel width.
+
+### Fixed
+
+- Printed independently measured final diffusion rejection findings and anchor
+  movement violations as errors, with candidate/seed identity and limits.
+  GUI reports highlight explicit errors separately from warning notices.
+- Accepted comma/space-separated diffusion seeds in Model/ZBS and Homology,
+  validating them before constructing repeated CLI arguments.
+- Replaced excessive all-workspace polling with a bounded, ACL-filtered monitor
+  endpoint and on-demand history pages. Honor Retry-After, pause hidden-tab
+  polling and avoid redundant tool polling while SSE is healthy.
+
 ## [0.10.2] — 2026-11-02
 
 ### Added

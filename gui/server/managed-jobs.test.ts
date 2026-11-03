@@ -85,6 +85,36 @@ afterEach(() => {
 })
 
 describe('managed DVBfixer jobs', () => {
+  it('pages newest completed jobs across readable workspaces without leaking private workspaces', async () => {
+    const dataRoot = root()
+    const visible = listWorkspaces(dataRoot)[0]
+    const hidden = createWorkspace(dataRoot, 'Private', 'another-user')
+    const writeJob = (workspaceId: string, number: number) => {
+      const id = `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`
+      const outputDir = `runs/job_${id}`
+      fs.mkdirSync(path.join(workspaceRoot(dataRoot, workspaceId), outputDir), { recursive: true })
+      const record: ManagedJobRecord = { version: 1, id, workspaceId, status: 'succeeded',
+        createdAt: '2026-01-01T00:00:00.000Z', startedAt: '2026-01-01T00:00:00.000Z',
+        finishedAt: `2026-01-01T00:00:${String(number).padStart(2, '0')}.000Z`,
+        command: 'diagnose', args: [], exitCode: 0, stdoutLog: `${outputDir}/stdout.log`,
+        stderrLog: `${outputDir}/stderr.log`, outputDir, outputFile: null, requestedByPrincipalId: 'local' }
+      fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspaceId), outputDir, 'job.json'), JSON.stringify(record))
+      return id
+    }
+    const first = writeJob(visible.id, 1), second = writeJob(visible.id, 2), third = writeJob(visible.id, 3)
+    writeJob(hidden.id, 9)
+    const newest = await apiRequest(dataRoot, 'GET', '/jobs?limit=2')
+    expect(newest.status).toBe(200)
+    expect(newest.body.jobs.map((job: ManagedJobRecord) => job.id)).toEqual([third, second])
+    expect(newest.body.workspaceIds).not.toContain(hidden.id)
+    expect(newest.body.activeJobs).toEqual([])
+    expect(newest.body.nextCursor).toBeTruthy()
+    const older = await apiRequest(dataRoot, 'GET', `/jobs?limit=2&before=${newest.body.nextCursor}`)
+    expect(older.body.jobs.map((job: ManagedJobRecord) => job.id)).toEqual([first])
+    expect(older.body.nextCursor).toBeNull()
+    expect((await apiRequest(dataRoot, 'GET', '/jobs?limit=1000')).status).toBe(400)
+    expect((await apiRequest(dataRoot, 'GET', '/jobs?before=bad')).status).toBe(400)
+  })
   it.each(['prepare', 'minimize', 'model', 'split'])('compacts technical files for %s and preserves directly usable outputs', async command => {
     const dataRoot = root(), workspace = listWorkspaces(dataRoot)[0]
     fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspace.id), 'input.pdb'), 'END\n')

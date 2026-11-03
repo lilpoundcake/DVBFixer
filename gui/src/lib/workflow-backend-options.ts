@@ -1,3 +1,5 @@
+import { diffusionSeeds } from './diffusion-seeds'
+
 /** Filter inactive form controls; CLI remains authoritative for option validation. */
 export function workflowOptionActive(command: string, flag: string, values: Record<string, unknown>): boolean {
   if (command !== 'model' && command !== 'zbs') return true
@@ -12,6 +14,8 @@ export function workflowOptionActive(command: string, flag: string, values: Reco
 }
 
 export function workflowValues(command: string, values: Record<string, unknown>): Record<string, unknown> {
-  return Object.fromEntries(Object.entries(values).filter(([flag, value]) =>
+  const active = Object.fromEntries(Object.entries(values).filter(([flag, value]) =>
     workflowOptionActive(command, flag, values) && !(flag === '--diffusion-context' && value === 'none')))
+  if ('--diffusion-seed' in active) active['--diffusion-seed'] = diffusionSeeds(active['--diffusion-seed'])
+  return active
 }

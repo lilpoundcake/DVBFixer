@@ -62,6 +62,8 @@ def test_authorization_is_recomputed_and_historical_strict_remains_failed():
 def test_explicit_per_anchor_bounds_are_enforced():
     audit = audit_staged_anchor_repair(**(evidence() | {"limits": AnchorMovementLimits(0.02, 0.02)}))
     assert "anchor-repair-per-anchor-movement-limit" in audit.summary.hard_gate_failures
+    assert any(warning.startswith("Final validation: C:70: backbone RMSD = 0.0400 Å;")
+               and "0.0200 Å" in warning for warning in audit.summary.warnings)
 
 
 def test_default_audit_records_approved_limits_and_ca_movement():

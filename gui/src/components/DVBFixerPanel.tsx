@@ -31,11 +31,14 @@ import { v1Client } from '../lib/v1-client'
 import { workflowOptionActive, workflowValues } from '../lib/workflow-backend-options'
 import { ToolOutput } from './ToolOutput'
 import { AltlocPanel } from './AltlocPanel'
+import { ToolGroupMenu } from './ToolGroupMenu'
 import { loadToolReports, type ToolReportPreview } from '../lib/tool-output'
 import { orderToolTabs } from '../lib/tool-tab-order'
+import { diffusionSeedError } from '../lib/diffusion-seeds'
+import { retryAfterMs } from '../lib/job-monitor-polling'
 import { namingOutputMatches, runNamingConversion } from '../lib/naming-conversion'
 import { syncSequenceEditorLayout } from '../lib/sequence-editor-layout'
-import { actionGroupSx, controlSx, formActionRowSx, panelToolbarSx, primaryActionSx, wideControlSx } from '../ui/layout'
+import { actionGroupSx, formActionRowSx, panelToolbarSx, primaryActionSx, wideControlSx } from '../ui/layout'
 
 // Re-declare the spec types here (mirrors server/dvbfixer-spec.ts) so the
 // frontend doesn't have to import server/. The actual spec is fetched at
@@ -290,6 +293,7 @@ export function DVBFixerPanel() {
   const terminalHandledRef = useRef<Set<string>>(new Set())
   const submitInFlightRef = useRef(false)
   const workspaceEpochRef = useRef(0)
+  const pendingToolRef = useRef<string | null>(null)
 
   const categories = useMemo(() => Array.from(new Set(commands.map(command => command.category))), [commands])
   const visibleCommands = useMemo(() => orderToolTabs(commands.filter(command => command.category === category)), [commands, category])
@@ -347,6 +351,8 @@ export function DVBFixerPanel() {
     const workspaceId = workspace.id
     const jobId = activeJobId
     let disposed = false
+    let streaming = false
+    let timer: ReturnType<typeof setTimeout>
     const streamController = new AbortController()
     const apply = (next: ManagedJobRecord) => {
       if (!disposed && next.id === jobId && next.workspaceId === workspaceId) setJob(next)
@@ -357,21 +363,26 @@ export function DVBFixerPanel() {
           `/api/v1/workspaces/${encodeURIComponent(workspaceId)}/jobs/${encodeURIComponent(jobId)}/events`,
           { cache: 'no-store', signal: streamController.signal },
         )) {
-          try { apply(JSON.parse(event.data) as ManagedJobRecord) } catch { /* polling remains available */ }
+          try { apply(JSON.parse(event.data) as ManagedJobRecord); streaming = true } catch { /* polling remains available */ }
         }
       } catch { /* polling remains available */ }
+      finally { streaming = false }
     })()
     const poll = async () => {
+      let delay = 3000
       try {
-        const { data } = await v1Client.GET('/api/v1/workspaces/{workspaceId}/jobs/{jobId}', {
-          params: { path: { workspaceId, jobId } }, cache: 'no-store',
-        })
-        if (data) apply(data as ManagedJobRecord)
+        if (!streaming && !document.hidden) {
+          const { data, response } = await v1Client.GET('/api/v1/workspaces/{workspaceId}/jobs/{jobId}', {
+            params: { path: { workspaceId, jobId } }, cache: 'no-store', signal: streamController.signal,
+          })
+          if (response.status === 429) delay = retryAfterMs(response)
+          if (data) apply(data as ManagedJobRecord)
+        }
       } catch { /* the next poll or SSE event can recover */ }
+      if (!disposed) timer = setTimeout(poll, delay)
     }
-    const timer = window.setInterval(() => { void poll() }, 1500)
-    void poll()
-    return () => { disposed = true; streamController.abort(); window.clearInterval(timer) }
+    timer = setTimeout(poll, 3000)
+    return () => { disposed = true; streamController.abort(); clearTimeout(timer) }
   }, [activeJobId, workspace?.id])
 
   // Fetch terminal logs for the existing output pane.
@@ -518,7 +529,17 @@ export function DVBFixerPanel() {
     setInputFile(file)
   }, [])
 
-  useEffect(() => { setTabIdx(0) }, [category])
+  useEffect(() => {
+    const index = visibleCommands.findIndex(command => command.name === pendingToolRef.current)
+    setTabIdx(index >= 0 ? index : 0)
+    pendingToolRef.current = null
+  }, [category, visibleCommands])
+
+  useEffect(() => {
+    if (categories.length && !categories.includes(category)) {
+      setCategory(category === 'Analysis' ? 'Utilities' : categories[0])
+    }
+  }, [categories, category])
 
   const setFlagValue = useCallback((cmd: string, flag: string, v: any) => {
     const command = commands.find(item => item.name === cmd)
@@ -737,19 +758,13 @@ export function DVBFixerPanel() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0, minHeight: 0 }}>
       <Box sx={panelToolbarSx}>
-        <FormControl size="small" sx={controlSx}>
-          <InputLabel sx={{ fontSize: '0.75rem' }}>Workflow group</InputLabel>
-          <Select
-            label="Workflow group"
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            sx={{ fontSize: '0.75rem' }}
-          >
-            {categories.map(item => <MenuItem key={item} value={item}>{item}</MenuItem>)}
-          </Select>
-        </FormControl>
+        <ToolGroupMenu commands={commands} category={category} activeTool={activeCmd?.name}
+          onSelect={(nextCategory, tool) => {
+            if (nextCategory === category) setTabIdx(visibleCommands.findIndex(command => command.name === tool))
+            else { pendingToolRef.current = tool; setCategory(nextCategory) }
+          }} />
       </Box>
       {/* Command tabs */}
       <Tabs
@@ -1062,7 +1077,7 @@ function FlagControl({ flag, value, artifactOptions, onChange }: {
   return (
     <TextField
       size="small"
-      label={flag.label}
+      label={flag.flag === '--diffusion-seed' ? 'Seeds' : flag.label}
       value={value ?? ''}
       onChange={(e) => onChange(flag.type === 'number' && !flag.repeatable ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
       type={flag.type === 'number' && !flag.repeatable ? 'number' : 'text'}
@@ -1070,7 +1085,10 @@ function FlagControl({ flag, value, artifactOptions, onChange }: {
         ...(flag.type === 'number' ? { htmlInput: { step: flag.step, min: flag.min, max: flag.max } } : {}),
         inputLabel: { sx: { fontSize: '0.75rem' } },
       }}
-      helperText={flag.help}
+      error={flag.flag === '--diffusion-seed' && !!diffusionSeedError(value)}
+      helperText={flag.flag === '--diffusion-seed'
+        ? diffusionSeedError(value) || 'Comma- or space-separated, e.g. 1, 17, 148 or 1 17 148. Default: 7. Each seed requests a candidate; timeout covers the whole run.'
+        : flag.help}
       sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem' }, '& .MuiFormHelperText-root': { fontSize: '0.65rem' } }}
     />
   )

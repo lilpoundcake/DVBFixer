@@ -24,9 +24,11 @@ export function TextFileViewer() {
   }, [preview])
 
   if (!preview) return <Box sx={{ p: 2 }}><Typography variant="caption" color="text.secondary">Open a text-like workspace file to preview it here.</Typography></Box>
-  return <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+  return <Box sx={{ height: '100%', width: '100%', minWidth: 0, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
     <Box sx={panelToolbarSx}><Typography variant="caption" sx={{ fontWeight: 700, overflowWrap: 'anywhere', minWidth: 0 }}>{preview.name} · {preview.file}</Typography></Box>
     {loading ? <CircularProgress size={18} sx={{ m: 2 }} /> : error ? <Typography color="error" sx={{ p: 1 }}>{error}</Typography> :
-      <Box component="pre" sx={{ m: 0, p: 1.5, flex: 1, overflow: 'auto', whiteSpace: 'pre', fontFamily: 'ui-monospace, monospace', fontSize: 12, lineHeight: 1.45 }}>{text}</Box>}
+      <Box component="pre" sx={{ m: 0, p: 1.5, flex: 1, minWidth: 0, minHeight: 0, maxWidth: '100%', boxSizing: 'border-box',
+        overflow: 'auto', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere',
+        fontFamily: 'ui-monospace, monospace', fontSize: 12, lineHeight: 1.45 }}>{text}</Box>}
   </Box>
 }

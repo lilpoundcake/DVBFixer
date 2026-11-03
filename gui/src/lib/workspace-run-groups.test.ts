@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { WorkspaceArtifact } from '../stores/workspaceStore'
-import { selectWorkspaceContextRow, selectWorkspaceRows, workspaceRowArtifactIds, workspaceRunRows } from './workspace-run-groups'
+import { selectWorkspaceContextRow, selectWorkspaceRows, workspaceRowArtifactIds, workspaceRunRows, workspaceRunRowBands } from './workspace-run-groups'
 
 function artifact(file: string, command = 'prepare'): WorkspaceArtifact {
   return { id: file, file, command, name: file.split('/').pop()!, kind: 'artifact' }
@@ -9,6 +9,19 @@ function artifact(file: string, command = 'prepare'): WorkspaceArtifact {
 describe('Workspace run groups', () => {
   const files = [artifact('input.pdb'), artifact('runs/job_one/result.pdb'), artifact('runs/job_one/diagnostics.tar.gz'),
     artifact('runs/homology_two/result/model.pdb', 'homology'), artifact('runs/naming_three/output.pdb', 'atom-names')]
+  it('alternates parent runs independently of expansion and restarts each child stripe', () => {
+    const collapsed = workspaceRunRows(files, new Set())
+    const expanded = workspaceRunRows(files, new Set(['runs/job_one', 'runs/homology_two']))
+    const parentBands = (rows: ReturnType<typeof workspaceRunRows>) => {
+      const bands = workspaceRunRowBands(rows)
+      return rows.flatMap((row, index) => row.type === 'run' ? [[row.id, bands[index].group]] : [])
+    }
+    expect(parentBands(expanded)).toEqual(parentBands(collapsed))
+    expect(workspaceRunRowBands(expanded)).toEqual([
+      { stripe: 0 }, { group: 0, stripe: 0 }, { group: 0, stripe: 0 }, { group: 0, stripe: 1 },
+      { group: 1, stripe: 0 }, { group: 1, stripe: 0 }, { group: 0, stripe: 0 },
+    ])
+  })
   it('shows one collapsed row per run for every command and keeps imported files independent', () => {
     const rows = workspaceRunRows(files, new Set())
     expect(rows.map(row => row.type)).toEqual(['file', 'run', 'run', 'run'])

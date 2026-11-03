@@ -578,6 +578,17 @@ def _validate_candidate(
     if severe_clashes:
         failures.append("severe-steric-overlap")
 
+    # Preserve independently measured selected-coordinate findings for normal
+    # CLI output. Runner-provided intermediate reports are not authoritative.
+    for finding in (
+        *bond_length_findings, *bond_angle_findings, *non_planar_amides,
+        *ramachandran_outliers, *sidechain_chi12_outliers, *severe_clashes,
+    ):
+        warnings.append(
+            f"Final validation: {finding.chain}/{finding.resname}{finding.resid}: "
+            f"{finding.message}"
+        )
+
     try:
         assert_all_l(candidate.pdb.topology, candidate.pdb.positions)
         d_residues = 0

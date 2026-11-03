@@ -34,10 +34,10 @@ import { reorderVisibleArtifacts } from '../lib/workspace-order'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 import { apiFetch, downloadApiBlob, openApiBlob } from '../lib/api-client'
 import { useWorkspaceImportStore } from '../stores/workspaceImportStore'
-import { actionGroupSx, panelToolbarSx, workspaceRowColors } from '../ui/layout'
+import { actionGroupSx, panelToolbarSx, workspaceRowColors, workspaceRunColors } from '../ui/layout'
 import { ArtifactFileIdentity } from './ArtifactFileIdentity'
 import { visibleWorkspaceArtifacts } from '../lib/artifact-presentation'
-import { selectWorkspaceContextRow, selectWorkspaceRows, workspaceRowArtifactIds, workspaceRunRows } from '../lib/workspace-run-groups'
+import { selectWorkspaceContextRow, selectWorkspaceRows, workspaceRowArtifactIds, workspaceRunRows, workspaceRunRowBands } from '../lib/workspace-run-groups'
 
 export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'workspace' }) {
   const uploadRef = useRef<HTMLInputElement>(null)
@@ -240,6 +240,7 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
   }
 
   const rows = workspaceRunRows(visibleWorkspaceArtifacts(active?.artifacts || [], structuresOnly), expandedRuns)
+  const rowBands = workspaceRunRowBands(rows)
   const visibleArtifactIds = [...new Set(rows.flatMap(workspaceRowArtifactIds))]
   const selectRow = (index: number, modifiers: { shiftKey?: boolean; ctrlKey?: boolean; metaKey?: boolean }) => {
     const next = selectWorkspaceRows(rows, index, selectedArtifacts, selectionAnchor.current, modifiers)
@@ -337,11 +338,16 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
       </Box>
       <List dense disablePadding sx={{ flex: 1, overflow: 'auto' }}>
         {rows.map((row, index) => {
+          const band = rowBands[index]
+          const runColors = band.group === undefined ? undefined : workspaceRunColors[band.group]
           if (row.type === 'run') {
             const archive = row.files.find(file => file.file.endsWith('/diagnostics.tar.gz'))
             const selectedCount = row.files.filter(file => selectedArtifacts.has(file.id)).length
             const selected = selectedCount === row.files.length
-            return <Box key={row.id} sx={{ display: 'flex', alignItems: 'center', bgcolor: 'background.paper' }}
+            return <Box key={row.id} sx={{ display: 'flex', alignItems: 'center', bgcolor: runColors?.header,
+              mt: index ? 1 : 0, borderTop: '1px solid', borderBottom: '1px solid',
+              borderTopColor: runColors?.edge, borderBottomColor: runColors?.edge,
+              borderLeft: '4px solid', borderLeftColor: runColors?.edge }}
               onContextMenu={event => {
                 event.preventDefault()
                 selectContextRow(index)
@@ -361,7 +367,7 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
                 '&.Mui-selected:hover': { bgcolor: workspaceRowColors.selectedHover } }}>
             <ListItemText primary={`${row.command} · ${row.id.slice(5)}`}
               secondary={`${row.files.length} files${selectedCount ? ` · ${selectedCount} selected` : ''}${row.status ? ` · ${row.status.replaceAll('_', ' ')}` : ''}`}
-              slotProps={{ primary: { noWrap: true, title: row.id } }} />
+              slotProps={{ primary: { noWrap: true, title: row.id, sx: { fontWeight: 700 } } }} />
           </ListItemButton>
           {archive && <Tooltip title="Download run diagnostics"><IconButton aria-label={`Download ${row.command} run diagnostics`}
             onClick={() => downloadApiBlob(workspaceFileUrl(active.id, archive.file), `${row.command}-${row.id.slice(5)}-diagnostics.tar.gz`)
@@ -381,8 +387,11 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
             loadArtifact(active, artifact, loadTarget).catch(() => {})
           }
         }} sx={{
-          pl: 2,
-          bgcolor: selectedArtifacts.has(artifact.id) ? workspaceRowColors.selected : index % 2 ? workspaceRowColors.stripe : workspaceRowColors.base,
+          pl: runColors ? 4 : 2,
+          bgcolor: selectedArtifacts.has(artifact.id) ? workspaceRowColors.selected
+            : runColors ? runColors.files[band.stripe] : band.stripe ? workspaceRowColors.stripe : workspaceRowColors.base,
+          borderLeft: '4px solid', borderLeftColor: runColors?.edge || 'transparent',
+          '&:hover': { bgcolor: workspaceRowColors.hover },
           '&.Mui-selected': { bgcolor: workspaceRowColors.selected },
           '&.Mui-selected:hover': { bgcolor: workspaceRowColors.selectedHover },
           borderTop: '2px solid', borderBottom: '2px solid',

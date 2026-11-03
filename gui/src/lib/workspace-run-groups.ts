@@ -8,6 +8,27 @@ export function workspaceRowArtifactIds(row: WorkspaceRunRow): string[] {
   return row.type === 'file' ? [row.artifact.id] : row.files.map(file => file.id)
 }
 
+/** Expansion adds children, never changes adjacent run bands. File parity
+ * restarts within each run; standalone files have their own stripe counter. */
+export function workspaceRunRowBands(rows: readonly WorkspaceRunRow[]): Array<{ group?: number; stripe: number }> {
+  let group = -1
+  let runId = ''
+  let child = 0
+  let standalone = 0
+  return rows.map(row => {
+    if (row.type === 'run') {
+      group++
+      runId = row.id
+      child = 0
+      return { group: group % 2, stripe: 0 }
+    }
+    if (runId && row.artifact.file.startsWith(`${runId}/`)) {
+      return { group: group % 2, stripe: child++ % 2 }
+    }
+    return { stripe: standalone++ % 2 }
+  })
+}
+
 function rowKey(row: WorkspaceRunRow): string {
   return row.type === 'file' ? `file:${row.artifact.id}` : `run:${row.id}`
 }

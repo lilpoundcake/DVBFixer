@@ -11,5 +11,7 @@ describe('application panel registry', () => {
     expect(DEFAULT_MAIN_PANELS.map(panel => panel.component)).toEqual([
       'viewer', 'dvbfixer', 'homology', 'text-viewer',
     ])
+    const info = registered.indexOf('info')
+    expect(registered[info + 1]).toBe('job-monitor')
   })
 })

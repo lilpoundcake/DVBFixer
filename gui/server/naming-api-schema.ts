@@ -184,6 +184,29 @@ export const NAMING_OPENAPI_DOCUMENT = {
         },
       },
     },
+    '/api/v1/jobs': {
+      get: {
+        operationId: 'listJobMonitorPage', summary: 'List active jobs and a newest-first page of completed jobs in readable workspaces',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 30 } },
+          { name: 'before', in: 'query', schema: { type: 'string', maxLength: 512 }, description: 'Opaque cursor from the preceding page' },
+        ],
+        responses: {
+          '200': { description: 'Active jobs and a bounded history page, ordered by completion time then identity', content: { 'application/json': { schema: {
+            type: 'object', required: ['workspaceIds', 'activeJobs', 'jobs', 'nextCursor'], additionalProperties: false,
+            properties: {
+              workspaceIds: { type: 'array', items: { type: 'string' }, description: 'Currently readable workspaces; prune cached history outside this set' },
+              activeJobs: { type: 'array', items: { $ref: '#/components/schemas/ManagedJobRecord' } },
+              jobs: { type: 'array', items: { $ref: '#/components/schemas/ManagedJobRecord' } },
+              nextCursor: { type: ['string', 'null'] },
+            },
+          } } } },
+          '400': { description: 'Invalid page size or cursor', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '401': { description: 'Missing or invalid bearer credential', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+        },
+      },
+    },
     '/api/v1/workspaces/{workspaceId}/jobs': {
       get: {
         operationId: 'listManagedJobs', summary: 'List managed scientific jobs',

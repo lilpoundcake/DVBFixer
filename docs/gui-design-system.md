@@ -79,6 +79,15 @@ the action against the combined input-plus-helper height.
 
 ### Inspection tables
 
+Workspace run groups use the two-level palette in `workspaceRunColors`: run
+headers alternate independently of expanded children; file stripes restart in
+each run and use that run's paired background shades. A shared left edge and
+indent distinguish children from parent run headers. Parent headers have bold
+titles, a small gap before the run and tinted top/bottom separators; light child
+stripes use `background.paper` rather than another almost-identical tint.
+Expansion must not change
+neighboring run bands. Selection and hover keep their shared override colors.
+
 Interactions, Clashes and Altlocs use `InspectionTable` / `InspectionRow`
 with `inspectionTableSx`: 32 px baseline rows,
 6 px vertical cell padding and alternating Workspace-style backgrounds.
@@ -98,6 +107,11 @@ two separately labelled, keyboard-focusable scroll regions. Their Open in Text
 Files actions stay at the right of each header and wrap with the header when
 space is limited. Use neutral report backgrounds and text, not an error-colored
 stderr container.
+
+Explicit ERROR findings and scientific validation rejections appear in a
+deduplicated error banner before warning notices, with bold/error-colored lines
+in the report/log preview. Other stderr remains neutral. The frontend displays
+Python's declared findings; it does not calculate or reinterpret geometry.
 
 ## Examples
 

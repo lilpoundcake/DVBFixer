@@ -17,7 +17,7 @@ import { ManagedJobRequestSchema } from './managed-jobs-schema'
 import { executionPolicy } from './execution-policy'
 import { compactRun, copyNativeRun, outputFiles, RUN_ARCHIVE, RUN_SUMMARY, type RunStatus } from './run-storage'
 import {
-  assertWorkspaceAccess, loadWorkspace, resolveWorkspaceFile, updateWorkspace, workspaceRoot, writeJsonAtomic,
+  assertWorkspaceAccess, listWorkspaces, loadWorkspace, resolveWorkspaceFile, updateWorkspace, workspaceRoot, writeJsonAtomic,
 } from './workspace-api'
 
 export type ManagedJobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled'
@@ -163,6 +163,42 @@ export function listManagedJobs(dataRoot: string, workspaceId: string): ManagedJ
       try { return [loadJob(dataRoot, workspaceId, entry.name.slice(4))] } catch { return [] }
     })
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
+/** ACL-filtered monitor view: active work is never hidden behind history pages. */
+export function listJobMonitorPage(dataRoot: string, principalId: string, legacyOwnerPrincipalId: string, query: URLSearchParams) {
+  const rawLimit = query.get('limit') || '30'
+  if (!/^\d+$/.test(rawLimit) || Number(rawLimit) < 1 || Number(rawLimit) > 100) throw httpError(400, 'limit must be an integer from 1 to 100')
+  const limit = Number(rawLimit)
+  const cursor = query.get('before')
+  let before: { time: string; key: string } | null = null
+  if (cursor) {
+    try {
+      if (!/^[a-zA-Z0-9_-]{1,512}$/.test(cursor)) throw new Error('invalid cursor')
+      const value = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'))
+      if (typeof value.time !== 'string' || value.time.length > 64 || !Number.isFinite(Date.parse(value.time)) ||
+          typeof value.key !== 'string' || !/^[a-zA-Z0-9_-]+:[0-9a-f-]{36}$/.test(value.key)) throw new Error('invalid cursor')
+      before = value
+    } catch { throw httpError(400, 'invalid monitor history cursor') }
+  }
+  const readableWorkspaces = listWorkspaces(dataRoot, principalId, legacyOwnerPrincipalId)
+  const all = readableWorkspaces
+    .flatMap(workspace => listManagedJobs(dataRoot, workspace.id))
+  const active = (job: ManagedJobRecord) => job.status === 'queued' || job.status === 'running'
+  const key = (job: ManagedJobRecord) => `${job.workspaceId}:${job.id}`
+  const time = (job: ManagedJobRecord) => job.finishedAt || job.createdAt
+  const completed = all.filter(job => !active(job))
+    .sort((a, b) => time(b).localeCompare(time(a)) || key(b).localeCompare(key(a)))
+    .filter(job => !before || time(job) < before.time || (time(job) === before.time && key(job).localeCompare(before.key) < 0))
+  const jobs = completed.slice(0, limit)
+  const last = jobs.at(-1)
+  return {
+    workspaceIds: readableWorkspaces.map(workspace => workspace.id),
+    activeJobs: all.filter(active).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    jobs,
+    nextCursor: completed.length > limit && last
+      ? Buffer.from(JSON.stringify({ time: time(last), key: key(last) })).toString('base64url') : null,
+  }
 }
 
 function listFiles(root: string): string[] {
@@ -544,10 +580,16 @@ export function registerManagedJobApi(
   server.middlewares.use('/api/v1', async (request: IncomingMessage, response: ServerResponse, next) => {
     const route = (request.url || '').split('?')[0]
     const match = route.match(/^\/workspaces\/([^/]+)\/jobs(?:\/([^/]+)(?:\/(events))?)?$/)
-    if (!match) return next()
+    if (!match && route !== '/jobs') return next()
     const requestId = ensureRequestId(request, response)
     try {
       const principalId = principalSource(request)
+      if (route === '/jobs') {
+        if (request.method !== 'GET') throw httpError(405, 'method not allowed', 'METHOD_NOT_ALLOWED')
+        return sendJson(response, 200, listJobMonitorPage(dataRoot, principalId, legacyOwnerPrincipalId,
+          new URL(request.url || '', 'http://localhost').searchParams))
+      }
+      if (!match) return next()
       let workspaceId: string
       try { workspaceId = decodeURIComponent(match[1]) } catch {
         throw httpError(400, 'workspace ID is not valid URL encoding', 'INVALID_WORKSPACE_ID')

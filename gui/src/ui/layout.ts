@@ -26,6 +26,12 @@ export const workspaceRowColors = {
   selected: 'rgba(29,50,97,0.24)', selectedHover: 'rgba(29,50,97,0.31)',
 } as const
 
+/** Two-level Workspace bands: run identity is independent of child row parity. */
+export const workspaceRunColors = [
+  { header: 'rgba(43,97,153,0.09)', files: ['background.paper', 'rgba(43,97,153,0.045)'], edge: 'rgba(43,97,153,0.55)' },
+  { header: 'rgba(113,83,148,0.09)', files: ['background.paper', 'rgba(113,83,148,0.045)'], edge: 'rgba(113,83,148,0.55)' },
+] as const
+
 /** Shared inspection-table appearance, based on the Interactions density. */
 export const inspectionTableSx = {
   '& > thead > tr > th, & > tbody > tr > td': {

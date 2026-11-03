@@ -1,4 +1,5 @@
 import { COMMANDS } from './dvbfixer-spec'
+import { diffusionSeeds } from '../src/lib/diffusion-seeds'
 
 /** Build a validated argv fragment from values and the generated CLI contract. */
 export function buildArgs(commandName: string, values: Record<string, any>): string[] {
@@ -8,6 +9,10 @@ export function buildArgs(commandName: string, values: Record<string, any>): str
   for (const flag of def.flags) {
     const value = values[flag.flag]
     if (value === undefined || value === '' || value === null) continue
+    if (flag.flag === '--diffusion-seed') {
+      for (const seed of diffusionSeeds(value)) args.push(flag.flag, String(seed))
+      continue
+    }
     if (flag.type === 'bool') {
       if (value === true) args.push(flag.flag)
       else if (value === false && flag.falseFlag) args.push(flag.falseFlag)

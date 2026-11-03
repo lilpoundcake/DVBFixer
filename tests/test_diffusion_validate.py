@@ -688,6 +688,19 @@ def test_validation_rejects_generated_backbone_angle_error(tmp_path: Path) -> No
     assert "generated-or-junction-bond-angle" in validation.hard_gate_failures
     metrics = {metric.name: metric.value for metric in validation.metrics}
     assert metrics["generated-or-junction-bond-angle-errors"] >= 1.0
+    assert any("Final validation: C/GLY66" in warning and "bond angle" in warning
+               and "expected" in warning for warning in validation.warnings)
+    from dvbfixer.model.diffusion.rejection_output import rejection_output
+
+    result = build_validated_result(request, runner_result, workspace=workspace)
+    output = "\n".join(rejection_output(result, tmp_path / "retained-bundle"))
+    assert "candidate REJECTED: bad-angle" in output
+    assert "ERROR: Diffusion candidate REJECTED" in output
+    assert "ERROR: C/GLY66" in output
+    assert "C/GLY66" in output
+    assert "bond angle" in output
+    assert "retained-bundle/bad-angle.diffusion.json" in output
+    assert "inspection only" in output
 
 
 def test_validation_rejects_generated_ramachandran_outlier(tmp_path: Path) -> None:

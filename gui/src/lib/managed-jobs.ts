@@ -1,5 +1,17 @@
 export type ManagedJobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled'
 
+/** Human-readable local time; retain original ISO timestamps in persisted data. */
+export function formatJobTimestamp(value: string | null, locale?: string, timeZone?: string): string {
+  if (!value) return 'Not started'
+  const date = new Date(value)
+  if (!Number.isFinite(date.getTime())) return 'Unknown time'
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+    ...(timeZone ? { timeZone } : {}),
+  }).format(date)
+}
+
 export interface ManagedJobRecord {
   version: 1
   id: string

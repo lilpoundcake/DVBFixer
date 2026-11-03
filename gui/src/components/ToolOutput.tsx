@@ -5,7 +5,7 @@ import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import type { ToolReportPreview } from '../lib/tool-output'
-import { anchorRefinementNotices } from '../lib/tool-output'
+import { anchorRefinementNotices, diagnosticLine, outputErrors } from '../lib/tool-output'
 import { inlineActionSx } from '../ui/layout'
 
 type OutputStream = 'stdout' | 'stderr'
@@ -14,6 +14,17 @@ const scrollBlockSx = {
   maxHeight: 'min(30vh, 280px)', minHeight: 64, overflow: 'auto', bgcolor: 'background.default',
   border: 1, borderColor: 'divider', borderRadius: 1,
   '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main' },
+}
+
+function DiagnosticText({ text }: { text: string }) {
+  const lines = text.split('\n')
+  return <>{lines.map((raw, index) => {
+    const line = diagnosticLine(raw)
+    return <Box component="span" key={index} data-severity={line.severity} sx={line.severity === 'error'
+      ? { color: 'error.main', fontWeight: 700 } : undefined}>
+      {line.text}{index < lines.length - 1 ? '\n' : ''}
+    </Box>
+  })}</>
 }
 
 export function ToolOutput({ stdout, stderr, reports = [], outputFile, onOpenFile, onOpenLog }: {
@@ -26,6 +37,7 @@ export function ToolOutput({ stdout, stderr, reports = [], outputFile, onOpenFil
 }) {
   const reportTitle = reports.some(report => /diagnose/i.test(report.file)) ? 'Diagnostic report' : 'Output report'
   const anchorNotices = anchorRefinementNotices(stdout, stderr)
+  const errors = outputErrors(stdout, stderr, ...reports.map(report => report.text))
   const streamSection = (stream: OutputStream, text: string) => text ? <Box key={stream} sx={{ p: 1 }}>
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 0.5 }}>
       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
@@ -39,10 +51,15 @@ export function ToolOutput({ stdout, stderr, reports = [], outputFile, onOpenFil
     <Box component="pre" sx={{
       m: 0, color: 'text.primary', fontFamily: 'ui-monospace, monospace',
       fontSize: '0.72rem', lineHeight: 1.5, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere',
-    }}>{text}</Box>
+    }}><DiagnosticText text={text} /></Box>
   </Box> : null
 
   return <Box sx={{ mt: 1 }}>
+    {errors.length > 0 && <Alert severity="error" sx={{ mb: 1 }}>
+      <Typography variant="body2" sx={{ fontWeight: 700 }}>Errors / validation failures</Typography>
+      {errors.slice(0, 12).map(error => <Typography variant="body2" key={error} sx={{ overflowWrap: 'anywhere' }}>{error}</Typography>)}
+      {errors.length > 12 && <Typography variant="caption">Additional errors are highlighted in the report and run log below.</Typography>}
+    </Alert>}
     {anchorNotices.length > 0 && <Alert severity="warning" sx={{ mb: 1 }}>
       <Typography variant="body2" sx={{ fontWeight: 700 }}>Observed-coordinate diagnostics</Typography>
       {anchorNotices.map(notice => <Typography variant="body2" key={notice}>{notice}</Typography>)}
@@ -70,7 +87,7 @@ export function ToolOutput({ stdout, stderr, reports = [], outputFile, onOpenFil
           <Box component="pre" sx={{
             m: 0, color: 'text.primary', fontFamily: 'ui-monospace, monospace',
             fontSize: '0.72rem', lineHeight: 1.5, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere',
-          }}>{report.text || 'The report file is empty.'}</Box>
+          }}><DiagnosticText text={report.text || 'The report file is empty.'} /></Box>
           {report.truncated && <Typography variant="caption" color="text.secondary">
             Preview shortened. Open in Text Files to read the complete report.
           </Typography>}

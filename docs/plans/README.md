@@ -8,6 +8,12 @@ An unchecked historical box alone does not prove that code is still missing.
 
 ## Current status
 
+2026-11-03 addition: [GUI practical improvements handoff](gui-practical-improvements-handoff.md)
+tracks actionable diffusion output, multi-seed entry, navigation and Job Monitor.
+Initial code is in progress; runner-stage/progress instrumentation and real
+browser/multi-job acceptance remain open. The table below retains its earlier
+milestone context; use the handoff and canonical checklist for this new work.
+
 | Plan | Implemented / completed | Remaining boundary |
 |---|---|---|
 | [Geometry-gated anchor relaxation](geometry-gated-anchor-relaxation-handoff.md) | Experimental runner/validation/publication/resume and CLI/ZBS/Homology/GUI integration; approved movement limits; native 9CQD replays and real-complex pre-anchor findings | [Return to 1BRS sparse context, 1GC1 generated torsions, 1HE8 timeouts and live raw/final adapter acceptance](geometry-gated-anchor-relaxation-handoff.md#real-complex-follow-up-work-packages); broader motion-bound/B-policy calibration and target-GPU acceptance remain open |

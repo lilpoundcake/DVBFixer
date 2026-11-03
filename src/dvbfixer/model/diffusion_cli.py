@@ -639,17 +639,13 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 outcome.message or f"diffusion ended with {outcome.status.value}"
             )
     if outcome.status.value == "failed":
-        failures = tuple(dict.fromkeys(
-            failure
-            for summary in (outcome.result.validation_summaries if outcome.result else ())
-            for failure in summary.hard_gate_failures
-        ))
-        print(
-            "WARNING: Diffusion candidate was published but failed independent "
-            "DVBFixer validation. Inspect it before use; consider another seed "
-            "or a full-system minimization. Failed gates: "
-            + (", ".join(failures) if failures else "unspecified")
-        )
+        from dvbfixer.model.diffusion.rejection_output import rejection_output
+
+        if outcome.result is not None:
+            for line in rejection_output(outcome.result, Path(outcome.published_bundle)):
+                print(line)
+        else:
+            print("ERROR: Diffusion reconstruction failed validation; no candidate details are available.")
         print(f"Wrote rejected diffusion bundle {outcome.published_bundle}")
     else:
         print(f"Wrote diffusion bundle {outcome.published_bundle}")

@@ -30,7 +30,8 @@ import { bestMatchingChainId, chainIdentityLabel, targetSequences } from '../lib
 import { residueClass, RESIDUE_CLASS_COLORS } from '../lib/residue-codes'
 import { apiFetch } from '../lib/api-client'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
-import { anchorRefinementNotices } from '../lib/tool-output'
+import { anchorRefinementNotices, outputErrors } from '../lib/tool-output'
+import { diffusionSeedError } from '../lib/diffusion-seeds'
 import {
   workflowToolbarSx as homologyToolbarSx, panelToolbarSx as projectToolbarSx,
   controlSx as toolbarControlSx, wideControlSx as targetSourceControlSx,
@@ -116,7 +117,8 @@ export function HomologyPanel() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [modelWarnings, setModelWarnings] = useState<string[]>([])
-  useEffect(() => { setModelWarnings([]) }, [project?.id])
+  const [modelErrors, setModelErrors] = useState<string[]>([])
+  useEffect(() => { setModelWarnings([]); setModelErrors([]) }, [project?.id])
   const [saved, setSaved] = useState(true)
   const [selection, setSelection] = useState<Record<string, TransientAlignmentSelection>>({})
   const [undo, setUndo] = useState<AlignmentGroup[][]>([])
@@ -600,13 +602,19 @@ export function HomologyPanel() {
     setBusy(backend === 'diffusion' ? 'Running mosaic diffusion' : 'Running Modeller')
     setError('')
     setModelWarnings([])
+    setModelErrors([])
     setMessage('')
     try {
+      if (backend === 'diffusion') {
+        const seedError = diffusionSeedError(project.modelOptions['--diffusion-seed'])
+        if (seedError) throw new Error(seedError)
+      }
       const response = await apiFetch('/api/homology/model', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...project, workspaceId: activeWorkspace?.id }),
       })
       const body = await response.json() as { error?: string; outputFile?: string; stdout?: string; stderr?: string; modelStatus?: string }
       setModelWarnings(anchorRefinementNotices(body.stdout || '', body.stderr || ''))
+      setModelErrors(outputErrors(body.stdout || '', body.stderr || ''))
       if (!response.ok) throw new Error(body.error || body.stderr || `HTTP ${response.status}`)
       setMessage(`${body.modelStatus && body.modelStatus !== 'success' ? 'Rejected candidate published' : 'Model complete'}: ${body.outputFile}`)
       await reloadWorkspace()
@@ -655,6 +663,10 @@ export function HomologyPanel() {
       </Tabs>
       <Box sx={{ flex: 1, overflow: 'auto', p: 1.5 }}>
         {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
+        {modelErrors.length > 0 && <Alert severity="error" sx={{ mb: 1 }}>
+          <Typography variant="body2" sx={{ fontWeight: 700 }}>Errors / validation failures</Typography>
+          {modelErrors.slice(0, 12).map(message => <Typography variant="body2" key={message}>{message}</Typography>)}
+        </Alert>}
         {modelWarnings.length > 0 && <Alert severity="warning" sx={{ mb: 1 }}>
           {modelWarnings.map(warning => <Typography variant="body2" key={warning}>{warning}</Typography>)}
         </Alert>}
@@ -858,8 +870,10 @@ export function HomologyPanel() {
                     <MenuItem value="">Auto</MenuItem><MenuItem value="protenix">Protenix</MenuItem><MenuItem value="protpardelle">Protpardelle</MenuItem>
                   </Select>
                 </FormControl>
-                <TextField sx={toolbarControlSx} size="small" type="number" label="Seed" value={project.modelOptions['--diffusion-seed'] ?? 7}
-                  onChange={event => update({ modelOptions: { ...project.modelOptions, '--diffusion-seed': Number(event.target.value) } })} />
+                <TextField sx={toolbarControlSx} size="small" label="Seeds" value={project.modelOptions['--diffusion-seed'] ?? ''}
+                  placeholder="7" error={!!diffusionSeedError(project.modelOptions['--diffusion-seed'])}
+                  helperText={diffusionSeedError(project.modelOptions['--diffusion-seed']) || 'Commas or spaces: 1, 17, 148. Default: 7; timeout covers all candidates.'}
+                  onChange={event => update({ modelOptions: { ...project.modelOptions, '--diffusion-seed': event.target.value } })} />
                 <FormControl size="small" sx={toolbarControlSx}><InputLabel>Anchor repair</InputLabel>
                   <Select label="Anchor repair" value={project.modelOptions['--no-relax-anchors'] ? 'disabled' : 'enabled'}
                     onChange={event => update({ modelOptions: { ...project.modelOptions, '--no-relax-anchors': event.target.value === 'disabled' } })}>

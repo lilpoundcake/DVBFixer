@@ -1,9 +1,26 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { ToolOutput } from './ToolOutput'
-import { anchorRefinementNotices } from '../lib/tool-output'
+import { anchorRefinementNotices, outputErrors } from '../lib/tool-output'
 
 describe('tool output presentation', () => {
+  it('puts actual errors above warnings and highlights only error lines', () => {
+    const error = 'ERROR: W/ASP28: N–CA–C bond angle = 79.1°; allowed range: 95–125°.'
+    const stdout = `WARNING: experimental profile\n${error}`
+    const stderr = `!!! ERROR !!! ${error}\n[ERROR] ${error}`
+    expect(outputErrors(stdout, stderr)).toEqual([error])
+    const html = renderToStaticMarkup(<ToolOutput stdout={stdout} stderr={stderr} />)
+    expect(html).toContain('Errors / validation failures')
+    expect(html.indexOf('Errors / validation failures')).toBeLessThan(html.indexOf('Output &amp; diagnostics'))
+    expect(html).toContain('data-severity="error"')
+    expect(html).toContain('data-severity="warning"')
+    expect(outputErrors('ERROR: 0 findings', 'WARNING: experimental')).toEqual([])
+  })
+  it('surfaces historical explicit diffusion rejection without recalculating science', () => {
+    const text = 'WARNING: Diffusion candidate was published but failed independent DVBFixer validation.'
+    expect(outputErrors(text)).toEqual([text])
+    expect(outputErrors('WARNING: input has 7 findings')).toEqual([])
+  })
   it('prominently displays and deduplicates explicit Python anchor notices', () => {
     const notice = 'Observed anchor H:82A coordinates modified: backbone RMSD 0.4 Å; Cα displacement 0.3 Å; maximum heavy displacement 0.8 Å.'
     const stdout = `WARNING: ${notice}\nWARNING: ${notice}`

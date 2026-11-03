@@ -283,12 +283,29 @@ def audit_staged_anchor_repair(
         failures.append("anchor-repair-expanded-geometry")
     metrics = list(strict.metrics)
     warnings = [*strict.warnings, "Research anchor audit only; not qualified for production publication."]
+    for issue in final_assessment.issues:
+        if issue.residues and not any(warning.endswith(issue.message) for warning in strict.warnings):
+            location = ", ".join(
+                f"{r.chain}:{r.residue_number}{r.insertion_code}" for r in issue.residues
+            )
+            warnings.append(f"Final validation: {location}: {issue.message}")
     for movement in movements:
         r = movement.residue
         label = f"{r.chain}:{r.residue_number}{r.insertion_code}"
         metrics.extend((Metric(f"anchor-{label}-backbone-rmsd", movement.backbone_rmsd_angstrom, "angstrom"),
                         Metric(f"anchor-{label}-ca-displacement", movement.ca_displacement_angstrom, "angstrom"),
-                        Metric(f"anchor-{label}-max-heavy-displacement", movement.heavy_displacement_angstrom_max, "angstrom")))
+                         Metric(f"anchor-{label}-max-heavy-displacement", movement.heavy_displacement_angstrom_max, "angstrom")))
+        for name, measured, maximum in (
+            ("backbone RMSD", movement.backbone_rmsd_angstrom, active_limits.backbone_rmsd_angstrom_max),
+            ("Cα displacement", movement.ca_displacement_angstrom, active_limits.ca_displacement_angstrom_max),
+            ("maximum heavy-atom displacement", movement.heavy_displacement_angstrom_max,
+             active_limits.heavy_displacement_angstrom_max),
+        ):
+            if measured > maximum:
+                warnings.append(
+                    f"Final validation: {label}: {name} = {measured:.4f} Å; "
+                    f"maximum allowed: {maximum:.4f} Å."
+                )
         if movement.heavy_displacement_angstrom_max > 0:
             warnings.append(f"Observed anchor {label} coordinates modified: backbone RMSD "
                              f"{movement.backbone_rmsd_angstrom:.4f} Å; Cα displacement "

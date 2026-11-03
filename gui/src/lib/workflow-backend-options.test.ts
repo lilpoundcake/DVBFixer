@@ -14,7 +14,7 @@ it('only exposes context overrides for explicitly selected Protenix', () => {
 
 it('removes inactive Modeller defaults when selecting diffusion', () => {
   expect(workflowValues('model', { '--backend': 'diffusion', '--md-level': 'fast', '--num-loops': 2, '--diffusion-seed': '7,11' }))
-    .toEqual({ '--backend': 'diffusion', '--diffusion-seed': '7,11' })
+    .toEqual({ '--backend': 'diffusion', '--diffusion-seed': [7, 11] })
 })
 
 it('keeps ZBS prepare backend separate from its model backend', () => {

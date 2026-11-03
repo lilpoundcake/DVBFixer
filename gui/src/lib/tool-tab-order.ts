@@ -1,10 +1,12 @@
-/** Analysis starts with Diagnose; keep all other command positions unchanged. */
+/** Presentation ordering without mutating saved tool identities. */
 export function orderToolTabs<T extends { name: string }>(commands: readonly T[]): T[] {
   const ordered = [...commands]
   const diagnose = ordered.findIndex(command => command.name === 'diagnose')
-  const cluster = ordered.findIndex(command => command.name === 'cluster')
-  if (diagnose >= 0 && cluster >= 0 && cluster < diagnose) {
-    [ordered[diagnose], ordered[cluster]] = [ordered[cluster], ordered[diagnose]]
+  if (diagnose > 0) ordered.unshift(...ordered.splice(diagnose, 1))
+  const altloc = ordered.findIndex(command => command.name === 'altlocs')
+  if (altloc >= 0 && ordered.some(command => command.name === 'model')) {
+    const [item] = ordered.splice(altloc, 1)
+    ordered.splice(ordered.findIndex(command => command.name === 'model'), 0, item)
   }
   return ordered
 }

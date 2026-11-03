@@ -97,6 +97,8 @@ function resolveArtifact(root: string, relative: string): string {
 }
 
 const MD_LEVELS = new Set(['none', 'fast', 'slow', 'very_slow', 'slow_large'])
+import { diffusionSeeds } from '../src/lib/diffusion-seeds'
+
 const MODEL_OPTION_FLAGS = new Set([
   '--num-models', '--md-level', '--backend', '--diffusion-model', '--diffusion-seed',
   '--diffusion-context',
@@ -119,11 +121,8 @@ export function validatedModelArgs(options: Record<string, unknown> | null | und
         !['protpardelle', 'protenix'].includes(String(values['--diffusion-model']))) {
       throw new Error('--diffusion-model has an unsupported value')
     }
-    const seed = values['--diffusion-seed'] ?? 7
-    if (typeof seed !== 'number' || !Number.isInteger(seed) || seed < 0) {
-      throw new Error('--diffusion-seed must be a non-negative integer')
-    }
-    args.push('--backend', 'diffusion', '--diffusion-seed', String(seed))
+    args.push('--backend', 'diffusion')
+    for (const seed of diffusionSeeds(values['--diffusion-seed'])) args.push('--diffusion-seed', String(seed))
     if (values['--diffusion-model']) args.push('--diffusion-model', String(values['--diffusion-model']))
     for (const flag of ['--no-relax-anchors', '--no-anchor-bfactor-weighting']) {
       if (values[flag] !== undefined && typeof values[flag] !== 'boolean') throw new Error(`${flag} must be boolean`)
