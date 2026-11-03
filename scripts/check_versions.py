@@ -16,6 +16,7 @@ def main() -> int:
     init = (ROOT / "src/dvbfixer/__init__.py").read_text()
     match = re.search(r'^__version__\s*=\s*["\']([^"\']+)', init, re.MULTILINE)
     package_lock = json.loads((ROOT / "gui/package-lock.json").read_text())
+    inventory = json.loads((ROOT / "docs/research/license-inventory.json").read_text())
     changelog = (ROOT / "CHANGELOG.md").read_text()
     changelog_match = re.search(r"^## \[([^]]+)]", changelog, re.MULTILINE)
     values = {
@@ -26,11 +27,14 @@ def main() -> int:
         .get("", {})
         .get("version"),
         "CHANGELOG.md latest release": changelog_match.group(1) if changelog_match else None,
+        "docs/research/license-inventory.json project_version": inventory.get("project_version"),
     }
     mismatches = {file: value for file, value in values.items() if value != version}
     if mismatches:
         for file, value in mismatches.items():
             print(f"{file}: {value!r}; expected {version!r}")
+        if inventory.get("project_version") != version:
+            print("Regenerate declaration evidence: python scripts/gen_license_inventory.py")
         return 1
     print(f"release metadata synchronized at {version}")
     return 0

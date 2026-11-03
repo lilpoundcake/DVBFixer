@@ -52,3 +52,29 @@ def test_current_release_examples_match_authoritative_version() -> None:
     version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
     assert f"Current release: **{version}**." in (ROOT / "README.md").read_text()
     assert f"# dvbfixer {version}\n" in (ROOT / "docs/installation.md").read_text()
+    inventory = json.loads((ROOT / "docs/research/license-inventory.json").read_text())
+    assert inventory["project_version"] == version
+
+
+def test_release_version_check_rejects_stale_inventory(tmp_path: Path) -> None:
+    """A bump must not pass the release preflight with the previous inventory."""
+    files = {
+        "scripts/check_versions.py": (ROOT / "scripts/check_versions.py").read_text(),
+        "pyproject.toml": '[project]\nversion = "1.2.3"\n',
+        "src/dvbfixer/__init__.py": '__version__ = "1.2.3"\n',
+        "gui/package.json": json.dumps({"version": "1.2.3"}),
+        "gui/package-lock.json": json.dumps({"version": "1.2.3", "packages": {"": {"version": "1.2.3"}}}),
+        "CHANGELOG.md": "# Changelog\n\n## [1.2.3]\n",
+        "docs/research/license-inventory.json": json.dumps({"project_version": "1.2.2"}),
+    }
+    for relative, text in files.items():
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+    command = [sys.executable, str(tmp_path / "scripts/check_versions.py")]
+    failed = subprocess.run(command, capture_output=True, text=True, check=False)
+    assert failed.returncode == 1
+    assert "license-inventory.json project_version" in failed.stdout
+    assert "gen_license_inventory.py" in failed.stdout
+    (tmp_path / "docs/research/license-inventory.json").write_text(json.dumps({"project_version": "1.2.3"}))
+    assert subprocess.run(command, capture_output=True, text=True, check=False).returncode == 0

@@ -891,7 +891,10 @@ command parser merely to inspect generated labels.
   `src/dvbfixer/__init__.py`, `gui/package.json`, both root-package version
   entries in `gui/package-lock.json`, the current-release line in `README.md`,
   the installation example, version-sensitive tests, and the first release
-  heading in `CHANGELOG.md`. Run `python scripts/check_versions.py`,
+  heading in `CHANGELOG.md`. Regenerate `docs/research/license-inventory.json`
+  with `python scripts/gen_license_inventory.py`: it binds the current release
+  and hashes of Python/GUI metadata, not just historical license evidence.
+  Run `python scripts/gen_license_inventory.py --check`, `python scripts/check_versions.py`,
   `python scripts/gen_cli_reference.py --check`, and
   `python scripts/gen_gui_spec.py --check` before committing a release.
 - **Tracked production structures belong under `tests/fixtures/`, never only

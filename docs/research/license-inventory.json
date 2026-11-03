@@ -29,10 +29,10 @@
     "environments/standard-probe.yml": "d5304ab275a5987c4cae68b329f42bbed855694a78dcd796924b5186e559848b",
     "environments/standard.yml": "413f9bbd8d17c0f90e632460a1c77ba9eaae1da741ae6ba2fac6abe1470445c2",
     "gui/LICENSE": "38956e39a1e8aaa69f298c335c312cad66335fa04e73dc37b677827ce5f33900",
-    "gui/package-lock.json": "58a0cf659b837cea028505019a82ed86595d3c5cd3e3cd80d9b390c9b5847c98",
-    "gui/package.json": "96ee72e3a806eb7fa203b9c802e7f53823b9b8a485689736f5bf99acb46efa65",
+    "gui/package-lock.json": "f0159471ade9062bd9a6411d79ac8d362938c68db7e283f294a0303475b80395",
+    "gui/package.json": "46a49e064b0bb9ae04b9eaca97aac8125424ec130f078f47fbc2c5ae2ef1aafd",
     "gui/public/LICENSE": "38956e39a1e8aaa69f298c335c312cad66335fa04e73dc37b677827ce5f33900",
-    "pyproject.toml": "3a26ad45c36572c83544204c0124958828b4db34d03f8616ff4c200210725c73",
+    "pyproject.toml": "734f3075faa6c2e2dcab00662ef9ab9458e439cef6e8e948223636a4be1cac88",
     "src/dvbfixer/data/installation-profiles.toml": "0be7b52ff41e99ba604b3ab56e94a47822cff3a6b43763afe2cabeb1784a3f7a"
   },
   "kind": "declaration-inventory-not-sbom",
@@ -54,7 +54,7 @@
   "project_license_declaration": {
     "text": "BSD-3-Clause"
   },
-  "project_version": "0.10.2",
+  "project_version": "0.10.3",
   "record_count": 810,
   "records": [
     {
