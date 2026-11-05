@@ -13,8 +13,8 @@ from importlib import metadata as package_metadata
 from pathlib import Path
 
 from dvbfixer.install import Manager, child_environment, recorded_installation
-from dvbfixer.install_progress import stage
-from dvbfixer.install_ui import choose
+from dvbfixer.install_progress import stage, waiting_for_input
+from dvbfixer.install_ui import ask, choose
 from dvbfixer.installation_profiles import load_catalog
 
 MARKER_SUFFIX = ".dvbfixer-install.json"
@@ -214,6 +214,7 @@ def runtime_status(prefix: Path) -> str:
         return "status unavailable (unreadable evidence)"
 
 
+@waiting_for_input()
 def select_existing(entries: list[Installation], *, other_entries: list[Installation] | None = None,
                     backend: bool = False) -> Installation:
     if not entries and other_entries:
@@ -233,6 +234,7 @@ def select_existing(entries: list[Installation], *, other_entries: list[Installa
             print(f"     State: {runtime_status(entry.prefix)}", flush=True)
     if other_entries:
         print(f"  {len(entries) + 1}. Other existing environments…", flush=True)
+    print("Waiting for your selection — enter a number (0 cancels).", flush=True)
     while True:
         choice = input("Runtime number: " if backend else "Installation number: ").strip()
         if choice == "0":
@@ -276,7 +278,7 @@ def new_named_prefix(directory: Path, envs: list[Path], *, default: str,
         suggested = f"{default}-{suffix}"
         suffix += 1
     while True:
-        value = name if name is not None else input(f"Environment name [{suggested}]: ").strip() or suggested
+        value = name if name is not None else ask(f"Environment name [{suggested}]: ").strip() or suggested
         try:
             validate_name(value)
             if occupied(value):

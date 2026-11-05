@@ -2,13 +2,27 @@
 
 from __future__ import annotations
 
+from dvbfixer.install_progress import waiting_for_input
+
+
+def ask(prompt: str) -> str:
+    with waiting_for_input():
+        print("Waiting for your answer.", flush=True)
+        return input(prompt)
+
 
 def choose(title: str, options: list[tuple[str, str]], *, default: str | None = None) -> str:
+    with waiting_for_input():
+        return _choose(title, options, default=default)
+
+
+def _choose(title: str, options: list[tuple[str, str]], *, default: str | None) -> str:
     print(f"\n{title}", flush=True)
     for number, (value, label) in enumerate(options, 1):
         suffix = " (default)" if value == default else ""
         print(f"  {number}. {label}{suffix}", flush=True)
     print("  0. Cancel", flush=True)
+    print("Waiting for your choice — enter a number; no command is running.", flush=True)
     while True:
         answer = input("Choice: ").strip()
         if answer == "0":
@@ -30,10 +44,16 @@ def confirm(title: str, *, default: bool = False) -> bool:
 
 
 def addons(options: list[tuple[str, str]]) -> list[str]:
+    with waiting_for_input():
+        return _addons(options)
+
+
+def _addons(options: list[tuple[str, str]]) -> list[str]:
     print("\nOptional add-ons (comma-separated numbers; Enter for none):", flush=True)
     for number, (_, label) in enumerate(options, 1):
         print(f"  {number}. {label}", flush=True)
     print("  0. None", flush=True)
+    print("Waiting for your selection (Enter for none).", flush=True)
     while True:
         answer = input("Add-on numbers: ").strip()
         if answer in {"", "0"}:

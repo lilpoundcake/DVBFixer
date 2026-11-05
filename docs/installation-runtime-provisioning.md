@@ -163,7 +163,12 @@ digests, logs, source identity and canonical preflight facts. Package versions,
 conda builds and interpreter prefixes are retained in the `versions-*` logs.
 Failed or interrupted installations retain diagnostics and source files.
 Named stages, live command output, ten-second elapsed-time notices and per-step
-log paths are shown while provisioning runs. The default final output is a short
+log paths are shown while provisioning runs. Only the innermost active stage
+emits elapsed-time notices. While a menu or other input is waiting for an answer,
+all enclosing progress timers and live-log display are paused; the prompt states
+that an answer is required. Waiting time is excluded from reported active time,
+and retained log output resumes after the answer without being discarded.
+The default final output is a short
 readable summary, not the full JSON report; `--json` additionally prints that
 report. `action-required` explicitly means dependencies may be installed but the
 backend is **not ready**, with the required operator inputs listed. Scientific

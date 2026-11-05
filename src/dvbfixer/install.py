@@ -19,7 +19,7 @@ import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
-from dvbfixer.install_progress import logged_run, stage
+from dvbfixer.install_progress import logged_run, stage, waiting_for_input
 from dvbfixer.installation_profiles import composition, environment_spec, load_catalog
 
 
@@ -289,7 +289,7 @@ def _main(argv: list[str] | None = None) -> int:
     if args.accept_model_terms and not args.download_weights:
         parser.error("--accept-model-terms requires --download-weights")
     if interactive:
-        from dvbfixer.install_ui import addons, confirm
+        from dvbfixer.install_ui import addons, ask, confirm
 
         if args.profile == "desktop" and not args.desktop_shortcut and not args.package_only:
             args.desktop_shortcut = confirm("Create a user application shortcut?")
@@ -314,10 +314,10 @@ def _main(argv: list[str] | None = None) -> int:
                 return 1
             if args.runtime == "protenix-cuda":
                 if not args.kalign:
-                    selected = input("Pinned Kalign executable (empty to configure later): ").strip()
+                    selected = ask("Pinned Kalign executable (empty to configure later): ").strip()
                     args.kalign = Path(selected) if selected else None
                 if not args.auxiliary_root:
-                    selected = input("Protenix data root containing common/ (empty to configure later): ").strip()
+                    selected = ask("Protenix data root containing common/ (empty to configure later): ").strip()
                     args.auxiliary_root = Path(selected) if selected else None
     elif args.runtime:
         try:
@@ -597,7 +597,8 @@ def _main(argv: list[str] | None = None) -> int:
             with stage("Configure MODELLER license (protected; output not logged)"):
                 configure_modeller(manager, prefix, key)
         elif interactive and not args.skip_modeller and not args.update and not preserved_license and not args.gui_only:
-            key = getpass.getpass("MODELLER key (empty to configure later): ")
+            with waiting_for_input():
+                key = getpass.getpass("MODELLER key (empty to configure later): ")
             if key:
                 with stage("Configure MODELLER license (protected; output not logged)"):
                     configure_modeller(manager, prefix, key)

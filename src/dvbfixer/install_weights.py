@@ -163,7 +163,7 @@ def obtain(repository: Path, name: str, *, dry_run: bool = False) -> Path | None
 
 def select(args, repository: Path, *, interactive: bool) -> None:
     """Select shared cache, consented download, local file or deferred setup."""
-    from dvbfixer.install_ui import choose
+    from dvbfixer.install_ui import ask, choose
 
     if args.checkpoint is not None:
         if args.download_weights:
@@ -203,5 +203,5 @@ def select(args, repository: Path, *, interactive: bool) -> None:
     if selection == "download":
         args.checkpoint = obtain(repository, args.runtime, dry_run=args.dry_run)
     elif selection == "local":
-        path = input("Checkpoint weights path (empty to configure later): ").strip()
+        path = ask("Checkpoint weights path (empty to configure later): ").strip()
         args.checkpoint = Path(path).expanduser() if path else None

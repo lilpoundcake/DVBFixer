@@ -60,6 +60,17 @@ no-overlay guard remains enforced.
 
 ### Explicit update scope and diffusion transition
 
+Prompt-wait follow-up: stage progress now shares nested-stage state within its
+execution context. Only the innermost stage emits heartbeats. Menus pause all
+enclosing timers/log following before rendering and explicitly say they are
+waiting for input; direct asset/name prompts and protected license entry use
+the same pause. Waiting time is excluded from active elapsed time. Cancellation
+and exceptions restore the pause state and stage context without losing logs.
+Validation: 214 targeted tests passed, including a virtual 2,131-second wait,
+nested timer suppression, blocking confirmation/cancellation/interrupt cases,
+log replay after input and independent progress contexts; Ruff passed. No user
+runtime was modified by this verification.
+
 Follow-up UX fixes: the diffusion transition reuses the chosen manager, with an
 explicit change-manager option. Runtime selection shows a distinct heading, full
 path and retained provisioning state. Model-asset guidance lists exact cc94 files
