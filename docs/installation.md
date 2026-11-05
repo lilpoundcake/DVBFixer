@@ -165,7 +165,7 @@ prefix in each new terminal; choose the matching block:
 ```bash
 micromamba activate "$HOME/micromamba/envs/dvbfixer-standard"
 dvbfixer --version
-# dvbfixer 0.10.3
+# dvbfixer 0.10.4
 dvbfixer doctor --profile standard
 dvbfixer msa --list-engines
 ```

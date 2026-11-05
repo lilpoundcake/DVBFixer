@@ -6,7 +6,7 @@ import subprocess
 
 import pytest
 
-from dvbfixer import desktop_shortcuts, install, install_discovery, install_extend
+from dvbfixer import __version__, desktop_shortcuts, install, install_discovery, install_extend
 from dvbfixer.install import Manager
 from dvbfixer.install_extend import extension_composition, prepare_extension
 from dvbfixer.install_ui import addons, choose, confirm
@@ -34,7 +34,7 @@ def harness(tmp_path, monkeypatch, *, native_plan=None, pip_failure=False, docto
     source = tmp_path / "source"
     module = source / "src/dvbfixer/install_extend.py"
     module.parent.mkdir(parents=True)
-    (source / "pyproject.toml").write_text("[project]\nname='dvbfixer'\nversion='0.10.3'\n")
+    (source / "pyproject.toml").write_text(f"[project]\nname='dvbfixer'\nversion='{__version__}'\n")
     (source / "gui").mkdir()
     (source / "gui/package.json").write_text("{}")
     (source / "scripts").mkdir()
@@ -57,7 +57,7 @@ def harness(tmp_path, monkeypatch, *, native_plan=None, pip_failure=False, docto
             if pip_failure:
                 return subprocess.CompletedProcess(argv, 1, "", "")
             report = install_extend.Path(argv[argv.index("--report") + 1])
-            report.write_text(json.dumps({"install": [{"metadata": {"name": "dvbfixer", "version": "0.10.3"}}]}))
+            report.write_text(json.dumps({"install": [{"metadata": {"name": "dvbfixer", "version": __version__}}]}))
         elif install.MODELLER_READ in argv:
             payload = "protected-key"
         elif "doctor" in argv:
