@@ -123,8 +123,9 @@ length; the toolbar adds or removes full gap columns.
 
 ## Install & run
 
-Use Node.js 22 or newer and an available `dvbfixer` CLI. For the Python/scientific
-backends, follow the [installation guide](../docs/installation.md). Both development
+For normal use, install Desktop as described below; it supplies Node and the
+scientific CLI. Manual development/hosting needs Node.js 22 or newer and an
+available `dvbfixer` CLI. Both development
 and standalone hosting run `dvbfixer --version` before serving requests; they stop
 with environment-activation instructions if the probe fails. The GUI does not
 automatically choose a scientific environment. A successful version probe does
@@ -139,12 +140,12 @@ Python and GUI assets, opens the browser after readiness, and supports
 `dvbfixer gui --stop`; it never selects a checkout from the working directory.
 See [Desktop launch](../docs/commands/gui.md).
 
-For source development, create the Desktop environment:
+No separate Node installation, editable pip install or npm commands are needed
+after the helper. With the installation guide's prefix:
 
 ```bash
-micromamba create -f environments/desktop.yml
-micromamba activate dvbfixer-desktop
-pip install -e .
+micromamba activate "$HOME/micromamba/envs/dvbfixer-desktop"
+dvbfixer gui
 ```
 
 #### Modeller license
@@ -157,24 +158,32 @@ its selected target and verifies the actual import; a deferred license is
 reported as action-required. See the [manual license section](../docs/installation.md#modeller-installation-and-license)
 for a manually created environment.
 
-Start the development server directly with Vite:
+### Source development
+
+Only use this route when editing the checkout. It is an alternative to normal
+installed launch, not a required Desktop setup step. From the repository root,
+create an editable Desktop environment using the
+[manual installation route](../docs/installation.md#manual-installation-and-source-development):
 
 ```bash
+micromamba create -f environments/desktop.yml
+micromamba activate dvbfixer-desktop
+python -m pip install -e .
 cd gui
 npm ci
-micromamba activate dvbfixer-desktop
 npm run dev
 ```
 
 The development server opens http://localhost:5173 automatically outside test/CI
 mode; open it manually if the browser does not launch. Build the browser client and standalone Node server
-with `npm run build`; run the build with `npm start`.
+with `npm run build`; run the build with `npm start`. `dvbfixer gui` does not
+launch this checkout: it requires the helper's prefix-local built assets.
 
 **Override DVBFixer** if it's not on PATH (e.g. wrapped in micromamba):
 
 ```bash
 export DVBFIXER_EXECUTABLE="micromamba"
-export DVBFIXER_ARGS='["run", "-n", "dvbfixer", "dvbfixer"]'
+export DVBFIXER_ARGS='["run", "-n", "dvbfixer-desktop", "dvbfixer"]'
 ```
 
 Set executable overrides before starting the server; the startup probe uses the

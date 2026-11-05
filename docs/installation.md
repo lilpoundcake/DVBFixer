@@ -5,7 +5,8 @@
 ## 1. Get the source
 
 DVBFixer's primary delivery is **source plus local installation**, using the
-Standard/Desktop helper or the manual environment route below. Desktop builds
+Standard/Desktop helper below. Manual/editable setup is a separate alternative
+for development, not an additional step after the helper. Desktop builds
 the GUI locally; it is not a pre-populated scientific environment or container.
 Dependencies are obtained from their sources and retain their own terms; this
 does not bypass restricted-tool licenses or copyleft obligations for combined
@@ -13,64 +14,24 @@ redistribution. Obtain an appropriate MODELLER license before using its workflow
 See the [licensing and distribution policy](licensing-status.md).
 
 Install [micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)
-and Git first. The commands below assume a terminal on macOS or Linux; on
-Windows use WSL. Check backend availability with `doctor` after installation.
+and Git first, plus a Python **3.11+** bootstrap interpreter. Mamba and conda
+are also supported managers subject to the platform limitations below.
+The commands assume a terminal on macOS or Linux; on Windows use WSL.
 
 ```bash
 git clone https://github.com/lilpoundcake/DVBFixer.git
 cd DVBFixer
 ```
 
-## 2. Create the environment
-
-Run these commands from the repository root:
-
-```bash
-micromamba create -f environment.yml
-micromamba activate dvbfixer
-pip install -e .
-```
-
-The default `environment.yml` is generated from **Standard**: the scientific
-Python stack and normal CLI external tools, including PySCF/RESP and analysis.
-Keep Python in the supported `>=3.11,<3.14` range. Editable installation uses
-the checkout directly; keep it in place while using this environment.
-
-## 3. Configure MODELLER
-
-Gap rebuilding and comparative modeling need a MODELLER license. Complete the
-[license instructions](#modeller-installation-and-license) before those workflows.
-Other tools can be checked without it.
-
-## 4. Verify the installation
-
-```bash
-dvbfixer --version
-# dvbfixer 0.10.3
-dvbfixer doctor
-dvbfixer msa --list-engines
-```
-
-Read unavailable-backend messages in the capability report. A missing optional
-tool does not block every workflow; consult the command you plan to run.
-
-Without activating the environment, prefix a command with
-`micromamba run -n dvbfixer`, for example:
-
-```bash
-micromamba run -n dvbfixer dvbfixer doctor
-```
-
-Continue to the [quick start](quick-start.md) or [GUI guide](gui.md).
-The remaining sections cover alternative installations and specific dependencies.
+<a id="2-create-the-environment"></a>
 
 ## Standard/Desktop source-checkout helper
 
 The helper and the two main profiles have Linux clean-install evidence with micromamba 2.9.0, mamba
 2.10.0 and conda 26.9.4. See the [dependency matrix](installation-dependency-matrix.md)
 and [acceptance record](installation-profile-acceptance.md) for implemented scope,
-resolved builds and remaining Apple acceptance gates. The manual `environment.yml`
-route above is the Standard alias. `environments/legacy-full.yml` retains the
+resolved builds and remaining acceptance gates. The manual `environment.yml`
+input is the Standard alias. `environments/legacy-full.yml` retains the
 former Desktop-plus-alternative-MSA composition as an explicit compatibility input.
 
 On native Apple Silicon, use micromamba **2.9.0** or mamba **2.10.0**: both
@@ -91,16 +52,25 @@ conda package is unavailable for osx-arm64. Do not bypass conflicts with
   prepares isolated frozen environments and performs checked registration.
   The lower-level launcher-registration script remains usable independently.
 
-Use Python **3.11+** to bootstrap from the repository root. An interactive
-invocation is `python3 scripts/install_dvbfixer.py`; for automation:
+### 2. Install one profile
+
+Run from the repository root. Choose **one** interactive installation:
 
 ```bash
 python3 scripts/install_dvbfixer.py --profile standard --manager micromamba \
-  --prefix /path/to/new-standard --non-interactive --skip-modeller
+  --prefix "$HOME/micromamba/envs/dvbfixer-standard"
 
+# Or Desktop, with an optional application shortcut:
 python3 scripts/install_dvbfixer.py --profile desktop --manager micromamba \
-  --prefix /path/to/new-desktop --desktop-shortcut --non-interactive --skip-modeller
+  --prefix "$HOME/micromamba/envs/dvbfixer-desktop" --desktop-shortcut
 ```
+
+Or run `python3 scripts/install_dvbfixer.py` without arguments to choose the
+profile, manager and prefix interactively. The helper installs a non-editable
+package and all selected dependencies; Desktop also builds its own GUI assets.
+Do **not** follow this with `pip install -e .`, `npm ci` or manual environment
+creation for normal use. The bootstrap Python is separate from the managed
+scientific environment, whose supported Python range stays `>=3.11,<3.14`.
 
 Choose a **new prefix without whitespace**: MAFFT's upstream shell scripts
 failed the real spaced-prefix smoke. Source/input paths may contain spaces.
@@ -115,26 +85,56 @@ The helper refuses existing environments; `--resume` is limited to installations
 it previously recorded. Resume reconciles native dependencies before pip.
 `--dry-run` prints composition and the selected manager without creating files.
 
-MODELLER supports hidden interactive key entry, or an open protected file
-descriptor for automation. Configure a deferred license without reinstalling:
+<a id="3-configure-modeller"></a>
+
+### 3. Configure MODELLER
+
+Gap rebuilding and comparative modeling require an appropriate
+[MODELLER license](#modeller-installation-and-license). The interactive helper
+offers hidden key entry. Empty input defers licensing; it does not complete a
+licensed installation. Other tools can be checked without it.
+
+For automation, supply the license through an open protected file descriptor,
+not a command-line key. To configure a deferred license without reinstalling:
 
 ```bash
 # KEY_FILE is a user-owned 0600 file containing only the key, not its value in argv.
 python3 scripts/install_dvbfixer.py --profile standard --manager micromamba \
-  --prefix /path/to/new-standard --non-interactive --resume --configure-only \
+  --prefix "$HOME/micromamba/envs/dvbfixer-standard" --non-interactive --resume --configure-only \
   --modeller-key-fd 3 3< "$KEY_FILE"
 ```
+
+Use the same profile, prefix and add-ons as the original installation (for
+Desktop, replace `standard` with `desktop` in both profile and prefix).
+For a new unattended install, omit `--resume --configure-only`. Explicitly
+deferring licensing with `--non-interactive --skip-modeller` can return **2**;
+do not treat that as a complete licensed setup.
+
+<a id="4-verify-the-installation"></a>
+
+### 4. Verify and use the installation
 
 The helper runs real functional smokes and records their commands, results and
 versions below `<prefix>/share/dvbfixer/installation-smoke/`. Finish with
 `dvbfixer doctor --profile standard` (or `desktop`). Exit codes are **0** for
 passed installation prerequisites, **2** for required manual action such as a
 deferred MODELLER license, and **1** for failure. Scientific/hardware acceptance
-remains scoped separately in the acceptance record. For daily use, activate
-the installed Desktop environment and launch with:
+remains scoped separately in the acceptance record. Activate the installed
+prefix in each new terminal; choose the matching block:
 
 ```bash
-micromamba activate /path/to/new-desktop
+micromamba activate "$HOME/micromamba/envs/dvbfixer-standard"
+dvbfixer --version
+# dvbfixer 0.10.3
+dvbfixer doctor --profile standard
+dvbfixer msa --list-engines
+```
+
+For Desktop instead:
+
+```bash
+micromamba activate "$HOME/micromamba/envs/dvbfixer-desktop"
+dvbfixer doctor --profile desktop
 dvbfixer gui
 ```
 
@@ -144,11 +144,13 @@ jobs; Ctrl+C also stops a terminal-launched session. Repeating `dvbfixer gui`
 opens the same running installation/data directory rather than a second server.
 See [GUI launch options and troubleshooting](commands/gui.md).
 
-Advanced diagnostic fallback (not the normal Desktop launch route):
+Without activation, use `micromamba run -p` with the same prefix, for example:
 
 ```bash
-micromamba run -p /path/to/new-desktop npm --prefix /path/to/new-desktop/share/dvbfixer/gui start
+micromamba run -p "$HOME/micromamba/envs/dvbfixer-standard" dvbfixer doctor --profile standard
 ```
+
+Continue to the [quick start](quick-start.md) or [GUI guide](gui.md).
 
 Doctor also checks PDBFixer's `soft.xml` and canonical template resources in an
 isolated subprocess. An importable package can still be unusable if those files
@@ -156,17 +158,6 @@ are missing/corrupt; `doctor --profile` reports `pdbfixer-resources` as an error
 Preserve the affected prefix and create a fresh complete installation rather
 than copying individual assets into it. This resource probe is not a full conda
 ownership/integrity audit or a substitute for scientific acceptance.
-
-For manual profile installation without the helper, generate/check the specs
-with `PYTHONPATH=src python scripts/gen_installation_profiles.py --check`, create a new prefix
-from `environments/standard.yml` or `environments/desktop.yml`, then install
-DVBFixer with `python -m pip install -e .`. For manual Desktop, run `npm ci` and
-`npm run build` in the checkout's `gui/` and start it with `npm start` while that
-environment is active. `doctor --profile desktop` recognizes this editable
-source build as well as the helper's installed build. These specs use only
-**openbabel-wheel** for Open Babel. Do not overlay conda `openbabel`; ACPYPE's
-Python metadata requires the wheel. The `obminimize` console entrypoint launches
-the wheel's bundled native tool with its plugin paths initialized.
 
 ### AmberTools auxiliary metadata compatibility
 
@@ -222,6 +213,41 @@ version nor Rosetta is substituted. This does **not** mean that the managed
 using this separately built executable. See the
 [acceptance record](installation-profile-acceptance.md) for commands/results.
 
+## Manual installation and source development
+
+This is an **alternative** to the helper, for contributors or operators managing
+their own environment. It does not perform the helper's licensing, smoke evidence
+or application-shortcut setup. Run from the repository root:
+
+```bash
+micromamba create -f environments/standard.yml
+micromamba activate dvbfixer-standard
+python -m pip install -e .
+```
+
+`environment.yml` is the generated Standard alias (with environment name
+`dvbfixer` instead of `dvbfixer-standard`). For GUI development, use
+`environments/desktop.yml` and activate `dvbfixer-desktop` instead. Keep the
+checkout in place for editable installs and configure the
+[MODELLER license](#modeller-installation-and-license) manually. Then check
+`dvbfixer doctor --profile standard` (or `desktop`). Profile specifications can
+be checked with `PYTHONPATH=src python scripts/gen_installation_profiles.py --check`.
+
+Manual Desktop builds run in the checkout's `gui/`: follow
+[source development](../gui/README.md#source-development) for `npm ci` and
+`npm run dev`, or `npm run build` followed by `npm start` for a built server.
+Doctor recognizes an editable source build, but **`dvbfixer gui` requires the
+helper-installed assets inside its prefix**; it does not launch that checkout.
+
+Both profiles use **openbabel-wheel**. Do not overlay conda `openbabel`; ACPYPE's
+Python metadata requires the wheel. The `obminimize` entrypoint launches the
+wheel's native tool with its plugin paths initialized. A wheel alone does not
+provision the full scientific environment or Desktop's Node/GUI assets.
+
+For an already helper-built Desktop, the advanced diagnostic fallback is
+`npm start` in `<prefix>/share/dvbfixer/gui/` with that prefix active; normal
+users should use `dvbfixer gui` instead.
+
 ## Wheel installation and bundled force fields
 
 For a non-editable installation, build or install the wheel normally. Release
@@ -240,7 +266,7 @@ license assessment are recorded in
 ## CIF conversion backends
 
 PDBx/mmCIF input uses Gemmi; small-molecule crystallographic CIF uses Open
-Babel. Both are installed by `environment.yml`, and pip installations declare
+Babel. Both are installed by Standard and Desktop, and pip installations declare
 `gemmi` plus the prebuilt `openbabel-wheel` explicitly. Verify the active
 environment with `python -c "import gemmi; from openbabel import openbabel"`.
 If only PDB input is used, the conversion layer is not invoked.
@@ -248,13 +274,14 @@ If only PDB input is used, the conversion layer is not invoked.
 ## AmberTools and MolProbity Reduce
 
 The `tleap-reduce` preparation backend requires both `tleap` (AmberTools) and
-the `reduce` executable (MolProbity). `environment.yml` declares `ambertools`
+the `reduce` executable (MolProbity). Standard and Desktop declare `ambertools`
 and `reduce` separately; an existing environment containing `tleap` is not proof
 that Reduce is installed. Repair an incomplete environment with:
 
 ```bash
-micromamba install -n dvbfixer -c conda-forge -c bioconda ambertools reduce
-micromamba run -n dvbfixer dvbfixer doctor
+# With the intended Standard or Desktop environment active:
+micromamba install -p "$CONDA_PREFIX" --override-channels -c conda-forge -c bioconda ambertools reduce
+dvbfixer doctor --profile standard  # Use desktop for Desktop.
 ```
 
 Missing Reduce is fatal for the explicitly selected `tleap-reduce` backend.
@@ -270,8 +297,7 @@ MAFFT. Select `--addon msa-alternatives` for MUSCLE 5 and Clustal Omega, or use
 the explicit compatibility input `environments/legacy-full.yml` for all three:
 
 ```bash
-micromamba create -f environment.yml
-micromamba activate dvbfixer
+# In the installed Standard or Desktop environment:
 dvbfixer msa --list-engines
 ```
 

@@ -23,6 +23,27 @@ The checker and its regression tests are `scripts/check_user_docs.py` and
 
 ## Link tracking
 
+### Profile-installation alignment (2026-11-05)
+
+Scope: update the existing README, installation, quick-start and two GUI guides;
+extend `tests/test_user_docs.py`. No new guide pages or scientific changes.
+
+- [x] Make the Standard/Desktop helper the primary installation route.
+- [x] Use matching prefix activation, protected licensing and profile Doctor checks.
+- [x] Separate manual/editable development from installed Desktop launch.
+- [x] Validate maintained links, documentation regressions and generated references.
+
+No new link targets are planned; retain existing installation anchors.
+The README uses the existing interactive helper without explicit prefix/activation
+paths; detailed guides retain prefix examples. Installer behavior is unchanged.
+README claims were checked against bootstrap/install code, the profile catalog,
+GUI launcher and preparation output naming. Manual Standard activation now matches
+the generated environment name. Verification: 60 focused documentation,
+environment, profile, installer and launcher tests passed; 43 maintained user
+pages passed link/Markdown checks. Release metadata, license-inventory freshness,
+agent maps and generated CLI/GUI checks passed. This was not a fresh scientific
+installation or native shortcut acceptance run.
+
 All planned pages exist. The link checker validates local paths and Markdown
 heading anchors across maintained user documentation. There are no pending local
 links. Existing technical/research documents are preserved, not rewritten as

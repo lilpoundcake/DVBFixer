@@ -8,34 +8,40 @@ Current release: **0.10.3**.
 
 ## Install
 
-With [micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)
-installed, clone this repository and create the scientific environment:
+Install [micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html),
+Git and a Python **3.11+** bootstrap interpreter. The installer offers two profiles:
+
+- **Standard**: scientific CLI, including PySCF/RESP, MDAnalysis/Plotly and MAFFT.
+- **Desktop**: everything in Standard plus Node and the built browser GUI.
 
 ```bash
 git clone https://github.com/lilpoundcake/DVBFixer.git
 cd DVBFixer
-micromamba create -f environment.yml
-micromamba activate dvbfixer
-pip install -e .
-dvbfixer doctor
+python3 scripts/install_dvbfixer.py
 ```
 
-MODELLER requires a license for gap rebuilding and comparative modeling.
-See [installation](docs/installation.md) for the license step, dependencies,
-and environment troubleshooting.
+Follow the prompts to choose your profile, environment manager and installation
+location. For Desktop, you can also opt into an application shortcut.
 
-`environment.yml` is the generated **Standard** scientific profile, including
-PySCF/RESP and MDAnalysis/Plotly. **Desktop** inherits Standard and adds Node/GUI;
-MUSCLE 5/Clustal Omega and Probe are explicit add-ons. With a Python 3.11+
-bootstrap, the [managed installer](docs/installation.md#standarddesktop-source-checkout-helper)
-can create a new prefix, configure MODELLER privately and run functional smokes.
-Linux routes and native Apple micromamba/mamba Standard/Desktop have executed
-acceptance evidence. Remaining native conda/Probe and broader MPS gates are
-tracked in the [acceptance record](docs/installation-profile-acceptance.md).
+The helper installs the package and dependencies, builds Desktop when selected,
+offers hidden MODELLER license entry, and runs functional checks. No separate
+`pip install` or npm setup is needed. MODELLER requires an appropriate license
+for gap rebuilding and comparative modeling; deferring it leaves action required
+(exit **2**), not a fully licensed installation.
+
+See [installation](docs/installation.md#standarddesktop-source-checkout-helper)
+for environment activation, explicit installation paths, supported manager/platform
+versions, automation, licensing and optional add-ons. Native Apple Silicon users
+should use micromamba **2.9.0** or mamba
+**2.10.0**; native conda has unresolved upstream package collisions. Manual
+environment files are an [alternative for development](docs/installation.md#manual-installation-and-source-development),
+not additional installation steps. Platform evidence and remaining gates are
+in the [acceptance record](docs/installation-profile-acceptance.md).
 
 ## First structure
 
-For a protein with no missing sequence regions, repair its atoms and hydrogens:
+In your active installed environment, repair atoms and hydrogens for a protein
+with no missing sequence regions:
 
 ```bash
 dvbfixer prepare input.pdb -o prepared.pdb
@@ -51,29 +57,18 @@ or choose an [end-to-end recipe](docs/pipelines.md).
 
 ## Open the GUI
 
-Use the Desktop profile for the GUI. Activate that environment once, then:
+Open the installer-created Desktop application shortcut—no terminal activation
+needed. Alternatively, from your active Desktop environment, run:
 
 ```bash
 dvbfixer gui
 ```
 
 The command opens the browser after the local server is ready. Stop with Ctrl+C
-or `dvbfixer gui --stop`. The Desktop helper's `--desktop-shortcut` option also
-creates a per-user application launcher that needs no shell activation; see
-[Desktop launch](docs/commands/gui.md).
+or `dvbfixer gui --stop`. See [Desktop launch](docs/commands/gui.md) for details.
 
-For source development, activate a Desktop environment (or Standard with an
-operator-provided Node.js 22+):
-
-```bash
-micromamba activate dvbfixer-desktop
-cd gui
-npm ci
-npm run dev
-```
-
-The local development server opens the browser. Follow the
-[GUI guide](docs/gui.md) to import files, run tools, and inspect results.
+Follow the [GUI guide](docs/gui.md) to import files, run tools, and inspect
+results. Only contributors need the separate [source-development setup](gui/README.md#source-development).
 
 ## User manual
 
@@ -108,7 +103,7 @@ runtimes; keep PyTorch outside Standard. The real PSI4 test uses an explicit
 
 ## License
 
-For the completed task's scope and delivery rules, see
+For distribution scope and delivery rules, see
 [licensing and distribution policy](docs/licensing-status.md).
 
 DVBFixer's original code is available under [BSD-3-Clause](LICENSE).
