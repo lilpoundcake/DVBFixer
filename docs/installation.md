@@ -99,11 +99,18 @@ python3 scripts/install_dvbfixer.py --profile standard --manager micromamba \
   --prefix /path/to/new-standard --non-interactive --skip-modeller
 
 python3 scripts/install_dvbfixer.py --profile desktop --manager micromamba \
-  --prefix /path/to/new-desktop --non-interactive --skip-modeller
+  --prefix /path/to/new-desktop --desktop-shortcut --non-interactive --skip-modeller
 ```
 
 Choose a **new prefix without whitespace**: MAFFT's upstream shell scripts
 failed the real spaced-prefix smoke. Source/input paths may contain spaces.
+`--desktop-shortcut` explicitly opts into a per-user macOS application or Linux
+application-menu entry. It is optional; interactive installation asks before
+creating it. Each shortcut is bound to its installation and does not overwrite
+another application's files. The launcher opens the browser only after server
+readiness. Native shortcut behavior still requires platform-specific desktop
+acceptance; the command-line launcher is tested separately.
+
 The helper refuses existing environments; `--resume` is limited to installations
 it previously recorded. Resume reconciles native dependencies before pip.
 `--dry-run` prints composition and the selected manager without creating files.
@@ -123,8 +130,21 @@ versions below `<prefix>/share/dvbfixer/installation-smoke/`. Finish with
 `dvbfixer doctor --profile standard` (or `desktop`). Exit codes are **0** for
 passed installation prerequisites, **2** for required manual action such as a
 deferred MODELLER license, and **1** for failure. Scientific/hardware acceptance
-remains scoped separately in the acceptance record. Run Desktop without
-activation using:
+remains scoped separately in the acceptance record. For daily use, activate
+the installed Desktop environment and launch with:
+
+```bash
+micromamba activate /path/to/new-desktop
+dvbfixer gui
+```
+
+Alternatively open the helper-created DVBFixer application shortcut, without
+shell activation. Run `dvbfixer gui --stop` to stop the server and its managed
+jobs; Ctrl+C also stops a terminal-launched session. Repeating `dvbfixer gui`
+opens the same running installation/data directory rather than a second server.
+See [GUI launch options and troubleshooting](commands/gui.md).
+
+Advanced diagnostic fallback (not the normal Desktop launch route):
 
 ```bash
 micromamba run -p /path/to/new-desktop npm --prefix /path/to/new-desktop/share/dvbfixer/gui start

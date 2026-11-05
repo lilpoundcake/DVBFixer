@@ -176,6 +176,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="Read license from an already-open protected file descriptor")
     parser.add_argument("--skip-modeller", action="store_true")
     parser.add_argument("--dry-run", action="store_true", help="Print composition without creating files")
+    parser.add_argument("--desktop-shortcut", action="store_true",
+                        help="Create a per-user macOS application/Linux desktop entry (Desktop profile only)")
     from dvbfixer.runtime_install import runtime_names
     parser.add_argument("--runtime", choices=runtime_names(),
                         help="Provision a separate diffusion or PSI4 runtime in --prefix (without --profile)")
@@ -201,6 +203,8 @@ def main(argv: list[str] | None = None) -> int:
                 args.profile = choice
         args.manager = args.manager or input("Manager [micromamba/mamba/conda]: ").strip()
         args.prefix = args.prefix or Path(input("NEW environment prefix: ").strip())
+        if args.profile == "desktop" and not args.desktop_shortcut:
+            args.desktop_shortcut = input("Create a user application shortcut? [y/N]: ").strip().lower() in {"y", "yes"}
         if not args.addon and not args.runtime:
             selected = input("Add-ons (comma-separated " + ",".join(load_catalog()["addons"]) + "; empty for none): ").strip()
             args.addon = [value.strip() for value in selected.split(",") if value.strip()]
@@ -217,6 +221,8 @@ def main(argv: list[str] | None = None) -> int:
                     args.auxiliary_root = Path(selected) if selected else None
     if args.manager is not None and args.manager not in ("micromamba", "mamba", "conda"):
         parser.error("Unknown manager")
+    if args.desktop_shortcut and (args.profile != "desktop" or args.runtime):
+        parser.error("--desktop-shortcut requires --profile desktop, without --runtime")
     if not args.runtime and any((args.engine_source, args.checkpoint, args.kalign, args.auxiliary_root,
                                  args.runner_directory, args.replace_runner)):
         parser.error("Runtime source/checkpoint/registration options require --runtime")
@@ -273,6 +279,7 @@ def main(argv: list[str] | None = None) -> int:
         manager = Manager(args.manager, executable)
         version = manager.validate()
         print(json.dumps({"profile": args.profile, "addons": args.addon, "prefix": str(prefix),
+                          "desktop_shortcut": args.desktop_shortcut,
                           "manager": version, "packages": [p["spec"] for p in packages]}, indent=2), flush=True)
         if args.dry_run:
             return 0
@@ -330,9 +337,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Functional smoke evidence: {evidence}", flush=True)
         result = subprocess.run(manager.run(prefix, ["dvbfixer", "doctor", "--profile", args.profile,
                                 *[arg for addon in args.addon for arg in ("--addon", addon)]]),
-                                env=child_environment(), check=False)
+                                 env=child_environment(), check=False)
+        if args.profile == "desktop" and result.returncode in (0, 2):
+            run_checked(manager.run(prefix, ["python", "-m", "dvbfixer.gui_launcher", "--check"]))
+            if args.desktop_shortcut:
+                from dvbfixer.desktop_shortcuts import install_desktop_shortcut
+                shortcut = install_desktop_shortcut(prefix)
+                print(f"Desktop application shortcut: {shortcut}", flush=True)
+            print("Start the GUI: dvbfixer gui\nStop the GUI: dvbfixer gui --stop", flush=True)
         return result.returncode
-    except (OSError, ValueError, subprocess.SubprocessError) as exc:
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

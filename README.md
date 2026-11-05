@@ -51,11 +51,16 @@ or choose an [end-to-end recipe](docs/pipelines.md).
 
 ## Open the GUI
 
-Use the Desktop profile for the GUI. For an installed Desktop prefix:
+Use the Desktop profile for the GUI. Activate that environment once, then:
 
 ```bash
-micromamba run -p /path/to/desktop npm --prefix /path/to/desktop/share/dvbfixer/gui start
+dvbfixer gui
 ```
+
+The command opens the browser after the local server is ready. Stop with Ctrl+C
+or `dvbfixer gui --stop`. The Desktop helper's `--desktop-shortcut` option also
+creates a per-user application launcher that needs no shell activation; see
+[Desktop launch](docs/commands/gui.md).
 
 For source development, activate a Desktop environment (or Standard with an
 operator-provided Node.js 22+):

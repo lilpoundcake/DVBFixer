@@ -65,6 +65,52 @@ evidence are tracked in [profile acceptance](../installation-profile-acceptance.
 xTB remains removed under ADR 0012; Probe stays optional. Old core/full/extras
 proposals are not the approved installation interface.
 
+## Convenient Desktop GUI launch
+
+Added 2026-11-03. Normal Desktop startup must not require users to remember
+installation paths or compose `micromamba run -p ... npm --prefix ... start`.
+
+- [x] Add `dvbfixer gui` to launch the installed GUI from the active Desktop
+  environment. Resolve GUI assets and Node from that environment, not the
+  current working directory or an unrelated tools prefix. Standard-only installs
+  must provide an actionable explanation when GUI assets are unavailable.
+- [x] Let the Desktop installer create a macOS application shortcut and a Linux
+  desktop launcher that remember their installation prefix, start the local
+  server and open the browser without prior shell activation. Make shortcut
+  creation explicit and do not overwrite unrelated user applications/launchers.
+- [x] Preserve loopback-first hosting, authentication and existing shutdown/
+  child-process cleanup rules. Handle an already-running instance, occupied
+  ports, startup failure and missing runtimes with clear diagnostics; do not
+  open a browser before readiness or silently expose the service remotely.
+- [x] Make the one-command/shortcut route the primary installation quick start;
+  retain the manager/npm command only as an advanced diagnostic fallback.
+- [ ] Test prefix discovery, launch outside the repository, Standard-only
+  refusal, startup/readiness and shutdown, plus real installed Desktop command
+  and shortcut smokes on macOS/Linux before claiming platform support.
+
+Implementation slice 2026-11-05 (`feature/desktop-gui-launcher`): CLI-only
+registry entry (not a remotely managed scientific command), prefix-bound Node/
+Python/build lookup, inherited readiness pipe, private authenticated local
+instance control, `--stop`, opt-in non-overwriting shortcuts and revised quick
+starts are implemented. Unit/process tests cover reuse, failed/timeout startup,
+signal cleanup, malformed control requests, isolation and helper ordering.
+The installed-package/built-server macOS smoke passed local/authenticated arms
+and direct execution of the generated app's executable. Native macOS
+LaunchServices bundle activation and explicit stop also passed with browser
+opening suppressed; evidence is retained under
+`tmp/desktop-launcher-native-mcuzvs1z/evidence-v5/`. It used an isolated
+wheel install and explicitly linked local Node/dependency fixtures, not a fresh
+complete scientific Desktop solve. The first smoke's public-health auth
+assumption failed and remains retained; the corrected test uses `/api/session`.
+Manual Finder/default-browser UX acceptance and native Linux desktop/installed
+command smokes remain open. This is not a fresh Standard/Desktop scientific
+installer solve. Reproduce with
+`python scripts/smoke_desktop_launcher.py --prefix PREFIX --output NEW_DIR --shortcut`.
+Local verification: 614 tests in the CI-selected Python contract set, 443 GUI
+tests, GUI production build/server smoke, lint/typecheck, strict API mypy and
+generated CLI/GUI consistency passed. These do not substitute for the remaining
+native Linux or full scientific installer acceptance gates.
+
 ## Geometry-gated anchor relaxation
 
 Added 2026-10-27. Detailed execution requirements and evidence boundaries:

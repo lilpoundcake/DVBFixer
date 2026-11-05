@@ -31,3 +31,4 @@
 | `dvbfixer salign` | [`salign.md`](salign.md) |
 | `dvbfixer doctor` | [`doctor.md`](doctor.md) |
 | `dvbfixer zbs` | [`zbs.md`](zbs.md) |
+| `dvbfixer gui` | [`gui.md`](gui.md) |

@@ -13,6 +13,12 @@ to its generated reference for exact flags and defaults.
 | [diagnose](diagnose.md) | Structural findings without modifying coordinates |
 | [component-info](component-info.md) | CCD chemistry and heavy-atom completeness |
 
+## Open the application
+
+| Command | Purpose |
+|---|---|
+| [gui](gui.md) | Launch or stop the installed Desktop GUI |
+
 ## Prepare a structure
 
 | Command | Purpose |

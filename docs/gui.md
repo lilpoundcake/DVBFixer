@@ -8,8 +8,11 @@ For server configuration rather than daily use, see the [GUI README](../gui/READ
 ## Start the local GUI
 
 Use [Desktop](installation.md#standarddesktop-source-checkout-helper) to install
-the scientific environment, Node and built GUI together. Start that installation
-with `micromamba run -p /path/to/desktop npm --prefix /path/to/desktop/share/dvbfixer/gui start`.
+the scientific environment, Node and built GUI together. From the active Desktop
+environment, run `dvbfixer gui`, or use the installer-created application shortcut
+(`--desktop-shortcut`) without activating a shell. The browser opens only after
+the local server is ready. Stop with Ctrl+C or `dvbfixer gui --stop`.
+See [Desktop launch](commands/gui.md) for local ports, logs and startup errors.
 For source development, activate Desktop before starting the server so it can
 find `dvbfixer` and external tools. Node.js 22 or newer is required.
 From the repository root:

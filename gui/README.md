@@ -133,7 +133,13 @@ not guarantee that every optional scientific backend or license is installed.
 ### Install and start
 
 Use the [Desktop installer profile](../docs/installation.md#standarddesktop-source-checkout-helper)
-for a built installation, or create the Desktop environment for source development:
+for a built installation. Run `dvbfixer gui` in that environment or opt into the
+helper's `--desktop-shortcut` application launcher. It uses that prefix's Node,
+Python and GUI assets, opens the browser after readiness, and supports
+`dvbfixer gui --stop`; it never selects a checkout from the working directory.
+See [Desktop launch](../docs/commands/gui.md).
+
+For source development, create the Desktop environment:
 
 ```bash
 micromamba create -f environments/desktop.yml
