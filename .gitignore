@@ -28,3 +28,6 @@ leap.log
 
 # Isolated installed-package GUI launcher smokes (prefixes, logs and test data).
 /tmp/desktop-launcher-native-*/
+
+# Installer profile previews retain diagnostics even when cancelled or refused.
+/tmp/installer-profile-preview-*/

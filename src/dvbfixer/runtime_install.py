@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from dvbfixer.install import Manager, child_environment, platform_subdir, reserve_prefix
+from dvbfixer.install_progress import stage
 from dvbfixer.installation_profiles import load_catalog
 
 SNAPSHOT_CODE = (
@@ -229,6 +230,9 @@ def provision_psi4(*, entry: dict[str, Any], prefix: Path, manager: Manager,
             json.dump(plan, stream, indent=2)
     evidence = owned_child(prefix, "evidence")
     evidence.mkdir(exist_ok=True)
+    from dvbfixer import install_result
+
+    install_result.log_directory(evidence)
     environment = owned_child(prefix, "environment")
     command = manager.update(environment, spec) if (environment / "conda-meta/history").is_file() else manager.create(environment, spec)
     code = ("import psi4,psiresp,math,json,platform; import importlib.metadata as m; "
@@ -252,16 +256,18 @@ def provision_psi4(*, entry: dict[str, Any], prefix: Path, manager: Manager,
             step: dict[str, Any] = {"name": label, "command": argv, "log": log.name, "state": "running"}
             report["steps"].append(step)
             save()
-            with log.open("w") as stream:
+            with stage(label, log, follow=not label.startswith("versions-")), log.open("w") as stream:
                 result = subprocess.run(argv, env=child_environment(), stdout=stream,
                                         stderr=subprocess.STDOUT, check=False, timeout=3600)
-            step.update(state="passed" if result.returncode == 0 else "failed", returncode=result.returncode)
-            if result.returncode:
-                raise ValueError(f"{label} failed; see {log}")
+                step.update(state="passed" if result.returncode == 0 else "failed", returncode=result.returncode)
+                if result.returncode:
+                    raise ValueError(f"{label} failed; see {log}")
         report.update(state="ready", action=f"Select --qm-engine psi4 --psi4-env {environment}")
         save()
         return report
     except BaseException as exc:
+        if report["steps"] and report["steps"][-1]["state"] == "running":
+            report["steps"][-1]["state"] = "failed"
         report.update(state="error", error=f"{type(exc).__name__}: {exc}")
         save()
         raise
@@ -293,6 +299,11 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
     kalign = kalign.expanduser().absolute() if kalign else None
     auxiliary = auxiliary.expanduser().absolute() if auxiliary else None
     missing = verify_assets(requirements, checkpoint=checkpoint, kalign=kalign, auxiliary=auxiliary)
+    if missing:
+        print("Backend assets are incomplete. This run can prepare dependencies, but cannot publish a ready backend.",
+              flush=True)
+        for action in missing:
+            print(f"  - {action}", flush=True)
     version = manager.validate()
     report: dict[str, Any] = {"schema_version": 1, "runtime": name, "profile": entry["profile"],
         "prefix": str(prefix), "manager": version, "state": "planned", "actions": missing,
@@ -334,17 +345,19 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
         step = {"name": label, "command": argv, "log": log.name, "state": "running"}
         report["steps"].append(step)
         save()
-        with log.open("w") as stream:
+        with stage(label, log, follow=not label.startswith("versions-")), log.open("w") as stream:
             result = subprocess.run(argv, env=extra_env or env, stdout=stream,
                                     stderr=subprocess.STDOUT, check=False, timeout=3600)
-        step["returncode"] = result.returncode
-        step["state"] = "passed" if result.returncode == 0 else "failed"
-        save()
-        if result.returncode:
-            raise ValueError(f"{label} failed; see {log}")
+            # Record failure before leaving the stage so its status is truthful.
+            step["returncode"] = result.returncode
+            step["state"] = "passed" if result.returncode == 0 else "failed"
+            save()
+            if result.returncode:
+                raise ValueError(f"{label} failed; see {log}")
 
     try:
-        prepare_source(entry, repository, engine, source, evidence / "source.log", env, requirements)
+        with stage("Prepare pinned backend source", evidence / "source.log"):
+            prepare_source(entry, repository, engine, source, evidence / "source.log", env, requirements)
         report["source_revision"] = entry["revision"]
         report["patch_sha256"] = sha256(repository / entry["patch"])
         for role, relative_spec in roles.items():
@@ -409,8 +422,9 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
                 f"r=invoke_runner_preflight(profile={entry['profile']!r}, runner={str(candidates[0])!r}, "
                 f"timeout_seconds={timeout!r}); "
                 "print(json.dumps({'preflight':r.to_dict(),'runner_directory':str(diffusion_runner_directory())}))")
-        probe = subprocess.run(manager.run(sampling, ["python", "-c", code]),
-                               capture_output=True, text=True, timeout=timeout + 60, env=env, check=True)
+        with stage("Validate staged backend launcher"):
+            probe = subprocess.run(manager.run(sampling, ["python", "-c", code]),
+                                   capture_output=True, text=True, timeout=timeout + 60, env=env, check=True)
         payload = json.loads(probe.stdout)
         report["preflight"] = payload["preflight"]
         if not report["preflight"]["passed"]:
@@ -420,6 +434,8 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
         save()
         return report
     except BaseException as exc:
+        if report["steps"] and report["steps"][-1]["state"] == "running":
+            report["steps"][-1]["state"] = "failed"
         report.update(state="error", error=f"{type(exc).__name__}: {exc}")
         save()
         raise

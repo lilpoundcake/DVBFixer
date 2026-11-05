@@ -129,7 +129,7 @@ def test_desktop_shortcut_dry_run_never_writes_a_launcher(tmp_path, monkeypatch,
     monkeypatch.setattr(install.shutil, "which", lambda _: "/tools/micromamba")
     monkeypatch.setattr(Manager, "validate", lambda _: "2.9.0")
     assert install.main(["--profile", "desktop", "--manager", "micromamba", "--prefix", str(tmp_path / "new"),
-                         "--desktop-shortcut", "--non-interactive", "--skip-modeller", "--dry-run"]) == 0
+                         "--desktop-shortcut", "--non-interactive", "--skip-modeller", "--dry-run", "--json"]) == 0
     assert '"desktop_shortcut": true' in capsys.readouterr().out
     assert not (tmp_path / "new.dvbfixer-install.json").exists()
 

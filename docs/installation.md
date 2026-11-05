@@ -54,7 +54,26 @@ conda package is unavailable for osx-arm64. Do not bypass conflicts with
 
 ### 2. Install one profile
 
-Run from the repository root. Choose **one** interactive installation:
+Run `python3 scripts/install_dvbfixer.py` from the repository root. Select
+**New Standard/Desktop installation** from the numbered menu, then select the
+profile and manager by number and supply an **environment name**.
+The suggested name includes the profile and release; a free numeric suffix is
+offered if it is occupied. The helper uses the first writable environment
+directory reported by the manager. It never asks you to type an installation path.
+To automate the same name-based workflow, choose **one**:
+
+```bash
+python3 scripts/install_dvbfixer.py --profile standard --manager micromamba \
+  --name dvbfixer-standard --non-interactive --skip-modeller
+# Or Desktop:
+python3 scripts/install_dvbfixer.py --profile desktop --manager micromamba \
+  --name dvbfixer-desktop --desktop-shortcut --non-interactive --skip-modeller
+```
+
+These unattended examples defer MODELLER licensing and can return exit **2**;
+use interactive hidden entry or the protected descriptor below to license it.
+For advanced/custom locations, explicit prefixes remain supported. The activation
+examples later on this page use these explicit locations:
 
 ```bash
 python3 scripts/install_dvbfixer.py --profile standard --manager micromamba \
@@ -65,8 +84,13 @@ python3 scripts/install_dvbfixer.py --profile desktop --manager micromamba \
   --prefix "$HOME/micromamba/envs/dvbfixer-desktop" --desktop-shortcut
 ```
 
-Or run `python3 scripts/install_dvbfixer.py` without arguments to choose the
-profile, manager and prefix interactively. The helper installs a non-editable
+The no-argument helper first offers a numbered action menu: **new installation**,
+**update**, **add profile/GUI to an existing environment**, or **additional
+backend**. Profile, manager, backend, optional add-on and confirmation prompts are
+also numbered; typing implementation identifiers is unnecessary. Names and
+operator-supplied asset/license inputs remain ordinary text or protected entry.
+Backend choices are separate and do not install the main application.
+The helper installs a non-editable
 package and all selected dependencies; Desktop also builds its own GUI assets.
 Do **not** follow this with `pip install -e .`, `npm ci` or manual environment
 creation for normal use. The bootstrap Python is separate from the managed
@@ -82,8 +106,24 @@ readiness. Native shortcut behavior still requires platform-specific desktop
 acceptance; the command-line launcher is tested separately.
 
 The helper refuses existing environments; `--resume` is limited to installations
-it previously recorded. Resume reconciles native dependencies before pip.
-`--dry-run` prints composition and the selected manager without creating files.
+it previously recorded and continues an interrupted installation. It reads the
+existing profile/backend from that directory's record rather than asking for a
+new target. Use `--update` for routine Standard/Desktop updates instead.
+`--dry-run` does not change the selected environment or publish ownership. Profile
+extension also runs native/pip solver previews and retains preview logs; solver
+caches and temporary build metadata may be written outside the target environment.
+Names are not paths: slash-separated paths, whitespace and reserved base/root
+names are rejected. `--name` and `--prefix` are mutually exclusive. Only the
+advanced `--prefix` option accepts a filesystem path; relative explicit paths are
+resolved against the current working directory and printed, never interpreted as
+environment names.
+
+Every long-running command shows a named stage, live output and an elapsed-time
+notice every ten seconds while it runs. Complete command output is retained in
+the printed `<prefix>.installation-logs/<run-id>/` directory beside the
+installation. Protected MODELLER configuration/import output is never logged.
+The final status distinguishes ready, action-required and failure; `--json` also
+prints the technical plan/result when needed. Cancelling retains diagnostics.
 
 <a id="3-configure-modeller"></a>
 
@@ -212,6 +252,198 @@ version nor Rosetta is substituted. This does **not** mean that the managed
 `--addon probe` installation can solve on Apple; omit that helper add-on when
 using this separately built executable. See the
 [acceptance record](installation-profile-acceptance.md) for commands/results.
+
+## Update an existing installation
+
+Close the selected installation's GUI and running jobs. From the source checkout:
+
+```bash
+git pull
+python3 scripts/install_dvbfixer.py --update
+```
+
+The interactive helper queries the selected manager and displays a **numbered
+list of existing installations**, labelled by profile or manual/package-only
+status, installed version and environment name. Choose a number, not a path.
+Managed targets are verified against their ownership record; older/manual targets
+are detected from package metadata or an existing CLI entry point. The helper
+shows installed and checkout versions and asks for confirmation
+before changing packages. Multiple versions may coexist; select only the one you
+intend to update. An update uses the current checkout, not an automatic download
+of a release. To inspect without changing packages, add `--dry-run`.
+
+For an older/manual installation the helper first asks **what to update**:
+**1 — only DVBFixer**, **2 — the full installation**, or **0 — cancel**. Choosing
+the second item leads to Standard/Desktop profile selection and its dependency
+preview; it is not a disguised cancellation. Package-only application has its own
+separate final confirmation. A full update covers the selected application
+profile (and GUI for Desktop), not arbitrary unrelated packages or automatic
+replacement of frozen model checkpoints.
+
+Discovery reads manager `info`/`env list` JSON plus ownership records directly in
+the reported environment directories, current directory and source checkout.
+For composite backends it also checks parents of registered sampling/refinement
+environments. It does not recursively scan the filesystem or execute discovered
+environment Pythons just to build the list. Wheel metadata, legacy `egg-info` and
+editable `egg-link` layouts are supported. A retained `bin/dvbfixer` entry point
+also identifies metadata-incomplete installations, labelled with an unknown
+version rather than silently disappearing. Unusual locations not found this way remain
+accessible through advanced `--prefix`.
+
+For automation, select an unambiguous environment name and manager:
+
+```bash
+python3 scripts/install_dvbfixer.py --update --manager micromamba \
+  --name dvbfixer-desktop --non-interactive
+```
+
+If several installations share that name, use the interactive numbered list or
+an explicit advanced prefix:
+
+```bash
+python3 scripts/install_dvbfixer.py --update --manager micromamba \
+  --prefix "$HOME/micromamba/envs/dvbfixer-desktop" --non-interactive
+```
+
+For **helper-managed installations**, the existing Standard/Desktop profile and add-ons are preserved. Dependencies and
+the DVBFixer package are reconciled, Desktop assets are rebuilt, and the same
+functional/Doctor checks run. Existing MODELLER configuration is read privately
+before package updates and restored afterward; it is not printed or logged.
+Workspace data and unrelated environments are not update targets. Existing
+shortcuts remain bound to the same prefix; no new shortcut is required.
+
+Updates are **in-place, not transactional**: a failed package operation may leave
+the environment partially updated, and no automatic rollback is promised. Keep
+your license and important project backups. Retain the printed logs and use
+`--resume` with the same directory to recover an interrupted operation. Exit 2
+still means action required, not a fully ready environment.
+
+### Older and manually maintained installations
+
+These are selectable in the same numbered update list, explicitly labelled
+**existing/manual; package-only update**. After confirmation the helper reinstalls
+only DVBFixer from this checkout using `pip install --upgrade --no-deps`, then runs
+Doctor. It does not solve native dependencies, modify MODELLER configuration,
+create an ownership record, or silently convert the environment to Standard/Desktop.
+Known editable installs stay editable, bound to the checkout shown before
+confirmation. Neither discovery nor a dry run changes the environment.
+
+For unattended updates, explicit package-only consent is required:
+
+```bash
+python3 scripts/install_dvbfixer.py --update --package-only --manager micromamba \
+  --name dvbfixer --non-interactive
+```
+
+The current checkout still requires a compatible Python/scientific stack; missing
+or incompatible dependencies need separate attention. A package update is not a
+claim of profile readiness. Manual GUI assets are not rebuilt by this operation:
+source Desktop users can run `npm ci` and `npm run build` in `gui/` separately.
+If interrupted, rerun the same package-only update, not `--resume`, which remains
+reserved for recorded installations. Frozen runtime interpreters are excluded
+from manual application updates even if a DVBFixer package is present in them.
+
+Frozen diffusion/QM runtimes are separate: use their
+[backend resume instructions](installation-runtime-provisioning.md#evidence-and-resume),
+not `--update`, which is reserved for the main application.
+
+## Add a profile or GUI to an existing environment
+
+```bash
+python3 scripts/install_dvbfixer.py --extend
+```
+
+Select the manager and an existing environment from numbered lists, then choose:
+
+1. **Standard**: complete the scientific CLI profile, including PySCF/RESP.
+2. **Desktop**: Standard plus Node and the prefix-local built GUI.
+3. **GUI only**: add/update Node, the DVBFixer package and built GUI while retaining
+   the existing scientific stack. Requires an existing DVBFixer installation.
+4. **Diffusion backend**: choose a platform-appropriate maintained model runtime,
+   then create a new isolated runtime by name or continue an existing recorded
+   runtime selected by number. Its manager can differ from the scientific
+   environment's manager. The selected application environment is not modified.
+
+The diffusion transition reuses the existing
+[runtime provisioning workflow](installation-runtime-provisioning.md), frozen
+source/asset checks and preflight-before-publication rules. It never installs
+PyTorch into Standard/Desktop. Launchers use the existing **per-user** discovery,
+so they may be visible to other compatible installations; this is not an exclusive
+binding to the selected application prefix. Weights are still operator-supplied,
+and an empty checkpoint leaves action required rather than a ready backend.
+Provisioning does not upgrade the selected application or establish scientific
+qualification. PSI4 remains available through the main additional-backend menu.
+
+Existing DVBFixer installations are shown first. Environments without DVBFixer
+are available through **Other existing environments…**, rather than filling the
+default list. Manager bases (including other discoverable conda installations)
+and macOS application bundles such as PyMOL are excluded.
+
+Full profiles can be attached to an existing named conda-family environment even
+if it predates the helper or does not yet contain DVBFixer. The manager base,
+frozen backend roots/interpreters and invalid ownership records are not eligible.
+Existing Desktop ownership and recorded add-ons are preserved when attaching a
+full profile. GUI-only does not convert a manual/Standard environment to a
+qualified Desktop scientific profile.
+
+Unattended equivalents use names instead of installation paths:
+
+```bash
+python3 scripts/install_dvbfixer.py --extend --profile desktop \
+  --manager micromamba --name dvbfixer --non-interactive --skip-modeller
+
+# Or add just the GUI without changing the scientific stack:
+python3 scripts/install_dvbfixer.py --extend --gui-only \
+  --manager micromamba --name dvbfixer --non-interactive
+```
+
+`--gui-only` and `--profile` are separate scopes; do not combine them. Explicit
+`--prefix` remains available for advanced custom locations. `--desktop-shortcut`
+works for Desktop or GUI-only extension. Interactive installation offers a
+numbered Yes/No choice; no manual npm setup is required.
+
+### Preview, apply and failure behavior
+
+The helper requests a channel-isolated **native dry-run transaction** showing
+packages to add, replace/downgrade or remove, then a **pip dry-run report**. It
+displays both before interactive confirmation. Dependency conflicts stop before
+package installation; no `--clobber` or relaxed safety policy is used. The
+existing Python minor version is held fixed so pip can be previewed against the
+same ABI. If a full profile needs a different Python minor, create a new profile
+environment. Existing conda Open Babel is incompatible with the full profile's
+wheel-only route; the helper refuses to overlay the two. For an interactive full
+profile request in such an existing DVBFixer environment, it offers a numbered
+choice to **add GUI only** or **stop without changes** instead of exiting with a
+dead-end error. GUI-only requires an explicit scope change, gets a fresh preview
+and confirmation, and skips newly requested scientific add-ons/license changes.
+The full profile still requires a compatible separate environment; automated
+requests never silently fall back to a different scope. To request only GUI
+directly, use `--extend --gui-only` instead of `--profile desktop`.
+PyTorch/diffusion stacks
+remain separate from full Standard/Desktop profiles. GUI-only can retain that
+scientific stack, but refuses any native plan that changes existing packages
+other than Node itself.
+
+After confirmation the helper checks that the environment and native plan have
+not changed, applies native dependencies, verifies their identities and rechecks
+pip. Newly proposed pip packages/versions outside the shown plan are refused.
+Native and pip are **separate transactions**: a later pip/build/check failure can
+leave native changes applied. No automatic rollback is promised. Review the
+retained logs and repeat `--extend` to preview a recovery plan; do not use
+`--resume` to publish an uncompleted profile attachment.
+
+The existing MODELLER license value is preserved privately for full-profile changes;
+GUI-only neither rewrites nor requires a new license. Workspace files and `.env`
+settings survive GUI rebuilding. Known editable DVBFixer installations retain
+editable mode for GUI-only updates, bound to the checkout shown in the preview.
+Full-profile ownership is published only after
+functional, Doctor and requested GUI checks, not at the start. Exit 2 remains
+action-required (for example a deferred license), not ready. GUI-only runs its
+launcher/diagnostic checks without claiming Standard/Desktop science readiness.
+Failed or cancelled previews retain logs under the checkout's
+`tmp/installer-profile-preview-*/`; applied operations retain their printed
+per-installation logs. These are workflow safeguards, not new platform/scientific
+qualification evidence.
 
 ## Manual installation and source development
 

@@ -20,6 +20,13 @@ Or use the installer-created application shortcut (`--desktop-shortcut`) without
 activating a shell. No npm setup is needed. The browser opens only after
 the local server is ready. Stop with Ctrl+C or `dvbfixer gui --stop`.
 See [Desktop launch](commands/gui.md) for local ports, logs and startup errors.
+Already have a scientific environment? Run `python3 scripts/install_dvbfixer.py --extend`,
+select it by number and choose **GUI only**, or **Desktop** to complete the whole
+profile. The [component installation guide](installation.md#add-a-profile-or-gui-to-an-existing-environment)
+explains the dependency preview and confirmation.
+If a full Desktop request conflicts with an existing conda Open Babel stack, the
+installer can explicitly switch to **GUI only** without replacing Open Babel;
+this does not qualify the environment as a complete Desktop scientific profile.
 Keep the terminal running while using a terminal-launched session. Contributors
 editing the GUI should use the separate [source-development instructions](../gui/README.md#source-development),
 not additional setup steps for the installed application.

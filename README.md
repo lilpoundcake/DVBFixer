@@ -20,8 +20,10 @@ cd DVBFixer
 python3 scripts/install_dvbfixer.py
 ```
 
-Follow the prompts to choose your profile, environment manager and installation
-location. For Desktop, you can also opt into an application shortcut.
+Follow the prompts to choose your profile, environment manager and environment
+name. The manager determines its location; no installation path entry is needed.
+For Desktop, you can also opt into an application shortcut.
+Actions, profiles and managers are selected from numbered lists.
 
 The helper installs the package and dependencies, builds Desktop when selected,
 offers hidden MODELLER license entry, and runs functional checks. No separate
@@ -37,6 +39,36 @@ should use micromamba **2.9.0** or mamba
 environment files are an [alternative for development](docs/installation.md#manual-installation-and-source-development),
 not additional installation steps. Platform evidence and remaining gates are
 in the [acceptance record](docs/installation-profile-acceptance.md).
+
+### Update an existing installation
+
+From your source checkout:
+
+```bash
+git pull
+python3 scripts/install_dvbfixer.py --update
+```
+
+Choose your installation from the numbered list. The helper shows the
+installed and checkout versions before confirmation. Managed installations retain
+their profile/add-ons and rebuild Desktop's GUI when applicable. Older/manual
+installations offer an explicitly confirmed package-only update, leaving their
+scientific dependencies unchanged. Close that installation's
+GUI and jobs first. See [updating](docs/installation.md#update-an-existing-installation)
+for non-interactive commands and manual environments.
+
+### Add a profile or GUI to an existing environment
+
+```bash
+python3 scripts/install_dvbfixer.py --extend
+```
+
+Select the environment by number, then choose **Standard**, **Desktop**, or
+**GUI only**. The same menu also offers **Diffusion backend**, provisioned in a
+separate runtime rather than adding PyTorch to the scientific environment.
+The helper previews profile/GUI dependency changes before confirmation. GUI-only
+keeps the existing scientific stack; incompatible full-profile plans are refused
+rather than forced. See [adding components](docs/installation.md#add-a-profile-or-gui-to-an-existing-environment).
 
 ## First structure
 

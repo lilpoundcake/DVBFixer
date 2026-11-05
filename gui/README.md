@@ -140,6 +140,12 @@ Python and GUI assets, opens the browser after readiness, and supports
 `dvbfixer gui --stop`; it never selects a checkout from the working directory.
 See [Desktop launch](../docs/commands/gui.md).
 
+To add the built GUI to an existing scientific environment, use
+`python3 scripts/install_dvbfixer.py --extend` from the repository root and select
+**GUI only** from the numbered component menu. **Desktop** instead completes the
+whole scientific profile plus GUI. Both routes preview changes before applying;
+see [adding components](../docs/installation.md#add-a-profile-or-gui-to-an-existing-environment).
+
 No separate Node installation, editable pip install or npm commands are needed
 after the helper. With the installation guide's prefix:
 

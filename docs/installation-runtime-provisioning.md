@@ -6,6 +6,16 @@ and deployment-input references live in `src/dvbfixer/data/installation-profiles
 It uses the same micromamba/mamba/conda adapters as the main installer.
 The same helper also provisions the isolated optional PSI4/psiresp environment.
 
+Diffusion is also reachable after selecting an existing application: choose
+**Add a profile or GUI**, select the installation, then choose **Diffusion
+backend**. The submenu shows maintained routes for the host platform and offers
+new named runtime or existing recorded runtime continuation. This is a transition
+to separate provisioning, not a co-installation into the scientific environment.
+Per-user launcher registration can make a validated backend visible to multiple
+compatible installations; no exclusive per-prefix binding or application upgrade
+is implied. The required checkpoints/assets and scientific acceptance limits below
+remain unchanged.
+
 ## Prepare a new runtime
 
 From a source checkout, with a Python 3.11+ bootstrap and the selected manager
@@ -29,8 +39,10 @@ and publishes no launcher. Engine imports that require those assets are deferred
 No checkpoint or Protenix auxiliary dataset is downloaded by the helper.
 
 Use `--dry-run` to inspect the route and required manual inputs without creating
-files. The interactive helper also offers runtime choices and deferred asset
-entry. Unsupported platforms are rejected before creating a runtime root.
+files. In the interactive helper select **additional model/QM backend** from the
+numbered action menu, then select the runtime by number; Standard/Desktop are not
+mixed into this list. Deferred asset
+entry is allowed. Unsupported platforms are rejected before creating a runtime root.
 
 ## Supply assets and finish registration
 
@@ -98,11 +110,25 @@ identical private launchers are idempotent on resume.
 digests, logs, source identity and canonical preflight facts. Package versions,
 conda builds and interpreter prefixes are retained in the `versions-*` logs.
 Failed or interrupted installations retain diagnostics and source files.
+Named stages, live command output, ten-second elapsed-time notices and per-step
+log paths are shown while provisioning runs. The default final output is a short
+readable summary, not the full JSON report; `--json` additionally prints that
+report. `action-required` explicitly means dependencies may be installed but the
+backend is **not ready**, with the required operator inputs listed. Scientific
+acceptance remains separate from provisioning success.
 
 `--resume` accepts only roots recorded by the helper. It verifies source integrity
 and the original recipe/manager identity, then reconciles native and pip packages.
 It does not reset source edits or clean untracked modules. A changed recipe needs
 a new prefix, preserving the old runtime and its evidence.
+Interactive `--resume` first separates **application** from **backend** recovery
+with a numbered choice,
+then lists matching helper-managed installations for number-based selection.
+It infers the backend from the selected record, without asking for an installation
+path. New backend installations ask for a name and use the selected manager's
+environment directory; `--name` also supports automation. Explicit `--prefix`
+remains an advanced option for custom locations. Routine Standard/Desktop updates
+use the separate [`--update` workflow](installation.md#update-an-existing-installation).
 
 Current Linux evidence covers both CUDA runtimes through all three managers,
 plus checkpoint-backed public `model` execution through the newly provisioned

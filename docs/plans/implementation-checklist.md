@@ -1,5 +1,140 @@
 # Implementation Checklist
 
+## Installer workflow and progress follow-up (2026-11-05)
+
+### Explicit profile attachment and numbered menus
+
+- [x] Offer numbered actions, profiles, managers, backends, confirmations and add-ons.
+- [x] Add `--extend` with separate Standard, full Desktop and `--gui-only` scopes;
+  existing non-base conda environments do not need a helper ownership record.
+- [x] Preview native and pip changes before confirmation, detect native/environment
+  drift, recheck pip after native installation, and stop on unconfirmed pip changes.
+- [x] Preserve existing Desktop/add-ons, license and workspaces. GUI-only rejects
+  changes to pre-existing native libraries and keeps scientific profile ownership.
+- [x] Publish full-profile ownership only after functional/Doctor/GUI checks pass
+  (or explicitly report required license action), not before dependency installation.
+- [x] Finish regression/documentation validation and record platform evidence below.
+
+Native and pip installation are not an atomic transaction. Python minor/ABI
+changes and conda Open Babel overlays are refused for in-place full-profile
+attachment; use a new environment for incompatible stacks. A solver preview is
+not scientific acceptance. Cancelled/refused previews retain diagnostic logs in
+the checkout's ignored `tmp/installer-profile-preview-*/` directories, without
+changing the selected environment.
+
+Validation for this slice: 152 targeted installer/composition/documentation tests
+passed, including numbered-only install/backend/extension flows, simulated
+transactions through all three manager adapters, native/pip conflict/drift
+refusals, interrupted GUI build, license/workspace/.env preservation, and ownership
+publication ordering. Ruff, documentation/link checks, release metadata, inventory
+freshness and agent-map checks passed. A separate real bootstrap/PTY process
+completed the all-numeric GUI-only preview against a **simulated manager**, with
+byte-identical target fixture and no ownership record; retained local evidence is
+at the approved temporary `installer-numbered-smoke-g5q_cku3/` directory. This is
+not a real native package solve or installed scientific/GUI acceptance run. Existing
+user environments were not modified. SciPy/OpenMM-dependent full-suite and
+generated-reference gates remain blocked in the available bootstrap Python as
+noted below; no scientific references changed.
+
+### Recovering a full-profile conflict without replacing the scientific stack
+
+The reported conda Open Babel failure occurs before native/pip installation.
+Keep the no-overlay invariant, but let an interactive user explicitly switch to
+GUI-only, with a fresh plan and confirmation, or stop without changes. Unattended
+full-profile requests still fail rather than silently narrowing scope. Requested
+new scientific add-ons/license changes are skipped only after the explicit GUI
+choice; an opted-in application shortcut is retained. GUI-only preserves known
+editable package mode. Default extension selection shows DVBFixer installations
+first and puts other environments behind a numbered entry. All discoverable
+manager bases and macOS application bundles are excluded, including a foreign
+Miniforge base registered with micromamba.
+
+Validation: 161 targeted installer/composition/documentation tests passed, along
+with Ruff, maintained Markdown/link checks and agent maps. Controlled fixtures
+reproduce the reported Open Babel stack and cover GUI-only recovery, explicit
+cancellation, retained shortcut opt-in, known editable mode, unattended refusal
+without scope changes, default-list grouping and exclusion of foreign manager
+bases/application bundles. Existing user environments were not modified. This is
+not native installation or scientific qualification evidence; the full-profile
+no-overlay guard remains enforced.
+
+### Explicit update scope and diffusion transition
+
+Manual update selection now offers **only package / full installation / cancel**,
+instead of conflating a negative answer to "only package?" with cancellation.
+Full selection routes to the existing profile preview and keeps the final apply
+confirmation separate. It does not update arbitrary unrelated packages or replace
+frozen checkpoints. An explicit `--package-only` still bypasses the scope chooser.
+
+The selected-application component menu now includes **Diffusion backend**. It
+selects a host-platform maintained runtime and offers creation by name or recorded
+runtime continuation by number, reusing existing provisioning checks. Runtime and
+scientific prefixes cannot be identical, no Torch is installed into the selected
+application, and per-user launcher discovery is explicitly disclosed rather than
+claimed as exclusive per-prefix binding. Scientific add-on/license/shortcut flags
+cannot silently cross into this separate operation.
+
+Validation: 164 targeted installer/composition/documentation tests passed, plus
+Ruff and maintained user documentation checks. New controlled cases exercise the
+second update option's full-profile preview, isolated MPS provisioning transition,
+existing runtime continuation, and byte-identical selected application files.
+The provisioning calls in these cases are mocked; no user environment, checkpoint
+or launcher was changed and no native sampling/qualification is inferred.
+
+- [x] Separate main-application install/update from optional backend selection.
+- [x] Add explicit helper-owned Standard/Desktop update with composition binding,
+  version preview and interactive confirmation; refuse manual/runtime adoption.
+- [x] Infer resume identity from the existing installation record and distinguish
+  filesystem directories from environment names.
+- [x] Remove installation-path prompts: new installs use an environment name in
+  manager-reported writable directories; update/resume use numbered discovered
+  installations. Keep explicit `--prefix` advanced-only and add `--name` automation.
+- [x] Read installed versions from metadata without executing discovered Pythons;
+  distinguish duplicate names, retain crash-left reservations and refuse manual
+  adoption or ambiguous name-only selection.
+- [x] Add named stages, live output, periodic elapsed-time notices, retained logs
+  and human-readable readiness/action-required summaries.
+- [x] Preserve protected MODELLER configuration across successful updates and keep
+  license subprocess output out of logs.
+- [x] Complete regression and documentation validation; record evidence below.
+
+Scope does not include transactional package rollback, automatically adopting
+manual environments, changing frozen backend recipes or scientific qualification.
+
+Verification: 667 CI-selected Python contract tests passed, including the new
+workflow tests in the lightweight CI lane. Ruff, strict API mypy, release metadata,
+license-inventory freshness and 43-page user-document checks passed. Real
+micromamba 2.9.0 name-based Standard installation and numbered existing MPS-backend
+resume PTY dry runs passed without installing packages or creating prefixes or
+ownership records. A prior explicit-command Desktop dry run also passed. Process tests
+exercise actual child stdout/stderr retention and failure reporting; controlled
+update tests cover composition binding, cancellation, license recovery after
+failure/interruption, Desktop rebuilding and workspace/.env preservation.
+No existing user prefix was updated, no fresh scientific install was executed,
+and no additional backend was sampled or newly qualified by this follow-up.
+
+### Existing/manual installation correction
+
+The first selector excluded unrecorded environments, leaving existing users with
+no update choice. It also inspected only wheel metadata. Update discovery now
+includes legacy egg-info, editable egg-link/PEP 660 evidence and retained CLI
+entry points with unknown versions. Manual entries are selectable for explicitly
+confirmed **package-only** updates (`pip --no-deps`), never silent profile adoption.
+Native dependencies, MODELLER configuration and workspace files are not modified;
+known editable mode is retained. Automated manual updates require `--package-only`.
+Frozen runtime roots/children and corrupt ownership records cannot use this route.
+
+Latest validation: 125 focused installer/composition/documentation tests passed,
+plus Ruff, Markdown/link checks, agent maps, release metadata and inventory
+freshness. Tests reproduce the missing-metadata CLI, legacy/editable layouts,
+manual menu selection, cancellation and dependency/license/workspace preservation.
+Direct inspection of the older user prefix was permission-blocked; no alternate
+access or user-environment update was attempted. The available bootstrap Python
+lacks SciPy (one environment-policy smoke failed) and OpenMM (CLI-reference check
+was blocked). These are retained environment blockers, not passing scientific or
+generated-reference acceptance; no scientific references were changed. The older
+667-test evidence above predates this correction and is not a new full-suite run.
+
 This is the canonical completion tracker for the plans in this directory.
 Current cross-plan navigation is in [Plan status and remaining work](README.md).
 Status synchronized on 2026-10-20: software delivery, per-profile hardware
