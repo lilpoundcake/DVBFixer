@@ -31,3 +31,6 @@ leap.log
 
 # Installer profile previews retain diagnostics even when cancelled or refused.
 /tmp/installer-profile-preview-*/
+
+# Shared, digest-verified model weights downloaded with explicit consent.
+/models/

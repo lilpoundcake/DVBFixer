@@ -1,7 +1,8 @@
 """Provision isolated diffusion/QM runtimes through the shared manager adapters.
 
-Weights and Protenix data/Kalign are operator-provided. Registration is staged,
-checked by the existing runner handshake, and only then published.
+Weights are locally supplied or explicitly downloaded by the installer;
+Protenix data/Kalign remain operator-provided. Registration is staged, checked
+by the existing runner handshake, and only then published.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ import stat
 import subprocess
 import tempfile
 import uuid
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +37,25 @@ SNAPSHOT_CODE = (
 def runtime_names() -> tuple[str, ...]:
     return tuple(name for name, entry in load_catalog()["external"].items()
                  if entry["kind"] in {"separate-runtime", "separate-environment"})
+
+
+def asset_instructions(name: str) -> list[str]:
+    """Human-readable acquisition guidance; never download or substitute assets."""
+    if name in {"protpardelle-cuda", "protpardelle-mps"}:
+        return [
+            "Protpardelle cc94 needs trained weights cc94_epoch3100.pth and matching cc94.yaml (not cc89).",
+            "Official source: https://zenodo.org/records/16817230 (archive about 4.3 GB; review its published terms).",
+            "Extract protpardelle-1c/model_params/weights/cc94_epoch3100.pth and protpardelle-1c/model_params/configs/cc94.yaml; keep the model_params/weights/ and model_params/configs/ layout.",
+            "Use an existing weights file with --checkpoint, or choose the confirmed managed download into models/; both weights/config SHA256 digests are verified.",
+        ]
+    if name == "protenix-cuda":
+        return [
+            "Protenix v1 needs protenix_base_default_v1.0.0.pt, frozen common/ data and the digest-pinned Kalign 3.6.0 executable.",
+            "Official upstream weights/data instructions: https://github.com/bytedance/Protenix (use v1.0.0, not newer model weights).",
+            "Required filenames and SHA256 digests: deploy/protenix-v1/profile-lock.json; setup guide: docs/installation-runtime-provisioning.md.",
+            "Supply --checkpoint, --auxiliary-root (containing common/) and --kalign; all assets must match the frozen digests.",
+        ]
+    return []
 
 
 def sha256(path: Path) -> str:
@@ -79,7 +100,9 @@ def verify_assets(requirements: dict[str, Any], *, checkpoint: Path | None,
     """Validate supplied material before expensive installation; missing material is deferred."""
     missing = []
     if checkpoint is None:
-        missing.append("Provide the frozen checkpoint with --checkpoint; weights are never downloaded.")
+        missing.append(f"Provide {requirements['checkpoint']['name']} with --checkpoint or choose the managed model download (--download-weights with reviewed terms).")
+        if "config" in requirements:
+            missing.append("Also extract model_params/configs/cc94.yaml alongside model_params/weights/cc94_epoch3100.pth.")
     else:
         checked_file(checkpoint, requirements["checkpoint"]["sha256"], "Checkpoint")
         if checkpoint.name != requirements["checkpoint"]["name"]:
@@ -182,10 +205,47 @@ def publish_launcher(candidate: Path, directory: Path, *, replace: bool = False)
         if replace:
             temporary.replace(destination)
         else:
-            os.link(temporary, destination)
+            try:
+                os.link(temporary, destination)
+            except FileExistsError as exc:
+                raise FileExistsError(f"A different backend launcher already exists: {destination}. "
+                                      "It was kept unchanged. Resume with --replace-runner to explicitly replace "
+                                      "this shared per-user launcher, or choose another --runner-directory.") from exc
         return destination
     finally:
         temporary.unlink(missing_ok=True)
+
+
+def confirm_runtime_replacement(destination: Path) -> bool:
+    from dvbfixer.install_ui import confirm
+
+    print(f"\nA different backend launcher is already registered: {destination}\n"
+          "The new candidate passed preflight. Replacing the shared launcher changes backend discovery "
+          "for all compatible DVBFixer installations of this user. Existing runtime/weight files are not deleted.", flush=True)
+    return confirm("Replace the existing shared launcher with this validated backend?")
+
+
+def publish_validated_launcher(candidate: Path, directory: Path, *, replace: bool,
+                              confirm_replace: Callable[[Path], bool] | None = None) -> Path | None:
+    """Ask only after validation; never overwrite a changed target after consent."""
+    with stage("Publish validated backend launcher"):
+        try:
+            return publish_launcher(candidate, directory, replace=replace)
+        except FileExistsError:
+            if confirm_replace is None or replace:
+                raise
+            destination = directory / candidate.name
+            if destination.is_symlink() or not destination.is_file():
+                raise ValueError("Existing launcher is not a regular file; refusing replacement") from None
+            before = destination.stat()
+            digest = sha256(destination)
+            if not confirm_replace(destination):
+                return None
+            after = destination.stat()
+            if (destination.is_symlink() or (before.st_dev, before.st_ino, before.st_mtime_ns) !=
+                    (after.st_dev, after.st_ino, after.st_mtime_ns) or sha256(destination) != digest):
+                raise ValueError("Existing launcher changed during confirmation; refusing replacement") from None
+            return publish_launcher(candidate, directory, replace=True)
 
 
 def copy_checked_asset(source: Path, destination: Path, digest: str) -> None:
@@ -277,7 +337,8 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
                       resume: bool = False, dry_run: bool = False,
                       source: Path | None = None, checkpoint: Path | None = None,
                       kalign: Path | None = None, auxiliary: Path | None = None,
-                      runner_directory: Path | None = None, replace_runner: bool = False,
+                       runner_directory: Path | None = None, replace_runner: bool = False,
+                       confirm_replace: Callable[[Path], bool] | None = None,
                       timeout: float = 120.0) -> dict[str, Any]:
     entry = load_catalog()["external"][name]
     if entry["kind"] == "separate-environment":
@@ -300,6 +361,7 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
     auxiliary = auxiliary.expanduser().absolute() if auxiliary else None
     missing = verify_assets(requirements, checkpoint=checkpoint, kalign=kalign, auxiliary=auxiliary)
     if missing:
+        missing.extend(asset_instructions(name))
         print("Backend assets are incomplete. This run can prepare dependencies, but cannot publish a ready backend.",
               flush=True)
         for action in missing:
@@ -317,6 +379,9 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
     engine = owned_child(prefix, "engine")
     evidence = owned_child(prefix, "evidence")
     evidence.mkdir(exist_ok=True)
+    from dvbfixer import install_result
+
+    install_result.log_directory(evidence)
     env = runtime_environment(entry, repository, engine)
     if checkpoint and "config" in requirements:
         env["PROTPARDELLE_MODEL_PARAMS"] = str(checkpoint.parent.parent)
@@ -383,7 +448,10 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
                 f"import torch; assert torch.__version__ == {entry['torch_version']!r}; "
                 + engine_import +
                 f"x = torch.ones((2, 2), device={device!r}); assert float((x @ x).sum().item()) == 8; "
-                "print(torch.__version__, x.device)")
+                 "print(torch.__version__, x.device)")
+        if engine_import and entry["backend"] == "protpardelle":
+            print("Upstream import may warn about optional ESMFold/ProteinMPNN/LigandMPNN/Foldseek tools. "
+                  "They are not required by this maintained gap-filling route; required cc94 assets and launcher preflight are checked separately.", flush=True)
         run("sampling-kernels", manager.run(sampling, ["python", "-c", code]))
         report["engine_import_checked"] = not bool(missing)
         if "refinement_spec" in entry:
@@ -429,7 +497,15 @@ def provision_runtime(*, name: str, prefix: Path, manager: Manager, repository: 
         report["preflight"] = payload["preflight"]
         if not report["preflight"]["passed"]:
             raise ValueError("Frozen runner preflight failed; no launcher was published")
-        destination = publish_launcher(candidates[0], runner_directory or Path(payload["runner_directory"]), replace=replace_runner)
+        directory = runner_directory or Path(payload["runner_directory"])
+        destination = publish_validated_launcher(candidates[0], directory, replace=replace_runner,
+                                                confirm_replace=confirm_replace)
+        if destination is None:
+            report.update(state="action-required", actions=[
+                f"Existing shared launcher kept unchanged: {directory / candidates[0].name}. "
+                "Resume and confirm replacement, or explicitly use --replace-runner / another --runner-directory."])
+            save()
+            return report
         report.update(state="ready", launcher=str(destination), launcher_sha256=sha256(destination), actions=[])
         save()
         return report

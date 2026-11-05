@@ -43,6 +43,7 @@ jobs:
             tests/test_sequence_alignment.py tests/test_environment_policy.py tests/test_user_docs.py tests/test_altlocs.py \
             tests/test_installation_profiles.py tests/test_install_helper.py tests/test_install_workflows.py \
             tests/test_install_result.py tests/test_install_native_tools.py \
+            tests/test_install_weights.py \
             tests/test_install_discovery.py tests/test_install_existing.py tests/test_install_extend.py tests/test_profile_readiness.py tests/test_runtime_install.py \
             tests/test_license_inventory.py tests/test_license_evidence.py tests/test_gui_launcher.py \
             tests/test_scientific_preflights.py tests/test_msa.py tests/test_batch_mirror.py \

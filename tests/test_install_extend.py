@@ -453,8 +453,8 @@ def test_diffusion_is_available_from_selected_application_as_separate_runtime(tm
     monkeypatch.setattr(install, "platform_subdir", lambda: "osx-arm64")
     monkeypatch.setattr(install_discovery, "manager_inventory", lambda _: ([application.parent], [application]))
     # Manager, scientific installation, diffusion component, MPS model, new
-    # runtime, manager default, runtime name, deferred checkpoint.
-    answers = iter(["1", "1", "4", "1", "1", "", "new-mps-runtime", ""])
+    # runtime (reusing manager), runtime name, deferred checkpoint.
+    answers = iter(["1", "1", "4", "1", "1", "new-mps-runtime", ""])
     monkeypatch.setattr(install.sys.stdin, "isatty", lambda: True)
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
     calls = []
@@ -477,20 +477,24 @@ def test_diffusion_is_available_from_selected_application_as_separate_runtime(tm
     assert "4. Diffusion backend" in output
     assert "per-user discovery" in output
     assert "not PyTorch inside Standard/Desktop" in output
+    assert "Runtime environment manager\n" not in output
+    assert "Using the selected environment manager: micromamba" in output
 
 
-def test_diffusion_existing_runtime_can_be_resumed_without_reusing_app_prefix(tmp_path, monkeypatch):
+def test_diffusion_existing_runtime_can_be_resumed_without_reusing_app_prefix(tmp_path, monkeypatch, capsys):
     from dvbfixer import runtime_install
 
     application = environment(tmp_path)
     runtime = application.parent / "existing-mps"
     install.reserve_prefix(runtime, "runtime:protpardelle-mps", (), False)
     (runtime / "sampling").mkdir(parents=True)
+    (runtime / "evidence").mkdir()
+    (runtime / "evidence/installation.json").write_text(json.dumps({"state": "action-required"}))
     harness(tmp_path, monkeypatch)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(install, "platform_subdir", lambda: "osx-arm64")
     monkeypatch.setattr(install_discovery, "manager_inventory", lambda _: ([application.parent], [application, runtime / "sampling"]))
-    answers = iter(["1", "1", "4", "1", "2", "", "1", ""])
+    answers = iter(["1", "1", "4", "1", "2", "1", ""])
     monkeypatch.setattr(install.sys.stdin, "isatty", lambda: True)
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
     calls = []
@@ -503,3 +507,32 @@ def test_diffusion_existing_runtime_can_be_resumed_without_reusing_app_prefix(tm
     assert install.main(["--extend", "--dry-run"]) == 0
     assert calls[0]["prefix"] == runtime
     assert calls[0]["resume"] is True
+    output = capsys.readouterr().out
+    assert "Choose a separate backend runtime to continue" in output
+    assert f"Location: {runtime}" in output
+    assert "State: action required" in output
+    assert "Runtime environment manager\n" not in output
+    assert "cc94_epoch3100.pth" in output and "https://zenodo.org/records/16817230" in output
+
+
+def test_runtime_manager_can_still_be_changed_explicitly(tmp_path, monkeypatch):
+    from dvbfixer import runtime_install
+
+    application = environment(tmp_path)
+    harness(tmp_path, monkeypatch)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(install, "platform_subdir", lambda: "osx-arm64")
+    monkeypatch.setattr(install_discovery, "manager_inventory", lambda _: ([application.parent], [application]))
+    # Pick Change manager explicitly, choose conda, then create a new runtime.
+    answers = iter(["1", "1", "4", "1", "3", "3", "1", "new-conda-mps", "3"])
+    monkeypatch.setattr(install.sys.stdin, "isatty", lambda: True)
+    monkeypatch.setattr("builtins.input", lambda _: next(answers))
+    calls = []
+
+    def provision(**kwargs):
+        calls.append(kwargs)
+        return {"runtime": kwargs["name"], "prefix": str(kwargs["prefix"]), "state": "planned"}
+
+    monkeypatch.setattr(runtime_install, "provision_runtime", provision)
+    assert install.main(["--extend", "--dry-run"]) == 0
+    assert calls[0]["manager"].name == "conda"

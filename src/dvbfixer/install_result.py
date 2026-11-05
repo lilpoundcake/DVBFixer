@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import shlex
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -40,7 +41,12 @@ def configure(args) -> None:
     result.preview = args.dry_run
     if args.runtime:
         result.scope = f"Additional backend {args.runtime} (provisioning, not scientific qualification)"
-        result.retry = "Choose additional backend / continue existing runtime, or use --runtime NAME --resume with the same installation."
+        command = ["python3", "scripts/install_dvbfixer.py", "--runtime", args.runtime, "--resume"]
+        if args.manager:
+            command.extend(["--manager", args.manager])
+        if result.prefix is not None:
+            command.extend(["--prefix", str(result.prefix)])
+        result.retry = f"After resolving the listed actions, continue this runtime: {shlex.join(command)} (interactive setup follows)."
     elif args.gui_only:
         result.scope = "GUI only (scientific stack unchanged)"
         result.retry = "Repeat Add profile/GUI > GUI only, or --extend --gui-only, for this environment."
@@ -120,7 +126,9 @@ def remedies(text: str, result: InstallResult) -> list[str]:
     if "modeller" in value or "license" in value:
         hints.append("Configure an appropriate MODELLER license using hidden entry or the protected key descriptor; never put the key in command-line arguments.")
     if any(word in value for word in ("checkpoint", "--kalign", "auxiliary", "frozen sha256")):
-        hints.append("Supply the exact checkpoint/config and other listed frozen assets, then resume this runtime. Weights are not downloaded automatically.")
+        hints.append("Use the managed download after reviewing the model terms, or supply the exact local checkpoint/config and other listed frozen assets, then resume this runtime.")
+    if "launcher" in value and any(word in value for word in ("already exists", "kept unchanged", "replace-runner")):
+        hints.append("Resume and explicitly confirm shared launcher replacement (--replace-runner for unattended use), or choose another --runner-directory; existing launchers are never silently overwritten.")
     if any(word in value for word in ("clobber", "path conflict", "path collision", "safety checks")):
         hints.append("Do not use --clobber or disable safety checks. Preserve the diagnostics and choose a clean prefix/supported manager route.")
     if any(word in value for word in ("unsatisfiable", "resolutionimpossible", "dependency conflict", "different python", "requires-python", "no matching distribution", "incompatible python")):
@@ -158,12 +166,16 @@ def finish(result: InstallResult, code: int) -> None:
     if result.prefix is not None:
         print(f"Installation: {result.prefix}", flush=True)
     if code not in (0, 130):
-        step = result.failed_stage or result.stage
+        # Action-required is not a subprocess failure. Successful version snapshots
+        # contain arbitrary package metadata, not evidence of a network problem.
+        step = result.failed_stage or (result.stage if code != 2 else None)
         if step:
             print(f"Uncompleted step: {step}", flush=True)
+        elif code == 2:
+            print("Pending: required setup actions below; no failed command is reported.", flush=True)
         findings = list(dict.fromkeys([*result.errors, *result.actions]))
         tail = ""
-        if result.stage_log is not None and result.stage_log.is_file():
+        if code != 2 and result.stage_log is not None and result.stage_log.is_file():
             # Native solver logs can be large; summary generation must be bounded.
             with result.stage_log.open("rb") as stream:
                 stream.seek(0, 2)
@@ -180,7 +192,7 @@ def finish(result: InstallResult, code: int) -> None:
             print(f"  - {hint}", flush=True)
     if result.started and code != 0:
         print("Some steps may already have changed this installation; no automatic rollback is promised.", flush=True)
-    if result.stage_log is not None:
+    if result.stage_log is not None and (code != 2 or result.failed_stage is not None):
         print(f"Step log: {result.stage_log}", flush=True)
     if result.logs is not None:
         print(f"Diagnostics: {result.logs}", flush=True)

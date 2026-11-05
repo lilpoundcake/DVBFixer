@@ -212,7 +212,7 @@ def runtime_summary(report: dict) -> None:
         print("ACTION REQUIRED: dependencies installed, but the backend is not ready.", flush=True)
         for action in report.get("actions", []):
             print(f"  - {action}", flush=True)
-        print("Resume this same backend and directory with the required assets; weights are not downloaded.", flush=True)
+        print("Resume this same backend and directory to resolve the listed actions. Model downloads require explicit consent.", flush=True)
     else:
         print("Backend provisioning checks passed. This does not establish scientific qualification.", flush=True)
         if report.get("action"):
@@ -250,7 +250,9 @@ def _main(argv: list[str] | None = None) -> int:
     parser.add_argument("--runtime", choices=runtime_names(),
                         help="Provision a separate diffusion or PSI4 runtime using --name or advanced --prefix (without --profile)")
     parser.add_argument("--engine-source", type=Path, help="Optional local Git clone source (read-only)")
-    parser.add_argument("--checkpoint", type=Path, help="Operator-provided frozen weights; never downloaded")
+    parser.add_argument("--checkpoint", type=Path, help="Existing digest-matching model weights")
+    parser.add_argument("--download-weights", action="store_true", help="Download official pinned weights into this checkout's shared models/ cache")
+    parser.add_argument("--accept-model-terms", action="store_true", help="Confirm reviewed model terms for non-interactive --download-weights")
     parser.add_argument("--kalign", type=Path, help="Operator-provided digest-pinned Protenix Kalign executable")
     parser.add_argument("--auxiliary-root", type=Path, help="Protenix data root containing frozen common/ assets")
     parser.add_argument("--runner-directory", type=Path, help="Publish the checked launcher to this explicit directory")
@@ -282,6 +284,10 @@ def _main(argv: list[str] | None = None) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     install_result.configure(args)
+    if (args.download_weights or args.accept_model_terms) and not args.runtime:
+        parser.error("Model download options require a diffusion --runtime")
+    if args.accept_model_terms and not args.download_weights:
+        parser.error("--accept-model-terms requires --download-weights")
     if interactive:
         from dvbfixer.install_ui import addons, confirm
 
@@ -290,9 +296,22 @@ def _main(argv: list[str] | None = None) -> int:
         if not args.addon and not args.runtime and not (args.update or args.resume or args.gui_only or args.full_update_selected):
             args.addon = addons([(name, name) for name in load_catalog()["addons"]])
         if args.runtime:
-            if args.runtime != "psi4" and not args.checkpoint:
-                selected = input("Operator checkpoint path (empty to configure later): ").strip()
-                args.checkpoint = Path(selected) if selected else None
+            from dvbfixer.runtime_install import asset_instructions
+
+            instructions = asset_instructions(args.runtime)
+            if instructions:
+                print("\nRequired model assets (local file or confirmed managed download):", flush=True)
+                for instruction in instructions:
+                    print(f"  - {instruction}", flush=True)
+                print("Empty asset paths defer registration: dependencies can be installed, but the backend will not be ready.", flush=True)
+            try:
+                from dvbfixer.install_weights import select
+
+                select(args, Path(__file__).resolve().parents[2], interactive=True)
+            except (OSError, ValueError) as exc:
+                install_result.failure(exc)
+                print(f"error: {exc}", file=sys.stderr)
+                return 1
             if args.runtime == "protenix-cuda":
                 if not args.kalign:
                     selected = input("Pinned Kalign executable (empty to configure later): ").strip()
@@ -300,6 +319,15 @@ def _main(argv: list[str] | None = None) -> int:
                 if not args.auxiliary_root:
                     selected = input("Protenix data root containing common/ (empty to configure later): ").strip()
                     args.auxiliary_root = Path(selected) if selected else None
+    elif args.runtime:
+        try:
+            from dvbfixer.install_weights import select
+
+            select(args, Path(__file__).resolve().parents[2], interactive=False)
+        except (OSError, ValueError) as exc:
+            install_result.failure(exc)
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
     if args.extend:
         if args.gui_only:
             args.profile = "desktop"
@@ -381,7 +409,7 @@ def _main(argv: list[str] | None = None) -> int:
         if not math.isfinite(args.preflight_timeout) or args.preflight_timeout <= 0:
             parser.error("--preflight-timeout must be positive and finite")
         try:
-            from dvbfixer.runtime_install import provision_runtime
+            from dvbfixer.runtime_install import confirm_runtime_replacement, provision_runtime
             executable = shutil.which(args.manager)
             if executable is None:
                 raise ValueError(f"Install the selected manager first: {args.manager}")
@@ -400,8 +428,9 @@ def _main(argv: list[str] | None = None) -> int:
                     manager=Manager(args.manager, executable), repository=repository,
                     resume=args.resume, dry_run=args.dry_run, source=args.engine_source,
                     checkpoint=args.checkpoint, kalign=args.kalign, auxiliary=args.auxiliary_root,
-                    runner_directory=args.runner_directory, replace_runner=args.replace_runner,
-                    timeout=args.preflight_timeout)
+                     runner_directory=args.runner_directory, replace_runner=args.replace_runner,
+                    confirm_replace=confirm_runtime_replacement if interactive else None,
+                     timeout=args.preflight_timeout)
             runtime_summary(report)
             install_result.required(report.get("actions", []))
             if args.json:

@@ -9,7 +9,11 @@ The same helper also provisions the isolated optional PSI4/psiresp environment.
 Diffusion is also reachable after selecting an existing application: choose
 **Add a profile or GUI**, select the installation, then choose **Diffusion
 backend**. The submenu shows maintained routes for the host platform and offers
-new named runtime or existing recorded runtime continuation. This is a transition
+new named runtime or existing recorded runtime continuation. It reuses the already
+selected manager; **Change runtime manager** is a separate explicit option.
+Runtime selection has its own heading and shows each full path and retained
+provisioning state, even when the application and runtime share a basename.
+This is a transition
 to separate provisioning, not a co-installation into the scientific environment.
 Per-user launcher registration can make a validated backend visible to multiple
 compatible installations; no exclusive per-prefix binding or application upgrade
@@ -36,7 +40,8 @@ or patched. Git LFS smudging is disabled, so source cloning does not fetch weigh
 Without weights, provisioning still runs native accelerator and refinement
 kernel checks. It returns **action-required** (exit 2), lists the missing assets
 and publishes no launcher. Engine imports that require those assets are deferred.
-No checkpoint or Protenix auxiliary dataset is downloaded by the helper.
+No model download happens without explicit consent. Protenix auxiliary data and
+Kalign remain operator-provided; they are not included in the weights download.
 
 Use `--dry-run` to inspect the route and required manual inputs without creating
 files. In the interactive helper select **additional model/QM backend** from the
@@ -44,9 +49,51 @@ numbered action menu, then select the runtime by number; Standard/Desktop are no
 mixed into this list. Deferred asset
 entry is allowed. Unsupported platforms are rejected before creating a runtime root.
 
+## Managed weights storage
+
+The interactive installer shows required filenames, official source, transfer
+size and model terms before offering three choices: **download into shared
+models/**, **use a local weights file**, or **configure later**. A verified cache
+is reused without a network request. There is no implicit download during normal
+model execution, and dry runs do not download or create the cache.
+
+The shared directory belongs to the source checkout and is excluded from Git:
+
+```text
+models/
+  protpardelle-cc94/model_params/
+    weights/cc94_epoch3100.pth
+    configs/cc94.yaml
+  protenix-v1/model_params/weights/protenix_base_default_v1.0.0.pt
+```
+
+CUDA/MPS cc94 runtimes reuse the same weights/config. The official
+[Zenodo archive](https://zenodo.org/records/16817230) is approximately 4.3 GB
+(CC BY 4.0); only the required two regular files are retained, not other models
+in the archive. Its published archive checksum and both frozen file SHA256
+digests are verified. Protenix v1 weights are approximately 1.48 GB from the
+official upstream checkpoint host, under its published Apache 2.0 terms, and
+must match the existing frozen SHA256. This does not support Protenix v2 or cc89.
+
+Non-interactive opt-in requires both flags after reviewing the displayed terms:
+
+```bash
+python3 scripts/install_dvbfixer.py --runtime protpardelle-mps \
+  --manager micromamba --name cc94-runtime \
+  --download-weights --accept-model-terms --non-interactive
+```
+
+Use the corresponding CUDA runtime on Linux. A preview with `--dry-run` prints
+the plan without a transfer. Local `--checkpoint` input remains supported and
+cannot be combined with `--download-weights`. Interrupted downloads are removed
+from private staging; a retry restarts that transfer. Previously verified files
+are reused. Corrupt/incomplete existing cache entries fail closed and are not
+silently overwritten: preserve and inspect them, or supply a separate verified
+local file. Symlink cache roots and required archive links are refused.
+
 ## Supply assets and finish registration
 
-cc94 requires the operator-provided `cc94_epoch3100.pth` and its digest-matching
+cc94 requires `cc94_epoch3100.pth` and its digest-matching
 `../configs/cc94.yaml` in the layout described by the
 [cc94 deployment guide](../deploy/protpardelle-1c/cc94.md):
 
@@ -101,7 +148,12 @@ scientific acceptance: it is reported separately as `not-tested` by provisioning
 By default publication uses DVBFixer's usual per-user runner directory. Override
 it with `--runner-directory /path/to/private/runners` for a contained installation
 or test. Put that directory on PATH for discovery by Standard/Desktop. Existing
-different launchers are preserved unless `--replace-runner` is explicit;
+different launchers are preserved unless replacement is explicit. After preflight,
+interactive setup shows the existing launcher path and asks whether to replace it;
+declining keeps the existing launcher and returns action-required. Automation uses
+`--replace-runner`, or a separate `--runner-directory`. Replacing a per-user launcher
+affects discovery by all compatible installations of that user, not just the
+selected application. A launcher changed during confirmation is not overwritten;
 identical private launchers are idempotent on resume.
 
 ## Evidence and resume
@@ -116,6 +168,13 @@ readable summary, not the full JSON report; `--json` additionally prints that
 report. `action-required` explicitly means dependencies may be installed but the
 backend is **not ready**, with the required operator inputs listed. Scientific
 acceptance remains separate from provisioning success.
+
+The final result distinguishes success, preview, cancellation, required action
+and failure. Missing weights list exact filenames, their official source and
+the concrete resume command. A completed `versions-*` snapshot is not called an
+uncompleted step or mined for unrelated network-repair suggestions. Publication
+failures are labelled **Publish validated backend launcher**, with explicit
+replacement/private-directory recovery instead of a raw file-exists traceback.
 
 `--resume` accepts only roots recorded by the helper. It verifies source integrity
 and the original recipe/manager identity, then reconciles native and pip packages.

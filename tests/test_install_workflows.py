@@ -117,7 +117,7 @@ def test_resume_infers_backend_without_new_directory_or_profile_prompt(tmp_path,
     assert "Provide checkpoint" in output
     summary = output.split("=== Installation result ===")[1]
     assert "ACTION REQUIRED —" in summary and "Provide checkpoint" in summary
-    assert "Supply the exact checkpoint" in summary
+    assert "managed download" in summary
     assert "SUCCESS —" not in output
     assert '"schema_version"' not in output
 

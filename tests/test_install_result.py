@@ -115,7 +115,24 @@ def test_runtime_missing_checkpoint_is_action_required(monkeypatch, capsys):
     monkeypatch.setattr(install, "_main", provisioned)
     assert install.main([]) == 2
     output = capsys.readouterr().out
-    assert "ACTION REQUIRED" in output and "Supply the exact checkpoint" in output
+    assert "ACTION REQUIRED" in output and "managed download" in output
+
+
+def test_missing_weights_does_not_mislabel_successful_versions_or_infer_network_failure(tmp_path, monkeypatch, capsys):
+    log = tmp_path / "versions-refinement.log"
+    log.write_text('{"packages": ["connection-pool", "certificate-bundle", "node"]}')
+
+    def provisioned(argv):
+        install_result.stage_started("versions-refinement", log)
+        install_result.required(["Provide cc94_epoch3100.pth with --checkpoint"])
+        return 2
+
+    monkeypatch.setattr(install, "_main", provisioned)
+    assert install.main([]) == 2
+    output = capsys.readouterr().out
+    assert "Pending: required setup actions" in output
+    assert "Uncompleted step" not in output and "Step log:" not in output
+    assert "network/proxy" not in output and "GUI build log" not in output
 
 
 @pytest.mark.parametrize("scope, expected", [("package_only", "package only"), ("gui_only", "GUI only")])

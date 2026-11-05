@@ -60,6 +60,39 @@ no-overlay guard remains enforced.
 
 ### Explicit update scope and diffusion transition
 
+Follow-up UX fixes: the diffusion transition reuses the chosen manager, with an
+explicit change-manager option. Runtime selection shows a distinct heading, full
+path and retained provisioning state. Model-asset guidance lists exact cc94 files
+and Zenodo before selection and in missing-asset results. Required-action summaries
+do not label completed version snapshots as failures or infer network problems
+from their package inventories.
+
+After user approval, `install_weights.py` adds consented, repository-local shared
+`models/` storage (Git-ignored). cc94 uses the official pinned Zenodo archive and
+retains only its weights/config; Protenix uses the official v1 checkpoint URL.
+Both verify existing frozen SHA256 identities before publication/reuse. Downloads
+show size/terms/source, support local-file and deferred alternatives, and do not
+run in previews. Automated download needs `--download-weights --accept-model-terms`.
+Partial transfers are private staging, not cache hits; corrupt existing caches
+are preserved/fail closed. Protenix data/Kalign remain separate manual inputs.
+
+Launcher conflicts now identify the publication stage and provide specific
+recovery. Interactive replacement is offered only after preflight and discloses
+shared per-user impact; declining leaves the old launcher and action-required.
+Unattended replacement remains explicit. Confirmation-time drift is rejected.
+Tests use small synthetic transfers/archives and mocked provisioning, not real
+model downloads, user-environment mutations or scientific qualification.
+
+Validation: 207 targeted installer/runtime/composition/user-doc tests passed,
+along with Ruff, maintained documentation links/anchors, agent maps and diff
+whitespace checks. Cases include download consent and dry-run/no-network paths,
+official-profile cache sharing, checksums, interrupted transfers, corrupt/linked
+caches, exact-member extraction, plaintext redirect refusal, explicit manager
+changes, runtime path/state presentation, completed-version-log exclusion from
+required-action diagnosis, launcher replacement/decline and confirmation drift.
+The generated CLI-reference check remains blocked by missing OpenMM in the
+bootstrap Python; no generated command-reference pages were edited by hand.
+
 Manual update selection now offers **only package / full installation / cancel**,
 instead of conflating a negative answer to "only package?" with cancellation.
 Full selection routes to the existing profile preview and keeps the final apply

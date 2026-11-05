@@ -361,16 +361,21 @@ Select the manager and an existing environment from numbered lists, then choose:
    the existing scientific stack. Requires an existing DVBFixer installation.
 4. **Diffusion backend**: choose a platform-appropriate maintained model runtime,
    then create a new isolated runtime by name or continue an existing recorded
-   runtime selected by number. Its manager can differ from the scientific
-   environment's manager. The selected application environment is not modified.
+   runtime selected by number, with its full path and provisioning state shown.
+   The already selected manager is reused; **Change runtime manager** is explicit.
+   The selected application environment is not modified.
 
 The diffusion transition reuses the existing
 [runtime provisioning workflow](installation-runtime-provisioning.md), frozen
 source/asset checks and preflight-before-publication rules. It never installs
 PyTorch into Standard/Desktop. Launchers use the existing **per-user** discovery,
 so they may be visible to other compatible installations; this is not an exclusive
-binding to the selected application prefix. Weights are still operator-supplied,
-and an empty checkpoint leaves action required rather than a ready backend.
+binding to the selected application prefix. Weights can be supplied locally or
+downloaded with explicit consent into the checkout's shared, Git-ignored `models/`
+cache. Source, size and model terms are shown before downloading; frozen hashes
+are verified and cached weights are reused. See
+[managed weights storage](installation-runtime-provisioning.md#managed-weights-storage).
+Deferred weights leave action required rather than a ready backend.
 Provisioning does not upgrade the selected application or establish scientific
 qualification. PSI4 remains available through the main additional-backend menu.
 
@@ -597,8 +602,9 @@ or checkpoints. OpenMM may still bring its own scientific GPU dependencies.
 Create the selected runner environment separately and register it once with its
 deployment README. The registration verifies the local checkpoint and installs
 a private launcher; normal `model --backend diffusion` calls do not accept or
-require runner, profile, checkpoint, or digest paths. DVBFixer never downloads
-checkpoints and never falls back to another profile or MODELLER.
+require runner, profile, checkpoint, or digest paths. Model execution never
+implicitly downloads checkpoints; the installer offers a separate consented
+download. DVBFixer never falls back to another profile or MODELLER.
 
 - Linux/NVIDIA `protenix-v1-cuda`: follow
   [`deploy/protenix-v1/README.md`](../deploy/protenix-v1/README.md). The portable

@@ -193,23 +193,48 @@ def discover_installations(directories: list[Path], envs: list[Path], *, reposit
     return sorted(installations.values(), key=lambda entry: (entry.profile, entry.prefix.name, str(entry.prefix)))
 
 
-def select_existing(entries: list[Installation], *, other_entries: list[Installation] | None = None) -> Installation:
+def runtime_status(prefix: Path) -> str:
+    """Describe retained provisioning evidence, not scientific qualification."""
+    evidence = prefix / "evidence/installation.json"
+    try:
+        if evidence.stat().st_size > 1024 * 1024:
+            return "status unavailable (oversized evidence)"
+        record = json.loads(evidence.read_text())
+        state = record.get("state") if isinstance(record, dict) else None
+        states = {
+            "ready": "provisioned; revalidation required on resume",
+            "action-required": "action required (assets/setup incomplete)",
+            "error": "previous provisioning failed",
+            "planned": "provisioning started; not ready",
+        }
+        return states.get(state, "status not recorded; not verified ready") if isinstance(state, str) else "status not recorded; not verified ready"
+    except FileNotFoundError:
+        return "provisioning record only; readiness not verified"
+    except (OSError, ValueError):
+        return "status unavailable (unreadable evidence)"
+
+
+def select_existing(entries: list[Installation], *, other_entries: list[Installation] | None = None,
+                    backend: bool = False) -> Installation:
     if not entries and other_entries:
         print("No existing DVBFixer installation found; choose an environment to add it to.", flush=True)
         return select_existing(other_entries)
     if not entries:
         raise ValueError("No matching DVBFixer installations found. No environment was changed. "
                          "Check the selected manager; custom locations can use advanced --prefix.")
-    print("\nChoose an existing installation (0 cancels):", flush=True)
+    title = "Choose a separate backend runtime to continue" if backend else "Choose an existing installation"
+    print(f"\n{title} (0 cancels):", flush=True)
     duplicates = {entry.prefix.name for entry in entries if sum(other.prefix.name == entry.prefix.name for other in entries) > 1}
     for number, entry in enumerate(entries, 1):
         print(f"  {number}. {entry.label}", flush=True)
-        if entry.prefix.name in duplicates or not entry.package_present:
+        if backend or entry.prefix.name in duplicates or not entry.package_present:
             print(f"     Location: {entry.prefix}", flush=True)
+        if backend:
+            print(f"     State: {runtime_status(entry.prefix)}", flush=True)
     if other_entries:
         print(f"  {len(entries) + 1}. Other existing environments…", flush=True)
     while True:
-        choice = input("Installation number: ").strip()
+        choice = input("Runtime number: " if backend else "Installation number: ").strip()
         if choice == "0":
             raise EOFError()
         if choice.isdecimal() and len(choice) < 8 and 1 <= int(choice) <= len(entries):
@@ -285,11 +310,16 @@ def select_diffusion_for_application(args: argparse.Namespace, *, runtimes: tupl
           "Diffusion uses a separate runtime environment, not PyTorch inside Standard/Desktop.\n"
           "Validated launchers use existing per-user discovery and may be visible to other compatible DVBFixer installations.", flush=True)
     runtime = choose("Diffusion backend (separate environment)", [(name, labels.get(name, name)) for name in available])
-    operation = choose("Diffusion runtime installation", [
-        ("install", "Create a new isolated runtime"),
-        ("resume", "Continue an existing helper-recorded runtime"),
-    ])
-    args.manager = choose("Runtime environment manager", [(name, name) for name in ("micromamba", "mamba", "conda")], default=args.manager)
+    print(f"Using the selected environment manager: {args.manager}", flush=True)
+    while True:
+        operation = choose("Diffusion runtime installation", [
+            ("install", "Create a new isolated runtime"),
+            ("resume", "Continue an existing helper-recorded runtime"),
+            ("manager", f"Change runtime manager (currently {args.manager})"),
+        ])
+        if operation != "manager":
+            break
+        args.manager = choose("Runtime environment manager", [(name, name) for name in ("micromamba", "mamba", "conda")], default=args.manager)
     args.application_prefix = application
     args.extend, args.update, args.gui_only, args.package_only = False, False, False, False
     args.resume = operation == "resume"
@@ -366,7 +396,7 @@ def resolve_selection(args: argparse.Namespace, *, interactive: bool,
                     others = [entry for entry in entries if not entry.package_present]
                     selected = select_existing(primary, other_entries=others)
                 else:
-                    selected = select_existing(entries)
+                    selected = select_existing(entries, backend=kind == "backend")
             args.prefix = selected.prefix
             if not selected.managed and not args.extend:
                 if not interactive and not args.package_only:
@@ -387,7 +417,8 @@ def resolve_selection(args: argparse.Namespace, *, interactive: bool,
         if args.prefix.parent.resolve() in {directory.resolve() for directory in directories}:
             args.activation_name = args.prefix.name
     if args.prefix is not None:
-        print(f"Selected installation: {args.prefix.expanduser().absolute()}", flush=True)
+        label = "Selected separate runtime" if kind == "backend" else "Selected installation"
+        print(f"{label}: {args.prefix.expanduser().absolute()}", flush=True)
     if interactive and args.update and not package_only_requested:
         candidate = args.prefix.expanduser().absolute()
         marker = candidate.with_name(candidate.name + MARKER_SUFFIX)
