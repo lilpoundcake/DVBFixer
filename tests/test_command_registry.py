@@ -43,6 +43,27 @@ def test_batch_suffixes_are_derived_from_command_registry() -> None:
     }
 
 
+def test_desktop_launcher_is_cli_only_and_dependency_light() -> None:
+    from scripts.gen_gui_spec import ROOT
+
+    command = COMMAND_BY_NAME["gui"]
+    assert command.normalize_cif is False
+    assert command.gui_visible is False
+    assert command.batch is False
+    generated = (ROOT / "gui/server/generated-dvbfixer-spec.ts").read_text()
+    assert '"name": "gui"' not in generated
+    subprocess.run([sys.executable, "-c", '''
+import importlib.abc, sys
+class NoScience(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname.split('.')[0] in {'openmm', 'pdbfixer', 'modeller', 'numpy', 'torch'}:
+            raise AssertionError(fullname)
+sys.meta_path.insert(0, NoScience())
+from dvbfixer.gui_launcher import parse_args
+assert parse_args(['--check']).check
+'''], check=True, timeout=10)
+
+
 def test_generators_use_the_same_registry_metadata() -> None:
     from scripts import gen_cli_reference, gen_gui_spec
 

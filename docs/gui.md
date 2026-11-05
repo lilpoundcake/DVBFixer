@@ -8,21 +8,28 @@ For server configuration rather than daily use, see the [GUI README](../gui/READ
 ## Start the local GUI
 
 Use [Desktop](installation.md#standarddesktop-source-checkout-helper) to install
-the scientific environment, Node and built GUI together. Start that installation
-with `micromamba run -p /path/to/desktop npm --prefix /path/to/desktop/share/dvbfixer/gui start`.
-For source development, activate Desktop before starting the server so it can
-find `dvbfixer` and external tools. Node.js 22 or newer is required.
-From the repository root:
+the scientific environment, Node and built GUI together. For the prefix used in
+the installation guide:
 
 ```bash
-micromamba activate dvbfixer-desktop
-cd gui
-npm ci
-npm run dev
+micromamba activate "$HOME/micromamba/envs/dvbfixer-desktop"
+dvbfixer gui
 ```
 
-The development server opens the browser. Keep the terminal running while using
-the application. For a built local server, see [production build](../gui/README.md#build-for-production).
+Or use the installer-created application shortcut (`--desktop-shortcut`) without
+activating a shell. No npm setup is needed. The browser opens only after
+the local server is ready. Stop with Ctrl+C or `dvbfixer gui --stop`.
+See [Desktop launch](commands/gui.md) for local ports, logs and startup errors.
+Already have a scientific environment? Run `python3 scripts/install_dvbfixer.py --extend`,
+select it by number and choose **GUI only**, or **Desktop** to complete the whole
+profile. The [component installation guide](installation.md#add-a-profile-or-gui-to-an-existing-environment)
+explains the dependency preview and confirmation.
+If a full Desktop request conflicts with an existing conda Open Babel stack, the
+installer can explicitly switch to **GUI only** without replacing Open Babel;
+this does not qualify the environment as a complete Desktop scientific profile.
+Keep the terminal running while using a terminal-launched session. Contributors
+editing the GUI should use the separate [source-development instructions](../gui/README.md#source-development),
+not additional setup steps for the installed application.
 
 ## 1. Create or choose a workspace
 

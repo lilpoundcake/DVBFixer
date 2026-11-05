@@ -8,6 +8,33 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.10.4] — 2026-11-05
+
+### Added
+
+- `dvbfixer gui` to launch, check and stop the installed Desktop GUI, with
+  opt-in user application shortcuts.
+- Named installation discovery and numbered setup menus, explicit package-only
+  versus full-profile updates, and GUI-only additions to existing environments.
+- Isolated diffusion-runtime setup from the component menu, with consented,
+  digest-verified model downloads into a shared, Git-ignored `models/` cache.
+
+### Changed
+
+- Unified installation documentation around the Standard/Desktop helper, with
+  visible progress, retained logs and actionable final status/recovery guidance.
+
+### Fixed
+
+- Keep conda Open Babel intact during package-only/GUI-only updates, and offer
+  explicit GUI-only recovery when a full profile conflicts with an existing stack.
+- Distinguish application and backend-runtime selection, reuse the selected
+  manager and explicitly confirm shared launcher replacement after preflight.
+- Pause progress and log following while waiting for input, suppress duplicate
+  nested heartbeats and exclude prompt waiting from active elapsed time.
+- Report missing model assets by exact filename/source without mistaking
+  completed package inventories for failed stages or network errors.
+
 ## [0.10.3] — 2026-11-03
 
 ### Added

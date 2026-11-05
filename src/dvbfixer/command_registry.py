@@ -31,6 +31,7 @@ class CommandSpec:
     normalize_cif: bool = True
     backend_output_modes: tuple[tuple[str, OutputMode], ...] = ()
     backend_batch_suffixes: tuple[tuple[str, str], ...] = ()
+    gui_visible: bool = True
 
     @property
     def batch(self) -> bool:
@@ -64,6 +65,7 @@ COMMAND_REGISTRY: tuple[CommandSpec, ...] = (
     CommandSpec("salign", "dvbfixer.salign", "Structure-based multiple alignment with Modeller SALIGN", "Modeling & alignment", output_extension=".pir"),
     CommandSpec("doctor", "dvbfixer.doctor", "Report installed backends, executables, and OpenMM platforms", "Utilities", output_mode="stdout", output_kind="report"),
     CommandSpec("zbs", "dvbfixer.zbs", "Full pipeline: renumber -> model -> prepare -> minimize", "Pipeline", batch_output_suffix="_zbs.pdb"),
+    CommandSpec("gui", "dvbfixer.gui_launcher", "Launch the installed Desktop application", "Application", output_mode="stdout", output_kind="report", normalize_cif=False, gui_visible=False),
 )
 
 COMMAND_BY_NAME = {command.name: command for command in COMMAND_REGISTRY}

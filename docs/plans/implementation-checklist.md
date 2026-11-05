@@ -1,5 +1,184 @@
 # Implementation Checklist
 
+## Installer workflow and progress follow-up (2026-11-05)
+
+### Explicit profile attachment and numbered menus
+
+- [x] Offer numbered actions, profiles, managers, backends, confirmations and add-ons.
+- [x] Add `--extend` with separate Standard, full Desktop and `--gui-only` scopes;
+  existing non-base conda environments do not need a helper ownership record.
+- [x] Preview native and pip changes before confirmation, detect native/environment
+  drift, recheck pip after native installation, and stop on unconfirmed pip changes.
+- [x] Preserve existing Desktop/add-ons, license and workspaces. GUI-only rejects
+  changes to pre-existing native libraries and keeps scientific profile ownership.
+- [x] Publish full-profile ownership only after functional/Doctor/GUI checks pass
+  (or explicitly report required license action), not before dependency installation.
+- [x] Finish regression/documentation validation and record platform evidence below.
+
+Native and pip installation are not an atomic transaction. Python minor/ABI
+changes and conda Open Babel overlays are refused for in-place full-profile
+attachment; use a new environment for incompatible stacks. A solver preview is
+not scientific acceptance. Cancelled/refused previews retain diagnostic logs in
+the checkout's ignored `tmp/installer-profile-preview-*/` directories, without
+changing the selected environment.
+
+Validation for this slice: 152 targeted installer/composition/documentation tests
+passed, including numbered-only install/backend/extension flows, simulated
+transactions through all three manager adapters, native/pip conflict/drift
+refusals, interrupted GUI build, license/workspace/.env preservation, and ownership
+publication ordering. Ruff, documentation/link checks, release metadata, inventory
+freshness and agent-map checks passed. A separate real bootstrap/PTY process
+completed the all-numeric GUI-only preview against a **simulated manager**, with
+byte-identical target fixture and no ownership record; retained local evidence is
+at the approved temporary `installer-numbered-smoke-g5q_cku3/` directory. This is
+not a real native package solve or installed scientific/GUI acceptance run. Existing
+user environments were not modified. SciPy/OpenMM-dependent full-suite and
+generated-reference gates remain blocked in the available bootstrap Python as
+noted below; no scientific references changed.
+
+### Recovering a full-profile conflict without replacing the scientific stack
+
+The reported conda Open Babel failure occurs before native/pip installation.
+Keep the no-overlay invariant, but let an interactive user explicitly switch to
+GUI-only, with a fresh plan and confirmation, or stop without changes. Unattended
+full-profile requests still fail rather than silently narrowing scope. Requested
+new scientific add-ons/license changes are skipped only after the explicit GUI
+choice; an opted-in application shortcut is retained. GUI-only preserves known
+editable package mode. Default extension selection shows DVBFixer installations
+first and puts other environments behind a numbered entry. All discoverable
+manager bases and macOS application bundles are excluded, including a foreign
+Miniforge base registered with micromamba.
+
+Validation: 161 targeted installer/composition/documentation tests passed, along
+with Ruff, maintained Markdown/link checks and agent maps. Controlled fixtures
+reproduce the reported Open Babel stack and cover GUI-only recovery, explicit
+cancellation, retained shortcut opt-in, known editable mode, unattended refusal
+without scope changes, default-list grouping and exclusion of foreign manager
+bases/application bundles. Existing user environments were not modified. This is
+not native installation or scientific qualification evidence; the full-profile
+no-overlay guard remains enforced.
+
+### Explicit update scope and diffusion transition
+
+Prompt-wait follow-up: stage progress now shares nested-stage state within its
+execution context. Only the innermost stage emits heartbeats. Menus pause all
+enclosing timers/log following before rendering and explicitly say they are
+waiting for input; direct asset/name prompts and protected license entry use
+the same pause. Waiting time is excluded from active elapsed time. Cancellation
+and exceptions restore the pause state and stage context without losing logs.
+Validation: 214 targeted tests passed, including a virtual 2,131-second wait,
+nested timer suppression, blocking confirmation/cancellation/interrupt cases,
+log replay after input and independent progress contexts; Ruff passed. No user
+runtime was modified by this verification.
+
+Follow-up UX fixes: the diffusion transition reuses the chosen manager, with an
+explicit change-manager option. Runtime selection shows a distinct heading, full
+path and retained provisioning state. Model-asset guidance lists exact cc94 files
+and Zenodo before selection and in missing-asset results. Required-action summaries
+do not label completed version snapshots as failures or infer network problems
+from their package inventories.
+
+After user approval, `install_weights.py` adds consented, repository-local shared
+`models/` storage (Git-ignored). cc94 uses the official pinned Zenodo archive and
+retains only its weights/config; Protenix uses the official v1 checkpoint URL.
+Both verify existing frozen SHA256 identities before publication/reuse. Downloads
+show size/terms/source, support local-file and deferred alternatives, and do not
+run in previews. Automated download needs `--download-weights --accept-model-terms`.
+Partial transfers are private staging, not cache hits; corrupt existing caches
+are preserved/fail closed. Protenix data/Kalign remain separate manual inputs.
+
+Launcher conflicts now identify the publication stage and provide specific
+recovery. Interactive replacement is offered only after preflight and discloses
+shared per-user impact; declining leaves the old launcher and action-required.
+Unattended replacement remains explicit. Confirmation-time drift is rejected.
+Tests use small synthetic transfers/archives and mocked provisioning, not real
+model downloads, user-environment mutations or scientific qualification.
+
+Validation: 207 targeted installer/runtime/composition/user-doc tests passed,
+along with Ruff, maintained documentation links/anchors, agent maps and diff
+whitespace checks. Cases include download consent and dry-run/no-network paths,
+official-profile cache sharing, checksums, interrupted transfers, corrupt/linked
+caches, exact-member extraction, plaintext redirect refusal, explicit manager
+changes, runtime path/state presentation, completed-version-log exclusion from
+required-action diagnosis, launcher replacement/decline and confirmation drift.
+The generated CLI-reference check remains blocked by missing OpenMM in the
+bootstrap Python; no generated command-reference pages were edited by hand.
+
+Manual update selection now offers **only package / full installation / cancel**,
+instead of conflating a negative answer to "only package?" with cancellation.
+Full selection routes to the existing profile preview and keeps the final apply
+confirmation separate. It does not update arbitrary unrelated packages or replace
+frozen checkpoints. An explicit `--package-only` still bypasses the scope chooser.
+
+The selected-application component menu now includes **Diffusion backend**. It
+selects a host-platform maintained runtime and offers creation by name or recorded
+runtime continuation by number, reusing existing provisioning checks. Runtime and
+scientific prefixes cannot be identical, no Torch is installed into the selected
+application, and per-user launcher discovery is explicitly disclosed rather than
+claimed as exclusive per-prefix binding. Scientific add-on/license/shortcut flags
+cannot silently cross into this separate operation.
+
+Validation: 164 targeted installer/composition/documentation tests passed, plus
+Ruff and maintained user documentation checks. New controlled cases exercise the
+second update option's full-profile preview, isolated MPS provisioning transition,
+existing runtime continuation, and byte-identical selected application files.
+The provisioning calls in these cases are mocked; no user environment, checkpoint
+or launcher was changed and no native sampling/qualification is inferred.
+
+- [x] Separate main-application install/update from optional backend selection.
+- [x] Add explicit helper-owned Standard/Desktop update with composition binding,
+  version preview and interactive confirmation; refuse manual/runtime adoption.
+- [x] Infer resume identity from the existing installation record and distinguish
+  filesystem directories from environment names.
+- [x] Remove installation-path prompts: new installs use an environment name in
+  manager-reported writable directories; update/resume use numbered discovered
+  installations. Keep explicit `--prefix` advanced-only and add `--name` automation.
+- [x] Read installed versions from metadata without executing discovered Pythons;
+  distinguish duplicate names, retain crash-left reservations and refuse manual
+  adoption or ambiguous name-only selection.
+- [x] Add named stages, live output, periodic elapsed-time notices, retained logs
+  and human-readable readiness/action-required summaries.
+- [x] Preserve protected MODELLER configuration across successful updates and keep
+  license subprocess output out of logs.
+- [x] Complete regression and documentation validation; record evidence below.
+
+Scope does not include transactional package rollback, automatically adopting
+manual environments, changing frozen backend recipes or scientific qualification.
+
+Verification: 667 CI-selected Python contract tests passed, including the new
+workflow tests in the lightweight CI lane. Ruff, strict API mypy, release metadata,
+license-inventory freshness and 43-page user-document checks passed. Real
+micromamba 2.9.0 name-based Standard installation and numbered existing MPS-backend
+resume PTY dry runs passed without installing packages or creating prefixes or
+ownership records. A prior explicit-command Desktop dry run also passed. Process tests
+exercise actual child stdout/stderr retention and failure reporting; controlled
+update tests cover composition binding, cancellation, license recovery after
+failure/interruption, Desktop rebuilding and workspace/.env preservation.
+No existing user prefix was updated, no fresh scientific install was executed,
+and no additional backend was sampled or newly qualified by this follow-up.
+
+### Existing/manual installation correction
+
+The first selector excluded unrecorded environments, leaving existing users with
+no update choice. It also inspected only wheel metadata. Update discovery now
+includes legacy egg-info, editable egg-link/PEP 660 evidence and retained CLI
+entry points with unknown versions. Manual entries are selectable for explicitly
+confirmed **package-only** updates (`pip --no-deps`), never silent profile adoption.
+Native dependencies, MODELLER configuration and workspace files are not modified;
+known editable mode is retained. Automated manual updates require `--package-only`.
+Frozen runtime roots/children and corrupt ownership records cannot use this route.
+
+Latest validation: 125 focused installer/composition/documentation tests passed,
+plus Ruff, Markdown/link checks, agent maps, release metadata and inventory
+freshness. Tests reproduce the missing-metadata CLI, legacy/editable layouts,
+manual menu selection, cancellation and dependency/license/workspace preservation.
+Direct inspection of the older user prefix was permission-blocked; no alternate
+access or user-environment update was attempted. The available bootstrap Python
+lacks SciPy (one environment-policy smoke failed) and OpenMM (CLI-reference check
+was blocked). These are retained environment blockers, not passing scientific or
+generated-reference acceptance; no scientific references were changed. The older
+667-test evidence above predates this correction and is not a new full-suite run.
+
 This is the canonical completion tracker for the plans in this directory.
 Current cross-plan navigation is in [Plan status and remaining work](README.md).
 Status synchronized on 2026-10-20: software delivery, per-profile hardware
@@ -64,6 +243,52 @@ Actual clean-install
 evidence are tracked in [profile acceptance](../installation-profile-acceptance.md).
 xTB remains removed under ADR 0012; Probe stays optional. Old core/full/extras
 proposals are not the approved installation interface.
+
+## Convenient Desktop GUI launch
+
+Added 2026-11-03. Normal Desktop startup must not require users to remember
+installation paths or compose `micromamba run -p ... npm --prefix ... start`.
+
+- [x] Add `dvbfixer gui` to launch the installed GUI from the active Desktop
+  environment. Resolve GUI assets and Node from that environment, not the
+  current working directory or an unrelated tools prefix. Standard-only installs
+  must provide an actionable explanation when GUI assets are unavailable.
+- [x] Let the Desktop installer create a macOS application shortcut and a Linux
+  desktop launcher that remember their installation prefix, start the local
+  server and open the browser without prior shell activation. Make shortcut
+  creation explicit and do not overwrite unrelated user applications/launchers.
+- [x] Preserve loopback-first hosting, authentication and existing shutdown/
+  child-process cleanup rules. Handle an already-running instance, occupied
+  ports, startup failure and missing runtimes with clear diagnostics; do not
+  open a browser before readiness or silently expose the service remotely.
+- [x] Make the one-command/shortcut route the primary installation quick start;
+  retain the manager/npm command only as an advanced diagnostic fallback.
+- [ ] Test prefix discovery, launch outside the repository, Standard-only
+  refusal, startup/readiness and shutdown, plus real installed Desktop command
+  and shortcut smokes on macOS/Linux before claiming platform support.
+
+Implementation slice 2026-11-05 (`feature/desktop-gui-launcher`): CLI-only
+registry entry (not a remotely managed scientific command), prefix-bound Node/
+Python/build lookup, inherited readiness pipe, private authenticated local
+instance control, `--stop`, opt-in non-overwriting shortcuts and revised quick
+starts are implemented. Unit/process tests cover reuse, failed/timeout startup,
+signal cleanup, malformed control requests, isolation and helper ordering.
+The installed-package/built-server macOS smoke passed local/authenticated arms
+and direct execution of the generated app's executable. Native macOS
+LaunchServices bundle activation and explicit stop also passed with browser
+opening suppressed; evidence is retained under
+`tmp/desktop-launcher-native-mcuzvs1z/evidence-v5/`. It used an isolated
+wheel install and explicitly linked local Node/dependency fixtures, not a fresh
+complete scientific Desktop solve. The first smoke's public-health auth
+assumption failed and remains retained; the corrected test uses `/api/session`.
+Manual Finder/default-browser UX acceptance and native Linux desktop/installed
+command smokes remain open. This is not a fresh Standard/Desktop scientific
+installer solve. Reproduce with
+`python scripts/smoke_desktop_launcher.py --prefix PREFIX --output NEW_DIR --shortcut`.
+Local verification: 614 tests in the CI-selected Python contract set, 443 GUI
+tests, GUI production build/server smoke, lint/typecheck, strict API mypy and
+generated CLI/GUI consistency passed. These do not substitute for the remaining
+native Linux or full scientific installer acceptance gates.
 
 ## Geometry-gated anchor relaxation
 

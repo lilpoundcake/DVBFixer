@@ -25,3 +25,12 @@ leap.log
 
 # Retained local licensing evidence is not an approved redistribution bundle.
 /tmp/licensing-audit-2026-10-31/
+
+# Isolated installed-package GUI launcher smokes (prefixes, logs and test data).
+/tmp/desktop-launcher-native-*/
+
+# Installer profile previews retain diagnostics even when cancelled or refused.
+/tmp/installer-profile-preview-*/
+
+# Shared, digest-verified model weights downloaded with explicit consent.
+/models/

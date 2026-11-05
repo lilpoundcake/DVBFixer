@@ -197,6 +197,7 @@ def main(argv: list[str] | None = None) -> None:
     schema = [
         command_schema(command.name, command.description)
         for command in COMMAND_REGISTRY
+        if command.gui_visible
     ]
     payload = json.dumps(schema, indent=2, ensure_ascii=False)
     content = (

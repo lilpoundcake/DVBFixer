@@ -77,6 +77,34 @@ def test_maintained_user_documentation() -> None:
     assert docs.main() == 0
 
 
+def test_readme_uses_interactive_profile_installation_without_explicit_prefixes() -> None:
+    readme = (ROOT / "README.md").read_text()
+    install = readme.split("## Install\n", 1)[1].split("## First structure\n", 1)[0]
+    assert "python3 scripts/install_dvbfixer.py\n" in install
+    assert "**Standard**" in install and "**Desktop**" in install
+    assert "--prefix" not in readme
+    assert "micromamba activate" not in readme
+    assert "micromamba create" not in install
+    assert "pip install -e" not in install
+    assert "dvbfixer gui\n" in readme
+    detailed = (ROOT / "docs/installation.md").read_text()
+    assert "--prefix" in detailed
+    assert detailed.index("## Standard/Desktop source-checkout helper") < detailed.index(
+        "## Manual installation and source development"
+    )
+
+
+def test_manual_profile_activation_matches_generated_environment_names() -> None:
+    import re
+
+    for profile in ("standard", "desktop"):
+        spec = (ROOT / f"environments/{profile}.yml").read_text()
+        name = re.search(r"^name: (.+)$", spec, re.MULTILINE)
+        assert name is not None
+        text = (ROOT / ("docs/installation.md" if profile == "standard" else "gui/README.md")).read_text()
+        assert f"micromamba create -f environments/{profile}.yml\nmicromamba activate {name[1]}\n" in text
+
+
 def test_every_registered_command_has_a_consistent_user_entry() -> None:
     # Import metadata only, never the scientific command parsers in this lane.
     from dvbfixer.command_registry import COMMAND_REGISTRY

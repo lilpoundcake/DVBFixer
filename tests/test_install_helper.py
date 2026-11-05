@@ -118,6 +118,47 @@ def test_native_probe_managed_addon_fails_before_prefix_reservation(tmp_path, mo
     assert not prefix.with_name(prefix.name + ".dvbfixer-install.json").exists()
 
 
+def test_shortcut_requires_explicit_desktop_profile_before_installation(tmp_path):
+    with pytest.raises(SystemExit):
+        install.main(["--profile", "standard", "--manager", "micromamba", "--prefix", str(tmp_path / "new"),
+                      "--desktop-shortcut", "--non-interactive"])
+    assert not (tmp_path / "new.dvbfixer-install.json").exists()
+
+
+def test_desktop_shortcut_dry_run_never_writes_a_launcher(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(install.shutil, "which", lambda _: "/tools/micromamba")
+    monkeypatch.setattr(Manager, "validate", lambda _: "2.9.0")
+    assert install.main(["--profile", "desktop", "--manager", "micromamba", "--prefix", str(tmp_path / "new"),
+                         "--desktop-shortcut", "--non-interactive", "--skip-modeller", "--dry-run", "--json"]) == 0
+    assert '"desktop_shortcut": true' in capsys.readouterr().out
+    assert not (tmp_path / "new.dvbfixer-install.json").exists()
+
+
+@pytest.mark.parametrize("doctor_code", [0, 1, 2])
+def test_desktop_helper_preflights_launcher_before_opt_in_shortcut(tmp_path, monkeypatch, doctor_code):
+    import subprocess
+
+    from dvbfixer import desktop_shortcuts
+
+    calls = []
+    prefix = tmp_path / "desktop"
+    monkeypatch.setattr(install.shutil, "which", lambda _: "/tools/micromamba")
+    monkeypatch.setattr(Manager, "validate", lambda _: "2.9.0")
+    monkeypatch.setattr(install, "run_checked", lambda argv, **_: calls.append(argv))
+    monkeypatch.setattr(install.shutil, "copytree", lambda _, target, **__: Path(target).mkdir(parents=True, exist_ok=True))
+    monkeypatch.setattr(install.subprocess, "run", lambda argv, **_: subprocess.CompletedProcess(
+        argv, 1 if "import modeller" in argv else doctor_code))
+    monkeypatch.setattr(desktop_shortcuts, "install_desktop_shortcut",
+                        lambda target: calls.append(["shortcut", str(target)]) or (tmp_path / "DVBFixer.app"))
+    assert install.main(["--profile", "desktop", "--manager", "micromamba", "--prefix", str(prefix),
+                         "--desktop-shortcut", "--non-interactive", "--skip-modeller"]) == doctor_code
+    if doctor_code in (0, 2):
+        assert calls[-1] == ["shortcut", str(prefix)]
+        assert calls[-2][-4:] == ["python", "-m", "dvbfixer.gui_launcher", "--check"]
+    else:
+        assert not any(call[0] == "shortcut" for call in calls)
+
+
 @pytest.mark.parametrize("subdir,addon", [("linux-64", "probe"), ("osx-arm64", "msa-alternatives")])
 def test_supported_managed_addon_dry_run_is_unchanged(tmp_path, monkeypatch, subdir, addon):
     monkeypatch.setattr(install, "platform_subdir", lambda: subdir)

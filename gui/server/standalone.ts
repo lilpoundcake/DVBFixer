@@ -273,7 +273,25 @@ export function createStandaloneServer(config: StandaloneConfig): StandaloneServ
   }
 }
 
+export function desktopReadyFd(environment: NodeJS.ProcessEnv = process.env): number | undefined {
+  const value = environment.DVBFIXER_DESKTOP_READY_FD
+  if (value === undefined) return undefined
+  if (!/^[0-9]+$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) < 3) {
+    throw new Error('DVBFIXER_DESKTOP_READY_FD must be an inherited descriptor >=3')
+  }
+  return Number(value)
+}
+
+export function notifyDesktopReady(fd: number, address: AddressInfo): void {
+  if (address.address !== '127.0.0.1') throw new Error('Desktop readiness requires IPv4 loopback')
+  fs.writeSync(fd, JSON.stringify({ version: 1, host: address.address, port: address.port, pid: process.pid }) + '\n')
+  fs.closeSync(fd)
+}
+
 async function main(): Promise<void> {
+  const readyFd = desktopReadyFd()
+  // The one-shot descriptor must not leak into later scientific child jobs.
+  delete process.env.DVBFIXER_DESKTOP_READY_FD
   assertDvbfixerAvailable()
   const instance = createStandaloneServer(loadStandaloneConfig())
   const address = await instance.start()
@@ -290,6 +308,12 @@ async function main(): Promise<void> {
   }
   process.once('SIGINT', () => { void shutdown('SIGINT') })
   process.once('SIGTERM', () => { void shutdown('SIGTERM') })
+  if (readyFd !== undefined) {
+    try { notifyDesktopReady(readyFd, address) } catch (error) {
+      await instance.close()
+      throw error
+    }
+  }
 }
 
 const entry = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : ''

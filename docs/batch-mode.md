@@ -56,6 +56,7 @@ an invalid shared invocation cannot fail differently from file to file.
 | `msa` | No | Operates on an explicitly selected sequence set. |
 | `salign` | No | Operates on explicitly selected structures/sequences. |
 | `doctor` | No | Checks the installation once; it has no structure input. |
+| `gui` | No | Launches or stops one installed Desktop GUI/data-directory instance. |
 
 Every tool repeats its status in `dvbfixer TOOL --help` and in its command
 guide. Passing `--input-dir` to an unsupported tool fails with a message that

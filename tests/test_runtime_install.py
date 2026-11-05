@@ -129,6 +129,56 @@ def test_identical_private_launcher_is_idempotent_on_resume(tmp_path):
     assert target.stat().st_ino == before.st_ino
 
 
+@pytest.mark.parametrize("accepted", [True, False])
+def test_publication_conflict_has_explicit_confirmation(tmp_path, accepted, capsys):
+    candidate = tmp_path / "runner"
+    candidate.write_text("new validated runner")
+    directory = tmp_path / "registered"
+    directory.mkdir()
+    destination = directory / candidate.name
+    destination.write_text("old runner")
+    calls = []
+
+    def confirm(path):
+        calls.append(path)
+        assert path.read_text() == "old runner"
+        return accepted
+
+    published = runtime_install.publish_validated_launcher(candidate, directory, replace=False, confirm_replace=confirm)
+    assert calls == [destination]
+    assert destination.read_text() == ("new validated runner" if accepted else "old runner")
+    assert published == (destination if accepted else None)
+    assert "Publish validated backend launcher" in capsys.readouterr().out
+
+
+def test_publication_conflict_unattended_has_specific_recovery(tmp_path):
+    candidate = tmp_path / "runner"
+    candidate.write_text("new")
+    directory = tmp_path / "registered"
+    directory.mkdir()
+    (directory / candidate.name).write_text("old")
+    with pytest.raises(FileExistsError, match="--replace-runner"):
+        runtime_install.publish_validated_launcher(candidate, directory, replace=False)
+    assert (directory / candidate.name).read_text() == "old"
+
+
+def test_changed_launcher_is_not_overwritten_after_confirmation(tmp_path):
+    candidate = tmp_path / "runner"
+    candidate.write_text("new")
+    directory = tmp_path / "registered"
+    directory.mkdir()
+    destination = directory / candidate.name
+    destination.write_text("old")
+
+    def changed(path):
+        path.write_text("concurrent replacement")
+        return True
+
+    with pytest.raises(ValueError, match="changed during confirmation"):
+        runtime_install.publish_validated_launcher(candidate, directory, replace=False, confirm_replace=changed)
+    assert destination.read_text() == "concurrent replacement"
+
+
 def test_interrupted_asset_copy_leaves_no_destination_or_partial_resume_input(monkeypatch, tmp_path):
     source = tmp_path / "source"
     source.write_bytes(b"complete")

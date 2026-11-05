@@ -8,11 +8,12 @@ ligands, or cofactors, check the [appropriate recipe](pipelines.md) first.
 
 ## 1. Check the environment and input
 
-After [installation](installation.md), activate the environment and run:
+After [installation](installation.md), activate the prefix you installed and run
+(use `dvbfixer-desktop` and `--profile desktop` for Desktop):
 
 ```bash
-micromamba activate dvbfixer
-dvbfixer doctor
+micromamba activate "$HOME/micromamba/envs/dvbfixer-standard"
+dvbfixer doctor --profile standard
 dvbfixer diagnose input.pdb
 ```
 

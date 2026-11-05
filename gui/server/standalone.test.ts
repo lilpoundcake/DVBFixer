@@ -7,6 +7,8 @@ import crypto from 'node:crypto'
 import {
   createStandaloneApplication,
   createStandaloneServer,
+  desktopReadyFd,
+  notifyDesktopReady,
   loadStandaloneConfig,
   type StandaloneConfig,
 } from './standalone'
@@ -38,6 +40,19 @@ afterEach(() => temporaryDirectories.splice(0).forEach(directory =>
   fs.rmSync(directory, { recursive: true, force: true })))
 
 describe('standalone configuration', () => {
+  it('only notifies Desktop readiness through an explicit inherited descriptor', () => {
+    expect(desktopReadyFd({})).toBeUndefined()
+    for (const value of ['0', '2', '-1', '3.5', 'bad', '9007199254740992']) {
+      expect(() => desktopReadyFd({ DVBFIXER_DESKTOP_READY_FD: value })).toThrow(/descriptor/)
+    }
+    const file = path.join(temp(), 'ready')
+    const fd = fs.openSync(file, 'w')
+    expect(desktopReadyFd({ DVBFIXER_DESKTOP_READY_FD: String(fd) })).toBe(fd)
+    notifyDesktopReady(fd, { address: '127.0.0.1', family: 'IPv4', port: 34567 })
+    expect(JSON.parse(fs.readFileSync(file, 'utf8'))).toEqual({ version: 1, host: '127.0.0.1', port: 34567, pid: process.pid })
+    expect(() => fs.fstatSync(fd)).toThrow()
+    expect(() => notifyDesktopReady(-1, { address: '0.0.0.0', family: 'IPv4', port: 34567 })).toThrow(/loopback/)
+  })
   it('loads loopback defaults and resolves paths from the project root', () => {
     const root = temp()
     const config = loadStandaloneConfig({}, root)
