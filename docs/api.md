@@ -28,7 +28,7 @@ GET /api/v1/openapi.json
 ```
 
 Runtime validation and OpenAPI are generated from the same TypeBox schemas in
-`gui/server/naming-api-schema.ts` and `managed-jobs-schema.ts`.
+`gui/server/naming-api-schema.ts`, `managed-jobs-schema.ts` and `homology-schema.ts`.
 `gui/openapi.json` and `gui/src/generated/dvbfixer-api.ts` are checked-in
 artifacts. Run `cd gui && npm run gen:openapi` after a schema change;
 `npm run check:openapi` enforces synchronization in CI. The GUI uses the
@@ -77,6 +77,38 @@ crash are marked failed on recovery and can be submitted again explicitly.
 V1 compatibility and deprecation rules are in
 [`ADR 0009`](adr/0009-versioned-workflows-and-compatibility.md). The old
 `/api/jobs` and synchronous `/api/dvbfixer/:command` routes have been retired.
+
+### Persistent Homology modeling
+
+`POST /api/v1/workspaces/{workspaceId}/homology/jobs` accepts a JSON object with
+a `project` snapshot matching the generated `HomologyJobRequest` schema and
+returns `202` with the same `ManagedJobRecord` used by other workflows. The
+snapshot contains the Homology project ID/name, target FASTA, templates,
+alignment groups/masks, model options and project timestamps. Template file
+references are relative to the authorized workspace, never arbitrary host paths.
+Unknown model flags or malformed requests are refused before reserving a job.
+
+Use the ordinary job GET/list/SSE/DELETE routes to observe or stop it. Its
+`workflow` metadata identifies the exact Homology project and snapshot SHA-256;
+`modelStatus` preserves the distinction between process completion and scientific
+rejection. Optional monotonic `revision` values prevent stale GET snapshots from
+replacing newer streamed records. `cancellationRequestedAt` signals a pending
+Stop, not a terminal outcome. SSE rechecks workspace access before local events
+and during cross-process polling; loss of read access closes the stream.
+
+The worker uses copied template inputs and a frozen project snapshot, not live
+project edits. `homology-project.json`, `template-plan.json` and the copied inputs
+are retained through shared diagnostics packaging. Job/output provenance records
+their source digests and `request.values.homologyProject.snapshotSha256`; this
+metadata is not a CLI flag. Existing workspace leases, quotas and process
+admission remain in force. A busy workspace returns `409`, not an unsafe parallel
+launch. Graceful shutdown stops children and drains managed result packaging
+before returning. A process crash is not an automatic resume/retry mechanism.
+
+The GUI uses this additive endpoint. `POST /api/homology/model` retains its
+synchronous response contract and disconnect cancellation for old callers, but
+shares the workspace run lease. Migrate a legacy payload by moving `workspaceId`
+to the URI and wrapping the remaining project fields in `{"project": ...}`.
 
 ## GUI alternate-state selection
 

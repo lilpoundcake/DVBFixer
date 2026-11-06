@@ -224,6 +224,7 @@ def test_publication_marks_validation_failed_candidate_as_rejected(
         rejected,
         workspace=workspace,
         destination_bundle=destination,
+        seed_validations=[],
     )
 
     bundle = json.loads((destination / "bundle.json").read_text(encoding="utf-8"))
@@ -232,6 +233,10 @@ def test_publication_marks_validation_failed_candidate_as_rejected(
     assert bundle["candidates"][0]["hard_gate_failures"] == [
         "severe-steric-overlap"
     ]
+    from dvbfixer.model.diffusion.publication import read_published_bundle
+
+    publication = read_published_bundle(destination)
+    assert publication.seed_outcomes["outcomes"][0]["status"] == "rejected"
 def _workspace(
     tmp_path: Path,
     candidate_bytes: bytes,
@@ -265,6 +270,119 @@ def _trace_bytes(
         denoising_update_count=0,
         final_fixed_coordinate_restoration=True,
     ).to_json().encode()
+
+
+def test_mixed_seed_report_keeps_rejected_coordinates_outside_accepted_candidates(tmp_path):
+    from dvbfixer.model.diffusion.publication import PublicationError, read_published_bundle
+    from dvbfixer.model.diffusion.seed_outcomes import seed_outcome_lines
+    from dvbfixer.model.diffusion.validate import CandidateValidation
+
+    _source, candidate_bytes, request = _source_candidate_request()
+    request = replace(request, seeds=(19, 7, 101), candidate_count=3)
+    result = _validated_result(request, candidate_bytes)
+    passed = result.candidates[0]
+    rejected = replace(passed, candidate_id="rejected-19", seed=19)
+    summary = ValidationSummary(False, ("backbone-bond-angle",), warnings=(
+        "Intermediate warning must not be presented as a final finding",
+        "Final validation: d/ASP28A: N–CA–C bond angle = 79.1°; allowed range: 95–125°.",
+    ))
+    validations = (CandidateValidation(rejected, summary), CandidateValidation(passed, result.validation_summaries[0]))
+    workspace = _workspace(tmp_path, candidate_bytes)
+    destination = tmp_path / "mixed"
+    publish_diffusion_bundle(request, result, workspace=workspace, destination_bundle=destination,
+                             seed_validations=validations)
+    publication = read_published_bundle(destination)
+    assert [candidate.seed for candidate in publication.candidates] == [7]
+    assert publication.selected().seed == 7
+    report = publication.seed_outcomes
+    assert report is not None
+    assert [row["seed"] for row in report["outcomes"]] == [19, 7, 101]
+    assert [row["status"] for row in report["outcomes"]] == ["rejected", "accepted", "not_returned"]
+    assert (destination / "rejected" / "seed-19.pdb").read_bytes() == candidate_bytes
+    lines = "\n".join(seed_outcome_lines(report, str(destination)))
+    assert "d/ASP28A" in lines and "79.1°" in lines and "95–125°" in lines
+    assert "Intermediate warning" not in lines
+    assert "seed 101: NOT RETURNED" in lines
+    assert "seed 7: ACCEPTED" in lines
+    assert str(destination / "seed-outcomes.json") in lines
+    (destination / "rejected" / "seed-19.pdb").write_bytes(b"tampered\n")
+    with pytest.raises(PublicationError, match="SHA-256"):
+        read_published_bundle(destination)
+
+
+def test_pipeline_prints_each_final_seed_outcome_even_when_another_seed_passes(tmp_path, monkeypatch, capsys):
+    from dvbfixer.model.diffusion.validate import CandidateValidation
+
+    source, candidate_bytes, request = _source_candidate_request()
+    request = replace(request, seeds=(7, 19, 101), candidate_count=3)
+    source_path = tmp_path / "input" / "normalized.pdb"
+    source_path.parent.mkdir()
+    source_path.write_bytes(source)
+    result = _validated_result(request, candidate_bytes)
+    rejected = replace(result.candidates[0], seed=19, candidate_id="rejected-19")
+    failed_summary = ValidationSummary(False, ("backbone-bond-angle",), warnings=(
+        "Final validation: d/ASP28A: angle = 79.1°; allowed 95–125°.",))
+
+    def runner(*_args, workspace, **_kwargs):
+        (workspace / "candidates").mkdir(parents=True)
+        (workspace / "candidates/candidate-0001.pdb").write_bytes(candidate_bytes)
+        (workspace / "candidates/candidate-0001.trace.json").write_bytes(_trace_bytes(request))
+        return result
+
+    def validate(*_args, on_validated, **_kwargs):
+        on_validated((CandidateValidation(result.candidates[0], result.validation_summaries[0]),
+                      CandidateValidation(rejected, failed_summary)))
+        return result
+
+    monkeypatch.setattr(diffusion_pipeline, "run_diffusion_runner", runner)
+    monkeypatch.setattr(diffusion_pipeline, "build_validated_result", validate)
+    outcome = run_diffusion_pipeline(request, ("runner",), source_root=tmp_path,
+        work_parent=tmp_path, destination_bundle=tmp_path / "published")
+    assert outcome.status is DiffusionStatus.SUCCESS
+    assert outcome.seed_outcomes_reported
+    output = capsys.readouterr().out
+    assert "seed 7: ACCEPTED" in output
+    assert "rejected-19 (seed 19; final selected coordinates)" in output
+    assert "d/ASP28A: angle = 79.1°; allowed 95–125°." in output
+    assert "seed 101: NOT RETURNED" in output
+    assert str(tmp_path / "published/seed-outcomes.json") in output
+
+
+@pytest.mark.parametrize("mutation", ["binding", "omit", "promote", "path", "repeat"])
+def test_seed_report_refuses_inconsistent_or_unbound_outcomes(tmp_path, mutation):
+    from dvbfixer.model.diffusion.publication import PublicationError, read_published_bundle
+    from dvbfixer.model.diffusion.validate import CandidateValidation
+
+    _source, candidate_bytes, request = _source_candidate_request()
+    request = replace(request, seeds=(7, 19), candidate_count=2)
+    result = _validated_result(request, candidate_bytes)
+    rejected = replace(result.candidates[0], candidate_id="rejected-19", seed=19)
+    validations = (CandidateValidation(result.candidates[0], result.validation_summaries[0]),
+                   CandidateValidation(rejected, ValidationSummary(False, ("test-gate",))))
+    destination = tmp_path / "mixed"
+    publish_diffusion_bundle(request, result, workspace=_workspace(tmp_path, candidate_bytes),
+                             destination_bundle=destination, seed_validations=validations)
+    report_path = destination / "seed-outcomes.json"
+    report = json.loads(report_path.read_bytes())
+    if mutation == "binding":
+        report["request_sha256"] = "0" * 64
+    elif mutation == "omit":
+        report["outcomes"].pop()
+    elif mutation == "promote":
+        report["outcomes"][1]["status"] = "accepted"
+        report["outcomes"][1]["validation"] = {"passed": True, "hard_gate_failures": [], "warnings": []}
+    elif mutation == "path":
+        report["outcomes"][1]["coordinate"]["path"] = "../outside.pdb"
+    else:
+        report["requested_seeds"] = [7, 7]
+    data = json.dumps(report).encode()
+    report_path.write_bytes(data)
+    index_path = destination / "bundle.json"
+    index = json.loads(index_path.read_bytes())
+    index["seed_outcomes"]["sha256"] = _digest(data)
+    index_path.write_text(json.dumps(index))
+    with pytest.raises(PublicationError):
+        read_published_bundle(destination)
 
 
 @pytest.mark.parametrize("anchor_conect", [False, True])
@@ -698,6 +816,8 @@ def test_successful_subset_retains_omitted_seed_evidence(tmp_path, monkeypatch, 
         return result
 
     published = []
+    stages = []
+    monkeypatch.setattr(diffusion_pipeline, "emit_job_progress", stages.append)
     monkeypatch.setattr(diffusion_pipeline, "run_diffusion_runner", runner)
     monkeypatch.setattr(diffusion_pipeline, "build_validated_result", lambda *_args, **_kwargs: result)
     monkeypatch.setattr(diffusion_pipeline, "publish_diffusion_bundle", lambda *_args, **_kwargs: published.append(result))
@@ -705,6 +825,7 @@ def test_successful_subset_retains_omitted_seed_evidence(tmp_path, monkeypatch, 
                                      work_parent=tmp_path, destination_bundle=tmp_path / "published")
     assert outcome.status is DiffusionStatus.SUCCESS
     assert published == [result]
+    assert stages == ["preparation", "runner", "validation", "publication"]
     output = capsys.readouterr().out
     if partial:
         assert (workspaces[0] / "seed-101-raw.pdb").read_bytes() == candidate_bytes
@@ -741,6 +862,8 @@ def test_unsupported_scope_does_not_launch_runner_or_publish(
         should_not_run,
     )
     destination = tmp_path / "published"
+    stages = []
+    monkeypatch.setattr(diffusion_pipeline, "emit_job_progress", stages.append)
     outcome = run_diffusion_pipeline(
         unsupported,
         ("missing-runner",),
@@ -750,6 +873,7 @@ def test_unsupported_scope_does_not_launch_runner_or_publish(
     )
 
     assert outcome.status is DiffusionStatus.UNSUPPORTED
+    assert stages == ["preparation"]
     assert outcome.published_bundle is None
     assert not destination.exists()
     assert not list(tmp_path.glob(".dvbfixer-diffusion-run.*"))

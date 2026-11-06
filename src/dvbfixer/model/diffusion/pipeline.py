@@ -16,6 +16,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from dvbfixer.ffutils.dat import AddedAtom, DatRecord, ResidueSummary
+from dvbfixer.job_progress import emit_job_progress
 from dvbfixer.model.diffusion.contract import (
     MAX_TRACE_BYTES,
     ArtifactReference,
@@ -44,6 +45,7 @@ from dvbfixer.model.diffusion.scope import (
 )
 from dvbfixer.model.diffusion.trace import validate_sampler_trace_context
 from dvbfixer.model.diffusion.validate import (
+    CandidateValidation,
     ValidationThresholds,
     build_validated_result,
 )
@@ -68,6 +70,7 @@ class DiffusionPipelineOutcome:
     admission: ScopeAdmission | None
     published_bundle: Path | None
     message: str = ""
+    seed_outcomes_reported: bool = False
 
     @property
     def status(self) -> DiffusionStatus:
@@ -91,6 +94,7 @@ def run_diffusion_pipeline(
     repository_root: Path | None = None,
 ) -> DiffusionPipelineOutcome:
     """Run one request and publish validated or explicitly rejected candidates."""
+    emit_job_progress("preparation")
     source_bytes = _read_source_artifact(
         source_root,
         request.normalized_pdb,
@@ -148,6 +152,7 @@ def run_diffusion_pipeline(
     shutil.rmtree(workspace)
     diagnostics_warning = False
     try:
+        emit_job_progress("runner")
         runner_result = run_diffusion_runner(
             request,
             command,
@@ -156,11 +161,14 @@ def run_diffusion_pipeline(
             limits=limits,
             environment=environment,
         )
+        emit_job_progress("validation")
+        validations: list[CandidateValidation] = []
         result = build_validated_result(
             request,
             runner_result,
             workspace=workspace,
             thresholds=thresholds,
+            on_validated=validations.extend,
         )
         # SUCCESS means at least one candidate passed, not that every requested
         # seed survived sampling/refinement/validation. Keep the private runner
@@ -185,6 +193,7 @@ def run_diffusion_pipeline(
                 published_bundle=None,
                 message=result.message,
             )
+        emit_job_progress("publication")
         publish_diffusion_bundle(
             request,
             result,
@@ -192,12 +201,22 @@ def run_diffusion_pipeline(
             destination_bundle=destination_bundle,
             repository_root=repository_root,
             input_preparation_artifacts=preparation_artifacts,
+            seed_validations=validations,
         )
+        from dvbfixer.model.diffusion.seed_outcomes import SEED_OUTCOMES_FILE, seed_outcome_lines
+
+        report_path = destination_bundle / SEED_OUTCOMES_FILE
+        seed_outcomes_reported = False
+        if report_path.is_file():
+            for line in seed_outcome_lines(json.loads(report_path.read_bytes()), str(destination_bundle)):
+                print(line, flush=True)
+            seed_outcomes_reported = True
         return DiffusionPipelineOutcome(
             result=result,
             admission=admission,
             published_bundle=destination_bundle,
             message=result.message,
+            seed_outcomes_reported=seed_outcomes_reported,
         )
     except BaseException:
         # Cancellation/interrupts must retain raw and completed-stage evidence
@@ -221,6 +240,7 @@ def publish_diffusion_bundle(
     repository_root: Path | None = None,
     before_commit: Callable[[Path], None] | None = None,
     input_preparation_artifacts: Mapping[str, bytes] | None = None,
+    seed_validations: Sequence[CandidateValidation] | None = None,
 ) -> Path:
     """Publish accepted or explicitly validation-failed candidates atomically."""
     if result.status not in {DiffusionStatus.SUCCESS, DiffusionStatus.FAILED}:
@@ -269,6 +289,25 @@ def publish_diffusion_bundle(
                     input_preparation_artifacts=input_preparation_artifacts,
                 )
             )
+        outcome_index: dict[str, object] = {}
+        if seed_validations is not None:
+            from dataclasses import asdict
+
+            from dvbfixer.model.diffusion.seed_outcomes import stage_seed_outcomes
+
+            def write_outcome_artifact(name: str, data: bytes) -> None:
+                target = staging / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                _write_file_fsync(target, data)
+                _fsync_directory(target.parent)
+
+            try:
+                reference = stage_seed_outcomes(request, result, seed_validations,
+                    read_coordinates=lambda reference: _read_workspace_artifact(root, reference),
+                    write_artifact=write_outcome_artifact)
+            except ValueError as exc:
+                raise DiffusionPipelineError(f"invalid seed outcome report: {exc}") from exc
+            outcome_index["seed_outcomes"] = asdict(reference)
         index_path = staging / "bundle.json"
         _write_file_fsync(
             index_path,
@@ -291,6 +330,7 @@ def publish_diffusion_bundle(
                             None,
                         ),
                         "candidates": bundle_candidates,
+                        **outcome_index,
                     },
                     ensure_ascii=False,
                     sort_keys=True,

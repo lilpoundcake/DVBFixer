@@ -2763,7 +2763,7 @@ export const GENERATED_COMMANDS = [
     "name": "convert",
     "label": "Convert",
     "description": "Convert between PDB/AMBER/GLYCAM and CHARMM naming (sugars + protonation variants)",
-    "category": "Glycoprotein preparation",
+    "category": "Glycans",
     "inputs": [
       {
         "flag": "input",
@@ -2879,7 +2879,7 @@ export const GENERATED_COMMANDS = [
     "name": "transplant",
     "label": "Transplant",
     "description": "Transplant molecules between donor and acceptor structures",
-    "category": "Glycoprotein preparation",
+    "category": "Glycans",
     "inputs": [
       {
         "flag": "acceptor",
@@ -3074,7 +3074,7 @@ export const GENERATED_COMMANDS = [
     "name": "cluster",
     "label": "Cluster",
     "description": "Cluster glycan conformations from MD trajectory",
-    "category": "Glycoprotein preparation",
+    "category": "Glycans",
     "inputs": [
       {
         "flag": "topology",

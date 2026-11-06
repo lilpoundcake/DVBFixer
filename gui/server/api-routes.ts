@@ -13,9 +13,9 @@ import path from 'node:path'
 import fs from 'node:fs'
 import { COMMANDS } from './dvbfixer-spec'
 import {
-  registerManagedJobApi, resetManagedJobAdmission, shutdownManagedJobs,
+  drainManagedJobs, registerManagedJobApi, resetManagedJobAdmission, shutdownManagedJobs,
 } from './managed-jobs'
-import { registerHomologyApi } from './homology-api'
+import { registerHomologyApi, registerHomologyJobApi } from './homology-api'
 import { registerNamingApi } from './naming-api'
 import { registerAltlocApi } from './altloc-api'
 import {
@@ -42,6 +42,7 @@ export { buildArgs } from './command-args'
 export async function shutdownApiWork(): Promise<void> {
   shutdownManagedJobs()
   await shutdownDvbfixerProcesses()
+  await drainManagedJobs()
 }
 
 export function resetApiShutdown(): void {
@@ -144,6 +145,7 @@ export function registerApiRoutes(server: ApiRouteHost, options: ApiRouteOptions
       const principalId = (request: IncomingMessage) => getApiPrincipal(request).id
       registerWorkspaceApi(server, structuresDir, principalId, legacyWorkspaceOwner, !authConfig.enabled)
       registerHomologyApi(server, structuresDir, principalId, legacyWorkspaceOwner)
+      registerHomologyJobApi(server, structuresDir, principalId, legacyWorkspaceOwner, serviceVersion)
       registerAltlocApi(server, structuresDir, principalId, legacyWorkspaceOwner)
       registerManagedJobApi(server, structuresDir, principalId, legacyWorkspaceOwner, serviceVersion)
       registerNamingApi(

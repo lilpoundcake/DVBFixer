@@ -43,6 +43,13 @@ def test_batch_suffixes_are_derived_from_command_registry() -> None:
     }
 
 
+def test_glycan_category_keeps_conversion_transplant_and_analysis_together() -> None:
+    assert [command.name for command in COMMAND_REGISTRY if command.category == "Glycans"] == [
+        "convert", "transplant", "cluster",
+    ]
+    assert all(command.category != "Glycoprotein preparation" for command in COMMAND_REGISTRY)
+
+
 def test_desktop_launcher_is_cli_only_and_dependency_light() -> None:
     from scripts.gen_gui_spec import ROOT
 

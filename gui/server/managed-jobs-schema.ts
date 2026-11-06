@@ -1,4 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox'
+import { JobProgressSchema } from './job-progress'
+import { DiffusionOutcomesSchema } from './diffusion-outcomes'
 
 const InputValueSchema = Type.Union([
   Type.String({ minLength: 1 }),
@@ -16,6 +18,8 @@ export const ManagedJobRequestSchema = Type.Object({
 
 export const ManagedJobRecordSchema = Type.Object({
   version: Type.Literal(1),
+  revision: Type.Optional(Type.Integer({ minimum: 1 })),
+  cancellationRequestedAt: Type.Optional(Type.String()),
   id: Type.String({ format: 'uuid' }),
   workspaceId: Type.String(),
   status: Type.Union([
@@ -34,6 +38,13 @@ export const ManagedJobRecordSchema = Type.Object({
   outputFile: Type.Union([Type.String(), Type.Null()]),
   requestedByPrincipalId: Type.String(),
   error: Type.Optional(Type.String()),
+  progress: Type.Optional(JobProgressSchema),
+  diffusion: Type.Optional(DiffusionOutcomesSchema),
+  workflow: Type.Optional(Type.Object({
+    kind: Type.Literal('homology'), projectId: Type.String(), projectName: Type.String(),
+    snapshotSha256: Type.Optional(Type.String({ pattern: '^[a-f0-9]{64}$' })),
+  }, { additionalProperties: false })),
+  modelStatus: Type.Optional(Type.Union([Type.Literal('success'), Type.Literal('failed'), Type.Literal('validation_failed')])),
   provenance: Type.Optional(Type.Object({
     apiVersion: Type.Literal(1),
     command: Type.String(),

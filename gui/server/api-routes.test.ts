@@ -50,6 +50,7 @@ describe('host-neutral API composition', () => {
       '/api/session',
       '/api/workspaces',
       '/api/homology',
+      '/api/v1', // persistent Homology modeling; legacy endpoint remains mounted
       '/api/workspaces', // alternate-state analysis and selection
       '/api/v1',
       '/api/v1',

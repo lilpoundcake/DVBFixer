@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process'
+import { createJobProgressDecoder, type JobProgress } from './job-progress'
 
 const DEFAULT_MAX_CONCURRENT_PROCESSES = 1
 const MAX_CONCURRENT_PROCESSES = 64
@@ -147,6 +148,7 @@ export interface DvbfixerRunOptions {
   killGraceMs?: number
   signal?: AbortSignal
   onStart?: () => void
+  onProgress?: (event: JobProgress) => void
 }
 
 export function commandConfiguration(environment: NodeJS.ProcessEnv = process.env): { executable: string; prefix: string[] } {
@@ -293,7 +295,13 @@ export function runDvbfixerArgs(
       try {
         options.onStart?.()
         if (settled) return
-        child = spawn(executable, commandArgs, { cwd, detached: process.platform !== 'win32' })
+        const environment = { ...process.env }
+        delete environment.DVBFIXER_JOB_PROGRESS_FD
+        if (options.onProgress) environment.DVBFIXER_JOB_PROGRESS_FD = '3'
+        child = spawn(executable, commandArgs, {
+          cwd, detached: process.platform !== 'win32', env: environment,
+          stdio: options.onProgress ? ['pipe', 'pipe', 'pipe', 'pipe'] : ['pipe', 'pipe', 'pipe'],
+        })
       } catch (error) {
         terminationReason = spawnErrorMessage(error)
         finish(-1, 'spawn-error')
@@ -301,6 +309,7 @@ export function runDvbfixerArgs(
       }
       child.stdout?.on('data', (data: Buffer) => { stdout = appendBounded(stdout, data, maxOutputBytes) })
       child.stderr?.on('data', (data: Buffer) => { stderr = appendBounded(stderr, data, maxOutputBytes) })
+      if (options.onProgress) child.stdio[3]?.on('data', createJobProgressDecoder(options.onProgress))
       child.on('error', error => {
         terminationReason = spawnErrorMessage(error)
         finish(-1, 'spawn-error')

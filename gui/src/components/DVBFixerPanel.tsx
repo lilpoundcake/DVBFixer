@@ -24,7 +24,7 @@ import { useStructureStore } from '../stores/structureStore'
 import { alignSequences, chainToSequence } from '../lib/alignment'
 import { filterSequenceableChains } from '../lib/chain-grouping'
 import { useWorkspaceStore, workspaceFileUrl, type WorkspaceArtifact } from '../stores/workspaceStore'
-import { createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, mergeManagedJobHistory, outputMatchesManagedJob, selectRestoredManagedJob, selectToolManagedJob, type ManagedJobRecord } from '../lib/managed-jobs'
+import { acceptManagedJobUpdate, createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, mergeManagedJobHistory, outputMatchesManagedJob, selectRestoredManagedJob, selectToolManagedJob, type ManagedJobRecord } from '../lib/managed-jobs'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 import { apiFetch, apiSse } from '../lib/api-client'
 import { v1Client } from '../lib/v1-client'
@@ -34,6 +34,7 @@ import { AltlocPanel } from './AltlocPanel'
 import { ToolGroupMenu } from './ToolGroupMenu'
 import { loadToolReports, type ToolReportPreview } from '../lib/tool-output'
 import { orderToolTabs } from '../lib/tool-tab-order'
+import { resolveToolCategory } from '../lib/tool-navigation'
 import { diffusionSeedError } from '../lib/diffusion-seeds'
 import { retryAfterMs } from '../lib/job-monitor-polling'
 import { namingOutputMatches, runNamingConversion } from '../lib/naming-conversion'
@@ -355,7 +356,9 @@ export function DVBFixerPanel() {
     let timer: ReturnType<typeof setTimeout>
     const streamController = new AbortController()
     const apply = (next: ManagedJobRecord) => {
-      if (!disposed && next.id === jobId && next.workspaceId === workspaceId) setJob(next)
+      if (!disposed && next.id === jobId && next.workspaceId === workspaceId) {
+        setJob(current => current?.id === jobId && acceptManagedJobUpdate(current, next) ? next : current)
+      }
     }
     void (async () => {
       try {
@@ -537,7 +540,7 @@ export function DVBFixerPanel() {
 
   useEffect(() => {
     if (categories.length && !categories.includes(category)) {
-      setCategory(category === 'Analysis' ? 'Utilities' : categories[0])
+      setCategory(resolveToolCategory(category, categories))
     }
   }, [categories, category])
 
@@ -862,6 +865,7 @@ export function DVBFixerPanel() {
             {!toolJob && !namingToolResult && !submitting && <Typography variant="caption" color="text.secondary">No runs yet for {activeCmd.label} in this workspace.</Typography>}
             {toolJob && !isActiveManagedJob(toolJob) && !toolResult && !error && <Typography variant="caption" color="text.secondary">Loading output for {activeCmd.label}…</Typography>}
             {toolResult && <ToolOutput stdout={toolResult.stdout} stderr={toolResult.stderr} reports={toolResult.reports}
+              diffusion={toolJob?.diffusion}
               outputFile={toolResult.outputFile}
               onOpenFile={toolResult ? file => {
                 useWorkspaceStore.getState().setTextPreview({ workspaceId: toolResult.workspaceId, file, name: file.split('/').pop() || file })

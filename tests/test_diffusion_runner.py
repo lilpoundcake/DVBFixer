@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 import textwrap
 from dataclasses import replace
@@ -28,10 +29,30 @@ from dvbfixer.model.diffusion.runner import (
     DIFFUSION_RUNNER_PROTOCOL_VERSION,
     DiffusionRunnerError,
     RunnerLimits,
+    _execute,
     prepare_diffusion_workspace,
     run_diffusion_runner,
     run_prepared_diffusion_runner,
 )
+
+
+def test_runner_forwards_only_the_validated_host_monitor_descriptor(tmp_path, monkeypatch):
+    reader, writer = os.pipe()
+    try:
+        monkeypatch.setenv("DVBFIXER_JOB_PROGRESS_FD", str(writer))
+        diagnostic = _execute((sys.executable, "-c", "import os; "
+            "os.write(int(os.environ['DVBFIXER_JOB_PROGRESS_FD']), b'{\"version\":1,\"stage\":\"sampling\",\"seed\":19}\\n'); "
+            "print('normal runner output')"), cwd=tmp_path, limits=RunnerLimits(), environment={})
+        os.close(writer)
+        writer = -1
+        assert json.loads(os.read(reader, 4096)) == {"version": 1, "stage": "sampling", "seed": 19}
+        assert diagnostic.exit_code == 0
+        assert diagnostic.stdout == "normal runner output\n"
+        assert diagnostic.stderr == ""
+    finally:
+        os.close(reader)
+        if writer >= 0:
+            os.close(writer)
 
 
 def _digest(data: bytes) -> str:

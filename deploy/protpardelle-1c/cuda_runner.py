@@ -12,6 +12,7 @@ import sys
 from dataclasses import replace
 from pathlib import Path
 
+from dvbfixer.job_progress import emit_job_progress
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     DiffusionRequest,
@@ -174,6 +175,7 @@ def run(args):
         # every artifact and context identity stays bound to the public request.
         single_path = request_path.parent / f"sampling-seed-{seed}.json"
         single_path.write_text(replace(request, seeds=(seed,), candidate_count=1).to_json())
+        emit_job_progress("sampling", seed=seed)
         raw, _ = adapter._run_staged(single_path, directory / "raw",
             args.checkpoint.parent.parent / "configs/cc89.yaml", args.checkpoint,
             device_name="cuda", mps_profile=False, steps=500, step_scale=1.2, s_churn=200.0,
@@ -181,10 +183,12 @@ def run(args):
         raw_path = directory / "raw-result.json"
         raw_path.write_text(raw.to_json())
         refined_path = directory / "refined-result.json"
+        emit_job_progress("refinement", seed=seed)
         subprocess.run([str(args.refinement_python), str(Path(__file__).resolve()), "--refine-worker",
             "--request", str(single_path), "--raw-result", str(raw_path), "--output", str(directory / "refined"),
             "--result", str(refined_path)], env=refinement_environment(args.refinement_python), check=True)
         refined = RunnerResult.from_json(refined_path.read_text())
+        emit_job_progress("validation", seed=seed)
         validate_runner_result(replace(request, seeds=(seed,), candidate_count=1), refined, workspace=request_path.parent)
         results.append(refined)
     result = replace(results[0], candidates=tuple(candidate for item in results for candidate in item.candidates),

@@ -7,6 +7,8 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import type { ToolReportPreview } from '../lib/tool-output'
 import { anchorRefinementNotices, diagnosticLine, outputErrors } from '../lib/tool-output'
 import { inlineActionSx } from '../ui/layout'
+import type { DiffusionOutcomes } from '../lib/managed-jobs'
+import { DiffusionSeedOutcomes } from './DiffusionSeedOutcomes'
 
 type OutputStream = 'stdout' | 'stderr'
 
@@ -27,13 +29,14 @@ function DiagnosticText({ text }: { text: string }) {
   })}</>
 }
 
-export function ToolOutput({ stdout, stderr, reports = [], outputFile, onOpenFile, onOpenLog }: {
+export function ToolOutput({ stdout, stderr, reports = [], outputFile, onOpenFile, onOpenLog, diffusion }: {
   stdout: string
   stderr: string
   onOpenLog?: (stream: OutputStream) => void
   reports?: ToolReportPreview[]
   outputFile?: string
   onOpenFile?: (file: string) => void
+  diffusion?: DiffusionOutcomes
 }) {
   const reportTitle = reports.some(report => /diagnose/i.test(report.file)) ? 'Diagnostic report' : 'Output report'
   const anchorNotices = anchorRefinementNotices(stdout, stderr)
@@ -55,6 +58,7 @@ export function ToolOutput({ stdout, stderr, reports = [], outputFile, onOpenFil
   </Box> : null
 
   return <Box sx={{ mt: 1 }}>
+    <DiffusionSeedOutcomes diffusion={diffusion} onOpenReport={onOpenFile} />
     {errors.length > 0 && <Alert severity="error" sx={{ mb: 1 }}>
       <Typography variant="body2" sx={{ fontWeight: 700 }}>Errors / validation failures</Typography>
       {errors.slice(0, 12).map(error => <Typography variant="body2" key={error} sx={{ overflowWrap: 'anywhere' }}>{error}</Typography>)}

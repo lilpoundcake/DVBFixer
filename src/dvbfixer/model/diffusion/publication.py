@@ -41,6 +41,7 @@ class PublishedCandidate:
 class PublishedBundle:
     status: str
     candidates: tuple[PublishedCandidate, ...]
+    seed_outcomes: dict | None = None
 
     def selected(self) -> PublishedCandidate:
         if self.status != "success":
@@ -79,6 +80,7 @@ def _read_published_bundle(
     identifiers = set()
     seeds = set()
     artifact_paths = set()
+    request_digests: set[str] = set()
     for row in rows:
         if not isinstance(row, dict):
             raise PublicationError("diffusion candidate must be an object")
@@ -98,6 +100,8 @@ def _read_published_bundle(
             maximum = MAX_TRACE_BYTES if label == "sampler_trace" else 1_000_000_000
             payloads[label] = _read_contained_artifact(root, reference, max_bytes=maximum)
         provenance = json.loads(payloads["provenance"])
+        if "seed_outcomes" in index:
+            request_digests.add(provenance["request_sha256"])
         summary = provenance["validation_summary"]
         passed = index["status"] == "success"
         if (
@@ -206,7 +210,27 @@ def _read_published_bundle(
         candidates.append(PublishedCandidate(
             identity, seed, root / row["pdb"]["path"], dat_path, payloads["pdb"], record,
         ))
-    return PublishedBundle(index["status"], tuple(candidates))
+    seed_outcomes = None
+    if "seed_outcomes" in index:
+        from dvbfixer.model.diffusion.seed_outcomes import (
+            MAX_SEED_OUTCOME_BYTES,
+            verify_seed_outcomes,
+        )
+
+        if len(request_digests) != 1:
+            raise PublicationError("seed report candidates disagree on request binding")
+        reference = ArtifactReference(**index["seed_outcomes"])
+        if reference.path in artifact_paths:
+            raise PublicationError("seed outcome report repeats a candidate artifact")
+        seed_outcomes = verify_seed_outcomes(
+            _read_contained_artifact(root, reference, max_bytes=MAX_SEED_OUTCOME_BYTES),
+            request_sha256=next(iter(request_digests)),
+            published={row["seed"]: (row["candidate_id"], row["validation_passed"]) for row in rows},
+            read_artifact=lambda artifact: _read_contained_artifact(root, artifact, max_bytes=1_000_000_000),
+        )
+        if request is not None and seed_outcomes["requested_seeds"] != list(request.seeds):
+            raise PublicationError("seed report differs from requested seeds")
+    return PublishedBundle(index["status"], tuple(candidates), seed_outcomes)
 
 
 def copy_selected_candidate(bundle: Path, destination: Path, *, resume: bool = False) -> Path:

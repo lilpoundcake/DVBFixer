@@ -12,6 +12,7 @@ import sys
 from dataclasses import replace
 from pathlib import Path
 
+from dvbfixer.job_progress import emit_job_progress
 from dvbfixer.model.diffusion import cc94
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
@@ -183,18 +184,22 @@ def run(args):
 
         if single.gap_contexts is not None:
             from dvbfixer.model.diffusion.independent_gaps import sample_independent_gaps
+            emit_job_progress("sampling", seed=seed)
             raw = sample_independent_gaps(single_path, directory/"raw", sample)
         else:
             (directory/"raw").mkdir(parents=True, exist_ok=False)
+            emit_job_progress("sampling", seed=seed)
             raw = sample(single_path, directory/"raw")
         raw_path = directory/"raw-result.json"
         raw_path.write_text(raw.to_json())
         refined_path = directory/"refined-result.json"
+        emit_job_progress("refinement", seed=seed)
         subprocess.run([str(args.refinement_python), str(Path(__file__).resolve()), "--profile", args.profile,
             "--refine-worker", "--request", str(single_path), "--raw-result", str(raw_path),
             "--output", str(directory/"refined"), "--result", str(refined_path)],
             env=refinement_environment(args.refinement_python), check=True)
         refined = RunnerResult.from_json(refined_path.read_text())
+        emit_job_progress("validation", seed=seed)
         validate_runner_result(single, refined, workspace=path.parent)
         results.append(refined)
     final = replace(results[0], candidates=tuple(c for r in results for c in r.candidates),

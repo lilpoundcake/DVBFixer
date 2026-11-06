@@ -7,13 +7,15 @@ import { Value } from '@sinclair/typebox/value'
 import { buildArgs } from './command-args'
 import { readDiffusionPublication } from './diffusion-bundle'
 import { COMMANDS } from './dvbfixer-spec'
-import { runDvbfixerArgs } from './dvbfixer-runner'
+import { runDvbfixerArgs, type DvbfixerRunOptions } from './dvbfixer-runner'
 import { errorStatus, readRequestBody } from './request-body'
 import { assertWorkspaceQuota, WorkspaceQuotaExceededError } from './storage-quota'
 import type { ApiRouteHost } from './http-types'
 import { ensureRequestId } from './request-observability'
 import { acquireWorkspaceRunLock, WorkspaceRunLockError } from './workspace-lock'
 import { ManagedJobRequestSchema } from './managed-jobs-schema'
+import type { JobProgress } from './job-progress'
+import { relocateDiffusionOutcomes, type DiffusionOutcomes } from './diffusion-outcomes'
 import { executionPolicy } from './execution-policy'
 import { compactRun, copyNativeRun, outputFiles, RUN_ARCHIVE, RUN_SUMMARY, type RunStatus } from './run-storage'
 import {
@@ -24,6 +26,8 @@ export type ManagedJobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | '
 
 export interface ManagedJobRecord {
   version: 1
+  revision?: number
+  cancellationRequestedAt?: string
   id: string
   workspaceId: string
   status: ManagedJobStatus
@@ -39,6 +43,10 @@ export interface ManagedJobRecord {
   outputFile: string | null
   requestedByPrincipalId: string
   error?: string
+  progress?: JobProgress
+  diffusion?: DiffusionOutcomes
+  workflow?: { kind: 'homology'; projectId: string; projectName: string; snapshotSha256?: string }
+  modelStatus?: 'success' | 'failed' | 'validation_failed'
   provenance?: ManagedJobProvenance
 }
 
@@ -63,12 +71,27 @@ export interface ManagedJobRequest {
   inputs?: Record<string, string | string[]>
   values?: Record<string, any>
   fastaContent?: string
+  workflow?: ManagedJobRecord['workflow']
 }
 
 interface ActiveRun { owner: string; controller?: AbortController }
 const activeRuns = new Map<string, ActiveRun>()
-const subscribers = new Map<string, Set<ServerResponse>>()
+const activeJobWork = new Set<Promise<void>>()
+interface JobSubscriber { response: ServerResponse; authorize(): void }
+const subscribers = new Map<string, Set<JobSubscriber>>()
 let acceptingManagedJobs = true
+
+function trackManagedJob(work: Promise<void>, jobId: string): void {
+  activeJobWork.add(work)
+  void work.then(() => activeJobWork.delete(work), error => {
+    activeJobWork.delete(work)
+    console.error(`ERROR: Could not finalize managed job ${jobId}: ${error instanceof Error ? error.message : String(error)}`)
+  })
+}
+
+export async function drainManagedJobs(): Promise<void> {
+  await Promise.allSettled([...activeJobWork])
+}
 
 export function resetManagedJobAdmission(): void {
   acceptingManagedJobs = true
@@ -78,7 +101,7 @@ export function shutdownManagedJobs(): void {
   acceptingManagedJobs = false
   for (const run of activeRuns.values()) run.controller?.abort()
   for (const responses of subscribers.values()) {
-    for (const response of responses) response.end()
+    for (const { response } of responses) response.end()
   }
   subscribers.clear()
 }
@@ -115,13 +138,37 @@ function cancellationPath(dataRoot: string, workspaceId: string, jobId: string):
   return path.join(jobDirectory(dataRoot, workspaceId, jobId), 'cancel.requested')
 }
 
+function readCancellationRequest(file: string): string | undefined {
+  let descriptor: number
+  try { descriptor = fs.openSync(file, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW) } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
+    throw error
+  }
+  try {
+    const stat = fs.fstatSync(descriptor)
+    if (!stat.isFile() || stat.nlink !== 1 || stat.size > 64) throw new Error('invalid job cancellation marker')
+    const value = fs.readFileSync(descriptor, 'utf8').trim()
+    if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(value) || !Number.isFinite(Date.parse(value))) throw new Error('invalid cancellation timestamp')
+    return value
+  } finally { fs.closeSync(descriptor) }
+}
+
 function persistJob(dataRoot: string, record: ManagedJobRecord): void {
+  const cancelledAt = readCancellationRequest(cancellationPath(dataRoot, record.workspaceId, record.id))
+  if (cancelledAt) record.cancellationRequestedAt = cancelledAt
+  record.revision = (record.revision || 0) + 1
   writeJsonAtomic(recordPath(dataRoot, record.workspaceId, record.id), record)
   const key = `${record.workspaceId}:${record.id}`
   const event = `data: ${JSON.stringify(record)}\n\n`
-  for (const response of subscribers.get(key) || []) response.write(event)
+  const listeners = subscribers.get(key)
+  for (const listener of listeners || []) {
+    try { listener.authorize(); listener.response.write(event) } catch {
+      listener.response.end()
+      listeners?.delete(listener)
+    }
+  }
   if (['succeeded', 'failed', 'cancelled'].includes(record.status)) {
-    for (const response of subscribers.get(key) || []) response.end()
+    for (const { response } of listeners || []) response.end()
     subscribers.delete(key)
   }
 }
@@ -130,6 +177,10 @@ function loadJob(dataRoot: string, workspaceId: string, jobId: string): ManagedJ
   const file = recordPath(dataRoot, workspaceId, jobId)
   if (!fs.existsSync(file)) throw httpError(404, `job not found: ${jobId}`)
   const record = JSON.parse(fs.readFileSync(file, 'utf8')) as ManagedJobRecord
+  if (record.status === 'queued' || record.status === 'running') {
+    const cancelledAt = readCancellationRequest(cancellationPath(dataRoot, workspaceId, jobId))
+    if (cancelledAt) record.cancellationRequestedAt = cancelledAt
+  }
   if ((record.status === 'queued' || record.status === 'running') && !activeRuns.has(workspaceId)) {
     // Another server process may own the durable workspace lease. Only mark a
     // persisted active record orphaned when the lease can actually be acquired.
@@ -308,6 +359,8 @@ function registerOutputs(dataRoot: string, record: ManagedJobRecord, inputBase: 
   updateWorkspace(dataRoot, record.workspaceId, workspace => {
     assertWorkspaceAccess(workspace, record.requestedByPrincipalId, 'writer')
     for (const file of files) {
+      const rejected = diffusion?.rejectedCoordinates?.includes(path.join(directory, file)) ||
+        (diffusion?.status === 'validation_failed' && file.endsWith('.pdb'))
       const relative = `${folder}/${file}`
       if (workspace.artifacts.some(artifact => artifact.file === relative)) continue
       const artifactId = crypto.randomUUID()
@@ -316,8 +369,8 @@ function registerOutputs(dataRoot: string, record: ManagedJobRecord, inputBase: 
       workspace.artifacts.push({
         id: artifactId, file: relative,
         name: file === primary ? `${inputBase} → ${record.command}`
-          : `${diffusion?.status === 'validation_failed' && file.endsWith('.pdb') ? '[rejected] ' : ''}${path.basename(file)}`,
-        kind: /\.(pdb|cif|mmcif)$/i.test(file) ? 'structure' : 'artifact',
+          : `${rejected ? '[rejected] ' : ''}${path.basename(file)}`,
+        kind: !rejected && /\.(pdb|cif|mmcif)$/i.test(file) ? 'structure' : 'artifact',
          artifactType: def.outputKind, command: record.command, folder,
         run: { command: record.command, status: runStatus || record.status as RunStatus },
         hidden: path.basename(file).startsWith('_'),
@@ -332,6 +385,8 @@ function registerOutputs(dataRoot: string, record: ManagedJobRecord, inputBase: 
   return {
     ...record,
     outputFile: primary ? `${folder}/${primary}` : null,
+    ...(diffusion?.seedOutcomes ? { diffusion: relocateDiffusionOutcomes(diffusion.seedOutcomes,
+      path.relative(workspaceRoot(dataRoot, record.workspaceId), diffusion.seedOutcomes.report).split(path.sep).join('/')) } : {}),
     provenance: record.provenance && { ...record.provenance, outputs },
   }
 }
@@ -376,6 +431,10 @@ async function executeJob(
         current = { ...current, status: 'running', startedAt: new Date().toISOString() }
         persistJob(dataRoot, current)
       },
+      onProgress: progress => {
+        current = { ...current, progress }
+        persistJob(dataRoot, current)
+      },
     })
     if (nativeRoot) {
       assertWorkspaceAccess(loadWorkspace(dataRoot, record.workspaceId), record.requestedByPrincipalId, 'writer')
@@ -386,6 +445,9 @@ async function executeJob(
       }
       copyNativeRun(nativeRoot, directory)
       nativeCopied = true
+      // Logs must point to retained workspace artifacts, not deleted staging.
+      result.stdout = result.stdout.split(nativeRoot).join(directory)
+      result.stderr = result.stderr.split(nativeRoot).join(directory)
     }
     assertWorkspaceQuota(workspaceRoot(dataRoot, record.workspaceId))
     fs.writeFileSync(path.join(directory, 'stdout.log'), result.stdout)
@@ -407,13 +469,23 @@ async function executeJob(
     const files = listFiles(directory)
     const manifests = succeeded ? files.filter(file => path.basename(file) === 'bundle.json') : []
     const publications = manifests.map(file => readDiffusionPublication(path.join(directory, file)))
-    const status: RunStatus = publications.some(item => item.status === 'validation_failed') ? 'validation_failed' : current.status as RunStatus
+    let status: RunStatus = publications.some(item => item.status === 'validation_failed') ? 'validation_failed' : current.status as RunStatus
     const declaredPath = current.args.includes('-o') ? current.args[current.args.indexOf('-o') + 1] : null
     const declared = definition.outputMode === 'stdout' ? `${record.command}.${request.values?.['--format'] === 'json' ? 'json' : 'txt'}`
       : declaredPath ? path.relative(nativeRoot || directory, declaredPath).split(path.sep).join('/') : null
-    const outputs = current.status === 'succeeded' ? outputFiles(files, declared, manifests.map(file => path.dirname(file))) : []
+    let outputs = current.status === 'succeeded' ? outputFiles(files, declared, manifests.map(file => path.dirname(file))) : []
     const summary = await compactRun(directory, current.command, status, outputs)
     finalized = true
+    if (fs.existsSync(cancelFile)) controller.abort()
+    if (controller.signal.aborted && current.status !== 'cancelled') {
+      current = { ...current, status: 'cancelled', outputFile: null, error: 'DVBFixer run cancelled' }
+      status = 'cancelled'
+      outputs = []
+      summary.status = 'cancelled'
+      summary.outputs = []
+      summary.warning = 'Cancellation arrived during packaging; unpublished outputs remain in the run directory for inspection.'
+      writeJsonAtomic(path.join(directory, RUN_SUMMARY), summary)
+    }
     assertWorkspaceQuota(workspaceRoot(dataRoot, record.workspaceId))
     current = registerOutputs(dataRoot, current, prepared.inputBase,
       [...outputs, RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])], status)
@@ -452,8 +524,7 @@ async function executeJob(
           [RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])], current.status as RunStatus)
       } catch { /* Keep original failure and all evidence, even if publication fails. */ }
     }
-    persistJob(dataRoot, current)
-    release()
+    try { persistJob(dataRoot, current) } finally { release() }
   }
 }
 
@@ -480,6 +551,13 @@ export function createManagedJob(
       'EXECUTION_POLICY_MISMATCH',
     )
   }
+  const reserved = reserveManagedJob(dataRoot, request, requestedByPrincipalId, serviceVersion)
+  trackManagedJob(executeJob(dataRoot, reserved.record, request, reserved.controller, reserved.release), reserved.record.id)
+  return reserved.record
+}
+
+function reserveManagedJob(dataRoot: string, request: ManagedJobRequest, requestedByPrincipalId: string, serviceVersion: string) {
+  if (!acceptingManagedJobs) throw httpError(503, 'server is shutting down')
   assertWorkspaceQuota(workspaceRoot(dataRoot, request.workspaceId), 64 * 1024)
   const id = crypto.randomUUID()
   const controller = new AbortController()
@@ -503,6 +581,7 @@ export function createManagedJob(
       createdAt: now, startedAt: null, finishedAt: null, command: request.command, args: [],
       exitCode: null, stdoutLog: `${folder}/stdout.log`, stderrLog: `${folder}/stderr.log`,
       outputDir: folder, outputFile: null, requestedByPrincipalId,
+      ...(request.workflow ? { workflow: request.workflow } : {}),
       provenance: {
         apiVersion: 1,
         command: request.command,
@@ -521,22 +600,124 @@ export function createManagedJob(
         outputs: [],
       },
     }
+    for (const name of ['stdout.log', 'stderr.log']) fs.writeFileSync(path.join(directory, name), '')
     persistJob(dataRoot, record)
-    void executeJob(dataRoot, record, request, controller, release)
-    return record
+    return { record, controller, release, directory }
   } catch (error) {
     release()
     throw error
   }
 }
 
+export interface ManagedWorkflowContext {
+  directory: string
+  signal: AbortSignal
+  isCancelled(): boolean
+  processOptions: Pick<DvbfixerRunOptions, 'onStart' | 'onProgress'>
+  setArguments(args: string[], resolvedInputs: ManagedJobProvenance['resolvedInputs']): void
+}
+
+export interface ManagedWorkflowResult {
+  exitCode: number
+  outputFile: string
+  modelStatus: 'success' | 'failed' | 'validation_failed'
+  diffusion?: DiffusionOutcomes
+  stderr: string
+}
+
+/** Attach a composed workflow to the SAME durable jobs, leases and cancellation.
+ * The operation owns scientific execution and normal packaging, not scheduling.
+ * HTTP disconnects are deliberately not a cancellation signal for this path.
+ */
+export function createManagedWorkflowJob(
+  dataRoot: string, request: ManagedJobRequest,
+  operation: (context: ManagedWorkflowContext) => Promise<ManagedWorkflowResult>,
+  requestedByPrincipalId = 'local', serviceVersion = 'unknown',
+): ManagedJobRecord {
+  assertWorkspaceAccess(loadWorkspace(dataRoot, request.workspaceId), requestedByPrincipalId, 'writer')
+  const { record, controller, release, directory } = reserveManagedJob(dataRoot, request, requestedByPrincipalId, serviceVersion)
+  let current = record
+  const cancelFile = cancellationPath(dataRoot, record.workspaceId, record.id)
+  const cancellationPoll = setInterval(() => { if (fs.existsSync(cancelFile)) controller.abort() }, 250)
+  cancellationPoll.unref()
+  const update = (patch: Partial<ManagedJobRecord>) => { current = { ...current, ...patch }; persistJob(dataRoot, current) }
+  const work = Promise.resolve().then(async () => {
+    try {
+      if (controller.signal.aborted) throw new Error('DVBFixer run cancelled before execution')
+      const result = await operation({ directory, signal: controller.signal,
+        isCancelled: () => {
+          if (fs.existsSync(cancelFile)) controller.abort()
+          return controller.signal.aborted
+        },
+        processOptions: {
+          onStart: () => {
+            assertWorkspaceAccess(loadWorkspace(dataRoot, record.workspaceId), requestedByPrincipalId, 'writer')
+            update({ status: 'running', startedAt: new Date().toISOString() })
+          },
+          onProgress: progress => update({ progress }),
+        },
+        setArguments: (args, resolvedInputs) => update({ args, provenance: current.provenance && { ...current.provenance, resolvedInputs } }),
+      })
+      const cancelled = controller.signal.aborted
+      const succeeded = result.exitCode === 0 && !cancelled
+      current = { ...current, status: cancelled ? 'cancelled' : succeeded ? 'succeeded' : 'failed',
+        exitCode: result.exitCode, outputFile: succeeded ? result.outputFile || null : null,
+        modelStatus: result.modelStatus, ...(succeeded && result.diffusion ? { diffusion: result.diffusion } : {}),
+        error: cancelled ? 'DVBFixer run cancelled' : succeeded ? undefined : result.stderr || `exit code ${result.exitCode}` }
+      const workspace = loadWorkspace(dataRoot, record.workspaceId)
+      assertWorkspaceAccess(workspace, requestedByPrincipalId, 'writer')
+      const outputs = workspace.artifacts.filter(artifact => artifact.file.startsWith(`${record.outputDir}/`))
+        .map(artifact => ({ artifactId: artifact.id, file: artifact.file,
+          sha256: crypto.createHash('sha256').update(fs.readFileSync(resolveWorkspaceFile(dataRoot, record.workspaceId, artifact.file))).digest('hex') }))
+      if (current.provenance) {
+        const provenance = { ...current.provenance, outputs }
+        current.provenance = provenance
+        const byId = new Map(outputs.map(output => [output.artifactId, output]))
+        updateWorkspace(dataRoot, record.workspaceId, latest => {
+          assertWorkspaceAccess(latest, requestedByPrincipalId, 'writer')
+          for (const artifact of latest.artifacts) {
+            const output = byId.get(artifact.id)
+            if (output && output.file === artifact.file) artifact.workflowProvenance = { ...provenance, outputs: [output] }
+          }
+          return latest
+        })
+      }
+    } catch (error) {
+      current = { ...current, status: controller.signal.aborted ? 'cancelled' : 'failed', outputFile: null,
+        error: error instanceof Error ? error.message : String(error) }
+    } finally {
+      clearInterval(cancellationPoll)
+      try {
+        fs.rmSync(cancelFile, { force: true })
+        current.finishedAt = new Date().toISOString()
+        try {
+          for (const [name, fallback] of [['stdout.log', ''], ['stderr.log', current.error || '']]) {
+            if (!fs.existsSync(path.join(directory, name)) || fs.statSync(path.join(directory, name)).size === 0) {
+              fs.writeFileSync(path.join(directory, name), fallback)
+            }
+          }
+          // Preparation errors can precede the composed workflow's own packaging.
+          if (!fs.existsSync(path.join(directory, RUN_SUMMARY))) {
+            await compactRun(directory, current.command, current.status as RunStatus, [])
+          }
+        } catch { /* Preserve the original failure and all unarchived evidence. */ }
+        persistJob(dataRoot, current)
+      } finally { release() }
+    }
+  })
+  trackManagedJob(work, record.id)
+  return record
+}
+
 export function cancelManagedJob(dataRoot: string, workspaceId: string, jobId: string): ManagedJobRecord {
   const record = loadJob(dataRoot, workspaceId, jobId)
   if (record.status !== 'queued' && record.status !== 'running') return record
   const active = activeRuns.get(workspaceId)
+  try { fs.writeFileSync(cancellationPath(dataRoot, workspaceId, jobId), `${new Date().toISOString()}\n`, { mode: 0o600, flag: 'wx' }) } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+  }
   if (active?.owner === jobId && active.controller) active.controller.abort()
-  else fs.writeFileSync(cancellationPath(dataRoot, workspaceId, jobId), `${new Date().toISOString()}\n`, { mode: 0o600 })
-  return record
+  return loadJob(dataRoot, workspaceId, jobId)
 }
 
 function sendJson(response: ServerResponse, status: number, body: unknown): void {
@@ -546,7 +727,7 @@ function sendJson(response: ServerResponse, status: number, body: unknown): void
   response.end(JSON.stringify(body))
 }
 
-function sendV1Error(
+export function sendV1Error(
   response: ServerResponse,
   error: unknown,
   requestId: string,
@@ -556,6 +737,7 @@ function sendV1Error(
   const defaultCodes: Record<number, string> = {
     400: 'INVALID_REQUEST', 401: 'AUTHENTICATION_REQUIRED',
     403: 'WORKSPACE_ACCESS_DENIED', 404: 'NOT_FOUND',
+    405: 'METHOD_NOT_ALLOWED',
     409: 'WORKSPACE_BUSY', 413: 'PAYLOAD_TOO_LARGE',
     415: 'UNSUPPORTED_MEDIA_TYPE', 422: 'UNPROCESSABLE_OPERATION',
     500: 'INTERNAL_ERROR', 503: 'SERVICE_UNAVAILABLE', 507: 'WORKSPACE_QUOTA_EXCEEDED',
@@ -635,12 +817,16 @@ export function registerManagedJobApi(
         response.write(`data: ${JSON.stringify(record)}\n\n`)
         if (['succeeded', 'failed', 'cancelled'].includes(record.status)) return response.end()
         const key = `${workspaceId}:${record.id}`
-        const listeners = subscribers.get(key) || new Set<ServerResponse>()
-        listeners.add(response)
+        const listeners = subscribers.get(key) || new Set<JobSubscriber>()
+        const listener: JobSubscriber = { response, authorize: () => {
+          assertWorkspaceAccess(loadWorkspace(dataRoot, workspaceId, legacyOwnerPrincipalId), principalId)
+        } }
+        listeners.add(listener)
         subscribers.set(key, listeners)
         let last = JSON.stringify(record)
         const poll = setInterval(() => {
           try {
+            listener.authorize()
             record = getManagedJob(dataRoot, workspaceId, jobId)
             const serialized = JSON.stringify(record)
             if (serialized !== last) {
@@ -653,7 +839,7 @@ export function registerManagedJobApi(
         poll.unref()
         const close = () => {
           clearInterval(poll)
-          listeners.delete(response)
+          listeners.delete(listener)
           if (!listeners.size) subscribers.delete(key)
         }
         request.on('close', close)

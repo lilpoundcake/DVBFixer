@@ -301,6 +301,8 @@ def test_production_runner_executes_and_merges_each_requested_seed(
     )
     observed_builder_seeds: list[int] = []
     observed_adapter_seeds: list[int] = []
+    stage_events = []
+    monkeypatch.setattr(production, "emit_job_progress", lambda stage, **kwargs: stage_events.append((stage, kwargs)))
 
     class FakeBuilder:
         @staticmethod
@@ -333,6 +335,8 @@ def test_production_runner_executes_and_merges_each_requested_seed(
 
     assert observed_builder_seeds == [7, 11]
     assert observed_adapter_seeds == [7, 11]
+    assert stage_events == [("sampling", {"seed": 7}), ("refinement", {"seed": 7}),
+                            ("sampling", {"seed": 11}), ("refinement", {"seed": 11})]
     assert [candidate.seed for candidate in result.candidates] == [7, 11]
     assert result.resource_metrics.wall_time_seconds == 18.0
     assert result.resource_metrics.peak_ram_bytes == 11

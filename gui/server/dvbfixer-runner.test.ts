@@ -40,6 +40,16 @@ function wait(ms: number): Promise<void> {
 }
 
 describe('DVBfixer runner', () => {
+  it('receives real child stage events on a separate pipe without contaminating logs', async () => {
+    useNode(`const fs=require('node:fs'); console.log('ordinary output');
+      fs.writeSync(Number(process.env.DVBFIXER_JOB_PROGRESS_FD), '{"version":1,"stage":"validation"}\\n');`)
+    const events: unknown[] = []
+    const result = await runDvbfixerArgs('model', [], process.cwd(), { onProgress: event => events.push(event) })
+    expect(result.code).toBe(0)
+    expect(events).toEqual([{ version: 1, stage: 'validation' }])
+    expect(result.stdout).toBe('ordinary output\n')
+    expect(result.stderr).toBe('')
+  })
   it('keeps the executable separate from its JSON argument prefix', async () => {
     useNode('console.log(JSON.stringify(process.argv.slice(1)))')
     const result = await runDvbfixerArgs('doctor', ['--format', 'json'])

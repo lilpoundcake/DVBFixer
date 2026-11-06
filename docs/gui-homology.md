@@ -17,6 +17,31 @@ Prepare a full target sequence and one or more related template structures.
 Check the requirements below, then follow **Target → Templates → Alignment → Model**.
 Inspect chain assignments and selected template regions before building a model.
 
+## Persistent modeling jobs
+
+**Run Modeller** and **Run Diffusion** submit a persistent managed job. Closing
+the tab, leaving the page or reloading the browser does **not** stop an accepted
+job. Reopening the same workspace and Homology project restores its current or
+latest recorded run. Job Monitor also shows these jobs across readable workspaces.
+
+Use **Stop Homology** or the job's **Stop** action in Job Monitor to cancel it.
+**Stopping…** means cancellation was requested, not that the child process has
+already terminated; the request remains visible after reload. Logs, final seed
+outcomes and retained reports remain accessible. Cancellation before publication
+does not register model outputs as accepted, even if it arrives during packaging.
+
+Each run freezes its project settings, target FASTA, alignment/masks and copied
+template inputs before scientific execution. Editing the project afterward does
+not change that run. The snapshot and input digests are retained with diagnostics
+and output provenance. Workspace isolation, one-active-workflow leases and existing
+process admission limits still apply; this is not a new parallel scheduler.
+
+This survives a **browser** disconnect, not a server/process crash. Interrupted
+server work is marked failed on recovery, never silently restarted. MSA and
+structural-fitting actions retain their existing request-bound interfaces.
+API callers can use the [persistent Homology endpoint](api.md#persistent-homology-modeling);
+the legacy synchronous modeling endpoint remains compatible and request-bound.
+
 ## Experimental diffusion
 
 The Model toolbar exposes **Anchor repair** (geometry-gated by default, or keep
@@ -50,6 +75,13 @@ and independent output validation remain mandatory. See
 Rejected candidates remain inspectable and are labeled `[rejected]`; they are
 not automatically selected as primary output. A published bundle is not by itself
 proof of a scientifically acceptable model. Check its validation report.
+
+For new multi-seed runs, **Diffusion candidates** shows every requested seed,
+including rejected candidates when other seeds passed and seeds not returned for
+final validation. **Per-seed report** opens the retained `seed-outcomes.json` in
+Text Files. Rejected coordinates are diagnostic artifacts, not accepted structures.
+Model/ZBS and Job Monitor use the same report; its link remains valid after GUI
+run-storage relocation. Process completion and scientific acceptance are separate.
 
 ## Requirements
 

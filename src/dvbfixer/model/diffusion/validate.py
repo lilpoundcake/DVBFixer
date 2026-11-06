@@ -6,6 +6,7 @@ import hashlib
 import math
 import os
 import stat
+from collections.abc import Callable
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
@@ -234,6 +235,7 @@ def build_validated_result(
     *,
     workspace: Path,
     thresholds: ValidationThresholds | None = None,
+    on_validated: Callable[[tuple[CandidateValidation, ...]], None] | None = None,
 ) -> DiffusionResult:
     """Rank candidates and retain failed ones as explicitly rejected artifacts."""
     if runner_result.status is not DiffusionStatus.SUCCESS:
@@ -254,6 +256,8 @@ def build_validated_result(
         workspace=workspace,
         thresholds=thresholds,
     )
+    if on_validated is not None:
+        on_validated(validations)
     passing = sorted(
         (item for item in validations if item.summary.passed),
         key=_ranking_key,
@@ -302,7 +306,13 @@ def _validate_candidate(
     warnings: list[str] = []
     metrics: list[Metric] = []
     failures.extend(postprocessing_failures)
-    warnings.extend(candidate_warnings)
+    # Reserve this prefix for findings measured independently below. Adapter
+    # warning text must not masquerade as final geometry in CLI/GUI reporting.
+    warnings.extend(
+        f"Runner warning (not an independent finding): {warning}"
+        if warning.startswith("Final validation: ") else warning
+        for warning in candidate_warnings
+    )
     metadata = reconcile_pdb_metadata(candidate.text, request, add_missing_seqres=False, annotate=False)
     metrics.append(Metric("pdb-metadata-inconsistencies", float(len(metadata.changes)), "count"))
     if metadata.changes:

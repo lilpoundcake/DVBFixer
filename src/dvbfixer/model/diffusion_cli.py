@@ -577,6 +577,11 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
                 output_path, request=request, source_root=source_root, work_parent=work_parent,
             )
             print(f"Reused verified diffusion bundle {output_path} ({published.status})")
+            if published.seed_outcomes is not None:
+                from dvbfixer.model.diffusion.seed_outcomes import seed_outcome_lines
+
+                for line in seed_outcome_lines(published.seed_outcomes, str(output_path)):
+                    print(line)
             return
         if runtime.model == "protpardelle" and runtime.profile not in {"protpardelle-1c-cuda", "protpardelle-1c-mps-local-v1", "protpardelle-1c-cc94-cuda-v1", "protpardelle-1c-cc94-mps-v1"} and len(request.target_sequences) > 1:
             sampled_chains = tuple(dict.fromkeys(gap.chain for gap in request.gaps))
@@ -641,7 +646,9 @@ def run_diffusion_model(args: argparse.Namespace) -> None:
     if outcome.status.value == "failed":
         from dvbfixer.model.diffusion.rejection_output import rejection_output
 
-        if outcome.result is not None:
+        if outcome.seed_outcomes_reported:
+            pass  # Shared pipeline already printed every seed's final findings.
+        elif outcome.result is not None:
             for line in rejection_output(outcome.result, Path(outcome.published_bundle)):
                 print(line)
         else:

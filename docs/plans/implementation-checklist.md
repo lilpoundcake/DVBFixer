@@ -555,28 +555,33 @@ configuration validation, and cleanup on subsequent successful execution.
 Added 2026-11-03. User-requested navigation changes; scientific command
 behavior stays unchanged.
 
-- [ ] Move the **Altloc** tab immediately before **Model** in tool navigation.
-- [ ] Move **Pull** to **Utilities**, with adjacent order **Conect → Puppet → Pull**.
-- [ ] Move **Cluster** from **Analysis** to the current **Glycoprotein
-  Preparation** group, with order **Convert → Transplant → Cluster**.
-  Choose a broader, descriptive name for the destination
-  group that fits its complete tool inventory, including Cluster; confirm the
-  final name before implementation rather than silently selecting one.
-- [ ] Move **Diagnose** to the first position in **Utilities**, and remove the
+- [x] Move the **Altloc** tab immediately before **Model** in tool navigation.
+- [x] Move **Pull** to **Utilities**, with adjacent order **Conect → Puppet → Pull**.
+- [x] Move **Cluster** from **Analysis** into **Glycans**, with order
+  **Convert → Transplant → Cluster**. User approved the name on 2026-11-06:
+  the group covers glycan processing and analysis, not only preparation.
+  Restore saved **Glycoprotein preparation** panel state to the new label.
+- [x] Move **Diagnose** to the first position in **Utilities**, and remove the
   now-obsolete **Analysis** group. Preserve tool identities, saved tool-panel
   state and existing workspace/job references while changing presentation.
-- [ ] Add cascading tool submenus to the utility-group dropdown: hovering a
+- [x] Add cascading tool submenus to the utility-group dropdown: hovering a
   group reveals its tools and selecting a tool opens it directly. Support
   keyboard navigation/focus and click/touch activation as equivalent routes;
   keep submenus reachable across pointer transitions and within viewport
   bounds, with clear active-tool/group indication.
-- [ ] Keep group names, ordering and tool membership consistent across the
+- [x] Keep group names, ordering and tool membership consistent across the
   navigation registry and other generated/shared views; do not hand-edit
   generated specifications. Follow the shared GUI design system.
-- [ ] Add navigation regressions for exact ordering/membership, removal of
+- [x] Add navigation regressions for exact ordering/membership, removal of
   Analysis, retained panel state, submenu selection, pointer transitions,
   keyboard and touch/click operation. Run GUI typecheck/tests and inspect the
   resulting navigation at desktop and narrow viewport sizes.
+
+2026-11-06 acceptance: shared-registry/order/state tests pass. Native Chrome
+evidence at `tmp/job-monitor-browser-yp4IDY/` covers historical-category restoration,
+keyboard selection, pointer hover/transitions, 560 px touch selection, exact
+Glycans tool order and preserved per-tool values. This is UI/transport acceptance,
+not a change to scientific commands or diffusion qualification.
 
 ## GUI diffusion multi-seed input
 
@@ -614,12 +619,28 @@ not just the field label.
 
 ## GUI Job Monitor
 
+2026-11-06 partial implementation: versioned stage-local telemetry, a dedicated
+bounded Python-to-host pipe, persisted latest-stage API/SSE delivery and GUI
+stage/count rendering are implemented. Diffusion pipeline boundaries emit
+preparation, runner execution, independent validation and publication. Maintained
+wrappers now emit separate sampling/refinement stages with active-seed identity;
+no update percentages are inferred. New bundles retain every seed's final outcome
+and rejected inspection coordinates without changing accepted-candidate selection.
+Model/ZBS, Homology and Job Monitor display these reports with relocated links.
+Native Chrome controlled-CLI multi-job/Stop/reload/mixed-outcome/report checks pass.
+After user approval, Homology modeling now uses persistent jobs with project/input
+snapshots, common locks/Stop/SSE and project-scoped reload/reconnect. A real licensed
+76-residue 1UBQ Modeller API smoke passed with independent PDB/.dat/all-L readback.
+Checkpoint-backed instrumentation, scientific diffusion GUI sampling and broader
+resource/ACL/reconnect acceptance remain separate gates. See the
+[current handoff](gui-practical-improvements-handoff.md#remaining-implementationacceptance-gates).
+
 Added 2026-11-03. Planned dedicated **Job Monitor** tab for tracking task
 execution, with a design that supports multiple simultaneous jobs rather than
 one global active-task indicator. This is planned work, not a claim that all
 workflow types currently permit concurrent execution in the same workspace.
 
-- [ ] Add a Job Monitor tab next to **Info** in the same docking tabset,
+- [x] Add a Job Monitor tab next to **Info** in the same docking tabset,
   listing queued, running and recently finished jobs.
   Show job identity, tool/workflow, owning workspace, start time, elapsed time,
   current execution stage and terminal outcome. Keep process completion and
@@ -639,7 +660,7 @@ workflow types currently permit concurrent execution in the same workspace.
   CPU/GPU/memory admission before enabling parallel execution; queue conflicting
   jobs and explain why they are waiting. Preserve workspace/artifact isolation
   and do not remove safety locks simply to permit concurrency.
-- [ ] Provide an accessible per-job **Stop** action through the existing
+- [x] Provide an accessible per-job **Stop** action through the existing
   cancellation API. Show cancellation requested/stopping until termination is
   confirmed; terminate tracked subprocesses, handle completion/cancellation
   races, retain failure/cancellation diagnostics and never publish incomplete

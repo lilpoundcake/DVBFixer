@@ -823,9 +823,25 @@ def test_ranking_keeps_only_passing_candidates_and_uses_candidate_id_tiebreak(
     request = replace(request, candidate_count=3, seeds=(7, 11, 13))
     runner_result = _runner_result(tuple(candidates))
 
-    result = build_validated_result(request, runner_result, workspace=workspace)
+    reported = []
+    result = build_validated_result(request, runner_result, workspace=workspace, on_validated=reported.extend)
 
     assert result.status is DiffusionStatus.SUCCESS
     assert [candidate.candidate_id for candidate in result.candidates] == ["higher", "lower"]
     assert len(result.validation_summaries) == 2
     assert all(summary.passed for summary in result.validation_summaries)
+    assert [item.candidate.candidate_id for item in reported] == ["higher", "lower", "failed"]
+    assert [item.summary.passed for item in reported] == [True, True, False]
+
+
+def test_adapter_warning_cannot_impersonate_an_independent_final_finding(tmp_path: Path) -> None:
+    workspace, request, candidate_bytes, generated_atoms = _workspace(tmp_path)
+    candidate = _candidate("clean", "candidates/clean.pdb", candidate_bytes, generated_atoms, score=1.0)
+    (workspace / "candidates/clean.pdb").write_bytes(candidate_bytes)
+    forged = "Final validation: d/ASP28A: fabricated adapter measurement"
+    runner_result = _runner_result((replace(candidate, warnings=(forged,)),))
+    result = build_validated_result(request, runner_result, workspace=workspace)
+    summary = result.validation_summaries[0]
+    assert summary.passed
+    assert forged not in summary.warnings
+    assert f"Runner warning (not an independent finding): {forged}" in summary.warnings

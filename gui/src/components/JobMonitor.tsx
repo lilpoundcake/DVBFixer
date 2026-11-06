@@ -5,10 +5,11 @@ import Button from '@mui/material/Button'
 import LinearProgress from '@mui/material/LinearProgress'
 import Typography from '@mui/material/Typography'
 import { apiFetch } from '../lib/api-client'
-import { formatJobTimestamp, isActiveManagedJob, managedJobStatusLabel, type ManagedJobRecord } from '../lib/managed-jobs'
+import { formatJobTimestamp, isActiveManagedJob, managedJobProgress, managedJobStatusLabel, type ManagedJobRecord } from '../lib/managed-jobs'
 import { useWorkspaceStore } from '../stores/workspaceStore'
 import { panelToolbarSx, workspaceRowColors } from '../ui/layout'
 import { fetchJobMonitorPage, MonitorHttpError, pollJobMonitor, type JobMonitorPage } from '../lib/job-monitor-polling'
+import { DiffusionSeedOutcomes } from './DiffusionSeedOutcomes'
 
 const jobKey = (job: ManagedJobRecord) => `${job.workspaceId}:${job.id}`
 
@@ -108,22 +109,39 @@ export function JobMonitor() {
     {!loading && !jobs.length && <Typography variant="body2" sx={{ mt: 1 }}>No managed jobs available.</Typography>}
     {jobs.map((job, index) => {
       const workspace = workspaces.find(item => item.id === job.workspaceId)
+      const progress = managedJobProgress(job)
       const elapsed = Math.max(0, Math.floor(((job.finishedAt ? Date.parse(job.finishedAt) : now) - Date.parse(job.startedAt || job.createdAt)) / 1000))
       return <Box key={jobKey(job)} sx={{ px: 1.5, py: 1, borderBottom: 1, borderColor: 'divider', overflowWrap: 'anywhere',
         bgcolor: index % 2 ? workspaceRowColors.stripe : workspaceRowColors.base,
         '&:hover': { bgcolor: workspaceRowColors.hover },
       }}>
-        <Typography variant="body2">{managedJobStatusLabel(job)}</Typography>
+        <Typography variant="body2">{managedJobStatusLabel({ ...job, outputFile: null })}</Typography>
+        {job.workflow && <Typography variant="caption" display="block">
+          {job.workflow.projectName} · Project {job.workflow.projectId}
+        </Typography>}
         <Typography variant="caption" display="block">{workspace?.name || job.workspaceId} · {job.id}</Typography>
         <Typography variant="caption" display="block" title={job.startedAt || undefined}>
           Started (local): {formatJobTimestamp(job.startedAt)} · Elapsed: {elapsed}s
         </Typography>
-        {isActiveManagedJob(job) && <LinearProgress aria-label={`${job.command} progress (indeterminate)`} sx={{ my: 1 }} />}
+        {job.progress && <Typography variant="caption" display="block">{isActiveManagedJob(job) ? 'Stage' : 'Last reported stage'}: {progress.label}</Typography>}
+        {isActiveManagedJob(job) && <LinearProgress
+          variant={progress.percent === undefined ? 'indeterminate' : 'determinate'} value={progress.percent}
+          aria-label={`${job.command} stage progress${progress.percent === undefined ? ' (indeterminate)' : ''}`} sx={{ my: 1 }} />}
         {job.error && <Typography variant="caption" color="error">{job.error}</Typography>}
+        <DiffusionSeedOutcomes diffusion={job.diffusion} onOpenReport={file => {
+          setTextPreview({ workspaceId: job.workspaceId, file, name: `${job.command} · Per-seed validation` })
+          window.dispatchEvent(new Event('dvbfixer:open-text-viewer'))
+        }} />
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 0.5 }}>
           {isActiveManagedJob(job) && <Button variant="outlined" color="error"
-            disabled={stopping.has(jobKey(job)) || !workspace || workspace.effectiveRole === 'reader'}
-            onClick={() => void stop(job)}>{stopping.has(jobKey(job)) ? 'Stopping…' : 'Stop'}</Button>}
+            aria-label={`Stop ${job.command} job ${job.id}`}
+            disabled={stopping.has(jobKey(job)) || Boolean(job.cancellationRequestedAt) || !workspace || workspace.effectiveRole === 'reader'}
+            onClick={() => void stop(job)}>{stopping.has(jobKey(job)) || job.cancellationRequestedAt ? 'Stopping…' : 'Stop'}</Button>}
+          {job.status === 'succeeded' && job.outputFile && <Button title={job.outputFile}
+            onClick={() => {
+              setTextPreview({ workspaceId: job.workspaceId, file: job.outputFile!, name: `${job.command} · Output file` })
+              window.dispatchEvent(new Event('dvbfixer:open-text-viewer'))
+            }}>Output file</Button>}
           {[['Stdout', job.stdoutLog], ['Stderr', job.stderrLog]] .map(([name, file]) => <Button key={name}
             onClick={() => {
               setTextPreview({ workspaceId: job.workspaceId, file, name: `${job.command} · ${name}` })
