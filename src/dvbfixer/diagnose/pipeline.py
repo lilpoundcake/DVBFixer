@@ -169,6 +169,7 @@ def _numeric_maxima(finding: Finding) -> dict[str, float]:
         "absolute_deviation_angstrom": "absolute_deviation_angstrom",
         "relative_deviation": "relative_deviation",
         "deviation_from_trans_degrees": "deviation_from_trans_degrees",
+        "observed_absolute_degrees": "observed_absolute_degrees",
     }
     for source, target in direct.items():
         value = finding.extra.get(source)
@@ -187,6 +188,9 @@ def _numeric_maxima(finding: Finding) -> dict[str, float]:
     chirality = finding.extra.get("observed_nm3")
     if isinstance(chirality, (int, float)) and math.isfinite(float(chirality)):
         maxima["absolute_triple_product_nm3"] = abs(float(chirality))
+    volume = finding.extra.get("observed_angstrom3")
+    if isinstance(volume, (int, float)) and math.isfinite(float(volume)):
+        maxima["absolute_triple_product_angstrom3"] = abs(float(volume))
     return maxima
 
 
@@ -276,6 +280,8 @@ def _scope_payload(
                 "cis_peptide",
                 "non_planar_amide",
                 "chirality",
+                "ca_planarity",
+                "thr_beta_chirality",
                 "disulfide_geometry",
                 "clash",
             ),

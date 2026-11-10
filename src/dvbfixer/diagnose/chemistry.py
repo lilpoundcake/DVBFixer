@@ -9,6 +9,7 @@ keeps ``diagnose`` importable in the CI fast lane).
 from __future__ import annotations
 
 import math
+from collections import Counter
 from typing import Any
 
 from dvbfixer.diagnose._common import NON_STANDARD_AAS
@@ -16,7 +17,9 @@ from dvbfixer.diagnose.geometry import (
     angle_degrees,
     atom_identity,
     position_angstrom,
+    residue_identity,
     signed_dihedral_degrees,
+    stereocentre_geometry,
 )
 from dvbfixer.diagnose.report import Finding, Severity
 
@@ -593,6 +596,95 @@ def check_ca_chirality(topology: Any, positions: Any) -> list[Finding]:
     return findings
 
 
+# A deliberately narrow broken-shape warning, not the research absolute-volume
+# gate or a residue-specific ideal-geometry acceptance range. Ideal tetrahedral
+# three-vector geometry has an out-of-plane angle of about 54.7 degrees.
+STEREO_PLANARITY_WARNING_DEGREES = 10.0
+
+
+def check_stereocentre_geometry(topology: Any, positions: Any) -> list[Finding]:
+    """Warn on nearly planar protein Cα and clearly reversed canonical THR Cβ.
+
+    Detection only. No general CIP assignment, ligand or VAL-Cβ stereochemistry.
+    Missing/duplicate names, wrong elements and undefined geometry are skipped.
+    Existing D-Cα errors are intentionally left to check_ca_chirality unchanged.
+    """
+    from dvbfixer.ffutils.variants import VARIANT_TO_PARENT
+
+    findings: list[Finding] = []
+    residues = list(topology.residues())
+    identity_counts = Counter(residue_identity(residue) for residue in residues)
+    for residue in residues:
+        if identity_counts[residue_identity(residue)] != 1:
+            continue
+        parent = VARIANT_TO_PARENT.get(residue.name, residue.name)
+        if parent == "GLY" or parent not in _CANONICAL_AMINO_ACIDS | NON_STANDARD_AAS:
+            continue
+        named: dict[str, list[Any]] = {}
+        for atom in residue.atoms():
+            named.setdefault(atom.name, []).append(atom)
+        centres = [("CA", ("CA", "N", "C", "CB"), "ca_planarity")]
+        if residue.name == "THR":
+            centres.append(("CB", ("CB", "CA", "OG1", "CG2"), "thr_beta_chirality"))
+        for centre, names, category in centres:
+            if any(len(named.get(name, [])) != 1 for name in names):
+                continue
+            atoms = [named[name][0] for name in names]
+            if any(
+                getattr(getattr(atom, "element", None), "symbol", None) != name[0]
+                for atom, name in zip(atoms, names)
+            ):
+                continue
+            measurement = stereocentre_geometry(
+                *(position_angstrom(positions, atom) for atom in atoms)
+            )
+            if measurement is None:
+                continue
+            angle = measurement.out_of_plane_degrees
+            if category == "ca_planarity":
+                if abs(angle) > STEREO_PLANARITY_WARNING_DEGREES:
+                    continue
+                message = (
+                    f"near-planar Cα geometry (CB out of N–CA–C plane: {angle:.2f}°; "
+                    f"warning at |angle| ≤ {STEREO_PLANARITY_WARNING_DEGREES:g}°); "
+                    "shape warning, not a D-isomer assignment"
+                )
+            else:
+                if angle >= -STEREO_PLANARITY_WARNING_DEGREES:
+                    continue
+                message = (
+                    f"THR Cβ orientation opposite canonical R (CG2 out of CA–CB–OG1 "
+                    f"plane: {angle:.2f}°; canonical R requires positive); "
+                    "review atom identity and stereochemistry"
+                )
+            chain, resid = _res_loc(residue)
+            findings.append(
+                Finding(
+                    severity=Severity.WARNING,
+                    category=category,
+                    chain=chain,
+                    resid=resid,
+                    resname=residue.name,
+                    atom=centre,
+                    message=message,
+                    fix_hint="manual: inspect source geometry and atom identities; no automatic repair",
+                    extra={
+                        "geometry_schema": "dvbfixer.geometry.v1",
+                        "metric": f"{category}_out_of_plane.v1",
+                        "atoms": [atom_identity(atom).to_dict() for atom in atoms],
+                        "observed_degrees": angle,
+                        "observed_absolute_degrees": abs(angle),
+                        "observed_angstrom3": measurement.triple_product_angstrom3,
+                        "planarity_threshold_degrees": STEREO_PLANARITY_WARNING_DEGREES,
+                        "minimum_plane_sine": 0.1,
+                        "positive_orientation": "L" if centre == "CA" else "canonical THR R",
+                        "policy": "conservative-stereocentre-warning.v1",
+                    },
+                )
+            )
+    return findings
+
+
 def check_disulfides(topology: Any, positions: Any) -> list[Finding]:
     """Report SS bonds whose geometry deviates from AMBER canonicals.
 
@@ -743,5 +835,6 @@ def run_all(topology: Any, positions: Any) -> list[Finding]:
     findings.extend(check_backbone_bond_angles(topology, positions))
     findings.extend(check_peptide_omegas(topology, positions))
     findings.extend(check_ca_chirality(topology, positions))
+    findings.extend(check_stereocentre_geometry(topology, positions))
     findings.extend(check_disulfides(topology, positions))
     return findings
