@@ -197,6 +197,13 @@ or observation-immutable reconstruction.
 
 ## Next boundary
 
+The subsequent [saved-only force attribution](carbon-H-whole-attribution.md)
+covers all 24 THR24 paths/72 states. The native guard exists and is analytically
+correct; at negative endpoints it produces enormous positive restoring force.
+Those endpoints must not be called converged D-preferring minima. Its relative
+floor on already-flat raw/beta-only input is only 0.005187 Å³, distinct from the
+0.5 Å³ shape descriptor. Native callback transport remains a separate next gate.
+
 Freeze a separate **saved-only** force attribution on all THR24 conditioning
 contexts (both existing seeds × raw/beta-only/full-generated × four arms, all
 three saved states: 24 paths/72 nodes). Include normal/flattened matched outcomes,

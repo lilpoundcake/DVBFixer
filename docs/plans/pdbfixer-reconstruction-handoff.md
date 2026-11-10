@@ -59,7 +59,57 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: complete whole factorial gains are limited and retain negative stress signs
+## Latest checkpoint: native guard is present; adverse snapshots are not stationary minima
+
+Complete whole results were committed/pushed as `cac26cc`. The
+[saved-only attribution](../research/carbon-H-whole-attribution.md) and
+[independent evidence](../research/carbon-H-whole-attribution-evidence.json)
+retain all 24 THR24 paths/72 states/216 focal measurements: both original seeds,
+raw/beta-only/full-generated conditioning, all four arms, target CA/beta and
+context GLN16 CA. No minimization/integration/new H/force ablation/seed or phase
+search. Fresh original and group-cloned Reference readback with exact group
+restoration. All native energy/force sums close; max absolute force/projection
+error 1.907e−6 kJ/mol/nm, energy 1.490e−8 kJ/mol; independent finite-difference
+Cartesian gradient error 9.154e−11 nm². Complete force arrays private/checksummed.
+
+All 144 CA measurements have the native guard, nine active; analytic guard
+derivative matches observed projection. Raw/beta-only target vref 0.025934 Å³,
+qmin 0.2 => activation floor 0.005186748 Å³, NOT 0.5 Å³ diagnostic threshold.
+Full-generated target floor 0.511023 and GLN16 floor 0.505681 Å³. Frozen parameters,
+not proposed settings. No missing guard or unit/sign mismatch established.
+
+Seed 2/raw negative phase-2 target CA at −0.006118/−0.006974 Å³ (CH2/combined) has
+positive guard projections **+11,554,131.899/+12,438,578.149 kJ/mol/nm**; native
+totals +11,553,861.831/+12,438,326.631. Selected whole Systems have no constraints
+or frozen particles. Huge nonzero forces mean NOT converged stationary D minima;
+do not claim FF intrinsically prefers D here. Does not determine iteration cap vs
+line-search failure or an unrecorded crossing. No extra relaxation is attempted.
+Seed 1/beta-only/methyl-zero also has negative phase-1 CA −0.002076 with restoring
+guard +7,205,585.536, then positive-flat final +0.007662 Å³. All 408 whole states
+retain exactly these three negative-CA snapshots and no negative THR-beta.
+
+At raw seed 2 final snapshots, angle projections ~−1109/−1163/−1130/−1135,
+torsion +817/+840/+829/+850, nonbonded ~−170–173; restraint ~+159–163. Unit-volume
+gradient projection is NOT an actual quasi-Newton step, integrated work, pair
+causality or recovered trajectory. Original unforced THR2 event stays separate.
+
+Plan SHA `81a5588e2cc1bac6471841cc31f38b2e9d6b670e57ed3580ea02e0ffbaf78d86`;
+private `carbon-H-whole-attribution-{plan,run,audit}-01*`, independent audit02.
+Nine new focused tests plus seven existing volume/guard tests/Ruff pass;
+independent publications byte-identical. Full fast suite through attribution:
+3,055 passed, three optional skips/33 slow deselected. Retained log:
+`tmp/pdbfixer-research/carbon-H-whole-attribution-fast-suite-01.log`.
+
+**Resume:** separately freeze observational native-callback replay of the same 24
+paths, requiring exact starts and both frozen endpoints. Original two Reference/
+tolerance 10/max 1,000 phases/tenfold positional-weight reduction only; no new seed,
+force/H, reflection, retry or budget/iteration tuning. Reporter records original
+coordinates/gradients/objective and never requests early exit. Computational
+replays, not new samples. Establish exact transport before termination/crossing
+claims; production/defaults/thresholds and empirical-table production/license
+approval remain unchanged. Continue until genuine user input is required.
+
+## Preceding checkpoint: complete whole factorial gains are limited and retain negative stress signs
 
 Baseline/auditor checkpoint was committed/pushed as `12a3572`. The
 [complete whole results](../research/carbon-H-whole.md#complete-whole-stage-results)
