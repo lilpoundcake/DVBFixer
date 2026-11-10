@@ -122,9 +122,13 @@ each of the 24 paths; that does not establish local force convergence or accepta
 geometry at the fixed iteration limit.
 
 This localizes a large early nonbonded-dominated force and observed optimizer
-displacement, but does **not** identify which interacting particle/pair creates
-it. A next static readback should separately freeze and validate exact HA-touched
-nonbonded pair sums against the unmodified force before naming a clash partner.
+displacement, but this group-level readback does **not** identify which pair
+creates it. The subsequent [exact pair decomposition](ha-nonbonded-pairs.md)
+now checks all 1,190,592 HA-pair observations against unmodified native forces:
+initial repulsion is dominated by experimental THR24 methyl contacts, particularly
+HG23. That is static contributor attribution, not a force-ablation experiment.
+The next step declared here was to separately freeze and validate HA-touched
+nonbonded pair sums before naming a clash partner.
 Do not infer a particular pair from spatial proximity alone, suppress failures,
 increase iterations, or promote an outward-H construction to production.
 Original THR2 causality, remaining THR/VAL failures, broader protein/platform

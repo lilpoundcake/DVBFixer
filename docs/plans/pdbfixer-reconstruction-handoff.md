@@ -59,7 +59,47 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: large early native H-minimizer displacement
+## Latest checkpoint: exact pairs identify experimental THR24 methyl repulsion
+
+The native-path checkpoint was committed/pushed as `29ca966`. The subsequent
+[pair attribution](../research/ha-nonbonded-pairs.md) and
+[complete evidence](../research/ha-nonbonded-pairs-evidence.json) check ALL 24 cells /
+1,248 nodes / 1,190,592 HA-other-particle observations. Analytic full-vector sums
+match the already measured UNMODIFIED native NonbondedForce with maximum error
+8.731e−10 kJ/mol/nm. Independent streaming audit checks every raw pair inventory,
+identity, vector/projection/class sum and fixed three-most-negative inspection
+rule. No new minimization, coordinate perturbation, pair deletion or native score.
+
+Plan: `tmp/pdbfixer-research/ha-nonbonded-pairs-plan-01.json`, SHA256
+`7bb42ad94178f7d4817bfeaa5d1c6d1c025871aceb2d2618d2d0b492a9294735`.
+Full private pair archives: `ha-nonbonded-pairs-run-01/` and `-02/` beside it;
+no full raw force/coordinate archives or FF parameter tables go into Git.
+
+Known full-generated THR24 seed 1: initial GLN16 HA–THR24 HG23 distance 1.356899 Å,
+outward projection −43245.578 (LJ −43207.680, Coulomb −37.897); HA–CG2 contributes
+−6494.745 and HA–HG21 −3687.309 kJ/mol/nm. These are ordinary inter-residue pairs.
+The target methyl belongs to the EXPERIMENTAL rebuilt heavy candidate, not the
+unmodified deposited source. Local heavy geometry alone did not ensure safe H
+environment. At callback 0, the dominant inward contact is now its own GLN16 O
+at 1.408459 Å, an ORIGINAL exception pair contributing −51601.067; do not describe
+one initial contact as the only force source throughout the optimizer path.
+
+Seed 2 initially has even stronger methyl-H contacts (HG23/HG21/HG22) but returns
+outward, so pair attribution is NOT a universal outcome predictor or controlled
+pair ablation. Original THR2 causality, remaining target THR/VAL failures and
+broader scientific/platform qualification stay separate. Fourteen new focused
+tests and Ruff pass; combined angle/H-stage/pair controls pass 73 tests. Both
+complete private pair runs and independent publications are byte-identical.
+Full fast suite: **2,863 passed**, three optional Torch/Biotite skips and 33 slow
+deselected. Agent-map and generated CLI/GUI checks pass. Production is unchanged.
+
+**Resume:** a new environment-aware initial-H/candidate-geometry mechanism control
+would need separately declared settings and all matched cases retained. Do not
+silently alter exclusions, ablate pairs, tune seeds/iterations to the known result,
+or promote a neighbor-HA rewrite. Preserve the empirical-table production/license
+gate. Pair forces identify recorded contributors, not unique optimizer causality.
+
+## Preceding checkpoint: large early native H-minimizer displacement
 
 Following checkpoint `3c8c2ff`, the
 [native callback path](../research/ha-minimizer-path.md) and
@@ -97,7 +137,7 @@ is byte-identical. The new full fast suite passes **2,849 tests**, with three
 optional Torch/Biotite skips and 33 slow deselected. Agent-map and generated
 CLI/GUI checks pass. Production is unchanged.
 
-**Resume:** separately freeze exact HA-touched nonbonded pair decomposition and
+The next step declared at this checkpoint was to separately freeze exact HA-touched nonbonded pair decomposition and
 check full pair sums against the unmodified force before naming a clash partner.
 Do not choose a neighbor solely by proximity, suppress failures, increase the
 iteration budget or integrate an outward-H repair. Original THR2 cause, remaining
