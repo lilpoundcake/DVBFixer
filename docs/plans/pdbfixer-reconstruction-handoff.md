@@ -59,7 +59,58 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: tetrahedral methyl H-stage control avoids the inward endpoint
+## Latest checkpoint: downstream gains are limited and fixed-phase regressions remain
+
+The H-stage checkpoint was committed/pushed as `3e9362d`. The
+[whole-system continuation](../research/methyl-whole-control.md) and
+[complete evidence](../research/methyl-whole-control-evidence.json) execute all
+72 cells / 216 states with zero retries/blockers/timeouts/nonexecutions. All 24
+unchanged starts AND both original endpoints reproduce exactly, heavy atoms and H.
+The original post-H repair bridge is reproduced exactly in nm; all source forces,
+anchors, reference volumes and the 10-fold phase-2 weight reduction remain native.
+
+Original Reference / no-solvent / tolerance 10 kJ/mol/nm / 1,000 iterations per
+phase. NO new H, seed/profile search, observation restoration, emergency reflection
+or public candidate/PDB. These are deliberately TWO NATIVE PHASES BEFORE the
+production post-phase-2 reflection safety net; never equate that with a weakened
+production zero-D-Cα guarantee. Plan SHA256
+`1ff54b50dd4f879dedccb94620a626a4c53645ecf7cfcd4e582af3d2dd0b24a9`;
+private `tmp/pdbfixer-research/methyl-whole-{plan,run}-01*`.
+
+Unchanged/fixed/selected raw AND rounded target+global-stereo heavy passes:
+10/24, 11/24, 12/24. By source arms: raw 2/8 all three; distal-only 3/8,3/8,4/8;
+full-generated 5/8,6/8,6/8. The known GLN16 volume improves
+0.482378→2.544202/2.545041 Å³, with final HA angles near tetrahedral and CA–HA
+radius ~1.087 Å. Selected also rescues distal-only THR24 seed 2 (target volume
+0.009561→2.480606). Still SIX target THR failures + SIX VAL23 naming failures in
+selected arm, one protein only. No native RMSD/accuracy or broad chemistry claim.
+
+Explicit adverse fixed-phase findings in ALREADY-REJECTED cells: distal-only
+THR24 seed 2 adds observed TYR15 near-planarity (+0.425081 Å³); distal-only seed 1
+changes target THR24 to NEGATIVE CA volume −0.014602 Å³. Fixed arm has one final
+negative-Cα case; unchanged/selected have zero; no final negative THR-Cβ in any
+arm. Both regressions stay reported despite aggregate pass gains. No invalid PDB
+is published or candidate accepted. Production reflection safeguard is unchanged.
+
+Actual observed-heavy movement is reported, not restored: focal GLN16-rescued case
+has 469 original heavy observations, RMS 0.219522/0.219133/0.218328 Å and max
+1.077288/1.098176/1.084132 Å (unchanged/fixed/selected). Heavy gates cover target
+geometry and global Cα/THR-Cβ shape/stereo, not exhaustive complete-complex/H checks;
+all H-bond/H-angle deviations are retained descriptively.
+
+Ten new focused tests and Ruff pass. Full fast suite through continuation:
+**2,906 passed**, three optional Torch/Biotite skips, 33 slow deselected. Independent
+publications regenerate byte-identically. User requests continued autonomous
+research until a genuine access/decision/authorization requirement.
+
+**Resume:** separately enroll a source-diverse, graph-defined generated-methyl
+control with fixed input, ownership, canonical-frame and initial-energy rules.
+Retain refusals/adverse contexts; do not select proteins/angles by final success,
+enable a public repair or weaken the production chirality safety net. Original
+unforced 1CRN THR2 Cβ causality, broader qualification and empirical-table
+production/license approval remain separate and unresolved.
+
+## Preceding checkpoint: tetrahedral methyl H-stage control avoids the inward endpoint
 
 The negative rigid-control checkpoint was committed/pushed as `21d68b1`.
 [Tetrahedral H-stage evidence](../research/tetra-methyl-control-evidence.json) and

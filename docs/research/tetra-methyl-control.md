@@ -91,6 +91,12 @@ exactly in native nm coordinates**, using the unchanged production repair once;
 downstream whole-system sampling/evaluation is a distinct control, not inferred
 from this H-stage result.
 
+That [downstream control](methyl-whole-control.md) has now executed all 72 cells:
+heavy-gate counts improve only 10/24→11/24→12/24. Fixed-phase initialization also
+produces a new observed TYR15 near-planarity and a target negative-Cα finding in
+already-rejected cells. Those adverse native-phase outcomes remain retained;
+this H-stage result is not a production safety claim.
+
 Validation through this H-stage checkpoint: **16 new focused tests** and targeted
 Ruff pass; full fast suite **2,896 passed**, three optional Torch/Biotite skips and
 33 slow tests deselected. Independent publications regenerate byte-identically.
