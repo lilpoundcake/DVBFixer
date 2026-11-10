@@ -59,7 +59,53 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: local CH2 rescue transfers whole-phase flattening to ALA151
+## Latest checkpoint: complete carbon-H factorial admission, before execution
+
+The downstream checkpoint is committed/pushed as `f32595f`; metadata-only
+[factorial enrollment](../research/carbon-H-factorial-enrollment.json) was then
+committed/pushed as `74d6bfa` BEFORE new adapter/group evaluation. The
+[protocol](../research/carbon-H-factorial.md) and
+[admission evidence](../research/carbon-H-factorial-admission-evidence.json)
+retain all 40 contexts: ALL 24 original 1SHG reconstruction-stress starts and
+ALL 16 fixed eight-input/two-seed capture entries. All 34 native starts pass
+transport and CH2/CH3 construction admission; six inherited source/seed refusals
+remain unchanged. Four arms imply 160 entries, 136 possible replays and 24
+inherited refused arm entries. No factorial outcomes evaluated at this checkpoint.
+
+Legacy labels exactly match retained full-topology identities; actual native
+HarmonicBondForce graph equals saved topology bonds. Original nm starts/endpoints
+match retained Å snapshots exactly. Modern V2 topology/ownership records match
+native graph/masses. Full case-sensitive identities, pre-H observations and
+elements are exact; positive masses equal singly bonded newly added H only.
+No guessed aliases, measured/kept H rewrite, constraints/periodic/virtual sites.
+Resource/transport failure blocks rather than becoming a geometry exclusion.
+
+Fixed-zero methyl and heavy-compatible CH2 constructors preserve original radii
+and observations. Combined ownership is disjoint and reads both constructions
+from original coordinates, no sequential energy/phase search. All initial heavy
+shape findings and exclusions remain. Across native starts: 1,472 methyl and
+3,326 methylene group instances, not independent protein samples. Poor-heavy
+1SHG stress conditions remain explicit, not healthy production admissions.
+
+Enrollment SHA `ec69ad151110223d96725ea85ed8a108d139806f42e7eded9362b3cc9c428ba7`;
+admission SHA `6474696f4b4b63bad7ce78b55d8bcaf8842aca6a57bf96a3fc364b332a51394b`.
+Private admission V1 is retained as an earlier transport-only report; V2 adds
+continuous initial-heavy findings and explicit replay labels without arm execution.
+Twenty focused tests and Ruff pass; independent admission regeneration is exact.
+
+**Resume:** freeze complete factorial execution implementation/plan and run all
+four arms (unchanged/all_methyl_zero/all_methylene/combined_zero), original
+Reference/1.0/50 physics, no new H/seed/force/phase choice or retries. Budgets
+900 seconds/cell, 14,400 seconds total. Require all 34 unchanged nm endpoints
+exact, all native callback/mobile-gradient readbacks and adverse global H geometry.
+Known graph-zero protein-view and 1TIM CH2 intersections are replay controls,
+not independent new evidence; do not conflate all-methyl 1SHG with the old
+THR24-only intervention. Keep six inherited refusals in all four arms and report
+stress/natural strata separately. Production/public repair, original unforced
+THR2 cause and empirical-table production/license approval remain unresolved.
+Continue autonomously until genuine user access, decision or authorization needed.
+
+## Preceding checkpoint: local CH2 rescue transfers whole-phase flattening to ALA151
 
 The H-stage checkpoint was committed/pushed as `fb4fd4e`. The
 [complete whole continuation](../research/ASP49-methylene-whole.md) and
