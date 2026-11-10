@@ -1,6 +1,6 @@
 # Carbon-H factorial whole continuation: frozen all-context protocol
 
-Status: **transport admitted; whole native baselines/continuations not yet run**.
+Status: **34 independent native baselines audited; all continuations running**.
 Follows the [complete mixed H-stage factorial](carbon-H-factorial.md). No production
 initializer/default, threshold, scientific force or chirality safeguard changes.
 
@@ -70,3 +70,31 @@ license/approval remain unresolved.
 
 Code: `scripts/research_carbon_H_whole.py`,
 `scripts/publish_carbon_H_whole_preflight.py`.
+
+## Independent baseline checkpoint
+
+[Complete saved-only baseline evidence](carbon-H-whole-baseline-evidence.json)
+now retains **34 completed baselines and six inherited source refusals**, without
+execution blockers, timeouts, retries or budget nonexecutions. All original starts
+match native nm States exactly. Serialized Systems at initial/phase-1/phase-2
+snapshots match the original force/anchor parameters and the declared tenfold
+phase-2 positional-weight reduction. All **24 legacy paths** also reproduce
+their historical initial and both endpoint snapshots exactly at the original
+Å comparison precision. These are not reconstructed historical nm arrays.
+
+Independent baseline publications regenerate byte-identically. The first private
+baseline audit remains retained; a later metadata-only extension records the
+auditor hash without altering baseline coordinates or resampling.
+
+All **136 continuations** have now been launched under the same frozen plan;
+their outcomes are not evaluated at this checkpoint. The auditor is prepared
+to retain exact independent nm controls, historical whole replays, existing
+masked-target checks, global heavy/H findings and observation movement. Its
+prepared-view masked-target gate is explicitly **not applicable**, not zero
+passes disguised as failures.
+
+Twelve focused whole-worker/readback tests pass, including an end-to-end audit
+with minimization forbidden, nonfinite/hash/identity/phase refusals and explicit
+rejection of emergency repair or observation restoration. No production default,
+threshold or safety net changed. No candidate/PDB or repair qualification follows
+from a completed baseline.

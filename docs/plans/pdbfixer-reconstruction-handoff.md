@@ -59,7 +59,37 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: all-context whole protocol and exact transport admitted
+## Latest checkpoint: all 34 independent whole baselines audited
+
+The all-context whole protocol was committed/pushed as `581de3d`. The
+[baseline checkpoint](../research/carbon-H-whole.md#independent-baseline-checkpoint)
+and [complete baseline evidence](../research/carbon-H-whole-baseline-evidence.json)
+retain all 40 entries: 34 completed, six inherited source refusals, no retries/
+blockers/timeouts/budget nonexecutions. All original nm starts and all native
+phase force/anchor parameters agree with the source captures. All 24 legacy
+historical initial/phase1/phase2 Å snapshots reproduce exactly at their original
+precision; no old nm arrays are fabricated. Independent baseline publications
+regenerate byte-identically. The earlier private baseline audit remains retained;
+metadata-only addition of auditor hash does not resample or rewrite coordinates.
+
+All 136 whole continuations are now running under unchanged frozen plan
+`6dac11974efad016509db0d3482b7e3f0bcbe4f46072d3e383f72bfa858a5a11`.
+Private `carbon-H-whole-baseline-01/`, baseline-audit01/02 and `carbon-H-whole-run-01/`.
+Continuation outcomes NOT evaluated at this checkpoint. Saved-only auditor is
+prepared for exact 34 native nm controls, 14 historical whole intersections,
+existing masked stress-target gates, continuous raw/rounded global geometry,
+all H findings and original-heavy movement. Prepared-view masked gate is N/A,
+not a false zero-pass scientific result. Twelve focused worker/readback tests
+pass, including no-minimization audit and unsafe recovery/identity/frame refusals.
+
+**Resume:** wait for all-context whole run completion, then independently audit
+every arm and source refusal. Require exact unchanged starts/both new native nm
+endpoints, retain every adverse state and old Å precision distinction. No new
+seed/force/phase/retry, emergency reflection, observation restore or public PDB.
+Production/defaults/thresholds unchanged. Original THR2 cause, broad qualification
+and empirical-table production/license approval remain open; continue autonomously.
+
+## Preceding checkpoint: all-context whole protocol and exact transport admitted
 
 Complete H-stage factorial results were committed/pushed as `9a192b9`. The
 [whole protocol](../research/carbon-H-whole.md) and

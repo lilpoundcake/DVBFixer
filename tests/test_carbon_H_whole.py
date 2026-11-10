@@ -51,7 +51,11 @@ def fixture(tmp_path):
         del context
         del integrator
     spec = dict(rows=rows, bonds=bonds, mapping=[0, 1], system=str(tmp_path/'whole-system.xml'),
-        state=str(tmp_path/'whole-state.xml'), integrator=str(tmp_path/'whole-integrator.xml'))
+        state=str(tmp_path/'whole-state.xml'), integrator=str(tmp_path/'whole-integrator.xml'),
+        dat=str(tmp_path/'prepared.dat'))
+    from dvbfixer.ffutils.dat import DatRecord
+
+    DatRecord().save(tmp_path/'prepared.dat', verbose=False)
     case['whole'] = spec
     h_root = tmp_path/'H-run'
     h_folder = h_root/'synthetic/seed-1/prepared-view/unchanged'
@@ -63,20 +67,44 @@ def fixture(tmp_path):
     return plan, case, dict(rows=rows, bonds=bonds, final_nm=points)
 
 
-def test_native_baseline_and_direct_continuation_agree_at_both_endpoints(tmp_path):
+def test_native_baseline_direct_continuation_and_saved_only_audit(tmp_path, monkeypatch):
     plan, case, data = fixture(tmp_path)
     assert preflight(case, case['whole'], data)['exact_original_nm_start']
     baseline_root = tmp_path/'baseline'
     baseline = baseline_root/'synthetic/seed-1/prepared-view'
     baseline.mkdir(parents=True)
     worker(plan, 0, 'native_baseline', None, baseline)
-    output = tmp_path/'continuation'
-    output.mkdir()
+    run_root = tmp_path/'continuation'
+    output = run_root/'synthetic/seed-1/prepared-view/unchanged'
+    output.mkdir(parents=True)
     worker(plan, 0, 'unchanged', baseline_root, output)
     trace = json.loads((output/'trace.json').read_bytes())
     assert all(f['exact_baseline_nm'] for f in trace['frames'])
     assert not trace['emergency_reflection'] and not trace['observations_restored']
     assert not list(output.glob('*.pdb'))
+    from scripts.audit_carbon_H_whole import audit
+    from scripts.research_dunbrack_prior import sha
+
+    for root, folder, mode in ((baseline_root, baseline, 'native_baseline'), (run_root, output, 'continuations')):
+        (root/'executed-plan.json').write_bytes(plan.read_bytes())
+        artifacts = {p.name:sha(p.read_bytes()) for p in folder.iterdir() if p.is_file()}
+        evidence = dict(plan_sha256=sha(plan.read_bytes()), mode=mode,
+            cases=[dict(id='synthetic', seed=1, conditioning='prepared-view', arm='native_baseline' if mode == 'native_baseline' else 'unchanged',
+                status='completed', returncode=0, artifacts=artifacts)])
+        if mode == 'continuations':
+            evidence['baseline_run_sha256'] = sha((baseline_root/'evidence.json').read_bytes())
+        (root/'evidence.json').write_text(json.dumps(evidence))
+    import openmm
+    def forbidden(*args, **kwargs):
+        raise AssertionError('whole auditor must not minimize')
+    monkeypatch.setattr(openmm.LocalEnergyMinimizer, 'minimize', forbidden)
+    report = tmp_path/'audit.json'
+    audit(plan, run_root, baseline_root, report)
+    result = json.loads(report.read_bytes())
+    assert result['summary']['complete_matched_contexts'] == 1
+    assert result['summary']['strata']['prepared-protein-view']['unchanged']['exact_native_baseline_cells'] == 1
+    assert result['summary']['strata']['prepared-protein-view']['unchanged']['final_raw_masked_heavy_passes'] is None
+    assert not result['emergency_repair_executed']
 
 
 def test_original_State_start_drift_refuses_before_whole_sampling(tmp_path):
