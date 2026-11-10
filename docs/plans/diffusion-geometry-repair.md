@@ -1,6 +1,7 @@
 # Diffusion geometry repair: implementation and follow-up
 
-Date: 2026-11-10. P0/P1 approved for implementation; P2/P3 are planned only.
+Date: 2026-11-10. P0/P1 implemented; P2 private workflow and anchor-calibration
+pilots executed after approval. P2 product integration and P3 remain open.
 MODELLER remains the default backend. No additional neural sampling is approved
 or needed for the initial retained-coordinate controls.
 
@@ -122,20 +123,27 @@ deselected); the final focused set passed 48, including one later-added soft-cor
 force test. Ruff and agent-document maps passed. Slow integrations and GUI
 testing were not rerun for this Python-only numerical change.
 
-## P2 — per-gap portfolios and repair scheduling (planned, not implemented)
+## P2 — per-gap portfolios and repair scheduling (private implementation)
+
+2026-11-10 continuation: a separate private multi-parent contract, bounded beam,
+issue-local generated-only refinement and independent lineage/mobility audit
+are implemented. A retained 1KTZ portfolio plus D131–136-only repair passed full
+geometry/custody; the original 0/5 remains unchanged. Public bundle/`.dat` and
+CLI/Homology/GUI integration remain open. See the
+[evidence and remaining gates](../research/gap-portfolios-and-anchor-calibration.md).
 
 The 1KTZ retained stage-1 reports contain at least one locally clean option for
 each of its eight gaps, but not in one shared-seed candidate. This is potential
 coverage, not proof that a recombined complex will pass.
 
-- [ ] Define per-gap diagnostics and issue-local repair budgets, preserving good
+- [x] Define per-gap diagnostics and issue-local repair budgets, preserving good
   generated regions instead of perturbing every gap on every retry.
-- [ ] Design explicit multi-parent lineage for gap choices from different seeds;
+- [x] Design explicit multi-parent lineage for gap choices from different seeds;
   do not mislabel a recombination as a single original seed or mutate schema-4
   frozen requests/public bundles to hide the additional selection operation.
-- [ ] Select and materialize only in Python; no scientific recombination in Node
+- [x] Select and materialize only in Python; no scientific recombination in Node
   or the GUI. Preserve common source/frame and template-ownership bindings.
-- [ ] Reassess cross-gap clashes, junctions, global chirality, metadata and final
+- [x] Reassess cross-gap clashes, junctions, global chirality, metadata and final
   whole-complex acceptance after assembly. Local cleanliness is not publication
   authority, and original rejected candidates remain rejected.
 - [ ] Predeclare a separate evaluation and resource budget before new sampling.
@@ -156,14 +164,21 @@ proposal indefinitely is not an adequate general reconstruction strategy.
 - [ ] Evaluate independently of the original cc94 cohort and retain negative
   outcomes; do not replace the baseline acceptance rate with post-hoc rescues.
 
-## Anchor-limit calibration (research planned, limits unchanged)
+## Anchor-limit calibration (pilots executed, limits unchanged)
+
+Predeclared ubiquitin/NMR and lysozyme comparisons have executed. Leave-anchor-out
+local/global frames, exact identity, exclusions, contacts and source QC are
+reported separately. Initial 1LYZ has source defects and is retained as a QC
+warning; a separately declared 1AKI/193L control followed. These two-protein
+methodological pilots do not establish a production ceiling. See the
+[measurements and limitations](../research/gap-portfolios-and-anchor-calibration.md).
 
 The current per-anchor limits—backbone RMSD 0.5 Å, Cα displacement 0.5 Å, maximum
 heavy-atom displacement 1.25 Å—are engineering bounds, not measurements of
 experimental uncertainty. The user requested investigation of a higher ceiling;
 this is not permission to raise it merely to accept existing failures.
 
-- [ ] Predeclare candidate bounds and cases independently of outcome selection.
+- [x] Predeclare pilot candidate bounds and cases independently of comparison outcomes.
 - [ ] Compare independent experimental models, alternate conformations and
   repeated/refined structures in a common local reference frame. Account for
   experimental method/resolution, occupancy and model uncertainty.
@@ -183,4 +198,5 @@ this is not permission to raise it merely to accept existing failures.
 
 See the [canonical checklist](implementation-checklist.md),
 [anchor-relaxation handoff](geometry-gated-anchor-relaxation-handoff.md), and
-[plan index](README.md). P2/P3 and limit calibration are not shipped capabilities.
+[plan index](README.md). Private P2 and calibration research are not public shipped
+capabilities; P3 remains planned only.

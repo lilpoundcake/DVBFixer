@@ -10,12 +10,16 @@ See [scope, invariants and evaluation gates](diffusion-geometry-repair.md).
   steric/full-force-field relaxation; six of seven retained-coordinate controls
   pass. 1KTZ/7 remains rejected: this is not universal reconstruction/closure.
 - [ ] P2: issue-local repair scheduling and provenance-aware per-gap portfolios
-  (planned only; no recombination capability is advertised).
+  (private contract/search/refinement/audit and 1KTZ control implemented;
+  distinct public publication/`.dat`, prospective qualification and product
+  integration remain open; no public recombination capability is advertised).
 - [ ] P3: explicit opt-in alternative reconstruction for persistently failed
   gaps (planned only; no silent MODELLER fallback).
 - [ ] Independently calibrate observed-anchor movement ceilings; investigate
   increases without treating B factors as uncertainty radii, tuning against
-  existing failures or changing historical request limits (research planned).
+  existing failures or changing historical request limits (predeclared
+  two-protein pilots executed; broader, symmetry/density/interface validation
+  and any production policy choice remain open).
 
 ## Installer workflow and progress follow-up (2026-11-05)
 
