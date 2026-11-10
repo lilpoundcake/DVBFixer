@@ -59,7 +59,52 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: inward HA originates during native H-only minimization
+## Latest checkpoint: large early native H-minimizer displacement
+
+Following checkpoint `3c8c2ff`, the
+[native callback path](../research/ha-minimizer-path.md) and
+[complete evidence](../research/ha-minimizer-path-evidence.json) retain ALL 24
+cells / 1,200 callbacks / 1,248 initial+callback+final force-readback nodes.
+Every original start/endpoint reproduces exactly; all existing heavy coordinates
+are exact at every callback, and reported physical HA forces match negative native
+objective gradients with maximum difference 0.0 kJ/mol/nm. All cells execute;
+zero retries/blockers/timeouts/nonexecutions. Original Reference / 1.0 tolerance /
+50-iteration settings stay fixed; callbacks only copy data and return False.
+No constraints, PBC, virtual sites, integration or whole-system minimization.
+
+Plan: `tmp/pdbfixer-research/ha-minimizer-path-plan-01.json`, SHA256
+`4d159a5be0823c18577e0cb821c9a534361d6a41c28cb572617369137c0cfb2e`;
+private path coordinates/gradients in `ha-minimizer-path-run-01/` beside it.
+Observe the native Context directly; do not reconstruct a supposedly exact nm
+start by round-tripping saved Å decimals. Old source/evidence stays immutable.
+
+For known THR24/full-generated/seed-1 HA, outward cosine first becomes negative
+at callback ordinal/native index 0 (+0.962637→−0.912389), while CA–HA radius grows
+1.000000→2.506358 Å, then to 4.430951 Å at callback 1. First all-acute callback
+is 17; final cosine −0.994893. Initial inward-axis force is −53175.879 kJ/mol/nm,
+dominated by nonbonded −56105.474, opposed by bond +2464.937 and angle +464.623.
+Initial sphere-tangent force is OUTWARD (+5524.842), including nonbonded +3808.931;
+do not call the displacement ordinary bond-preserving inward rotation. Callbacks
+are optimizer observations, not physical dynamics, every line-search evaluation,
+integrated work or proof of convergence. All cells use their full 50 callbacks.
+
+Only two full-generated THR24 starts show negative-outward callbacks; seed 2
+returns outward and never has an all-acute callback. Heavy Cα remains fixed here;
+its later flattening belongs to the separately reproduced paired intervention.
+No particular nonbonded pair has yet been identified. Eleven new focused tests
+and Ruff pass; combined angle/H-stage controls pass 59 tests. Repeat publication
+is byte-identical. The new full fast suite passes **2,849 tests**, with three
+optional Torch/Biotite skips and 33 slow deselected. Agent-map and generated
+CLI/GUI checks pass. Production is unchanged.
+
+**Resume:** separately freeze exact HA-touched nonbonded pair decomposition and
+check full pair sums against the unmodified force before naming a clash partner.
+Do not choose a neighbor solely by proximity, suppress failures, increase the
+iteration budget or integrate an outward-H repair. Original THR2 cause, remaining
+target THR/VAL failures, platform/diversity qualification and licensed-table
+production approval remain open and distinct.
+
+## Preceding checkpoint: inward HA originates during native H-only minimization
 
 The paired-HA checkpoint was committed/pushed as `ae0a08c`. The next
 [original H-placement trace](../research/ha-placement-trace.md) and
@@ -86,7 +131,7 @@ Eight new focused tests and Ruff pass; independent publication regenerates
 byte-identically. Previous full fast suite is 2,830 passed; this increment has
 focused acceptance only, not an inferred new full-suite pass.
 
-**Resume:** separately freeze an original-H-System intermediate-step or force
+The next step declared at this checkpoint was to separately freeze an original-H-System intermediate-step or force
 readback before identifying a microscopic force/line-search mechanism. Do not
 increase iterations or promote the one-H construction as a fix. Original 1CRN
 THR2 causality, remaining target THR Cα failures, diversity/platform qualification

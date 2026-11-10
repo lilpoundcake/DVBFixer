@@ -87,7 +87,15 @@ baseline. This localizes a mechanism, but does not identify a particular interna
 line-search step, prove convergence of the 50-iteration H stage or isolate which
 H-stage force/interaction drives HA inward.
 
-A further mechanism experiment would need a separately frozen intermediate-step
+The subsequent [native minimizer path readback](ha-minimizer-path.md) now records
+all 1,200 callbacks with exact original endpoints: the known HA is already inward
+by the first reported step, after a large parent-bond stretch. Its enormous
+initial inward-axis force is nonbonded-dominated, while the initial tangent force
+is outward. This is not ordinary bond-preserving rotation or a physical path.
+A particular nonbonded partner remains unidentified and needs separate validated
+pair decomposition before making that causal attribution.
+
+The next experiment declared at this boundary was a separately frozen intermediate-step
 or force-component readback under the same H-stage System, retaining all cases.
 Do not silently increase iterations or install the outward construction as a fix.
 The remaining THR target flattening and VAL naming failures, original unforced
