@@ -7,9 +7,7 @@ from importlib import import_module
 
 from dvbfixer.command_registry import COMMAND_REGISTRY, get_command
 
-COMMANDS: dict[str, str] = {
-    command.name: command.description for command in COMMAND_REGISTRY
-}
+COMMANDS: dict[str, str] = {command.name: command.description for command in COMMAND_REGISTRY}
 
 
 def print_help() -> None:
@@ -29,6 +27,24 @@ def print_help() -> None:
     print("\nRun 'dvbfixer <command> --help' for command-specific options.")
 
 
+def _diagnose_json_stdout(argv: list[str]) -> bool:
+    """Select presentation only; the command parser still validates arguments.
+
+    Honor equals syntax, argparse long-option abbreviations, last-value wins
+    and the end-of-options delimiter without importing scientific parsers.
+    """
+    output_format: str | None = None
+    for index, argument in enumerate(argv):
+        if argument == "--":
+            break
+        option, separator, value = argument.partition("=")
+        if option.startswith("--") and len(option) > 2 and "--format".startswith(option):
+            output_format = (
+                value if separator else (argv[index + 1] if index + 1 < len(argv) else None)
+            )
+    return output_format == "json"
+
+
 def main() -> None:
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
         print_help()
@@ -36,6 +52,7 @@ def main() -> None:
 
     if sys.argv[1] == "--version":
         from dvbfixer import __version__
+
         print(f"dvbfixer {__version__}")
         sys.exit(0)
 
@@ -65,7 +82,12 @@ def main() -> None:
     from dvbfixer.runtime import run_header, tee_output
 
     informational = any(arg in ("-h", "--help") for arg in argv)
-    with tee_output(None if informational else batch_options.log_file):
+    with tee_output(
+        None if informational else batch_options.log_file,
+        structured_stdout=(
+            command == "diagnose" and not batch_options.input_dir and _diagnose_json_stdout(argv)
+        ),
+    ):
         if not informational:
             print(run_header(command), file=sys.stderr)
         if batch_options.input_dir:

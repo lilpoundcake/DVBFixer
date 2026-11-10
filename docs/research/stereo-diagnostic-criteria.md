@@ -102,9 +102,39 @@ stereo screen is not a guarantee that a structure is physically valid or safe
 for a downstream workflow; warnings request source/identity review, not an
 automatic repair command.
 
-Final branch verification: **2,231 fast tests passed**, three optional Torch/
+## Unified CLI follow-up
+
+Subprocess testing after the first implementation found a presentation bug that
+direct `diagnose.main()` tests could not expose: fd-level runtime annotation
+inserted `!!! WARNING !!!` inside a JSON message containing the word "warning".
+The unified CLI now opts single-input diagnose JSON into verbatim stdout capture.
+JSON fields are data, not free-text diagnostics; stderr remains fully captured,
+emphasized and summarized, including inherited child-process stderr and exception
+cleanup. Other commands and human-readable batch progress retain normal handling.
+
+The same tests exposed false runtime ERROR markers on `D-isomer error: NO` and
+the count-table row `ERROR: 0 findings across 0 residues`. Exact negative status
+and count-table forms are no longer classified as extra diagnostics. Actual
+per-residue warnings/errors and positive D-isomer status remain visible.
+
+The additional controls exercise public text/JSON commands, ERROR filtering,
+Unicode log content, exit codes, mixed warning/error batch report publication,
+format-option spelling/last-value semantics, child stdout beyond the pipe read
+chunk size without a final newline, real child stderr and exceptional exit.
+None of these changes affects scientific geometry thresholds or coordinates.
+
+Initial branch verification at `039e1ba`: **2,231 fast tests passed**, three optional Torch/
 Biotite skips and 33 slow tests deselected. This includes 61 stereocentre controls.
 Targeted Ruff lint/format, generated CLI/GUI checks and agent documentation maps
 pass. The pure geometry module passes mypy; a broader four-module diagnose mypy
 check reports the same six pre-existing errors reproduced from `main`, with no
 new errors in this extension. This is not full slow-suite/platform acceptance.
+
+Follow-up verification: **2,245 fast tests passed**, the same three optional skips
+and 33 slow deselections; **164 diagnose/runtime tests passed** in the focused
+run, including its glycoprotein slow smoke. This includes 70 stereocentre tests
+and nine CLI/runtime tests. Full-source Ruff, CLI/runtime/geometry mypy,
+generated CLI/GUI checks, agent maps, version synchronization and license-inventory
+freshness pass. Inventory freshness does not establish legal clearance. Retained
+before/after readback against `039e1ba` reproduces both presentation defects and
+confirms their removal without scientific execution.

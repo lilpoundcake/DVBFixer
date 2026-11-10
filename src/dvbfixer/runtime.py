@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
 import threading
 from collections.abc import Iterator
@@ -14,6 +15,7 @@ from typing import BinaryIO
 _RED = b"\x1b[1;97;41m"
 _YELLOW = b"\x1b[1;30;43m"
 _RESET = b"\x1b[0m"
+_REPORT_COUNT = re.compile(rb"(?:ERROR|WARNING):\s+\d+ FINDINGS ACROSS \d+ RESIDUES")
 
 
 def run_header(command: str) -> str:
@@ -26,6 +28,14 @@ def run_header(command: str) -> str:
 
 def _severity(chunk: bytes) -> str | None:
     upper = chunk.upper()
+    # A negative/not-requested diagnose status is not an ERROR diagnostic.
+    # Keep positive status and the actual per-residue error lines visible.
+    if upper.strip() in {b"D-ISOMER ERROR: NO", b"D-ISOMER ERROR: NOT CHECKED"}:
+        return None
+    # Diagnose's count table is not another finding (especially ERROR: 0).
+    # Actual per-residue WARNING/ERROR lines are classified independently.
+    if _REPORT_COUNT.fullmatch(upper.strip()):
+        return None
     if b"ERROR:" in upper or b"ERROR " in upper:
         return "ERROR"
     if b"WARNING:" in upper or b"WARNING " in upper:
@@ -34,8 +44,12 @@ def _severity(chunk: bytes) -> str | None:
 
 
 def _copy_stream(
-    read_fd: int, console_fd: int, log: BinaryIO | None, lock: threading.Lock,
+    read_fd: int,
+    console_fd: int,
+    log: BinaryIO | None,
+    lock: threading.Lock,
     findings: list[tuple[str, str]],
+    structured: bool = False,
 ) -> None:
     """Copy one redirected file descriptor to its console and the shared log."""
     try:
@@ -44,18 +58,33 @@ def _copy_stream(
             pending += chunk
             while b"\n" in pending:
                 line, pending = pending.split(b"\n", 1)
-                _write_diagnostic_line(line + b"\n", console_fd, log, lock, findings)
+                _write_diagnostic_line(
+                    line + b"\n",
+                    console_fd,
+                    log,
+                    lock,
+                    findings,
+                    structured=structured,
+                )
         if pending:
-            _write_diagnostic_line(pending, console_fd, log, lock, findings)
+            _write_diagnostic_line(pending, console_fd, log, lock, findings, structured=structured)
     finally:
         os.close(read_fd)
 
 
 def _write_diagnostic_line(
-    line: bytes, console_fd: int, log: BinaryIO | None, lock: threading.Lock,
+    line: bytes,
+    console_fd: int,
+    log: BinaryIO | None,
+    lock: threading.Lock,
     findings: list[tuple[str, str]],
+    *,
+    structured: bool = False,
 ) -> None:
-    severity = _severity(line)
+    # JSON strings are report data, not human diagnostic lines. Decorating or
+    # classifying them by embedded words corrupts stdout and invents summaries.
+    # This opt-in applies only to stdout; stderr retains normal diagnostics.
+    severity = None if structured else _severity(line)
     displayed = line
     logged = line
     if severity:
@@ -77,11 +106,13 @@ def _write_diagnostic_line(
 
 
 @contextmanager
-def tee_output(path: str | Path | None) -> Iterator[None]:
+def tee_output(path: str | Path | None, *, structured_stdout: bool = False) -> Iterator[None]:
     """Mirror fd-level stdout/stderr to ``path`` while retaining the terminal.
 
     File-descriptor redirection is intentional: subprocesses that inherit the
     normal stdout/stderr descriptors are captured as well as Python ``print``.
+    With structured_stdout, stdout is mirrored byte-for-byte without text
+    diagnostic markers; stderr is still emphasized, logged and summarized.
     """
     log_path = Path(path).expanduser() if path is not None else None
     if log_path is not None:
@@ -98,7 +129,14 @@ def tee_output(path: str | Path | None) -> Iterator[None]:
         threads = [
             threading.Thread(
                 target=_copy_stream,
-                args=(pipes[index][0], saved[index], log, lock, findings),
+                args=(
+                    pipes[index][0],
+                    saved[index],
+                    log,
+                    lock,
+                    findings,
+                    structured_stdout and index == 0,
+                ),
                 daemon=True,
             )
             for index in range(2)
