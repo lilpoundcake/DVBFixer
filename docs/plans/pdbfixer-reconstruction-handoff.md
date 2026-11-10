@@ -59,7 +59,52 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: fixed graph-methyl cohort admission and preparation
+## Latest checkpoint: graph-methyl selected-phase benefit does not generalize
+
+Admission/preparation was committed/pushed as `a555f17`. The completed
+[source-diverse H control](../research/methyl-diversity-control.md) and
+[full evidence](../research/graph-methyl-control-evidence.json) retain all 48 cells:
+30 completed, 18 source refusals, zero retries/blockers/timeouts/nonexecutions.
+All 10 unchanged native nm endpoints exactly reproduce. Nonowned initial and all
+heavy trajectory coordinates remain exact. Every mobile-H force matches negative
+native gradients at all 1,500 callbacks (error 0.0); all 1,560 nodes and 15,168 original
+initial-energy observations independently audited (maximum grid error 1.770e−8).
+
+[Native capture evidence](../research/methyl-diversity-capture-evidence.json):
+ten contexts, 632 methyl group instances (five protein views × seeds 1/2), complete
+object-index/bond lineage through label restoration. Per-seed groups:
+1CRN 27 / 1CTF 50 / 1TIM 154 / 1EMV 42 / 1FR2 43. First V1 collector failed ALL 10 attempts
+BEFORE H minimization because its ForceField wrapper hid ArgTracker defaults;
+retain `methyl-diversity-capture-01/` and immutable V1 script/plan. Explicit V2
+signature-preserving amendment succeeds without bypassing argument checks or
+changing scientific parameters. Both versions and every failure stay bound.
+
+New adverse result: 1TIM/A/ASP49/seed1 is final all-acute HA in unchanged AND
+energy-selected arms; zero-phase prevents it. Any/final all-acute contexts:
+1/10 unchanged,0/10 zero,1/10 selected. N/C/CB-to-HA selected angles
+59.505/88.192/67.971° versus zero108.094/107.788/109.720°. Initial energy falls
+738938.992→449038.657kJ/mol in selected but does not prevent failure. Thus the
+earlier 1SHG selected-phase benefit does NOT generalize. Zero also remains unsafe
+to qualify: old negative-Cα/TYR15 findings persist, and current 1TIM H strain is
+severe (maximum final H-angle deviations across arms71.533/72.281/62.324°).
+
+Graph-H plan SHA256 `a3a23d88c5666e3f790223447a432d1e36b04256420decd265cf603fc32df349`;
+private `graph-methyl-control-{plan,run,audit}-01*` under research temp root.
+Forty-two focused tests and Ruff pass; independent publications byte-identical.
+Initial full fast suite: 2,963 passed, three optional skips/33 slow deselected, with
+later focused additions separately tested. Production/public repair stays off.
+
+**Resume:** separately frozen all 30 whole native-phase continuations are underway,
+preceded by ten independent saved-State baselines. All 10 H-label repair→object-map
+original starts preflight exactly in nm. Use `graph-methyl-whole-plan-01.json`,
+`graph-methyl-whole-baseline-01/` and `graph-methyl-whole-run-01/`. Retain source
+refusals and all adverse states; unchanged must reproduce both native endpoints
+exactly. No solvent, new seeds/forces or production safeguard changes. Two phases
+stop BEFORE emergency repair, no PDB/candidate publication. Original THR2 causality,
+broader scientific qualification and empirical-table production/license approval
+remain unresolved; continue until genuine user access/decision/authorization needed.
+
+## Preceding checkpoint: fixed graph-methyl cohort admission and preparation
 
 The source-diverse [graph-methyl study](../research/methyl-diversity-control.md)
 has an immutable [eight-input enrollment](../research/methyl-diversity-enrollment.json),

@@ -1,0 +1,10386 @@
+{
+  "amendment": {
+    "failed_run_sha256": "227e379dae9bcd500a39bb9e2fe4b8dc237514e80983cd7c0efa659a3ec38409",
+    "original_plan_sha256": "22c88e8cd1687399b176edac78e627e72520f8d8703e3ba5ea6a8d1745ffe89b",
+    "reason": "functools.wraps preserves native createSystem signature/defaults used by OpenMM ArgTracker; original ten blockers precede H minimization",
+    "source_or_scientific_protocol_change": false
+  },
+  "auditor_sha256": "f93a09e5676896ffdcecfc28be331ff5305732ec28cde1e453a9590d2b62f915",
+  "cases": [
+    {
+      "H_system_sha256": "ddf686b657ebe1d009064a3a5efa004004ba5bc54122c6fa25c6740fb2bb300d",
+      "atoms": 642,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 27,
+      "heavy": 327,
+      "id": "1CRN",
+      "label_changes": [
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 30,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 31,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 32,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 33,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 34,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 35,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 36,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 37,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 38,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 39,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 40,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 41,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 42,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 43,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 44,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 45,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 46,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 47,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 48,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 49,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 219,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 220,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 221,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 222,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 223,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 224,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 225,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 226,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 227,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 228,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 365,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 366,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 367,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 368,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 369,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 370,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 371,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 372,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 373,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 374,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 441,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 442,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 443,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 444,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 445,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 446,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 447,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 448,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 449,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 450,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 553,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 554,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 555,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 556,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 557,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 558,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 559,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 560,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 561,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 562,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "SG"
+          ]
+        }
+      ],
+      "new_H": 315,
+      "returncode": 0,
+      "seed": 1,
+      "status": "captured"
+    },
+    {
+      "H_system_sha256": "ddf686b657ebe1d009064a3a5efa004004ba5bc54122c6fa25c6740fb2bb300d",
+      "atoms": 642,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 27,
+      "heavy": 327,
+      "id": "1CRN",
+      "label_changes": [
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 30,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 31,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 32,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 33,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 34,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 35,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 36,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 37,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 38,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "3",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 39,
+          "whole_key": [
+            "A",
+            "3",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 40,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 41,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 42,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 43,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 44,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 45,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 46,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 47,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 48,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "4",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 49,
+          "whole_key": [
+            "A",
+            "4",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 219,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 220,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 221,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 222,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 223,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 224,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 225,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 226,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 227,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "16",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 228,
+          "whole_key": [
+            "A",
+            "16",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 365,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 366,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 367,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 368,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 369,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 370,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 371,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 372,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 373,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 374,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 441,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 442,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 443,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 444,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 445,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 446,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 447,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 448,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 449,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "32",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 450,
+          "whole_key": [
+            "A",
+            "32",
+            "",
+            "CYX",
+            "SG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "N"
+          ],
+          "index": 553,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "H"
+          ],
+          "index": 554,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "CA"
+          ],
+          "index": 555,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "HA"
+          ],
+          "index": 556,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "C"
+          ],
+          "index": 557,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "O"
+          ],
+          "index": 558,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "CB"
+          ],
+          "index": 559,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "HB2"
+          ],
+          "index": 560,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "HB3"
+          ],
+          "index": 561,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "40",
+            "",
+            "CYS",
+            "SG"
+          ],
+          "index": 562,
+          "whole_key": [
+            "A",
+            "40",
+            "",
+            "CYX",
+            "SG"
+          ]
+        }
+      ],
+      "new_H": 315,
+      "returncode": 0,
+      "seed": 2,
+      "status": "captured"
+    },
+    {
+      "H_system_sha256": "813f87fdf245739e47c6d0dd89eebc1869b7b58038a9a34a120cd4be028ac858",
+      "atoms": 1005,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 50,
+      "heavy": 487,
+      "id": "1CTF",
+      "label_changes": [],
+      "new_H": 518,
+      "returncode": 0,
+      "seed": 1,
+      "status": "captured"
+    },
+    {
+      "H_system_sha256": "813f87fdf245739e47c6d0dd89eebc1869b7b58038a9a34a120cd4be028ac858",
+      "atoms": 1005,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 50,
+      "heavy": 487,
+      "id": "1CTF",
+      "label_changes": [],
+      "new_H": 518,
+      "returncode": 0,
+      "seed": 2,
+      "status": "captured"
+    },
+    {
+      "H_system_sha256": "a78dd92f780ecc5b88d9623ee9195d8c1351feee896f2ba50c8dcff922ce5d91",
+      "atoms": 3758,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 154,
+      "heavy": 1871,
+      "id": "1TIM",
+      "label_changes": [
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 398,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 399,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 400,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 401,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 402,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 403,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 404,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 405,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 406,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 407,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 408,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 409,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 410,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 411,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 412,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 413,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 414,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 1419,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 1420,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 1421,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 1422,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 1423,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 1424,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 1425,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 1426,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 1427,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 1428,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 1429,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 1430,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 1431,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 1432,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 1433,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 1434,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 1435,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 1510,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 1511,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 1512,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 1513,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 1514,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 1515,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 1516,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 1517,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 1518,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 1519,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 1520,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 1521,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 1522,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 1523,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 1524,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 1525,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 1526,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 1733,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 1734,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 1735,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 1736,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 1737,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 1738,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 1739,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 1740,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 1741,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 1742,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 1743,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 1744,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 1745,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 1746,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 1747,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 1748,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 1749,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 2794,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 2795,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 2796,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 2797,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 2798,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 2799,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 2800,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 2801,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 2802,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 2803,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 2804,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 2805,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 2806,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 2807,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 2808,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 2809,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 2810,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 2977,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 2978,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 2979,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 2980,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 2981,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 2982,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 2983,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 2984,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 2985,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 2986,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 2987,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 2988,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 2989,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 2990,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 2991,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 2992,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 2993,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 3384,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 3385,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 3386,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 3387,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 3388,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 3389,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 3390,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 3391,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 3392,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 3393,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 3394,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 3395,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 3396,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 3397,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 3398,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 3399,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 3400,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 3740,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 3741,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 3742,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 3743,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 3744,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 3745,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 3746,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 3747,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 3748,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 3749,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 3750,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 3751,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 3752,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 3753,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 3754,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 3755,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 3756,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "OXT"
+          ],
+          "index": 3757,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "OXT"
+          ]
+        }
+      ],
+      "new_H": 1887,
+      "returncode": 0,
+      "seed": 1,
+      "status": "captured"
+    },
+    {
+      "H_system_sha256": "a78dd92f780ecc5b88d9623ee9195d8c1351feee896f2ba50c8dcff922ce5d91",
+      "atoms": 3758,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 154,
+      "heavy": 1871,
+      "id": "1TIM",
+      "label_changes": [
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 398,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 399,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 400,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 401,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 402,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 403,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 404,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 405,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 406,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 407,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 408,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 409,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 410,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 411,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 412,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 413,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "26",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 414,
+          "whole_key": [
+            "A",
+            "26",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 1419,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 1420,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 1421,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 1422,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 1423,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 1424,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 1425,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 1426,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 1427,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 1428,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 1429,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 1430,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 1431,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 1432,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 1433,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 1434,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "95",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 1435,
+          "whole_key": [
+            "A",
+            "95",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 1510,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 1511,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 1512,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 1513,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 1514,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 1515,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 1516,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 1517,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 1518,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 1519,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 1520,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 1521,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 1522,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 1523,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 1524,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 1525,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "100",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 1526,
+          "whole_key": [
+            "A",
+            "100",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 1733,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 1734,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 1735,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 1736,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 1737,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 1738,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 1739,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 1740,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 1741,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 1742,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 1743,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 1744,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 1745,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 1746,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 1747,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 1748,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "115",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 1749,
+          "whole_key": [
+            "A",
+            "115",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 2794,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 2795,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 2796,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 2797,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 2798,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 2799,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 2800,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 2801,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 2802,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 2803,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 2804,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 2805,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 2806,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 2807,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 2808,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 2809,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "185",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 2810,
+          "whole_key": [
+            "A",
+            "185",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 2977,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 2978,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 2979,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 2980,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 2981,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 2982,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 2983,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 2984,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 2985,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 2986,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 2987,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 2988,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 2989,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 2990,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 2991,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 2992,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "195",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 2993,
+          "whole_key": [
+            "A",
+            "195",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 3384,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 3385,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 3386,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 3387,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 3388,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 3389,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 3390,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 3391,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 3392,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 3393,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 3394,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 3395,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 3396,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 3397,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 3398,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 3399,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "224",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 3400,
+          "whole_key": [
+            "A",
+            "224",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 3740,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 3741,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 3742,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 3743,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 3744,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 3745,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 3746,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 3747,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 3748,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 3749,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 3750,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 3751,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 3752,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 3753,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 3754,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 3755,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 3756,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "248",
+            "",
+            "HIS",
+            "OXT"
+          ],
+          "index": 3757,
+          "whole_key": [
+            "A",
+            "248",
+            "",
+            "HIE",
+            "OXT"
+          ]
+        }
+      ],
+      "new_H": 1887,
+      "returncode": 0,
+      "seed": 2,
+      "status": "captured"
+    },
+    {
+      "id": "1UBQ",
+      "returncode": null,
+      "seed": 1,
+      "status": "refused_source"
+    },
+    {
+      "id": "1UBQ",
+      "returncode": null,
+      "seed": 2,
+      "status": "refused_source"
+    },
+    {
+      "H_system_sha256": "98b51216b050a7a850c7737d327992855f5168c9599004d097e7677c149c69f9",
+      "atoms": 1269,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 42,
+      "heavy": 652,
+      "id": "1EMV",
+      "label_changes": [
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 43,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 44,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 45,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 46,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 47,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 48,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 49,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 50,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 51,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 52,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 53,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 54,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 55,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 56,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 57,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 58,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 59,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 560,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 561,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 562,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 563,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 564,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 565,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 566,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 567,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 568,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 569,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 570,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 571,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 572,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 573,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 574,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 575,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 576,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 673,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 674,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 675,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 676,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 677,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 678,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 679,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 680,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 681,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 682,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 683,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 684,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 685,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 686,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 687,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 688,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 689,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        }
+      ],
+      "new_H": 617,
+      "returncode": 0,
+      "seed": 1,
+      "status": "captured"
+    },
+    {
+      "H_system_sha256": "98b51216b050a7a850c7737d327992855f5168c9599004d097e7677c149c69f9",
+      "atoms": 1269,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 42,
+      "heavy": 652,
+      "id": "1EMV",
+      "label_changes": [
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 43,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 44,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 45,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 46,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 47,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 48,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 49,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 50,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 51,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 52,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 53,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 54,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 55,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 56,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 57,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 58,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 59,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 560,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 561,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 562,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 563,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 564,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 565,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 566,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 567,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 568,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 569,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 570,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 571,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 572,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 573,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 574,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 575,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 576,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 673,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 674,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 675,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 676,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 677,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 678,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 679,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 680,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 681,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 682,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 683,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 684,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 685,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 686,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 687,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 688,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 689,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        }
+      ],
+      "new_H": 617,
+      "returncode": 0,
+      "seed": 2,
+      "status": "captured"
+    },
+    {
+      "H_system_sha256": "85d9638b59be98d0cb25f9df4331df899962c51bf8c916d6b8d7f916f23103bc",
+      "atoms": 1264,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 43,
+      "heavy": 648,
+      "id": "1FR2",
+      "label_changes": [
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 43,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 44,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 45,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 46,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 47,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 48,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 49,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 50,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 51,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 52,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 53,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 54,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 55,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 56,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 57,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 58,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 59,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 560,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 561,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 562,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 563,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 564,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 565,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 566,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 567,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 568,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 569,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 570,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 571,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 572,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 573,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 574,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 575,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 576,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 668,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 669,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 670,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 671,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 672,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 673,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 674,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 675,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 676,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 677,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 678,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 679,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 680,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 681,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 682,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 683,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 684,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        }
+      ],
+      "new_H": 616,
+      "returncode": 0,
+      "seed": 1,
+      "status": "captured"
+    },
+    {
+      "H_system_sha256": "85d9638b59be98d0cb25f9df4331df899962c51bf8c916d6b8d7f916f23103bc",
+      "atoms": 1264,
+      "complete_bond_lineage": true,
+      "exact_heavy_path": true,
+      "excluded_groups": 0,
+      "groups": 43,
+      "heavy": 648,
+      "id": "1FR2",
+      "label_changes": [
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 43,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 44,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 45,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 46,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 47,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 48,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 49,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 50,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 51,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 52,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 53,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HD1"
+          ],
+          "index": 54,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HD1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 55,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 56,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 57,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 58,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "5",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 59,
+          "whole_key": [
+            "A",
+            "5",
+            "",
+            "HID",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 560,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 561,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 562,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 563,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 564,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 565,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 566,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 567,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 568,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 569,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 570,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 571,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 572,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 573,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 574,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 575,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "39",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 576,
+          "whole_key": [
+            "A",
+            "39",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "N"
+          ],
+          "index": 668,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "N"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "H"
+          ],
+          "index": 669,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "H"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CA"
+          ],
+          "index": 670,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HA"
+          ],
+          "index": 671,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HA"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "C"
+          ],
+          "index": 672,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "C"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "O"
+          ],
+          "index": 673,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "O"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CB"
+          ],
+          "index": 674,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CB"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HB2"
+          ],
+          "index": 675,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HB2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HB3"
+          ],
+          "index": 676,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HB3"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CG"
+          ],
+          "index": 677,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CG"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "ND1"
+          ],
+          "index": 678,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "ND1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CD2"
+          ],
+          "index": 679,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HD2"
+          ],
+          "index": 680,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HD2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "CE1"
+          ],
+          "index": 681,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "CE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HE1"
+          ],
+          "index": 682,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HE1"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "NE2"
+          ],
+          "index": 683,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "NE2"
+          ]
+        },
+        {
+          "H_key": [
+            "A",
+            "46",
+            "",
+            "HIS",
+            "HE2"
+          ],
+          "index": 684,
+          "whole_key": [
+            "A",
+            "46",
+            "",
+            "HIE",
+            "HE2"
+          ]
+        }
+      ],
+      "new_H": 616,
+      "returncode": 0,
+      "seed": 2,
+      "status": "captured"
+    },
+    {
+      "id": "2VLN",
+      "returncode": null,
+      "seed": 1,
+      "status": "refused_source"
+    },
+    {
+      "id": "2VLN",
+      "returncode": null,
+      "seed": 2,
+      "status": "refused_source"
+    },
+    {
+      "id": "2VLQ",
+      "returncode": null,
+      "seed": 1,
+      "status": "refused_source"
+    },
+    {
+      "id": "2VLQ",
+      "returncode": null,
+      "seed": 2,
+      "status": "refused_source"
+    }
+  ],
+  "graph_H_arms_evaluated": false,
+  "plan_sha256": "cd737e3330aa6d6db4d7cf00fa7fbc2becae72bc6e9164bbc626875dfff12b4d",
+  "production_changed": false,
+  "run_sha256": "67e8c178dfbe1d75b8e9cac9331ef0b99930eb27e37c70fce344a79218e8d5d0",
+  "schema": "dvbfixer.methyl-diversity-capture-audit.v1",
+  "scientific_qualification": false,
+  "summary": {
+    "captured_groups": 632,
+    "enrolled": 16,
+    "statuses": {
+      "captured": 10,
+      "refused_source": 6
+    }
+  },
+  "whole_minimization_executed": false
+}
