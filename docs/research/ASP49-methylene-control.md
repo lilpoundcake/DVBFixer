@@ -98,6 +98,13 @@ object-index bridge, and report both sites plus global H/heavy outcomes and
 original-observation motion. No extra seed, iteration, phase or favorable-case
 selection is justified by this mixed H-stage result.
 
+That [whole-phase continuation](ASP49-methylene-whole.md) is now complete: all
+six unchanged controls reproduce both prior endpoints exactly. Local placement
+rescues ASP49 but the new ALA151 defect becomes substantial heavy-Cα flattening
+(0.445384 Å³ versus matched control 2.466134 Å³). All-carbon CH₂ has no half-Å³
+findings in these six contexts, still one-protein evidence rather than general
+repair qualification. All raw/rounded continuous volumes and adverse states remain.
+
 Validation: **22 focused geometry/native-worker/independent-audit tests** pass,
 including a later explicit nonideal-heavy/implied-H–H test. Full fast suite through
 the initial control/audit implementation: **2,999 passed**, three optional

@@ -59,7 +59,60 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: two-H CH2 control rescues ASP49 but creates distant ALA151 failure
+## Latest checkpoint: local CH2 rescue transfers whole-phase flattening to ALA151
+
+The H-stage checkpoint was committed/pushed as `fb4fd4e`. The
+[complete whole continuation](../research/ASP49-methylene-whole.md) and
+[evidence](../research/ASP49-methylene-whole-evidence.json) execute all 18 cells /
+54 states, no retries/blockers/timeouts/budget nonexecutions. All six unchanged
+starts AND both corresponding prior methyl-source-arm whole endpoints exactly
+reproduce in nm, every atom. Native H-label repair/object-index bridge and every
+phase System/anchor remain exact. Original Reference/no-solvent/tolerance 10/
+max 1,000 iterations per phase, tenfold native phase-2 weight reduction. No
+emergency reflection, observation restore, new seed, public candidate/PDB or
+production/default/threshold change. These are pre-emergency native phases only.
+
+Local two-H placement prevents ASP49 flattening in all six contexts: final CA
+volumes ~2.609–2.613 Å³. For seed 1/unchanged methyl source, prior ASP49 volume
+2.575429→1.065215→0.500677 becomes 2.575429→2.588732→2.612701 with local CH2
+(all-carbon 2.610218 final). But seed 2/graph-zero source transfers the failure
+to ALA151: original heavy volume 2.315224 in all arms, local phase 1 0.460936 and
+phase 2 **0.445384 Å³**, versus matched unchanged **2.466134** and all-carbon
+**2.507008**. Final local ALA151 HA remains inward (cos −0.982127), N/C/CB angles
+84.318/91.124/85.969°. No final all-acute HA, so that descriptor misses the damage.
+
+Global final half-Å³ CA flags: unchanged/local/all-carbon **1/1/0**. Equal aggregate
+counts hide the changed site; unchanged flag is known ASP49 selected-source seed 1
+0.498283, with other native source near 0.500677 just above threshold. New ALA151
+0.445 is NOT merely borderline classification. No negative CA or THR-beta shape
+finding in any arm. All raw/rounded centre volumes and both sites are published.
+
+All-carbon minimum final CA across six contexts: 2.162403 Å³, max H-angle deviation
+11.915° versus 28.629/25.182 unchanged/local. This remains ONE protein with
+correlated arms and 620 changed H, not general/complete geometry qualification.
+Original 1,870 heavy observations move (new ALA151 context RMS
+0.285218/0.287578/0.284049 Å); no coordinate restoration or native accuracy score.
+
+Whole plan SHA256 `1d9871f16b8b53aade2f9415141675833707f3de857a9865bf81f88ae6e8a238`;
+private `ASP49-methylene-whole-{plan,run,audit}-01*`. Five focused tests/Ruff pass;
+independent publications byte-identical. Full fast suite through initial
+downstream tests: 3,004 passed, three optional skips/33 slow deselected; later
+end-to-end saved-only audit test separately passes. Production stays unchanged.
+
+**Resume:** freeze a source-diverse carbon-multi-H FACTORIAL cohort before any
+new evaluation: all existing native starts from the eight-input convenience
+enrollment plus ALL 24 original 1SHG reconstruction-stress contexts, not a
+success-selected replacement/seed search. Compare unchanged / all methyl phase 0 /
+all carbon-CH2 / their fixed-zero combination using the two existing constructors.
+Retain all six inherited source/seed refusals, known positive replays and bad-heavy
+stress contexts explicitly; unchanged endpoints must match. No geometry cleanup,
+energy-selected phase search, new force/seed/iteration profile or production
+capability. Original unforced THR2 Cβ causality remains unproven; do not expand
+seed/platform search until a desired inversion appears. Empirical-table
+production provenance/license/approval gates remain closed. Continue autonomously
+until genuine user access, decision or authorization is required.
+
+## Preceding checkpoint: two-H CH2 control rescues ASP49 but creates distant ALA151 failure
 
 Saved-only attribution was committed/pushed as `8225b95`. The subsequent
 [prospective methylene control](../research/ASP49-methylene-control.md) and
