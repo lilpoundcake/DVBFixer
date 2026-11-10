@@ -36,7 +36,8 @@ structures should be split or corrected before minimization.
 
 - **Chemistry / bond geometry** — valence violations, bond-length
   outliers, broad topology-backed protein backbone and peptide-angle
-  outliers, cis peptides, non-planar amides, Cα chirality.
+  outliers, cis peptides, non-planar amides, Cα chirality, near-planar Cα,
+  and canonical THR-Cβ stereochemistry.
 - **Steric analysis** — Python neighbor search + van der Waals radii,
   or the optional validated MolProbity Probe adapter when supported.
 
@@ -65,7 +66,8 @@ dvbfixer diagnose input.pdb --format json \
 
 ## Exit codes
 
-- **0** — no ERROR-level findings (structure is pipeline-safe).
+- **0** — no ERROR-level findings after filtering; not a guarantee of physical
+  validity or downstream safety. WARNING-level geometry findings may remain.
 - **1** — at least one ERROR-level finding remains after the severity
   filter. Suitable for shell gates:
 
@@ -83,6 +85,7 @@ dvbfixer diagnose input.pdb --format json \
   overlap at or above the selected ERROR cutoff; 0.9 Å by default).
 - **WARNING** — tolerated by the pipeline but suspect (moderate
   clashes, altLoc conflicts, internal chain breaks, near-cis peptides,
+  near-planar Cα, THR-Cβ orientation opposite canonical R,
   and coordinate-identical protein chains that suggest merged frames).
 - **INFO** — noted for user review (insertion codes on antibody
   CDRs, cis-PRO — natural but worth flagging).
@@ -94,6 +97,26 @@ The accepted ranges are N-CA-C 95–125°, CA-C-O 105–135°, CA-C-N 100–135�
 O-C-N 105–140°, and C-N-CA 105–140°. An outlier within 15° of its accepted
 range is WARNING; a farther outlier is ERROR. Undefined geometry, unsupported
 residues, duplicate/missing atoms, and absent peptide bonds are skipped.
+
+### Stereocentre warnings (no automatic repair)
+
+- **`ca_planarity`** warns when CB lies within **10°** of the N–CA–C plane,
+  for recognized protein residues with complete, unique required atoms (not
+  GLY). This is a shape warning, not a D-isomer assignment.
+- **`thr_beta_chirality`** warns for canonical THR when the ordered
+  `(CA−CB)×(OG1−CB)·(CG2−CB)` orientation is opposite canonical R, with a signed
+  out-of-plane angle **below −10°**. Nearly flat Cβ is not assigned an inversion.
+  VAL's equivalent methyl branches are not a Cβ stereocentre; modified THR and
+  arbitrary ligands are not assigned canonical THR stereochemistry.
+
+Both are WARNING-only, run under `--only chemistry` or the default `all`, and
+are hidden by `--severity ERROR`. They preserve coordinates and do not change
+`prepare` or `minimize`. Inspect source geometry and atom identities rather than
+assuming minimization or branch swapping is an appropriate repair. Missing,
+ambiguous, wrong-element, nonfinite or undefined required geometry is skipped;
+skipping is not a clean bill of health. Existing structural checks remain separate.
+These are conservative screens, not full stereochemical validation; see the
+[criteria and control evidence](../research/stereo-diagnostic-criteria.md).
 
 ## Options
 
@@ -144,13 +167,24 @@ angles should be inspected. JSON exposes the same information under
 `chirality` with `checked`, `d_isomer_error`, `forced_repairs`, and
 `hydrogen_geometry_review_recommended` fields.
 
-JSON findings for bond lengths, bond angles, peptide omega, chirality, and
+The two stereocentre WARNING categories **do not set** `chirality.d_isomer_error`
+or change the text D-isomer summary. A negative, nearly planar Cα may independently
+have both the new shape warning and an existing D-Cα error; no error is suppressed.
+
+JSON findings for bond lengths, bond angles, peptide omega, chirality,
+the two stereocentre warning categories, and
 clashes include additive `details` under schema `dvbfixer.geometry.v1`. The
 details retain ordered full atom identities `(chain, resid, icode, atom)` and
 unit-bearing observed/reference/deviation values. `geometry.finding_aggregates`
 contains deterministic category counts and named maxima for the findings that
 remain after check and severity filtering; existing top-level fields are
 unchanged.
+
+Stereocentre details include the signed `observed_degrees`,
+`observed_absolute_degrees`, scalar triple product `observed_angstrom3`,
+`planarity_threshold_degrees`, ordered atom identities and versioned warning
+policy. Exact-scope aggregates include both categories, including zero counts
+when no selected warning remains after severity filtering.
 
 ### Optional Probe engine
 
