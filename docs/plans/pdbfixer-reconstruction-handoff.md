@@ -59,7 +59,47 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: exact pairs identify experimental THR24 methyl repulsion
+## Latest checkpoint: energy-selected rigid methyl rotation is negative
+
+Following `c41dfcc`, the [rigid methyl-start control](../research/methyl-start-control.md)
+and [complete evidence](../research/methyl-start-control-evidence.json) execute
+ALL 48 cells (24 original starts × unchanged/initial-energy-selected methyl
+rotation). All complete; all 24 unchanged endpoints reproduce exactly. All
+nonmethyl initial coordinates and existing-heavy coordinates at every callback
+are exact. Mobile-H physical forces equal negative native gradients at all 2,400
+callbacks, maximum component error 0.0 kJ/mol/nm; 2,496 nodes retained.
+
+Only generated THR24 HG21/HG22/HG23 rotate rigidly about CG2→CB, preserving their
+original C–H radii and internal geometry. Fixed grid: 0–345° in 15° steps, minimum
+original initial System energy, 1e−8 kJ/mol tie tolerance, shortest signed rotation.
+No native/final-geometry scoring, H regeneration, force/exclusion edits or seed
+search. Original Reference / tolerance 1.0 / max 50 iterations remains fixed;
+NO whole-system minimization or observation rewrite. Plan SHA256
+`d52e8c56ca650e04a212737c9f9110169f15063c52de3d0a86d7a62643560461`;
+private `tmp/pdbfixer-research/methyl-start-{plan,run}-01*`.
+
+Both focal full-generated THR24 seeds choose −30°. Seed 1 initial energy decreases
+145674.319→145561.857 kJ/mol and nonbonded outward HA force weakens
+−56105.474→−46482.938, but still ends all-acute/inward. Final all-acute count stays
+1/24; any-inward callback stays 2/24; any-all-acute callback INCREASES 1/24→2/24
+(selected seed 2 transiently all-acute, though finally outward). Keep this negative
+result and the regression, not just energy improvement.
+
+Rigid rotation preserves the native initial methyl-H cluster: focal H–CG2–H
+angles are 6.13/18.55/18.88° for seed 1 and 4.22/2.97/7.10° for seed 2. This is
+not a trial of canonical tetrahedral initialization. A separate next control is
+being prepared: unchanged / fixed-phase tetrahedral / energy-selected tetrahedral,
+same original C–H radii, original forces and all matched starts. Freeze/test its
+frame, 24 phases, energy/tie rule and budgets BEFORE any new execution.
+
+Seventeen focused tests and Ruff pass; independent publications byte-identical.
+Full fast suite through this checkpoint: **2,880 passed**, three optional
+Torch/Biotite skips, 33 slow deselected. Production/public repair and empirical-
+table license/approval gates remain unchanged. Original THR2 causality remains
+separate and unresolved. User explicitly requests autonomous continuation until
+a genuine decision/access/authorization requirement, not a stop at each checkpoint.
+
+## Preceding checkpoint: exact pairs identify experimental THR24 methyl repulsion
 
 The native-path checkpoint was committed/pushed as `29ca966`. The subsequent
 [pair attribution](../research/ha-nonbonded-pairs.md) and
@@ -93,7 +133,7 @@ complete private pair runs and independent publications are byte-identical.
 Full fast suite: **2,863 passed**, three optional Torch/Biotite skips and 33 slow
 deselected. Agent-map and generated CLI/GUI checks pass. Production is unchanged.
 
-**Resume:** a new environment-aware initial-H/candidate-geometry mechanism control
+The next step declared at this checkpoint was a new environment-aware initial-H/candidate-geometry mechanism control
 would need separately declared settings and all matched cases retained. Do not
 silently alter exclusions, ablate pairs, tune seeds/iterations to the known result,
 or promote a neighbor-HA rewrite. Preserve the empirical-table production/license

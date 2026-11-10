@@ -111,7 +111,12 @@ skips and 33 slow tests deselected; agent-map and generated CLI/GUI checks pass.
 This is not broader scientific/platform qualification. Production and
 empirical-table license/approval gates are unchanged.
 
-Next meaningful work needs a separately declared environment-aware initial-H or
+The subsequent [rigid methyl-start control](methyl-start-control.md) now executes
+all 48 matched cells. Initial-energy-selected rotation lowers the focal initial
+energy but fails to prevent its inward HA; transient all-acute cases increase.
+This is a retained negative control, not a test of tetrahedral H initialization.
+
+The next step declared here was a separately declared environment-aware initial-H or
 candidate-geometry mechanism control, with all matched cases/failures retained.
 Do not silently ablate nonbonded pairs, tune exclusions, choose seeds by outcome,
 or promote a global HA rewrite into production.
