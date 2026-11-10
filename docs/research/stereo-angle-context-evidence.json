@@ -1,0 +1,430 @@
+{
+  "audit_script_sha256": "7eeb633a18e3ce041d7271efe84407b113b3894a5c094d93dce8eedb4bd0a6a6",
+  "cases": [
+    {
+      "H_projection_kj_mol_nm": 104.33696941257006,
+      "arm": "raw",
+      "ha_angles_degrees": {
+        "C": 107.82396239752524,
+        "CB": 106.7002698993486,
+        "N": 110.2994826956123
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL9",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": 104.33696941257006,
+      "arm": "beta_only",
+      "ha_angles_degrees": {
+        "C": 107.82396239752524,
+        "CB": 106.7002698993486,
+        "N": 110.2994826956123
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL9",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": 104.33696941257006,
+      "arm": "full_generated",
+      "ha_angles_degrees": {
+        "C": 107.82396239752524,
+        "CB": 106.7002698993486,
+        "N": 110.2994826956123
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL9",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": 130.52470296107043,
+      "arm": "raw",
+      "ha_angles_degrees": {
+        "C": 107.32441155720512,
+        "CB": 106.77661905293142,
+        "N": 110.7363330749236
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL9",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": 130.52470296107043,
+      "arm": "beta_only",
+      "ha_angles_degrees": {
+        "C": 107.32441155720512,
+        "CB": 106.77661905293142,
+        "N": 110.7363330749236
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL9",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": 130.52470296107043,
+      "arm": "full_generated",
+      "ha_angles_degrees": {
+        "C": 107.32441155720512,
+        "CB": 106.77661905293142,
+        "N": 110.7363330749236
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL9",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": 110.94624019492089,
+      "arm": "raw",
+      "ha_angles_degrees": {
+        "C": 107.87166883508328,
+        "CB": 106.7161766838822,
+        "N": 110.23387791708912
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL23",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": 110.94624019492089,
+      "arm": "beta_only",
+      "ha_angles_degrees": {
+        "C": 107.87166883508328,
+        "CB": 106.7161766838822,
+        "N": 110.23387791708912
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL23",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": 110.94624019492089,
+      "arm": "full_generated",
+      "ha_angles_degrees": {
+        "C": 107.87166883508328,
+        "CB": 106.7161766838822,
+        "N": 110.23387791708912
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL23",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": 118.75900310279656,
+      "arm": "raw",
+      "ha_angles_degrees": {
+        "C": 107.38588379994384,
+        "CB": 106.6764769357296,
+        "N": 110.77539168687906
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL23",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": 118.75900310279656,
+      "arm": "beta_only",
+      "ha_angles_degrees": {
+        "C": 107.38588379994384,
+        "CB": 106.6764769357296,
+        "N": 110.77539168687906
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL23",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": 118.75900310279656,
+      "arm": "full_generated",
+      "ha_angles_degrees": {
+        "C": 107.38588379994384,
+        "CB": 106.6764769357296,
+        "N": 110.77539168687906
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-VAL23",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": -469.8508038822873,
+      "arm": "raw",
+      "ha_angles_degrees": {
+        "C": 125.14263175289558,
+        "CB": 83.31434948488366,
+        "N": 113.11979515320179
+      },
+      "ha_descriptor": "mixed_or_boundary",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR24",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": -390.39054162497996,
+      "arm": "beta_only",
+      "ha_angles_degrees": {
+        "C": 122.00223852033797,
+        "CB": 82.02645278598847,
+        "N": 117.28130317308
+      },
+      "ha_descriptor": "mixed_or_boundary",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR24",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": -5748.562000376667,
+      "arm": "full_generated",
+      "ha_angles_degrees": {
+        "C": 78.22765394355633,
+        "CB": 72.74820939646854,
+        "N": 64.2065790528075
+      },
+      "ha_descriptor": "all_three_acute",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR24",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": -453.51341509354944,
+      "arm": "raw",
+      "ha_angles_degrees": {
+        "C": 124.93151794886059,
+        "CB": 83.22853192167507,
+        "N": 113.40111098963582
+      },
+      "ha_descriptor": "mixed_or_boundary",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR24",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": -351.2160198388559,
+      "arm": "beta_only",
+      "ha_angles_degrees": {
+        "C": 120.36394771837604,
+        "CB": 82.96367404007609,
+        "N": 118.31129910875198
+      },
+      "ha_descriptor": "mixed_or_boundary",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR24",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": -735.31728322327,
+      "arm": "full_generated",
+      "ha_angles_degrees": {
+        "C": 129.44389592738793,
+        "CB": 88.24837823532846,
+        "N": 104.69499041895115
+      },
+      "ha_descriptor": "mixed_or_boundary",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR24",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": 101.43946414293502,
+      "arm": "raw",
+      "ha_angles_degrees": {
+        "C": 107.38854278437742,
+        "CB": 107.08198771723386,
+        "N": 110.3577428449092
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR32",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": 148.4963356414343,
+      "arm": "beta_only",
+      "ha_angles_degrees": {
+        "C": 107.31619138358327,
+        "CB": 107.11282119628298,
+        "N": 110.40066330551268
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR32",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": 103.81792727943102,
+      "arm": "full_generated",
+      "ha_angles_degrees": {
+        "C": 107.8610013874226,
+        "CB": 106.66344686806713,
+        "N": 110.29888832669822
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR32",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 1
+    },
+    {
+      "H_projection_kj_mol_nm": 115.28973871606158,
+      "arm": "raw",
+      "ha_angles_degrees": {
+        "C": 107.37142310755763,
+        "CB": 106.68268771596532,
+        "N": 110.78391996619449
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR32",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": 112.17110939554888,
+      "arm": "beta_only",
+      "ha_angles_degrees": {
+        "C": 107.26546856515222,
+        "CB": 106.75548438655407,
+        "N": 110.81849216240069
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR32",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    },
+    {
+      "H_projection_kj_mol_nm": 125.57847882771065,
+      "arm": "full_generated",
+      "ha_angles_degrees": {
+        "C": 107.3576530232925,
+        "CB": 106.68827219731897,
+        "N": 110.79237574595328
+      },
+      "ha_descriptor": "all_three_obtuse",
+      "heavy_projection_kj_mol_nm": -145.89564227760306,
+      "id": "1SHG-THR32",
+      "local_angle_count": 25,
+      "local_angle_parameter_sha256": "4c7e07022f15387358f8bc78019aafc556af20b0d8defd84226b7276aec58b56",
+      "local_heavy_atom_count": 12,
+      "local_heavy_coordinate_sha256": "bd4340b790e4b8266077143c8a9a4305cd1044ace3015fb0ebda01db0a577c7f",
+      "seed": 2
+    }
+  ],
+  "native_coordinates_read": false,
+  "plan_sha256": "c52414dadb44cc967c58614dfdd7294676000f66c4f5ad6cc5434373fa141da4",
+  "production_changed": false,
+  "run_sha256": "a787be436964f7c2887e8b11b79dd250ed98814f94cd4623ad1ed9cbca0d797e",
+  "schema": "dvbfixer.stereo-angle-context.v1",
+  "scientific_qualification": false,
+  "scope": "retrospective ALL24 initial GLN16 local contexts; angle-force attribution, not a trajectory intervention",
+  "summary": {
+    "cells": 24,
+    "ha_descriptors": {
+      "all_three_acute": 1,
+      "all_three_obtuse": 18,
+      "mixed_or_boundary": 5
+    },
+    "unique_local_angle_parameter_sets": 1,
+    "unique_local_heavy_coordinate_sets": 1
+  }
+}

@@ -172,3 +172,10 @@ generated CLI/GUI checks, agent maps, whitespace and 1,277 local Markdown target
 pass; seven planned documentation files are complete. The first inventory
 migration failure is retained separately rather than relabelled as a pass.
 This is not a full-repository/slow-suite/platform or repair qualification.
+
+The subsequent [complete angle-term decomposition](stereo-angle-terms.md) now
+separates the large GLN16 harmonic-angle projection: at the known final state,
+H-containing terms contribute −3793.179 and heavy-only terms +1365.516
+kJ/mol/nm. Initial local heavy coordinates and angle parameters match across all
+24 contexts, while generated HA geometry differs. This is stronger local
+attribution, not yet a controlled H-start trajectory replay or production repair.

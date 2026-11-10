@@ -59,6 +59,48 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
+## Latest checkpoint: HA-containing angles dominate the GLN16 flattening component
+
+On explicit user request, the complete earlier research checkpoint was committed
+and pushed as `421b2a3` on `research/pdbfixer-reconstruction`. Private raw runs,
+environments, upstream rotamer tables and credentials were excluded. This is a
+research-source/evidence branch, NOT production qualification, package release,
+public completion capability or legal-clearance claim. Main remains untouched.
+
+Read [angle-term attribution](../research/stereo-angle-terms.md),
+[complete angle evidence](../research/stereo-angle-terms-evidence.json) and
+[initial-context identity checks](../research/stereo-angle-context-evidence.json).
+All 24 cells / 96 states / 240 focal centres and 6,096 touched-angle observations are
+retained; zero blockers. Analytic term sums match the old OpenMM angle-group
+projections to 3.606e−12 kJ/mol/nm. Independent finite differences check all 6,096
+terms at step 1e−7 nm; maximum absolute difference 7.460e−6 kJ/mol/nm. No Context,
+integration, minimization, H placement or native scoring on the cohort here.
+
+For full-generated THR24 seed 1 observed GLN16, final H-containing projection is
+−3793.179 and heavy-only +1365.516 kJ/mol/nm. The three dominant negative terms
+are N–CA–HA, HA–CA–CB and HA–CA–C: initial 64.207/72.748/78.228°, final 85.944/
+85.697/89.067°, references 109.5°. Thus the heavy-only angle group is restoring
+at this endpoint; the large negative component comes from H-containing angles.
+Do not conflate a force projection with constrained optimizer motion/stationarity.
+
+All 24 initial local GLN16 heavy-coordinate inventories have one hash, and all
+touched-angle parameter inventories have one hash. HA angle triads are all obtuse
+in 18 cases, mixed/boundary in five, all acute in one (the known full-generated THR24 seed-1
+case). These are geometric descriptors, NOT new gates/CIP calls/population rates.
+The initial raw/full harmonic-angle difference is entirely in H-containing terms
+at identical local heavy coordinates and angle parameters. No causal replay or
+original unforced 1CRN THR2 explanation is claimed. Old failures/accuracy/source-H
+refusals and original frozen-source/publication hashes remain unchanged.
+
+Next bounded test: matched saved-System replays changing ONLY generated GLN16
+HA's initial position to an outward geometric construction, preserving its bond
+length, every other starting coordinate and every force/anchor/reference. Keep
+all 24 starts plus unchanged controls; no native-error selection, new FF strengths,
+H regeneration, branch swaps, source-heavy rewrite or production correction.
+Use the same original two-phase 10 kJ/mol/nm / 1,000-iteration Reference settings and
+measure all original-observation motion and raw/rounded whole-context failures.
+The replay and its source/force invariants must be declared before execution.
+
 ## Research return after diagnostic-only transfer (2026-11-10)
 
 The user explicitly requested transferring the new diagnostics BEFORE continuing
@@ -82,7 +124,7 @@ The prospective-geometry and start-geometry final verifiers passed there with
 unchanged, byte-identical publications. New research binds the active new source
 and explicitly identifies the historical source root for prior-plan verification.
 
-Current bounded continuation is `scripts/audit_stereo_force_projection.py`:
+The preceding bounded continuation was `scripts/audit_stereo_force_projection.py`:
 static Reference force evaluations of ALL 24 saved cohort cells, both sides of
 both phases. Focal centres are every target Cα, THR target Cβ only, and the known
 observed GLN16 Cα context centre. Enrollment is RETROSPECTIVE to known geometry
