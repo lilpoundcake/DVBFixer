@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import json
 import math
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -351,3 +354,124 @@ def test_stereo_warnings_are_not_run_in_other_families(tmp_path, capsys, family)
     assert not any(
         f["category"] in {"ca_planarity", "thr_beta_chirality"} for f in payload["findings"]
     )
+
+
+@pytest.mark.parametrize("output_format", ["text", "json"])
+@pytest.mark.parametrize(
+    "kind,severity,expected_category,expected_exit",
+    [
+        ("beta", "WARNING", "thr_beta_chirality", 0),
+        ("planarity", "WARNING", "ca_planarity", 0),
+        ("negative", "WARNING", "ca_planarity", 1),
+        ("beta", "ERROR", None, 0),
+    ],
+)
+def test_public_cli_stereo_logging_and_exit_contract(
+    tmp_path, output_format, kind, severity, expected_category, expected_exit
+):
+    pytest.importorskip("pdbfixer")
+    points = _thr(-1) if kind == "beta" else _alpha(-3 if kind == "negative" else 3)
+    source = tmp_path / "стерео.pdb"
+    _write_pdb(source, *_topology(points, name="THR" if kind == "beta" else "ALA"))
+    original = source.read_bytes()
+    log = tmp_path / "diagnose.log"
+    # Exercise the actual unified entry point and fd-level capture in a child,
+    # always importing this checkout rather than a different editable install.
+    src = str(Path(__file__).resolve().parents[1] / "src")
+    env = dict(os.environ, PYTHONPATH=src + os.pathsep + os.environ.get("PYTHONPATH", ""))
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "dvbfixer.cli",
+            "diagnose",
+            str(source),
+            "--only",
+            "chemistry",
+            "--format",
+            output_format,
+            "--severity",
+            severity,
+            "--log-file",
+            str(log),
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode == expected_exit, result.stderr + result.stdout
+    assert source.read_bytes() == original
+    logged = log.read_text()
+    assert "\x1b[" not in logged
+    assert "DIAGNOSTIC SUMMARY" not in result.stdout
+    if expected_exit == 0:
+        assert "!!! ERROR !!!" not in result.stdout + result.stderr + logged
+    if expected_category is None:
+        assert "DIAGNOSTIC SUMMARY" not in result.stderr + logged
+    elif output_format == "text" and expected_exit == 0:
+        assert "DIAGNOSTIC SUMMARY: 0 error(s)," in result.stderr
+    if output_format == "json":
+        payload = json.loads(result.stdout)
+        assert payload["chirality"]["d_isomer_error"] is (kind == "negative")
+        if expected_category is None:
+            assert payload["findings"] == []
+        else:
+            assert any(f["category"] == expected_category for f in payload["findings"])
+        # Logging retains the report, not an ASCII-escaped approximation.
+        assert "стерео.pdb" in logged
+        if expected_category is not None:
+            assert "observed_angstrom3" in logged
+            assert ("Cβ" if kind == "beta" else "Cα") in logged
+    else:
+        assert f"D-isomer error: {'YES' if kind == 'negative' else 'NO'}" in result.stdout
+        assert ("WARNING" in result.stdout) is (expected_category is not None)
+        if expected_category is not None:
+            assert "no automatic repair" in logged
+
+
+def test_public_batch_cli_keeps_json_reports_and_error_diagnostics(tmp_path):
+    pytest.importorskip("pdbfixer")
+    inputs = tmp_path / "inputs"
+    inputs.mkdir()
+    _write_pdb(inputs / "beta.pdb", *_topology(_thr(-1)))
+    _write_pdb(inputs / "negative.pdb", *_topology(_alpha(-3), name="ALA"))
+    originals = {p.name: p.read_bytes() for p in inputs.iterdir()}
+    output = tmp_path / "reports"
+    log = tmp_path / "batch.log"
+    src = str(Path(__file__).resolve().parents[1] / "src")
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "dvbfixer.cli",
+            "diagnose",
+            "--input-dir",
+            str(inputs),
+            "--output-dir",
+            str(output),
+            "--only",
+            "chemistry",
+            "--format",
+            "json",
+            "--log-file",
+            str(log),
+        ],
+        env=dict(os.environ, PYTHONPATH=src + os.pathsep + os.environ.get("PYTHONPATH", "")),
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode == 1, result.stderr + result.stdout
+    assert "0 execution failures" in result.stdout
+    assert "DIAGNOSTIC SUMMARY" in result.stderr
+    beta = json.loads((output / "beta_diagnose.json").read_text())
+    assert beta["chirality"]["d_isomer_error"] is False
+    assert any(f["category"] == "thr_beta_chirality" for f in beta["findings"])
+    negative = json.loads((output / "negative_diagnose.json").read_text())
+    assert negative["chirality"]["d_isomer_error"] is True
+    assert any(f["category"] == "ca_planarity" for f in negative["findings"])
+    assert {p.name: p.read_bytes() for p in inputs.iterdir()} == originals
+    assert "\x1b[" not in log.read_text()

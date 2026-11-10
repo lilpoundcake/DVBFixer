@@ -149,7 +149,12 @@ Notable non-default behaviours:
 - **JSON output** is available via `--format json` — a
   machine-readable list of findings suitable for CI gating or
   scripted post-processing. Unicode is emitted directly, so Å, arrows,
-  em dashes, and non-Latin input paths remain readable.
+  em dashes, and non-Latin input paths remain readable. The unified CLI mirrors
+  single-input JSON stdout without injecting text warning markers into it;
+  stderr diagnostics still receive normal emphasis and diagnostic summaries.
+  `--log-file` retains both streams, including the run header, so the combined
+  log is not itself a standalone JSON document. Directory batch mode writes
+  per-input reports while stdout remains human-readable progress/status text.
 - **Exact local scope** is opt-in and JSON-only. Repeat `--scope-residue
   CHAIN:RESID[:ICODE]` to select individual residues, and repeat
   `--scope-boundary LEFT,RIGHT` to request an ordered C(left)-N(right)
@@ -170,6 +175,9 @@ angles should be inspected. JSON exposes the same information under
 The two stereocentre WARNING categories **do not set** `chirality.d_isomer_error`
 or change the text D-isomer summary. A negative, nearly planar Cα may independently
 have both the new shape warning and an existing D-Cα error; no error is suppressed.
+Negative/not-checked D-isomer status lines and the text report's count table are
+not additional runtime findings; `D-isomer error: NO` and `ERROR: 0 findings` do
+not create false ERROR banners.
 
 JSON findings for bond lengths, bond angles, peptide omega, chirality,
 the two stereocentre warning categories, and
