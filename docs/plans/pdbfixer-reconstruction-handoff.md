@@ -59,7 +59,61 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: all 34 independent whole baselines audited
+## Latest checkpoint: complete whole factorial gains are limited and retain negative stress signs
+
+Baseline/auditor checkpoint was committed/pushed as `12a3572`. The
+[complete whole results](../research/carbon-H-whole.md#complete-whole-stage-results)
+and [independent evidence](../research/carbon-H-whole-evidence.json) retain all 160
+entries: 136 completed, 24 inherited source refusals; no retries/blockers/timeouts/
+budget nonexecutions. All 408 states audited. All 34 unchanged native starts/both
+endpoints and 14 known historical whole intersections exactly reproduce, all phase
+Systems/anchors unchanged. Independent publications byte-identical (audit SHA
+`a92343851a6996f17e6498ad9b367391d95c32f895ab4c44e09e852c02ed6101`).
+
+On 24 1SHG stress contexts/arm, actual-frame raw/rounded masked heavy gate passes
+unchanged/methyl/CH2/combined **10/11/10/13**. Final half-Å³ CA counts **8/7/9/5**,
+negative CA **0/0/1/1**, all-acute HA **1/3/2/0**; no final THR-beta shape flags.
+Earlier THR24-only methyl **10/24 /11/24 /12/24** remains separate unchanged
+historical evidence, not replaced by this broader factorial. Combined gains three
+gate passes without losing old passes but still fails 11/24; no general repair or
+native-accuracy qualification. CH2-only loses THR24/seed 2/full-generated because
+GLN16 globally flattens to 0.483534 Å³ even though its masked target passes.
+
+Both negative endpoints are THR24 CA in THR24/seed 2/raw. Initial already-collapsed
+volume 0.025934 Å³ in all arms; phase-1 volumes 0.903253/0.848707/0.910136/0.852397,
+phase 2 **+0.009691/+0.017269/−0.006118/−0.006974 Å³**. Rounded CH2/combined remain
+negative −0.004679/−0.005540. Preserve signs, but these are all near-planar stress
+outcomes, not normal L→well-formed D or original unforced THR2 Cβ causality.
+These are pre-emergency native phases, no public candidate/PDB and production
+zero-D safeguards unchanged. Combined retains other CA volumes 0.004414/0.005554
+at THR24 and ~0.0652 at THR32. Final-zero inward HA is not heavy acceptance.
+
+The worst H-stage combined CG2–HG23 bond 1.855795 Å (THR24/seed 1/raw) is corrected
+BEFORE whole minimization by the unchanged production repair bridge: exactly
+HG21/HG22/HG23 change; bond 1.090000 Å at whole start, 1.079736/1.083349 after phases.
+Do NOT credit whole minimization for that bridge correction or erase H-stage harm.
+Heavy coordinates are not repaired by transport and remain badly flattened.
+
+Ten prepared contexts/arm (five proteins/two seeds) have no final negative/half-Å³/
+all-acute findings; masked gate N/A, not zero passes. Minimum final CA
+0.500677/2.157882/2.156509/2.157992 Å³. Known ASP49/1TIM positives are exact
+historical intersections, not independent samples. All original-heavy movement,
+raw/rounded continuous volumes and H strain retained. Max stress H-angle
+42.240/47.023/44.166/21.130°, prepared 28.629/11.852/11.915/11.674°. Observations
+move; no immutable-repair/native-RMSD/safety certificate. Full fast suite: 3,046
+passes, three optional skips/33 slow deselected; 12 focused whole tests/Ruff pass.
+
+**Resume:** freeze separately saved-only force attribution on ALL THR24 source
+conditioning contexts, both old seeds × raw/beta-only/full-generated × four arms
+and all three saved states (24 paths/72 nodes). Original phase Systems and native
+Reference force/energy readback; independent signed-volume gradient checks and
+cloned-force grouping with exact parameter restoration. No new minimization/H,
+force ablation, strength/seed/phase tuning or favorable-endpoint selection.
+Snapshot forces alone cannot recover an unrecorded crossing or unique cause.
+Original THR2 cause and empirical-table production/license approval stay open;
+continue autonomously until genuine user access, decision or authorization needed.
+
+## Preceding checkpoint: all 34 independent whole baselines audited
 
 The all-context whole protocol was committed/pushed as `581de3d`. The
 [baseline checkpoint](../research/carbon-H-whole.md#independent-baseline-checkpoint)
@@ -81,6 +135,9 @@ existing masked stress-target gates, continuous raw/rounded global geometry,
 all H findings and original-heavy movement. Prepared-view masked gate is N/A,
 not a false zero-pass scientific result. Twelve focused worker/readback tests
 pass, including no-minimization audit and unsafe recovery/identity/frame refusals.
+Full fast suite through this implementation: **3,046 passed**, three optional
+Torch/Biotite skips and 33 slow deselected; retained log
+`tmp/pdbfixer-research/carbon-H-whole-fast-suite-01.log`.
 
 **Resume:** wait for all-context whole run completion, then independently audit
 every arm and source refusal. Require exact unchanged starts/both new native nm
