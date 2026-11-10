@@ -9,7 +9,7 @@ import pytest
 from dvbfixer.model.diffusion import input_preparation, observed_completion
 from dvbfixer.model.diffusion.contract import ArtifactReference
 from dvbfixer.model.diffusion.input_geometry import InputGeometryError
-from tests.test_diffusion_input_preparation import _request
+from tests.test_diffusion_input_preparation import _mock_damage, _request
 
 
 def incomplete(tmp_path, atoms=("NZ",)):
@@ -154,3 +154,96 @@ def test_completion_geometry_failure_stops_with_evidence(tmp_path, monkeypatch):
     directory = next(tmp_path.glob("dvbfixer-input-completion-*"))
     assert (directory / "prepared.pdb").exists()
     assert json.loads((directory / "input-repair.json").read_text())["status"] == "failed"
+
+
+def composed_control(tmp_path, monkeypatch, *, displacement=0.1, persistent=False):
+    """Controller-only source damage; reference completion is NOT efficacy data."""
+    _, complete, source, request = incomplete(tmp_path)
+    reference_rebuild(monkeypatch, complete)
+    missing = observed_completion.missing_observed_atoms(request, source)
+    records = observed_completion._rebuild(request, source, missing)
+    intermediate = observed_completion._insert(source, records)
+    calls = _mock_damage(monkeypatch, intermediate, displacement=displacement)
+    assessor = input_preparation.assess_input_geometry
+    if persistent:
+        finding = assessor(request, intermediate)
+        monkeypatch.setattr(input_preparation, "assess_input_geometry", lambda *_: finding)
+    monkeypatch.setattr(observed_completion, "assess_input_geometry", input_preparation.assess_input_geometry)
+    # Additions-only refinement cannot remove a measured old-atom clash. Stub
+    # that stage to isolate subsequent bounded-observation controller behavior.
+    monkeypatch.setattr(observed_completion, "_refine_additions",
+                        lambda *_: (records, {"observed_mobility": False, "unit_stub": True}))
+    return source, request, calls
+
+
+def test_completion_continues_into_bounded_observed_repair(tmp_path, monkeypatch):
+    source, original_request, calls = composed_control(tmp_path, monkeypatch)
+    request, path = input_preparation.prepare_input(original_request, source, tmp_path)
+    assert len(calls) == 1
+    report = json.loads((path.parent / "input-repair.json").read_text())
+    assert report["revision"] == input_preparation.COMPOSED_REVISION
+    assert report["status"] == "accepted"
+    assert report["completion"]["observed_atoms_moved"] is False
+    assert report["observed_repair"]["selected_residues"] == [
+        {"chain": "A", "residue_number": "20", "insertion_code": ""},
+        {"chain": "A", "residue_number": "21", "insertion_code": ""},
+    ]
+    assert request.generated_atoms == original_request.generated_atoms
+    assert request.gaps == original_request.gaps
+    assert set(request.fixed_atoms) - set(original_request.fixed_atoms) == set(
+        observed_completion.missing_observed_atoms(original_request, source))
+    assert (path.parent / "source-original.pdb").read_bytes() == source
+    input_preparation.audit_preparation_payloads(request, payloads(request, source, path))
+    intermediate = (path.parent / "completed.pdb").read_bytes()
+    intermediate_request = replace(request,
+        normalized_pdb=ArtifactReference("completed.pdb", hashlib.sha256(intermediate).hexdigest()),
+        backend_options=tuple(o for o in request.backend_options if not o.name.startswith("input_preparation.")))
+    # The completion-only intermediate is still NOT valid standalone evidence.
+    with pytest.raises(InputGeometryError, match="severe geometry defects"):
+        observed_completion.audit_completion_preparation(
+            intermediate_request, source, intermediate, report["completion"])
+    # Context freezing/serialization may not erase either stage's source binding.
+    from dvbfixer.model.diffusion.protein_context import prepare_cc94_request
+
+    request = prepare_cc94_request(request, path.read_bytes(), "auto")
+    request = type(request).from_json(request.to_json())
+    input_preparation.audit_preparation_payloads(request, payloads(request, source, path))
+
+
+def test_composed_repair_does_not_relax_movement_limits(tmp_path, monkeypatch):
+    source, request, _ = composed_control(tmp_path, monkeypatch, displacement=2.0)
+    with pytest.raises(InputGeometryError, match="displacement bounds"):
+        input_preparation.prepare_input(request, source, tmp_path)
+    directory = next(tmp_path.glob("dvbfixer-input-completion-*"))
+    assert (directory / "source-original.pdb").read_bytes() == source
+    assert (directory / "completed.pdb").exists()
+    assert json.loads((directory / "input-repair.json").read_text())["status"] == "failed"
+
+
+def test_composed_repair_still_rejects_remaining_severe_geometry(tmp_path, monkeypatch):
+    source, request, _ = composed_control(tmp_path, monkeypatch, persistent=True)
+    with pytest.raises(InputGeometryError, match="severe geometry defects"):
+        input_preparation.prepare_input(request, source, tmp_path)
+
+
+def test_composed_report_cannot_hide_unselected_changes_even_with_rehashed_stages(tmp_path, monkeypatch):
+    source, request, _ = composed_control(tmp_path, monkeypatch)
+    request, path = input_preparation.prepare_input(request, source, tmp_path)
+    report = json.loads((path.parent / "input-repair.json").read_text())
+    bad = path.read_bytes().replace(b"HEADER", b"HEADEQ", 1)
+    digest = hashlib.sha256(bad).hexdigest()
+    report["prepared_sha256"] = digest
+    report["observed_repair"]["prepared_sha256"] = digest
+    request = replace(request, normalized_pdb=replace(request.normalized_pdb, sha256=digest))
+    with pytest.raises(InputGeometryError, match="outside the authorized"):
+        input_preparation.audit_prepared_input(request, source, bad, report)
+
+
+def test_composed_report_binds_the_completion_intermediate(tmp_path, monkeypatch):
+    source, request, _ = composed_control(tmp_path, monkeypatch)
+    request, path = input_preparation.prepare_input(request, source, tmp_path)
+    report = json.loads((path.parent / "input-repair.json").read_text())
+    record = report["completion"]["added_records"][0]
+    report["completion"]["added_records"][0] = record[:30] + "  99.000" + record[38:]
+    with pytest.raises(InputGeometryError, match="source binding mismatch"):
+        input_preparation.audit_prepared_input(request, source, path.read_bytes(), report)

@@ -169,7 +169,7 @@ def _refine_additions(request, source, raw, missing):
                      "final_energy_kj_mol": result.final_energy_kj_mol, "observed_mobility": False}
 
 
-def audit_completion_preparation(request, original, prepared, report):
+def audit_completion_preparation(request, original, prepared, report, *, require_final_geometry=True):
     """Audit additions, immutable observations and geometry without rerunning PDBFixer."""
     from dvbfixer.model.diffusion.input_preparation import _records, preparation_options
 
@@ -234,7 +234,7 @@ def audit_completion_preparation(request, original, prepared, report):
     pdb = PDBFile(StringIO(prepared.decode()))
     assert_all_l(pdb.topology, pdb.positions)
     findings = assess_input_geometry(request, prepared)
-    if any(f.severity is Severity.ERROR for f in findings):
+    if require_final_geometry and any(f.severity is Severity.ERROR for f in findings):
         raise InputGeometryError("heavy-atom preparation left or introduced severe geometry defects")
     return (), findings
 
@@ -271,7 +271,14 @@ def prepare_observed_completion(request, source, missing, work_parent: Path):
         prepared_digest = hashlib.sha256(prepared).hexdigest()
         report.update(status="accepted", prepared_sha256=prepared_digest)
         new_request = replace(request, normalized_pdb=ArtifactReference(path.name, prepared_digest),
-                              fixed_atoms=(*request.fixed_atoms, *missing))
+                               fixed_atoms=(*request.fixed_atoms, *missing))
+        final_findings = assess_input_geometry(new_request, prepared)
+        if any(f.severity is Severity.ERROR for f in final_findings):
+            from dvbfixer.model.diffusion.input_preparation import complete_then_repair
+
+            print("WARNING: Heavy atoms completed, but severe source geometry remains; "
+                  "continuing with bounded observed-residue repair before diffusion.", flush=True)
+            return complete_then_repair(new_request, source, prepared, report, directory)
         movements, findings = audit_completion_preparation(new_request, source, prepared, report)
         report["movements"] = list(movements)
         report["after_findings"] = [asdict(f) for f in findings]

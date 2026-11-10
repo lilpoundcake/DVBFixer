@@ -1,5 +1,22 @@
 # Implementation Checklist
 
+## Diffusion geometry repair (2026-11-10)
+
+See [scope, invariants and evaluation gates](diffusion-geometry-repair.md).
+
+- [x] P0: full-validator-aligned candidate ranking, bounded-anchor search and
+  historical request compatibility; versioned v2 route and regression controls.
+- [x] P1: initial generated-only geometry/junction conditioning followed by staged
+  steric/full-force-field relaxation; six of seven retained-coordinate controls
+  pass. 1KTZ/7 remains rejected: this is not universal reconstruction/closure.
+- [ ] P2: issue-local repair scheduling and provenance-aware per-gap portfolios
+  (planned only; no recombination capability is advertised).
+- [ ] P3: explicit opt-in alternative reconstruction for persistently failed
+  gaps (planned only; no silent MODELLER fallback).
+- [ ] Independently calibrate observed-anchor movement ceilings; investigate
+  increases without treating B factors as uncertainty radii, tuning against
+  existing failures or changing historical request limits (research planned).
+
 ## Installer workflow and progress follow-up (2026-11-05)
 
 ### Explicit profile attachment and numbered menus
