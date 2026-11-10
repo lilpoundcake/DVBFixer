@@ -59,7 +59,57 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: graph-methyl selected-phase benefit does not generalize
+## Latest checkpoint: source-diverse whole phases retain ASP49 flattening
+
+The graph H-stage checkpoint was committed/pushed as `8ceab31`. The
+[downstream note](../research/graph-methyl-whole.md),
+[complete continuous centre-level evidence](../research/graph-methyl-whole-centres-evidence.json)
+and preserved [compact evidence](../research/graph-methyl-whole-evidence.json)
+retain all 48 continuation cells: 30 completed, 18 source refusals, zero
+retries/blockers/timeouts/nonexecutions. Ten independent saved-State native
+baselines precede continuations; all ten unchanged starts AND both endpoints
+reproduce exactly in nm, every atom. All phase Systems/anchors agree with baseline.
+
+Native H-label repair once, followed by actual object-index mapping to full
+labels; all ten original starts preflight exactly. Original Reference/no-solvent/
+tolerance 10 kJ/mol/nm/max 1,000 iterations per phase; only original positional
+weights reduced tenfold in phase 2. No emergency reflection, observation restore,
+new H/seed, force edits or public candidate/PDB. These are two native phases BEFORE
+production's unchanged emergency safety net, not complete production outputs.
+
+Important continuous result: 1TIM/A/ASP49/seed1 starts at heavy volume 2.575429 Å³
+in all arms. Unchanged/zero/selected phase-1 volumes are 1.065215/2.577428/1.060820;
+phase-2 volumes are **0.500677/2.609578/0.498283 Å³**. Only selected crosses the old
+0.5 Å³ shape descriptor (rounded 0.497121), but unchanged is similarly flattened
+and borderline above it (rounded 0.500967). Do NOT exaggerate their binary split
+or retune the threshold. All raw/rounded CA/THR-beta volumes at all 90 states are
+published so both continuous outcomes remain visible. No final negative CA or
+THR-beta in any arm. Final all-acute HA count is zero, but unchanged/selected
+ASP49 HA angles remain ~81/94/86°; that narrow H descriptor misses heavy flattening.
+
+Original 1TIM heavy observations move: 1,870 atoms, RMS
+0.288697/0.285958/0.289334 Å, max 1.892546/1.880936/1.932975 Å. This is NOT
+observation-immutable repair. Global-only half-Å³ descriptors are not the earlier
+masked-target gate or complete scientific acceptance. Earlier fixed-phase 1SHG
+TYR15/negative-CA regressions still preclude qualifying zero phase.
+
+Plan SHA256 `cb35b44b30346854d3b4a216271120d0fddec81959085f74fa5abb0ba1a680eb`;
+private `graph-methyl-whole-{plan,baseline,run,audit}-01*` under research temp root.
+Five focused native-baseline/transport/audit tests and Ruff pass; independent
+expanded evidence publications agree byte-for-byte. Full fast suite through native
+baseline integration: 2,969 passed, three optional skips/33 slow deselected, with
+later audit tests separately exercised. Production/defaults/thresholds untouched.
+
+**Resume:** separately freeze a saved-only exact force/pair attribution on 1TIM
+ASP49 using ALL three arms and both existing seeds, no additional optimization,
+phase/seed tuning or native score. Determine actual contributors, not presumed
+methyl causality. Preserve matched negative controls and every source refusal.
+This is a second protein-context H-placement/flattening observation, NOT resolution
+of original unforced 1CRN THR2 Cβ causality. Production/public repair and original
+table provenance/license/approval gates remain closed; continue autonomously until
+genuine user access, decision or authorization is required.
+
+## Preceding checkpoint: graph-methyl selected-phase benefit does not generalize
 
 Admission/preparation was committed/pushed as `a555f17`. The completed
 [source-diverse H control](../research/methyl-diversity-control.md) and

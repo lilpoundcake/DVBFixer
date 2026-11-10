@@ -173,6 +173,14 @@ force/exclusion tuning are permitted. Its results are not inferred from this
 H-stage denominator, and it deliberately stops before the production emergency
 safety net, never publishing an accepted/invalid PDB.
 
+The [completed downstream control](graph-methyl-whole.md) now reproduces both
+native endpoints in all ten unchanged contexts. ASP49 flattens substantially in
+both unchanged and selected arms (0.500677/0.498283 Å³), whereas zero ends at
+2.609578 Å³. Only selected crosses the existing half-Å³ descriptor, but the two
+flattened values are borderline and very similar; do not turn that threshold split
+into a large-effect claim. No D-Cα is found, and final all-acute HA is zero in all
+arms despite the residual distorted HA angles. None of this enables production.
+
 Validation: **42 focused generic/capture/control/audit/transport tests** pass,
 including the retained V1 ArgTracker failure and its signature-preserving fix.
 Targeted Ruff passes and independent evidence publications regenerate byte-for-byte.
