@@ -34,6 +34,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workspaces/{workspaceId}/homology/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start persistent Homology modeling from a project snapshot
+         * @description Survives browser disconnect/reload. Existing managed-job GET, SSE and DELETE routes provide status and explicit cancellation. Template paths are confined to this workspace.
+         */
+        post: operations["createHomologyJob"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspaces/{workspaceId}/jobs": {
         parameters: {
             query?: never;
@@ -170,6 +190,8 @@ export interface components {
         ManagedJobRecord: {
             /** @constant */
             version: 1;
+            revision?: number;
+            cancellationRequestedAt?: string;
             /** Format: uuid */
             id: string;
             workspaceId: string;
@@ -186,6 +208,38 @@ export interface components {
             outputFile: string | null;
             requestedByPrincipalId: string;
             error?: string;
+            progress?: {
+                /** @constant */
+                version: 1;
+                stage: "preparation" | "runner" | "sampling" | "refinement" | "validation" | "publication";
+                seed?: number;
+            } | {
+                /** @constant */
+                version: 1;
+                stage: "preparation" | "runner" | "sampling" | "refinement" | "validation" | "publication";
+                seed?: number;
+                completed: number;
+                total: number;
+            };
+            diffusion?: {
+                report: string;
+                outcomes: {
+                    seed: number;
+                    candidateId: string | null;
+                    status: "accepted" | "rejected" | "not_returned";
+                    findings: string[];
+                    hardGateFailures: string[];
+                    omittedFindings: number;
+                }[];
+            };
+            workflow?: {
+                /** @constant */
+                kind: "homology";
+                projectId: string;
+                projectName: string;
+                snapshotSha256?: string;
+            };
+            modelStatus?: "success" | "failed" | "validation_failed";
             provenance?: {
                 /** @constant */
                 apiVersion: 1;
@@ -211,6 +265,50 @@ export interface components {
                     file: string;
                     sha256: string;
                 }[];
+            };
+        };
+        HomologyJobRequest: {
+            project: {
+                /** @constant */
+                version: 1;
+                id: string;
+                name: string;
+                targetFasta: string;
+                templates: {
+                    id: string;
+                    file: string;
+                    chain: string;
+                    targetChain: string;
+                    label?: string;
+                    fittedFile?: string;
+                }[];
+                engine: "mafft" | "muscle" | "clustalo";
+                alignmentGroups: {
+                    chainId: string;
+                    rows: {
+                        id: string;
+                        kind: "target" | "template";
+                        sequence: string;
+                        templateId?: string;
+                    }[];
+                    masks: {
+                        [key: string]: {
+                            start: number;
+                            end: number;
+                        }[];
+                    };
+                    maskModes?: {
+                        [key: string]: "all" | "ranges" | "none";
+                    };
+                }[];
+                structuralAlignment?: string | {
+                    [key: string]: string;
+                };
+                modelOptions: {
+                    [key: string]: unknown;
+                };
+                createdAt: string;
+                updatedAt: string;
             };
         };
         ApiError: {
@@ -422,6 +520,131 @@ export interface operations {
             };
             /** @description Missing or invalid bearer credential */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    createHomologyJob: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HomologyJobRequest"];
+            };
+        };
+        responses: {
+            /** @description Persistent job accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagedJobRecord"];
+                };
+            };
+            /** @description Invalid project snapshot or options */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Workspace write access required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Workspace not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Method not allowed */
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Workspace already has an active workflow */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Project snapshot too large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description JSON content type required */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Internal failure */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Server shutting down */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Workspace quota exceeded */
+            507: {
                 headers: {
                     [name: string]: unknown;
                 };

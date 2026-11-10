@@ -1,0 +1,25 @@
+{
+  "revision": "retained-anchor-factorial-symmetry-analysis-v1",
+  "status": "predeclared analysis of already observed pilot structures; not a blinded prospective experimental panel or a production ceiling decision",
+  "inputs": [
+    {"directory": "pilot-v1", "cases": [0, 1, 2]},
+    {"directory": "lysozyme-v1", "cases": [0]},
+    {"directory": "lysozyme-qc-followup-v1", "cases": [0]}
+  ],
+  "backbone_rmsd_grid_angstrom": [0.5, 0.75, 1.0],
+  "ca_displacement_grid_angstrom": [0.5, 0.75, 1.0],
+  "heavy_maximum_grid_angstrom": [1.25, 1.5, 2.0, 2.5],
+  "frames": ["global-leave-anchor-out", "local-window-4-leave-anchor-out"],
+  "symmetry": "conservative canonical Amber heavy-graph automorphisms preserving element, force-field type, charge, bonded hydrogen degree, and N/CA/C/O/OXT/CB names; no HIS tautomer guessing",
+  "metric": "minimum maximum heavy displacement over complete allowed automorphisms; exact-name metrics retained alongside",
+  "quality_control": "recompute original exact comparisons and bond/chirality findings; retain source-defect strata rather than filtering them into a clean pooled quantile",
+  "constraints": [
+    "36 factorial triplets, not one common scaling factor",
+    "all 5 original strata retained and reported separately",
+    "symmetry unavailable is explicit, never a zero movement or silently passing result",
+    "compare symmetry and exact metrics only on the same available subset",
+    "no coordinate optimization, atom renaming in experimental bytes, sampling, or production limit change",
+    "contact metrics remain exact-name descriptive controls; symmetry-corrected movement alone does not establish contact/density support",
+    "two proteins and correlated residues do not establish general uncertainty or interface qualification"
+  ]
+}

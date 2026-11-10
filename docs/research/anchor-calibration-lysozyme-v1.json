@@ -1,0 +1,21 @@
+{
+  "revision": "anchor-calibration-lysozyme-v1",
+  "status": "declared before coordinate comparison; second-protein research control, no threshold adoption",
+  "cases": [
+    {"reference": "1LYZ", "reference_model": 1, "mobile": "193L", "mobile_model": 1, "stratum": "separate hen egg-white lysozyme X-ray depositions at 2.0 and 1.33 A", "limitations": ["same protein and potentially related tetragonal crystal packing", "different crystallization and refinement conditions", "starting-model bias is not excluded", "independent coordinate differences are not direct error bars"]}
+  ],
+  "chain": "A",
+  "anchor_residues": "all exact-matched canonical heavy-complete residues with occupancy 1 and no alternative-location records; exclusions reported",
+  "frames": ["all matched backbone atoms excluding the anchor", "sequence-local +/-4-residue backbone window excluding the anchor"],
+  "minimum_fit_atoms": 6,
+  "contact_cutoff_angstrom": 4.0,
+  "contact_axis": "shared heavy atoms outside the anchor and its immediate sequence neighbors",
+  "candidate_limits_angstrom": [
+    {"name": "current", "backbone_rmsd": 0.5, "ca_displacement": 0.5, "max_heavy": 1.25},
+    {"name": "candidate-075", "backbone_rmsd": 0.75, "ca_displacement": 0.75, "max_heavy": 1.5},
+    {"name": "candidate-100", "backbone_rmsd": 1.0, "ca_displacement": 1.0, "max_heavy": 2.0},
+    {"name": "candidate-150", "backbone_rmsd": 1.5, "ca_displacement": 1.5, "max_heavy": 2.5}
+  ],
+  "metrics": ["backbone RMSD", "CA displacement", "exact-name maximum heavy displacement", "fit residual", "reference contacts lost and new contacts gained", "exclusions and source model metadata"],
+  "constraints": ["same grid as the ubiquitin pilot, no tuning to 1JPS or first-pilot acceptance counts", "no experimental-coordinate optimization", "no B-factor-derived movement radii", "no interface or density validation claim", "exact-name symmetry ambiguities remain visible", "no recommended production ceiling from two proteins", "density-supported and multi-complex validation remains required"]
+}

@@ -154,3 +154,58 @@ def test_new_runner_rejects_cc89_weights_before_loading_model(tmp_path, monkeypa
     report = runner.preflight_report(cc94.CUDA_PROFILE, weights, Path(sys.executable))
     assert not report.passed
     assert any(i.code.value == "checkpoint-digest-mismatch" for i in report.issues)
+
+
+def test_cc94_wrapper_emits_per_seed_stages_without_changing_sampling_options(tmp_path, cli, monkeypatch):
+    """Exercise wrapper orchestration with mocked sampling/refinement, not weights."""
+    from types import SimpleNamespace
+
+    from test_protenix_research_scripts import _fake_seed_result
+
+    from dvbfixer.model.diffusion.contract import DiffusionRequest, RunnerResult
+    from dvbfixer.model.diffusion.runner import DIFFUSION_RUNNER_PROTOCOL_VERSION
+
+    source = cli._gap_input(tmp_path)
+    request = prepare_cc94_request(build_cli_diffusion_request(
+        source, {"C": "SNRFSGSKSGNTA"}, seeds=(7, 19), profile=cc94.MPS_PROFILE), source.read_bytes(), "auto")
+    staged_source = tmp_path / request.normalized_pdb.path
+    staged_source.parent.mkdir(parents=True, exist_ok=True)
+    staged_source.write_bytes(source.read_bytes())
+    request_path = tmp_path / "request.json"
+    request_path.write_text(request.to_json())
+    spec = importlib.util.spec_from_file_location("cc94_stage_test_runner", ROOT / "deploy/protpardelle-1c/cc94_runner.py")
+    runner = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(runner)
+    events = []
+    monkeypatch.setattr(runner, "emit_job_progress", lambda stage, **kwargs: events.append((stage, kwargs)))
+    monkeypatch.setattr(runner, "preflight_report", lambda *_args: SimpleNamespace(passed=True))
+
+    def sample(path, _output, _config, _checkpoint, **options):
+        seed = DiffusionRequest.from_json(path.read_text()).seeds[0]
+        assert events[-1] == ("sampling", {"seed": seed})
+        assert options == {"steps": 500, "step_scale": 1.0, "s_churn": 0.0,
+            "per_step_reinjection": False, "device_name": "mps", "mps_profile": False,
+            "chain_phase_policy": "native", "position_feature_policy": "source-physical-v1", "checkpoint_model": "cc94"}
+        return _fake_seed_result(seed), None
+
+    def refine(argv, **_kwargs):
+        assert "--refine-worker" in argv
+        seed = DiffusionRequest.from_json(Path(argv[argv.index("--request") + 1]).read_text()).seeds[0]
+        assert events[-1] == ("refinement", {"seed": seed})
+        Path(argv[argv.index("--result") + 1]).write_text(Path(argv[argv.index("--raw-result") + 1]).read_text())
+
+    def validate(single, _result, **_kwargs):
+        assert events[-1] == ("validation", {"seed": single.seeds[0]})
+
+    monkeypatch.setattr(runner, "_load", lambda _name: SimpleNamespace(_run_staged=sample))
+    monkeypatch.setattr(runner.subprocess, "run", refine)
+    monkeypatch.setattr(runner, "validate_runner_result", validate)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("DVBFIXER_DIFFUSION_PROTOCOL_VERSION", str(DIFFUSION_RUNNER_PROTOCOL_VERSION))
+    monkeypatch.setenv("DVBFIXER_DIFFUSION_REQUEST", str(request_path))
+    monkeypatch.setenv("DVBFIXER_DIFFUSION_RESULT", str(tmp_path / "result.json"))
+    monkeypatch.setenv("PROTPARDELLE_MODEL_PARAMS", "test-scope")
+    runner.run(SimpleNamespace(profile=cc94.MPS_PROFILE, checkpoint=tmp_path / "weights" / cc94.CHECKPOINT_NAME,
+                               refinement_python=Path(sys.executable)))
+    assert events == [(stage, {"seed": seed}) for seed in (7, 19) for stage in ("sampling", "refinement", "validation")]
+    assert [candidate.seed for candidate in RunnerResult.from_json((tmp_path / "result.json").read_text()).candidates] == [7, 19]

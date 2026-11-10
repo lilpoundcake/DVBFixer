@@ -16,6 +16,7 @@ from functools import partial
 from pathlib import Path
 from types import ModuleType
 
+from dvbfixer.job_progress import emit_job_progress
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     DiffusionStatus,
@@ -266,6 +267,7 @@ def run(
     raw_output_dir.mkdir(parents=True, exist_ok=False)
 
     active_adapter = adapter or _load_adapter()
+    emit_job_progress("sampling")
     raw_result, _summary_path = active_adapter._run_staged(
         request_path,
         raw_output_dir,
@@ -295,6 +297,7 @@ def run(
         or raw_result.backend_provenance.framework_version != "2.6.0"
     ):
         raise RuntimeError("runner did not use the frozen PyTorch 2.6.0 MPS profile")
+    emit_job_progress("refinement")
     result = refiner(request_path, raw_result, output_root / "refined")
     result_path.write_text(result.to_json(), encoding="utf-8")
     return result

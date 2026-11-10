@@ -14,8 +14,8 @@ remaining gates below; no scientific acceptance change.
    Utilities keeps Conect → Puppet → Pull adjacent (user follow-up);
    the glycan group keeps Convert → Transplant → Cluster;
    Cluster in the former Glycoprotein Preparation group; remove Analysis;
-   accessible cascading group menus. The broader destination name still needs
-   user confirmation before renaming.
+    accessible cascading group menus. User approved **Glycans** on 2026-11-06;
+    this names the subject rather than limiting the category to preparation.
 4. Job Monitor: a separate tab next to Info in the same docking tabset,
    independent managed-job records, stages, honest progress, logs
    and per-job cancellation. Reuse existing API/locks; do not promise parallel
@@ -106,24 +106,100 @@ gates below; no expensive sampling is required for initial reporting/UI tests.
 
 ## Remaining implementation/acceptance gates
 
-- Job Monitor still needs the versioned stage/progress event contract and actual
-  runner instrumentation. Current status is lifecycle-only; there are no fake
-  sampling/refinement percentages. Homology synchronous jobs are not yet part of
-  the managed-job list. Keep the overall Job Monitor checklist open.
-- Exercise real multi-job monitor/cancellation and resource admission, reconnect,
-  role changes, keyboard/touch cascading-menu behavior and narrow viewports in
-  the browser. Static-render/contract tests do not close these acceptance gates.
+- Job Monitor now has a version-1 stage/progress contract and a dedicated bounded
+  NDJSON pipe from the managed Python process. Latest stage persists in the job
+  record and is available through existing GET/list/SSE transport after reload.
+  The diffusion pipeline reports preparation, combined runner execution,
+  independent validation and publication at the actual operation boundaries.
+  Its child boundary forwards only the validated host pipe. Maintained cc94,
+  corrected/historical cc89 and Protenix wrappers now emit separate sampling and
+  refinement stages; per-seed wrappers include the active seed. No sampling
+  settings, process layout, checkpoint identities or request schemas changed.
+  Counts, when supplied, are stage-local; current pipeline events are deliberately
+  indeterminate. Terminal jobs show the last reported stage, not a readiness claim.
+  Checkpoint-backed acceptance of newly instrumented wrappers and measurable update
+  counts remain open. Homology modeling now participates through an additive
+  persistent V1 endpoint after explicit user approval: same locks, process admission,
+  Stop, persisted stages and monitor records; no new scheduler. The old synchronous
+  endpoint remains compatible and request-bound. Existing installed runtime copies
+  are not silently updated.
+- A native Chrome controlled-CLI smoke now covers two concurrent workspace jobs,
+  independent cancellation, stage display, persisted mixed-seed outcomes after
+  reload/resize and retained report navigation. It does not close real CPU/GPU
+  resource admission or full multi-principal browser acceptance. Source tests now
+  cover ACL revocation closing SSE, queued cancellation, stale revisions,
+  Retry-After, Stop during packaging and shutdown draining. Native keyboard,
+  pointer-transition and narrow touch cascading-menu acceptance also passed.
+  Keep the overall scientific/hardware checklist open.
 - Exercise a real multi-seed GUI sampling workflow and per-seed result display,
-  especially mixed passing/rejected candidates. Current validated-result logic
-  can omit rejected seeds from a passing subset; do not claim full per-seed
-  reporting from the input/argv fix alone.
-- Finish reporting coverage for all failure categories, mixed candidate results
-  and GUI retained-path relocation. The new CLI report path is correct at CLI
-  publication time but GUI staging may relocate that bundle afterward.
-- Confirm the new glycan-group name with the user; current grouping retains
-  `Glycoprotein preparation` until that decision.
+  especially mixed passing/rejected candidates. New bundles retain a separate
+  digest-linked seed inventory with final independent summaries and rejected
+  inspection coordinates. Only accepted candidates remain selectable; schema-4
+  results and old bundle compatibility remain unchanged. Model/ZBS, Homology and
+  Job Monitor render the shared report without Node-owned geometry calculations.
+- Broaden reporting coverage for execution failures before any bundle exists and
+  all scientific failure categories. Mixed-result final-only reporting and GUI
+  retained-path relocation now have Python, process and browser controls; native
+  scientific GUI sampling remains a separate gate.
+- User approved **Glycans** for Convert → Transplant → Cluster. Registry and
+  generated views use that label; saved `Glycoprotein preparation` panel state
+  restores to Glycans without changing command IDs or per-tool values. Verification:
+  461 GUI tests and 11 command-registry tests passed, along with GUI typecheck,
+  Ruff, OpenAPI consistency, maintained user-document checks and diff whitespace.
 
 ## Verification so far
+
+- 2026-11-06 persistent Homology continuation: **481 GUI tests**, GUI typecheck/lint,
+  generated OpenAPI consistency, production client/server build and standalone
+  smoke passed. The final Python fast rerun passed **2202 tests**, with the same
+  three optional Torch/Biotite skips and 33 slow deselections. Native Chrome
+  evidence at `tmp/job-monitor-browser-yp4IDY/` includes GUI-created Homology jobs
+  surviving navigation away and reload, restoration/Stop/completion, group migration,
+  keyboard/pointer/touch navigation and retained values. These use controlled CLI
+  outputs, not pretrained weights. Actual licensed MODELLER API smokes at
+  `tmp/managed-homology-native-37x70htf/` and the final built-server-bound
+  `tmp/managed-homology-native-final-4U5XKd/` passed independent output readback:
+  chain A, 76 residues, 602 atoms, valid DatRecord, zero D-Cα. This is a full-template
+  1UBQ workflow smoke, not gap-reconstruction or broad scientific qualification.
+  Source/template snapshots and output provenance are retained; installed runtimes,
+  model weights and scientific thresholds were not modified.
+
+- 2026-11-06 continuation: 460 GUI tests, typecheck/lint, production client/server
+  build and standalone smoke passed. The native Chrome/controlled-CLI evidence is
+  retained under `tmp/job-monitor-browser-uAlsh2/`; reproduce after building with
+  `node gui/scripts/smoke-job-monitor.mjs` (set `CHROME_EXECUTABLE` off macOS).
+  This is transport/UI acceptance, not checkpoint sampling. Targeted Python
+  validation/workflow/publication controls pass, including unchanged ranking,
+  mixed outcomes, Unicode/case/insertion-code findings and corruption rejection.
+  The first full fast run exposed five old-bundle compatibility failures because
+  optional reporting accidentally required a new provenance key for old bundles.
+  The reader was corrected without rewriting fixtures or weakening new-report
+  bindings; all 63 focused validation/workflow/publication tests then passed.
+  The final complete fast rerun passed **2201 tests**, with three existing optional
+  Torch/Biotite skips and 33 slow cases deselected. Both failed and passing logs are
+  retained in `tmp/job-monitor-verification/`; no fixtures or expected scientific
+  hashes were rewritten to obtain that result. A further native Chrome pass is
+  retained under `tmp/job-monitor-browser-gPDiq8/`, with the final built-source pass
+  under `tmp/job-monitor-browser-mBrFI9/`. The isolated sampling Python has
+  no pytest module; no runtime mutation was attempted to close optional controls.
+  Reserved independent-finding prefixes in adapter warning text are now explicitly
+  labelled as runner warnings, preventing them from impersonating Python-measured
+  final geometry. Mocked cc94 and Protenix seed-loop tests verify stage ordering
+  and unchanged sampling options; they are not checkpoint-backed acceptance.
+
+- 2026-11-06 stage-transport slice: 449 GUI tests, GUI typecheck/lint, 40 focused
+  Python progress/pipeline tests, Ruff and generated OpenAPI consistency passed.
+  Process tests use a real child producer on the separate pipe and verify persisted
+  API readback; malformed/oversized/version-mismatched events are ignored, work
+  counts are validated and telemetry delivery is bounded. Python tests cover a
+  closed monitor, unchanged stdout/stderr, real pipeline stage order and admission
+  refusal without later-stage events. No checkpoint sampling or live browser
+  multi-job acceptance was executed. Bootstrap Python lacked OpenMM; pipeline
+  tests were instead run against source in the existing scientific environment.
+  An actual Python emitter → Node child-pipe smoke also passed with unchanged
+  stdout/stderr; retained evidence is in
+  `tmp/job-progress-smoke-gnJqJH/summary.json`. This tests transport only, not a
+  sampler/refiner or scientific result.
 
 - Python: 76 focused tests passed across validation, independent anchor audit,
   staged integration and command registry using the existing `dvbfixer` env.

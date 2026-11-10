@@ -283,8 +283,8 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
     import json
     from dataclasses import asdict
 
+    from dvbfixer.model.diffusion.anchor_policy import check_anchor_movements
     from dvbfixer.model.diffusion.refinement_evidence import StagedRefinementEvidence, bind_evidence
-    from dvbfixer.model.diffusion.refinement_policy import POLICY_REVISION
     from dvbfixer.model.diffusion.refinement_stages import run_refinement_stages
     from dvbfixer.model.diffusion.staged_runtime import assessment_adapter, validate_staged_evidence
 
@@ -299,6 +299,7 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
     allowed = frozenset()
     notices = []
     platforms = []
+    searches = []
     generated_residues = tuple(dict.fromkeys(r for gap in request.gaps for r in gap.generated_residues))
     short = all(len(gap.generated_residues) <= 5 for gap in request.gaps)
 
@@ -308,6 +309,30 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
         for reason in sorted({item.fallback_reason for item in restraints if item.fallback_reason}):
             if policy.bfactor_weighting:
                 notices.append(f"Observed-anchor B weighting uses uniform fallback: {reason}.")
+        def candidate_score(coordinates):
+            # Score the actual PDB projection, not disposable FF hydrogens or
+            # pre-rounding coordinates. Publication still re-audits independently.
+            projected = rewrite_generated_coordinates(text, coordinates)
+            assessment = source_assess(projected, allowed)
+            projected_coordinates = {
+                AtomIdentity(line[21], line[22:26].strip(), line[26].strip(), line[12:16].strip()):
+                    tuple(float(line[i:i + 8]) for i in (30, 38, 46))
+                for line in projected.splitlines() if line.startswith(("ATOM  ", "HETATM"))
+            }
+            movements = check_anchor_movements(restraints, projected_coordinates, policy.movement_limits)
+            score = (len(assessment.admission_failures),
+                sum(not movement.within_limits for movement in movements),
+                sum(issue.actionable for issue in assessment.issues))
+            trial_path = output_dir / f"search-trial-{len(searches):03d}.pdb"
+            trial_path.write_text(projected, encoding="ascii")
+            searches.append({"stage": "generated-and-anchors" if restraints else "generated-only",
+                "score": score, "assessment": asdict(assessment), "movements": [asdict(m) for m in movements],
+                "coordinate_artifact": asdict(ArtifactReference(
+                    trial_path.relative_to(workspace).as_posix(), _sha256(trial_path)))})
+            return score
+
+        extra = ({"candidate_score": candidate_score, "geometry_preconditioning": True,
+            "anchor_movement_limits": policy.movement_limits} if policy.geometry_first else {})
         result = refine_generated_region(
             _protein_only_refinement_text(text) if request.heterogen_contexts else text,
             generated_residues=generated_residues, generated_atoms=request.generated_atoms,
@@ -316,7 +341,11 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
             restart_count=BOUNDARY_REFINEMENT_RESTART_COUNT,
             perturbation_angstrom=0.25 if short else BOUNDARY_REFINEMENT_PERTURBATION_ANGSTROM,
             platform_name=platform_name, random_seed=raw_result.candidates[0].seed,
+            **extra,
         )
+        if policy.geometry_first:
+            searches.append({"stage": "generated-and-anchors" if restraints else "generated-only",
+                "trials": result.search_diagnostics})
         platforms.append(result.platform)
         rewritten = rewrite_generated_coordinates(text, result.coordinates_angstrom)
         (output_dir / ("anchor-attempt.pdb" if restraints else "generated-attempt.pdb")).write_text(
@@ -377,7 +406,8 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
     # Failure/cancellation diagnostics remain in the run even when no candidate
     # qualifies. Nonfinite diagnostics are not serialized as invalid JSON.
     (output_dir / "refinement-report.json").write_text(json.dumps(
-        {"policy": POLICY_REVISION, "attempts": reports, "notices": notices},
+        {"policy": policy.revision, "attempts": reports, "notices": notices,
+         **({"search_diagnostics": searches} if policy.geometry_first else {})},
         ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     if selected_stage is None:
         for notice in dict.fromkeys(notices):
@@ -411,7 +441,7 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
     evidence_ref = ArtifactReference(evidence_path.relative_to(workspace).as_posix(), _sha256(evidence_path))
     elapsed = time.perf_counter() - start
     trace = bind_evidence(replace(raw_trace,
-        refinement_mode="none" if selected_stage == "raw" else POLICY_REVISION,
+        refinement_mode="none" if selected_stage == "raw" else policy.revision,
         refinement_parameters=(BackendOption("selected_stage", selected_stage),
             BackendOption("selection_reason", "last-completed-rejected-stage" if refinement_failed
                 else "geometry-accepted-stage")),
@@ -419,7 +449,7 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
             *generated_residues,
             *(staged.selected_anchors if selected_stage == "generated-and-anchors" else ())),
         final_heavy_coordinate_operations=raw_trace.final_heavy_coordinate_operations + (
-            () if selected_stage == "raw" else (POLICY_REVISION,)),
+            () if selected_stage == "raw" else (policy.revision,)),
         resource_metrics=replace(raw_trace.resource_metrics,
             wall_time_seconds=(raw_trace.resource_metrics.wall_time_seconds or 0.0) + elapsed),
     ), evidence_ref)
@@ -432,11 +462,11 @@ def _refine_staged(request, workspace, raw_result, raw_text, raw_trace, output_d
         postprocessing_failures=(*candidate.postprocessing_failures,
             *(("geometry-gated-refinement-failed",) if refinement_failed else ()),
             *audit.hard_gate_failures),
-        score_provenance=f"{POLICY_REVISION}:unranked")
+        score_provenance=f"{policy.revision}:unranked")
     provenance = raw_result.backend_provenance
     if platforms:
         provenance = replace(provenance, deterministic_flags=(*provenance.deterministic_flags,
-            f"refinement={POLICY_REVISION}", f"refinement-platform={platforms[-1]}"),
+            f"refinement={policy.revision}", f"refinement-platform={platforms[-1]}"),
             known_nondeterministic_operations=tuple(dict.fromkeys((
                 *provenance.known_nondeterministic_operations,
                 *((f"OpenMM {platforms[-1]} minimization",) if platforms[-1] != "Reference" else ()),

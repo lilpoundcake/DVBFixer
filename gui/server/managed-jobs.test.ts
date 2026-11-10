@@ -14,6 +14,7 @@ import {
   DEFAULT_MAX_UPLOAD_BYTES, DEFAULT_WORKSPACE_QUOTA_BYTES, initializeStorageQuota,
   workspaceLogicalBytes,
 } from './storage-quota'
+import { resetDvbfixerProcessAdmission } from './dvbfixer-runner'
 
 const directories: string[] = []
 const originalEnvironment = {
@@ -85,6 +86,20 @@ afterEach(() => {
 })
 
 describe('managed DVBfixer jobs', () => {
+  it('persists stage events and exposes them through the existing job API after completion', async () => {
+    const dataRoot = root(), workspace = listWorkspaces(dataRoot)[0]
+    fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspace.id), 'input.pdb'), 'END\n')
+    useNode(`const fs=require('node:fs');
+      fs.writeSync(Number(process.env.DVBFIXER_JOB_PROGRESS_FD), '{"version":1,"stage":"validation"}\\n');
+      fs.writeFileSync(process.argv[process.argv.indexOf('-o')+1], 'END\\n');`)
+    const created = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'prepare', inputFile: 'input.pdb' })
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+    expect(finished.status).toBe('succeeded')
+    expect(finished.progress).toEqual({ version: 1, stage: 'validation' })
+    const response = await apiRequest(dataRoot, 'GET', `/workspaces/${workspace.id}/jobs/${created.id}`)
+    expect(response.status).toBe(200)
+    expect(response.body.progress).toEqual(finished.progress)
+  })
   it('pages newest completed jobs across readable workspaces without leaking private workspaces', async () => {
     const dataRoot = root()
     const visible = listWorkspaces(dataRoot)[0]
@@ -246,6 +261,44 @@ describe('managed DVBfixer jobs', () => {
       expect(Object.fromEntries(fs.readdirSync(immutable).map(file => [file, fs.readFileSync(path.join(immutable, file), 'utf8')]))).toEqual(before)
     }
   })
+
+  it('retains mixed per-seed reports after relocation without promoting rejected coordinates', async () => {
+    const dataRoot = root(), workspace = listWorkspaces(dataRoot)[0]
+    fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspace.id), 'input.pdb'), 'END\n')
+    useNode(`
+      const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+      const out=process.argv[process.argv.indexOf('-o')+1];fs.mkdirSync(out,{recursive:true});
+      function write(name,text){const target=path.join(out,name);fs.mkdirSync(path.dirname(target),{recursive:true});
+        fs.writeFileSync(target,text);return {path:name,sha256:crypto.createHash('sha256').update(text).digest('hex')};}
+      const refs={};for(const label of ['pdb','dat','provenance','sampler_trace'])
+        refs[label]=write('accepted.'+label,label==='provenance'?JSON.stringify({request_sha256:'a'.repeat(64)}):label);
+      const validation={passed:true,hard_gate_failures:[],warnings:[]};
+      const report={version:1,request_sha256:'a'.repeat(64),requested_seeds:[7,19,101],outcomes:[
+        {seed:7,candidate_id:'accepted',status:'accepted',validation,coordinate:null},
+        {seed:19,candidate_id:'rejected-19',status:'rejected',validation:{passed:false,hard_gate_failures:['angle'],
+          warnings:['Final validation: d/ASP28A: angle = 79.1 degrees']},coordinate:write('rejected/seed-19.pdb','REJECTED')},
+        {seed:101,candidate_id:null,status:'not_returned',validation:null,coordinate:null}]};
+      const reportRef=write('seed-outcomes.json',JSON.stringify(report));
+      write('bundle.json',JSON.stringify({schema_version:2,status:'success',seed_outcomes:reportRef,
+        candidates:[{candidate_id:'accepted',seed:7,validation_passed:true,...refs}]}));
+      console.log('Per-seed validation report: '+path.join(out,'seed-outcomes.json'));
+    `)
+    const created = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'model', inputFile: 'input.pdb',
+      values: { '--backend': 'diffusion', '--diffusion-seed': '7, 19, 101' } })
+    const finished = await terminal(dataRoot, workspace.id, created.id)
+    expect(finished.status).toBe('succeeded')
+    expect(finished.outputFile).toBe(`${finished.outputDir}/result/accepted.pdb`)
+    expect(finished.diffusion?.report).toBe(`${finished.outputDir}/result/seed-outcomes.json`)
+    expect(finished.diffusion?.outcomes.map(row => row.status)).toEqual(['accepted', 'rejected', 'not_returned'])
+    const workspaceDirectory = workspaceRoot(dataRoot, workspace.id)
+    expect(fs.existsSync(path.join(workspaceDirectory, finished.diffusion!.report))).toBe(true)
+    const rejected = loadWorkspace(dataRoot, workspace.id).artifacts.find(artifact => artifact.file.endsWith('/rejected/seed-19.pdb'))
+    expect(rejected).toMatchObject({ kind: 'artifact', name: '[rejected] seed-19.pdb', run: { status: 'succeeded' } })
+    const stdout = fs.readFileSync(path.join(workspaceDirectory, finished.stdoutLog), 'utf8')
+    const temporary = finished.args[finished.args.indexOf('--diffusion-work-parent') + 1]
+    expect(stdout).not.toContain(temporary)
+    expect(stdout).toContain(path.join(workspaceDirectory, finished.diffusion!.report))
+  })
   it('exposes versioned workspace routes with the common error envelope', async () => {
     const dataRoot = root()
     const workspace = listWorkspaces(dataRoot)[0]
@@ -359,16 +412,46 @@ describe('managed DVBfixer jobs', () => {
   it('rejects concurrent jobs in one workspace and cancels the active process', async () => {
     const dataRoot = root()
     const workspace = listWorkspaces(dataRoot)[0]
-    useNode('setInterval(() => {}, 1000)')
+    useNode(`require('node:fs').writeSync(Number(process.env.DVBFIXER_JOB_PROGRESS_FD),
+      '{"version":1,"stage":"sampling","completed":1,"total":4}\\n'); setInterval(() => {}, 1000)`)
     const created = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'doctor' })
     expect(() => createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'doctor' }))
       .toThrow(/already running/)
+    await vi.waitFor(() => expect(getManagedJob(dataRoot, workspace.id, created.id).progress)
+      .toEqual({ version: 1, stage: 'sampling', completed: 1, total: 4 }))
+    expect(getManagedJob(dataRoot, workspace.id, created.id).status).toBe('running')
     cancelManagedJob(dataRoot, workspace.id, created.id)
     const finished = await terminal(dataRoot, workspace.id, created.id)
     expect(finished.status).toBe('cancelled')
+    expect(finished.progress).toEqual({ version: 1, stage: 'sampling', completed: 1, total: 4 })
     expect(finished.finishedAt).toBeTruthy()
     expect(fs.readFileSync(path.join(workspaceRoot(dataRoot, workspace.id), finished.stderrLog), 'utf8'))
       .toContain('cancelled')
+  })
+
+  it('tracks simultaneous workspace jobs and stops one without affecting the other', async () => {
+    const dataRoot = root(), firstWorkspace = listWorkspaces(dataRoot)[0], secondWorkspace = createWorkspace(dataRoot, 'Second')
+    resetDvbfixerProcessAdmission(2)
+    useNode(`const fs=require('node:fs');
+      fs.writeSync(Number(process.env.DVBFIXER_JOB_PROGRESS_FD), '{"version":1,"stage":"sampling","seed":19}\\n');
+      console.log('working');setInterval(()=>{if(fs.existsSync('finish'))process.exit(0)},10)`)
+    const first = createManagedJob(dataRoot, { workspaceId: firstWorkspace.id, command: 'doctor' })
+    const second = createManagedJob(dataRoot, { workspaceId: secondWorkspace.id, command: 'doctor' })
+    try {
+      await vi.waitFor(() => {
+        for (const job of [first, second]) expect(getManagedJob(dataRoot, job.workspaceId, job.id))
+          .toMatchObject({ status: 'running', progress: { stage: 'sampling', seed: 19 } })
+      })
+      cancelManagedJob(dataRoot, first.workspaceId, first.id)
+      expect((await terminal(dataRoot, first.workspaceId, first.id)).status).toBe('cancelled')
+      expect(getManagedJob(dataRoot, second.workspaceId, second.id).status).toBe('running')
+      fs.writeFileSync(path.join(workspaceRoot(dataRoot, second.workspaceId), second.outputDir, 'finish'), 'done')
+      expect((await terminal(dataRoot, second.workspaceId, second.id)).status).toBe('succeeded')
+    } finally {
+      for (const job of [first, second]) cancelManagedJob(dataRoot, job.workspaceId, job.id)
+      await Promise.all([first, second].map(job => terminal(dataRoot, job.workspaceId, job.id)))
+      resetDvbfixerProcessAdmission()
+    }
   })
 
   it('does not publish outputs after the initiating writer loses access', async () => {

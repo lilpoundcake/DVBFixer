@@ -20,6 +20,7 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from types import ModuleType
 
+from dvbfixer.job_progress import emit_job_progress
 from dvbfixer.model.diffusion.contract import (
     DIFFUSION_SCHEMA_VERSION,
     DiffusionRequest,
@@ -635,6 +636,11 @@ def run(
         candidate_results: list[RunnerResult] = []
         for candidate_request_path, candidate_root, seed in candidate_requests:
             input_json = builder.build_input(candidate_request_path, candidate_root / "input")
+            active_seed = seed
+            if (active_seed is None and isinstance(request_seeds, list) and len(request_seeds) == 1
+                    and type(request_seeds[0]) is int and 0 <= request_seeds[0] <= 2**53 - 1):
+                active_seed = request_seeds[0]
+            emit_job_progress("sampling", seed=active_seed)
             raw_result, _summary_path = adapter.run(
                 candidate_request_path,
                 input_json,
@@ -653,6 +659,7 @@ def run(
                 _write_result_atomic(result_path, raw_result)
                 return raw_result
             _verify_success_result(raw_result, Path.cwd().resolve(), refined=False)
+            emit_job_progress("refinement", seed=active_seed)
             refined_result = refiner(
                 candidate_request_path,
                 raw_result,

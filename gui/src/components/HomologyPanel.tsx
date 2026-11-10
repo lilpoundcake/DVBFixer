@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
+import LinearProgress from '@mui/material/LinearProgress'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
@@ -32,6 +33,9 @@ import { apiFetch } from '../lib/api-client'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 import { anchorRefinementNotices, outputErrors } from '../lib/tool-output'
 import { diffusionSeedError } from '../lib/diffusion-seeds'
+import { isActiveManagedJob, managedJobProgress, managedJobStatusLabel } from '../lib/managed-jobs'
+import { DiffusionSeedOutcomes } from './DiffusionSeedOutcomes'
+import { useHomologyJob } from '../hooks/useHomologyJob'
 import {
   workflowToolbarSx as homologyToolbarSx, panelToolbarSx as projectToolbarSx,
   controlSx as toolbarControlSx, wideControlSx as targetSourceControlSx,
@@ -118,7 +122,6 @@ export function HomologyPanel() {
   const [message, setMessage] = useState('')
   const [modelWarnings, setModelWarnings] = useState<string[]>([])
   const [modelErrors, setModelErrors] = useState<string[]>([])
-  useEffect(() => { setModelWarnings([]); setModelErrors([]) }, [project?.id])
   const [saved, setSaved] = useState(true)
   const [selection, setSelection] = useState<Record<string, TransientAlignmentSelection>>({})
   const [undo, setUndo] = useState<AlignmentGroup[][]>([])
@@ -139,9 +142,36 @@ export function HomologyPanel() {
   const selected3dResidues = useSelectionStore(state => state.selectedResidues)
   const activeWorkspace = useWorkspaceStore(state => state.active)
   const activeWorkspaceId = activeWorkspace?.id || ''
+  const homologyJob = useHomologyJob(activeWorkspaceId, project?.id || '')
+  const homologyProgress = homologyJob.job ? managedJobProgress(homologyJob.job) : null
+  const modelDiffusion = homologyJob.job?.diffusion
   const reloadWorkspace = useWorkspaceStore(state => state.reload)
   const updateWorkspaceToolState = useWorkspaceStore(state => state.updateToolState)
   const artifacts = (activeWorkspace?.artifacts || []).filter(entry => !entry.hidden).map(entry => ({ file: entry.file, name: entry.name, kind: entry.kind }))
+
+  useEffect(() => { setModelWarnings([]); setModelErrors([]); setMessage('') }, [project?.id, activeWorkspaceId])
+
+  useEffect(() => {
+    const job = homologyJob.job
+    if (!job) return
+    if (isActiveManagedJob(job)) { setModelWarnings([]); setModelErrors([]); setMessage(''); return }
+    const controller = new AbortController()
+    void Promise.all([job.stdoutLog, job.stderrLog].map(async file => {
+      const response = await apiFetch(workspaceFileUrl(job.workspaceId, file), { cache: 'no-store', signal: controller.signal })
+      if (!response.ok) throw new Error(`Cannot read Homology log: HTTP ${response.status}`)
+      return response.text()
+    })).then(([stdout, stderr]) => {
+      if (controller.signal.aborted) return
+      setModelWarnings(anchorRefinementNotices(stdout, stderr))
+      setModelErrors(outputErrors(stdout, stderr))
+      setMessage(job.status === 'cancelled' ? 'Homology cancelled; diagnostics retained.'
+        : job.status === 'failed' ? `Homology failed: ${job.error || 'inspect the retained logs'}`
+          : job.modelStatus === 'validation_failed' ? 'Rejected candidates retained for inspection, not accepted for use.'
+            : `Model complete: ${job.outputFile || 'inspect the retained run reports'}`)
+      void reloadWorkspace()
+    }).catch(reason => { if (!controller.signal.aborted) setError(reason.message || String(reason)) })
+    return () => controller.abort()
+  }, [homologyJob.job, reloadWorkspace])
 
   const refreshProjects = useCallback(async () => {
     if (!activeWorkspaceId) { setProjects([]); return }
@@ -599,7 +629,6 @@ export function HomologyPanel() {
   const runModel = async () => {
     if (!project) return
     const backend = project.modelOptions['--backend'] === 'diffusion' ? 'diffusion' : 'modeller'
-    setBusy(backend === 'diffusion' ? 'Running mosaic diffusion' : 'Running Modeller')
     setError('')
     setModelWarnings([])
     setModelErrors([])
@@ -609,19 +638,9 @@ export function HomologyPanel() {
         const seedError = diffusionSeedError(project.modelOptions['--diffusion-seed'])
         if (seedError) throw new Error(seedError)
       }
-      const response = await apiFetch('/api/homology/model', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...project, workspaceId: activeWorkspace?.id }),
-      })
-      const body = await response.json() as { error?: string; outputFile?: string; stdout?: string; stderr?: string; modelStatus?: string }
-      setModelWarnings(anchorRefinementNotices(body.stdout || '', body.stderr || ''))
-      setModelErrors(outputErrors(body.stdout || '', body.stderr || ''))
-      if (!response.ok) throw new Error(body.error || body.stderr || `HTTP ${response.status}`)
-      setMessage(`${body.modelStatus && body.modelStatus !== 'success' ? 'Rejected candidate published' : 'Model complete'}: ${body.outputFile}`)
-      await reloadWorkspace()
+      await homologyJob.start(project)
     } catch (reason: any) {
       setError(reason.message || String(reason))
-    } finally {
-      setBusy('')
     }
   }
 
@@ -663,6 +682,31 @@ export function HomologyPanel() {
       </Tabs>
       <Box sx={{ flex: 1, overflow: 'auto', p: 1.5 }}>
         {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
+        {homologyJob.error && <Alert severity="error" sx={{ mb: 1 }}>{homologyJob.error}</Alert>}
+        {homologyJob.job && <Box sx={{ mb: 1 }}>
+          <Typography variant="body2">{managedJobStatusLabel(homologyJob.job)}</Typography>
+          {homologyJob.active && <>
+            <Typography variant="caption">{homologyProgress?.label}. Continues after closing or reloading this tab.</Typography>
+            <LinearProgress sx={{ my: 1 }} variant={homologyProgress?.percent === undefined ? 'indeterminate' : 'determinate'}
+              value={homologyProgress?.percent} aria-label="Homology stage progress" />
+            <Button color="error" variant="outlined" onClick={() => void homologyJob.stop()}
+              disabled={homologyJob.stopping || activeWorkspace?.effectiveRole === 'reader'}>
+              {homologyJob.stopping ? 'Stopping…' : 'Stop Homology'}
+            </Button>
+          </>}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {([['Stdout', homologyJob.job.stdoutLog], ['Stderr', homologyJob.job.stderrLog]] as const).map(([label, file]) =>
+              <Button key={label} onClick={() => {
+                useWorkspaceStore.getState().setTextPreview({ workspaceId: activeWorkspaceId, file, name: `Homology · ${label}` })
+                window.dispatchEvent(new Event('dvbfixer:open-text-viewer'))
+              }}>{label}</Button>)}
+          </Box>
+        </Box>}
+        {modelDiffusion &&
+          <DiffusionSeedOutcomes diffusion={modelDiffusion} onOpenReport={file => {
+            useWorkspaceStore.getState().setTextPreview({ workspaceId: activeWorkspaceId, file, name: 'Homology · Per-seed validation' })
+            window.dispatchEvent(new Event('dvbfixer:open-text-viewer'))
+          }} />}
         {modelErrors.length > 0 && <Alert severity="error" sx={{ mb: 1 }}>
           <Typography variant="body2" sx={{ fontWeight: 700 }}>Errors / validation failures</Typography>
           {modelErrors.slice(0, 12).map(message => <Typography variant="body2" key={message}>{message}</Typography>)}
@@ -910,7 +954,7 @@ export function HomologyPanel() {
                 </FormControl>}
               </>}
               <Button sx={{ ...primaryActionSx, ml: 'auto' }} variant="contained"
-                onClick={runModel} disabled={busy !== '' || !project.alignmentGroups.length}>Run {(project.modelOptions['--backend'] ?? 'modeller') === 'diffusion' ? 'Diffusion' : 'Modeller'}</Button>
+                 onClick={runModel} disabled={busy !== '' || homologyJob.active || homologyJob.submitting || activeWorkspace?.effectiveRole === 'reader' || !project.alignmentGroups.length}>Run {(project.modelOptions['--backend'] ?? 'modeller') === 'diffusion' ? 'Diffusion' : 'Modeller'}</Button>
             </Box>
             <Typography variant="caption" color="text.secondary">
               Selected spans form one fitted mosaic; earlier templates win overlaps. Diffusion generates only admitted regions and never falls back to Modeller. Clean geometry skips minimization. If generated-only repair fails, geometry-gated repair may release problematic immediate anchors: backbone RMSD ≤0.5 Å, Cα ≤0.5 Å and every heavy atom ≤1.25 Å. Modified anchors and measured movements appear in the run log and validation report. Experimental B factors weight restraints only; unknown provenance uses uniform fallback. Corrected Protpardelle CUDA/MPS uses source-only local context for one CYS-free internal gap of 5–10 residues (at most 512 source residues); Apple refinement runs on CPU. Explicit full/none context is rejected. Frozen legacy requests retain historical behavior.

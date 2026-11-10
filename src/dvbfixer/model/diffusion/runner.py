@@ -16,6 +16,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import BinaryIO
 
+from dvbfixer.job_progress import job_progress_descriptor
 from dvbfixer.model.diffusion.contract import (
     MAX_TRACE_BYTES,
     ArtifactReference,
@@ -543,11 +544,19 @@ def _execute(
     limits: RunnerLimits,
     environment: Mapping[str, str],
 ) -> RunnerDiagnostics:
+    # Forward only the host's optional monitoring pipe, not arbitrary inherited
+    # descriptors or environment overrides. The scientific protocol is unchanged.
+    child_environment = dict(environment)
+    child_environment.pop("DVBFIXER_JOB_PROGRESS_FD", None)
+    progress_fd = job_progress_descriptor() if os.name == "posix" else None
+    if progress_fd is not None:
+        child_environment["DVBFIXER_JOB_PROGRESS_FD"] = str(progress_fd)
     try:
         process = subprocess.Popen(
             argv,
             cwd=cwd,
-            env=dict(environment),
+            env=child_environment,
+            pass_fds=() if progress_fd is None else (progress_fd,),
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

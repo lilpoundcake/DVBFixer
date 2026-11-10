@@ -1,6 +1,7 @@
 schema_version = 1
-verified_on = "2026-09-18"
-verified_at_commit = "5478403ee139cb8e4245e84eef1ed3927417e863"
+verified_on = "2026-11-10"
+verified_at_commit = "9fef1f155e0c94b3e79816605639a8f4e167c0b7"
+verification_note = "Validated against this base plus the uncommitted private-portfolio publication continuation; metadata does not claim those new files exist in the base commit."
 
 [contracts.diagnostic-geometry-evidence]
 status = "implemented"
@@ -323,6 +324,35 @@ commit_behavior = "The descriptor is validated before topology output and contro
 failure_behavior = "Unknown options, missing or modified bundle files, unsupported chemistry, and unsupported water-ion pairs fail before output."
 test_files = ["tests/test_top_amber19sb.py", "tests/test_cli_stabilization.py"]
 known_divergences = ["Legacy amber and charmm retain permissive component handling for compatibility."]
+
+[contracts.diffusion-private-gap-portfolio-bundle]
+status = "partial"
+owner = "src/dvbfixer/model/diffusion/portfolio_publication.py::publish_portfolio_bundle"
+description = "Private schema-1 multi-parent bundle with frozen donor request/source custody, generated-only DatRecord, independently derived issue-local mobility, source-preparation evidence, manifest-last commit and exact read-only resume. Public product capability and scientific qualification remain disabled."
+producers = [
+  "scripts/publish_gap_portfolio.py::main",
+  "src/dvbfixer/model/diffusion/portfolio_publication.py::publish_portfolio_bundle",
+]
+consumers = [
+  "src/dvbfixer/model/diffusion/portfolio_publication.py::read_portfolio_bundle",
+  "src/dvbfixer/model/diffusion/portfolio_publication.py::resume_portfolio_bundle",
+  "downstream minimize through an explicitly copied candidate and generated-only DatRecord",
+]
+identity_keys = [
+  "atom=(case-sensitive chain,residue_number,insertion_code,atom_name)",
+  "parent=(candidate_id,original seed,trace/staged/raw/stage1 artifact digests)",
+  "selection=(frozen common request/source,one whole donor per gap)",
+  "resume=(all artifact digests,parent identities,choices,operation and software snapshots)",
+]
+source_mutation = "Original sources, source-preparation reports/snapshots, parents and sampler traces remain byte-identical. Only manifest references are relocated; historical internal trace paths are matched by bound artifact digest, not traversed."
+commit_behavior = "Audit before reservation, durably stage flat payloads, recompute staged validation and DatRecord, exclusively reserve destination, then commit bundle.json last. Directory existence is never readiness."
+failure_behavior = "Unknown kinds/versions, incomplete custody, wrong source/mobility/geometry/DatRecord, modified receipts, symlinks/hardlinks, undeclared entries and mismatched resume identity fail closed. Existing or crash-left destinations are never adopted, overwritten or deleted."
+test_files = ["tests/test_diffusion_portfolio_publication.py", "tests/test_diffusion_gap_portfolio.py"]
+known_divergences = [
+  "This is a private experimental format, not schema-4 single-seed sampling or atom-completion publication; the old readers must reject it.",
+  "A private geometry/custody pass does not grant structural accuracy, scientific qualification or public/API/GUI admission.",
+  "Moved-anchor donors and P3 reconstruction are outside this version.",
+]
 
 [contracts.diffusion-runner-publication-provenance]
 status = "partial"

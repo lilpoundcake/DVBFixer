@@ -4,7 +4,9 @@ import { isDeepStrictEqual } from 'node:util'
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
+import { Value } from '@sinclair/typebox/value'
 import { readDiffusionPublication } from './diffusion-bundle'
+import { relocateDiffusionOutcomes } from './diffusion-outcomes'
 import { compactRun, copyNativeRun, outputFiles, RUN_ARCHIVE, RUN_SUMMARY, type RunStatus } from './run-storage'
 import { runDvbfixerArgs, type DvbfixerRunResult } from './dvbfixer-runner'
 import {
@@ -13,6 +15,10 @@ import {
 import { errorStatus, readRequestBody } from './request-body'
 import { assertWorkspaceQuota } from './storage-quota'
 import type { ApiRouteHost } from './http-types'
+import { createManagedWorkflowJob, sendV1Error, type ManagedJobProvenance, type ManagedWorkflowContext, type ManagedWorkflowResult } from './managed-jobs'
+import { HomologyJobRequestSchema } from './homology-schema'
+import { ensureRequestId } from './request-observability'
+import { acquireWorkspaceRunLock } from './workspace-lock'
 
 function assertRunAdmitted(result: DvbfixerRunResult): void {
   if (result.started || (result.failure !== 'overloaded' && result.failure !== 'shutdown')) return
@@ -562,11 +568,13 @@ function registerRun(
     authorizePublication()
     for (const relative of relativeFiles) {
       if (manifest.artifacts.some(artifact => artifact.file === relative)) continue
+      const rejected = diffusion?.rejectedCoordinates?.includes(path.join(root, relative)) ||
+        (diffusion?.status === 'validation_failed' && relative.endsWith('.pdb'))
       manifest.artifacts.push({
         id: crypto.randomUUID(), file: relative,
         name: relative === primary ? `${project.name} → ${command}`
-          : `${diffusion?.status === 'validation_failed' && relative.endsWith('.pdb') ? '[rejected] ' : ''}${path.basename(relative)}`,
-        kind: relative.endsWith('.pdb') ? 'structure' : 'artifact', artifactType: command === 'homology' ? 'homology-model' : command,
+          : `${rejected ? '[rejected] ' : ''}${path.basename(relative)}`,
+        kind: !rejected && relative.endsWith('.pdb') ? 'structure' : 'artifact', artifactType: command === 'homology' ? 'homology-model' : command,
          command, folder: path.dirname(relative), run: { command, status },
         hidden: ['run.json', 'stdout.log', 'stderr.log', 'target.fasta', 'alignment.pir'].includes(path.basename(relative)) ||
           path.basename(relative).startsWith('_'),
@@ -617,20 +625,46 @@ async function homologyOperation<T>(
   }
 }
 
+interface HomologyModelResult extends ManagedWorkflowResult {
+  ok: boolean
+  stdout: string
+  outputDir: string
+  artifacts: string[]
+}
+
 async function modelProject(
   root: string,
   project: HomologyProject,
   authorizePublication: () => void = () => {},
   signal?: AbortSignal,
-): Promise<unknown> {
-  const runDir = path.join(root, 'runs', `dvb_homology_${crypto.randomUUID()}`)
+  managed?: ManagedWorkflowContext,
+): Promise<HomologyModelResult> {
+  const runDir = managed?.directory || path.join(root, 'runs', `dvb_homology_${crypto.randomUUID()}`)
   fs.mkdirSync(runDir, { recursive: true })
   const fasta = path.join(runDir, 'target.fasta')
   fs.writeFileSync(fasta, parseFasta(project.targetFasta).map(record => `>${record.id}\n${record.sequence.replace(/[-*]/g, '')}\n`).join(''))
+  const resolvedInputs: ManagedJobProvenance['resolvedInputs'] = []
+  const frozenTemplates = new Map<string, string>()
+  if (managed) {
+    const manifest = loadWorkspace(path.dirname(path.dirname(root)), path.basename(root))
+    const sources = [...new Set(project.templates.map(template => template.file))]
+    const bytes = sources.reduce((sum, file) => sum + fs.statSync(resolveArtifact(root, file)).size, 0)
+    assertWorkspaceQuota(root, bytes + Buffer.byteLength(JSON.stringify(project)))
+    const inputDir = path.join(runDir, 'inputs')
+    fs.mkdirSync(inputDir)
+    for (const [index, file] of sources.entries()) {
+      const destination = path.join(inputDir, `template-${index + 1}${path.extname(file)}`)
+      fs.copyFileSync(resolveArtifact(root, file), destination, fs.constants.COPYFILE_EXCL)
+      frozenTemplates.set(file, destination)
+      resolvedInputs.push({ artifactId: manifest.artifacts.find(artifact => artifact.file === file)?.id || null, file,
+        sha256: crypto.createHash('sha256').update(fs.readFileSync(destination)).digest('hex') })
+    }
+    writeJsonAtomic(path.join(runDir, 'homology-project.json'), project)
+  }
   const plan = path.join(runDir, 'template-plan.json')
   writeJsonAtomic(plan, {
     templates: project.templates.map(template => ({
-      id: template.id, path: resolveArtifact(root, template.file), chain: template.chain,
+      id: template.id, path: frozenTemplates.get(template.file) || resolveArtifact(root, template.file), chain: template.chain,
       targetChain: template.targetChain,
     })),
     alignmentGroups: project.alignmentGroups,
@@ -644,7 +678,11 @@ async function modelProject(
   let nativeCopied = false
   let finalized = false
   try {
-  const result = await runDvbfixerArgs('homology', args, runDir, { signal })
+  if (managed) {
+    managed.setArguments(args, resolvedInputs)
+  }
+  authorizePublication()
+  const result = await runDvbfixerArgs('homology', args, runDir, { signal, ...managed?.processOptions })
   assertRunAdmitted(result)
   writeJsonAtomic(path.join(runDir, 'run.json'), { projectId: project.id, args, exitCode: result.code })
   fs.writeFileSync(path.join(runDir, 'stdout.log'), result.stdout)
@@ -658,10 +696,14 @@ async function modelProject(
     }
     copyNativeRun(nativeRoot, runDir)
     nativeCopied = true
+    result.stdout = result.stdout.split(nativeRoot).join(runDir)
+    result.stderr = result.stderr.split(nativeRoot).join(runDir)
+    fs.writeFileSync(path.join(runDir, 'stdout.log'), result.stdout)
+    fs.writeFileSync(path.join(runDir, 'stderr.log'), result.stderr)
   }
   const files = listFiles(runDir)
   const bundleManifest = result.code === 0 ? files.find(file => path.basename(file) === 'bundle.json') : undefined
-  let modelStatus = result.code === 0 ? 'success' : 'failed'
+  let modelStatus: HomologyModelResult['modelStatus'] = result.code === 0 ? 'success' : 'failed'
   let diffusion: ReturnType<typeof readDiffusionPublication> | undefined
   if (bundleManifest) {
     diffusion = readDiffusionPublication(bundleManifest)
@@ -674,10 +716,20 @@ async function modelProject(
     path.basename(prefix), bundleManifest ? [path.relative(runDir, path.dirname(bundleManifest)).split(path.sep).join('/')] : []) : []
   const summary = await compactRun(runDir, 'homology', status, outputs)
   finalized = true
-  const published = [...outputs, RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])].map(file => path.join(runDir, file))
-  const outputFile = registerRun(root, project, published, authorizePublication, diffusion, status)
+  const cancelledBeforePublication = managed?.isCancelled() || signal?.aborted
+  if (cancelledBeforePublication && status !== 'cancelled') {
+    summary.status = 'cancelled'
+    summary.outputs = []
+    summary.warning = 'Cancellation arrived during packaging; unpublished outputs remain in the run directory for inspection.'
+    writeJsonAtomic(path.join(runDir, RUN_SUMMARY), summary)
+  }
+  const published = [...(cancelledBeforePublication ? [] : outputs), RUN_SUMMARY, ...(summary.diagnostics ? [RUN_ARCHIVE] : [])].map(file => path.join(runDir, file))
+  const outputFile = registerRun(root, project, published, authorizePublication,
+    cancelledBeforePublication ? undefined : diffusion, cancelledBeforePublication ? 'cancelled' : status)
   return { ok: result.code === 0, exitCode: result.code, stdout: result.stdout, stderr: result.stderr,
     modelStatus,
+    ...(diffusion?.seedOutcomes ? { diffusion: relocateDiffusionOutcomes(diffusion.seedOutcomes,
+      path.relative(root, diffusion.seedOutcomes.report).split(path.sep).join('/')) } : {}),
     outputFile, outputDir: path.relative(root, runDir).replace(/\\/g, '/'),
     artifacts: published.map(file => path.relative(root, file).replace(/\\/g, '/')) }
   } catch (error) {
@@ -755,6 +807,10 @@ export function registerHomologyApi(
   principalSource: (request: IncomingMessage) => string = () => 'local',
   legacyOwnerPrincipalId = 'local',
 ): void {
+  const withRunLease = async <T,>(workspaceId: string, operation: () => Promise<T>): Promise<T> => {
+    const release = acquireWorkspaceRunLock(root, workspaceId)
+    try { return await operation() } finally { release() }
+  }
   server.middlewares.use('/api/homology', async (req, res, next) => {
     try {
       const controller = new AbortController()
@@ -836,9 +892,10 @@ export function registerHomologyApi(
         const incoming = JSON.parse(await readBody(req)) as HomologyProject & { workspaceId?: string }
         if (!incoming.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
         const { workspaceId, ...project } = incoming
-        return sendJson(res, 200, await alignProject(
-          authorize(workspaceId, 'writer'), project, publicationGuard(workspaceId), controller.signal,
-        ))
+        const storageRoot = authorize(workspaceId, 'writer')
+        return sendJson(res, 200, await withRunLease(workspaceId, () => alignProject(
+          storageRoot, project, publicationGuard(workspaceId), controller.signal,
+        )))
       }
       if (req.method === 'POST' && parts[0] === 'salign') {
         const incoming = JSON.parse(await readBody(req)) as HomologyProject & { workspaceId?: string }
@@ -846,23 +903,74 @@ export function registerHomologyApi(
         const { workspaceId, ...project } = incoming
         const storageRoot = authorize(workspaceId, 'writer')
         if (project.templates.length < 2) return sendJson(res, 400, { error: 'select at least two templates' })
-        return sendJson(res, 200, await structurallyAlignGroups(
+        return sendJson(res, 200, await withRunLease(workspaceId, () => structurallyAlignGroups(
           storageRoot, project, publicationGuard(workspaceId), controller.signal,
-        ))
+        )))
       }
       if (req.method === 'POST' && parts[0] === 'model') {
         const incoming = JSON.parse(await readBody(req)) as HomologyProject & { workspaceId?: string }
         if (!incoming.workspaceId) return sendJson(res, 400, { error: 'workspaceId is required' })
         const { workspaceId, ...project } = incoming
         const storageRoot = authorize(workspaceId, 'writer')
-        const result = await modelProject(
-          storageRoot, project, publicationGuard(workspaceId), controller.signal,
-        ) as { ok: boolean }
+        const result = await withRunLease(workspaceId, () => modelProject(storageRoot, project, publicationGuard(workspaceId), controller.signal))
         return sendJson(res, result.ok ? 200 : 500, result)
       }
       return next()
     } catch (error: any) {
       return sendJson(res, errorStatus(error), { error: error?.message || String(error) })
     }
+  })
+}
+
+/** Additive V1 entry point: return 202; existing job GET/SSE/DELETE own its lifetime. */
+export function registerHomologyJobApi(
+  server: ApiRouteHost, dataRoot: string,
+  principalSource: (request: IncomingMessage) => string = () => 'local',
+  legacyOwnerPrincipalId = 'local', serviceVersion = 'unknown',
+): void {
+  server.middlewares.use('/api/v1', async (request, response, next) => {
+    const match = (request.url || '').split('?')[0].match(/^\/workspaces\/([^/]+)\/homology\/jobs$/)
+    if (!match) return next()
+    const requestId = ensureRequestId(request, response)
+    try {
+      const invalid = (message: string, statusCode = 400) => Object.assign(new Error(message), { statusCode })
+      if (request.method !== 'POST') throw invalid('method not allowed', 405)
+      let workspaceId: string
+      try { workspaceId = decodeURIComponent(match[1]) } catch { throw invalid('invalid workspace ID encoding') }
+      if (!/^[a-zA-Z0-9_-]+$/.test(workspaceId)) throw invalid('invalid workspace ID')
+      const principalId = principalSource(request)
+      assertWorkspaceAccess(loadWorkspace(dataRoot, workspaceId, legacyOwnerPrincipalId), principalId, 'writer')
+      if (!String(request.headers['content-type'] || '').toLowerCase().startsWith('application/json')) {
+        throw invalid('Content-Type must be application/json', 415)
+      }
+      let body: unknown
+      try { body = JSON.parse((await readRequestBody(request)).toString('utf8')) } catch (error) {
+        if (errorStatus(error) === 413) throw error
+        throw invalid('request body is not valid JSON')
+      }
+      if (!Value.Check(HomologyJobRequestSchema, body)) throw invalid('request body does not match HomologyJobRequest')
+      const project = structuredClone(body.project) as HomologyProject
+      const storageRoot = workspaceRoot(dataRoot, workspaceId)
+      try {
+        validatedModelArgs(project.modelOptions)
+        parseFasta(project.targetFasta)
+        for (const template of project.templates) {
+          if (!fs.statSync(resolveArtifact(storageRoot, template.file)).isFile()) throw new Error('template must be a file')
+        }
+      } catch (error) { throw invalid(error instanceof Error ? error.message : String(error)) }
+      const authorize = () => {
+        assertWorkspaceAccess(loadWorkspace(dataRoot, workspaceId, legacyOwnerPrincipalId), principalId, 'writer')
+        assertWorkspaceQuota(storageRoot)
+      }
+      const snapshotSha256 = crypto.createHash('sha256').update(`${JSON.stringify(project, null, 2)}\n`).digest('hex')
+      const job = createManagedWorkflowJob(dataRoot, {
+        workspaceId, command: 'homology', workflow: { kind: 'homology', projectId: project.id, projectName: project.name,
+          snapshotSha256 },
+        inputs: project.templates.length ? { templates: project.templates.map(template => template.file) } : {},
+        values: { ...project.modelOptions, homologyProject: { id: project.id, snapshotSha256 } },
+        fastaContent: project.targetFasta,
+      }, context => modelProject(storageRoot, project, authorize, context.signal, context), principalId, serviceVersion)
+      return sendJson(response, 202, job)
+    } catch (error) { return sendV1Error(response, error, requestId) }
   })
 }

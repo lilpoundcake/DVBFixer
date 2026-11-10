@@ -16,6 +16,7 @@ milestone context; use the handoff and canonical checklist for this new work.
 
 | Plan | Implemented / completed | Remaining boundary |
 |---|---|---|
+| [Diffusion geometry repair](diffusion-geometry-repair.md) | P0/P1 controls; private P2 search/repair, manifest-last bundle/`.dat`/preparation custody/read-only resume; ten-case historical workflow and factorial/symmetry analysis | Original seed outcomes unchanged; public portfolio admission, prospective scientific qualification, broader calibration and P3 remain open |
 | [Geometry-gated anchor relaxation](geometry-gated-anchor-relaxation-handoff.md) | Experimental runner/validation/publication/resume and CLI/ZBS/Homology/GUI integration; approved movement limits; native 9CQD replays and real-complex pre-anchor findings | [Return to 1BRS sparse context, 1GC1 generated torsions, 1HE8 timeouts and live raw/final adapter acceptance](geometry-gated-anchor-relaxation-handoff.md#real-complex-follow-up-work-packages); broader motion-bound/B-policy calibration and target-GPU acceptance remain open |
 | [API roadmap](api-roadmap.md) | Naming service/CLI/V1 HTTP API, standalone host, auth/ACL, CORS, quotas, versioned workflows and single-host multi-process coordination | Acceptance on the operator's deployment host; external scheduling/state before multi-host operation |
 | [API/DDD continuation](api-ddd-continuation-context.md) | Historical handoff, not a second backlog | Consult the checklist and agent contexts rather than old next-session instructions |

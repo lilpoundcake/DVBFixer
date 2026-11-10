@@ -40,6 +40,18 @@ general commands require persisted progress, cancellation, and artifact records.
   not an implicit retry. Multiple hosts, network filesystems, and distributed
   admission require a future external scheduler and shared state store.
 
+### Homology modeling extension (2026-11-06)
+
+The user approved browser-independent Homology modeling with explicit Stop.
+The GUI uses additive `POST /api/v1/workspaces/{workspaceId}/homology/jobs` with
+a frozen project snapshot; its records, leases, child admission, SSE, cancellation
+markers and diagnostics reuse the existing managed-job infrastructure. No second
+scheduler or scientific policy is implemented in the GUI. Project identity,
+snapshot digest, model status, revision and cancellation-request timestamp are
+additive optional job-record fields. The old synchronous `/api/homology/model`
+contract remains available and request-bound. Browser persistence does not imply
+automatic restart after a server crash.
+
 ## Consequences
 
 The GUI uses generated path/request/response types for managed operations and

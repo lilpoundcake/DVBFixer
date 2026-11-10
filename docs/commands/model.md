@@ -190,10 +190,16 @@ For independent failure isolation, run each seed separately with a distinct
 output directory, as in the 5J13 experiment: a runner/protocol failure can prevent
 publication of a combined bundle. `--diffusion-resume` does not generate new seeds.
 
-Inspect each candidate's `validation_passed` and `hard_gate_failures` in
-`bundle.json`; a successful bundle can also contain rejected candidates. Keep the
-matching PDB/`.dat`/provenance files and retain unsuccessful attempts. Neither a
-zero CLI exit code nor finite minimization energy proves scientific acceptance.
+Inspect each published candidate's `validation_passed` and `hard_gate_failures`
+in `bundle.json`. New runs also include a digest-linked `seed-outcomes.json` with
+one final outcome for every requested seed, in input order: `accepted`, `rejected`
+or `not_returned` for independent final validation. The last status is not a
+geometry verdict. A successful bundle's candidate list contains only accepted
+structures; rejected seeds from a mixed run retain inspection-only coordinates
+under `rejected/`, outside that list. The CLI prints their final findings even
+when another seed passes. Older bundles without the report remain readable.
+Keep the matching PDB/`.dat`/provenance files and retain unsuccessful attempts.
+Neither a zero CLI exit code nor finite minimization energy proves scientific acceptance.
 If no stage passes geometry, the rejected PDB retains the **last completed
 processing stage**, not the raw candidate. Raw coordinates, stage-1 evidence and
 the attempt report are preserved separately in the bundle. If stage 2 produces

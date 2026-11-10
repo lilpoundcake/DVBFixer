@@ -14,6 +14,7 @@ from dvbfixer.model.diffusion.anchor_policy import AnchorMovementLimits
 from dvbfixer.model.diffusion.contract import BackendOption, DiffusionContractError
 
 POLICY_REVISION = "geometry-gated-anchors-v1"
+CURRENT_POLICY_REVISION = "geometry-first-bounded-anchors-v2"
 _PREFIX = "geometry_refinement."
 _VERSION = _PREFIX + "policy"
 _ANCHORS = _PREFIX + "relax_anchors"
@@ -34,10 +35,17 @@ class RefinementPolicy:
 
     relax_anchors: bool = True
     bfactor_weighting: bool = True
+    revision: str = CURRENT_POLICY_REVISION
 
     def __post_init__(self) -> None:
         if type(self.relax_anchors) is not bool or type(self.bfactor_weighting) is not bool:
             raise DiffusionContractError("refinement policy switches must be booleans")
+        if self.revision not in {POLICY_REVISION, CURRENT_POLICY_REVISION}:
+            raise DiffusionContractError("unsupported refinement policy revision")
+
+    @property
+    def geometry_first(self) -> bool:
+        return self.revision == CURRENT_POLICY_REVISION
 
     @property
     def movement_limits(self) -> AnchorMovementLimits:
@@ -50,7 +58,7 @@ class RefinementPolicy:
 
     def backend_options(self) -> tuple[BackendOption, ...]:
         return (
-            BackendOption(_VERSION, POLICY_REVISION),
+            BackendOption(_VERSION, self.revision),
             BackendOption(_ANCHORS, "true" if self.relax_anchors else "false"),
             BackendOption(_BFACTORS, "true" if self.bfactor_weighting else "false"),
         )
@@ -67,8 +75,8 @@ def read_refinement_policy(options: Iterable[BackendOption]) -> RefinementPolicy
         selected[option.name] = option.value
     if not selected:
         return None
-    if set(selected) != _KEYS or selected[_VERSION] != POLICY_REVISION:
+    if set(selected) != _KEYS or selected[_VERSION] not in {POLICY_REVISION, CURRENT_POLICY_REVISION}:
         raise DiffusionContractError("incomplete or unsupported refinement policy")
     if any(selected[key] not in {"true", "false"} for key in (_ANCHORS, _BFACTORS)):
         raise DiffusionContractError("refinement policy switches require true or false")
-    return RefinementPolicy(selected[_ANCHORS] == "true", selected[_BFACTORS] == "true")
+    return RefinementPolicy(selected[_ANCHORS] == "true", selected[_BFACTORS] == "true", selected[_VERSION])

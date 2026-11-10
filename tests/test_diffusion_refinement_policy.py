@@ -39,6 +39,16 @@ def test_new_policy_defaults_enable_stage_two_and_b_weighting():
     assert RefinementPolicy().relax_anchors and RefinementPolicy().bfactor_weighting
 
 
+def test_v1_roundtrip_keeps_algorithm_and_exact_options():
+    from dvbfixer.model.diffusion.refinement_policy import CURRENT_POLICY_REVISION, POLICY_REVISION
+
+    old = RefinementPolicy(revision=POLICY_REVISION)
+    assert not old.geometry_first
+    assert read_refinement_policy(old.backend_options()).backend_options() == old.backend_options()
+    assert RefinementPolicy().revision == CURRENT_POLICY_REVISION
+    assert RefinementPolicy().geometry_first
+
+
 @pytest.mark.parametrize("mutation", [
     ("policy", "future-v2"), ("relax_anchors", "yes"),
     ("bfactor_weighting", "TRUE"), ("unknown", "true"),

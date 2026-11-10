@@ -34,7 +34,9 @@ from dvbfixer.model.diffusion.input_geometry import (
     record_input_geometry,
 )
 
-REVISION = "bounded-observed-input-repair-v1"
+LEGACY_REVISION = "bounded-observed-input-repair-v1"
+REVISION = "bounded-observed-input-repair-v2"
+COMPOSED_REVISION = "completed-and-bounded-input-repair-v1"
 PREFIX = "input_preparation."
 EVIDENCE_FILES = {"original": "source-original.pdb", "prepared": "prepared.pdb", "report": "input-repair.json"}
 MAX_SELECTED_RESIDUES = 64
@@ -56,7 +58,7 @@ def preparation_options(request):
         return None
     values = {option.name.removeprefix(PREFIX): option.value for option in options}
     if (len(values) != len(options) or set(values) != {"revision", "original_sha256", "report_sha256"}
-            or values["revision"] not in {REVISION, COMPLETION_REVISION}):
+            or values["revision"] not in {LEGACY_REVISION, REVISION, COMPLETION_REVISION, COMPOSED_REVISION}):
         raise InputGeometryError("incomplete or unsupported input preparation binding")
     for key in ("original_sha256", "report_sha256"):
         ArtifactReference("input-evidence", values[key])
@@ -79,7 +81,37 @@ def _coordinates(records):
     return {atom: tuple(float(line[i:i + 8]) for i in (30, 38, 46)) for atom, line in records.items()}
 
 
-def _select_residues(request, source, findings):
+def _check_selected_links(request, source, selected, *, allow_disulfides):
+    """Only proven, unambiguous SG-SG bonds use the canonical protein FF path.
+
+    Arbitrary covalent adducts are still unsupported. An annotated disulfide
+    must actually exist in the parsed force-field topology, not merely be near
+    the selected residue, and each sulfur must have exactly one partner.
+    """
+    from io import StringIO
+
+    from openmm.app import PDBFile
+
+    from dvbfixer.model.diffusion.boundary_refinement import _disulfide_bonds_by_identity
+
+    links = [link for link in request.retained_explicit_links
+             if atom_residue(link.atom1) in selected or atom_residue(link.atom2) in selected]
+    if not links:
+        return
+    if not allow_disulfides:
+        raise InputGeometryError("automatic input repair refuses explicit covalent links involving selected residues")
+    records = _records(source)
+    pdb = PDBFile(StringIO(source.decode()))
+    supported = _disulfide_bonds_by_identity(pdb.topology)
+    for link in links:
+        pair = frozenset((link.atom1, link.atom2))
+        if (len(pair) != 2 or any(atom.atom_name != "SG" or records[atom][17:20].strip() != "CYS" for atom in pair)
+                or pair not in supported or any(sum(atom in bond for bond in supported) != 1 for atom in pair)):
+            raise InputGeometryError("automatic input repair cannot represent a selected explicit covalent link "
+                                     "as an unambiguous force-field disulfide")
+
+
+def _select_residues(request, source, findings, *, allow_disulfides=True):
     records = _records(source)
     known = {atom_residue(atom) for atom in request.fixed_atoms}
     chosen = set()
@@ -101,9 +133,7 @@ def _select_residues(request, source, findings):
     if any(line.startswith("HETATM") and line[17:20].strip() not in {"HOH", "WAT", "DOD"}
            for line in source.decode().splitlines()):
         raise InputGeometryError("automatic input repair currently requires canonical protein without nonwater heterogens")
-    if any(atom_residue(link.atom1) in chosen or atom_residue(link.atom2) in chosen
-           for link in request.retained_explicit_links):
-        raise InputGeometryError("automatic input repair refuses explicit covalent links involving selected residues")
+    _check_selected_links(request, source, chosen, allow_disulfides=allow_disulfides)
     for atom, line in records.items():
         if atom_residue(atom) not in chosen:
             continue
@@ -146,20 +176,24 @@ def audit_prepared_input(request, original, prepared, report):
     from dvbfixer.model.diffusion.observed_completion import REVISION as COMPLETION_REVISION
     from dvbfixer.model.diffusion.observed_completion import audit_completion_preparation
 
+    if report.get("revision") == COMPOSED_REVISION:
+        return audit_composed_preparation(request, original, prepared, report)
     if report.get("revision") == COMPLETION_REVISION:
         return audit_completion_preparation(request, original, prepared, report)
-    if report.get("revision") != REVISION or report.get("status") != "accepted":
+    if report.get("revision") not in {LEGACY_REVISION, REVISION} or report.get("status") != "accepted":
         raise InputGeometryError("unsupported or unsuccessful input repair evidence")
     if (_digest(original) != report["original_sha256"] or _digest(prepared) != report["prepared_sha256"]
             or request.normalized_pdb.sha256 != _digest(prepared)):
         raise InputGeometryError("input repair evidence source binding mismatch")
     options = preparation_options(request)
-    if options is not None and options["original_sha256"] != _digest(original):
+    if options is not None and (options["original_sha256"] != _digest(original)
+                               or options["revision"] != report["revision"]):
         raise InputGeometryError("input repair original differs from request binding")
     before_request = replace(request, normalized_pdb=replace(request.normalized_pdb, sha256=_digest(original)),
                              protein_context=None, gap_contexts=None)
     findings = assess_input_geometry(before_request, original)
-    selected = _select_residues(before_request, original, findings)
+    selected = _select_residues(before_request, original, findings,
+                                allow_disulfides=report["revision"] == REVISION)
     if [asdict(r) for r in selected] != report["selected_residues"]:
         raise InputGeometryError("input repair mask differs from independently detected damage")
     before, after = _records(original), _records(prepared)
@@ -187,10 +221,99 @@ def audit_prepared_input(request, original, prepared, report):
     movements = check_anchor_movements(restraints, positions, AnchorMovementLimits())
     if not all(movement.within_limits for movement in movements):
         raise InputGeometryError("input repair exceeded observed-residue displacement bounds")
+    _check_selected_links(request, prepared, selected, allow_disulfides=report["revision"] == REVISION)
     after_findings = assess_input_geometry(request, prepared)
     if any(f.severity is Severity.ERROR for f in after_findings):
         raise InputGeometryError("input repair left or introduced severe geometry defects")
     return movements, after_findings
+
+
+def _without_preparation(request):
+    return replace(request, backend_options=tuple(
+        option for option in request.backend_options if not option.name.startswith(PREFIX)))
+
+
+def audit_composed_preparation(request, original, prepared, report):
+    """Independently audit original -> completed -> locally repaired observations.
+
+    The completion-only intermediate is NOT sampling permission. Its records,
+    added-atom inventory and L chirality are checked first; the second audit then
+    requires clean final geometry and independently bounded observed movement.
+    """
+    from dvbfixer.model.diffusion.observed_completion import _insert, audit_completion_preparation
+
+    if report.get("revision") != COMPOSED_REVISION or report.get("status") != "accepted":
+        raise InputGeometryError("unsupported or unsuccessful composed preparation evidence")
+    if (_digest(original) != report["original_sha256"] or _digest(prepared) != report["prepared_sha256"]
+            or request.normalized_pdb.sha256 != _digest(prepared)):
+        raise InputGeometryError("composed preparation source binding mismatch")
+    options = preparation_options(request)
+    if options is not None and (options["revision"] != COMPOSED_REVISION
+                               or options["original_sha256"] != _digest(original)):
+        raise InputGeometryError("composed preparation original binding mismatch")
+    completion = report["completion"]
+    completed = _insert(original, completion["added_records"])
+    intermediate_request = replace(_without_preparation(request),
+        normalized_pdb=ArtifactReference("completed.pdb", _digest(completed)), protein_context=None, gap_contexts=None)
+    _, completion_findings = audit_completion_preparation(
+        intermediate_request, original, completed, completion, require_final_geometry=False)
+    if completion.get("after_findings") != [asdict(f) for f in completion_findings]:
+        raise InputGeometryError("completion intermediate findings differ from independent assessment")
+    movements, findings = audit_prepared_input(
+        _without_preparation(request), completed, prepared, report["observed_repair"])
+    if (report["observed_repair"].get("movements") != [asdict(m) for m in movements]
+            or report["observed_repair"].get("after_findings") != [asdict(f) for f in findings]):
+        raise InputGeometryError("observed repair evidence differs from independent assessment")
+    # The movement audit above does not replace a global chirality assertion.
+    from io import StringIO
+
+    from openmm.app import PDBFile
+
+    from dvbfixer.ffutils.geometry import assert_all_l
+
+    pdb = PDBFile(StringIO(prepared.decode()))
+    assert_all_l(pdb.topology, pdb.positions)
+    return movements, findings
+
+
+def complete_then_repair(request, original, completed, completion, directory):
+    """Continue incomplete-source preparation instead of rejecting old clashes."""
+    from dvbfixer.model.diffusion.observed_completion import audit_completion_preparation
+
+    completed_path = directory / "completed.pdb"
+    completed_path.write_bytes(completed)
+    intermediate_request = replace(request,
+        normalized_pdb=ArtifactReference(completed_path.name, _digest(completed)))
+    _, completion_findings = audit_completion_preparation(
+        intermediate_request, original, completed, completion, require_final_geometry=False)
+    completion["after_findings"] = [asdict(f) for f in completion_findings]
+    completion["movements"] = []
+    (directory / "completion-evidence.json").write_text(
+        json.dumps(completion, ensure_ascii=False, indent=2) + "\n")
+    result = _prepare_observed_geometry(intermediate_request, completed, directory)
+    if result is None:
+        raise InputGeometryError("heavy-atom preparation left or introduced severe geometry defects")
+    repaired_request, repaired_path = result
+    repaired = repaired_path.read_bytes()
+    report = {"revision": COMPOSED_REVISION, "status": "accepted",
+              "original_sha256": _digest(original), "prepared_sha256": _digest(repaired),
+              "completion": completion,
+              "observed_repair": json.loads((repaired_path.parent / EVIDENCE_FILES["report"]).read_text())}
+    path = directory / EVIDENCE_FILES["prepared"]
+    path.write_bytes(repaired)
+    new_request = replace(_without_preparation(repaired_request),
+        normalized_pdb=ArtifactReference(path.name, _digest(repaired)))
+    movements, findings = audit_composed_preparation(new_request, original, repaired, report)
+    report["movements"] = [asdict(m) for m in movements]
+    report["after_findings"] = [asdict(f) for f in findings]
+    report_bytes = (json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode()
+    (directory / EVIDENCE_FILES["report"]).write_bytes(report_bytes)
+    new_request = replace(new_request, backend_options=(*new_request.backend_options,
+        BackendOption(PREFIX + "revision", COMPOSED_REVISION),
+        BackendOption(PREFIX + "original_sha256", _digest(original)),
+        BackendOption(PREFIX + "report_sha256", _digest(report_bytes))))
+    (directory / "request-prepared.json").write_text(new_request.to_json())
+    return new_request, path
 
 
 def audit_preparation_payloads(request, payloads):
@@ -217,6 +340,11 @@ def prepare_input(request: DiffusionRequest, source: bytes, work_parent: Path):
     missing = missing_observed_atoms(request, source)
     if missing:
         return prepare_observed_completion(request, source, missing, work_parent)
+    return _prepare_observed_geometry(request, source, work_parent)
+
+
+def _prepare_observed_geometry(request: DiffusionRequest, source: bytes, work_parent: Path):
+    """Bounded repair of complete observed residues, also after atom completion."""
     findings = assess_input_geometry(request, source)
     if not any(f.severity is Severity.ERROR for f in findings):
         return None

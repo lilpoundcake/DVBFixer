@@ -1,6 +1,34 @@
 schema_version = 1
-verified_on = "2026-09-22"
-verified_at_commit = "7671952f89ea7b635b80e4d633f37e45f41825d4"
+verified_on = "2026-11-10"
+verified_at_commit = "9fef1f155e0c94b3e79816605639a8f4e167c0b7"
+verification_note = "Validated against this base plus the uncommitted private-portfolio publication continuation; metadata does not claim those new files exist in the base commit."
+
+[change_groups.private-gap-portfolio-publication]
+parallel_policy = "exclusive-owner"
+reason = "Multi-parent lineage, source preparation, private manifest semantics, generated-only .dat and resume identity must evolve together without changing public sampling contracts."
+files = [
+  "src/dvbfixer/model/diffusion/gap_portfolio.py",
+  "src/dvbfixer/model/diffusion/portfolio_contract.py",
+  "src/dvbfixer/model/diffusion/portfolio_evidence.py",
+  "src/dvbfixer/model/diffusion/portfolio_publication.py",
+  "scripts/publish_gap_portfolio.py",
+  "tests/test_diffusion_portfolio_publication.py",
+]
+
+[tasks.change-private-gap-portfolio-publication]
+status = "partial"
+context = "docs/agent/contexts/structure-preparation.md"
+start = [
+  "src/dvbfixer/model/diffusion/portfolio_contract.py::PortfolioEvidence",
+  "src/dvbfixer/model/diffusion/portfolio_evidence.py::audit_portfolio_evidence",
+  "src/dvbfixer/model/diffusion/portfolio_publication.py::publish_portfolio_bundle",
+]
+callers = ["scripts/publish_gap_portfolio.py::main"]
+contracts = ["diffusion-private-gap-portfolio-bundle", "dat-record-lifecycle"]
+invariants = ["INV-PORTFOLIO-CUSTODY-AND-MOBILITY", "INV-IDENTITY-ICODE"]
+change_group = "private-gap-portfolio-publication"
+test_files = ["tests/test_diffusion_portfolio_publication.py", "tests/test_diffusion_gap_portfolio.py"]
+verification = ["pytest -q tests/test_diffusion_portfolio_publication.py tests/test_diffusion_gap_portfolio.py", "python scripts/check_agent_docs.py"]
 
 [change_groups.protein-variant-identity]
 parallel_policy = "exclusive-owner"

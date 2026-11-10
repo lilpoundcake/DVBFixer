@@ -1,5 +1,6 @@
 import { Type, type Static, type TSchema } from '@sinclair/typebox'
 import { ManagedJobRecordSchema, ManagedJobRequestSchema } from './managed-jobs-schema'
+import { HomologyJobRequestSchema } from './homology-schema'
 
 export const VariantOverrideSchema = Type.Object({
   chainId: Type.String({ minLength: 1, maxLength: 1 }),
@@ -207,6 +208,29 @@ export const NAMING_OPENAPI_DOCUMENT = {
         },
       },
     },
+    '/api/v1/workspaces/{workspaceId}/homology/jobs': {
+      post: {
+        operationId: 'createHomologyJob', summary: 'Start persistent Homology modeling from a project snapshot',
+        description: 'Survives browser disconnect/reload. Existing managed-job GET, SSE and DELETE routes provide status and explicit cancellation. Template paths are confined to this workspace.',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'workspaceId', in: 'path', required: true, schema: { type: 'string', pattern: '^[a-zA-Z0-9_-]+$' } }],
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/HomologyJobRequest' } } } },
+        responses: {
+          '202': { description: 'Persistent job accepted', content: { 'application/json': { schema: { $ref: '#/components/schemas/ManagedJobRecord' } } } },
+          '400': { description: 'Invalid project snapshot or options', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '405': { description: 'Method not allowed', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '401': { description: 'Authentication required', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '403': { description: 'Workspace write access required', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '404': { description: 'Workspace not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '409': { description: 'Workspace already has an active workflow', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '413': { description: 'Project snapshot too large', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '415': { description: 'JSON content type required', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '500': { description: 'Internal failure', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '503': { description: 'Server shutting down', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+          '507': { description: 'Workspace quota exceeded', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } } },
+        },
+      },
+    },
     '/api/v1/workspaces/{workspaceId}/jobs': {
       get: {
         operationId: 'listManagedJobs', summary: 'List managed scientific jobs',
@@ -285,6 +309,7 @@ export const NAMING_OPENAPI_DOCUMENT = {
       NamingConversionResponse: openApiSchema(NamingConversionResponseSchema),
       ManagedJobRequest: openApiSchema(ManagedJobRequestSchema),
       ManagedJobRecord: openApiSchema(ManagedJobRecordSchema),
+      HomologyJobRequest: openApiSchema(HomologyJobRequestSchema),
       ApiError: openApiSchema(ApiErrorSchema),
     },
   },

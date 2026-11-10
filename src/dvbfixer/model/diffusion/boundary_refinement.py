@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import math
 import random
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from io import StringIO
 from typing import Any
@@ -33,12 +34,17 @@ from dvbfixer.ffutils import FF_ALIASES
 from dvbfixer.ffutils.geometry import (
     assert_all_l,
     build_ca_chirality_force,
+    drop_spurious_inter_aa_bonds,
     find_d_residues,
     fix_ca_chirality,
     rebuild_missing_atoms_with_retry,
     repair_misplaced_hydrogens,
 )
-from dvbfixer.model.diffusion.anchor_policy import AnchorPositionRestraint, NumericalRefinementError
+from dvbfixer.model.diffusion.anchor_policy import (
+    AnchorMovementLimits,
+    AnchorPositionRestraint,
+    NumericalRefinementError,
+)
 from dvbfixer.model.diffusion.contract import AtomIdentity, ResidueIdentity
 
 BOUNDARY_REFINEMENT_REVISION = "dvbfixer-openmm-boundary-refinement-v8"
@@ -70,6 +76,7 @@ class BoundaryRefinementResult:
     initial_energy_kj_mol: float
     final_energy_kj_mol: float
     platform: str
+    search_diagnostics: tuple[dict[str, Any], ...] = ()
 
 
 def refine_generated_region(
@@ -85,6 +92,9 @@ def refine_generated_region(
     restrain_amides: bool = True,
     observed_anchor_restraints: tuple[AnchorPositionRestraint, ...] = (),
     mobile_position_restraints: tuple[AnchorPositionRestraint, ...] = (),
+    candidate_score: Callable[[Mapping[AtomIdentity, np.ndarray]], tuple[int, ...]] | None = None,
+    geometry_preconditioning: bool = False,
+    anchor_movement_limits: AnchorMovementLimits | None = None,
 ) -> BoundaryRefinementResult:
     """Minimize generated atoms and explicitly restrained observed anchor atoms.
 
@@ -132,6 +142,12 @@ def refine_generated_region(
         raise BoundaryRefinementError("mobile positional restraints must uniquely target mobile atoms")
 
     pdb = PDBFile(StringIO(pdb_text))
+    # OpenMM's distance scan can assign several partners to one SG. Use the
+    # same canonical 1:1 matching as seeded rebuild BEFORE snapshotting bonds;
+    # otherwise the preservation guard promotes an impossible extra bond.
+    normalized_bonds = (drop_spurious_inter_aa_bonds(pdb.topology, positions=pdb.positions)
+        if geometry_preconditioning else 0)
+    required_disulfides = _disulfide_bonds_by_identity(pdb.topology)
     original_coordinates = _coordinates_by_identity(pdb.topology, pdb.positions)
     original_heavy = {AtomIdentity(atom.residue.chain.id, str(atom.residue.id), atom.residue.insertionCode.strip(), atom.name) for atom in pdb.topology.atoms()
         if atom.element is None or atom.element.symbol != "H"}
@@ -174,6 +190,7 @@ def refine_generated_region(
     fixer.findMissingAtoms()
     rebuild_missing_atoms_with_retry(fixer)
     topology = fixer.topology
+    _require_disulfide_bonds(topology, required_disulfides)
     positions = fixer.positions
     rebuilt_d = _d_residue_identities(topology, positions)
     rebuilt_fixed_d = rebuilt_d - generated_residue_set
@@ -217,6 +234,7 @@ def refine_generated_region(
     finally:
         random.setstate(random_state)
     repair_misplaced_hydrogens(modeller.topology, modeller.positions)
+    _require_disulfide_bonds(modeller.topology, required_disulfides)
 
     system = forcefield.createSystem(
         modeller.topology,
@@ -232,6 +250,10 @@ def refine_generated_region(
     position_restraints = (*observed_anchor_restraints, *mobile_position_restraints)
     if position_restraints:
         system.addForce(_build_anchor_position_force(modeller.topology, position_restraints))
+    if anchor_movement_limits is not None:
+        from dvbfixer.model.diffusion.geometry_conditioning import add_anchor_boundary_walls
+
+        add_anchor_boundary_walls(system, modeller.topology, observed_anchor_restraints, anchor_movement_limits)
     chirality_force, protected_centres = build_ca_chirality_force(
         modeller.topology,
         modeller.positions,
@@ -251,6 +273,10 @@ def refine_generated_region(
     )
     if restrained_angles:
         system.addForce(peptide_angle_force)
+    if geometry_preconditioning:
+        from dvbfixer.model.diffusion.geometry_conditioning import add_geometry_conditioning
+
+        add_geometry_conditioning(system)
 
     if platform_name == "CPU":
         properties = {"Threads": "1"}
@@ -268,17 +294,64 @@ def refine_generated_region(
     )
     simulation.context.setPositions(modeller.positions)
     initial_state = simulation.context.getState(getEnergy=True)
+    diagnostics: list[dict[str, Any]] = []
+    if geometry_preconditioning:
+        diagnostics.append({"phase": "temporary-topology", "spurious_bonds_removed": normalized_bonds})
+
+    def minimize_once():
+        if not geometry_preconditioning:
+            simulation.minimizeEnergy(tolerance=BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM
+                * kilojoule_per_mole / nanometer, maxIterations=max_iterations)
+        else:
+            from dvbfixer.model.diffusion.geometry_conditioning import (
+                BONDED_GROUP,
+                FULL_NONBONDED_GROUP,
+                SOFTCORE_GROUP,
+            )
+
+            bonded = 1 << BONDED_GROUP
+            full = bonded | (1 << FULL_NONBONDED_GROUP)
+            phases = (("bonded-geometry", bonded, 0.0, 1.0, min(100, max_iterations)),
+                      ("soft-steric-1", bonded | (1 << SOFTCORE_GROUP), 1.0, 1.0, min(75, max_iterations)),
+                      ("soft-steric-2", bonded | (1 << SOFTCORE_GROUP), 1.0, 0.2, min(75, max_iterations)),
+                      ("full-forcefield", full, 0.0, 0.2, max_iterations))
+            try:
+                for name, groups, scale, alpha, iterations in phases:
+                    integrator.setIntegrationForceGroups(groups)
+                    simulation.context.setParameter("soft_scale", scale)
+                    simulation.context.setParameter("soft_alpha", alpha)
+                    simulation.minimizeEnergy(tolerance=BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM
+                        * kilojoule_per_mole / nanometer, maxIterations=iterations)
+                    state = simulation.context.getState(getEnergy=True, getPositions=True, groups=groups)
+                    acceptable = _acceptable_minimum(modeller.topology, state)
+                    diagnostics.append({"phase": name, "max_iterations": iterations,
+                        "finite_all_l": acceptable,
+                        "energy_kj_mol": float(state.getPotentialEnergy().value_in_unit(kilojoule_per_mole))
+                        if acceptable else None})
+                    if not acceptable:
+                        raise OpenMMException("geometry conditioning did not preserve a finite all-L state")
+            finally:
+                integrator.setIntegrationForceGroups(full)
+                simulation.context.setParameter("soft_scale", 0.0)
+        return simulation.context.getState(getEnergy=True, getPositions=True)
+
+    def rank(state):
+        if candidate_score is None:
+            return (_local_geometry_error_count(modeller.topology, state.getPositions(), mobile_residue_set),)
+        coordinates = _coordinates_by_identity(modeller.topology, state.getPositions())
+        score = candidate_score({identity: coordinates[identity] for identity in mobile_atoms_requested})
+        if not isinstance(score, tuple) or not score or any(type(value) is not int or value < 0 for value in score):
+            raise BoundaryRefinementError("candidate score must be a nonempty tuple of nonnegative integers")
+        diagnostics.append({"phase": "full-validator-ranking", "score": list(score),
+            "energy_kj_mol": float(state.getPotentialEnergy().value_in_unit(kilojoule_per_mole))})
+        return score
+
     try:
-        simulation.minimizeEnergy(
-            tolerance=BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM
-            * kilojoule_per_mole / nanometer, maxIterations=max_iterations,
-        )
-        first_state = simulation.context.getState(getEnergy=True, getPositions=True)
+        first_state = minimize_once()
     except OpenMMException:
         first_state = None
     best_state = first_state if _acceptable_minimum(modeller.topology, first_state) else None
-    best_score = (_local_geometry_error_count(modeller.topology, best_state.getPositions(), mobile_residue_set)
-        if best_state is not None else float("inf"))
+    best_score = rank(best_state) if best_state is not None else None
     restart_positions = np.asarray(
         (best_state.getPositions(asNumpy=True) if best_state is not None else modeller.positions).value_in_unit(nanometer),
         dtype=np.float64,
@@ -293,6 +366,8 @@ def refine_generated_region(
     ]
     if restart_count:
         for cycle in range(restart_count):
+            if candidate_score is not None and best_score is not None and not any(best_score):
+                break
             rng = np.random.default_rng(random_seed + cycle)
             perturbed = restart_positions.copy()
             for atom in mobile_atoms:
@@ -302,32 +377,22 @@ def refine_generated_region(
                 perturbed[atom.index] += rng.normal(0.0, scale_nm, size=3)
             simulation.context.setPositions(perturbed * nanometer)
             try:
-                simulation.minimizeEnergy(
-                    tolerance=BOUNDARY_REFINEMENT_TOLERANCE_KJ_MOL_NM
-                    * kilojoule_per_mole
-                    / nanometer,
-                    maxIterations=max_iterations,
-                )
+                state = minimize_once()
             except OpenMMException:
                 continue
-            state = simulation.context.getState(getEnergy=True, getPositions=True)
             if not _acceptable_minimum(modeller.topology, state):
                 continue
-            score = _local_geometry_error_count(
-                modeller.topology,
-                state.getPositions(),
-                mobile_residue_set,
-            )
+            score = rank(state)
             state_energy = float(
                 state.getPotentialEnergy().value_in_unit(kilojoule_per_mole)
             )
             best_energy = float(
                 best_state.getPotentialEnergy().value_in_unit(kilojoule_per_mole)
             ) if best_state is not None else float("inf")
-            if (score, state_energy) < (best_score, best_energy):
+            if best_score is None or (score, state_energy) < (best_score, best_energy):
                 best_state = state
                 best_score = score
-            if best_score == 0:
+            if best_score is not None and not any(best_score):
                 break
     if best_state is None:
         raise BoundaryNumericalError("localized refinement found no finite all-L minimum after seeded retries")
@@ -385,6 +450,7 @@ def refine_generated_region(
         initial_energy_kj_mol=initial_energy,
         final_energy_kj_mol=final_energy,
         platform=platform.getName(),
+        search_diagnostics=tuple(diagnostics),
     )
 
 
@@ -410,6 +476,21 @@ def refine_observed_region(
         mobile_position_restraints=restraints, max_iterations=max_iterations,
         restart_count=0, platform_name="CPU", random_seed=1, restrain_amides=False,
     )
+
+
+def _disulfide_bonds_by_identity(topology):
+    return {frozenset(AtomIdentity(atom.residue.chain.id, str(atom.residue.id),
+                                  atom.residue.insertionCode.strip(), atom.name) for atom in (a, b))
+            for a, b in topology.bonds() if a.name == b.name == "SG"}
+
+
+def _require_disulfide_bonds(topology, required):
+    actual = _disulfide_bonds_by_identity(topology)
+    if not required <= actual:
+        raise BoundaryRefinementError("temporary refinement topology lost an observed disulfide bond")
+    atoms = {atom for pair in required for atom in pair}
+    if any(sum(atom in pair for pair in actual) != 1 for atom in atoms):
+        raise BoundaryRefinementError("temporary refinement topology has ambiguous disulfide partners")
 
 
 def _build_anchor_position_force(

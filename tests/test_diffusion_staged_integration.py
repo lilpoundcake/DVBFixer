@@ -68,8 +68,13 @@ def install_minimizer(monkeypatch, good, calls, *, stage2=False, numerical=False
         else:
             selected = _structure(shift(good, "70", 0.04) if stage2 else good, "selected.pdb")
         atoms = set(kwargs["generated_atoms"]) | {r.atom for r in kwargs["observed_anchor_restraints"]}
-        return SimpleNamespace(platform="Reference", coordinates_angstrom={
-            atom: selected.atoms[atom].coordinates_angstrom for atom in atoms})
+        coordinates = {atom: selected.atoms[atom].coordinates_angstrom for atom in atoms}
+        diagnostics = ()
+        if "candidate_score" in kwargs:
+            score = kwargs["candidate_score"](coordinates)
+            diagnostics = ({"phase": "full-validator-ranking", "score": score},)
+        return SimpleNamespace(platform="Reference", coordinates_angstrom=coordinates,
+            search_diagnostics=diagnostics)
     monkeypatch.setattr("dvbfixer.model.diffusion.runner_refinement.refine_generated_region", minimize)
 
 
@@ -93,8 +98,11 @@ def test_refinement_rejects_output_outside_workspace_before_writing(tmp_path):
 
 
 @pytest.mark.parametrize("stage", ["raw", "generated-only", "generated-and-anchors", "numerical"])
-def test_runner_public_validation_and_resume_preserve_staged_custody(tmp_path, monkeypatch, stage):
+@pytest.mark.parametrize("revision", ["geometry-gated-anchors-v1", "geometry-first-bounded-anchors-v2"])
+def test_runner_public_validation_and_resume_preserve_staged_custody(tmp_path, monkeypatch, stage, revision):
     request_path, request, result, raw, good = setup_run(tmp_path, raw_bad=stage != "raw")
+    request = replace(request, backend_options=RefinementPolicy(revision=revision).backend_options())
+    request_path.write_text(request.to_json())
     calls = []
     install_minimizer(monkeypatch, good, calls, stage2=stage in {"generated-and-anchors", "numerical"},
                       numerical=stage == "numerical")
@@ -102,6 +110,8 @@ def test_runner_public_validation_and_resume_preserve_staged_custody(tmp_path, m
     expected = "generated-and-anchors" if stage == "numerical" else stage
     assert len(calls) == {"raw": 0, "generated-only": 1, "generated-and-anchors": 2}[expected]
     assert all(text == raw for text, _ in calls)
+    for _, kwargs in calls:
+        assert ("candidate_score" in kwargs) == (revision == "geometry-first-bounded-anchors-v2")
     if len(calls) == 2:
         assert calls[1][1]["observed_anchor_restraints"]
     validated = build_validated_result(request, refined, workspace=tmp_path)
@@ -117,6 +127,7 @@ def test_runner_public_validation_and_resume_preserve_staged_custody(tmp_path, m
     evidence = StagedRefinementEvidence.from_json((bundle / reference.path).read_text())
     assert evidence.selected_stage == expected
     assert (bundle / evidence.report.path).is_file()
+    assert json.loads((bundle / evidence.report.path).read_text())["policy"] == revision
     assert evidence.raw.path.startswith("raw-staged.")
     (bundle / evidence.raw.path).write_text("REMARK tampered\n")
     with pytest.raises(PublicationError, match="SHA-256|digest"):
@@ -131,6 +142,44 @@ def test_optout_never_attempts_anchor_motion(tmp_path, monkeypatch):
     assert len(calls) == 1
     validated = build_validated_result(request, refined, workspace=tmp_path)
     assert not validated.validation_summaries[0].passed
+
+
+def test_v2_search_scores_full_findings_and_projected_anchor_bounds(tmp_path, monkeypatch):
+    import numpy as np
+
+    request_path, request, result, raw, good = setup_run(tmp_path, raw_bad=True)
+    invocations = []
+
+    def minimize(text, **kwargs):
+        anchors = kwargs["observed_anchor_restraints"]
+        mobile = set(kwargs["generated_atoms"]) | {r.atom for r in anchors}
+        selected = _structure(raw if not anchors else good, "trial.pdb")
+        coordinates = {atom: np.array(selected.atoms[atom].coordinates_angstrom) for atom in mobile}
+        score = kwargs["candidate_score"]
+        if not anchors:
+            assert score(coordinates)[2] > 0
+            clean = _structure(good, "good.pdb")
+            assert score({a: clean.atoms[a].coordinates_angstrom for a in mobile}) == (0, 0, 0)
+        else:
+            assert score(coordinates) == (0, 0, 0)
+            for displacement, expected_bad in ((0.5004, 0), (0.5006, 1)):
+                moved = dict(coordinates)
+                for restraint in anchors:
+                    moved[restraint.atom] = np.array(restraint.reference_angstrom) + [displacement, 0, 0]
+                assert score(moved)[1] == expected_bad
+        invocations.append(anchors)
+        return SimpleNamespace(platform="Reference", coordinates_angstrom=coordinates, search_diagnostics=())
+
+    monkeypatch.setattr("dvbfixer.model.diffusion.runner_refinement.refine_generated_region", minimize)
+    refined = refine_runner_result(request_path, result, tmp_path / "refined", platform_name="Reference")
+    assert len(invocations) == 2
+    assert build_validated_result(request, refined, workspace=tmp_path).validation_summaries[0].passed
+    report = json.loads((tmp_path / "refined/refinement-report.json").read_text())
+    trials = [trial for trial in report["search_diagnostics"] if "coordinate_artifact" in trial]
+    assert len(trials) == 5
+    for trial in trials:
+        reference = trial["coordinate_artifact"]
+        assert hashlib.sha256((tmp_path / reference["path"]).read_bytes()).hexdigest() == reference["sha256"]
 
 
 @pytest.mark.parametrize("scenario", ["stage1", "stage2", "stage2-error", "numerical-stage1", "no-output"])
@@ -152,7 +201,7 @@ def test_rejected_publication_keeps_last_completed_processing_and_raw_evidence(t
         completed.append(selected_text)
         selected = _structure(selected_text, "processed.pdb")
         atoms = set(kwargs["generated_atoms"]) | {r.atom for r in kwargs["observed_anchor_restraints"]}
-        return SimpleNamespace(platform="Reference", coordinates_angstrom={
+        return SimpleNamespace(platform="Reference", search_diagnostics=(), coordinates_angstrom={
             atom: selected.atoms[atom].coordinates_angstrom for atom in atoms})
 
     monkeypatch.setattr("dvbfixer.model.diffusion.runner_refinement.refine_generated_region", minimize)

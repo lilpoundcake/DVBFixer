@@ -12,7 +12,7 @@ from Bio import SeqIO
 
 from dvbfixer.diagnose.report import Finding, Severity
 from dvbfixer.model.diffusion import input_preparation as preparation
-from dvbfixer.model.diffusion.contract import AtomIdentity
+from dvbfixer.model.diffusion.contract import AtomIdentity, ExplicitLink, ResidueIdentity
 from dvbfixer.model.diffusion.input_geometry import InputGeometryError, assess_input_geometry
 from dvbfixer.model.diffusion_cli import build_cli_diffusion_request
 
@@ -109,6 +109,23 @@ def test_no_minimization_or_artifacts_for_healthy_input(tmp_path, monkeypatch):
     assert not list(tmp_path.glob("dvbfixer-input-repair-*"))
 
 
+def test_legacy_input_repair_evidence_keeps_its_versioned_policy(tmp_path, monkeypatch):
+    _, source, request = _request(tmp_path)
+    _mock_damage(monkeypatch, source)
+    request, path = preparation.prepare_input(request, source, tmp_path)
+    report = json.loads((path.parent / "input-repair.json").read_text())
+    report["revision"] = preparation.LEGACY_REVISION
+    request = replace(request, backend_options=tuple(
+        replace(option, value=preparation.LEGACY_REVISION) if option.name == "input_preparation.revision" else option
+        for option in request.backend_options))
+    # A legacy report without affected explicit links remains independently
+    # auditable. This is not permission to reinterpret it as the new policy.
+    preparation.audit_prepared_input(request, source, path.read_bytes(), report)
+    report["revision"] = preparation.REVISION
+    with pytest.raises(InputGeometryError, match="original differs from request binding"):
+        preparation.audit_prepared_input(request, source, path.read_bytes(), report)
+
+
 def test_ineligible_damage_keeps_source_and_failure_report(tmp_path, monkeypatch):
     path, source, request = _request(tmp_path)
     finding = Finding(Severity.ERROR, "coincident_atoms", "A", "20", "SER", "ambiguous coincident input")
@@ -118,6 +135,59 @@ def test_ineligible_damage_keeps_source_and_failure_report(tmp_path, monkeypatch
     report = json.loads(next(tmp_path.glob("dvbfixer-input-repair-*/input-repair.json")).read_text())
     assert report["status"] == "failed"
     assert path.read_bytes() == source
+
+
+def disulfide_input():
+    # Geometry/topology admission unit control, not a physically complete protein.
+    return (b"ATOM      1  SG  CYS A   1       0.000   0.000   0.000  1.00 20.00           S  \n"
+            b"ATOM      2  SG  CYS A   2       2.050   0.000   0.000  1.00 20.00           S  \n")
+
+
+def test_measured_disulfide_is_supported_without_dropping_the_link():
+    link = ExplicitLink(AtomIdentity("A", "1", "", "SG"), AtomIdentity("A", "2", "", "SG"), "PDB")
+    request = SimpleNamespace(retained_explicit_links=(link,))
+    preparation._check_selected_links(request, disulfide_input(), {ResidueIdentity("A", "2")}, allow_disulfides=True)
+    assert request.retained_explicit_links == (link,)
+    with pytest.raises(InputGeometryError, match="refuses explicit"):
+        preparation._check_selected_links(request, disulfide_input(), {ResidueIdentity("A", "2")}, allow_disulfides=False)
+
+
+def test_far_or_non_sulfur_covalent_links_are_not_silently_reinterpreted():
+    source = disulfide_input()
+    selected = {ResidueIdentity("A", "2")}
+    link = ExplicitLink(AtomIdentity("A", "1", "", "SG"), AtomIdentity("A", "2", "", "SG"), "PDB")
+    with pytest.raises(InputGeometryError, match="unambiguous force-field disulfide"):
+        preparation._check_selected_links(SimpleNamespace(retained_explicit_links=(link,)),
+            source.replace(b"   2.050", b"   5.050"), selected, allow_disulfides=True)
+    link = ExplicitLink(AtomIdentity("A", "1", "", "SG"), AtomIdentity("A", "2", "", "CB"), "PDB")
+    source = source.replace(b"  SG  CYS A   2", b"  CB  CYS A   2")
+    with pytest.raises(InputGeometryError, match="unambiguous force-field disulfide"):
+        preparation._check_selected_links(SimpleNamespace(retained_explicit_links=(link,)), source,
+                                           selected, allow_disulfides=True)
+
+
+def test_temporary_topology_cannot_lose_or_multiply_disulfide_partners():
+    from openmm.app import Topology, element
+
+    from dvbfixer.model.diffusion.boundary_refinement import (
+        BoundaryRefinementError,
+        _disulfide_bonds_by_identity,
+        _require_disulfide_bonds,
+    )
+
+    topology = Topology()
+    chain = topology.addChain("a")
+    atoms = [topology.addAtom("SG", element.sulfur, topology.addResidue("CYS", chain, "2", insertionCode=icode))
+             for icode in ("", "A", "B")]
+    expected = {frozenset((AtomIdentity("a", "2", "", "SG"), AtomIdentity("a", "2", "A", "SG")))}
+    with pytest.raises(BoundaryRefinementError, match="lost an observed disulfide"):
+        _require_disulfide_bonds(topology, expected)
+    topology.addBond(atoms[0], atoms[1])
+    assert _disulfide_bonds_by_identity(topology) == expected
+    _require_disulfide_bonds(topology, expected)
+    topology.addBond(atoms[0], atoms[2])
+    with pytest.raises(BoundaryRefinementError, match="ambiguous disulfide partners"):
+        _require_disulfide_bonds(topology, expected)
 
 
 @pytest.mark.slow
