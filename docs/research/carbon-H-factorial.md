@@ -1,6 +1,6 @@
 # Carbon-H factorial: complete fixed cohort and native-capture admission
 
-Status: **admission complete; factorial outcomes not yet evaluated**. Research
+Status: **all 136 fixed H-stage replays independently audited**. Research
 only, following the [local CH₂ downstream tradeoff](ASP49-methylene-whole.md).
 No production initializer, public repair, force or threshold changes.
 
@@ -83,10 +83,107 @@ maximum **50 iterations**, original seeds 1/2 only. Enrollment budgets remain
 nm endpoint must reproduce; all callbacks/native mobile gradients, full matched
 denominators, adverse H geometry and original heavy findings must remain visible.
 
-Twenty focused enrollment/adapter/factorial tests pass, including both saved
+Twenty focused enrollment/adapter/factorial tests passed before execution, including both saved
 capture formats, case/insertion-code refusals, graph/mass/coordinate drift,
 disjoint combined construction and a native unchanged-worker control. Targeted
 Ruff passes. Independent admission regenerations agree byte-for-byte.
+
+## Complete H-stage results: no universal initialization fix
+
+All **160 entries** are retained: **136 completed and 24 inherited source
+refusals**, with no execution blockers, timeouts, retries or budget nonexecutions.
+All **34 unchanged native nm endpoints** reproduce exactly. All **14 known
+historical intersections** also reproduce exact starts/endpoints (ten protein-view
+methyl-zero controls and four 1TIM CH₂ intersections), not new independent samples.
+Every mobile-H force equals the negative original native gradient at all **6,800
+callbacks**, maximum component error **0.0 kJ/mol/nm**. Independent audits preserve
+all **7,072 initial/callback/final nodes**, H-bond and H-angle strain at every node,
+all-acute HA findings, initial/final short H-contact descriptors and all failures.
+Every nonowned start and fixed observation throughout each path remains exact.
+The [complete independent readback](carbon-H-factorial-evidence.json) preserves
+both strata and every matched cell, including the adverse descriptors below.
+
+Execution plan SHA256:
+`d136dbceb4016651f7f76e665ed18a33ab2e60ef7eade97f7e1e9670fc017b48`.
+Two independent private audits agree byte-for-byte (SHA256
+`1ecf63570b9f00e0f7f491a6fc8a08e14588d8048762ad5dffabd9a2fe0f943b`).
+Raw paths and complete callback coordinates remain under
+`tmp/pdbfixer-research/carbon-H-factorial-*`, not redistributed.
+
+### Keep the natural and reconstruction-stress denominators separate
+
+| Descriptor | Unchanged | Methyl zero | Methylene | Combined zero |
+|---|---:|---:|---:|---:|
+| Completed 1SHG stress contexts per arm | 24 | 24 | 24 | 24 |
+| Stress contexts with any all-acute callback | 3 | 4 | 4 | **2** |
+| Stress final all-acute HA atoms | 1 | **2** | **2** | **0** |
+| Completed prepared-view contexts per arm | 10 | 10 | 10 | 10 |
+| Prepared-view contexts with any all-acute callback | 1 | 0 | 0 | 0 |
+| Prepared-view final all-acute HA atoms | 1 | 0 | 0 | 0 |
+
+Prepared views are five proteins × two existing seeds, not ten proteins. All
+four arms have complete matched denominators: 24 stress and ten prepared contexts.
+The 24 refused prepared-view arm entries are not silently dropped or replaced.
+
+On the stress inputs, methyl-only initialization produces a new final inward
+HA at **LYS18 / 1SHG-THR24 / seed 1 / beta-only**. The known GLN16 final failure
+at **THR24 / seed 1 / full-generated** persists under either individual
+construction; methylene-only also produces a final GLN16 failure at seed 2 in
+that conditioning. Thus either isolated construction can worsen this narrow
+descriptor, and the old THR24-only methyl results must not be substituted for
+these all-methyl interventions.
+
+### Combined final-zero count hides transient failures and large bond strain
+
+Combined zero has no final all-acute HA in either stratum, but it does **not**
+eliminate all bad paths. In **1SHG-THR32 / seed 2**, raw/beta-only conditioning
+still has transient all-acute THR32 HA at **10 / 11 callbacks**, respectively.
+Those contexts already have transient findings in their unchanged paths; this
+is not a claim of a newly discovered native failure. More recorded adverse
+callbacks are not independently sampled failures or a continuous-time duration.
+
+Maximum final H-bond absolute deviations across each stratum are:
+
+| Stratum | Unchanged | Methyl zero | Methylene | Combined zero |
+|---|---:|---:|---:|---:|
+| 1SHG stress | 0.355954 Å | **0.726748 Å** | 0.329068 Å | **0.765795 Å** |
+| Prepared views | 0.151320 Å | 0.228145 Å | 0.159689 Å | 0.166903 Å |
+| Stress maximum final H-angle deviation | 74.305° | 71.818° | 74.336° | **61.842°** |
+| Prepared maximum final H-angle deviation | 71.533° | 72.281° | 71.256° | **43.884°** |
+
+The combined-arm bond maximum is **THR24 CG2–HG23**, length **1.855795 Å**,
+in **1SHG-THR24 / seed 1 / raw**. Its matched unchanged maximum H-bond deviation
+is only **0.090327 Å**; this is a real adverse endpoint, not an aggregate
+improvement hidden behind zero final inward HA. That raw context already has
+very poor fixed Cα geometry (volume **0.025934 Å³**), retained in admission.
+Hydrogen initialization cannot repair that fixed heavy frame, and the stress
+input must not be misrepresented as a newly healthy production structure.
+
+All final short-H-contact counts under the existing <1 Å descriptor are zero,
+but that check excludes bonded/common-neighbor pairs and therefore misses this
+badly stretched bond. Neither it, final all-acute count, global energy nor a
+fixed iteration cap establishes complete geometry or convergence. No phase,
+threshold, seed or budget is adjusted to improve the presentation.
+
+## Validation and next controlled boundary
+
+**29 focused enrollment/adapter/factorial/audit tests** pass, including saved-only
+native force readback with minimization forbidden, fixed-slot/radius drift,
+kept-H immutability, historical publication binding and full denominator retention.
+Targeted Ruff and generated CLI/GUI checks pass. The fast suite through the initial
+audit tests passes **3,032**, three optional Torch/Biotite skips and 33 slow
+deselected; the later kept-H and replay-binding tests also pass separately.
+
+Next: separately freeze **all 136 whole-system continuations**, not only the
+combined arm or favorable endpoints, retaining all 24 source refusals. Establish
+independent native baselines from the original saved full Systems/States, require
+exact unchanged starts and both native nm endpoints, and audit all global/focal
+heavy and H outcomes. The legacy Å-only historical endpoints require honest
+Å-level comparisons; do not infer original nm bytes by dividing them back.
+Keep raw/rounded volumes continuous, original-observation movement, known replay
+labels and the complete stress/prepared denominators. Use only the original two
+Reference/no-solvent phases and tenfold native positional-weight reduction before
+emergency recovery. No new seed/force/phase or accepted candidate/PDB is justified.
 
 This is H-stage research only: no new whole-system acceptance, candidate/PDB,
 native-accuracy superiority or complete geometry qualification. The original

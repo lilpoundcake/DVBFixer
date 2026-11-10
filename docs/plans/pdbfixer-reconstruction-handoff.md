@@ -59,7 +59,61 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: complete carbon-H factorial admission, before execution
+## Latest checkpoint: complete carbon-H factorial retains mixed H-stage results
+
+Admission/implementation was committed/pushed as `e316ce3`. The
+[fixed factorial](../research/carbon-H-factorial.md) and
+[independent evidence](../research/carbon-H-factorial-evidence.json) retain all 160 entries:
+136 completed, 24 inherited source refusals; no retries/blockers/timeouts/budget
+nonexecutions. All 34 unchanged native nm endpoints and all 14 known historical
+intersections reproduce exactly. All 6,800 native mobile gradients independently
+match (max component error 0.0); 7,072 initial/callback/final nodes retain H-bond
+and H-angle strain at every node, complete HA findings and fixed observations.
+Two independent private audits agree byte-for-byte.
+
+Keep strata separate. Across 24 1SHG stress contexts per arm, any all-acute callback
+cells are unchanged/methyl/CH2/combined **3/4/4/2**, final all-acute HA counts
+**1/2/2/0**. Across ten prepared-view contexts per arm (five proteins/two seeds),
+both descriptors are **1/0/0/0**. All matched denominators complete; six source/seed
+refusals stay in all four arms. Reused positive cases are NOT independent samples.
+
+Stress methyl-only creates a new LYS18 final inward HA in THR24/seed1/beta-only.
+Known GLN16 final failure in THR24/seed1/full-generated persists under either
+individual construction; CH2-only also yields final GLN16 in seed2/full-generated.
+Combined has zero final all-acute H but retains THR32 seed2 raw/beta-only transient
+findings at 10/11 callbacks. Zero endpoint count is NOT universal path repair.
+
+Severe adverse combined bond: THR24 CG2–HG23 length **1.855795 Å**, deviation
+**0.765795 Å**, THR24/seed1/raw. Matched unchanged maximum deviation **0.090327 Å**.
+That fixed heavy input already has Cα volume 0.025934 Å³, explicitly a poor-heavy
+stress context, NOT healthy production admission. Methyl-only worst deviation
+0.726748 Å (THR24/seed2/raw). Maximum final H-angle deviations are
+74.305/71.818/74.336/61.842° in stress and 71.533/72.281/71.256/43.884° in prepared
+views. Final <1 Å nonbonded-H descriptor counts are zero but miss stretched bonds.
+No geometry/convergence/whole-system safety qualification follows.
+
+Execution plan SHA
+`d136dbceb4016651f7f76e665ed18a33ab2e60ef7eade97f7e1e9670fc017b48`;
+private `carbon-H-factorial-{plan,run,audit}-01*`, second independent audit02.
+Audit SHA `1ecf63570b9f00e0f7f491a6fc8a08e14588d8048762ad5dffabd9a2fe0f943b`.
+Twenty-nine focused tests and targeted Ruff pass. Full fast suite through initial
+audit tests: 3,032 passed, three optional skips/33 slow deselected; later kept-H
+and published-replay-binding tests separately pass. Production unchanged.
+
+**Resume:** separately freeze ALL 136 whole continuations and all 24 inherited
+refusals, not combined-only or success-selected endpoints. Establish independent
+native baselines from original full System/State/integrator; exact unchanged nm
+starts and both new native endpoints required. Historical legacy Å-only endpoints
+must be compared honestly at Å level, never divided back and called original nm.
+Keep all stress/prepared strata, original-heavy movement, continuous raw/rounded
+volumes, H strain, masked heavy-target checks where already defined and every
+adverse site. Original two Reference/no-solvent/10 kJ/mol/nm/max1000 phases and
+tenfold native positional-weight reduction only, BEFORE emergency recovery.
+No new force/seed/phase, accepted candidate/PDB or production/default change.
+Original THR2 cause and empirical-table production/license approval stay open;
+continue autonomously until genuine user access, decision or authorization needed.
+
+## Preceding checkpoint: complete carbon-H factorial admission, before execution
 
 The downstream checkpoint is committed/pushed as `f32595f`; metadata-only
 [factorial enrollment](../research/carbon-H-factorial-enrollment.json) was then

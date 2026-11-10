@@ -92,3 +92,20 @@ def test_both_saved_capture_adapters_keep_exact_nm_and_ownership(tmp_path, kind)
 def test_inherited_refusal_does_not_open_any_coordinate_file():
     with pytest.raises(ValueError, match='inherited source refusal'):
         adapt(dict(status='refused_source'))
+
+
+def test_kept_H_remains_fixed_and_excluded_from_new_ownership():
+    openmm = pytest.importorskip('openmm')
+    rows, bonds, pre, points, system = fixture()
+    rows.append(dict(key=['d', '82', 'A', 'ALA', 'HB1'], element='H'))
+    points.append([.1, .3, .3])
+    pre.append(dict(rows[2], xyz=[10*x for x in points[2]]))
+    system.addParticle(0.)
+    force = next(f for f in system.getForces() if isinstance(f, openmm.HarmonicBondForce))
+    force.addBond(0, 2, .1, 1000.)
+    bonds.append([0, 2])
+    assert validate_native(rows, bonds, pre, points, points, system) == ([1], [1])
+    changed = copy.deepcopy(points)
+    changed[2][0] += 1e-10
+    with pytest.raises(ValueError, match='fixed observation'):
+        validate_native(rows, bonds, pre, points, changed, system)

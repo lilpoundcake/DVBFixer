@@ -47,7 +47,7 @@ def test_combined_is_exact_disjoint_union_not_sequential_phase_optimization():
         initialize(points, case, 'combined_zero')
 
 
-def test_native_worker_exact_control_and_immutable_observation(tmp_path):
+def test_native_worker_exact_control_and_saved_only_audit(tmp_path, monkeypatch):
     openmm = pytest.importorskip('openmm')
     from openmm.unit import nanometer
 
@@ -83,11 +83,28 @@ def test_native_worker_exact_control_and_immutable_observation(tmp_path):
     (tmp_path/'system.xml').write_text(openmm.XmlSerializer.serialize(system))
     plan = tmp_path/'plan.json'
     plan.write_text(json.dumps(dict(inputs={}, source_hashes={}, cases=[case],
-        openmm_version=openmm.__version__, policy=dict(maximum_callbacks=512))))
+        openmm_version=openmm.__version__, policy=dict(maximum_callbacks=512, arms=['unchanged']))))
     output = tmp_path/'run'
-    output.mkdir()
-    worker(plan, 0, 'unchanged', output)
-    trace = json.loads((output/'trace.json').read_bytes())
+    folder = output/'synthetic/seed-1/prepared-view/unchanged'
+    folder.mkdir(parents=True)
+    worker(plan, 0, 'unchanged', folder)
+    trace = json.loads((folder/'trace.json').read_bytes())
     assert trace['exact_original_nm_endpoint'] and not trace['production_changed']
-    path = json.loads(gzip.decompress((output/'path.json.gz').read_bytes()))
+    path = json.loads(gzip.decompress((folder/'path.json.gz').read_bytes()))
     assert path['final_nm'] == final and path['final_nm'][0] == points[0]
+    from scripts.audit_carbon_H_factorial import audit
+    from scripts.research_dunbrack_prior import sha
+
+    (output/'executed-plan.json').write_bytes(plan.read_bytes())
+    artifacts = {p.name: sha(p.read_bytes()) for p in folder.iterdir()}
+    (output/'evidence.json').write_text(json.dumps(dict(plan_sha256=sha(plan.read_bytes()), cases=[
+        dict(id='synthetic', seed=1, conditioning='prepared-view', arm='unchanged', status='completed',
+            returncode=0, artifacts=artifacts)])))
+    def forbidden(*args, **kwargs):
+        raise AssertionError('saved-only factorial audit must not minimize')
+    monkeypatch.setattr(openmm.LocalEnergyMinimizer, 'minimize', forbidden)
+    audit_path = tmp_path/'audit.json'
+    audit(plan, output, audit_path)
+    result = json.loads(audit_path.read_bytes())
+    assert result['summary']['strata']['prepared-protein-view']['arms']['unchanged']['exact_native_endpoints'] == 1
+    assert result['summary']['maximum_mobile_gradient_error_kj_mol_nm'] == 0.
