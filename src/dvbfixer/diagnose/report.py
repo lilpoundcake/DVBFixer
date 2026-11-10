@@ -75,6 +75,8 @@ _CATEGORY_HEADINGS: dict[str, str] = {
     "cis_peptide": "Chemistry / bond geometry",
     "non_planar_amide": "Chemistry / bond geometry",
     "chirality": "Chemistry / bond geometry",
+    "ca_planarity": "Chemistry / bond geometry",
+    "thr_beta_chirality": "Chemistry / bond geometry",
     "disulfide_geometry": "Chemistry / bond geometry",
     # Steric
     "clash": "Steric analysis",
@@ -107,6 +109,8 @@ _FIX_TOOL: dict[str, str] = {
     "cis_peptide": "manual: verify against reference structure",
     "non_planar_amide": "dvbfixer minimize",
     "chirality": "manual: rebuild the residue",
+    "ca_planarity": "manual: inspect geometry; no automatic repair",
+    "thr_beta_chirality": "manual: inspect THR atom identities and stereochemistry",
     "disulfide_geometry": "dvbfixer minimize",
     "clash": "dvbfixer minimize",
 }

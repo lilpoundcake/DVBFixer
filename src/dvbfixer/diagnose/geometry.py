@@ -254,6 +254,50 @@ def angle_degrees(
     return math.degrees(math.acos(max(-1.0, min(1.0, cosine))))
 
 
+@dataclass(frozen=True)
+class StereocentreGeometry:
+    """Ordered three-substituent geometry; not a general CIP assignment."""
+
+    triple_product_angstrom3: float
+    out_of_plane_degrees: float
+
+
+def stereocentre_geometry(
+    centre: Sequence[float],
+    first: Sequence[float],
+    second: Sequence[float],
+    third: Sequence[float],
+) -> StereocentreGeometry | None:
+    """Measure ``(first-centre)×(second-centre)·(third-centre)`` in Å³.
+
+    The signed angle of the third vector above the first/second plane is in
+    [-90, 90] degrees and independent of bond lengths. Return None for nonfinite
+    points, zero vectors or an ill-defined plane (sine of its angle < 0.1).
+    Callers must supply explicit ångström coordinates and chemical atom order.
+    """
+    points = tuple(_finite_point(point) for point in (centre, first, second, third))
+    origin = points[0]
+    if origin is None or any(point is None for point in points[1:]):
+        return None
+    vectors = [
+        tuple(x - y for x, y in zip(point, origin)) for point in points[1:] if point is not None
+    ]
+    lengths = [math.hypot(*vector) for vector in vectors]
+    if any(not math.isfinite(length) or length <= 1e-12 for length in lengths):
+        return None
+    a, b, c = [tuple(x / length for x in v) for v, length in zip(vectors, lengths)]
+    cross = (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+    plane_sine = math.hypot(*cross)
+    if plane_sine < 0.1:
+        return None
+    determinant = sum(x * y for x, y in zip(cross, c))
+    volume = determinant * math.prod(lengths)
+    if not math.isfinite(volume):
+        return None
+    angle = math.degrees(math.asin(max(-1.0, min(1.0, determinant / plane_sine))))
+    return StereocentreGeometry(volume, angle)
+
+
 def signed_dihedral_degrees(
     first: Sequence[float],
     second: Sequence[float],
