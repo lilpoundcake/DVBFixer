@@ -6,6 +6,10 @@ CLI/GUI capability; no higher movement limit has been adopted. P3 is unchanged.
 
 ## P2: generated-only multi-parent contract
 
+Continuation: [private publication/exact reuse and factorial symmetry analysis](portfolio-publication-and-anchor-symmetry.md)
+now cover private bundle/`.dat`, preparation custody and readback. Public product
+integration and scientific qualification remain gated.
+
 `model/diffusion/gap_portfolio.py` defines a separate
 `experimental-multiparent-gap-portfolio` kind, not a `RunnerCandidate` or a
 schema-4 sampling result. Each parent records the exact common request/source,
@@ -48,7 +52,7 @@ outcomes, including the original 1KTZ 0/5, remain unchanged.
 
 | Case | Search budget | Private outcome |
 |---|---|---|
-| 1KTZ | 64 whole-complex evaluations, beam width 4 | Multi-parent choice leaves one attributed clash; repair of only gap 7 (D131–136) yields a whole-complex geometry/custody pass |
+| 1KTZ | 64 whole-complex evaluations, beam width 4 | Multi-parent choice leaves one D136 CA–C–O angle finding (166.2°) plus its aggregate gate; repair of only gap 7 (D131–136) yields a whole-complex geometry/custody pass |
 | 1BRS | 16 evaluations maximum | Selects original seed-7 donor for both gaps; no unnecessary recombination or repair |
 | 1AHW | 32 evaluations maximum | Selects the already-valid seed-103 donor for all gaps; no invented rescue |
 | 1HE8 | 16 evaluations maximum | Still rejected with 37 actionable findings; not an exhaustive search or proof no portfolio exists |
@@ -62,6 +66,11 @@ and every observed record remain unchanged by that operation.
 The final PDB SHA-256 is
 `b66042f5d2177ed8705a4e32ab2b063c18701ebafd2a3729937c6dc72c3d211b`.
 Independent readback found no actionable geometry or admission findings.
+
+Erratum: the first narrative described the pre-local-repair remainder as a clash.
+The retained selected report always recorded a **bond-angle** finding instead.
+Only this description is corrected; selected/final bytes, lineage, recorded
+assessments and original cohort outcomes are unchanged.
 
 Evidence is retained under `tmp/gap-portfolio-p2/`: common requests/source bytes,
 five parent coordinate/trace/evidence artifacts, all beam trials and their
@@ -89,9 +98,9 @@ GUI, schema-4 bundles and their readers are unchanged.
 
 ### Remaining P2 gates
 
-- Independently qualified serialization/publication and generated-only `.dat`
-  handoff for the distinct multi-parent kind; no relabelled single-seed bundles.
-- Source-preparation custody integration in that new publication format.
+- Private serialization/publication, generated-only `.dat`, preparation custody
+  and exact reuse are implemented in the distinct kind; independent broader
+  scientific qualification remains open. No relabelled single-seed bundles.
 - A prospective multi-case evaluation with declared donor/repair budgets.
 - Explicit public/API/CLI/Homology/GUI opt-in and resource controls, if approved
   for product integration after the scientific/custody gates pass.
@@ -152,12 +161,13 @@ contribute. One lysozyme pair does not justify applying its tail to every comple
 ### Calibration gates still open
 
 - A larger predeclared experimental panel, including interfaces and more folds.
-- Symmetry-aware interpretation of chemically equivalent heavy-atom names,
-  without rewriting observations or concealing exact-name measurements.
+- Conservative FF-graph symmetry and factorial sensitivity are now implemented
+  in the [continuation](portfolio-publication-and-anchor-symmetry.md); broader
+  chemistry and prospective calibration remain open. Exact metrics are retained.
 - Density/restraint support, covalent links and meaningful contact preservation;
   contact-pair churn alone is neither damage nor validation.
-- Factorial sensitivity of backbone, Cα and sidechain limits rather than only
-  jointly increased grids, followed by independent prospective validation.
+- Independent prospective validation of the separately varied backbone, Cα and
+  sidechain grids; retrospective factorial analysis is not that validation.
 - Any adopted ceiling needs a new request-bound policy and independent audits.
   Historical limits and frozen request serialization must remain unchanged.
 

@@ -15,8 +15,17 @@ from pathlib import Path, PurePosixPath
 
 
 def main():
-    from dvbfixer.model.diffusion.contract import DiffusionRequest, RunnerResult, SamplerTrace
+    from dvbfixer.model.diffusion.contract import (
+        ArtifactReference,
+        DiffusionRequest,
+        RunnerResult,
+        SamplerTrace,
+    )
     from dvbfixer.model.diffusion.gap_portfolio import GapParent, digest, search_gap_portfolio
+    from dvbfixer.model.diffusion.private_artifact import (
+        read_private_artifact_bytes,
+        read_private_file_bytes,
+    )
     from dvbfixer.model.diffusion.refinement_evidence import (
         StagedRefinementEvidence,
         evidence_reference,
@@ -39,9 +48,15 @@ def main():
 
     (args.output / "gap_portfolio.py").write_bytes(Path(module.__file__).read_bytes())
     (args.output / "run-script.py").write_bytes(Path(__file__).read_bytes())
-    execution = args.cohort / "managed-execution"
-    job = json.loads((execution / f"{args.case}-finished-job.json").read_text())
+    cohort_root = args.cohort.resolve(strict=True)
+    cohort_index = json.loads(read_private_file_bytes(cohort_root, "cohort-final-outcomes.json", max_bytes=1_000_000))
+    retained_case = next(row for row in cohort_index["rows"] if row["pdb"] == args.case)
+    job_reference = ArtifactReference(retained_case["job_record"], retained_case["job_record_sha256"])
+    job = json.loads(read_private_artifact_bytes(cohort_root, job_reference, max_bytes=16_000_000))
+    execution = (cohort_root / job_reference.path).parent
     run = execution / "data/projects" / job["workspaceId"] / job["outputDir"]
+    if not run.resolve(strict=True).is_relative_to(execution):
+        raise ValueError("retained case run escapes its execution root")
     manifest = {r["file"]: r for r in json.loads((run / "run-summary.json").read_text())["diagnostics"]["files"]}
     parents = []
     with tarfile.open(run / "diagnostics.tar.gz", "r:gz") as archive:

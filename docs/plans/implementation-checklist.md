@@ -11,15 +11,23 @@ See [scope, invariants and evaluation gates](diffusion-geometry-repair.md).
   pass. 1KTZ/7 remains rejected: this is not universal reconstruction/closure.
 - [ ] P2: issue-local repair scheduling and provenance-aware per-gap portfolios
   (private contract/search/refinement/audit and 1KTZ control implemented;
-  distinct public publication/`.dat`, prospective qualification and product
-  integration remain open; no public recombination capability is advertised).
+  distinct private manifest-last publication/`.dat`, source-preparation custody
+  and exact read-only resume implemented; prospective scientific qualification
+  and product integration remain open; no public recombination capability is advertised).
+- [x] Private P2 publication/readback/resume and generated-only `.dat` handoff:
+  eight completed bundles revalidated, including source-prepared 1BRS and the
+  separate corrected 1N8Z arm; 9CQD/1HE8 retained as geometry rejections.
+- [x] Repeatable fixed-budget historical ten-case workflow without new neural
+  sampling or replacement of original seed outcomes; stronger donor audit
+  revalidation recorded separately from the frozen execution.
 - [ ] P3: explicit opt-in alternative reconstruction for persistently failed
   gaps (planned only; no silent MODELLER fallback).
 - [ ] Independently calibrate observed-anchor movement ceilings; investigate
   increases without treating B factors as uncertainty radii, tuning against
   existing failures or changing historical request limits (predeclared
-  two-protein pilots executed; broader, symmetry/density/interface validation
-  and any production policy choice remain open).
+  two-protein pilots, conservative FF-graph label sensitivity and factorial
+  triplets executed; broader chemistry/density/interface and prospective
+  validation and any production policy choice remain open).
 
 ## Installer workflow and progress follow-up (2026-11-05)
 

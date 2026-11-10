@@ -128,8 +128,10 @@ testing were not rerun for this Python-only numerical change.
 2026-11-10 continuation: a separate private multi-parent contract, bounded beam,
 issue-local generated-only refinement and independent lineage/mobility audit
 are implemented. A retained 1KTZ portfolio plus D131–136-only repair passed full
-geometry/custody; the original 0/5 remains unchanged. Public bundle/`.dat` and
-CLI/Homology/GUI integration remain open. See the
+geometry/custody; the original 0/5 remains unchanged. Separate private manifest-last
+bundle/`.dat`, preparation custody and exact read-only resume are now implemented;
+public scientific qualification and CLI/Homology/GUI integration remain open.
+See the [publication/calibration continuation](../research/portfolio-publication-and-anchor-symmetry.md) and
 [evidence and remaining gates](../research/gap-portfolios-and-anchor-calibration.md).
 
 The 1KTZ retained stage-1 reports contain at least one locally clean option for
@@ -172,6 +174,9 @@ reported separately. Initial 1LYZ has source defects and is retained as a QC
 warning; a separately declared 1AKI/193L control followed. These two-protein
 methodological pilots do not establish a production ceiling. See the
 [measurements and limitations](../research/gap-portfolios-and-anchor-calibration.md).
+Conservative symmetry-sensitive measurements and 36 factorial triplets have
+since executed without changing limits; exact metrics and source-QC flags remain
+visible in the [continuation](../research/portfolio-publication-and-anchor-symmetry.md).
 
 The current per-anchor limits—backbone RMSD 0.5 Å, Cα displacement 0.5 Å, maximum
 heavy-atom displacement 1.25 Å—are engineering bounds, not measurements of
