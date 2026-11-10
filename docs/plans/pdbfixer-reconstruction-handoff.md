@@ -59,7 +59,46 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: energy-selected rigid methyl rotation is negative
+## Latest checkpoint: tetrahedral methyl H-stage control avoids the inward endpoint
+
+The negative rigid-control checkpoint was committed/pushed as `21d68b1`.
+[Tetrahedral H-stage evidence](../research/tetra-methyl-control-evidence.json) and
+[note](../research/tetra-methyl-control.md) execute all 72 declared cells:
+24 original starts × unchanged / fixed-phase canonical / initial-energy-selected
+canonical methyl. All complete. All 24 unchanged endpoints exactly reproduce.
+Every nonmethyl initial coordinate and heavy coordinate at all 3,600 callbacks
+is exact; mobile-H forces equal negative native gradients with error 0.0.
+
+Original C–H radii stay fixed; only THR24 HG21/HG22/HG23 get canonical 109.471°
+angular geometry in a fixed CB/CG2/CA frame. Native original Reference / tolerance
+1.0 / max 50 iterations and all forces/masses remain unchanged. Canonical phase
+zero is independent of a 24-phase initial-energy-selected arm (0–345°, 15° grid,
+same frozen tie rule). No new seed/H/force/exclusion or whole-system minimization
+in this H-stage experiment. Plan SHA256
+`97d88724b5f984f87512d500357ff2b8c4096c62590c5d4b3198340e0cfd2102`;
+private `tmp/pdbfixer-research/tetra-methyl-{plan,run}-01*`.
+
+Any-inward callbacks: 2/24 unchanged, 1/24 fixed phase, 0/24 energy-selected.
+Any/final all-acute: 1/24 unchanged, 0/24 in either canonical arm. Retain the
+fixed-phase transient crossing. Focal selected phase is 30°; initial HA nonbonded
+outward force reduces −56105.474→−13734.044 kJ/mol/nm. This narrow positive result
+does NOT qualify complete H geometry: focal final CA–HA is 0.971753 Å (about
+0.118 Å compressed vs FF reference), with N/CB/C-to-HA angles
+103.584/89.102/129.787°. Initial callback bond compression also remains severe.
+
+Sixteen new focused tests and Ruff pass; full fast suite through H stage:
+**2,896 passed**, three optional Torch/Biotite skips and 33 slow deselected.
+Independent publications regenerate byte-identically. Production is unchanged.
+
+Autonomous continuation has separately preflighted the original post-H repair
+bridge: all 24 original whole-system starts reproduce EXACTLY in nm, not merely
+rounded Å. A whole-system control for all 72 H outputs has its own frozen plan
+and raw/audit artifacts under `tmp/pdbfixer-research/methyl-whole-*-01*`; do not
+infer its acceptance from this H-stage count. Transport and whole-system code
+have separate focused tests. Old original THR2 cause, remaining target failures,
+broader chemistry/platform qualification and licensed-table approval stay open.
+
+## Preceding checkpoint: energy-selected rigid methyl rotation is negative
 
 Following `c41dfcc`, the [rigid methyl-start control](../research/methyl-start-control.md)
 and [complete evidence](../research/methyl-start-control-evidence.json) execute

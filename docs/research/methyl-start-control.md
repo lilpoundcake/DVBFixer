@@ -82,10 +82,15 @@ its environment-dependent orientation, **not** replacement with a canonical
 tetrahedral H arrangement. It cannot be reinterpreted as rejection or acceptance
 of that separate construction.
 
-The next separate prospective control will compare unchanged, fixed-phase
-tetrahedral and initial-energy-selected tetrahedral methyl starts, with the same
-original C–H radii and no other initial coordinate changes. It must freeze all
-angles, phase/tie rules, budgets and matched cases before execution. Do not tune
+The subsequent [tetrahedral control](tetra-methyl-control.md) now executes all 72
+predeclared cells. Both canonical arms avoid the retained final all-acute HA,
+but compressed bonds and distorted H angles remain in the H-only endpoints.
+This is not complete H or whole-system acceptance.
+
+The separately declared next control compared unchanged, fixed-phase
+tetrahedral and initial-energy-selected starts, with the same original C–H radii
+and no other initial coordinate changes, freezing all angles/phase/tie rules,
+budgets and matched cases before execution. Do not tune
 the existing grid, pick successful seeds, silently modify the force field or
 promote a neighboring-HA rewrite into production.
 
