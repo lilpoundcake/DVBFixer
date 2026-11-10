@@ -59,7 +59,53 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: source-diverse whole phases retain ASP49 flattening
+## Latest checkpoint: delayed ASP49 inward paths implicate nonmethyl H contacts
+
+The diverse downstream checkpoint was committed/pushed as `bfd0b84`. The
+[saved-only ASP49 attribution](../research/graph-methyl-ASP49-attribution.md) and
+[independent evidence](../research/graph-methyl-ASP49-attribution-evidence.json)
+retain ALL three 1TIM arms × seeds1/2: six contexts, 312 nodes, 1,172,184 exact pair
+observations. No new minimization/integration/H/seed, force/exclusion edits or
+native error score. Analytic 3D sums close to original native NonbondedForce with
+max component error 1.048e−9 kJ/mol/nm; summed force groups also match original
+callback gradients (max 5.821e−11). All raw pairs stay private/checksummed.
+
+Initial seed-1 HA nonbonded outward forces are +16.424/+17.077/+18.744 in
+unchanged/zero/selected, with same bond +2538.318 and angle +119.911 contributions.
+There is NO large initial inward impulse like earlier 1SHG. Seed-1 first negative
+outward cosines occur only at callbacks11/12 (unchanged/selected), zero never.
+Unchanged callback10: LEU48 HB2 at1.240141 Å gives −145750.713 outward projection,
+almost all LJ (−145715.849), versus all methyl H together only−29.343. The native
+graph makes HB2 a methylene H (CB bonded CA/CG/HB2/HB3), untouched initially by
+the methyl-only arms. Selected callback11: same HB2 at1.146865 Å gives−416822.384.
+After crossing, dominant pairs change; retain every node, not a single-pair story.
+
+Selected seed2 has an additional transient inward path at callbacks26–30, final
+outward cosine+0.984010. ILE86 HD13 methyl-H dominates before that crossing, then
+ASP49 CG; positive total outward force at crossing cautions against interpreting
+a quasi-Newton/line-search path as one instantaneous scalar-force direction.
+All six matched trajectories retained. This is exact attribution, NOT controlled
+pair ablation or proof of original THR2 cause/production repair.
+
+Attribution plan SHA256
+`b7273ab667e61c394fb9717516d41ea7d3ca6b5f6adfc13c95e3f594e858c1e2`;
+private `graph-methyl-ASP49-attribution-{plan,run,audit}-01*`. Six focused tests and
+Ruff pass; independent publications byte-identical. Latest full fast suite through
+this attribution checkpoint: 2,978 passed, three optional skips/33 slow deselected.
+Production/defaults/thresholds untouched.
+
+**Resume:** separately freeze a prospective initial-condition control on the TWO
+generated LEU48 CB H, with all three existing source arms and both seeds. Compare
+unchanged/local canonical CH2/all-carbon canonical CH2 under original Reference/
+1.0/50 physics. Deterministic observed-heavy-plane construction and name-ordered
+slot assignment, preserve each original C–H radius and every nonowned coordinate;
+refuse undefined/infeasible frames, no energy/native-based slot selection. Keep
+all controls and adverse outcomes; no iteration/seed tuning or production path.
+Original unforced 1CRN THR2 Cβ causality and empirical-table production provenance/
+license/approval remain unresolved. Continue autonomously until genuine user
+access, decision or authorization is needed.
+
+## Preceding checkpoint: source-diverse whole phases retain ASP49 flattening
 
 The graph H-stage checkpoint was committed/pushed as `8ceab31`. The
 [downstream note](../research/graph-methyl-whole.md),

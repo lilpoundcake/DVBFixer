@@ -117,9 +117,16 @@ baseline integration passes **2,969 tests**, three optional Torch/Biotite skips 
 33 slow deselected; later audit tests are separately exercised. Independent
 evidence publications regenerate byte-identically.
 
-Next: a separately frozen **saved-only** attribution of the 1TIM ASP49 H paths,
-including all three arms and both existing seeds, can distinguish the original
-environmental impulses without more minimizer/phase/seed search. Retain adverse
+The subsequent [saved-only force/pair attribution](graph-methyl-ASP49-attribution.md)
+now covers all six matched paths and 1,172,184 pair observations. Seed-1 inward
+crossings are delayed until callbacks 11/12 and are preceded by strong LEU48 HB2
+methylene-H repulsion, not the initial methyl-H impulse seen in 1SHG. Selected
+seed 2 also has a retained transient inward path despite an outward endpoint.
+This is exact attribution, not a controlled pair-causality experiment.
+
+The next step declared here was a separately frozen **saved-only** attribution
+of all three arms and both existing seeds without more minimizer/phase/seed search.
+Retain adverse
 cases and source-bound physics; do not integrate this initializer into production.
 Original THR2 causality and empirical-library production provenance/license/
 approval remain separate unresolved gates.
