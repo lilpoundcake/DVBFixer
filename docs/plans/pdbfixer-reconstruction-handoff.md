@@ -59,7 +59,58 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: delayed ASP49 inward paths implicate nonmethyl H contacts
+## Latest checkpoint: two-H CH2 control rescues ASP49 but creates distant ALA151 failure
+
+Saved-only attribution was committed/pushed as `8225b95`. The subsequent
+[prospective methylene control](../research/ASP49-methylene-control.md) and
+[full evidence](../research/ASP49-methylene-control-evidence.json) execute all
+18 cells: all six 1TIM source contexts × unchanged/local LEU48 CH2/all-carbon CH2.
+No retries, blockers, timeouts or budget nonexecutions. All six unchanged nm
+endpoints exactly reproduce their prior methyl-source-arm endpoints. All nonowned
+initial coordinates and fixed trajectory atoms remain exact; mobile-H forces
+equal negative native gradients at all 900 callbacks (max error 0.0), 936 nodes.
+
+Only newly mobile carbon H are owned. Local changes just LEU48 HB2/HB3 initially;
+all-carbon changes 620 H at 310 CH2 parents. Lexicographic heavy neighbors define
+bisector/normal, H directions a*b +/-sqrt(1-a²)*n with a=-1/(3*cos(theta/2)); first
+lexicographic H takes +normal. Original H radii and all heavy geometry stay fixed;
+each H-heavy cosine is -1/3, but H-H is IMPLIED by the actual heavy angle, not
+independently idealized. Undefined/collinear/infeasible frames refuse, no fallback,
+phase/label/energy/native search. Same original Reference/tolerance 1.0/max 50.
+
+Any focal ASP49 inward callbacks: unchanged 3/6, local 0/6, all-carbon 0/6. Final
+focal inward: 2/6, 0/6, 0/6. Final GLOBAL all-acute HA count: 2/1/0. New local-arm
+failure: seed 2/graph-tetrahedral-zero source -> ALA151 HA, N/C/CB-to-HA
+63.558/87.155/71.232°, radius 1.073012 Å. Original LEU48 CA/CB are 27.429/26.700 Å
+from ALA151 CA; newly placed H are 26.450/25.783 Å from ALA151 HA, beyond native
+10 Å cutoff without pair exceptions. No direct initial local-pair force there;
+indirect environment vs global optimizer history is NOT isolated by this result.
+Preserve distant regression, not just the rescued focal HA.
+
+Large final H strain persists: maxima across arms ~72.281/70.937/71.256° and
+H-bond deviations up to 0.228/0.195/0.167 Å. Seed 1/unchanged methyl source H-angle
+maximum worsens 52.365→70.160/71.256 under local/all-carbon. Neither narrow positive
+HA descriptor nor all-carbon's zero final all-acute count qualifies full H geometry.
+No heavy atoms move in H stage, so downstream CA behavior remains separate.
+
+Plan SHA256 `36131c49174fb83ef637b908ba4d8bd2399a11dbf3ac28ffbca85d0673b4f74f`;
+private `ASP49-methylene-control-{plan,run,audit}-01*`. Twenty-two focused tests
+and Ruff pass. Full fast suite through initial control/audit: 2,999 passed, three
+optional skips/33 slow deselected; later explicit implied-H-H test separately
+passes. Independent publications byte-identical. Production/defaults untouched.
+
+**Resume:** separately freeze whole native-phase continuation for ALL 18 outputs,
+requiring all six unchanged starts AND both endpoints to match the corresponding
+previous 1TIM/methyl-source-arm whole trajectories exactly. Reuse native H-label
+repair/object-index bridge and original Systems/anchors/Reference/no-solvent/
+10 kJ/mol/nm/max 1,000 per phase/tenfold phase-2 restraint reduction. Report ASP49,
+ALA151, all global volumes and H strain plus original-heavy movement. No emergency
+safety-net execution in this pre-recovery research comparison; no candidate/PDB.
+Retain every adverse state, no favorable source/seed/phase choice. Original unforced
+THR2 cause, broad qualification and empirical-table production/license approval
+remain unresolved; continue until genuine user input is required.
+
+## Preceding checkpoint: delayed ASP49 inward paths implicate nonmethyl H contacts
 
 The diverse downstream checkpoint was committed/pushed as `bfd0b84`. The
 [saved-only ASP49 attribution](../research/graph-methyl-ASP49-attribution.md) and

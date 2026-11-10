@@ -100,6 +100,13 @@ weight-only causality, an ablation, or a convergence certificate at the fixed
 
 ## Next controlled boundary
 
+The subsequent [prospective CH₂ control](ASP49-methylene-control.md) now completes
+all 18 cells: local placement of only LEU48 HB2/HB3 prevents every recorded ASP49
+inward path, with exact matched controls. But it also creates a new all-acute HA
+at ALA151 in one context, about 27 Å away. All-carbon CH₂ has no final all-acute
+HA but retains substantial H strain. This is controlled support for a local
+initial-condition mechanism, not general repair safety or a unique pair cause.
+
 A separate prospective initial-condition control can test canonical geometry of
 the **two generated LEU48 CB hydrogens**, leaving ASP49 HA, all heavy atoms, other
 H and every force unchanged. Include all three existing source arms and both
