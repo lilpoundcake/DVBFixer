@@ -59,7 +59,39 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: complete carbon-H factorial retains mixed H-stage results
+## Latest checkpoint: all-context whole protocol and exact transport admitted
+
+Complete H-stage factorial results were committed/pushed as `9a192b9`. The
+[whole protocol](../research/carbon-H-whole.md) and
+[preflight](../research/carbon-H-whole-preflight.json) retain all 40 original
+contexts, 34 independent native baselines and all 136 continuations plus 24
+inherited refused arm entries. All 34 original native whole starts preflight
+exactly in nm after unchanged H-label repair/object-index transport; mapped bond
+graphs agree. No whole native-phase outcomes evaluated at this checkpoint.
+
+Original full Systems/States/integrators/anchors, Reference/no-solvent/10 kJ/mol/nm/
+max 1,000 iterations per phase; only original phase-2 positional weights divided ten.
+Baseline native Simulation calls precede corresponding direct continuations.
+Require all 34 unchanged starts and both independent native nm endpoints exact,
+all phase Systems equal. Old legacy historical endpoints are Å-only snapshots:
+compare actual new baseline nm→Å output honestly in Å, never divide old Å back
+and call it original nm. Existing masked target checks remain separate from
+global volume descriptors; all original-heavy movement/H strain/adverse sites
+and source strata are required, no success-selected subset.
+
+Whole plan SHA `6dac11974efad016509db0d3482b7e3f0bcbe4f46072d3e383f72bfa858a5a11`;
+private `carbon-H-whole-plan-01.json`. Budgets 1,800 s/cell, 7,200 s baseline batch,
+21,600 s continuation batch, no retry. Four focused baseline/precision/transport
+tests and Ruff pass. Production/defaults/safety net unchanged, no public PDB.
+
+**Resume:** execute 34 independent native baselines first; any blocker prevents
+arm continuations. Then execute/audit ALL 136 arms and retain 24 refusals. Do not
+turn narrow H-stage positives into heavy-geometry qualification. This remains two
+phases BEFORE emergency repair, no reflection/observation restore. Original
+unforced THR2 cause and empirical-table production/license approval remain open;
+continue until genuine user access, decision or authorization is needed.
+
+## Preceding checkpoint: complete carbon-H factorial retains mixed H-stage results
 
 Admission/implementation was committed/pushed as `e316ce3`. The
 [fixed factorial](../research/carbon-H-factorial.md) and

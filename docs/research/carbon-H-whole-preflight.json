@@ -1,0 +1,499 @@
+{
+  "cases": [
+    {
+      "conditioning": "raw",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL9",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "beta_only",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL9",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "full_generated",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL9",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "raw",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL9",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "beta_only",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL9",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "full_generated",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL9",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "raw",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL23",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 2
+      }
+    },
+    {
+      "conditioning": "beta_only",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL23",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 2
+      }
+    },
+    {
+      "conditioning": "full_generated",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL23",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 2
+      }
+    },
+    {
+      "conditioning": "raw",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL23",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 2
+      }
+    },
+    {
+      "conditioning": "beta_only",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL23",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 2
+      }
+    },
+    {
+      "conditioning": "full_generated",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-VAL23",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 2
+      }
+    },
+    {
+      "conditioning": "raw",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR24",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "beta_only",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR24",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "full_generated",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR24",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "raw",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR24",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "beta_only",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR24",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "full_generated",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR24",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "raw",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR32",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 2
+      }
+    },
+    {
+      "conditioning": "beta_only",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR32",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "full_generated",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR32",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "raw",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR32",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 4
+      }
+    },
+    {
+      "conditioning": "beta_only",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR32",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 3
+      }
+    },
+    {
+      "conditioning": "full_generated",
+      "context_kind": "geometry-reconstruction-stress",
+      "id": "1SHG-THR32",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1CRN",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1CRN",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1CTF",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1CTF",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1TIM",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 17
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1TIM",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 15
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1UBQ",
+      "seed": 1,
+      "status": "refused_source"
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1UBQ",
+      "seed": 2,
+      "status": "refused_source"
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1EMV",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1EMV",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1FR2",
+      "seed": 1,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "1FR2",
+      "seed": 2,
+      "status": "admitted",
+      "whole_preflight": {
+        "exact_original_nm_start": true,
+        "native_bond_mapping_exact": true,
+        "post_H_repairs": 0
+      }
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "2VLN",
+      "seed": 1,
+      "status": "refused_source"
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "2VLN",
+      "seed": 2,
+      "status": "refused_source"
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "2VLQ",
+      "seed": 1,
+      "status": "refused_source"
+    },
+    {
+      "conditioning": "prepared-view",
+      "context_kind": "prepared-protein-view",
+      "id": "2VLQ",
+      "seed": 2,
+      "status": "refused_source"
+    }
+  ],
+  "plan_sha256": "6dac11974efad016509db0d3482b7e3f0bcbe4f46072d3e383f72bfa858a5a11",
+  "policy": {
+    "arms": [
+      "unchanged",
+      "all_methyl_zero",
+      "all_methylene",
+      "combined_zero"
+    ],
+    "audit": "exact unchanged starts and both independent native nm endpoints, honest legacy historical Angstrom readback; all raw/rounded global/focal shapes, existing masked target gate, H strain and original-heavy movement",
+    "baseline": "independent native Simulation.minimizeEnergy from original saved State/System/integrator, both nm endpoints retained before any arm continuation",
+    "baseline_cells": 34,
+    "baseline_total_seconds": 7200,
+    "bridge": "native H-label repair once then captured object-index map; original34 nm starts all exact; no alias guessing/observation restore",
+    "continuation_cells": 136,
+    "continuation_total_seconds": 21600,
+    "enrollment": "ALL40 original contexts, all four factorial arms, complete source refusals; no new seed/retry/success-selected subset",
+    "inherited_refused_arm_cells": 24,
+    "limits": "two native phases BEFORE emergency recovery; no reflection, native-accuracy score, new force/phase/H/seed/budget tuning or public candidate/PDB/production qualification",
+    "maximum_iterations_per_phase": 1000,
+    "no_solvent": true,
+    "per_cell_seconds": 1800,
+    "physics": "original full no-solvent Systems, forces and anchors; only original tenfold positional-weight reduction in phase2",
+    "platform": "Reference",
+    "tolerance_kj_mol_nm": 10.0
+  },
+  "production_changed": false,
+  "publication_script_sha256": "464e78f83b9a0c1e8f0c51bb0b7dacde11d1e67c3e9ec20e1bc9b12adf4f9d09",
+  "schema": "dvbfixer.carbon-H-whole-preflight.v1",
+  "scientific_qualification": false,
+  "source_hashes": {
+    "scripts/admit_carbon_H_factorial.py": "31649574aaefa706d9f2c1496f15eff90dbf3a58c7470d22d16d47f6cb5863f9",
+    "scripts/audit_graph_methyl_whole.py": "84fc4de980c7f76c647e4c392e4c71445cd3711103185125e35339e5e3fc42b1",
+    "scripts/carbon_H_capture_adapter.py": "2ff0575365179e7b5c81a955ab43270f1257863f4f573dfd9eca5569b61daa4f",
+    "scripts/enroll_carbon_H_factorial.py": "c436ab070c7a56d23befa94b5be10f4d931f9da08ba7824c3cc0237c990ef1df",
+    "scripts/graph_methyl_geometry.py": "98d382156c4a873541d8bc0adcb7de29cd35b1cc37907a5c6ad0832c4f52c388",
+    "scripts/preflight_graph_methyl_transport.py": "418c06d321c5b379fd2fbc38a1cee7518b3edceb74ae64799441db70a5d66fb7",
+    "scripts/research_beta_wall.py": "2b19eafa3788f8aaa58c051a49da5ac52f797447a065ae504279e847bb69a287",
+    "scripts/research_carbon_H_factorial.py": "f1e9d1ec5eee274bbbb26685b6100a0fa918683dd723fc3e7a4a707762bbde37",
+    "scripts/research_carbon_H_whole.py": "6a8d79de9002d1698c485072de76c158fd7ac82b4c957c87280f839c0e6d6a0a",
+    "scripts/research_h_stage_transport.py": "8d3c368c33c5f057fb070912753c820f014676bc1631d75755582413123136a6",
+    "scripts/research_ha_minimizer_path.py": "3a85fcbc64a2a4e5c0dcc841ed989e46b6be89c41008f0779a97cc18d75b1fbd",
+    "scripts/research_methylene_geometry.py": "4144d2afc9c33c493b22a882a1119280b7972c025fd72962cedd78e1e4af06a7",
+    "src/dvbfixer/ffutils/geometry.py": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c"
+  },
+  "whole_minimization_executed": false
+}

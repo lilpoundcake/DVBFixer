@@ -174,6 +174,9 @@ Targeted Ruff and generated CLI/GUI checks pass. The fast suite through the init
 audit tests passes **3,032**, three optional Torch/Biotite skips and 33 slow
 deselected; the later kept-H and replay-binding tests also pass separately.
 
+The [separately frozen whole-phase protocol](carbon-H-whole.md) now admits all
+34 exact native starts before execution; no downstream result is inferred here.
+
 Next: separately freeze **all 136 whole-system continuations**, not only the
 combined arm or favorable endpoints, retaining all 24 source refusals. Establish
 independent native baselines from the original saved full Systems/States, require
