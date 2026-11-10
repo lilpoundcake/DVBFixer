@@ -109,9 +109,11 @@ angle/HA set passes 40 tests; targeted Ruff passes. The full fast suite passes
 deselected. Agent-map and generated CLI/GUI checks pass. This remains Reference-only research,
 not a slow-suite, platform, protein-diversity or production qualification.
 
-Next: trace the existing H-placement stage's local starting/ending geometry with
-its original settings and unchanged observations, rather than installing this
-one-H construction as a fix. Keep that provenance question distinct from the
+The subsequent [original H-placement trace](ha-placement-trace.md) now reproduces
+all 24 original H endpoints exactly: the known HA starts all-obtuse and becomes
+all-acute during native H-only minimization, with existing heavy atoms immobile.
+This localizes the upstream stage; it does not justify installing this one-H
+construction as a fix. Keep that provenance question distinct from the
 still-unreproduced original THR2 event and the remaining THR Cα failures. The
 licensed rotamer-table production gate and disabled public repair capability
 remain unchanged.

@@ -1,0 +1,1888 @@
+{
+  "audit_script_sha256": "aa8c24b4c0ea876b0adfb85b422d0456732e6f610cee98e5fb9a0b3c4007ac64",
+  "cases": [
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.8239000363902291,
+          "rms_angstrom": 0.8720826998742541
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0902278186147958,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.8239623975252,
+          "CB": 106.70026989934864,
+          "N": 110.2994826956122
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL9",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "raw",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.8239000363902291,
+          "rms_angstrom": 0.8720826998742541
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0902278186147958,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.8239623975252,
+          "CB": 106.70026989934864,
+          "N": 110.2994826956122
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL9",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "beta_only",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.8239000363902291,
+          "rms_angstrom": 0.8720826998742541
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0902278186147958,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.8239623975252,
+          "CB": 106.70026989934864,
+          "N": 110.2994826956122
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL9",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "full_generated",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.6994858109426065,
+          "rms_angstrom": 0.8731993499356999
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0863585021681341,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.324411557205,
+          "CB": 106.77661905293154,
+          "N": 110.7363330749235
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL9",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "raw",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.6994858109426065,
+          "rms_angstrom": 0.8731993499356999
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0863585021681341,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.324411557205,
+          "CB": 106.77661905293154,
+          "N": 110.7363330749235
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL9",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "beta_only",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.6994858109426065,
+          "rms_angstrom": 0.8731993499356999
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0863585021681341,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.324411557205,
+          "CB": 106.77661905293154,
+          "N": 110.7363330749235
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL9",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "full_generated",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.550950070719208,
+          "rms_angstrom": 0.8749366293814407
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.090358955695665,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.87166883508316,
+          "CB": 106.71617668388232,
+          "N": 110.23387791708902
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL23",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "raw",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.550950070719208,
+          "rms_angstrom": 0.8749366293814407
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.090358955695665,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.87166883508316,
+          "CB": 106.71617668388232,
+          "N": 110.23387791708902
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL23",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "beta_only",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.550950070719208,
+          "rms_angstrom": 0.8749366293814407
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.090358955695665,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.87166883508316,
+          "CB": 106.71617668388232,
+          "N": 110.23387791708902
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL23",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "full_generated",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.5193740149414243,
+          "rms_angstrom": 0.8721480669187802
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0864615633785737,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.38588379994381,
+          "CB": 106.67647693572978,
+          "N": 110.77539168687882
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL23",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "raw",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.5193740149414243,
+          "rms_angstrom": 0.8721480669187802
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0864615633785737,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.38588379994381,
+          "CB": 106.67647693572978,
+          "N": 110.77539168687882
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL23",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "beta_only",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.5193740149414243,
+          "rms_angstrom": 0.8721480669187802
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0864615633785737,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.38588379994381,
+          "CB": 106.67647693572978,
+          "N": 110.77539168687882
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-VAL23",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "full_generated",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.546350810100438,
+          "rms_angstrom": 0.8735695982421116
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0587857835909218,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 125.14263175289551,
+          "CB": 83.31434948488373,
+          "N": 113.11979515320174
+        }
+      },
+      "final_descriptor": "mixed_or_boundary",
+      "id": "1SHG-THR24",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "raw",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.884824457826078,
+          "rms_angstrom": 0.871460892093249
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0640097699470945,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 122.00223852033794,
+          "CB": 82.02645278598865,
+          "N": 117.28130317307985
+        }
+      },
+      "final_descriptor": "mixed_or_boundary",
+      "id": "1SHG-THR24",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "beta_only",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 2.053568964331393,
+          "rms_angstrom": 0.8786788623363802
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0762216304280807,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 78.22765394355635,
+          "CB": 72.74820939646861,
+          "N": 64.20657905280753
+        }
+      },
+      "final_descriptor": "all_acute",
+      "id": "1SHG-THR24",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "full_generated",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.5684667141524191,
+          "rms_angstrom": 0.8754253147488792
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.058481383920657,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 124.93151794886059,
+          "CB": 83.2285319216752,
+          "N": 113.4011109896357
+        }
+      },
+      "final_descriptor": "mixed_or_boundary",
+      "id": "1SHG-THR24",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "raw",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.8643072540185526,
+          "rms_angstrom": 0.876639012803349
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0502752200710634,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 120.36394771837607,
+          "CB": 82.96367404007613,
+          "N": 118.31129910875188
+        }
+      },
+      "final_descriptor": "mixed_or_boundary",
+      "id": "1SHG-THR24",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "beta_only",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.5211703183294583,
+          "rms_angstrom": 0.8696168931164929
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 0.9750609669773308,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 129.4438959273878,
+          "CB": 88.24837823532862,
+          "N": 104.69499041895108
+        }
+      },
+      "final_descriptor": "mixed_or_boundary",
+      "id": "1SHG-THR24",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "full_generated",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.6293004007205347,
+          "rms_angstrom": 0.8739606669806488
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0863235898921673,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.38854278437738,
+          "CB": 107.08198771723384,
+          "N": 110.35774284490915
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-THR32",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "raw",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.568786230487439,
+          "rms_angstrom": 0.8728191235919596
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0856998177089046,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.31619138358329,
+          "CB": 107.11282119628304,
+          "N": 110.40066330551252
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-THR32",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "beta_only",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.5517236530644334,
+          "rms_angstrom": 0.8738162728663428
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0907626802530337,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.86100138742249,
+          "CB": 106.66344686806723,
+          "N": 110.29888832669812
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-THR32",
+      "initial": {
+        "ca_ha_distance_angstrom": 1.0000000000000004,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.54824315473552,
+          "CB": 91.4072319127316,
+          "N": 117.73400242034862
+        }
+      },
+      "initial_descriptor": "all_obtuse",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 1,
+      "source_arm": "full_generated",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.5270295207986917,
+          "rms_angstrom": 0.8739644057219813
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0864835303331628,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.37142310755767,
+          "CB": 106.68268771596536,
+          "N": 110.78391996619433
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-THR32",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "raw",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.5222381121759205,
+          "rms_angstrom": 0.874177464818198
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0864343452193594,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.26546856515206,
+          "CB": 106.75548438655423,
+          "N": 110.81849216240059
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-THR32",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "beta_only",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    },
+    {
+      "H_stage_motion": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": false,
+          "maximum_angstrom": 1.5223929527973885,
+          "rms_angstrom": 0.8720105252578727
+        }
+      },
+      "final": {
+        "ca_ha_distance_angstrom": 1.0864085686214788,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 107.35765302329251,
+          "CB": 106.68827219731898,
+          "N": 110.79237574595315
+        }
+      },
+      "final_descriptor": "all_obtuse",
+      "id": "1SHG-THR32",
+      "initial": {
+        "ca_ha_distance_angstrom": 0.9999999999999999,
+        "ca_volume_angstrom3": 2.528405962000006,
+        "ha_angles_degrees": {
+          "C": 114.03357673609644,
+          "CB": 89.14025631744155,
+          "N": 120.1317793470682
+        }
+      },
+      "initial_descriptor": "mixed_or_boundary",
+      "observations": {
+        "added_atoms": 483,
+        "existing_atoms": 472,
+        "existing_coordinates_exact": true
+      },
+      "original_minimizer_settings": true,
+      "original_whole_system_parameters_exact": true,
+      "returncode": 0,
+      "saved_H_endpoint_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "saved_whole_system_start_difference": {
+        "heavy": {
+          "count": 472,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 483,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "seed": 2,
+      "source_arm": "full_generated",
+      "status": "completed",
+      "whole_system_minimization_executed": false
+    }
+  ],
+  "driver_sha256": "b8df18013726ced1a307538f818b32bcef9bfcc48976af5b033d2f36dc2893f1",
+  "native_coordinates_read": false,
+  "openmm_version": "8.5.2",
+  "original_thr2_causality_resolved": false,
+  "plan_sha256": "92e057f80deb827070721c2832f4de0c96aca52ee214dedd0ef6227342be8919",
+  "production_changed": false,
+  "protocol": {
+    "cells": 24,
+    "enrollment": "ALL24 original starts and original H seeds, no new seeds or alternative placement",
+    "interpretation": "provenance of known HA only; not a repair, native-error score, force isolation, original THR2 replay or general sampling qualification",
+    "invariants": "original H endpoint, first whole-system start coordinates and System must reproduce saved originals exactly; existing atoms immobile in H System",
+    "observation": "capture existing H-only Context immediately before/after original 1.0-tolerance/50-iteration minimize; forward exact original call",
+    "per_cell_seconds": 900,
+    "stop": "expected boundary stop before full-system phase1; retain exceptions/nonexecutions distinctly",
+    "total_seconds": 3600
+  },
+  "run_sha256": "485cc16e2a2e93fca383f7b0bed91f547d257fcef5f2148648648c5cf184ccbe",
+  "schema": "dvbfixer.ha-placement-trace-audit.v1",
+  "scientific_qualification": false,
+  "summary": {
+    "enrolled": 24,
+    "exact_reproductions": 24,
+    "final_descriptors": {
+      "all_acute": 1,
+      "all_obtuse": 18,
+      "mixed_or_boundary": 5
+    },
+    "initial_descriptors": {
+      "all_obtuse": 12,
+      "mixed_or_boundary": 12
+    },
+    "statuses": {
+      "completed": 24
+    }
+  }
+}

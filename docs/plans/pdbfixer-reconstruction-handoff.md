@@ -59,7 +59,40 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: paired one-HA intervention prevents the GLN16 failure
+## Latest checkpoint: inward HA originates during native H-only minimization
+
+The paired-HA checkpoint was committed/pushed as `ae0a08c`. The next
+[original H-placement trace](../research/ha-placement-trace.md) and
+[complete evidence](../research/ha-placement-trace-evidence.json) replay all 24
+original cells against the preserved historical source. All complete; all H
+endpoints and first whole-system starts/System parameters reproduce exactly.
+Plan SHA256 `92e057f80deb827070721c2832f4de0c96aca52ee214dedd0ef6227342be8919`;
+private artifacts: `tmp/pdbfixer-research/ha-placement-{plan,run}-01*`.
+
+Observe only the existing OpenMM 8.5.2 H-only minimization (Reference, tolerance
+1.0, maximum 50 iterations), then stop before whole-system phase 1. For the known
+THR24/full-generated/seed-1 case, initial N/CB/C-to-HA angles are
+117.734/91.407/114.548° (all obtuse), ending 64.207/72.748/78.228° (all acute).
+All 472 existing heavy atoms are EXACTLY immobile. The inward HA therefore
+appears during native H-only minimization; the heavy Cα does not flatten at this
+stage. Its later full-system flattening is the separately reproduced paired
+trajectory, not an event during this heavy-fixed stage.
+
+Initial descriptors: 12 all-obtuse / 12 mixed / zero all-acute; final: 18/5/1.
+All 24 H endpoints and whole-system starts match saved originals at 0.0 Å,
+including hydrogens. No alternative H placement/settings/seed or force change,
+no full-system minimization, source rewrite, public repair or production change.
+Eight new focused tests and Ruff pass; independent publication regenerates
+byte-identically. Previous full fast suite is 2,830 passed; this increment has
+focused acceptance only, not an inferred new full-suite pass.
+
+**Resume:** separately freeze an original-H-System intermediate-step or force
+readback before identifying a microscopic force/line-search mechanism. Do not
+increase iterations or promote the one-H construction as a fix. Original 1CRN
+THR2 causality, remaining target THR Cα failures, diversity/platform qualification
+and empirical-table production/license gate remain unresolved and separate.
+
+## Preceding checkpoint: paired one-HA intervention prevents the GLN16 failure
 
 The angle-attribution checkpoint was committed/pushed as `d972aff`. The subsequent
 [paired HA-start study](../research/ha-start-control.md) and
@@ -98,7 +131,7 @@ full fast suite passed **2,830 tests**, three optional Torch/Biotite skips and
 trace `settings` key before writing a plan or running any cell; corrected before
 freezing, with historical CLI/OpenMM defaults independently read back.
 
-**Resume:** inspect the original H-placement stage's local geometry provenance
+The next step declared at this checkpoint was to inspect the original H-placement stage's local geometry provenance
 with separately frozen settings/observations, not a public HA-fix integration.
 Keep the upstream H-placement origin, remaining target THR flattening and original
 unforced THR2 event separate. Original empirical-table production/license gate
