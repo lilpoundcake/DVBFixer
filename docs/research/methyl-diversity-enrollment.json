@@ -1,0 +1,87 @@
+{
+  "inputs": {
+    "scripts/enroll_methyl_diversity.py": "e42181c7e1c98452714a96d91e2ad8d5a19c7e6e6cd4e5c91db44b2b684b0e89",
+    "scripts/prospective_independent_cohort.py": "99350c894f8a5de4e840e481bec8858a43d480805a12560ef11a45319c8652d5",
+    "src/dvbfixer/protein_completion/branched_source.py": "bc55103b387fb84b90c22007e1ceaf9225404a59b3cc753c237bd0e3b472cb06",
+    "src/dvbfixer/protein_completion/source.py": "2963f9f5b56d9d1d5af28d3dcbce034d0839aaa64d2a52a5593a4fb16a2777ed",
+    "tests/fixtures/protein_context/1TIM.pdb": "79b35b419696a1e368aad2121ae2712e46444b5978de1e86bdc286f482222cdc",
+    "tests/fixtures/protein_context/1UBQ.pdb": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+    "tests/fixtures/protein_context/independent_followup/1CTF.pdb": "d0d6bbbe48bcb09c737d06d65cd0e22f86c220b3c68fa7166449e42b43294266",
+    "tests/fixtures/protein_context/scoring_followup/1CRN.pdb": "42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811",
+    "tests/fixtures/regressions/1EMV.pdb": "b464fafe9c5c240e245328c3d348e545279b95573d8ad5334d00aaf65ee3f5e3",
+    "tests/fixtures/regressions/1FR2.pdb": "ba93115f20b5e16eddbef8d70f1de7c25971b3c1c505acbaec5fb3670acf889a",
+    "tests/fixtures/regressions/2VLN.pdb": "e29cff8ea5bf77cba8c9e45da3b9650c41076279b07a8abfff6123ef9baa4b03",
+    "tests/fixtures/regressions/2VLQ.pdb": "a1f0bc150cf6ba48b0845d14745b057dda2977986036616ba560ffb245a48e67"
+  },
+  "native_coordinates_read": false,
+  "policy": {
+    "H_seeds": [
+      1,
+      2
+    ],
+    "admission": "reuse canonical heavy-only source layout/global CA/global THR-beta checks and declared-link endpoint validation; retain every refusal, no stripping H/altloc/occupancy or crop/replacement to gain entry",
+    "angular": "canonical tetrahedral H angles, each original C-H radius; all nonmethyl initial coordinates and existing heavy atoms exact",
+    "arms": [
+      "unchanged",
+      "graph_tetrahedral_zero",
+      "graph_tetrahedral_energy_selected"
+    ],
+    "audit": "all admissions, groups, initial energy grids, callback paths, original endpoint equality and adverse geometry; broader whole-System continuation requires its own declared transport/control plan",
+    "groups": "all graph methyls: existing carbon with exactly three newly mobile H and one heavy bonded neighbor, canonical protein context; second-shell heavy frame chosen within residue first then full atom identity; no guessed frame",
+    "limits": "research-only new protein contexts, not original OpenCL THR2 replay, production default/repair, full-complex or broad chemistry qualification; 1UBQ remains an explicit known occupancy-scope control",
+    "maximum_sources": 8,
+    "ownership": "all three touched H must be absent from pre-H observations and mobile in original H System; no measured/kept H rewrite",
+    "physics": "original Reference H-only tolerance1.0/max50; no force/exclusion/mass changes, H regeneration during arms, additional seed/profile/iteration search or integration",
+    "preparation": "one legacy prepare per admitted projection, standard naming, unchanged PROPKA/Reduce/pH; PDBFixer and H placement explicitly Reference, H seed1; require resource readiness first",
+    "projection": "unchanged project_first: first coordinate model and first ATOM chain, retain exact ATOM H/altloc/occupancy/numbering and all touching LINK/SSBOND/CONECT; original bytes retained separately",
+    "replacement_sources_allowed": false,
+    "selection": "all methyls phase0 first; energy-selected arm makes exactly one pass over parent identities in lexicographic case-sensitive order; each group evaluates 0..345 by15 degrees in original System energy, retains best, no revisit or final/native scoring",
+    "source_capture": "two predeclared H seeds1,2, forced protein-H rebuild and Reference on prepared/dat; observe native H Context and first whole-System start without performing full native refinement",
+    "ties": "1e-8 kJ/mol, shortest signed canonical phase then signed angle",
+    "timing": "convenience input set fixed before graph-initializer implementation/source admission/H-control outcomes; sources previously used in other research, not blinded or temporal holdout"
+  },
+  "production_changed": false,
+  "schema": "dvbfixer.methyl-diversity-enrollment.v1",
+  "sources": [
+    {
+      "id": "1CRN",
+      "source": "tests/fixtures/protein_context/scoring_followup/1CRN.pdb",
+      "source_sha256": "42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811"
+    },
+    {
+      "id": "1CTF",
+      "source": "tests/fixtures/protein_context/independent_followup/1CTF.pdb",
+      "source_sha256": "d0d6bbbe48bcb09c737d06d65cd0e22f86c220b3c68fa7166449e42b43294266"
+    },
+    {
+      "id": "1TIM",
+      "source": "tests/fixtures/protein_context/1TIM.pdb",
+      "source_sha256": "79b35b419696a1e368aad2121ae2712e46444b5978de1e86bdc286f482222cdc"
+    },
+    {
+      "id": "1UBQ",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161"
+    },
+    {
+      "id": "1EMV",
+      "source": "tests/fixtures/regressions/1EMV.pdb",
+      "source_sha256": "b464fafe9c5c240e245328c3d348e545279b95573d8ad5334d00aaf65ee3f5e3"
+    },
+    {
+      "id": "1FR2",
+      "source": "tests/fixtures/regressions/1FR2.pdb",
+      "source_sha256": "ba93115f20b5e16eddbef8d70f1de7c25971b3c1c505acbaec5fb3670acf889a"
+    },
+    {
+      "id": "2VLN",
+      "source": "tests/fixtures/regressions/2VLN.pdb",
+      "source_sha256": "e29cff8ea5bf77cba8c9e45da3b9650c41076279b07a8abfff6123ef9baa4b03"
+    },
+    {
+      "id": "2VLQ",
+      "source": "tests/fixtures/regressions/2VLQ.pdb",
+      "source_sha256": "a1f0bc150cf6ba48b0845d14745b057dda2977986036616ba560ffb245a48e67"
+    }
+  ]
+}
