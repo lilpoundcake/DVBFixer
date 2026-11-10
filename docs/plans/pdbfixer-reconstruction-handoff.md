@@ -59,7 +59,41 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: downstream gains are limited and fixed-phase regressions remain
+## Latest checkpoint: fixed graph-methyl cohort admission and preparation
+
+The source-diverse [graph-methyl study](../research/methyl-diversity-control.md)
+has an immutable [eight-input enrollment](../research/methyl-diversity-enrollment.json),
+committed/pushed as `d43d4f5` before admission/implementation/outcomes. Enrollment
+SHA256: `716060b015b1e553ef127318e573f1b60ff7cf601d3e9fd117502e16a9a896b5`.
+These are convenience fixtures previously used in other research, not blinded or
+temporal holdout inputs. No replacement/cleanup to gain admission.
+
+[Independent admission/preparation evidence](../research/methyl-diversity-admission-evidence.json):
+1CRN/1CTF/1TIM/1EMV/1FR2 admitted and prepared once each. 1UBQ/2VLN/2VLQ refused
+with the shared combined altloc/occupancy/numbering reason. All originals and
+first-model/first-ATOM-chain projections retained; no rejected view prepared.
+Five preparations pass Reference PDBFixer/H seed1 controls, random-state/hook
+restoration, unchanged borrowed input and canonical DatRecord decoding. No
+execution blocker/timeout/budget nonexecution. Runtime PDBFixer1.12.0/OpenMM8.5.2,
+31 bound resources. This is NOT new H-control/scientific acceptance.
+
+Private source plan/projections/prepared artifacts are under
+`tmp/pdbfixer-research/methyl-diversity-*`. Nineteen focused enrollment/admission/
+preparation/audit tests and Ruff pass; independent publications byte-identical.
+Production/defaults/thresholds and all earlier adverse outcomes are unchanged.
+
+**Resume:** implement/test graph methyl geometry with actual native topology,
+newly mobile-H ownership and deterministic second-shell heavy frame. Capture
+exactly H seeds1/2 and first full-System starts, no whole minimization. Preserve
+actual index/object/bond lineage and both H/full labels through variant restoration.
+Freeze implementation and captures before evaluating all three enrolled arms.
+Selected policy canonicalizes all groups to zero then makes one lexicographic
+parent pass over 24 initial-energy phases, no revisit/native/final scoring.
+Retain every refusal/blocker; require exact unchanged endpoints and adverse
+geometry reporting. Original THR2 causality and production qualification/license
+gates remain unresolved; continue autonomously until real user input is needed.
+
+## Preceding checkpoint: downstream gains are limited and fixed-phase regressions remain
 
 The H-stage checkpoint was committed/pushed as `3e9362d`. The
 [whole-system continuation](../research/methyl-whole-control.md) and

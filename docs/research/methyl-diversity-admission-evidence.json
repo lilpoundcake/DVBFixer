@@ -1,0 +1,360 @@
+{
+  "auditor_sha256": "7e41c64c6094d5a67e8a6d1276e2687fde57d8c921fbc75a23d2b819b84f7a3b",
+  "cases": [
+    {
+      "artifacts": {
+        "input.pdb": "eab79b9a6fed4bad54583e055bf16a358287cd0bde8681adb458e2ece5a63310",
+        "prepare-controls.json": "23c5163a9fc90068fbd627952e2a7a8c62cbe5819b5b44c8c49be43199eba15e",
+        "prepared.dat": "985e1019b29b5ac04a358d7f415ffd2668dcb1d69242679fc0ebca4c627cabc6",
+        "prepared.pdb": "d92314df79e60b12bd16052e0228ed274c56f756ae4bd376d5ef8acd02dda61a",
+        "run.log": "dc7d2ab467f9c330c25e842a86ade648a333736bf326981b7abff90edd0d843b"
+      },
+      "borrowed_input_exact": true,
+      "chain": "A",
+      "controls": {
+        "H_calls": [
+          {
+            "platform": "Reference",
+            "seed": 1,
+            "state_restored": true
+          }
+        ],
+        "fixer_instances": [
+          {
+            "platform": "Reference"
+          }
+        ],
+        "hooks_restored": true,
+        "id": "1CRN",
+        "native_coordinates_read": false,
+        "plan_sha256": "e4eb1a160ffbf081d68e6666475561d74485eaea3ac9144e9c71120119a988e9"
+      },
+      "dat_added_atoms": 315,
+      "dat_added_heavy": 0,
+      "dat_variant_overrides": {
+        "A:16:": "CYX",
+        "A:26:": "CYX",
+        "A:32:": "CYX",
+        "A:3:": "CYX",
+        "A:40:": "CYX",
+        "A:4:": "CYX"
+      },
+      "id": "1CRN",
+      "prepared_coordinate_records": 642,
+      "projection_sha256": "eab79b9a6fed4bad54583e055bf16a358287cd0bde8681adb458e2ece5a63310",
+      "refusal": null,
+      "returncode": 0,
+      "source_inventory": {
+        "atoms": 327,
+        "conect_records": 6,
+        "declared_links": 3,
+        "heavy_only": true,
+        "residues": 46,
+        "scope": "shared canonical source layout, global CA/THR-beta and exact declared-link endpoint checks; not complete-complex/chemistry qualification"
+      },
+      "source_sha256": "42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811",
+      "status": "prepared"
+    },
+    {
+      "artifacts": {
+        "input.pdb": "85a8cf983d1fb739391e876e0b6505f2106c2dcdce473c6e29e8e4b983668cd4",
+        "prepare-controls.json": "9eed07246e176ba41f297c7db07be4a81ce137ddd7f708a982250017c5f1d52e",
+        "prepared.dat": "9ff16313cc12a1d6c5cb1d4f89ad2f7d8a52ae022f34b2df1cc1270528464f33",
+        "prepared.pdb": "cecea88324deb5c5ea4f71336ace01811f0538cdbe5c929a212230aabcfe1014",
+        "run.log": "0351187196b7915b8ec21835d1f09d9df30c9aafaabfd55c3b7484302a5013f6"
+      },
+      "borrowed_input_exact": true,
+      "chain": "A",
+      "controls": {
+        "H_calls": [
+          {
+            "platform": "Reference",
+            "seed": 1,
+            "state_restored": true
+          }
+        ],
+        "fixer_instances": [
+          {
+            "platform": "Reference"
+          }
+        ],
+        "hooks_restored": true,
+        "id": "1CTF",
+        "native_coordinates_read": false,
+        "plan_sha256": "e4eb1a160ffbf081d68e6666475561d74485eaea3ac9144e9c71120119a988e9"
+      },
+      "dat_added_atoms": 518,
+      "dat_added_heavy": 0,
+      "dat_variant_overrides": null,
+      "id": "1CTF",
+      "prepared_coordinate_records": 1005,
+      "projection_sha256": "85a8cf983d1fb739391e876e0b6505f2106c2dcdce473c6e29e8e4b983668cd4",
+      "refusal": null,
+      "returncode": 0,
+      "source_inventory": {
+        "atoms": 487,
+        "conect_records": 0,
+        "declared_links": 0,
+        "heavy_only": true,
+        "residues": 68,
+        "scope": "shared canonical source layout, global CA/THR-beta and exact declared-link endpoint checks; not complete-complex/chemistry qualification"
+      },
+      "source_sha256": "d0d6bbbe48bcb09c737d06d65cd0e22f86c220b3c68fa7166449e42b43294266",
+      "status": "prepared"
+    },
+    {
+      "artifacts": {
+        "input.pdb": "cc17e87b5318175d538057071c29f48ca99f3b7812339ce4aedbf9349fda1ae6",
+        "prepare-controls.json": "a1481d8875203a6cff9ab5d3015f490d0f2af1117310e4840604cc94265124df",
+        "prepared.dat": "a6ca286602dee9d3eb6ea0712233430fb534f230cdd1ed5ce8537d361cf7c410",
+        "prepared.pdb": "f018f95a37662203080541494cce6ad6ca10510b9c4cbb49986ed70d6a549c97",
+        "run.log": "e961d97bb10fde05c28f3d18b2160a488456b6516e7c0a70b52d2b57957d5a0b"
+      },
+      "borrowed_input_exact": true,
+      "chain": "A",
+      "controls": {
+        "H_calls": [
+          {
+            "platform": "Reference",
+            "seed": 1,
+            "state_restored": true
+          }
+        ],
+        "fixer_instances": [
+          {
+            "platform": "Reference"
+          }
+        ],
+        "hooks_restored": true,
+        "id": "1TIM",
+        "native_coordinates_read": false,
+        "plan_sha256": "e4eb1a160ffbf081d68e6666475561d74485eaea3ac9144e9c71120119a988e9"
+      },
+      "dat_added_atoms": 1888,
+      "dat_added_heavy": 1,
+      "dat_variant_overrides": {
+        "A:100:": "HID",
+        "A:115:": "HID",
+        "A:185:": "HIE",
+        "A:195:": "HID",
+        "A:224:": "HID",
+        "A:248:": "HIE",
+        "A:26:": "HID",
+        "A:95:": "HIE"
+      },
+      "id": "1TIM",
+      "prepared_coordinate_records": 3758,
+      "projection_sha256": "cc17e87b5318175d538057071c29f48ca99f3b7812339ce4aedbf9349fda1ae6",
+      "refusal": null,
+      "returncode": 0,
+      "source_inventory": {
+        "atoms": 1870,
+        "conect_records": 0,
+        "declared_links": 0,
+        "heavy_only": true,
+        "residues": 247,
+        "scope": "shared canonical source layout, global CA/THR-beta and exact declared-link endpoint checks; not complete-complex/chemistry qualification"
+      },
+      "source_sha256": "79b35b419696a1e368aad2121ae2712e46444b5978de1e86bdc286f482222cdc",
+      "status": "prepared"
+    },
+    {
+      "artifacts": {},
+      "chain": "A",
+      "id": "1UBQ",
+      "projection_sha256": "65040ad65c3737da37511152dc972bb641210194aad9987eee6f303382818b64",
+      "refusal": "altloc/partial occupancy or noncanonical residue number",
+      "returncode": null,
+      "source_inventory": null,
+      "source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "refused_source"
+    },
+    {
+      "artifacts": {
+        "input.pdb": "e46681d1b523bfe6895472236160074c1980390c64e32ba5014e03614e1de7a7",
+        "prepare-controls.json": "82326f11fb11abad0172ad0a5db08392815ba3dff8317e8602bc999da0603438",
+        "prepared.dat": "ab0336d44fbe436fdde1a75b4370cf2555ad3e1713d3a0656f2856d667e52752",
+        "prepared.pdb": "78b30a6c3449dbc1b0835ec22fa6e012bbe0b1f46fabff4c5e549182de714be1",
+        "run.log": "dcd1e4ee5175240b16e8a7b975f1149607fba2724b960159acbea7349f017914"
+      },
+      "borrowed_input_exact": true,
+      "chain": "A",
+      "controls": {
+        "H_calls": [
+          {
+            "platform": "Reference",
+            "seed": 1,
+            "state_restored": true
+          }
+        ],
+        "fixer_instances": [
+          {
+            "platform": "Reference"
+          }
+        ],
+        "hooks_restored": true,
+        "id": "1EMV",
+        "native_coordinates_read": false,
+        "plan_sha256": "e4eb1a160ffbf081d68e6666475561d74485eaea3ac9144e9c71120119a988e9"
+      },
+      "dat_added_atoms": 618,
+      "dat_added_heavy": 1,
+      "dat_variant_overrides": {
+        "A:39:": "HID",
+        "A:46:": "HIE",
+        "A:5:": "HIE"
+      },
+      "id": "1EMV",
+      "prepared_coordinate_records": 1269,
+      "projection_sha256": "e46681d1b523bfe6895472236160074c1980390c64e32ba5014e03614e1de7a7",
+      "refusal": null,
+      "returncode": 0,
+      "source_inventory": {
+        "atoms": 651,
+        "conect_records": 0,
+        "declared_links": 0,
+        "heavy_only": true,
+        "residues": 83,
+        "scope": "shared canonical source layout, global CA/THR-beta and exact declared-link endpoint checks; not complete-complex/chemistry qualification"
+      },
+      "source_sha256": "b464fafe9c5c240e245328c3d348e545279b95573d8ad5334d00aaf65ee3f5e3",
+      "status": "prepared"
+    },
+    {
+      "artifacts": {
+        "input.pdb": "cf4dc2d0082a2bcf6bb44a8e6cdc96cbc01bf30bd382c1549020d0d3c4dec4c0",
+        "prepare-controls.json": "d8cf8b878cab214972740dce182d66f0186b89324a8d9d755a58a97fac1ec519",
+        "prepared.dat": "c0770eee559d6731edc2cf33f58368a7cb6f265fee60833f9c5acb02794ca456",
+        "prepared.pdb": "ded30f86ea58d857d4b9792a602d7478fe71baffa86f1d8400944ac1ac50279b",
+        "run.log": "15ce240f77aa06499fa350a1ae208dcbc662fb7f564668592341a72855e47102"
+      },
+      "borrowed_input_exact": true,
+      "chain": "A",
+      "controls": {
+        "H_calls": [
+          {
+            "platform": "Reference",
+            "seed": 1,
+            "state_restored": true
+          }
+        ],
+        "fixer_instances": [
+          {
+            "platform": "Reference"
+          }
+        ],
+        "hooks_restored": true,
+        "id": "1FR2",
+        "native_coordinates_read": false,
+        "plan_sha256": "e4eb1a160ffbf081d68e6666475561d74485eaea3ac9144e9c71120119a988e9"
+      },
+      "dat_added_atoms": 617,
+      "dat_added_heavy": 1,
+      "dat_variant_overrides": {
+        "A:39:": "HIE",
+        "A:46:": "HIE",
+        "A:5:": "HID"
+      },
+      "id": "1FR2",
+      "prepared_coordinate_records": 1264,
+      "projection_sha256": "cf4dc2d0082a2bcf6bb44a8e6cdc96cbc01bf30bd382c1549020d0d3c4dec4c0",
+      "refusal": null,
+      "returncode": 0,
+      "source_inventory": {
+        "atoms": 647,
+        "conect_records": 0,
+        "declared_links": 0,
+        "heavy_only": true,
+        "residues": 83,
+        "scope": "shared canonical source layout, global CA/THR-beta and exact declared-link endpoint checks; not complete-complex/chemistry qualification"
+      },
+      "source_sha256": "ba93115f20b5e16eddbef8d70f1de7c25971b3c1c505acbaec5fb3670acf889a",
+      "status": "prepared"
+    },
+    {
+      "artifacts": {},
+      "chain": "A",
+      "id": "2VLN",
+      "projection_sha256": "ccd09fa032c639ed7f6c7d50c3d7039483c306b3f19b5d2de7fcd0cd96da1565",
+      "refusal": "altloc/partial occupancy or noncanonical residue number",
+      "returncode": null,
+      "source_inventory": null,
+      "source_sha256": "e29cff8ea5bf77cba8c9e45da3b9650c41076279b07a8abfff6123ef9baa4b03",
+      "status": "refused_source"
+    },
+    {
+      "artifacts": {},
+      "chain": "A",
+      "id": "2VLQ",
+      "projection_sha256": "c984efdba31819dc2c0dc2b0d75c91116e5fd7363b9240742af75efbc4e6077e",
+      "refusal": "altloc/partial occupancy or noncanonical residue number",
+      "returncode": null,
+      "source_inventory": null,
+      "source_sha256": "a1f0bc150cf6ba48b0845d14745b057dda2977986036616ba560ffb245a48e67",
+      "status": "refused_source"
+    }
+  ],
+  "enrollment_sha256": "716060b015b1e553ef127318e573f1b60ff7cf601d3e9fd117502e16a9a896b5",
+  "execution_contract": {
+    "orchestrator_sha256": "43e33553383dc7a82e2dea37c8d776810189daddaaa212e801938d113eebacc5",
+    "per_case_seconds": 1800,
+    "policy": "one legacy prepare per admitted view, Reference PDBFixer/H seed1 through unchanged historical prepare_worker; no retries/source cleanup/replacement",
+    "python": "/Users/lilpoundcake/micromamba/envs/dvbfixer/bin/python",
+    "source_plan_sha256": "e4eb1a160ffbf081d68e6666475561d74485eaea3ac9144e9c71120119a988e9",
+    "total_seconds": 5400
+  },
+  "new_H_control_executed": false,
+  "production_changed": false,
+  "run_sha256": "b54f352cc275125886c8643dffdfb787cc0428c7031b68faaaead7c215f83954",
+  "runtime": {
+    "helper_sha256": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c",
+    "openmm": "8.5.2",
+    "pdbfixer": "1.12.0",
+    "platform": "Reference",
+    "resource_sha256": {
+      "soft.xml": "f3255082d46c050cb8163af73f11396091e8032d548183376d6e2c02664f7789",
+      "templates/A.pdb": "e8cbac499131cc31f29b93ffa2bbfea8540b525b310d5ea84ec7060dc4aed882",
+      "templates/ACE.pdb": "c80a4a5b5c355612ca0cef9550d70318ea9f2e4515edc0ebdf708ba62abf157d",
+      "templates/ALA.pdb": "5d4afe9fe13cbcd94f682a440fc2d8a1cecd2b356b68488213083a99c018891d",
+      "templates/ARG.pdb": "b563c31e5a4bdb0a8132436621c395ff5d121c12f61dc7914cd5a642b5d03f82",
+      "templates/ASN.pdb": "03e4429faf869ed1debde1935bdfd652d6d2ed0efe3a8c0937f0726bc178510d",
+      "templates/ASP.pdb": "76aa87d2ff758661c78a3b907b3c0043fa08850547ff06dda1c46a301e6e7aff",
+      "templates/C.pdb": "03b933a77d61b7aff4b1c665f8d13c95b0292015feff685d58cf89e404170a0c",
+      "templates/CYS.pdb": "37855be2763394ce872bd222a1bdf705d56f60d2389328ef86620847c1fcb5fd",
+      "templates/DA.pdb": "3dbe2e49912bde8508c7f4aba510b5f368043a48a6b35be26a04dc337ab470e2",
+      "templates/DC.pdb": "16ca41ef7b3cbd51f4013cdf8913d5d5edfd641e4e583150c3be3dd5904817da",
+      "templates/DG.pdb": "8d1d0585b952ed0a50e751a86b61c264237cce4880da72a9ed7296644136d9a7",
+      "templates/DT.pdb": "c9e80cbacc60b0994f031752e5e0521efc35f12a302517b3b668426ed148cd90",
+      "templates/G.pdb": "4c5ff7bee3a55e0d07d4953228e77c2748e5d27641fe58595d569dc54c7963fe",
+      "templates/GLN.pdb": "2a6d372fc3b6a29e3846f95c286dc68dedc5499b5c53f74efed9f79f34724820",
+      "templates/GLU.pdb": "a52934d6cb9e1fb2317ddeabb8424e0bb6c59e1246cd34e78df3f65fea78e681",
+      "templates/GLY.pdb": "00ac8db40e228a7a3950d9570751c72e3d592bad049c8d64f1393d5b33fb1c3e",
+      "templates/HIS.pdb": "9b3250e1e29a1339d8cb07943928cb498bcbececfe8a940be93f995f2369cff1",
+      "templates/ILE.pdb": "3a8f8510be1d78198ef6ba2a6e191e2c185a8a33b870081fe5ec9378711e06c7",
+      "templates/LEU.pdb": "177dcca58b59a036f71f78a04d792e08f6ba17b626c37301a1fc6fda3d5dcf54",
+      "templates/LYS.pdb": "3c62dad1cbad3eb4c5fbed1511e8e129c42ff10b618ab43dfa0aaa9f0c237a0f",
+      "templates/MET.pdb": "a698fdea05abda618ffceb6de5c09f875eb2127b8a01a9e8f0013e65c3fcb6a6",
+      "templates/NME.pdb": "f699e5baa14286e331c4c0e748848d2ba5d830889dd28c33cc3cb59c37b286b1",
+      "templates/PHE.pdb": "68e11ff2b2694189ac8247b065df40b06bd034b1750ce02e98036100ec4a6aef",
+      "templates/PRO.pdb": "aed07c4cc88aef05fa2e4e04ad9569df36c749dbcd29ca04264700f1b27f11bf",
+      "templates/SER.pdb": "8c88c15eaca0008142861d0ef8ae79b4887ba2dea9eb8ec7c828f1f017dbec39",
+      "templates/THR.pdb": "63ded1fd1fcd8a13e3e2289230083c402a5017a57e14362e244ffd6ba2e2a12f",
+      "templates/TRP.pdb": "e49ca09b1f182c750bf725929a050a573ec0987c94b8184af081797e9a9f5d28",
+      "templates/TYR.pdb": "ecd7f527671d90151aefbfa868372e5458aa0fea625f2b32d1c437cc14e30cd9",
+      "templates/U.pdb": "7ef2bcdbec3798731109f7243e959ce94f3c3946888b0a515d6dbe7823cd772b",
+      "templates/VAL.pdb": "0a035bae591b0e82bd2fea54f32d43263114adb3867ae22cbe149d2ee8080be2"
+    },
+    "source_sha256": "a52e39125e3e0e2d1b58b83841fb05b8669e0bcdd73461e1b0ed1d5a8e8261b9"
+  },
+  "schema": "dvbfixer.methyl-diversity-admission-audit.v1",
+  "scientific_qualification": false,
+  "source_plan_sha256": "e4eb1a160ffbf081d68e6666475561d74485eaea3ac9144e9c71120119a988e9",
+  "summary": {
+    "enrolled": 8,
+    "scope": "source admission and legacy preparation only; no graph-H trial or scientific qualification",
+    "statuses": {
+      "prepared": 5,
+      "refused_source": 3
+    }
+  }
+}
